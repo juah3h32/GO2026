@@ -1,0 +1,86 @@
+/* =========================================
+   FLECHAS: POSICIÓN LATERAL + COLORES ADAPTABLES
+   ========================================= */
+
+:root {
+  /* --- MODO CLARO (Light) --- */
+  /* Fondo blanco -> Botón Naranja */
+  --arrow-bg: #fb670b;
+  --arrow-icon: #ffffff;
+  
+  /* Hover en Claro -> Negro */
+  --arrow-hover-bg: #000000; 
+  --arrow-hover-icon: #ffffff;
+}
+
+html.dark {
+  /* --- MODO OSCURO (Dark) --- */
+  /* Fondo gris -> Botón Blanco (para resaltar) */
+  --arrow-bg: #ffffff;
+  --arrow-icon: #000000;
+  
+  /* Hover en Oscuro -> Naranja */
+  --arrow-hover-bg: #fb670b;
+  --arrow-hover-icon: #ffffff;
+}
+
+/* 1. CONTENEDOR DE POSICIÓN (ESTO FALTABA) */
+.arrows {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  transform: translateY(-50%); /* Centrado vertical exacto */
+  
+  display: flex;
+  justify-content: space-between; /* Manda los botones a las orillas */
+  padding: 0 30px; /* Separación de los bordes de la pantalla */
+  
+  z-index: 50; 
+  pointer-events: none; /* Deja clickear "a través" del espacio vacío */
+}
+
+/* 2. ESTILOS DEL BOTÓN (TUS COLORES) */
+.arrows button {
+  pointer-events: auto; /* IMPORTANTE: Reactiva el click en los botones */
+  
+  /* Aplicar colores */
+  background-color: var(--arrow-bg) !important;
+  color: var(--arrow-icon) !important;
+  
+  /* Tamaño y forma */
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.arrows button svg {
+  stroke: currentColor; 
+  fill: none; 
+  width: 24px;
+  height: 24px;
+}
+
+/* 3. ESTADO HOVER */
+.arrows button:hover {
+  background-color: var(--arrow-hover-bg) !important;
+  color: var(--arrow-hover-icon) !important;
+  transform: scale(1.1);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+}
+
+/* Ajuste Opcional para Móvil */
+@media screen and (max-width: 768px) {
+  .arrows {
+    padding: 0 10px; /* Más pegaditas al borde en celular */
+  }
+}

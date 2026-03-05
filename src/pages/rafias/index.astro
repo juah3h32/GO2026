@@ -1,0 +1,123 @@
+---
+import "../../styles/cuerdas.css";
+import Header from "../../components/Nadbar.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import CustomCursor from "../../components/CustomCursor.astro";
+import AudioVisualizer from "../../components/AudioVisualizer.astro";
+
+// --- IMPORTAMOS EL NUEVO COMPONENTE ---
+import BuyButton from "../../components/BuyButton.astro";
+
+/* -------------------------------------------------------------------------- */
+/* DATOS */
+/* -------------------------------------------------------------------------- */
+const products = [
+  { id: 0, name: 'T1',   img: '/images/rafias/T1.webp', active: true,  link: 'https://www.alibaba.com/product-detail/Orange-Fibrillated-Polypropylene-Raffia-Twine-UV_11000029458433.html' },
+  { id: 1, name: 'Eco',   img: '/images/rafias/Eco.webp', active: false, link: 'https://www.alibaba.com/product-detail/Natural-Fibrillated-Raffia-Twine-100-Virgin_11000029510291.html?spm=a2700.shop_index.89.6.6e643511IcPpyx' },
+  { id: 2, name: 'Rafia',    img: '/images/img3.png', active: false, link: 'https://www.alibaba.com/product-detail/Black-Fibrillated-Polypropylene-Raffia-Twine-T2_11000029474391.html' }
+];
+
+const specs = [
+  { label: "Rendimiento",     id: "spec-load",       placeholder: "",  highlight: true,  tag: "Alta" },
+  { label: "Unidad",      id: "spec-diam",       placeholder: "",  highlight: false, tag: " Pieza" },
+  { label: "Material",      id: "spec-mat",        placeholder: "",  highlight: false, tag: "100%" },
+  { label: "Peso",    id: "spec-elong",      placeholder: "",  highlight: false, tag: "Promedio" },
+  { label: "Resistencia",    id: "spec-grip",       placeholder: "",  highlight: false, tag: "Alta" },
+  { label: "Resist. Carga", id: "spec-loadresist", placeholder: "",  highlight: false, tag: "Buena" },
+];
+---
+
+<BaseLayout title="Cuerda | Grupo Ortiz">
+  
+  <script is:inline type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+  <script is:inline src="https://cdn.jsdelivr.net/npm/gsap@3.0.1/dist/gsap.min.js"></script>
+
+  <Header />
+  <CustomCursor />
+  
+  <main class="main-container bg-primary text-primary">
+    
+    <a href="/productos" class="back-arrow-btn" aria-label="Volver a productos">
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+    </a>
+
+    <div class="content">
+      
+      <div class="text-area">
+        <h1 id="product-title" class="fade-in-text"></h1>
+        <p id="product-desc" class="fade-in-text"></p>
+
+        <div class="specs-container fade-in-text">
+            <h3 class="specs-title">ESPECIFICACIONES TÉCNICAS</h3>
+          
+          <div class="specs-grid">
+            {specs.map((spec) => (
+              <div class={`spec-box ${spec.highlight ? 'highlight' : ''}`}>
+                  <span class="spec-label">{spec.label}</span>
+                  <span class="spec-value" id={spec.id}>{spec.placeholder}</span>
+                  <span class="spec-percent">{spec.tag}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <BuyButton />
+        
+      </div>
+
+      <div class="thumbnails">
+        {products.map((prod, index) => (
+          <div 
+            class={`thumb-item ${prod.active ? 'active' : ''}`} 
+            data-index={index}
+            data-link={prod.link} 
+          >
+            <div class="thumb-bg"></div>
+            <img src={prod.img} alt={`Miniatura de ${prod.name}`} />
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <div class="wheel-container">
+      <div class="wheel" id="product-wheel">
+        
+        <model-viewer 
+            id="rafia-3d"
+            src="/models/rafiaNegra.glb"
+            alt="Modelo 3D de Rafia"
+            camera-orbit="0deg 90deg 180%" 
+            min-camera-orbit="auto auto 300%"
+            camera-controls 
+            auto-rotate 
+            interaction-prompt="auto"
+            style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; pointer-events: auto; cursor: grab;"
+        ></model-viewer>
+
+        {products.map((prod, index) => (
+          <div class={`wheel-item item-${index}`}>
+            <img src={prod.img} alt={`Producto ${prod.name}`} />
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <div class="tech-hud">
+      <div class="hud-status">
+        <span class="blink-dot"></span>
+        <span class="hud-text">INTERACTIVE 3D</span>
+      </div>
+      <div class="hud-instruction">
+        [ ROTAR CON RATÓN ]
+      </div>
+    </div>
+
+    <AudioVisualizer />
+  </main>
+
+  <script src="/scripts/rafias.js" defer></script>
+
+</BaseLayout>

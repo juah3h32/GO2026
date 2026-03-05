@@ -1,0 +1,387 @@
+---
+// src/pages/[lang]/cuerdas.astro
+
+import "../../styles/cuerdas.css"; 
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import BuyButton from "../../components/BuyButton.astro";
+import { languages, translations } from "../../i18n";
+
+export function getStaticPaths() {
+  return Object.keys(languages).map((lang) => ({
+    params: { lang },
+  }));
+}
+
+const { lang } = Astro.params;
+const currentLang = (lang && lang in translations) ? lang : 'es';
+const t = translations[currentLang as keyof typeof translations] as any;
+const pageData = t.cuerdas;
+const productsList = pageData.products; 
+const firstProduct = productsList[0];
+const specsLabels = pageData.specs_labels;
+
+const specs = [
+  { label: specsLabels.load,   id: "spec-load",   tag: firstProduct.specs_values.load },
+  { label: specsLabels.mat,    id: "spec-mat",    tag: firstProduct.specs_values.mat },
+  { label: specsLabels.weight, id: "spec-weight", tag: firstProduct.specs_values.weight },
+  { label: specsLabels.resist, id: "spec-resist", tag: firstProduct.specs_values.resist },
+  { label: specsLabels.charge, id: "spec-charge", tag: firstProduct.specs_values.charge },
+];
+---
+
+<BaseLayout 
+    title={pageData.meta_title} 
+    currentLang={currentLang} 
+    moveLogoMobile={true}
+>
+  
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.0.1/dist/gsap.min.js" defer></script>
+
+  <div id="wipe-transition" class="wipe-container"></div>
+
+  <div class="video-bg-wrapper">
+    {productsList.map((prod: any, index: number) => (
+      <video
+        class={`video-bg ${index === 0 ? 'visible' : ''}`}
+        data-video-index={index}
+        src={prod.video || ''}
+        autoplay muted playsinline preload="auto"
+      />
+    ))}
+    <div class="video-overlay"></div>
+  </div>
+
+  <main class="main-container" data-products={JSON.stringify(productsList)}>
+
+    <div class="content">
+      <a href={`/${currentLang}/productos`} class="back-arrow-btn2" id="btn-regresar" aria-label={pageData.back_aria}>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12" />
+          <polyline points="12 19 5 12 12 5" />
+        </svg>
+      </a>
+    
+      <div class="text-area" style="max-width: 550px; align-items: flex-start;">
+        <h1 id="product-title" class="fade-in-text anim-text" style="text-align: left; width: 100%;">
+          {firstProduct.name}
+        </h1>
+        <p id="product-desc" class="fade-in-text anim-text" style="text-align: left; width: 100%; line-height: 1.5;">
+          {firstProduct.description}
+        </p>
+
+        <div class="specs-container fade-in-text anim-text" style="text-align: left; width: 100%;">
+          <h3 class="specs-title">{pageData.specs_title}</h3>
+          <div class="specs-grid">
+            {specs.map((spec) => (
+              <div class="spec-box">
+                <span class="spec-label">{spec.label}</span>
+                <span class="spec-value" id={spec.id}>{spec.tag}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div class="fade-in-text w-full flex justify-center lg:justify-start">
+          <BuyButton text={t.common.buy || 'Comprar'} redirecting={t.common.redirecting || 'Redirigiendo...'} />
+        </div>
+      </div>
+
+      <!-- ✅ MINIATURAS: data-index en cada item para el JS -->
+      <div class="thumbnails fade-in-text" id="thumbnails-container">
+        {productsList.map((prod: any, index: number) => (
+          <div 
+            class={`thumb-item ${index === 0 ? 'active' : ''}`} 
+            data-index={String(index)}
+            role="button"
+            tabindex="0"
+            aria-label={prod.name}
+          >
+            <img src={prod.img} alt={prod.name} loading="lazy" decoding="async" width="60" height="60"/>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <div class="wheel-container">
+      <div class="wheel" id="product-wheel" style="position: relative;">
+
+        <div class="product-image-overlay" id="product-image-overlay">
+          <img 
+            id="product-hero-img"
+            class="product-hero-img"
+            src={firstProduct.img}
+            alt={firstProduct.name}
+          />
+        </div>
+
+        <div class="product-gallery" id="product-gallery">
+          {productsList.map((prod: any, index: number) => (
+            <div class={`gallery-strip ${index === 0 ? 'active' : ''}`} data-gallery-index={index}>
+              {(prod.gallery || [prod.img, prod.img, prod.img]).map((imgSrc: string, imgIdx: number) => (
+                <div class="gallery-photo" data-img-index={imgIdx + 1}>
+                  <img 
+                    src={imgSrc} 
+                    alt={`${prod.name} vista ${imgIdx + 1}`} 
+                    loading="lazy" 
+                    decoding="async" 
+                  />
+                  <div class="gallery-photo-glow"></div>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <script is:inline>
+  // ═══════════════════════════════════════════════════════════════
+  // LÓGICA PRINCIPAL — cuerdas.astro
+  // FIX MÓVIL: touchend en miniaturas para cambiar producto
+  // ═══════════════════════════════════════════════════════════════
+  function initCuerdasLogic() {
+    const container = document.querySelector('.main-container');
+    if (!container) return;
+
+    const products = JSON.parse(container.dataset.products || '[]');
+    
+    const titleEl = document.getElementById('product-title');
+    const descEl  = document.getElementById('product-desc');
+    const heroImg = document.getElementById('product-hero-img');
+
+    const specIds = {
+      load:   document.getElementById('spec-load'),
+      unit:   document.getElementById('spec-unit'),
+      mat:    document.getElementById('spec-mat'),
+      weight: document.getElementById('spec-weight'),
+      resist: document.getElementById('spec-resist'),
+      charge: document.getElementById('spec-charge'),
+    };
+
+    // ── Actualizar textos con animación ──────────────────────────
+    function updateContent(idx) {
+      const product = products[idx];
+      if (!product) return;
+      const anims = document.querySelectorAll('.anim-text');
+      const applyText = () => {
+        if (titleEl) titleEl.textContent = product.name;
+        if (descEl)  descEl.textContent  = product.description;
+        if (product.specs_values) {
+          if (specIds.load)   specIds.load.textContent   = product.specs_values.load   || '';
+          if (specIds.unit)   specIds.unit.textContent   = product.specs_values.unit   || '';
+          if (specIds.mat)    specIds.mat.textContent    = product.specs_values.mat    || '';
+          if (specIds.weight) specIds.weight.textContent = product.specs_values.weight || '';
+          if (specIds.resist) specIds.resist.textContent = product.specs_values.resist || '';
+          if (specIds.charge) specIds.charge.textContent = product.specs_values.charge || '';
+        }
+      };
+      if (typeof gsap !== 'undefined') {
+        gsap.killTweensOf(anims);
+        gsap.to(anims, { opacity: 0, y: 10, duration: 0.2, onComplete: () => {
+          applyText();
+          gsap.to(anims, { opacity: 1, y: 0, duration: 0.3 });
+        }});
+      } else {
+        applyText();
+      }
+    }
+
+    // ── Actualizar video ─────────────────────────────────────────
+ function updateVideo(idx) {
+  document.querySelectorAll('.video-bg').forEach((vid, i) => {
+    if (i === idx) {
+      vid.classList.add('visible');
+      vid.currentTime = 0;          // ← reinicia al seleccionar
+      vid.play().catch(() => {});
+
+      // Congelar en el último fotograma al terminar
+      vid.onended = () => {
+        vid.pause();
+        // currentTime ligeramente antes del final para evitar pantalla negra en algunos navegadores
+        vid.currentTime = vid.duration - 0.001;
+      };
+    } else {
+      vid.classList.remove('visible');
+      vid.pause();
+      vid.onended = null;           // ← limpiar listener en videos inactivos
+    }
+  });
+}
+
+    // ── Actualizar galería ───────────────────────────────────────
+    function updateGallery(idx) {
+      document.querySelectorAll('.gallery-strip').forEach((strip, i) => {
+        strip.classList.toggle('active', i === idx);
+      });
+    }
+
+    // ── Función central: cambiar producto ────────────────────────
+    function selectProduct(idx) {
+      const thumbs = document.querySelectorAll('.thumb-item');
+      // Evitar re-seleccionar el mismo
+      if (thumbs[idx] && thumbs[idx].classList.contains('active')) return;
+
+      // Actualizar estado activo
+      thumbs.forEach(t => t.classList.remove('active'));
+      if (thumbs[idx]) thumbs[idx].classList.add('active');
+
+      // Actualizar imagen principal
+      if (heroImg && products[idx] && products[idx].img) {
+        heroImg.src = products[idx].img;
+        heroImg.alt = products[idx].name || '';
+      }
+
+      updateContent(idx);
+      updateVideo(idx);
+      updateGallery(idx);
+    }
+
+    // ════════════════════════════════════════════════════════════
+    // ✅ LISTENERS MINIATURAS — FIX CRÍTICO PARA MÓVIL
+    //
+    // PROBLEMA ORIGINAL: Solo había listener de 'click'.
+    // En móvil, el navegador espera 300ms antes de disparar click
+    // y cualquier touchstart/touchmove en un padre puede cancelarlo.
+    //
+    // SOLUCIÓN: Escuchar 'touchend' directamente en el thumb con
+    // stopPropagation + preventDefault para cortar la cadena.
+    // ════════════════════════════════════════════════════════════
+    const thumbs = document.querySelectorAll('.thumb-item');
+
+    thumbs.forEach((thumb) => {
+      const idx = parseInt(thumb.dataset.index, 10);
+      if (isNaN(idx)) return;
+
+      // ── touchstart: solo cortar propagación, NO prevenir default
+      //    (si prevenimos aquí, el scroll de la página se rompe)
+      thumb.addEventListener('touchstart', function(e) {
+        e.stopPropagation();  // evita que padres reciban el evento
+      }, { passive: true });  // passive:true = no bloqueamos scroll
+
+      // ── touchend: aquí SÍ cambiamos el producto
+      //    passive:false es obligatorio para poder llamar preventDefault
+      thumb.addEventListener('touchend', function(e) {
+        e.stopPropagation();  // evita propagación a padres
+        e.preventDefault();   // cancela el click fantasma de 300ms
+        selectProduct(idx);
+      }, { passive: false }); // ← CRÍTICO: false para poder preventDefault
+
+      // ── click: fallback para desktop (y teclado con Enter)
+      thumb.addEventListener('click', function(e) {
+        e.stopPropagation();
+        selectProduct(idx);
+      });
+
+      // ── keydown: accesibilidad (Enter / Space)
+      thumb.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          selectProduct(idx);
+        }
+      });
+    });
+
+    // ── Drag para expandir tarjeta en móvil ─────────────────────
+    const textArea = document.querySelector('.text-area');
+    if (textArea && window.innerWidth <= 1024) {
+      let startY    = 0;
+      let isDragging = false;
+
+      textArea.addEventListener('touchstart', function(e) {
+        // ✅ NO interferir con las miniaturas
+        if (e.target.closest('.thumb-item') || e.target.closest('#thumbnails-container')) return;
+
+        const touch = e.touches[0];
+        const rect  = textArea.getBoundingClientRect();
+        // Solo activar drag en la zona del handle (primeros 60px)
+        if (touch.clientY - rect.top > 60) return;
+
+        startY     = touch.clientY;
+        isDragging = true;
+      }, { passive: true });
+
+      textArea.addEventListener('touchend', function(e) {
+        // ✅ NO interferir con las miniaturas
+        if (e.target.closest('.thumb-item') || e.target.closest('#thumbnails-container')) return;
+        if (!isDragging || !startY) return;
+
+        const endY = e.changedTouches[0].clientY;
+        const diff = startY - endY;
+
+        if (diff > 40)       textArea.classList.add('expanded');
+        else if (diff < -40) textArea.classList.remove('expanded');
+
+        startY     = 0;
+        isDragging = false;
+      }, { passive: true });
+    }
+
+    // ── Fotos de la galería ──────────────────────────────────────
+    document.querySelectorAll('.gallery-photo').forEach((photo) => {
+      const activate = () => {
+        const clickedImg = photo.querySelector('img');
+        if (heroImg && clickedImg) heroImg.src = clickedImg.src;
+      };
+
+      photo.addEventListener('touchend', function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        activate();
+      }, { passive: false });
+
+      photo.addEventListener('click', function(e) {
+        e.stopPropagation();
+        activate();
+      });
+    });
+  }
+
+  // Iniciar en todos los ciclos de vida de Astro
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCuerdasLogic);
+  } else {
+    initCuerdasLogic();
+  }
+  document.addEventListener("astro:page-load",  initCuerdasLogic);
+  document.addEventListener("astro:after-swap", initCuerdasLogic);
+  </script>
+
+  <script is:inline>
+  // ═══════════════════════════════════════════════════════════════
+  // TRANSICIÓN WIPE
+  // ═══════════════════════════════════════════════════════════════
+  function initTransition() {
+    const wipe = document.getElementById("wipe-transition");
+    const btn  = document.getElementById("btn-regresar");
+    if (!wipe || !btn) return;
+    
+    wipe.classList.remove("active");
+    
+    // Clonar para limpiar listeners anteriores
+    const newBtn = btn.cloneNode(true);
+    btn.parentNode.replaceChild(newBtn, btn);
+
+    newBtn.addEventListener("click", (e) => {
+      e.preventDefault(); 
+      const url = newBtn.getAttribute("href");
+      const isDark = document.documentElement.classList.contains('dark') || 
+                     document.body.classList.contains('dark');
+      wipe.style.setProperty('--reveal-bg', isDark ? "#262626" : "#ffffff");
+      wipe.classList.add("active"); 
+      setTimeout(() => { window.location.href = url; }, 600); 
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTransition);
+  } else {
+    initTransition();
+  }
+  document.addEventListener("astro:page-load",  initTransition);
+  document.addEventListener("astro:after-swap", initTransition);
+  </script>
+
+</BaseLayout>

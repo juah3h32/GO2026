@@ -1,0 +1,278 @@
+---
+// src/layouts/BaseLayout.astro
+
+// -----------------------------
+// 1. IMPORTS Y CONFIGURACIÓN
+// -----------------------------
+import { pwaInfo } from "virtual:pwa-info";
+
+// Componentes UI Estructurales
+import Loader from "../components/Loader.astro";
+import Navbar from "../components/Nadbar.astro";
+import FondoGlobal from "../components/FondoGlobal.astro";
+import Cursor from "../components/CustomCursor.astro";
+
+// Componentes UI Flotantes / Interactivos
+import DockMenu from "../components/DockMenu.astro";
+import BotGO from "../components/BotGO.jsx";
+
+// ⚡ AdminPanel ya NO se importa aquí — se carga lazy vía script
+
+// Props
+const {
+  title = "Mi sitio",
+  currentLang = "es",
+  moveLogoMobile = false,
+  pwaIcon = "/pwa-192x192.png",
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang={currentLang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#ffffff" />
+
+    <title>{title}</title>
+
+    <!-- Preconnect para acelerar recursos externos -->
+   <!-- ⚡ PRELOAD fuentes críticas — descargadas antes de parsear el CSS -->
+<link rel="preload" href="/fonts/MorganitePro-ExtraBold.ttf" as="font" type="font/ttf" crossorigin />
+<link rel="preload" href="/fonts/NeueMontreal-Medium.otf" as="font" type="font/otf" crossorigin />
+
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" type="image/png" href="/images/logo/logob.png" />
+    <link rel="apple-touch-icon" href={pwaIcon} />
+
+    {pwaInfo && <Fragment set:html={pwaInfo.webManifest.linkTag} />}
+
+    <!-- ⚡ CRÍTICO: tema aplicado lo antes posible, sin bloquear render -->
+    <script is:inline>
+      (function () {
+        try {
+          const t = localStorage.getItem("theme");
+          if (t === "dark") document.documentElement.classList.add("dark");
+        } catch (e) {}
+      })();
+    </script>
+
+    <style is:global>
+      /* =============================================
+         IMPORTACIÓN DE ESTILOS SEPARADOS
+         ============================================= */
+      @import "../styles/typography.css";
+      @import "../styles/backgrounds.css";
+
+      /* =============================================
+         UTILIDADES Y COMPONENTES ESPECÍFICOS
+         ============================================= */
+
+      .home-curtain {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 99999;
+        pointer-events: none;
+        background: var(--slide-gradient);
+        clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
+      }
+
+      .home-curtain.active {
+        pointer-events: all;
+        animation: 2.2s cubic-bezier(0.25, 1, 0.3, 1) wipe-in-top-down both;
+      }
+
+      @keyframes wipe-in-top-down {
+        from { clip-path: polygon(0 0, 100% 0, 100% 0, 0 0); }
+        to   { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
+      }
+
+      #dock-menu-wrapper {
+        display: block;
+      }
+      @media all and (display-mode: standalone) {
+        #dock-menu-wrapper {
+          display: block !important;
+        }
+      }
+
+      /* =============================================
+         FIX CURSOR — El admin-panel-root no bloquea
+         el cursor personalizado cuando está cerrado.
+         ============================================= */
+      #admin-panel-root {
+        pointer-events: none;
+      }
+      #admin-panel-root > * {
+        pointer-events: auto;
+      }
+
+      /* =============================================
+         FIX SELECCIÓN / TAP HIGHLIGHT
+         ============================================= */
+      * {
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      a,
+      button,
+      [role="button"],
+      label,
+      input[type="button"],
+      input[type="submit"],
+      input[type="reset"],
+      select,
+      summary {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
+        outline: none;
+      }
+
+      section,
+      article,
+      .card,
+      .btn,
+      [class*="container"],
+      [class*="wrapper"],
+      [class*="section"],
+      [class*="block"],
+      [class*="tile"],
+      [class*="item"],
+      [class*="box"],
+      nav,
+      header,
+      footer,
+      aside {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
+      }
+
+      p,
+      span,
+      h1, h2, h3, h4, h5, h6,
+      input[type="text"],
+      input[type="email"],
+      input[type="password"],
+      input[type="search"],
+      input[type="number"],
+      textarea {
+        -webkit-user-select: text;
+        -moz-user-select: text;
+        user-select: text;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="home-transition-curtain" class="home-curtain"></div>
+    <FondoGlobal />
+
+    <!-- Cursor siempre encima de todo -->
+    <Cursor />
+
+    <Loader />
+    <Navbar currentLang={currentLang} moveLogoMobile={moveLogoMobile} />
+
+    <div
+      id="global-audio-player"
+      transition:persist
+      style="position: fixed; bottom: 30px; right: 96px; z-index: 9999;"
+    >
+    </div>
+
+    <slot />
+
+    <div id="dock-menu-wrapper">
+      <DockMenu />
+    </div>
+
+    <!--
+      ⚡ BotGO: client:idle en lugar de client:load
+      → hidrata cuando el hilo principal está libre,
+        no bloquea el First Contentful Paint
+    -->
+    <BotGO client:idle language={currentLang} />
+
+    <!--
+      ⚡ AdminPanel — carga LAZY, solo al pulsar Ctrl+9
+      El componente React NO se incluye en el bundle inicial.
+      El div wrapper tiene pointer-events:none para no
+      interferir con el cursor cuando el panel está cerrado.
+    -->
+    <div id="admin-panel-root"></div>
+
+    <script src="/scripts/theme-toggle.js" defer></script>
+
+    <!-- ⚡ PWA Service Worker — defer para no bloquear -->
+    <script>
+      import { registerSW } from "virtual:pwa-register";
+      registerSW({ immediate: false }); // immediate:false → no bloquea el hilo principal
+    </script>
+
+    <!-- ⚡ Loader oculto con requestAnimationFrame → no bloquea el paint -->
+    <script is:inline>
+      window.addEventListener("load", () => {
+        requestAnimationFrame(() => {
+          const loader = document.getElementById("loader-wrapper");
+          if (loader) {
+            loader.style.transition = "opacity 0.5s ease";
+            loader.style.opacity = "0";
+            setTimeout(() => { loader.style.display = "none"; }, 500);
+          }
+        });
+      });
+    </script>
+
+    <!--
+      ⚡ AdminPanel — lazy import solo cuando el usuario pulsa Ctrl+9
+      React + el componente se descargan únicamente en ese momento,
+      ahorrando ~150-400 KB del bundle inicial.
+    -->
+    <script>
+      let adminMounted = false;
+
+      document.addEventListener("keydown", async (e) => {
+        // Activar con Ctrl+9
+        if (e.ctrlKey && e.key === "9") {
+          e.preventDefault();
+
+          const root = document.getElementById("admin-panel-root");
+          if (!root) return;
+
+          if (!adminMounted) {
+            adminMounted = true;
+
+            try {
+              // Importa React y el componente solo en este momento
+              const [{ default: React }, { createRoot }, { default: AdminPanel }] =
+                await Promise.all([
+                  import("react"),
+                  import("react-dom/client"),
+                  import("../components/AdminPanel.jsx"),
+                ]);
+
+              // Activa pointer-events ahora que el panel existe
+              root.style.pointerEvents = "none"; // el wrapper sigue sin capturar
+
+              const reactRoot = createRoot(root);
+              reactRoot.render(
+                React.createElement(AdminPanel, { defaultOpen: true })
+              );
+            } catch (err) {
+              console.error("[AdminPanel] Error al cargar:", err);
+              adminMounted = false; // permite reintentar
+            }
+          }
+        }
+      });
+    </script>
+  </body>
+</html>

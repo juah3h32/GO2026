@@ -1,0 +1,861 @@
+---
+import "../../styles/impactosocial.css";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Footer from "../../components/Footer.astro";
+import { languages, translations } from "../../i18n";
+
+export function getStaticPaths() {
+  return Object.keys(languages).map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params;
+const currentLang = (lang && lang in translations) ? lang : "es";
+const t  = translations[currentLang as keyof typeof translations];
+const ti = t.impacto_social as typeof translations['es']['impacto_social'];
+---
+
+<BaseLayout title={ti.page_title} currentLang={currentLang}>
+  <div class="impacto-social-tesla">
+
+    <!-- HERO -->
+<!-- HERO -->
+<!-- HERO — estructura idéntica al hero--static del index -->
+    <section class="hero-tesla">
+      <div class="hero-tesla-bg">
+        <video autoplay muted loop playsinline class="hero-tesla-video">
+          <source src="/videos/waves2.mp4" type="video/mp4">
+        </video>
+        <div class="hero-tesla-overlay"></div>
+      </div>
+
+      <div class="hero-tesla-content">
+        <!-- Eyebrow: línea | IMPACTO SOCIAL | línea -->
+        <div class="hero-tesla-label">{ti.hero.eyebrow}</div>
+
+        <!-- Título dos líneas -->
+        <h1 class="hero-tesla-title">
+          <span class="hero-tesla-title-top">{ti.hero.title_top}</span>
+          <span class="hero-tesla-title-bottom">{ti.hero.title_bottom}</span>
+        </h1>
+
+        <p class="hero-tesla-subtitle">{ti.hero.subtitle}</p>
+      </div>
+
+      <div class="hero-scroll-indicator">
+        <div class="scroll-mouse"><div class="scroll-wheel"></div></div>
+      </div>
+    </section>
+
+    <!-- ODS -->
+    <section class="ods-section" id="odsCarousel">
+      <div class="container-tesla">
+        <div class="ods-grid-container">
+          <div class="ods-left-info">
+            <div class="section-header" style="text-align:left;margin-bottom:30px;">
+              <h2 class="section-title" style="color:white;">{ti.ods.title}</h2>
+              <p class="section-subtitle" style="margin:0;color:#a3a3a3;">{ti.ods.subtitle}</p>
+            </div>
+            <div class="ods-logo-fixed">
+              <img src="/images/logo/sostenible.png" alt="Objetivos de Desarrollo Sostenible" style="filter:brightness(0) invert(1);">
+            </div>
+            <p class="ods-description">{ti.ods.description}</p>
+          </div>
+
+          <div class="ods-right-carousel">
+            <div class="ods-carousel-wrapper faded-start">
+              <div class="ods-carousel-track" id="odsTrack">
+                {(() => {
+                  /* ── Usamos los datos del i18n (imagen + link vienen del es.js) ── */
+                  const ods = ti.ods.cards;
+                  return [...ods, ...ods].map((card, idx) => (
+                    <div
+                      class={`ods-card ods-img-card ods-${card.n}${[6,7,9,12,13].includes(card.n) ? ' ods-priority' : ''}`}
+                      data-ods-n={card.n}
+                      data-link={card.link}
+                      aria-hidden={idx >= 17 ? "true" : "false"}
+                      title={`clic → ${card.title}`}
+                      style="cursor:pointer;"
+                    >
+                      <div class="ods-img-wrap">
+                        <img src={card.img} alt={`ODS ${card.n} – ${card.title}`} loading="lazy" />
+                      </div>
+                      <div class="ods-img-info">
+                        <span class="ods-img-num">{card.n}</span>
+                        <span class="ods-img-title">{card.title}</span>
+                      </div>
+                    </div>
+                  ));
+                })()}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VISIÓN -->
+    <section class="vision-section" id="visionCarousel">
+      <div class="container-tesla">
+        <div class="section-header">
+          <h2 class="section-title">
+            <span class="title-line-normal">{ti.vision.title}</span>
+            <span class="title-line-orange">{ti.vision.title_orange}</span>
+          </h2>
+          <p class="section-subtitle">{ti.vision.subtitle}</p>
+        </div>
+      </div>
+
+      <div class="vision-carousel-outer">
+        <div class="vision-carousel-track" id="visionTrack">
+
+          <!-- CARD 0 — EARTH PRODUCTS -->
+          <div class="vision-card" data-index="0">
+            <div class="vision-card-img">
+              <img src="/images/impacto/products.webp" alt="Oben Earth Products" loading="lazy">
+              <div class="vision-overlay"></div>
+            </div>
+            <div class="vision-card-content">
+              <div class="vision-ods-row">
+                <div class="vision-ods-badge ods-badge-anim" data-delay="0" data-ods-num="9">
+                  <img src="/images/odc/9.png" alt="ODS 9" class="vision-ods-img"/>
+                  <span class="vision-ods-label">9</span>
+                </div>
+                <div class="vision-ods-badge ods-badge-anim" data-delay="150" data-ods-num="12">
+                  <img src="/images/odc/12.png" alt="ODS 12" class="vision-ods-img"/>
+                  <span class="vision-ods-label">12</span>
+                </div>
+              </div>
+              <div class="vision-card-bottom">
+                <span class="vision-card-label">{ti.vision.pilars[0].label}</span>
+                <h3 class="vision-card-title">{ti.vision.pilars[0].title}</h3>
+                <div class="vision-card-divider"></div>
+                <p class="vision-card-description">{ti.vision.pilars[0].desc}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- CARD 1 — EARTH PRACTICES -->
+          <div class="vision-card" data-index="1">
+            <div class="vision-card-img">
+              <img src="/images/impacto/practices.webp" alt="Oben Earth Practices" loading="lazy">
+              <div class="vision-overlay"></div>
+            </div>
+            <div class="vision-card-content">
+              <div class="vision-ods-row">
+                <div class="vision-ods-badge ods-badge-anim" data-delay="0" data-ods-num="6">
+                  <img src="/images/odc/6.png" alt="ODS 6" class="vision-ods-img"/>
+                  <span class="vision-ods-label">6</span>
+                </div>
+                <div class="vision-ods-badge ods-badge-anim" data-delay="150" data-ods-num="7">
+                  <img src="/images/odc/7.png" alt="ODS 7" class="vision-ods-img"/>
+                  <span class="vision-ods-label">7</span>
+                </div>
+                <div class="vision-ods-badge ods-badge-anim" data-delay="300" data-ods-num="13">
+                  <img src="/images/odc/13.png" alt="ODS 13" class="vision-ods-img"/>
+                  <span class="vision-ods-label">13</span>
+                </div>
+              </div>
+              <div class="vision-card-bottom">
+                <span class="vision-card-label">{ti.vision.pilars[1].label}</span>
+                <h3 class="vision-card-title">{ti.vision.pilars[1].title}</h3>
+                <div class="vision-card-divider"></div>
+                <p class="vision-card-description">{ti.vision.pilars[1].desc}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- CARD 2 — EARTH SOCIAL -->
+          <div class="vision-card" data-index="2">
+            <div class="vision-card-img">
+              <img src="/images/impacto/social.webp" alt="Oben Earth Social" loading="lazy">
+              <div class="vision-overlay"></div>
+            </div>
+            <div class="vision-card-content">
+              <div class="vision-ods-row">
+                <div class="vision-ods-badge ods-badge-anim" data-delay="0" data-ods-num="1">
+                  <img src="/images/odc/1.png" alt="ODS 1" class="vision-ods-img"/>
+                  <span class="vision-ods-label">1</span>
+                </div>
+                <div class="vision-ods-badge ods-badge-anim" data-delay="150" data-ods-num="4">
+                  <img src="/images/odc/4.png" alt="ODS 4" class="vision-ods-img"/>
+                  <span class="vision-ods-label">4</span>
+                </div>
+                <div class="vision-ods-badge ods-badge-anim" data-delay="300" data-ods-num="5">
+                  <img src="/images/odc/5.png" alt="ODS 5" class="vision-ods-img"/>
+                  <span class="vision-ods-label">5</span>
+                </div>
+              </div>
+              <div class="vision-card-bottom">
+                <span class="vision-card-label">{ti.vision.pilars[2].label}</span>
+                <h3 class="vision-card-title">{ti.vision.pilars[2].title}</h3>
+                <div class="vision-card-divider"></div>
+                <p class="vision-card-description">{ti.vision.pilars[2].desc}</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="vision-controls-wrapper">
+        <div class="vision-dots" id="visionDots">
+          <button class="vision-dot active" data-index="0" aria-label="Pilar 1"></button>
+          <button class="vision-dot" data-index="1" aria-label="Pilar 2"></button>
+          <button class="vision-dot" data-index="2" aria-label="Pilar 3"></button>
+        </div>
+        <div class="vision-nav desktop-only">
+          <button class="vision-nav-btn" id="visionPrev"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
+          <button class="vision-nav-btn" id="visionNext"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- OCÉANOS -->
+    <section class="oceanos-section">
+      <div class="oceanos-hero">
+        <video autoplay muted loop playsinline class="oceanos-bg-video">
+          <source src="/videos/waves.mp4" type="video/mp4">
+        </video>
+        <div class="oceanos-hero-overlay"></div>
+        <div class="oceanos-hero-content">
+          <h2 class="oceanos-hero-title">
+            {ti.oceanos.hero_title}
+            <span class="oceanos-title-highlight">{ti.oceanos.hero_title_highlight}</span>
+          </h2>
+        </div>
+      </div>
+
+      <div class="oceanos-body">
+        <div class="container-tesla">
+          <div class="oceanos-intro-grid">
+            <p class="oceanos-intro-text">{ti.oceanos.intro}</p>
+
+            <div class="oceanos-features">
+              <!-- Feature 0 — ola -->
+              <div class="oceanos-feature">
+                <div class="oceanos-feature-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M17 16.99c-1.35 0-2.2-.42-3.05-.83-.8-.38-1.56-.75-2.95-.75s-2.15.37-2.95.75c-.85.41-1.7.83-3.05.83-1.35 0-2.2-.42-3.05-.83L1 17.66C1.8 18.04 2.95 18.5 4.5 18.5c1.35 0 2.2-.42 3.05-.83.8-.38 1.56-.75 2.95-.75s2.15.37 2.95.75c.85.41 1.7.83 3.05.83s2.2-.42 3.05-.83c.8-.38 1.56-.75 2.95-.75v-1.41c-1.39 0-2.15.37-2.95.75-.35.16-.7.31-1.05.43zm-5-9.51c1.08.8 2.5 1.52 4.5 1.52.74 0 1.4-.1 2-.28V7.36c-.6.18-1.26.29-2 .29-1.5 0-2.59-.48-3.5-1.28C12.08 5.57 10.67 5 9 5 6.48 5 4.53 6.37 3.22 7.78L4.5 9.5c.92-1.15 2.38-2.5 4.5-2.5 1.06 0 2 .4 3 1.48z"/>
+                  </svg>
+                </div>
+                <h4 class="oceanos-feature-title">{ti.oceanos.features[0].title}</h4>
+                <p class="oceanos-feature-desc">{ti.oceanos.features[0].desc}</p>
+              </div>
+
+              <!-- Feature 1 — bombilla -->
+              <div class="oceanos-feature">
+                <div class="oceanos-feature-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/>
+                  </svg>
+                </div>
+                <h4 class="oceanos-feature-title">{ti.oceanos.features[1].title}</h4>
+                <p class="oceanos-feature-desc">{ti.oceanos.features[1].desc}</p>
+              </div>
+
+              <!-- Feature 2 — hoja -->
+              <div class="oceanos-feature">
+                <div class="oceanos-feature-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22l1-2.3A4.49 4.49 0 0 0 8 20C19 20 22 3 22 3c-1 2-8 2-8 2z"/>
+                  </svg>
+                </div>
+                <h4 class="oceanos-feature-title">{ti.oceanos.features[2].title}</h4>
+                <p class="oceanos-feature-desc">{ti.oceanos.features[2].desc}</p>
+              </div>
+
+              <!-- Feature 3 — personas -->
+              <div class="oceanos-feature">
+                <div class="oceanos-feature-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                  </svg>
+                </div>
+                <h4 class="oceanos-feature-title">{ti.oceanos.features[3].title}</h4>
+                <p class="oceanos-feature-desc">{ti.oceanos.features[3].desc}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="oceanos-partners">
+
+          <!-- Partner 0 — Tom Ford (video: oceancleanup.mp4) -->
+          <div class="oceanos-partner-card">
+            <div class="oceanos-partner-logo">
+              <video autoplay muted loop playsinline>
+                <source src="/videos/impacto/oceancleanup.mp4" type="video/mp4">
+                <img src="/images/impacto/cultura-calidad.jpg" alt={ti.oceanos.partners[0].title}>
+              </video>
+            </div>
+            <div class="oceanos-partner-info">
+              <h3 class="oceanos-partner-title">{ti.oceanos.partners[0].title}</h3>
+              <p class="oceanos-partner-desc">{ti.oceanos.partners[0].desc}</p>
+              <a href={ti.oceanos.partners[0].link} target="_blank" rel="noopener" class="oceanos-partner-btn">
+                {ti.oceanos.partners[0].btn}
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <line x1="5" y1="12" x2="19" y2="12"/>
+                  <polyline points="12 5 19 12 12 19"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+
+          <!-- Partner 1 — Ocean Cleanup (video: tomford.mp4) -->
+          <div class="oceanos-partner-card">
+            <div class="oceanos-partner-logo">
+              <video autoplay muted loop playsinline>
+                <source src="/videos/impacto/tomford.mp4" type="video/mp4">
+                <img src="/images/impacto/tomford.webp" alt={ti.oceanos.partners[1].title}>
+              </video>
+            </div>
+            <div class="oceanos-partner-info">
+              <h3 class="oceanos-partner-title">{ti.oceanos.partners[1].title}</h3>
+              <p class="oceanos-partner-desc">{ti.oceanos.partners[1].desc}</p>
+              <a href={ti.oceanos.partners[1].link} target="_blank" rel="noopener" class="oceanos-partner-btn">
+                {ti.oceanos.partners[1].btn}
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <line x1="5" y1="12" x2="19" y2="12"/>
+                  <polyline points="12 5 19 12 12 19"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- TIMELINE -->
+    <section class="timeline-section">
+      <div class="container-tesla">
+        <div class="section-header">
+          <h2 class="section-title">{ti.timeline.title}</h2>
+          <p class="section-subtitle">{ti.timeline.subtitle}</p>
+        </div>
+      </div>
+
+      <div class="container-tesla timeline-desktop">
+        <div class="timeline-container">
+          {ti.timeline.items.map((item, i) => (
+            <div class="timeline-item" data-aos={i % 2 === 0 ? "fade-right" : "fade-left"}>
+              <div class="timeline-content">
+                <span class="timeline-number">{item.num}</span>
+                <h3 class="timeline-title">{item.title}</h3>
+                <p class="timeline-description">{item.desc}</p>
+              </div>
+              <div class="timeline-image">
+                {i === 0 ? (
+                  <video src="/images/impacto/hogar.mp4" autoplay muted loop playsinline poster="/images/impacto/hogar.webp" />
+                ) : (
+                  <img src={`/images/impacto/${["despensas","composta","GO","woman","bio"][i - 1]}.webp`} alt={item.title} loading="lazy" />
+                )}
+              </div>
+              <div class="timeline-dot"></div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div class="timeline-mobile-carousel" aria-hidden="true">
+        {ti.timeline.items.map((item, i) => (
+          <div class="tmc-card">
+            <div class="tmc-img">
+              {i === 0 ? (
+                <video src="/images/impacto/hogar.mp4" autoplay muted loop playsinline poster="/images/impacto/hogar.webp" style="width:100%;height:100%;object-fit:cover;display:block;" />
+              ) : (
+                <img src={`/images/impacto/${["despensas","composta","GO","woman","bio"][i - 1]}.webp`} alt={item.title} loading="lazy" />
+              )}
+            </div>
+            <div class="tmc-body">
+              <span class="tmc-num">{item.num}</span>
+              <h3 class="tmc-title">{item.title}</h3>
+              <p class="tmc-desc">{item.desc_short}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="juntos-section">
+      <div class="juntos-inner">
+        <h2 class="juntos-title">
+          <span class="juntos-title-white">{ti.cta.title}</span>
+          <span class="juntos-title-orange">{ti.cta.title_orange}</span>
+        </h2>
+        <p class="juntos-desc">{ti.cta.desc}</p>
+        <div class="juntos-actions">
+          <a href={`/${currentLang}/distribuidor`} class="juntos-btn juntos-btn--primary">
+            {ti.cta.contact}
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="5" y1="12" x2="19" y2="12"/>
+              <polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </a>
+          <a href={`/${currentLang}/productos`} class="juntos-btn juntos-btn--outline">
+            {ti.cta.products}
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </div>
+  <Footer currentLang={currentLang} />
+</BaseLayout>
+
+<script is:inline>
+/* ═══════════════════════════════════════════════════════════════════
+   GESTOR GLOBAL DE VIDEOS — ultra-rápido, sin freeze en PC ni móvil
+   • Detección de freeze en 600 ms (sin reload, solo seek)
+   • Recuperación inmediata: seek a currentTime + 0.01 s
+   • Aplica a TODOS los <video> de la página
+═══════════════════════════════════════════════════════════════════ */
+(function () {
+  "use strict";
+
+  const STATE = new WeakMap();
+
+  function st(v) {
+    if (!STATE.has(v)) STATE.set(v, { visible: false, ticker: null, lastT: -1, retries: 0 });
+    return STATE.get(v);
+  }
+
+  /* ── play instantáneo sin reload ── */
+  function kick(v) {
+    const s = st(v);
+    v.muted = true;
+    v.loop  = true;
+    v.play()
+      .then(() => { s.retries = 0; })
+      .catch(() => {
+        if (s.retries < 6) {
+          s.retries++;
+          setTimeout(() => { if (s.visible) kick(v); }, 150 * s.retries);
+        }
+      });
+  }
+
+  /* ── kick ultra-rápido sin recargar el archivo ── */
+  function quickRecover(v) {
+    const s = st(v);
+    if (!s.visible) return;
+    /* Trick: un seek mínimo desatasca el decoder sin recargar */
+    try {
+      if (v.readyState >= 2) {
+        v.currentTime = v.currentTime > 0.05 ? v.currentTime - 0.01 : 0;
+      }
+    } catch (_) {}
+    kick(v);
+  }
+
+  /* ── watcher de freeze: cada 600 ms comprueba si el tiempo avanzó ── */
+  function startWatch(v) {
+    const s = st(v);
+    clearInterval(s.ticker);
+    s.lastT = v.currentTime;
+
+    s.ticker = setInterval(() => {
+      if (!s.visible) { clearInterval(s.ticker); return; }
+      const now = v.currentTime;
+
+      if (v.ended) {
+        v.currentTime = 0;
+        kick(v);
+        s.lastT = 0;
+        return;
+      }
+
+      /* Congelado: mismo currentTime Y no está en pausa voluntaria */
+      if (now === s.lastT && !v.paused && v.readyState >= 2) {
+        quickRecover(v);
+      }
+
+      s.lastT = now;
+    }, 600); /* ← 600 ms = detección ultra-rápida */
+  }
+
+  function stopWatch(v) {
+    clearInterval(st(v).ticker);
+    try { v.pause(); } catch (_) {}
+  }
+
+  /* ── IntersectionObserver: play cuando entra, pause cuando sale ── */
+  function initVideoObserver() {
+    const videos = document.querySelectorAll("video");
+    if (!videos.length) return;
+
+    /* Pre-configurar todos los videos */
+    videos.forEach((v) => {
+      v.muted = true;
+      v.loop  = true;
+      v.playsInline = true;
+      v.setAttribute("playsinline", "");
+      v.setAttribute("webkit-playsinline", "");
+      v.preload = "auto"; /* carga inmediata en PC */
+      /* GPU hint para evitar freeze de decode */
+      v.style.willChange = "transform";
+    });
+
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        const v = entry.target;
+        const s = st(v);
+        if (entry.isIntersecting) {
+          s.visible = true;
+          if (v.readyState === 0) v.load();
+          kick(v);
+          startWatch(v);
+        } else {
+          s.visible = false;
+          stopWatch(v);
+        }
+      });
+    }, { threshold: 0.05 }); /* 5 % visible = arranca YA */
+
+    videos.forEach((v) => obs.observe(v));
+
+    /* Listeners nativos como red de seguridad extra */
+    videos.forEach((v) => {
+      const recover = () => { if (st(v).visible) quickRecover(v); };
+      v.addEventListener("stalled", recover);
+      v.addEventListener("waiting", recover);
+      v.addEventListener("ended",   () => { if (st(v).visible) { v.currentTime = 0; kick(v); } });
+      v.addEventListener("error",   () => {
+        /* En error real sí recargamos, pero solo una vez */
+        const s = st(v);
+        if (s.visible && s.retries < 2) { s.retries++; v.load(); setTimeout(() => kick(v), 400); }
+      });
+    });
+  }
+
+  /* ── Recuperación al volver pestaña o foco (PC + móvil) ── */
+  function resume() {
+    document.querySelectorAll("video").forEach((v) => {
+      const s = st(v);
+      if (s.visible && v.paused) { kick(v); startWatch(v); }
+    });
+  }
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) resume(); });
+  window.addEventListener("focus",  resume);
+  window.addEventListener("online", () => {
+    document.querySelectorAll("video").forEach((v) => {
+      const s = st(v);
+      if (s.visible) { v.load(); setTimeout(() => kick(v), 300); }
+    });
+  });
+
+  /* ─────────────────────────────────────────────────────────────
+     RESTO DE FUNCIONES DE LA PÁGINA (contadores, carruseles…)
+  ───────────────────────────────────────────────────────────── */
+
+  /* ── Contadores animados ── */
+  function initCounters() {
+    const counters = document.querySelectorAll("[data-count]");
+    const animateCounter = (el) => {
+      const target   = parseInt(el.getAttribute("data-count"));
+      const duration = 2000;
+      let startTime  = null;
+      const animate  = (now) => {
+        if (!startTime) startTime = now;
+        const progress = Math.min((now - startTime) / duration, 1);
+        el.textContent = Math.floor(progress * target).toLocaleString("es-MX");
+        if (progress < 1) requestAnimationFrame(animate);
+        else el.textContent = target.toLocaleString("es-MX");
+      };
+      el.textContent = "0";
+      requestAnimationFrame(animate);
+    };
+    const obs = new IntersectionObserver(
+      (entries) => { entries.forEach((e) => { if (e.isIntersecting) animateCounter(e.target); }); },
+      { threshold: 0.5 }
+    );
+    counters.forEach((c) => obs.observe(c));
+  }
+
+  /* ── AOS ── */
+  function initAOS() {
+    if (typeof AOS !== "undefined") AOS.init({ duration: 1000, once: true, offset: 100 });
+  }
+
+  /* ── Carrusel Visión ── */
+  function initVisionCarousel() {
+    const track   = document.getElementById("visionTrack");
+    const dots    = document.querySelectorAll("#visionDots .vision-dot");
+    const btnPrev = document.getElementById("visionPrev");
+    const btnNext = document.getElementById("visionNext");
+    if (!track || !dots.length) return;
+    const cards = track.querySelectorAll(".vision-card");
+    let current = 0;
+
+    function goTo(index) {
+      current = Math.max(0, Math.min(index, cards.length - 1));
+      const card   = cards[current];
+      const trackW = track.clientWidth;
+      track.scrollTo({ left: card.offsetLeft - (trackW - card.offsetWidth) / 2, behavior: "smooth" });
+      dots.forEach((d, i) => d.classList.toggle("active", i === current));
+    }
+
+    dots.forEach((d) => d.addEventListener("click", () => goTo(+d.dataset.index)));
+    btnPrev && btnPrev.addEventListener("click", () => goTo(current - 1));
+    btnNext && btnNext.addEventListener("click", () => goTo(current + 1));
+
+    let scrollTimer;
+    track.addEventListener("scroll", () => {
+      clearTimeout(scrollTimer);
+      scrollTimer = setTimeout(() => {
+        const center  = track.scrollLeft + track.clientWidth / 2;
+        let closest   = 0;
+        cards.forEach((c, i) => {
+          if (
+            Math.abs(c.offsetLeft + c.offsetWidth / 2 - center) <
+            Math.abs(cards[closest].offsetLeft + cards[closest].offsetWidth / 2 - center)
+          ) closest = i;
+        });
+        current = closest;
+        dots.forEach((d, i) => d.classList.toggle("active", i === current));
+      }, 80);
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowLeft")  goTo(current - 1);
+      if (e.key === "ArrowRight") goTo(current + 1);
+    });
+
+    let isDown = false, startX, scrollLeft;
+    track.addEventListener("mousedown",  (e) => { isDown = true; track.classList.add("dragging"); startX = e.pageX - track.offsetLeft; scrollLeft = track.scrollLeft; });
+    track.addEventListener("mouseleave", ()  => { isDown = false; track.classList.remove("dragging"); });
+    track.addEventListener("mouseup",    ()  => { isDown = false; track.classList.remove("dragging"); });
+    track.addEventListener("mousemove",  (e) => {
+      if (!isDown) return;
+      e.preventDefault();
+      track.scrollLeft = scrollLeft - (e.pageX - track.offsetLeft - startX) * 1.2;
+    });
+  }
+
+  /* ── Clic en tarjeta ODS → abre link ── */
+  function initOdsDoubleClick() {
+    const track = document.getElementById("odsTrack");
+    if (!track) return;
+    track.addEventListener("click", (e) => {
+      const card = e.target.closest(".ods-img-card[data-link]");
+      if (!card) return;
+      const link = card.getAttribute("data-link");
+      if (!link) return;
+      card.classList.add("ods-click-ripple");
+      setTimeout(() => card.classList.remove("ods-click-ripple"), 400);
+      window.open(link, "_blank", "noopener,noreferrer");
+    });
+  }
+
+  /* ── Badge anchor → carrusel ODS ── */
+  function initBadgeAnchor() {
+    const badges = document.querySelectorAll(".vision-ods-badge[data-ods-num]");
+    if (!badges.length) return;
+    badges.forEach((badge) => {
+      badge.addEventListener("click", function (e) {
+        e.stopPropagation();
+        const odsNum = parseInt(this.getAttribute("data-ods-num"));
+        if (!odsNum) return;
+        const odsSection  = document.getElementById("odsCarousel");
+        if (!odsSection) return;
+        const isMobile    = window.innerWidth < 768;
+        const scrollTarget = isMobile ? (odsSection.querySelector(".ods-carousel-wrapper") || odsSection) : odsSection;
+        const sectionTop  = scrollTarget.getBoundingClientRect().top + window.scrollY;
+        const navOffset   = isMobile ? 420 : 80;
+        const destY       = Math.max(0, sectionTop - navOffset);
+        window.scrollTo({ top: destY, behavior: "smooth" });
+        const distance    = Math.abs(destY - window.scrollY);
+        const scrollDelay = Math.min(Math.max(distance / 3, 300), 900);
+        setTimeout(() => highlightOdsCard(odsNum), scrollDelay);
+      });
+    });
+  }
+
+  function highlightOdsCard(odsNum) {
+    const track = document.getElementById("odsTrack");
+    if (!track) return;
+    const wrapper  = track.parentElement;
+    const allCards = track.querySelectorAll(`.ods-img-card[data-ods-n="${odsNum}"]`);
+    if (!allCards.length) return;
+    let targetCard = null;
+    for (const c of allCards) { if (c.getAttribute("aria-hidden") !== "true") { targetCard = c; break; } }
+    if (!targetCard) targetCard = allCards[0];
+    wrapper.classList.add("has-highlight");
+    track.style.animationPlayState = "paused";
+    const wrapRect   = wrapper.getBoundingClientRect();
+    const cardRect   = targetCard.getBoundingClientRect();
+    const wrapCenter = wrapRect.left + wrapRect.width / 2;
+    const cardCenter = cardRect.left + cardRect.width / 2;
+    const delta      = cardCenter - wrapCenter;
+    const currentMatrix = window.getComputedStyle(track).transform;
+    let currentX = 0;
+    if (currentMatrix && currentMatrix !== "none") {
+      const vals = currentMatrix.match(/matrix\(([^)]+)\)/);
+      if (vals) currentX = parseFloat(vals[1].split(",")[4]) || 0;
+    }
+    const newX = currentX - delta;
+    track.style.animation  = "none";
+    track.style.transform  = `translateX(${newX}px)`;
+    track.style.transition = "transform 0.7s cubic-bezier(0.25, 0.8, 0.25, 1)";
+    document.querySelectorAll(".ods-img-card.ods-highlighted").forEach((c) => c.classList.remove("ods-highlighted"));
+    setTimeout(() => { targetCard.classList.add("ods-highlighted"); }, 100);
+    function cleanup() {
+      targetCard.classList.remove("ods-highlighted");
+      wrapper.classList.remove("has-highlight");
+      track.style.transition = "none";
+      track.style.transform  = "";
+      track.style.animation  = "";
+      track.style.animationPlayState = "";
+    }
+    let resumeTimer = setTimeout(cleanup, 3500);
+    setTimeout(() => { document.addEventListener("click", () => { clearTimeout(resumeTimer); cleanup(); }, { once: true }); }, 400);
+  }
+
+  /* ── Animación ODS vuela hacia vision cards ── */
+  const odsAnimState = new Map();
+  const odsMap = {
+    9:  { cardIndex: 0, delay: 0   },
+    12: { cardIndex: 0, delay: 200 },
+    6:  { cardIndex: 1, delay: 0   },
+    7:  { cardIndex: 1, delay: 200 },
+    13: { cardIndex: 1, delay: 400 },
+    1:  { cardIndex: 2, delay: 0   },
+    4:  { cardIndex: 2, delay: 200 },
+    5:  { cardIndex: 2, delay: 400 },
+  };
+
+  function killFlying() { document.querySelectorAll(".ods-fly-clone").forEach((el) => el.remove()); }
+
+  function resetBadge(destBadge) {
+    const odsNum = parseInt(destBadge.querySelector(".vision-ods-label")?.textContent || "0");
+    const state  = odsAnimState.get(odsNum);
+    if (state) { state.timeouts.forEach((t) => clearTimeout(t)); state.timeouts = []; state.flying = false; state.visible = false; }
+    destBadge.classList.remove("badge-visible", "badge-pop");
+    destBadge.style.opacity   = "0";
+    destBadge.style.transform = "scale(0.6) translateY(10px)";
+  }
+
+  function flyBadge(source, dest, odsNum) {
+    const state = odsAnimState.get(odsNum);
+    if (!state || state.flying) return;
+    state.flying = true;
+    const srcRect  = source.getBoundingClientRect();
+    const destRect = dest.getBoundingClientRect();
+    const clone    = document.createElement("div");
+    clone.className = "ods-fly-clone";
+    clone.innerHTML = source.innerHTML;
+    const cloneImg  = clone.querySelector("img");
+    if (cloneImg) cloneImg.style.cssText = "position:absolute;inset:0;width:100%;height:100%;object-fit:cover;";
+    clone.style.cssText = `
+      position:fixed;left:${srcRect.left}px;top:${srcRect.top}px;
+      width:${srcRect.width}px;height:${srcRect.height}px;
+      border-radius:18px;z-index:9999;pointer-events:none;opacity:1;
+      overflow:hidden;background:${window.getComputedStyle(source).backgroundColor};
+      box-shadow:0 10px 40px rgba(0,0,0,0.6),0 0 0 2px rgba(255,255,255,0.15);
+      will-change:transform,opacity;transition:none;`;
+    document.body.appendChild(clone);
+    source.style.transition = "opacity 0.25s ease";
+    source.style.opacity    = "0.25";
+    const dx      = (destRect.left + destRect.width / 2)  - (srcRect.left + srcRect.width / 2);
+    const dy      = (destRect.top  + destRect.height / 2) - (srcRect.top  + srcRect.height / 2);
+    const scaleX  = destRect.width  / srcRect.width;
+    const scaleY  = destRect.height / srcRect.height;
+    const arcLift = Math.max(80, Math.abs(dy) * 0.25);
+    requestAnimationFrame(() => {
+      clone.style.transition = "transform 0.38s cubic-bezier(0.22,1,0.36,1),opacity 0.38s ease";
+      clone.style.transform  = `translate(${dx * 0.15}px,${-arcLift}px) scale(1.12)`;
+      clone.style.opacity    = "0.95";
+    });
+    const t1 = setTimeout(() => {
+      clone.style.transition = "transform 0.52s cubic-bezier(0.4,0,0.2,1),opacity 0.4s ease";
+      clone.style.transform  = `translate(${dx}px,${dy}px) scale(${scaleX},${scaleY})`;
+      clone.style.opacity    = "0.85";
+    }, 280);
+    const t2 = setTimeout(() => {
+      dest.style.transition = "none";
+      dest.style.opacity    = "1";
+      dest.style.transform  = "scale(1.22)";
+      requestAnimationFrame(() => {
+        dest.style.transition = "transform 0.4s cubic-bezier(0.34,1.56,0.64,1)";
+        dest.style.transform  = "scale(1)";
+        dest.classList.add("badge-visible");
+      });
+      clone.style.transition = "opacity 0.2s ease";
+      clone.style.opacity    = "0";
+      const t3 = setTimeout(() => {
+        clone.remove();
+        source.style.transition = "opacity 0.3s ease";
+        source.style.opacity    = "1";
+        if (state) { state.flying = false; state.visible = true; }
+      }, 220);
+      state && state.timeouts.push(t3);
+    }, 820);
+    state && state.timeouts.push(t1, t2);
+  }
+
+  function initOdsFlyAnimation() {
+    const destBadges = document.querySelectorAll(".ods-badge-anim");
+    if (!destBadges.length) return;
+    destBadges.forEach((badge) => {
+      const odsNum = parseInt(badge.querySelector(".vision-ods-label")?.textContent || "0");
+      if (!odsNum) return;
+      odsAnimState.set(odsNum, { flying: false, visible: false, timeouts: [] });
+      badge.style.opacity   = "0";
+      badge.style.transform = "scale(0.6) translateY(10px)";
+    });
+    const visionSection = document.querySelector(".vision-section");
+    if (!visionSection) return;
+    new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) { killFlying(); destBadges.forEach((b) => resetBadge(b)); }
+      });
+    }, { threshold: 0, rootMargin: "0px 0px -20% 0px" }).observe(visionSection);
+    destBadges.forEach((destBadge) => {
+      const odsNum = parseInt(destBadge.querySelector(".vision-ods-label")?.textContent || "0");
+      if (!odsNum || !odsMap[odsNum]) return;
+      const { delay } = odsMap[odsNum];
+      new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          const state = odsAnimState.get(odsNum);
+          if (!state || state.visible || state.flying) return;
+          const sourceCard = document.querySelector(`.ods-img-card.ods-${odsNum}`);
+          const t = setTimeout(() => {
+            if (sourceCard) {
+              flyBadge(sourceCard, destBadge, odsNum);
+            } else {
+              destBadge.style.transition = "opacity 0.4s ease,transform 0.5s cubic-bezier(0.34,1.56,0.64,1)";
+              destBadge.style.opacity    = "1";
+              destBadge.style.transform  = "scale(1)";
+              destBadge.classList.add("badge-visible");
+              const st = odsAnimState.get(odsNum);
+              if (st) st.visible = true;
+            }
+          }, delay);
+          odsAnimState.get(odsNum)?.timeouts.push(t);
+        });
+      }, { threshold: 0.5 }).observe(destBadge);
+    });
+  }
+
+  /* ═══════════════════════════
+     INIT PRINCIPAL
+  ═══════════════════════════ */
+  function init() {
+    initVideoObserver();   /* ← gestor global de videos */
+    initCounters();
+    initAOS();
+    initVisionCarousel();
+    initBadgeAnchor();
+    initOdsFlyAnimation();
+    initOdsDoubleClick();
+  }
+
+  document.addEventListener("DOMContentLoaded", init);
+  document.addEventListener("astro:page-load", init);
+})();
+</script>
+
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<script is:inline src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>

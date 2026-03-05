@@ -1,0 +1,271 @@
+---
+// src/pages/[lang]/productos.astro
+
+import "../../styles/producto.css";
+import "../../styles/carousel.css";
+import "../../styles/global.css";
+import "../../styles/flechas.css";
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { languages, translations } from "../../i18n";
+
+// 1. DEFINIR LA ESTRUCTURA DEL PRODUCTO
+interface ProductItem {
+  img: string;
+  division: string;
+  descripcion: string;
+  slug: string;
+  model?: string;
+  video?: string;
+}
+
+export function getStaticPaths() {
+  return Object.keys(languages).map((lang) => ({
+    params: { lang },
+  }));
+}
+
+const { lang } = Astro.params;
+const currentLang = lang && lang in translations ? lang : "es";
+const t = translations[currentLang as keyof typeof translations];
+
+// 2. CASTING DE LA LISTA DE PRODUCTOS
+const productsList = t.products_list as ProductItem[];
+
+const seeMoreText = t.common.seeMore;
+const divisionText = t.common.division;
+
+const firstProductImg =
+  productsList.length > 0 ? `/images/${productsList[0].img}` : null;
+---
+
+<BaseLayout title={`${t.nav.products} | Grupo Ortiz`} currentLang={currentLang}>
+  {
+    firstProductImg && (
+      <link rel="preload" as="image" href={firstProductImg} slot="head" />
+    )
+  }
+
+  <!-- Script para model-viewer (si usas modelos 3D) -->
+  <script
+    type="module"
+    src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"
+  ></script>
+
+  <div id="reveal-container" class="reveal-container">
+    <div class="reveal-bg"></div>
+    <div class="reveal-content">
+      <img id="reveal-img" src="" alt="" />
+    </div>
+  </div>
+
+  <main class="productos-main">
+    <div class="carousel">
+      <div class="list">
+        {
+          productsList.map((item, index) => (
+            <div class="item">
+              {/* Renderizar modelo 3D o imagen */}
+              {item.model ? (
+                <model-viewer
+                  src={`/${item.model}`}
+                  poster={`/images/${item.img}`}
+                  alt={item.division}
+                  class="product-thumb model-viewer-custom"
+                  camera-controls
+                  auto-rotate
+                  shadow-intensity="1"
+                  loading="eager"
+                ></model-viewer>
+              ) : (
+                <img
+                  src={`/images/${item.img}`}
+                  alt={item.division}
+                  class="product-thumb"
+                  loading={index === 0 ? "eager" : "lazy"}
+                  fetchpriority={index === 0 ? "high" : "auto"}
+                  decoding="async"
+                />
+              )}
+
+              <div class="introduce">
+                <div class="title" dir={currentLang === "ar" ? "rtl" : "ltr"}>
+                  {divisionText}
+                </div>
+
+                <div
+                  class="topic"
+                  data-name={item.division}
+                  dir={currentLang === "ar" ? "rtl" : "ltr"}
+                >
+                  {item.division}
+                </div>
+
+                <div class="des" dir={currentLang === "ar" ? "rtl" : "ltr"}>
+                  {item.descripcion}
+                </div>
+
+                <a
+                  href={`/${currentLang}/${item.slug}`}
+                  class="seeMore"
+                  data-link
+                  rel="prefetch"
+                >
+                  {seeMoreText}
+                </a>
+              </div>
+            </div>
+          ))
+        }
+      </div>
+
+      <div class="arrows">
+        <button id="prev" aria-label="Anterior">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M15 18l-6-6 6-6"></path>
+          </svg>
+        </button>
+
+        <button id="next" aria-label="Siguiente">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M9 18l6-6-6-6"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <script src="/scripts/producto.js" defer></script>
+
+  <script is:inline define:vars={{ productsList }}>
+    window.PRODUCTS_DATA = {};
+    productsList.forEach((item) => {
+      if (item.video) {
+        window.PRODUCTS_DATA[item.division] = `/videos/${item.video}`;
+      }
+    });
+  </script>
+
+  <script is:inline>
+    function initAnimations() {
+      const revealContainer = document.getElementById("reveal-container");
+      const revealImg = document.getElementById("reveal-img");
+
+      if (!revealContainer || !revealImg) return;
+
+      const links = document.querySelectorAll("[data-link]");
+
+      links.forEach((link) => {
+        const newLink = link.cloneNode(true);
+        link.parentNode.replaceChild(newLink, link);
+
+        newLink.addEventListener("click", async (e) => {
+          e.preventDefault();
+
+          const url = newLink.getAttribute("href");
+          if (!url) return;
+
+          // Guardar posición del carrusel antes de navegar
+          const clickedItem = newLink.closest(".item");
+          const topicEl = clickedItem ? clickedItem.querySelector(".topic") : null;
+          if (topicEl) {
+            const name = topicEl.getAttribute("data-name") || topicEl.innerText.trim();
+            sessionStorage.setItem("carousel-active-product", name);
+          }
+
+          let sourceSrc = "";
+          const imgEl = clickedItem ? clickedItem.querySelector("img") : null;
+          const modelEl = clickedItem ? clickedItem.querySelector("model-viewer") : null;
+
+          if (imgEl) {
+            sourceSrc = imgEl.src;
+          } else if (modelEl) {
+            sourceSrc = modelEl.getAttribute("poster") || "";
+          }
+
+          if (sourceSrc) {
+            revealImg.src = sourceSrc;
+          }
+
+          revealContainer.classList.add("active");
+
+          fetch(url, { priority: "high" }).catch(() => {});
+
+          try {
+            await new Promise((resolve) => setTimeout(resolve, 1350));
+            window.location.href = url;
+          } catch (error) {
+            window.location.href = url;
+          }
+        });
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", initAnimations);
+    document.addEventListener("astro:page-load", initAnimations);
+
+    document.addEventListener("astro:after-swap", () => {
+      const revealContainer = document.getElementById("reveal-container");
+      if (revealContainer) {
+        revealContainer.classList.remove("active");
+        const revealImg = document.getElementById("reveal-img");
+        if (revealImg) revealImg.src = "";
+      }
+    });
+  </script>
+
+  <style>
+    /* CONFIGURACIÓN GENERAL MODEL-VIEWER */
+    model-viewer.product-thumb {
+      background-color: transparent;
+      display: block;
+      --poster-color: transparent;
+    }
+
+    /* ESCRITORIO (PC) - PEGADO A LA DERECHA */
+    @media screen and (min-width: 1025px) {
+      model-viewer.product-thumb {
+        position: absolute;
+        right: -5%;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 55%;
+        height: 90vh;
+        max-height: 800px;
+        z-index: 10;
+      }
+    }
+
+    /* MÓVIL (CELULAR) */
+    @media screen and (max-width: 1024px) {
+      model-viewer.product-thumb {
+        position: absolute;
+        top: 25%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 90vw;
+        height: 40vh;
+        min-height: 350px;
+        z-index: 100;
+      }
+    }
+  </style>
+</BaseLayout>

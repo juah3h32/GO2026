@@ -1,0 +1,468 @@
+---
+/* ============================================================================
+   HOME PAGE - INDEX (CON TRADUCCIONES i18n)
+   ============================================================================ */
+import "../../styles/home.css";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Footer from "../../components/Footer.astro";
+import { languages, translations } from '../../i18n';
+
+export function getStaticPaths() {
+  return Object.keys(languages).map((lang) => ({
+    params: { lang },
+  }));
+}
+
+const { lang } = Astro.params;
+const currentLang = (lang && lang in translations) ? lang : 'es';
+const t  = translations[currentLang as keyof typeof translations];
+const th = t.home as typeof translations['es']['home'];
+
+const certifications = th.certs.items;
+const certsLoop = [...certifications, ...certifications];
+---
+
+<BaseLayout title={th.meta_title} currentLang={currentLang}>
+
+<!-- ═══════════════════════════════════════
+     HERO
+═══════════════════════════════════════ -->
+<section class="hero hero--static">
+  <video src={`/videos/${th.hero.video}`} muted loop playsinline preload="none" class="hero__video hero__video--fill" id="heroVideo"></video>
+  <div class="hero__gradient-overlay"></div>
+
+  <div class="hero__content is-visible" id="heroContent">
+    <div class="hero__center">
+      <div class="hero__eyebrow hero__eyebrow--center">
+        <span class="hero__line"></span>
+        <span>{th.hero.eyebrow}</span>
+        <span class="hero__line"></span>
+      </div>
+      <h1 class="hero__heading hero__heading--center">
+        <span class="hero__heading-top">{th.hero.title_top}</span>
+        <span class="hero__heading-bottom"><em>{th.hero.title_bot}</em></span>
+      </h1>
+      <div class="hero__actions hero__actions--center">
+        <a href={`/${currentLang}/productos`} class="btn btn--solid">
+          {th.hero.btn_products}
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+        <a href={`/${currentLang}/about`} class="btn btn--ghost">{th.hero.btn_about}</a>
+      </div>
+    </div>
+
+    <div class="hero__stats">
+      {th.hero.stats.map((stat, i) => (
+        <>
+          <div class="hero__stat">
+            <span
+              class="hero__stat-num count-anim"
+              data-target={(stat as any).number}
+              data-suffix={(stat as any).suffix ?? ''}
+              data-prefix={(stat as any).prefix ?? ''}>0</span>
+            <span class="hero__stat-lbl">{stat.label}</span>
+          </div>
+          {i < th.hero.stats.length - 1 && <div class="hero__stat-sep"></div>}
+        </>
+      ))}
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     DIVISIONES
+═══════════════════════════════════════ -->
+<section class="divisiones">
+
+  <div class="divisiones__head">
+    <div class="divisiones__head-inner">
+      <p class="section-tag">{th.divisiones.tag}</p>
+      <h2 class="section-heading">
+        {th.divisiones.title}<br><em>{th.divisiones.title_em}</em>
+      </h2>
+    </div>
+  </div>
+
+  <div class="div-wrapper">
+
+    <div class="arrows">
+      <button id="divPrev" aria-label={t.common.previous}>
+        <svg viewBox="0 0 24 24" stroke-width="2.2">
+          <line x1="19" y1="12" x2="5" y2="12"/>
+          <polyline points="12 5 5 12 12 19"/>
+        </svg>
+      </button>
+      <button id="divNext" aria-label={t.common.next}>
+        <svg viewBox="0 0 24 24" stroke-width="2.2">
+          <line x1="5" y1="12" x2="19" y2="12"/>
+          <polyline points="12 5 19 12 12 19"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="div-grid" id="divGrid">
+      {th.divisiones.items.map((div, i) => (
+        <a
+          href={(div as any).soon ? undefined : `/${currentLang}/${(div as any).slug}`}
+          class={`div-card${(div as any).soon ? ' div-card--soon' : ''}`}
+          style={`--accent: ${div.color}; --img: url('${div.img}')`}
+          aria-disabled={(div as any).soon ? "true" : undefined}
+        >
+          <div class="div-card__bg"></div>
+          <div class="div-card__overlay"></div>
+          {(div as any).soon && (
+            <span class="div-card__soon-badge">Próximamente</span>
+          )}
+          <span class="div-card__num">{String(i + 1).padStart(2, '0')}</span>
+          <div class="div-card__content">
+            <span class="div-card__tag">{div.tag}</span>
+            <h3 class="div-card__title">{div.title}</h3>
+            <p class="div-card__desc">{div.description}</p>
+            {!(div as any).soon && (
+              <span class="div-card__cta">
+                {th.divisiones.link_text}
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </span>
+            )}
+          </div>
+          <div class="div-card__line"></div>
+        </a>
+      ))}
+    </div>
+
+  </div>
+
+  <div class="div-progress-wrap">
+    <div class="div-progress" id="divProgress">
+      <div class="div-progress__fill" id="divProgressFill"></div>
+    </div>
+  </div>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     POR QUÉ ELEGIRNOS
+═══════════════════════════════════════ -->
+<section class="porque">
+  <div class="porque__inner">
+    <div class="porque__left">
+      <p class="section-tag">{th.porque.tag}</p>
+      <h2 class="section-heading">
+        {th.porque.title}<br><em>{th.porque.title_em}</em>
+      </h2>
+      <p class="porque__body">{th.porque.body}</p>
+      <div class="porque__features">
+        {th.porque.features.map((f) => (
+          <div class="porque__feature">
+            <div class="porque__feature-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div>
+              <strong>{f.title}</strong>
+              <p>{f.description}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+      <a href={`/${currentLang}/about`} class="btn btn--solid mt-xl">
+        {th.porque.btn}
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+
+    <div class="porque__right">
+      <div class="porque__img-frame">
+        <img src={th.porque.img} alt="Planta de Producción Grupo Ortiz" loading="lazy">
+        <div class="porque__badge">
+          <span class="porque__badge-num count-anim" data-target={th.porque.badge1_number} data-suffix="" data-prefix="">0</span>
+          <span class="porque__badge-lbl">{th.porque.badge1_label}</span>
+        </div>
+        <div class="porque__badge porque__badge--2">
+          <span class="porque__badge-num count-anim" data-target={th.porque.badge2_number} data-suffix="" data-prefix="">0</span>
+          <span class="porque__badge-lbl">{th.porque.badge2_label}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     CERTIFICACIONES
+═══════════════════════════════════════ -->
+<section class="certs">
+  <div class="certs__head">
+    <h2 class="certs__title">
+      <span class="certs__title--black">{th.certs.title}</span><span class="certs__title--orange"> {th.certs.title_em}</span>
+    </h2>
+  </div>
+  <div class="certs__track-wrap">
+    <div class="certs__track">
+      {certsLoop.map((cert, i) => (
+        <div class="cert-card" aria-hidden={i >= certifications.length ? "true" : "false"}>
+          <img src={cert.img} alt={i < certifications.length ? cert.code : ""} loading="lazy" class="cert-card__img">
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     COMPROMISO
+═══════════════════════════════════════ -->
+<section class="compromiso">
+  <div class="compromiso__card compromiso__card--light">
+    <span class="compromiso__eyebrow">{th.compromiso.card1.eyebrow}</span>
+    <h3 class="compromiso__title">{th.compromiso.card1.title}</h3>
+    <p class="compromiso__text">{th.compromiso.card1.text}</p>
+    <div class="compromiso__deco">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.8"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+    </div>
+  </div>
+  <div class="compromiso__card compromiso__card--dark">
+    <span class="compromiso__eyebrow">{th.compromiso.card2.eyebrow}</span>
+    <h3 class="compromiso__title">{th.compromiso.card2.title}</h3>
+    <p class="compromiso__text">{th.compromiso.card2.text}</p>
+    <div class="compromiso__deco">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.8"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     GLOBAL — VIDEO DE FONDO
+═══════════════════════════════════════ -->
+<section class="global">
+  <video src={th.global.video} muted loop playsinline preload="none" class="global__video" id="globalVideo"></video>
+  <div class="global__video-overlay"></div>
+  <div class="global__inner">
+    <p class="section-tag section-tag--light">{th.global.tag}</p>
+    <h2 class="section-heading section-heading--light">
+      {th.global.title} <em>{th.global.title_em}</em>
+    </h2>
+    <p class="global__desc">{th.global.desc}</p>
+    <div class="global__stats">
+      {th.global.stats.map((s) => (
+        <div class="global__stat">
+          <span
+            class="global__num count-anim"
+            data-target={(s as any).number}
+            data-suffix={(s as any).suffix ?? ''}
+            data-prefix={(s as any).prefix ?? ''}>0</span>
+          <span class="global__lbl">{s.label}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     CTA
+═══════════════════════════════════════ -->
+<section class="cta">
+  <div class="cta__inner">
+    <p class="section-tag">{th.cta.tag}</p>
+    <h2 class="cta__heading">{th.cta.title} <em>{th.cta.title_em}</em></h2>
+    <p class="cta__sub">{th.cta.sub}</p>
+    <a href={`/${currentLang}/distribuidor`} class="btn btn--solid btn--xl">
+      {th.cta.btn}
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M5 12h14M12 5l7 7-7 7"/>
+      </svg>
+    </a>
+  </div>
+</section>
+
+
+<script is:inline>
+
+/* ---- COUNTER ANIMATION ---- */
+function initCounters() {
+  const counters = document.querySelectorAll('.count-anim');
+  const duration = 2000;
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      const el     = entry.target;
+      const target = parseInt(el.getAttribute('data-target'));
+      const suffix = el.getAttribute('data-suffix') || '';
+      const prefix = el.getAttribute('data-prefix') || '';
+      if (entry.isIntersecting) {
+        let start = null;
+        const tick = (now) => {
+          if (!start) start = now;
+          const p    = Math.min((now - start) / duration, 1);
+          const ease = 1 - Math.pow(1 - p, 3);
+          el.textContent = prefix + Math.floor(ease * target) + suffix;
+          if (p < 1) requestAnimationFrame(tick);
+          else el.textContent = prefix + target + suffix;
+        };
+        requestAnimationFrame(tick);
+      } else {
+        el.textContent = '0';
+      }
+    });
+  }, { threshold: 0.1 });
+  counters.forEach(c => observer.observe(c));
+}
+
+/* ---- DIVISIONES GRID ---- */
+function initDivGrid() {
+  const grid    = document.getElementById('divGrid');
+  const prevBtn = document.getElementById('divPrev');
+  const nextBtn = document.getElementById('divNext');
+  const fill    = document.getElementById('divProgressFill');
+  if (!grid) return;
+
+  const cards = grid.querySelectorAll('.div-card');
+
+  function updateProgress() {
+    const max = grid.scrollWidth - grid.clientWidth;
+    if (fill) fill.style.width = (max > 0 ? (grid.scrollLeft / max) * 100 : 0) + '%';
+  }
+
+  function scrollByCard(dir) {
+    const w = (cards[0]?.offsetWidth ?? 300) + 2;
+    grid.scrollBy({ left: dir * w, behavior: 'smooth' });
+  }
+  prevBtn?.addEventListener('click', () => scrollByCard(-1));
+  nextBtn?.addEventListener('click', () => scrollByCard( 1));
+  grid.addEventListener('scroll', updateProgress, { passive: true });
+
+  const FRICTION   = 0.93;
+  const STOP_VEL   = 0.8;
+  const MULTIPLIER = 1.0;
+  const SAMPLES    = 5;
+
+  let dragging    = false;
+  let moved       = false;
+  let startX      = 0;
+  let startScroll = 0;
+  let rafId       = null;
+
+  const velBuf = new Array(SAMPLES).fill(0);
+  let   bufIdx = 0;
+  let   lastX  = 0;
+  let   lastT  = 0;
+
+  function pushVelocity(v) { velBuf[bufIdx % SAMPLES] = v; bufIdx++; }
+  function avgVelocity()   { return velBuf.reduce((a, b) => a + b, 0) / SAMPLES; }
+
+  function stopMomentum() {
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+  }
+
+  function snapNearest() {
+    const w = (cards[0]?.offsetWidth ?? 300) + 2;
+    const nearest = Math.round(grid.scrollLeft / w) * w;
+    grid.scrollTo({ left: nearest, behavior: 'smooth' });
+  }
+
+  function runMomentum() {
+    stopMomentum();
+    let vel = avgVelocity() * 18;
+    if (Math.abs(vel) < STOP_VEL) { snapNearest(); return; }
+    function step() {
+      vel *= FRICTION;
+      grid.scrollLeft -= vel;
+      updateProgress();
+      if (Math.abs(vel) > STOP_VEL) {
+        rafId = requestAnimationFrame(step);
+      } else {
+        rafId = null;
+        snapNearest();
+      }
+    }
+    rafId = requestAnimationFrame(step);
+  }
+
+  grid.addEventListener('mousedown', (e) => {
+    if (e.button !== 0) return;
+    stopMomentum();
+    dragging    = true;
+    moved       = false;
+    startX      = e.clientX;
+    startScroll = grid.scrollLeft;
+    lastX       = e.clientX;
+    lastT       = performance.now();
+    velBuf.fill(0); bufIdx = 0;
+    grid.classList.add('is-dragging');
+  });
+
+  document.addEventListener('mousemove', (e) => {
+    if (!dragging) return;
+    const now = performance.now();
+    const dt  = Math.max(now - lastT, 1);
+    pushVelocity((e.clientX - lastX) / dt);
+    lastX = e.clientX;
+    lastT = now;
+    const delta = (e.clientX - startX) * MULTIPLIER;
+    if (Math.abs(delta) > 3) moved = true;
+    grid.scrollLeft = startScroll - delta;
+    updateProgress();
+  });
+
+  function endDrag(e) {
+    if (!dragging) return;
+    dragging = false;
+    grid.classList.remove('is-dragging');
+    if (moved) { runMomentum(); }
+  }
+
+  document.addEventListener('mouseup',    endDrag);
+  document.addEventListener('mouseleave', endDrag);
+
+  cards.forEach((card) => {
+    card.addEventListener('click', (e) => {
+      if (moved) { e.preventDefault(); moved = false; }
+    });
+    card.addEventListener('dragstart', (e) => e.preventDefault());
+  });
+
+  grid.addEventListener('wheel', (e) => {
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+      updateProgress();
+    }
+  }, { passive: true });
+
+  updateProgress();
+  window.addEventListener('resize', updateProgress);
+}
+
+/* ---- VIDEOS LAZY (solo cargan y reproducen al entrar en viewport) ---- */
+function initVideos() {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      const video = entry.target;
+      if (entry.isIntersecting) {
+        if (video.readyState === 0) video.load();
+        video.play().catch(() => {});
+      } else {
+        video.pause();
+      }
+    });
+  }, { threshold: 0.15 });
+
+  ['heroVideo', 'globalVideo'].forEach((id) => {
+    const v = document.getElementById(id);
+    if (v) observer.observe(v);
+  });
+}
+
+/* ---- INIT ---- */
+function init() {
+  initCounters();
+  initDivGrid();
+  initVideos();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+document.addEventListener('astro:page-load', init);
+</script>
+
+<Footer currentLang={currentLang} />
+</BaseLayout>

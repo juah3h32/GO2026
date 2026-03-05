@@ -1,0 +1,939 @@
+:root {
+  --body-bg: #ffffff;
+  --text-color: #1a1a1a;
+  --text-muted: #666666;
+  --tech-orange: #FB670B;
+  --nav-height: 100px;
+  --slide-gradient: linear-gradient(
+    to right,       
+    #ffffff 0%,     /* <--- Blanco */
+    #ffffff 20%,    /* <--- Blanco */
+    #fb670b 60%,    
+    #ff7a18 100%    
+  );
+  
+  /* AGREGA ESTO: Un gris suave para el modo claro (Negro al 8% de opacidad) */
+  --thumb-bg: rgba(0, 0, 0, 0.08); 
+}
+
+html.dark {
+  --body-bg: #111010;
+  --text-color: #ffffff;
+  --text-muted: #a1a1a1;
+  --slide-gradient: linear-gradient(
+    to right,       
+    #000000 0%,     /* <--- Negro */
+    #000000 20%,    /* <--- Negro */
+    #fb670b 60%,    
+    #ff7a18 100%    
+  );
+
+  /* AGREGA ESTO: Tu color original (Blanco al 5% de opacidad) */
+  --thumb-bg: rgba(255, 255, 255, 0.05); 
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  background-color: var(--body-bg);
+  color: var(--text-color);
+  width: 100%;
+  height: 100dvh; /* Fuerza la altura exacta de la pantalla */
+  overflow: hidden; /* PROHIBIDO EL SCROLL */
+}
+@media (hover: none) and (pointer: coarse) {
+  body { cursor: auto; } /* Vuelve el cursor normal en táctil */
+}
+
+/* =====================================================
+   LAYOUT PRINCIPAL (GRID SYSTEM)
+===================================================== */
+.main-container {
+  width: 100%;
+  height: 100dvh;
+  padding-top: var(--nav-height); /* Empuja el contenido debajo del navbar */
+  padding-bottom: 2vh; /* Un pequeño margen abajo */
+  
+  display: grid;
+  grid-template-columns: 1fr 1.1fr; /* Mitad texto, Mitad imagen */
+  align-items: center; /* Centrado vertical perfecto */
+  gap: 2vw;
+}
+
+/* =====================================================
+   NAVEGACIÓN
+===================================================== */
+.custom-nav {
+  position: fixed; /* Fijo para que siempre se vea */
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 1.5rem 3rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 100;
+  pointer-events: none; /* Deja pasar clicks a lo de abajo excepto en botones */
+}
+.custom-nav > * { pointer-events: auto; } /* Reactiva clicks en hijos */
+
+/* =====================================================
+   SECCIÓN IZQUIERDA (CONTENIDO)
+===================================================== */
+.content {
+  padding: 0 0 0 10%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  z-index: 20;
+}
+
+/* Botón atrás */
+.back-arrow-btn {
+  width: clamp(30px, 5vh, 45px); /* Se escala con la altura */
+  height: clamp(30px, 5vh, 45px);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 145, 0, 0.35);
+  margin-bottom: 1vh;
+  transition: 0.3s;
+  color: var(--text-color);
+}
+.back-arrow-btn:hover {
+  background: var(--tech-orange);
+  color: #fff;
+  transform: scale(1.1);
+}
+
+.text-area {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 600px;
+}
+
+/* Tipografía Responsive con CLAMP (se adapta sola) */
+.text-area h1 {
+  font-size: clamp(2.5rem, 5vw, 4.5rem); 
+  line-height: 1.1;
+  margin-bottom: 0.5rem;
+  font-weight: 800;
+}
+
+.text-area p {
+  font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+  color: var(--text-muted);
+}
+
+/* =====================================================
+   ESPECIFICACIONES (Grid adaptable)
+===================================================== */
+.specs-container {
+  width: 100%;
+  margin-bottom: 3vh;
+  max-width: 100%; 
+}
+.specs-title {
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 1.5vh;
+  border-left: 3px solid var(--tech-orange);
+  padding-left: 10px;
+  font-weight: 700;
+  opacity: 0.9;
+}
+
+.specs-grid {
+  display: grid;
+  width: 100%;
+  gap: 0.8vw; /* Gap un poco más ajustado para ganar espacio */
+}
+
+.spec-box {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(150, 150, 150, 0.2);
+  padding: 0.8vh 0.5vw; /* Padding relativo a la pantalla */
+  border-radius: 8px;
+  text-align: center;
+}
+.spec-box.highlight { border-color: var(--tech-orange); }
+
+.spec-box:hover { transform: translateY(-3px); }
+
+.spec-label { font-size: 0.6rem; opacity: 0.7; }
+.spec-value { 
+    font-size: clamp(0.9rem, 2.5vh, 1.2rem); /* Número adaptable */
+    font-weight: 700; display: block; 
+}
+.spec-percent { font-size: 0.6rem; color: var(--tech-orange); }
+
+/* =====================================================
+   MINIATURAS
+===================================================== */
+.thumbnails {
+  display: flex;
+  gap: 10px;
+  margin-top: 2vh;
+  height: clamp(50px, 8vh, 80px); /* Altura controlada */
+}
+
+.thumb-item {
+  height: 100%;
+  aspect-ratio: 1/1;
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+.thumb-item.active { border-color: var(--tech-orange); }
+.thumb-item img { width: 100%; height: 100%; object-fit: cover; }
+
+/* =====================================================
+   9. SECCIÓN DERECHA (MODELO/IMAGEN)
+===================================================== */
+.wheel-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  align-items: center; 
+  justify-content: center; /* Centrado perfecto */
+  perspective: 1000px; /* Prepara el entorno para 3D si lo usas */
+}
+
+/* --- AQUÍ ESTÁ LA MAGIA DEL CRECIMIENTO --- */
+.wheel-item img {
+  /* 1. Ancho Dinámico: 
+        Mínimo 300px.
+        Ideal: 45% del ancho de la pantalla (45vw) -> Esto hace que crezca con el monitor.
+        Máximo: 850px para que no sea ridículamente gigante.
+  */
+  width: clamp(300px, 45vw, 850px);
+  
+  /* 2. Altura de seguridad:
+        Le decimos que la altura sea automática para mantener la proporción,
+        PERO que nunca exceda el 80% de la altura de la pantalla (80vh).
+        Así evitas que se corte en pantallas anchas pero bajitas.
+  */
+  height: auto;
+  max-height: 80vh;
+  
+  object-fit: contain;
+  filter: drop-shadow(0 25px 50px rgba(0,0,0,0.5)); /* Sombra más dramática */
+  
+  transition: transform 0.3s ease;
+}
+
+.wheel {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wheel-item {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+  /* Transiciones suaves para cuando cambias de color */
+  opacity: 0;
+  transform: scale(0.95);
+  pointer-events: none;
+  transition: opacity 0.6s cubic-bezier(0.23, 1, 0.32, 1), transform 0.6s ease;
+}
+
+.wheel-item.active {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+/* Efecto Hover opcional: Si pasas el mouse, la cuerda flota un poco */
+.wheel-item img:hover {
+  transform: scale(1.05) rotate(2deg);
+}
+
+
+model-viewer.model-3d-custom {
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+}
+
+/* =====================================================
+   TECH HUD (Decoración)
+===================================================== */
+.tech-hud {
+  position: absolute;
+  bottom: 20px;
+  right: 20px; /* Movido a la derecha para no estorbar contenido */
+  left: auto;
+  transform: none;
+  z-index: 50;
+}
+
+
+
+.spec-box {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(150, 150, 150, 0.2);
+  /* Padding responsivo: más espacio vertical, menos lateral */
+  padding: 1.2vh 0.2vw; 
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  transition: transform 0.3s ease;
+  
+  /* Asegura que el contenido no desborde */
+  overflow: hidden; 
+  min-width: 0; /* Permite que flexbox encoja el texto si es necesario */
+}
+
+.spec-box.highlight {
+  border-color: var(--tech-orange);
+  background: rgba(255, 145, 0, 0.05);
+}
+
+.spec-box:hover {
+  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* --- TEXTOS QUE SE ADAPTAN (SOLUCIÓN AL DESBORDE) --- */
+
+.spec-label { 
+  font-size: 0.65rem; 
+  text-transform: uppercase; 
+  opacity: 0.7; 
+  margin-bottom: 4px;
+  white-space: nowrap; /* Evita que el título se parta en dos */
+}
+
+.spec-value { 
+  /* CLAVE: clamp() calcula el tamaño ideal. 
+     Mínimo 0.8rem (para que se lea), 
+     Ideal 1.1vw (crece con el ancho de pantalla), 
+     Máximo 1.3rem (para que no explote) */
+  font-size: clamp(0.75rem, 1.1vw, 1.3rem); 
+  
+  font-weight: 800; 
+  margin-bottom: 2px;
+  color: var(--text-color);
+  
+  /* Si la palabra es muy larga (ej: Excelente), reduce el espacio entre letras */
+  letter-spacing: -0.02em; 
+  line-height: 1.1;
+  width: 100%;
+  
+  /* Asegura que si es MUY largo, se corte con "..." en lugar de salir del cuadro */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.spec-percent { 
+  font-size: 0.7rem; 
+  color: var(--tech-orange); 
+  font-weight: 500;
+}
+
+/* =====================================================
+   MINIATURAS (Thumbnails) MÁS GRANDES
+===================================================== */
+.thumbnails {
+  display: flex;
+  gap: 15px; /* Más separación */
+  margin-top: 2vh;
+  /* Altura dinámica pero más grande */
+  height: clamp(70px, 10vh, 110px); 
+}
+
+.thumb-item {
+  /* Hacemos que sea cuadrado perfecto basado en la altura del padre */
+  height: 100%;
+  aspect-ratio: 1 / 1; 
+  
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 5px solid transparent; /* Borde transparente para evitar saltos al hover */
+  background: var(--thumb-bg);
+  transition: all 0.3s ease;
+}
+
+.thumb-item.active {
+  border-color: var(--tech-orange);
+  box-shadow: 0 0 15px rgba(255, 145, 0, 0.3);
+  transform: scale(1.05);
+}
+
+.thumb-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Hover effect */
+.thumb-item:hover {
+  transform: translateY(-5px);
+}
+/* 1. Por defecto oculto en escritorio */
+.mobile-app-dock {
+  display: none;
+}
+/* =========================================
+   TRANSICIÓN SLIDE RIGHT (DINÁMICA)
+   ========================================= */
+
+.reveal-circle {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  pointer-events: none;
+
+  /* === CAMBIO AQUÍ: Usamos la variable dinámica === */
+  background: var(--slide-gradient);
+  
+  /* Estado Inicial: Escondido a la DERECHA */
+  transform: translateX(100%);
+  
+  /* Animación */
+  transition: transform 1s cubic-bezier(.77, 0, .175, 1);
+}
+
+/* Estado Activo */
+.reveal-circle.active {
+  pointer-events: all;
+  transform: translateX(0);
+}
+/* =================================================================
+   LAYOUT TABLET/MÓVIL LIMPIO
+   (Corregido para respetar el Navbar)
+================================================================= */
+@media screen and (max-width: 1024px) {
+
+  /* Habilitar Scroll y Touch */
+  html, body {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    height: auto !important;
+    touch-action: pan-y !important;
+    cursor: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .back-arrow-btn, .cursor, .cursor-dot, .custom-cursor { display: none !important; }
+  * { cursor: auto !important; }
+
+  /* Layout Vertical */
+  .main-container {
+    display: flex !important;
+    flex-direction: column;
+    padding-top: 65px; /* Navbar space */
+    padding-bottom: 90px;
+    padding-left: 20px;
+    padding-right: 20px;
+    height: auto !important;
+    min-height: 100vh;
+    align-items: center !important;
+    gap: 10px;
+  }
+
+  .content, .text-area { display: contents !important; }
+
+  /* ORDEN 1: IMAGEN */
+  .wheel-container {
+    order: 1;
+    width: 100%;
+    height: auto;
+    max-height: 35vh; 
+    min-height: 200px;
+    margin-bottom: 5px; 
+  }
+  .wheel-item img {
+    width: auto;
+    height: auto;
+    max-width: 90%; 
+    max-height: 35vh; 
+  }
+
+  /* ORDEN 2: TÍTULO */
+  #product-title {
+    order: 2;
+    width: 100%;
+    text-align: center;
+    font-size: 2.5rem !important;
+    margin-bottom: 10px; 
+  }
+
+  /* ORDEN 3: ICONOS */
+  .thumbnails {
+    order: 3;
+    width: 100%;
+    justify-content: center !important;
+    gap: 15px; 
+    margin-bottom: 15px; 
+    height: auto; /* Dejar que flex defina altura */
+  }
+  .thumb-item {
+    width: 18vw; height: 18vw;
+    max-width: 90px; max-height: 90px;
+    min-width: 60px; min-height: 60px;
+    border-radius: 14px;
+  }
+
+  /* ORDEN 4: DESCRIPCIÓN */
+  #product-desc {
+    order: 4;
+    text-align: center;
+    width: 95%; 
+    max-width: 600px;
+    margin: 0 auto 15px auto; 
+    font-size: 1rem;
+    color: var(--text-muted);
+  }
+
+  /* ORDEN 5: ESPECIFICACIONES */
+  .specs-container {
+    order: 5;
+    width: 100%;
+    max-width: 650px;
+    margin-bottom: 15px; 
+  }
+  .specs-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 8px;
+  }
+
+  /* ORDEN 6: BOTÓN DE COMPRAR */
+  .text-area > div:last-child,
+  .text-area > div.flex {
+    order: 6;
+    width: 100%;
+    display: flex;
+    justify-content: center !important;
+    margin-bottom: 30px; 
+  }
+}
+/* ESCRITORIO (Normal y Grande): 6 columnas */
+@media screen and (min-width: 1025px) {
+  .specs-grid { 
+    grid-template-columns: repeat(6, 1fr); 
+  }
+}
+
+.spec-box {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(150, 150, 150, 0.2);
+  border-radius: 12px;
+  
+  /* AQUÍ LA SOLUCIÓN DEL CORTE: */
+  /* 1. Usamos padding en porcentaje o vw para dar aire, pero poco a los lados */
+  padding: 1.5vh 0.5vw; 
+  
+  /* 2. Flexbox para centrar todo */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  
+  /* 3. Permitimos que el ancho sea fluido */
+  width: 100%;
+  height: 100%; /* Llenar la celda del grid */
+  min-height: 80px; /* Altura mínima para que no se aplaste */
+  
+  transition: transform 0.3s ease, background 0.3s;
+}
+
+.spec-box:hover {
+  transform: translateY(-5px) scale(1.02);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--tech-orange);
+}
+
+.spec-box.highlight {
+  border-color: var(--tech-orange);
+  background: rgba(255, 145, 0, 0.05);
+}
+
+/* --- TEXTOS INTELIGENTES (Para que no se salgan) --- */
+
+.spec-label { 
+  /* Tamaño adaptable */
+  font-size: clamp(0.6rem, 0.8vw, 0.9rem); 
+  text-transform: uppercase; 
+  opacity: 0.7; 
+  margin-bottom: 0.5vh;
+  white-space: nowrap; 
+}
+
+.spec-value { 
+  /* --- EL TRUCO MAESTRO PARA EL TAMAÑO --- */
+  /* El tamaño se calcula basado en el ANCHO de la pantalla (vw).
+     En 1366px se verá normal.
+     En 1920px crecerá automáticamente.
+     En 4K será gigante. */
+  font-size: clamp(0.85rem, 1.4vw, 2.5rem); 
+  
+  font-weight: 800; 
+  line-height: 1;
+  margin-bottom: 0.3vh;
+  color: var(--text-color);
+  
+  /* Apretamos un poquito las letras para que quepan palabras largas como 'Excelente' */
+  letter-spacing: -0.03em; 
+  
+  width: 100%;
+  /* Si aún así es muy largo, ajusta el tamaño dinámicamente */
+  word-break: normal; 
+}
+
+.spec-percent { 
+  font-size: clamp(0.6rem, 0.7vw, 1rem); 
+  color: var(--tech-orange); 
+}
+
+/* =====================================================
+   MINIATURAS (Thumbnails)
+===================================================== */
+.thumbnails {
+  display: flex;
+  gap: 1vw; /* Separación proporcional */
+  margin-top: 3vh;
+  /* Altura que crece con la pantalla: Min 70px, Ideal 12% altura, Max 140px */
+  height: clamp(70px, 12vh, 140px); 
+}
+
+.thumb-item {
+  height: 100%;
+  aspect-ratio: 1/1; /* Siempre cuadrado */
+  border-radius: 12px;
+  border: 5px solid transparent;
+  cursor: pointer;
+  background: var(--thumb-bg);
+  transition: 0.3s;
+}
+.thumb-item.active {
+  border-color: var(--tech-orange);
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(255, 145, 0, 0.2);
+}
+.thumb-item img {
+  width: 100%; height: 100%; object-fit: cover; border-radius: 10px;
+}
+
+/* =====================================================
+   MODO "PANTALLA GIGANTE" (1600px en adelante)
+   Esto soluciona que se vea pequeño en monitores grandes
+===================================================== */
+@media screen and (min-width: 1600px) {
+  /* Hacemos crecer el texto general */
+  .text-area h1 { font-size: 5rem; } 
+  .text-area p { font-size: 1.2rem; max-width: 80%; }
+  
+  /* Separamos más los elementos */
+  .main-container { gap: 4vw; padding-right: 5vw; }
+  
+  /* Hacemos los cuadros de especificaciones más altos */
+  .spec-box { padding: 2vh 1vw; }
+  .wheel-item img {
+    /* Permitimos que crezca mucho más en monitores grandes */
+    width: clamp(500px, 50vw, 1200px); 
+    max-height: 85vh;
+  }
+}
+/* =================================================================
+   VERSIÓN FINAL: IPAD / TABLET (IMÁGENES Y ICONOS GIGANTES)
+   Pega esto al final de tu styles/cuerdas.css y reemplaza el bloque anterior.
+================================================================= */
+/* =================================================================
+   VERSIÓN FINAL LIMPIA: SIN MENÚ, SOLO PRODUCTO Y SCROLL
+   (Orden: Imagen > Título > Iconos > Descripción > Botón)
+================================================================= */
+/* =================================================================
+   LAYOUT TABLET/MÓVIL LIMPIO
+   (Sin menú, solo ordenamiento y arreglos de scroll)
+================================================================= */
+@media screen and (max-width: 1024px) {
+
+  /* 1. HABILITAR SCROLL Y TOUCH */
+  html, body {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    height: auto !important;
+    touch-action: pan-y !important;
+    cursor: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Ocultar cursor personalizado */
+  .cursor, .cursor-dot, .cursor-outline, .custom-cursor { display: none !important; }
+  * { cursor: auto !important; }
+
+  /* 2. CONTENEDOR PRINCIPAL (MUCHO MENOS PADDING) */
+  .main-container {
+    display: flex !important;
+    flex-direction: column;
+    /* CAMBIO: De 100px a 65px para subir todo */
+    padding-top: 65px; 
+    /* CAMBIO: De 80px a 20px para quitar aire abajo */
+    padding-bottom: 90px; 
+    height: auto !important;
+    min-height: 100vh;
+    align-items: center !important;
+    /* CAMBIO: Gap pequeño para controlar espacios globales */
+    gap: 10px; 
+    /* Agrega espacio a los lados (izquierda y derecha) */
+    padding-left: 20px;
+    padding-right: 20px;
+    
+    /* Mantiene el ancho total correcto */
+    box-sizing: border-box;
+  }
+
+
+  .content, .text-area { display: contents !important; }
+
+  /* === ORDEN 1: IMAGEN (REDUCIDA ALTURA) === */
+  .wheel-container {
+    order: 1;
+    width: 100%;
+    height: auto;
+    /* CAMBIO: De 45vh a 35vh (La imagen ocupa menos pantalla) */
+    max-height: 35vh; 
+    min-height: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* CAMBIO: Margen casi nulo */
+    margin-bottom: 5px; 
+    position: relative;
+  }
+  
+  .wheel-item img {
+    width: auto;
+    height: auto;
+    max-width: 90%; 
+    /* CAMBIO: Limita la altura de la imagen misma */
+    max-height: 35vh; 
+    object-fit: contain;
+    filter: drop-shadow(0 15px 25px rgba(0,0,0,0.4)); 
+  }
+
+  /* === ORDEN 2: TÍTULO DEL PRODUCTO (PEGADO A LA IMAGEN) === */
+  #product-title {
+    order: 2;
+    width: 100%;
+    text-align: center;
+    font-size: 2.5rem !important; /* Un pelín más chico para ahorrar espacio */
+    line-height: 1.1;
+    /* CAMBIO: Márgenes mínimos */
+    margin-top: 0px;
+    margin-bottom: 10px; 
+  }
+
+  /* === ORDEN 3: ICONOS DE SELECCIÓN (PEGADOS AL TÍTULO) === */
+  .thumbnails {
+    order: 3;
+    width: 100%;
+    display: flex;
+    justify-content: center !important;
+    gap: 15px; 
+    /* CAMBIO: De 30px a 15px */
+    margin-bottom: 15px; 
+    padding: 0 10px;
+    margin-top: 0;
+  }
+  
+  .thumb-item {
+    /* CAMBIO: Iconos ligeramente más compactos */
+    width: 18vw;        
+    height: 18vw;
+    max-width: 90px;   
+    max-height: 90px;
+    min-width: 60px;    
+    min-height: 60px;
+    border-radius: 14px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    border-width: 2px;
+  }
+
+  /* === ORDEN 4: DESCRIPCIÓN (PEGADA A LOS ICONOS) === */
+  #product-desc {
+    order: 4;
+    text-align: center;
+    width: 95%; /* Un poco más ancho para que ocupe menos líneas verticales */
+    max-width: 600px;
+    /* CAMBIO: Margen reducido */
+    margin: 0 auto 15px auto; 
+    font-size: 1rem;
+    color: var(--text-muted);
+  }
+
+  /* === ORDEN 5: ESPECIFICACIONES === */
+  .specs-container {
+    order: 5;
+    width: 100%;
+    max-width: 650px;
+    /* CAMBIO: Margen reducido */
+    margin-bottom: 15px; 
+  }
+  .specs-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 8px; /* Menos gap */
+    justify-content: center;
+  }
+
+  /* === ORDEN 6: BOTÓN DE COMPRAR === */
+  .text-area > div:last-child,
+  .text-area > div.flex {
+    order: 6;
+    width: 100%;
+    display: flex;
+    justify-content: center !important;
+    /* CAMBIO: Margen final reducido */
+    margin-bottom: 30px; 
+  }
+}
+
+/* ESCRITORIO: AQUÍ ESTÁ LA SOLUCIÓN */
+@media screen and (min-width: 1025px) {
+  .specs-grid { 
+    /* ANTES: repeat(6, 1fr) -> Forzaba tamaños iguales y cortaba el texto */
+    
+    /* AHORA: minmax(min-content, 1fr) 
+       Esto significa: "El ancho mínimo es lo que mida el texto de adentro".
+       Así el cuadro crece para que quepa "Excelente". */
+    grid-template-columns: repeat(6, minmax(min-content, 1fr)); 
+  }
+}
+
+.spec-box {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(150, 150, 150, 0.2);
+  border-radius: 12px;
+  
+  /* Padding dinámico: Menos a los lados para dar prioridad al texto */
+  padding: 1.5vh 0.4vw; 
+  
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  
+  width: 100%;
+  height: 100%;
+  min-height: 80px; /* Altura base */
+  
+  transition: transform 0.3s ease;
+}
+
+.spec-box:hover {
+  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--tech-orange);
+}
+
+.spec-box.highlight {
+  border-color: var(--tech-orange);
+  background: rgba(255, 145, 0, 0.05);
+}
+
+/* --- TEXTOS QUE NO SE CORTAN --- */
+
+.spec-label { 
+  font-size: clamp(0.6rem, 0.7vw, 0.85rem); 
+  text-transform: uppercase; 
+  opacity: 0.7; 
+  margin-bottom: 0.5vh;
+  white-space: nowrap; 
+}
+
+.spec-value { 
+  /* TAMAÑO DE FUENTE CORREGIDO:
+     Usamos 'vw' (ancho) principalmente.
+     Esto asegura que la letra crezca con el monitor, pero no tanto como para salirse. */
+  font-size: clamp(0.9rem, 1.3vw, 2.2rem); 
+  
+  font-weight: 800; 
+  line-height: 1;
+  margin-bottom: 0.3vh;
+  color: var(--text-color);
+  
+  /* Truco: juntar letras un 4% para que palabras largas quepan mejor */
+  letter-spacing: -0.04em; 
+  
+  /* Importante: Evita el corte agresivo */
+  white-space: nowrap; 
+}
+
+.spec-percent { 
+  font-size: clamp(0.6rem, 0.6vw, 0.9rem); 
+  color: var(--tech-orange); 
+}
+
+/* =====================================================
+   PANTALLAS GIGANTES (Ultra Wide / 4K)
+   Para que "se haga más grande todo"
+===================================================== */
+@media screen and (min-width: 1600px) {
+  /* Aumentamos el tamaño base de todo */
+  .main-container { padding-right: 5vw; gap: 3vw; }
+  
+  /* Títulos gigantes */
+  .text-area h1 { font-size: clamp(4rem, 6vw, 8rem); }
+  
+  /* Especificaciones más aireadas */
+  .spec-box { padding: 2.5vh 1vw; }
+  .spec-value { font-size: clamp(1.5rem, 1.6vw, 3rem); }
+  
+  /* Iconos mucho más grandes */
+  .thumbnails { height: 140px; gap: 20px; }
+}
+@media screen and (max-width: 768px) {
+  .main-container {
+    grid-template-columns: 1fr; /* Una sola columna */
+    grid-template-rows: auto 1fr; /* Texto arriba, imagen abajo */
+    padding-top: 80px;
+  }
+  /* Título específico */
+  .text-area h1 {
+    text-align: center !important;
+    width: 100%;
+    font-size: 2.2rem;              /* Tamaño ajustado para móvil */
+    margin-bottom: 0.5rem;
+  }
+  
+  .wheel-container {
+    height: 50vh; /* La imagen ocupa la mitad de la pantalla en móvil */
+    align-items: flex-start;
+  }
+
+  .wheel-item img {
+    /* En móvil, que ocupe casi todo el ancho disponible */
+    width: 80%; 
+    max-width: 400px;
+  }
+}

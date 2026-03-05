@@ -1,0 +1,75 @@
+---
+// src/components/Footer.astro
+import "../styles/footer.css"; 
+import { translations } from "../i18n"; // Asegúrate que la ruta a i18n sea correcta
+
+interface Props {
+  currentLang?: string;
+}
+
+// 1. Lógica para obtener el idioma y las traducciones
+const { currentLang = 'es' } = Astro.props;
+const t = translations[currentLang as keyof typeof translations] || translations.es;
+
+// 2. Función helper para los links (opcional, para mantener el idioma en la URL)
+// Ejemplo: si estás en inglés, devuelve "/en/slug"
+const getLink = (slug: string) => {
+  return currentLang === 'es' ? `/${slug}` : `/${currentLang}/${slug}`;
+};
+---
+<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css'>
+
+<footer class="minimal-footer">
+<div class="footer-container">
+    
+    <div class="top-section">
+      
+      <div class="brand-area">
+        <h2 class="logo">GRUPO ORTIZ&reg;</h2>
+        
+        <div class="brand-contact">
+          <a href="mailto:contacto@grupoortiz.com" class="contact-item">
+            <i class="fas fa-envelope"></i> atencionacliente@grupo-ortiz.com
+          </a>
+          <a href="tel:+525512345678" class="contact-item">
+            <i class="fas fa-phone-alt"></i> +52 44-32-07-25-93
+          </a>
+        </div>
+      </div>
+
+      <div class="links-area">
+        
+        <div class="col">
+          <a href="about">{t.footer.about_us}</a>
+          <a href="#">{t.footer.about}</a>
+          <a href="#">{t.footer.social_impact}</a>
+        </div>
+
+        <div class="col">
+          <a href="#">{t.footer.customer_service}</a>
+          <a href="distribuidor">{t.footer.be_distributor}</a>
+          <a href="catalogo">{t.footer.catalog}</a>
+        </div>
+
+        <div class="col distribute-col">
+          <a href="distribuidor" class="btn-orange">{t.footer.cta_button}</a>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="separator-line"></div>
+
+    <div class="bottom-section">
+      <div class="social-icons">
+        <a href="https://www.facebook.com/people/Grupo-Ort%C3%ADz/61559817857366/"><i class="fab fa-facebook-f"></i></a>
+        <a href="https://www.instagram.com/grupoortiz_mexico?igsh=dWJtbHhrN3A2d254"><i class="fab fa-instagram"></i></a>
+        <a href="https://www.linkedin.com/company/grupo-ortiz-mexico-pol%C3%ADmeros/"><i class="fab fa-linkedin-in"></i></a>
+        <a href="#"><i class="fab fa-youtube"></i></a>
+      </div>
+      <p class="copyright">
+        &copy; {new Date().getFullYear()} Grupo Ortiz, SA. de CV. {t.footer.rights}
+      </p>
+    </div>
+  </div>
+</footer>

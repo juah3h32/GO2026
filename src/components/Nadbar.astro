@@ -1,0 +1,1111 @@
+---
+// src/components/Navbar.astro
+import { languages, translations } from '../i18n';
+
+interface Props {
+  currentLang?: string;
+  moveLogoMobile?: boolean;
+}
+
+const { currentLang = 'es', moveLogoMobile = false } = Astro.props;
+const { pathname } = Astro.url;
+
+// SEGURIDAD DE IDIOMAS
+const safeLang = (currentLang in translations) ? currentLang : 'es';
+const langData = translations[safeLang as keyof typeof translations];
+const t = langData.nav;
+
+// --- LOGICA BOTON ATRAS ---
+const pagesWithBackBtn = [
+  '/cuerdas',
+  '/rafias',
+  '/arpillas', 
+  '/sacos',
+  '/esquineros',
+  '/empaques-flexibles',
+  '/stretch-film',
+];
+
+const showBackBtn = pagesWithBackBtn.some(page => pathname.includes(page));
+
+// --- LOGICA DE PADRES ACTIVOS ---
+const productRelatedPaths = [
+  `/${safeLang}/productos`,
+  `/${safeLang}/catalogo`
+];
+
+const aboutRelatedPaths = [
+  `/${safeLang}/about`,
+  `/${safeLang}/company`,
+  `/${safeLang}/social`
+];
+
+// Helper para detectar si una sección padre está activa
+const isParentActive = (pathsGroup: string[]) => {
+  return pathsGroup.some(path => pathname.startsWith(path) || pathname === path);
+};
+
+// Helper simple para home y rutas únicas
+const isActive = (path: string) => {
+  if (path === `/${safeLang}/` && (pathname === `/${safeLang}/` || pathname === `/${safeLang}`)) return true;
+  return pathname.startsWith(path) && path !== `/${safeLang}/`;
+};
+
+// --- LOGICA CATALOGO BLANCO ---
+const isForceWhitePage = pathname.includes('/catalogo') || pathname.includes('/')|| pathname.includes('/')|| pathname.includes('/productos')|| pathname.includes('/arpillas')|| pathname.includes('/rafias')|| pathname.includes('/about')|| pathname.includes('/social')|| pathname.includes('/cuerdas') || pathname.includes('/social');
+const isForceBlackPage = pathname.includes('/distribuidor');
+function getLangPath(targetLang: string) {
+  if (pathname === '/' || pathname === '') return `/${targetLang}/`;
+  const hasLangPrefix = Object.keys(languages).some(lang => pathname.startsWith(`/${lang}`));
+  if (hasLangPrefix) {
+    return pathname.replace(new RegExp(`^/${safeLang}`), `/${targetLang}`);
+  } else {
+    return `/${targetLang}${pathname}`;
+  }
+}
+---
+
+<header class={`montfort-header transparent ${moveLogoMobile ? 'logo-shifted' : ''} ${isForceWhitePage ? 'force-white' : ''} ${isForceBlackPage ? 'force-black' : ''}`}>
+  <nav class="montfort-nav">
+
+    <div class="nav-left">
+      <div class="logo">
+        <a href={`/${safeLang}/`} class="js-trigger-home">
+            <img src="/images/logo/logo.png" alt="Logo" />
+        </a>
+      </div>
+    </div>
+
+    <div class="nav-links desktop-only">
+      <a href={`/${safeLang}/`} class={`nav-item js-trigger-home ${isActive(`/${safeLang}/`) ? 'active' : ''}`}>
+        <span class="nav-text">{t.home}</span>
+        <span class="nav-glow"></span>
+      </a>
+      
+      <div class={`nav-item has-dropdown ${isParentActive(productRelatedPaths) ? 'active' : ''}`}>
+        <a href={`/${safeLang}/productos`} class="nav-text-link">
+          <span class="nav-text">{t.products}</span>
+          <svg class="chevron" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+        </a>
+        <span class="nav-glow"></span>
+        
+        <div class="dropdown-menu">
+           <a href={`/${safeLang}/productos`} class="dropdown-item">{t.products}</a>
+           <a href={`/${safeLang}/catalogo`} class="dropdown-item">{t.catalog}</a>
+        </div>
+      </div>
+
+      <div class={`nav-item has-dropdown ${isParentActive(aboutRelatedPaths) ? 'active' : ''}`}>
+        <a href={`/${safeLang}/about`} class="nav-text-link">
+          <span class="nav-text">{t.about}</span>
+          <svg class="chevron" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+        </a>
+        <span class="nav-glow"></span>
+
+        <div class="dropdown-menu">
+          <a href={`/${safeLang}/about`} class="dropdown-item">{t.company}</a>
+          <a href={`/${safeLang}/social`} class="dropdown-item">{t.social}</a>
+        </div>
+      </div>
+
+      <a href={`/${safeLang}/distribuidor`} class={`nav-item ${isActive(`/${safeLang}/distribuidor`) ? 'active' : ''}`}>
+        <span class="nav-text">{t.distributor}</span>
+        <span class="nav-glow"></span>
+      </a>
+    </div>
+
+    <div class="nav-right">
+       
+      <div class="desktop-actions desktop-only">
+        <label class="theme-switch" aria-label="Cambiar tema">
+            <div class="theme-switch-outer">
+              <input class="js-theme-toggle" type="checkbox"> 
+              <div class="theme-button">
+                <span class="theme-toggle-icon"></span>
+              </div>
+            </div>
+        </label>
+         
+        <div class="nav-item has-dropdown icon-only-dropdown">
+            <button class="icon-btn globe-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                <span>{languages[safeLang as keyof typeof languages]}</span>
+            </button>
+            <div class="dropdown-menu lang-menu-pos">
+                {Object.entries(languages).map(([code, label]) => (
+                    <a href={getLangPath(code)} class={`dropdown-item ${safeLang === code ? 'active-lang' : ''}`}>
+                        {label}
+                    </a>
+                ))}
+            </div>
+        </div>
+
+        <a href="https://wa.me/524432072593" target="_blank" rel="noopener noreferrer" class="nav-btn btn-primary">{t.contact}</a>
+      </div>
+      
+      <div class="mobile-controls mobile-only">
+         
+        {showBackBtn && (
+          <a 
+            href={`/${safeLang}/productos`} 
+            class="back-arrow-btn" 
+            aria-label="Volver a productos"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="19" y1="12" x2="5" y2="12" />
+              <polyline points="12 19 5 12 12 5" />
+            </svg>
+          </a>
+        )}
+         
+        <label class="mobile-theme-btn" aria-label="Cambiar tema móvil">
+          <input class="js-theme-toggle" type="checkbox" style="display:none;">
+          <div class="icon-container">
+            <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+            <svg class="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+          </div>
+        </label>
+
+        <button id="mobile-lang-trigger" class="lang-pill-btn">
+          <span>{safeLang.toUpperCase()}</span>
+        </button>
+        <div id="mobile-lang-dropdown" class="mobile-mini-dropdown">
+          {Object.entries(languages).map(([code, label]) => (
+            <a href={getLangPath(code)} class={`mini-item ${safeLang === code ? 'active' : ''}`}>
+              {label}
+            </a>
+          ))}
+        </div>
+      </div>
+
+      <button id="mobile-menu-toggle" class="hamburger mobile-only" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+
+    </div>
+  </nav>
+
+  <div class="mobile-menu">
+    <div class="mobile-scroll-container">
+      <a href={`/${safeLang}/`} class="mobile-link js-trigger-home">{t.home}</a>
+
+      <div class="mobile-accordion">
+        <button class={`mobile-link accordion-btn ${isParentActive(productRelatedPaths) ? 'active-parent-mobile' : ''}`}>
+          {t.products}
+          <svg class="chevron" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+        </button>
+        <div class="accordion-content">
+          <a href={`/${safeLang}/productos`}>{t.products}</a>
+          <a href={`/${safeLang}/catalogo`}>{t.catalog}</a>
+        </div>
+      </div>
+
+      <div class="mobile-accordion">
+        <button class={`mobile-link accordion-btn ${isParentActive(aboutRelatedPaths) ? 'active-parent-mobile' : ''}`}>
+          {t.about}
+          <svg class="chevron" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+        </button>
+        <div class="accordion-content">
+          <a href={`/${safeLang}/about`}>{t.company}</a>
+          <a href={`/${safeLang}/social`}>{t.social}</a>
+        </div>
+      </div>
+
+      <a href={`/${safeLang}/distribuidor`} class="mobile-link">{t.distributor}</a>
+      
+     <a href="https://wa.me/524432072593" target="_blank" rel="noopener noreferrer" class="nav-btn btn-primary full-width" style="margin-top: 20px;">{t.contact}</a>
+    </div>
+  </div>
+</header>
+
+<script>
+  function initNavbar() {
+    const header = document.querySelector('.montfort-header');
+    const mobileToggle = document.getElementById("mobile-menu-toggle");
+    const mobileMenu = document.querySelector(".mobile-menu");
+    const accordions = document.querySelectorAll(".accordion-btn");
+    const langTrigger = document.getElementById("mobile-lang-trigger");
+    const langDropdown = document.getElementById("mobile-lang-dropdown");
+    
+    const themeInputs = document.querySelectorAll('.js-theme-toggle');
+    
+    const applyTheme = (isDark: boolean) => {
+      if (isDark) {
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('theme', 'dark');
+        themeInputs.forEach(input => { if(input instanceof HTMLInputElement) input.checked = true; });
+      } else {
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('theme', 'light');
+        themeInputs.forEach(input => { if(input instanceof HTMLInputElement) input.checked = false; });
+      }
+    };
+
+    const storedTheme = localStorage.getItem('theme');
+    
+    if (storedTheme === 'dark') {
+        applyTheme(true);
+    } else {
+        applyTheme(false);
+    }
+
+    themeInputs.forEach(input => {
+        const newInput = input.cloneNode(true);
+        input.parentNode?.replaceChild(newInput, input);
+        newInput.addEventListener('change', (e) => applyTheme((e.target as HTMLInputElement).checked));
+    });
+
+    // Scroll Logic
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 50) {
+            header?.classList.add('scrolled');
+            header?.classList.remove('transparent');
+        } else {
+            header?.classList.remove('scrolled');
+            header?.classList.add('transparent');
+        }
+    });
+  
+    if (mobileToggle && mobileMenu) {
+      mobileToggle.addEventListener("click", () => {
+        mobileMenu.classList.toggle("active");
+        mobileToggle.classList.toggle("active");
+        document.body.classList.toggle("no-scroll");
+      });
+      
+      // Cerrar menú móvil al hacer clic en un enlace
+      const mobileLinks = mobileMenu.querySelectorAll('a');
+      mobileLinks.forEach(link => {
+        link.addEventListener('click', () => {
+          mobileMenu.classList.remove('active');
+          mobileToggle.classList.remove('active');
+          document.body.classList.remove('no-scroll');
+        });
+      });
+    }
+  
+    if (langTrigger && langDropdown) {
+        langTrigger.addEventListener("click", (e) => {
+            e.stopPropagation(); 
+            langDropdown.classList.toggle("active");
+        });
+        document.addEventListener("click", (e) => {
+            if (e.target instanceof Node && !langTrigger.contains(e.target) && !langDropdown.contains(e.target)) {
+                langDropdown.classList.remove("active");
+            }
+        });
+    }
+  
+    accordions.forEach(acc => {
+        acc.addEventListener("click", (e) => {
+            const btn = e.currentTarget as HTMLElement;
+            const wasActive = btn.classList.contains("active");
+            
+            // Cerrar todos los acordeones
+            accordions.forEach(otherAcc => {
+                otherAcc.classList.remove("active");
+                const panel = otherAcc.nextElementSibling as HTMLElement;
+                if (panel) panel.style.maxHeight = '';
+            });
+            
+            // Abrir el actual si no estaba activo
+            if (!wasActive) {
+                btn.classList.add("active");
+                const panel = btn.nextElementSibling as HTMLElement;
+                if (panel) panel.style.maxHeight = panel.scrollHeight + "px";
+            }
+        });
+    });
+  }
+  
+  document.addEventListener('DOMContentLoaded', initNavbar);
+  document.addEventListener('astro:page-load', initNavbar);
+</script>
+
+<style>
+/* FUENTES Y VARIABLES */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
+
+:root {
+  --btn-bg: #fb670b; 
+  --btn-glow: rgba(251, 103, 11, 0.6);
+  --btn-text: #fff;
+  --header-bg-scrolled: rgba(255, 255, 255, 0.95); 
+  --text-main: #000000;
+  --text-muted: #cccccc;
+  --header-height: 80px;
+  --max-width: 1600px;
+}
+
+* { 
+  box-sizing: border-box; 
+  margin: 0; 
+  padding: 0; 
+  font-family: 'Poppins', sans-serif; 
+}
+
+:global(html.dark) {
+  --text-main: #ffffff;
+  /* CAMBIO AQUI: Fondo del header en scroll para dark mode igual a #262626 (con opacidad) */
+  --header-bg-scrolled: rgba(38, 38, 38, 0.95);
+}
+
+/* Catalogo texto blanco en header transparente */
+.montfort-header.force-white.transparent {
+    --text-main: #ffffff !important;
+}
+
+body.no-scroll { 
+  overflow: hidden; 
+}
+
+/* === HEADER === */
+.montfort-header {
+  z-index: 99999 !important;
+  position: fixed; 
+  top: 0; 
+  left: 0; 
+  width: 100%;
+  height: var(--header-height);
+  transition: all 0.4s ease; 
+  padding-top: 25px;
+}
+
+.montfort-header.transparent { 
+  background: transparent; 
+  box-shadow: none; 
+}
+
+.montfort-header.scrolled {
+  background: var(--header-bg-scrolled);
+  padding-top: 0;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1); 
+  backdrop-filter: blur(10px); 
+}
+
+:global(html.dark) .montfort-header.scrolled {
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+
+/* === NAV === */
+.montfort-nav {
+  max-width: var(--max-width); 
+  margin: 0 auto;
+  height: 100%; 
+  padding: 0 30px;
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center;
+}
+
+/* === LOGO === */
+.logo img { 
+  height: 45px; 
+  width: auto; 
+  transition: transform 0.3s; 
+}
+
+.logo img:hover { 
+  transform: scale(1.05); 
+}
+
+/* === DESKTOP NAV === */
+.nav-links { 
+  display: flex; 
+  gap: 40px; 
+  align-items: center; 
+}
+
+.nav-item, .nav-text-link {
+  position: relative;
+  color: var(--text-main);
+  text-decoration: none;
+  font-size: 13.5px; 
+  font-weight: 600; 
+  letter-spacing: 0.5px;
+  text-transform: uppercase; 
+  display: flex; 
+  align-items: center; 
+  gap: 6px;
+  padding: 10px 0; 
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.nav-text {
+  position: relative;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+              text-shadow 0.3s ease;
+  z-index: 2;
+}
+
+.nav-glow {
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: var(--btn-bg);
+  box-shadow: 0 0 10px var(--btn-bg), 0 0 20px var(--btn-bg); 
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateX(-50%);
+  opacity: 0;
+  z-index: 1;
+}
+
+.nav-item:hover .nav-text, 
+.nav-text-link:hover .nav-text {
+  color: var(--btn-bg);
+  transform: translateY(-2px); 
+  text-shadow: 0 0 15px var(--btn-glow); 
+}
+
+.nav-item:hover .nav-glow,
+.nav-text-link:hover ~ .nav-glow {
+  width: 100%;
+  opacity: 1;
+}
+
+.nav-item.active .nav-text {
+  color: var(--btn-bg);
+  font-weight: 700;
+  text-shadow: 0 0 10px rgba(251, 103, 11, 0.4);
+}
+
+.nav-item.active .nav-glow {
+  width: 60%; 
+  opacity: 1;
+  bottom: -4px;
+}
+
+.active-parent-mobile {
+  color: var(--btn-bg) !important;
+  font-weight: bold;
+}
+
+.chevron { 
+  transition: transform 0.3s ease; 
+}
+
+.has-dropdown:hover .chevron { 
+  transform: rotate(180deg); 
+  color: var(--btn-bg); 
+}
+
+/* === BOTONES === */
+.btn-primary {
+  background-color: var(--btn-bg); 
+  color: var(--btn-text);
+  font-size: 13.5px; 
+  font-weight: 600; 
+  height: 42px; 
+  padding: 0 24px;
+  border-radius: 50px; 
+  display: inline-flex; 
+  align-items: center; 
+  justify-content: center;
+  text-decoration: none; 
+  border: none; 
+  cursor: pointer; 
+  line-height: 1;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+  box-shadow: 0 4px 15px rgba(255, 102, 0, 0.3);
+  transform-style: preserve-3d;
+}
+
+.btn-primary:hover {
+  background-color: #fb670b; 
+  transform: translateY(-2px) scale(1.03); 
+  box-shadow: 0 8px 25px rgba(255, 102, 0, 0.6); 
+}
+
+.btn-primary:active {
+  transform: translateY(1px) scale(0.98); 
+}
+
+.full-width {
+  width: 100%;
+}
+
+/* === DROPDOWNS === */
+.has-dropdown { 
+  position: relative; 
+  height: 100%; 
+  display: flex; 
+  align-items: center; 
+}
+
+.dropdown-menu {
+  position: absolute; 
+  top: 60px; 
+  left: 50%; 
+  transform: translateX(-50%) translateY(15px);
+  background: rgba(20, 20, 20, 0.95); 
+  backdrop-filter: blur(12px); 
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px; 
+  padding: 10px; 
+  min-width: 200px;
+  opacity: 0; 
+  visibility: hidden; 
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5); 
+  z-index: 100;
+}
+
+.dropdown-menu::before {
+  content: ''; 
+  position: absolute; 
+  top: -6px; 
+  left: 50%; 
+  margin-left: -6px;
+  border-width: 0 6px 6px 6px; 
+  border-style: solid;
+  border-color: transparent transparent rgba(255,255,255,0.1) transparent;
+}
+
+.has-dropdown:hover .dropdown-menu { 
+  opacity: 1; 
+  visibility: visible; 
+  transform: translateX(-50%) translateY(0); 
+}
+
+.dropdown-item {
+  display: block; 
+  color: #aaa; 
+  padding: 10px 15px;
+  text-decoration: none; 
+  font-size: 13.5px; 
+  border-radius: 6px; 
+  transition: all 0.2s;
+  position: relative; 
+  overflow: hidden;
+}
+
+.dropdown-item:hover { 
+  background: rgba(255,255,255,0.05); 
+  color: var(--btn-bg); 
+  padding-left: 20px; 
+}
+
+/* === NAV RIGHT === */
+.nav-right, .desktop-actions { 
+  display: flex; 
+  align-items: center; 
+  gap: 20px; 
+}
+
+.globe-btn {
+  background-color: var(--btn-bg); 
+  color: #fff;
+  border: none; 
+  cursor: pointer; 
+  height: 42px;
+  padding: 0 20px; 
+  border-radius: 50px; 
+  display: flex;
+  align-items: center; 
+  gap: 8px; 
+  font-family: inherit;
+  transition: all 0.3s ease; 
+  box-shadow: 0 4px 15px rgba(255, 102, 0, 0.3);
+}
+
+.globe-btn span { 
+  font-size: 13.5px; 
+  font-weight: 600; 
+  text-transform: uppercase; 
+}
+
+.globe-btn:hover { 
+  transform: translateY(-2px); 
+  box-shadow: 0 6px 20px rgba(255, 102, 0, 0.5); 
+}
+
+/* === HAMBURGER === */
+.hamburger {
+  display: none; 
+  flex-direction: column; 
+  justify-content: space-between;
+  width: 28px; 
+  height: 20px; 
+  background: none; 
+  border: none; 
+  cursor: pointer; 
+  padding: 0;
+  z-index: 100000; 
+}
+
+.hamburger span {
+  display: block; 
+  width: 100%; 
+  height: 3px; 
+  background: var(--text-main); 
+  border-radius: 2px; 
+  transition: 0.3s;
+}
+
+.montfort-header.scrolled .hamburger span {
+  background: var(--text-main) !important;
+}
+
+.hamburger.active span:nth-child(1) { 
+  transform: rotate(45deg) translateY(8px); 
+  background: var(--btn-bg) !important; 
+}
+
+.hamburger.active span:nth-child(2) { 
+  opacity: 0; 
+}
+
+.hamburger.active span:nth-child(3) { 
+  transform: rotate(-45deg) translateY(-8px); 
+  background: var(--btn-bg) !important; 
+}
+
+/* === MOBILE MENU === */
+.mobile-menu {
+  position: fixed; 
+  top: 0; 
+  right: 0; 
+  width: 100%; 
+  height: 100vh;
+  /* CAMBIO AQUI: Fondo del menú móvil a #262626 */
+  background: #262626;
+  padding-top: 100px; 
+  padding-left: 30px; 
+  padding-right: 30px;
+  transform: translateX(100%); 
+  transition: transform 0.3s ease-in-out;
+  z-index: 99998; 
+  display: flex; 
+  flex-direction: column;
+}
+
+.mobile-menu.active { 
+  transform: translateX(0); 
+}
+
+.mobile-scroll-container { 
+  overflow-y: auto; 
+  height: 100%; 
+  padding-bottom: 40px; 
+}
+
+.mobile-link {
+  display: block; 
+  font-size: 18px; 
+  color: white; 
+  text-decoration: none;
+  padding: 18px 0; 
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  font-weight: 500; 
+  text-align: left; 
+  width: 100%; 
+  background: none; 
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.mobile-link:hover {
+  color: var(--btn-bg);
+}
+
+.accordion-btn { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+}
+
+.accordion-btn.active { 
+  color: var(--btn-bg); 
+  border-bottom-color: transparent; 
+}
+
+.accordion-btn.active .chevron { 
+  transform: rotate(180deg); 
+}
+
+.accordion-content {
+  max-height: 0; 
+  overflow: hidden; 
+  transition: max-height 0.3s ease-out;
+  background: rgba(255, 255, 255, 0.03); 
+  padding-left: 15px; 
+  border-radius: 8px;
+}
+
+.accordion-content a { 
+  display: block; 
+  padding: 12px 0; 
+  color: #999; 
+  text-decoration: none; 
+  font-size: 15px; 
+}
+
+.accordion-content a:hover { 
+  color: var(--btn-bg); 
+}
+
+/* === MOBILE CONTROLS === */
+.mobile-controls { 
+  position: relative; 
+  margin-right: 15px; 
+  display: none; 
+  align-items: center; 
+  gap: 10px;
+}
+
+/* === THEME SWITCH DESKTOP === */
+.theme-switch { 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  margin: 0; 
+  height: 45px; 
+  cursor: pointer; 
+}
+
+.theme-switch .theme-switch-outer {
+  height: 100%; 
+  background: #262626; /* Ya estaba correcto */
+  width: 90px; 
+  border-radius: 165px;
+  box-shadow: inset 0px 5px 10px 0px #1a1a1a, 0px 3px 6px -2px #403f4e;
+  border: 1px solid #32303e; 
+  padding: 6px; 
+  box-sizing: border-box; 
+  cursor: pointer; 
+  position: relative;
+  display: flex; 
+  align-items: center;
+}
+
+.theme-switch .theme-switch-outer input[type="checkbox"] { 
+  opacity: 0; 
+  appearance: none; 
+  position: absolute; 
+  width: 100%; 
+  height: 100%; 
+  cursor: pointer; 
+  z-index: 10; 
+  margin: 0; 
+}
+
+.theme-switch .theme-switch-outer .theme-button { 
+  width: 100%; 
+  height: 100%; 
+  display: flex; 
+  position: relative; 
+  pointer-events: none; 
+}
+
+.theme-switch .theme-switch-outer .theme-toggle-icon {
+  height: 30px; 
+  width: 30px; 
+  background: #ffffff;
+  border-radius: 100%; 
+  box-shadow: 0px 4px 15px 0px #0f0e17;
+  position: absolute; 
+  z-index: 2; 
+  transition: left 0.3s ease-in; 
+  left: 0; 
+  top: 0;
+}
+
+.theme-switch .theme-switch-outer input[type="checkbox"]:checked ~ .theme-button .theme-toggle-icon { 
+  left: calc(100% - 30px); 
+}
+
+/* === THEME SWITCH MOBILE === */
+.mobile-theme-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-theme-btn .icon-container {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1); 
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-main);
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.mobile-theme-btn .icon-container:active {
+  transform: scale(0.95);
+}
+
+.mobile-theme-btn .sun-icon { 
+  display: block; 
+}
+
+.mobile-theme-btn .moon-icon { 
+  display: none; 
+}
+
+.mobile-theme-btn input:checked ~ .icon-container {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  border-color: rgba(251, 103, 11, 0.3);
+}
+
+.mobile-theme-btn input:checked ~ .icon-container .sun-icon { 
+  display: none; 
+}
+
+.mobile-theme-btn input:checked ~ .icon-container .moon-icon { 
+  display: block; 
+}
+
+:global(html.dark) .mobile-theme-btn .icon-container {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* === LANGUAGE PILL MOBILE === */
+.lang-pill-btn {
+  background-color: var(--btn-bg); 
+  color: #fff; 
+  border: none;
+  border-radius: 50px; 
+  padding: 8px 16px; 
+  display: flex; 
+  align-items: center;
+  gap: 8px; 
+  font-size: 14px; 
+  font-weight: 600; 
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(255, 102, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.lang-pill-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(255, 102, 0, 0.5);
+}
+
+.mobile-mini-dropdown {
+  position: absolute; 
+  top: 120%; 
+  right: 0; 
+  background: #222;
+  border: 1px solid rgba(255,255,255,0.1); 
+  border-radius: 8px; 
+  padding: 5px; 
+  width: 120px;
+  opacity: 0; 
+  visibility: hidden; 
+  transform: translateY(-10px); 
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.5); 
+  display: flex; 
+  flex-direction: column;
+  z-index: 100001;
+}
+
+.mobile-mini-dropdown.active { 
+  opacity: 1; 
+  visibility: visible; 
+  transform: translateY(0); 
+}
+
+.mini-item {
+  color: #ccc; 
+  text-decoration: none; 
+  padding: 8px 12px;
+  font-size: 14px; 
+  border-radius: 4px; 
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.mini-item:hover {
+  background: rgba(255,255,255,0.1);
+  color: var(--btn-bg);
+}
+
+.mini-item.active {
+  background: rgba(251, 103, 11, 0.2);
+  color: var(--btn-bg);
+  font-weight: 600;
+}
+
+/* === BACK ARROW BUTTON === */
+.back-arrow-btn {
+  position: fixed; 
+  top: 25px; 
+  left: 20px; 
+  z-index: 100000 !important; 
+
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  border: 2px solid #000000; 
+  color: #000000 !important; 
+  background: #ffffff; 
+  
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3); 
+}
+
+.back-arrow-btn:hover {
+  transform: scale(1.1);
+  background: #fb670b; 
+  color: #ffffff !important; 
+  border-color: #fb670b;
+}
+
+:global(html.dark) .back-arrow-btn {
+  border-color: #ffffff;
+  color: #ffffff !important;
+  background: rgba(0, 0, 0, 0.8);
+}
+
+:global(html.dark) .back-arrow-btn:hover {
+  background: #fb670b;
+  border-color: #fb670b;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 1024px) {
+  .desktop-only { 
+    display: none !important; 
+  }
+  
+  .mobile-only { 
+    display: flex !important; 
+  }
+  
+  .hamburger { 
+    display: flex; 
+  }
+  
+  .nav-right { 
+    display: flex; 
+    align-items: center; 
+  }
+  
+  .mobile-controls {
+    display: flex;
+  }
+  
+  .montfort-nav {
+    padding: 0 20px;
+  }
+  
+  .logo img {
+    height: 40px;
+  }
+  
+  .montfort-header {
+    padding-top: 15px;
+  }
+  
+  .montfort-header.scrolled {
+    padding-top: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .mobile-controls {
+    gap: 8px;
+    margin-right: 10px;
+  }
+  
+  .lang-pill-btn {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+  
+  .mobile-theme-btn .icon-container {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .back-arrow-btn {
+    width: 36px;
+    height: 36px;
+    top: 20px;
+    left: 15px;
+  }
+}
+
+/* === UTILIDADES === */
+[dir="rtl"] .nav-links { 
+  flex-direction: row-reverse; 
+}
+
+[dir="rtl"] .mobile-mini-dropdown { 
+  left: 0; 
+  right: auto; 
+}
+
+.montfort-header.logo-shifted .logo { 
+  display: none; 
+}
+/* ===== LOGO ===== */
+
+/* Todas las páginas, header transparente → blanco (sobre video/imagen) */
+.logo img {
+  height: 45px;
+  width: auto;
+  filter: brightness(0) invert(1);
+  transition: transform 0.3s, filter 0.3s;
+}
+
+/* Al hacer scroll en modo CLARO → negro (header blanco) */
+.montfort-header.scrolled .logo img {
+  filter: brightness(0);
+}
+
+/* Al hacer scroll en modo DARK → blanco (header oscuro) */
+:global(html.dark) .montfort-header.scrolled .logo img {
+  filter: brightness(0) invert(1);
+}
+
+/* ===== DISTRIBUIDOR ===== */
+
+/* Distribuidor, transparente, modo CLARO → texto y logo negros */
+.montfort-header.force-black.transparent {
+  --text-main: #000000 !important;
+}
+
+.montfort-header.force-black.transparent .logo img {
+  filter: brightness(0);
+}
+
+.montfort-header.force-black.transparent .hamburger span {
+  background: #000000;
+}
+
+/* Distribuidor, transparente, modo DARK → texto y logo blancos */
+:global(html.dark) .montfort-header.force-black.transparent {
+  --text-main: #ffffff !important;
+}
+
+:global(html.dark) .montfort-header.force-black.transparent .logo img {
+  filter: brightness(0) invert(1);
+}
+
+:global(html.dark) .montfort-header.force-black.transparent .hamburger span {
+  background: #ffffff;
+}
+
+</style>

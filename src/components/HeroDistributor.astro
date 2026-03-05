@@ -1,0 +1,53 @@
+---
+const stats = [
+  { value: "10+", label: "Años de experiencia" },
+  { value: "800+", label: "Clientes activos" },
+  { value: "150+", label: "Distribuidores" },
+  { value: "100%", label: "Soporte directo" },
+];
+---
+
+<section class="hero">
+  <div class="hero-grid">
+
+    <!-- TEXTO -->
+    <div class="hero-content">
+      <h1>
+        Crece tu negocio <br />
+        <span>como Distribuidor</span>
+      </h1>
+
+      <p>
+        Accede a precios preferenciales, soporte directo y productos
+        listos para rotación constante.
+      </p>
+
+      <a href="#form" class="hero-btn">
+        Solicitar distribución →
+      </a>
+
+      <div class="stats">
+        {stats.map(stat => (
+          <div class="stat">
+            <strong>{stat.value}</strong>
+            <span>{stat.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <!-- IMAGEN ANIMADA -->
+    <div class="hero-visual">
+      <img
+        src="/images/distributor-hero.png"
+        alt="Distribuidor"
+        class="float"
+        loading="eager"
+      />
+
+      <div class="card card-1">Precios Preferenciales</div>
+      <div class="card card-2">Soporte Directo</div>
+    </div>
+
+  </div>
+</section>
