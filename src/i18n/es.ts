@@ -702,7 +702,7 @@ export const es = {
     specs_labels: {
       lamination: "Laminación",
       finish:     "Acabado",
-      size:       "Medidas",
+      size:       "Medidas hasta",
       zipper:     "Zipper",
       type:       "Tipo"
     },
@@ -719,11 +719,11 @@ export const es = {
           "/images/flexible/bobina-impresa-3.png"
         ],
         specs_values: {
-          lamination: "BOPP/BOPP · BOPP/PE · PET/PE",
-          finish:     "Transparente · Metalizado · Mate · Brillante",
-          size:       "Hasta 1,450 mm de ancho",
+          lamination: "3 Tipos",
+          finish:     "Variados",
+          size:       "1,450 mm",
           zipper:     "N/A",
-          type:       "Bobina de envasado"
+          type:       "Bobina"
         }
       },
       {
@@ -737,11 +737,11 @@ export const es = {
           "/images/flexible/standup-generica-3.png"
         ],
         specs_values: {
-          lamination: "Laminado de alta barrera",
-          finish:     "Natural · Mate · Metalizado",
-          size:       "150 g / 250 g / 500 g / 1 kg",
+          lamination: "Laminado",
+          finish:     "3 Tipos",
+          size:       "1 kg",
           zipper:     "Sí / No",
-          type:       "Stand Up Pouch"
+          type:       "Bolsa"
         }
       },
       {
@@ -755,11 +755,11 @@ export const es = {
           "/images/flexible/standup-origanics-3.png"
         ],
         specs_values: {
-          lamination: "Natural · Metalizado",
-          finish:     "Flores · Frutas · Espigas · Regalo",
-          size:       "150 g / 250 g / 500 g / 1 kg",
+          lamination: "2 Tipos",
+          finish:     "Regalo",
+          size:       "1 kg",
           zipper:     "Sí",
-          type:       "Stand Up Pouch con diseño"
+          type:       "Bolsa impresa"
         }
       },
       {
@@ -773,11 +773,11 @@ export const es = {
           "/images/flexible/bolsa-alto-vacio-3.png"
         ],
         specs_values: {
-          lamination: "Alta barrera multicapa",
-          finish:     "Transparente",
-          size:       "A medida del producto",
+          lamination: "Multicapa",
+          finish:     "Clara",
+          size:       "Producto",
           zipper:     "No",
-          type:       "Bolsa de vacío termosellada"
+          type:       "Bolsa"
         }
       }
     ]
