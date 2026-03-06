@@ -42,7 +42,7 @@
   src         : url('../fonts/MorganitePro-ExtraBold.ttf') format('truetype');
   font-weight : 800;
   font-style  : normal;
-  font-display: swap;
+  font-display: block;
 }
 
 @font-face {
@@ -50,7 +50,7 @@
   src         : url('../fonts/MorganitePro-BoldOblique.ttf') format('truetype');
   font-weight : 700;
   font-style  : oblique;
-  font-display: swap;
+  font-display: block;
 }
 
 @font-face {
@@ -58,7 +58,7 @@
   src         : url('../fonts/Morganite-ExtraBold.ttf') format('truetype');
   font-weight : 800;
   font-style  : normal;
-  font-display: swap;
+  font-display: block;
 }
 
 @font-face {
@@ -66,7 +66,7 @@
   src         : url('../fonts/Helony.otf') format('opentype');
   font-weight : normal;
   font-style  : normal;
-  font-display: swap;
+  font-display: block;
 }
 
 @font-face {
@@ -74,7 +74,7 @@
   src         : url('../fonts/Rolide-Regular.otf') format('opentype');
   font-weight : normal;
   font-style  : normal;
-  font-display: swap;
+  font-display: block;
 }
 
 @font-face {
@@ -82,7 +82,7 @@
   src         : url('../fonts/MyriadPro-Regular.otf') format('opentype');
   font-weight : 400;
   font-style  : normal;
-  font-display: swap;
+  font-display: block;
 }
 
 @font-face {
@@ -90,7 +90,7 @@
   src         : url('../fonts/NeueMontreal-Medium.otf') format('opentype');
   font-weight : 500;
   font-style  : normal;
-  font-display: swap;
+  font-display: block;
 }
 
 @font-face {
@@ -98,7 +98,7 @@
   src         : url('../fonts/Moisette-Regular.otf') format('opentype');
   font-weight : normal;
   font-style  : normal;
-  font-display: swap;
+  font-display: block;
 }
 
 @font-face {
@@ -106,7 +106,7 @@
   src         : url('../fonts/Moisette-Italic.otf') format('opentype');
   font-weight : normal;
   font-style  : italic;
-  font-display: swap;
+  font-display: block;
 }
 
 @font-face {
@@ -114,7 +114,7 @@
   src         : url('../fonts/SF-Pro.ttf') format('truetype');
   font-weight : normal;
   font-style  : normal;
-  font-display: swap;
+  font-display: block;
 }
 
 
