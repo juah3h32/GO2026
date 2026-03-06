@@ -1178,7 +1178,7 @@ export const en = {
       body:          "We are a benchmark in the plastics polymers industry in Mexico and Latin America, with certified processes and global response capacity.",
       btn:           "Our Story",
       badge1_label:  "Business Units",
-      badge1_number: 10,
+      badge1_number: 13,
       badge2_label:  "Divisions",
       badge2_number: 6,
       img:           "/images/home/planta-produccion.webp",

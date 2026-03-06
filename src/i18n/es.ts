@@ -54,7 +54,7 @@ export const es = {
     waStart: 'Hola Grupo Ortiz, me gustaría una cotización',
     pdfBtn: 'Ver catálogo PDF',
   },
-  
+
   pwa: {
   appName: "Grupo Ortiz",
   title: "Instalar GO App",
@@ -1178,7 +1178,7 @@ export const es = {
       body:          "Somos referente en la industria de polímeros plásticos en México y Latinoamérica, con procesos certificados y capacidad de respuesta global.",
       btn:           "Nuestra Historia",
       badge1_label:  "Unidades de Negocio",
-      badge1_number: 10,
+      badge1_number: 13,
       badge2_label:  "Divisiones",
       badge2_number: 6,
       img:           "/images/home/planta-produccion.webp",

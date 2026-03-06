@@ -1178,7 +1178,7 @@ export const zh = {
       body:          "我们是墨西哥和拉丁美洲塑料聚合物行业的标杆，拥有经认证的流程和全球响应能力。",
       btn:           "我们的历史",
       badge1_label:  "业务单元",
-      badge1_number: 10,
+      badge1_number: 13,
       badge2_label:  "部门",
       badge2_number: 6,
       img:           "/images/home/planta-produccion.webp",

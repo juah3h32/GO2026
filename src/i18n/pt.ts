@@ -1178,7 +1178,7 @@ export const pt = {
       body:          "Somos referência na indústria de polímeros plásticos no México e na América Latina, com processos certificados e capacidade de resposta global.",
       btn:           "Nossa História",
       badge1_label:  "Unidades de Negócio",
-      badge1_number: 10,
+      badge1_number: 13,
       badge2_label:  "Divisões",
       badge2_number: 6,
       img:           "/images/home/planta-produccion.webp",

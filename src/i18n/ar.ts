@@ -1178,7 +1178,7 @@ export const ar = {
       body:          "نحن مرجع في صناعة البوليمرات البلاستيكية في المكسيك وأمريكا اللاتينية، بعمليات معتمدة وقدرة استجابة عالمية.",
       btn:           "تاريخنا",
       badge1_label:  "وحدات الأعمال",
-      badge1_number: 10,
+      badge1_number: 13,
       badge2_label:  "أقسام",
       badge2_number: 6,
       img:           "/images/home/planta-produccion.webp",
