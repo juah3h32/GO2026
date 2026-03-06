@@ -34,7 +34,7 @@ export const pt = {
     redirecting: "Redirecionando...",
     download: "Baixar",
     language: "Idioma",
-    scrollDown: "Deslize para baixo",
+    scrollDown: "Role para baixo",
     previous: "Anterior",
     next: "Próximo"
   },
@@ -44,15 +44,24 @@ export const pt = {
   // =================================================
   chatbot: {
     greeting: 'Olá! Sou o BotGo 🤖. Como posso ajudá-lo hoje?',
-    placeholder: 'Escreva uma mensagem...',
+    placeholder: 'Digite uma mensagem...',
     listeningState: 'Ouvindo...',
     thinking: 'Pensando...',
     errorMsg: 'Erro de conexão.',
-    salesBtn: 'Cotação pelo WhatsApp',
+    salesBtn: 'Cotar pelo WhatsApp',
     voiceAssistantTitle: 'Assistente Virtual',
     voiceCode: 'pt-BR',
     waStart: 'Olá Grupo Ortiz, gostaria de uma cotação',
     pdfBtn: 'Ver catálogo PDF',
+  },
+
+  pwa: {
+    appName: "Grupo Ortiz",
+    title: "Instalar App GO",
+    description: "Acesso rápido pela sua tela inicial",
+    install: "Instalar",
+    notNow: "Agora não",
+    timeLabel: "agora"
   },
 
   // =================================================
@@ -64,15 +73,15 @@ export const pt = {
       label: "OFERTAS ESPECIAIS",
       title: "PROMOÇÕES",
       subtitle: "Aproveite nossas ofertas por tempo limitado",
-      validity: "Válido até esgotar o estoque*"
+      validity: "Válido enquanto durar o estoque*"
     },
     discount_badge: "ATÉ",
     off_text: "DE DESCONTO",
-    original_price: "De",
+    original_price: "Antes",
     promo_price: "Preço Especial",
     buy_button: "Solicitar Cotação",
     contact_cta: "Entre em contato com um consultor para mais informações",
-    valid_until: "Válido até esgotar o estoque*",
+    valid_until: "Válido enquanto durar o estoque*",
 
     products: [
       {
@@ -84,12 +93,12 @@ export const pt = {
         originalPrice: "",
         promoPrice: "$33/KG",
         features: [
-          "Filme extensível colorido",
+          "Filme stretch colorido",
           "Preço especial por quilograma",
           "Estoque limitado",
           "Disponível em várias cores"
         ],
-        validUntil: "Válido até esgotar o estoque*"
+        validUntil: "Válido enquanto durar o estoque*"
       },
       {
         id: "promo-cuerda",
@@ -105,7 +114,7 @@ export const pt = {
           "Oferta por tempo limitado",
           "Disponibilidade sujeita ao estoque"
         ],
-        validUntil: "Válido até esgotar o estoque*"
+        validUntil: "Válido enquanto durar o estoque*"
       }
     ]
   },
@@ -117,7 +126,7 @@ export const pt = {
     hero: {
       label: "DOCUMENTAÇÃO",
       title: "CATÁLOGO GERAL",
-      description: "Qualidade e soluções integradas em um único documento. Selecione seu idioma preferido para obter nossa apresentação corporativa.",
+      description: "Qualidade e soluções integradas em um único documento. Selecione seu idioma preferido para acessar nossa apresentação corporativa.",
       scrollText: "VER DIVISÕES"
     },
     carousel: {
@@ -129,8 +138,8 @@ export const pt = {
     divisions: [
       {
         id: "1",
-        name: "FILME EXTENSÍVEL",
-        desc: "Filme stretch para proteger e fixar cargas. Solução eficiente para paletização e transporte seguro.",
+        name: "STRETCH FILM",
+        desc: "Filme stretch para fixar e proteger cargas. Solução eficiente para paletização e transporte seguro.",
         image: "/images/catalogo/img1.webp",
         catalogs: {
           es: "https://drive.google.com/file/d/1HYGcpgkRO_7OX22IcWvRpzpLZKgpYV3A/view?usp=sharing",
@@ -149,8 +158,8 @@ export const pt = {
       },
       {
         id: "3",
-        name: "RÁFIA",
-        desc: "O padrão em amarração para agricultura e indústria. Material resistente e flexível para múltiplas aplicações.",
+        name: "RAFIA",
+        desc: "O padrão em fixação para agricultura e indústria. Material resistente e flexível para múltiplas aplicações.",
         image: "/images/catalogo/img3.webp",
         catalogs: {
           es: "https://drive.google.com/file/d/1uAiR4uxO2iX_LsNFul6kXeb7jnnCEV_J/view?usp=sharing",
@@ -159,7 +168,7 @@ export const pt = {
       },
       {
         id: "4",
-        name: "SACO DE MALHA",
+        name: "REDE / SACO DE TELA",
         desc: "Tecido de malha aberta para máxima ventilação agrícola. Soluções versáteis para embalagem e transporte de produtos do campo.",
         image: "/images/catalogo/img4.webp",
         catalogs: {
@@ -170,7 +179,7 @@ export const pt = {
       {
         id: "5",
         name: "SACO",
-        desc: "Polipropileno tecido plano para embalagem a granel. Resistência superior para produtos em grande volume.",
+        desc: "Polipropileno tecido plano para embalagem em grande escala. Resistência superior para produtos a granel.",
         image: "/images/catalogo/img5.webp",
         catalogs: {
           es: "https://drive.google.com/file/d/16S43-PUrQECO9q2J1fOgbN-YeIxQ2GhP/view?usp=sharing",
@@ -180,7 +189,7 @@ export const pt = {
       {
         id: "6",
         name: "CANTONEIRA",
-        desc: "Proteção estrutural e estabilidade para paletes. Reforço essencial em logística e armazenamento de carga.",
+        desc: "Proteção estrutural e estabilidade para paletes. Reforço essencial em logística e armazenamento de cargas.",
         image: "/images/catalogo/img6.webp",
         catalogs: {
           es: "https://drive.google.com/file/d/181Hvr0HQffLU3rmcXkccYoqj-Y_A-gxr/view?usp=sharing",
@@ -207,42 +216,42 @@ export const pt = {
     {
       img: "carrusel/img1.webp",
       division: "STRETCH FILM",
-      descripcion: "Filme extensível de alta claridade óptica e padrões de qualidade. Garante a integridade da carga e eficiência em custos. Nossa linha inclui opção Biodegradável, formulada para degradar-se 90% mais rápido.",
+      descripcion: "Filme stretch de alta claridade óptica e padrões de qualidade. Garante a integridade da carga e eficiência em custos. Nossa linha inclui opção Biodegradável, formulada para se degradar 90% mais rápido.",
       slug: "stretch-film",
       video: "carrusel/stretch-film.mp4"
     },
     {
       img: "carrusel/img2.webp",
       division: "CORDA",
-      descripcion: "Corda de Filamento de Polipropileno (PP) de alto desempenho. Equilíbrio perfeito: extrema leveza sem sacrificar a resistência à ruptura.",
+      descripcion: "Corda de Filamento de Polipropileno (PP) de alto desempenho. Equilíbrio perfeito: leveza extrema sem sacrificar a resistência à ruptura.",
       slug: "cuerdas",
       video: "carrusel/cuerdas.mp4"
     },
     {
       img: "carrusel/img3.webp",
-      division: "RÁFIA",
-      descripcion: "Ráfia de Filme de Polipropileno (PP) de alto desempenho. Grande leveza e alta resistência à ruptura. Flexível e versátil.",
+      division: "RAFIA",
+      descripcion: "Rafia de Filme de Polipropileno (PP) de alto desempenho. Grande leveza e alta resistência à ruptura. Flexível e versátil.",
       slug: "rafias",
       video: "carrusel/rafia.mp4"
     },
     {
       img: "carrusel/img4.webp",
-      division: "SACO DE MALHA",
-      descripcion: "Sacos de malha de Ráfia de Polipropileno em tecido plano com costura reforçada tipo 'L'. Design ventilado ideal para frutas e verduras.",
+      division: "REDE / SACO DE TELA",
+      descripcion: "Sacos de malha de Rafia de Polipropileno em tecido plano com costura reforçada tipo 'L'. Design ventilado ideal para frutas e verduras.",
       slug: "arpillas",
       video: "carrusel/arpillas.mp4"
     },
     {
       img: "carrusel/img5.webp",
       division: "SACO",
-      descripcion: "Sacos de Ráfia de qualidade superior. Solução de embalagem robusta para alimentos, produtos químicos e fertilizantes.",
+      descripcion: "Sacos de Rafia de qualidade superior. Solução de embalagem robusta para alimentos, produtos químicos e fertilizantes.",
       slug: "sacos",
       video: "carrusel/sacos.mp4"
     },
     {
       img: "carrusel/img6.webp",
       division: "CANTONEIRA",
-      descripcion: "Cantoneiras de papelão para otimizar a logística. Resistência estrutural e maior estabilidade de carga.",
+      descripcion: "Cantoneiras de papelão para otimizar a logística. Maior resistência estrutural e estabilidade de carga.",
       slug: "esquineros",
       video: "carrusel/esquineros.mp4"
     },
@@ -256,17 +265,17 @@ export const pt = {
   ],
 
   // =================================================
-  // PÁGINA: STRETCH FILM (Filme Extensível)
+  // PÁGINA: STRETCH FILM
   // =================================================
   stretch_film: {
-    meta_title: "Filme Extensível | Grupo Ortiz",
+    meta_title: "Stretch Film | Grupo Ortiz",
     back_aria: "Voltar aos produtos",
     specs_title: "ESPECIFICAÇÕES TÉCNICAS",
 
     specs_labels: {
       width: "Largura",
       length: "Comprimento",
-      gauge: "Espessura/Mícrons",
+      gauge: "Calibre/Mícrons",
       weight: "Peso do Rolo",
       type: "Uso"
     },
@@ -277,7 +286,7 @@ export const pt = {
         img: '/images/stretch/stretch.png',
         video: "/videos/stretch/fondo.mp4",
         link: '#',
-        description: "Projetado para a paletização manual, este filme stretch de estiramento moderado oferece uma solução prática e eficiente para fixar cargas sem necessidade de maquinário automático. Sua composição garante boa resistência e desempenho confiável em processos de embalagem.",
+        description: "Projetado para paletização manual, este filme stretch de estiramento moderado oferece uma solução prática e eficiente para fixar cargas sem necessidade de maquinário automático. Sua composição garante boa resistência e desempenho confiável nos processos de embalagem.",
         specs_values: { width: "19-30 cm", length: "1000-15000", gauge: "40-110", weight: "10-40 kg", type: "Manual" },
         gallery: [
           '/images/stretch/stretch2.png',
@@ -290,7 +299,7 @@ export const pt = {
         img: '/images/stretch/stretch.png',
         video: "/videos/stretch/fondo.mp4",
         link: '#',
-        description: "Projetado para ser aplicado com máquinas envolvedoras de baixa e média velocidade, este filme stretch oferece alto desempenho e excelente rendimento em processos automatizados de paletização. Sua formulação garante resistência e estabilidade na fixação de cargas.",
+        description: "Projetado para uso com máquinas envolvedoras de baixa e média velocidade, este filme stretch oferece alto desempenho e excelentes resultados em processos automatizados de paletização. Sua formulação garante resistência e estabilidade na fixação de cargas.",
         specs_values: { width: "18-30 cm", length: "2000-15000", gauge: "50-110", weight: "10-49 kg", type: "Automático" },
         gallery: [
           '/images/stretch/stretch2.png',
@@ -299,11 +308,11 @@ export const pt = {
         ]
       },
       {
-        name: 'MANUAL PRÉ-ESTIRADO',
+        name: 'MANUAL PRÉ-ESTICADO',
         img: '/images/stretch/stretch.png',
         video: "/videos/stretch/fondo.mp4",
         link: '#',
-        description: "Projetado para aplicação manual de alto desempenho, este filme pré-estirado destaca-se por oferecer uma das menores espessuras do mercado. Sua tecnologia elimina a necessidade de exercer força adicional ao envolver, facilitando seu uso imediato e melhorando a eficiência no processo de paletização.",
+        description: "Projetado para aplicação manual de alto desempenho, este filme pré-esticado destaca-se por oferecer uma das menores espessuras do mercado. Sua tecnologia elimina a necessidade de exercer força adicional ao envolver, facilitando seu uso imediato e melhorando a eficiência no processo de paletização.",
         specs_values: { width: "16-17 cm", length: "7000-25000", gauge: "40-120", weight: "10-40 kg", type: "Manual" },
         gallery: [
           '/images/stretch/stretch2.png',
@@ -316,7 +325,7 @@ export const pt = {
         img: '/images/stretch/manual.png',
         video: "/videos/stretch/fondo.mp4",
         link: '#',
-        description: "Projetado para sua aplicação em envoltório manual com estiramento moderado, este filme stretch tradicional oferece excelente desempenho em processos de embalagem e fixação de carga. Sua composição garante resistência e estabilidade em aplicações gerais.",
+        description: "Projetado para aplicação em embrulho manual com estiramento moderado, este filme stretch tradicional oferece excelente desempenho em processos de embalagem e fixação de cargas. Sua composição garante resistência e estabilidade em aplicações gerais.",
         specs_values: { width: "3-12 cm", length: "7000-25000", gauge: "40-120", weight: "10-40 kg", type: "Manual" },
         gallery: [
           '/images/stretch/stretch2.png',
@@ -329,7 +338,7 @@ export const pt = {
         img: '/images/stretch/rigido.png',
         video: "/videos/stretch/fondo.mp4",
         link: '#',
-        description: "Formulado especialmente para aplicações em envoltório manual com estiramento limitado, este filme stretch oferece alto desempenho e grande confiabilidade em processos de embalagem. Sua composição garante estabilidade e eficiência na fixação de cargas.",
+        description: "Formulado especialmente para aplicações em embrulho manual com estiramento limitado, este filme stretch oferece alto desempenho e grande confiabilidade nos processos de embalagem. Sua composição garante estabilidade e eficiência na fixação de cargas.",
         specs_values: { width: "17-30 cm", length: "1000-15000", gauge: "40-90", weight: "10-40 kg", type: "Manual", color: "Preto/Colorido" },
         gallery: [
           '/images/stretch/rigido2.png',
@@ -359,11 +368,11 @@ export const pt = {
 
     products: [
       {
-        name: 'CORDA FERRETEIRA',
+        name: 'CORDA DE FERRAGEM',
         img: '/images/cuerdas/CuerdaT1.webp',
         video: "/videos/cuerdas/cuerda-1.mp4",
         link: '#',
-        description: "Fabricada com polipropileno e um avançado filtro UV, esta corda é ideal para atividades com alta exposição solar. Sua formulação especializada retarda o desgaste natural e prolonga sua vida útil, garantindo maior resistência e durabilidade frente às intempéries. É a corda perfeita para proporcionar firmeza, segurança e desempenho confiável em aplicações gerais e trabalhos exigentes.",
+        description: "Fabricado com polipropileno e um filtro UV avançado, este cabo é ideal para atividades com alta exposição solar. Sua formulação especializada retarda o desgaste natural e prolonga sua vida útil, garantindo maior resistência e durabilidade contra as intempéries. É a corda de ferragem perfeita para proporcionar firmeza, segurança e desempenho confiável em aplicações gerais e trabalhos exigentes.",
         specs_values: { load: "1.980 m", mat: "PP-UV", weight: "18 kg", resist: "175 kg", charge: "4-19 mm" },
         gallery: [
           '/images/cuerdas/CuerdaT1-2.png',
@@ -376,7 +385,7 @@ export const pt = {
         img: '/images/cuerdas/CuerdaNegra.webp',
         video: "/videos/cuerdas/CuerdaI.mp4",
         link: '#',
-        description: "Fabricada com polipropileno (PP) e estabilizador UV, esta corda é ideal para o setor marítimo e atividades com alta exposição solar. Sua formulação especializada retarda o desgaste provocado pela radiação ultravioleta, prolongando sua vida útil e garantindo maior resistência às intempéries. É a solução perfeita para proporcionar firmeza e estabilidade em macro-túneis agrícolas.",
+        description: "Fabricado com polipropileno (PP) e estabilizador UV, este cabo é ideal para o setor marítimo e atividades com alta exposição solar. Sua formulação especializada retarda a degradação causada pela radiação ultravioleta, prolongando sua vida útil e garantindo maior resistência às intempéries. É a solução perfeita para proporcionar firmeza e estabilidade em macrotúneis agrícolas.",
         specs_values: { load: "3.240 m", mat: "PP-UV", weight: "18 kg", resist: "105 kg", charge: "3-8 mm" },
         gallery: [
           '/images/cuerdas/CuerdaNegra6-1.png',
@@ -389,7 +398,7 @@ export const pt = {
         img: '/images/cuerdas/CuerdaEco.png',
         video: "/videos/cuerdas/CuerdaE.mp4",
         link: '#',
-        description: "Fabricada com polipropileno (PP) de alta qualidade, esta corda oferece uma ampla variedade de apresentações, calibres e cores, disponíveis em versões lisas ou combinadas, com reforço ou com marca. Sua versatilidade e resistência a tornam uma opção confiável para múltiplas aplicações, para uso em indústrias, fábricas, armazéns, mercados de abastecimento, lojas de ferragens, oficinas e áreas de usinagem.",
+        description: "Fabricada com polipropileno (PP) de alta qualidade, esta corda oferece ampla variedade de apresentações, calibres e cores, disponíveis em versões lisas ou combinadas, com reforço ou com marca. Sua versatilidade e resistência a tornam uma opção confiável para múltiplas aplicações em indústrias, fábricas, armazéns, mercados de atacado, ferragens, oficinas e áreas de usinagem.",
         specs_values: { load: "3.240 m", mat: "PP-UV", weight: "18 kg", resist: "105 kg", charge: "3-8 mm" },
         gallery: [
           '/images/cuerdas/CuerdaEco1.png',
@@ -401,10 +410,10 @@ export const pt = {
   },
 
   // =================================================
-  // PÁGINA: RÁFIAS
+  // PÁGINA: RAFIAS
   // =================================================
   rafias: {
-    meta_title: "Ráfias | Grupo Ortiz",
+    meta_title: "Rafias | Grupo Ortiz",
     back_aria: "Voltar",
     specs_title: "ESPECIFICAÇÕES TÉCNICAS",
 
@@ -417,8 +426,8 @@ export const pt = {
 
     products: [
       {
-        name: "RÁFIA DE AMARRAÇÃO",
-        description: "Fabricada com polipropileno 100% virgem, esta ráfia oferece alta resistência e excelente rendimento, mantendo suas propriedades físicas mesmo em condições de intempérie. Sua qualidade garante durabilidade e desempenho confiável em aplicações exigentes. É amplamente utilizada nos setores agrícola, avícola e de horticultura.",
+        name: "RAFIA PARA AMARRAR",
+        description: "Fabricada com polipropileno 100% virgem, esta rafia oferece alta resistência e excelente rendimento, mantendo suas propriedades físicas mesmo em condições de intempérie. Sua qualidade garante durabilidade e desempenho confiável em aplicações exigentes. É amplamente utilizada nos setores agrícola, avícola e de horticultura.",
         img: "/images/rafias/atar.png",
         video: "/videos/rafia/fondoN.mp4",
         specs_values: {
@@ -434,8 +443,8 @@ export const pt = {
         ]
       },
       {
-        name: "RÁFIA ECOLÓGICA",
-        description: "Fabricada com polipropileno de alta qualidade, esta ráfia oferece excelente resistência e mantém suas propriedades físicas mesmo em condições de intempérie. Seu desempenho confiável a torna uma opção ideal para aplicações agrícolas, avícolas e de horticultura.",
+        name: "RAFIA ECOLÓGICA",
+        description: "Fabricada com polipropileno de alta qualidade, esta rafia oferece excelente resistência e mantém suas propriedades físicas mesmo em condições de intempérie. Seu rendimento confiável a torna uma opção ideal para aplicações agrícolas, avícolas e de horticultura.",
         img: "/images/rafias/Eco.png",
         video: "/videos/rafia/fondoE.mp4",
         specs_values: {
@@ -451,8 +460,8 @@ export const pt = {
         ]
       },
       {
-        name: "RÁFIA FIBRILADA PRETA",
-        description: "Fabricada com polipropileno de alta qualidade, esta ráfia oferece grande resistência e mantém suas propriedades físicas mesmo em condições de intempérie. Seu excelente rendimento a torna ideal para aplicações industriais, de ferragens e de embalagem, assim como para os setores agrícola, avícola e de horticultura.",
+        name: "RAFIA FIBRILADA PRETA",
+        description: "Fabricada com polipropileno de alta qualidade, esta rafia oferece grande resistência e mantém suas propriedades físicas mesmo em condições de intempérie. Seu excelente rendimento a torna ideal para aplicações industriais, de ferragem e embalagem, bem como para os setores agrícola, avícola e de horticultura.",
         img: "/images/rafias/negra.png",
         video: "/videos/rafia/fondoR.mp4",
         specs_values: {
@@ -471,10 +480,10 @@ export const pt = {
   },
 
   // =================================================
-  // PÁGINA: SACOS DE MALHA
+  // PÁGINA: REDES / SACOS DE TELA
   // =================================================
   arpillas: {
-    meta_title: "Sacos de Malha | Grupo Ortiz",
+    meta_title: "Redes / Sacos de Tela | Grupo Ortiz",
     back_aria: "Voltar",
     specs_title: "ESPECIFICAÇÕES TÉCNICAS",
 
@@ -487,11 +496,11 @@ export const pt = {
 
     products: [
       {
-        name: 'SACO DE MALHA CIRCULAR',
+        name: 'REDE CIRCULAR',
         img: '/images/arpillas/arpilla.png',
         video: "/videos/arpilla/circular.mp4",
         link: '#',
-        description: "Fabricado com polipropileno 100% virgem e construção ráfia, este saco de malha oferece alta resistência e excelente desempenho em aplicações de embalagem e armazenamento. Sua qualidade garante durabilidade e desempenho confiável no manuseio de diversos produtos.",
+        description: "Fabricada com polipropileno 100% virgem e construção em rafia, esta rede oferece alta resistência e excelente rendimento em aplicações de embalagem e armazenamento. Sua qualidade garante durabilidade e desempenho confiável no manuseio de diversos produtos.",
         specs_values: {
           sizes: "23-70 cm",
           colors: "4",
@@ -504,11 +513,11 @@ export const pt = {
         ]
       },
       {
-        name: 'SACO DE MALHA MONOFILAMENTO',
+        name: 'REDE MONOFILAMENTO',
         img: '/images/arpillas/arpilla2.png',
         video: "/videos/arpilla/mono.mp4",
         link: '#',
-        description: "Fabricado com polipropileno 100% virgem e construção ráfia/monofilamento, este saco de malha oferece alta resistência e excelente desempenho em aplicações de embalagem e armazenamento. Sua estrutura proporciona durabilidade e desempenho confiável no manuseio e proteção de diversos produtos.",
+        description: "Fabricada com polipropileno 100% virgem e construção rafia/monofilamento, esta rede oferece alta resistência e excelente rendimento em aplicações de embalagem e armazenamento. Sua estrutura proporciona durabilidade e desempenho confiável no manuseio e proteção de diversos produtos.",
         specs_values: {
           construction: "Monofilamento",
           sizes: "23-70 cm",
@@ -522,11 +531,11 @@ export const pt = {
         ]
       },
       {
-        name: 'SACO DE MALHA COSTURA LATERAL',
+        name: 'REDE COM COSTURA LATERAL',
         img: '/images/arpillas/arpilla3.png',
         video: "/videos/arpilla/costura.mp4",
         link: '#',
-        description: "Fabricado com polipropileno 100% virgem e construção ráfia/monofilamento, este saco de malha oferece alta resistência e excelente desempenho em aplicações de embalagem e armazenamento. Sua estrutura garante durabilidade e confiabilidade no manuseio de diferentes produtos.",
+        description: "Fabricada com polipropileno 100% virgem e construção rafia/monofilamento, esta rede oferece alta resistência e excelente desempenho em aplicações de embalagem e armazenamento. Sua estrutura garante durabilidade e confiabilidade no manuseio de diferentes produtos.",
         specs_values: {
           type: "Lateral",
           construction: "Monofilamento",
@@ -541,14 +550,14 @@ export const pt = {
         ]
       },
       {
-        name: 'SACO DE MALHA ETIQUETA LAMINADA',
+        name: 'REDE COM ETIQUETA LAMINADA',
         img: '/images/arpillas/arpilla4.png',
         video: "/videos/arpilla/etiqueta.mp4",
         link: '#',
-        description: "Fabricado com polipropileno 100% virgem e construção ráfia/ráfia, este saco de malha oferece alta resistência e excelente desempenho em processos de embalagem e armazenamento. Seu tecido garante durabilidade e confiabilidade para aplicações exigentes tanto no mercado nacional quanto de exportação.",
+        description: "Fabricada com polipropileno 100% virgem e construção rafia/rafia, esta rede oferece alta resistência e excelente desempenho em processos de embalagem e armazenamento. Sua trama garante durabilidade e confiabilidade para aplicações exigentes tanto no mercado doméstico quanto de exportação.",
         specs_values: {
           type: "Laminado",
-          construction: "Ráfia",
+          construction: "Rafia",
           sizes: "23-70 cm",
           colors: "4",
           features: "Cordão"
@@ -579,12 +588,12 @@ export const pt = {
 
     products: [
       {
-        name: 'SACO DE RÁFIA SEM LAMINAÇÃO',
+        name: 'SACO DE RAFIA SEM LAMINAÇÃO',
         img: '/images/sacos/saco2.png',
         model: '/models/saco_blanco.glb',
         video: "/videos/saco/slaminar.mp4",
         link: '#',
-        description: "Fabricados com fitas de polipropileno entrelaçadas, os sacos de ráfia sem laminação oferecem grande resistência e excelente durabilidade em aplicações de embalagem e armazenamento. Sua estrutura permite suportar cargas pesadas sem romper, garantindo um desempenho confiável em trabalhos exigentes.",
+        description: "Fabricados com fitas de polipropileno entrelaçadas, os sacos de rafia sem laminação oferecem grande resistência e excelente durabilidade em aplicações de embalagem e armazenamento. Sua estrutura suporta cargas pesadas sem romper, garantindo desempenho confiável em trabalhos exigentes.",
         specs_values: {
           load: "35-80 cm",
           unit: "49-115 cm",
@@ -602,7 +611,7 @@ export const pt = {
         img: '/images/sacos/saco.png',
         video: "/videos/saco/transp.mp4",
         link: '#',
-        description: "Fabricados com fitas de polipropileno e acabamento transparente, estes sacos oferecem alta resistência e permitem uma excelente visualização do produto embalado. Sua estrutura garante durabilidade e desempenho confiável em aplicações de armazenamento e transporte.",
+        description: "Fabricados com fitas de polipropileno e acabamento transparente, estes sacos oferecem alta resistência e permitem excelente visualização do produto embalado. Sua estrutura garante durabilidade e desempenho confiável em aplicações de armazenamento e transporte.",
         specs_values: {
           load: "35-80 kg",
           unit: "49-115 cm",
@@ -616,11 +625,11 @@ export const pt = {
         ]
       },
       {
-        name: 'SACO DE RÁFIA ECOLÓGICO',
+        name: 'SACO DE RAFIA ECOLÓGICO',
         img: '/images/sacos/saco3.png',
         video: "/videos/saco/eco.mp4",
         link: '#',
-        description: "Fabricados com material reciclado proveniente da sobra do próprio processo de produção, estes sacos oferecem resistência e boa durabilidade a um custo mais acessível. Sua fabricação permite um desempenho confiável em aplicações gerais de embalagem e armazenamento.",
+        description: "Fabricados com material reciclado proveniente dos resíduos do próprio processo de produção, estes sacos oferecem resistência e boa durabilidade a um custo mais acessível. Sua fabricação permite desempenho confiável em aplicações gerais de embalagem e armazenamento.",
         specs_values: {
           load: "30-80 kg",
           unit: "49-115 cm",
@@ -648,15 +657,15 @@ export const pt = {
       tab:      "Aba",
       thick:    "Espessura",
       length:   "Comprimento",
-      tabyd:    "Aba (yd)",
-      thickyd:  "Espessura (yd)",
-      lengthyd: "Comprimento (yd)"
+      tabyd:    "Aba (jarda)",
+      thickyd:  "Espessura (jarda)",
+      lengthyd: "Comprimento (jarda)"
     },
 
     products: [
       {
         name: "CANTONEIRA KRAFT MARROM",
-        description: "Fabricada para proteger bordas e cantos durante o transporte e armazenamento, esta cantoneira distribui a pressão de maneira uniforme, evitando deformações e danos na mercadoria. Sua estrutura oferece resistência e estabilidade em aplicações de embalagem exigentes.",
+        description: "Fabricada para proteger bordas e cantos durante o transporte e armazenamento, esta cantoneira distribui a pressão de forma uniforme, evitando deformações e danos nas mercadorias. Sua estrutura oferece resistência e estabilidade em aplicações de embalagem exigentes.",
         img: "/images/esquinero/esquinero.png",
         video: "/videos/esquinero/esquinero.mp4",
         link: "#",
@@ -673,7 +682,7 @@ export const pt = {
       },
       {
         name: "CANTONEIRA KRAFT BRANCA",
-        description: "Fabricada para proteger bordas e cantos durante o transporte e armazenamento, esta cantoneira distribui a pressão de maneira uniforme, evitando deformações e danos na mercadoria. Sua estrutura oferece resistência e estabilidade em aplicações de embalagem exigentes.",
+        description: "Fabricada para proteger bordas e cantos durante o transporte e armazenamento, esta cantoneira distribui a pressão de forma uniforme, evitando deformações e danos nas mercadorias. Sua estrutura oferece resistência e estabilidade em aplicações de embalagem exigentes.",
         img: "/images/esquinero/esquinerob.png",
         video: "/videos/esquinero/esquinero.mp4",
         link: "#",
@@ -710,7 +719,7 @@ export const pt = {
     products: [
       {
         name: "BOBINA IMPRESSA",
-        description: "Nossas bobinas contam com grande variedade em laminações, calibres e acabamentos. Com opção de impressão até 10 tintas e 133 linhas por polegada. Desenvolvimento máximo: 1.140 mm. Largura máxima de impressão: 1.450 mm. Compatíveis com maquinário de envase automático para otimizar a eficiência de produção.",
+        description: "Nossas bobinas contam com grande variedade de laminações, calibres e acabamentos. Com opção de impressão em até 10 tintas e 133 linhas por polegada. Desenvolvimento máximo: 1.140 mm. Largura máxima de impressão: 1.450 mm. Compatíveis com maquinário de envase automático para otimizar a eficiência de produção.",
         img: "/images/flexible/bobina-impresa.png",
         video: "/videos/flexible/bobinaf.mp4",
         gallery: [
@@ -745,7 +754,7 @@ export const pt = {
         }
       },
       {
-        name: "STAND UP POUCH X ORIGANICS",
+        name: "STAND UP POUCH",
         description: "Linha de bolsas com designs decorativos atraentes: Frutas Vermelhas, Flores, Frutas, Espigas, Presente Azul e Presente Rosa. Fechamento tipo zipper, estrutura resistente e acabamentos Natural ou Metalizado. Disponíveis em tamanhos de 150 g até 1 kg. Ideais para quem busca uma embalagem de alta qualidade e apelo visual.",
         img: "/images/flexible/standup-origanics.png",
         video: "/videos/flexible/standup-origanics.mp4",
@@ -763,8 +772,8 @@ export const pt = {
         }
       },
       {
-        name: "BOLSA ALTO VÁCUO",
-        description: "Projetadas para maximizar a frescura e vida útil de carnes, queijos, embutidos e produtos frescos. Seu selamento hermético elimina o ar, retém as propriedades naturais do produto e evita a perda de sabor, textura e qualidade. Fabricadas com materiais de alta resistência e barreira.",
+        name: "BOLSA DE ALTO VÁCUO",
+        description: "Projetadas para maximizar a frescura e a vida útil de carnes, queijos, embutidos e produtos frescos. Seu fechamento hermético elimina o ar, retém as propriedades naturais do produto e evita a perda de sabor, textura e qualidade. Fabricadas com materiais de alta resistência e barreira.",
         img: "/images/flexible/bolsa-alto-vacio.png",
         video: "/videos/flexible/bolsa-alto-vacio.mp4",
         gallery: [
@@ -774,7 +783,7 @@ export const pt = {
         ],
         specs_values: {
           lamination: "Multicamada",
-          finish:     "Clara",
+          finish:     "Transparente",
           size:       "Produto",
           zipper:     "Não",
           type:       "Bolsa"
@@ -795,28 +804,28 @@ export const pt = {
       cta: "Começar Agora"
     },
     cards: [
-      { icon: "ri-stack-line",        title: "Estoque Total",    desc: "Capacidade para atender grandes pedidos instantaneamente. Seu depósito sempre cheio." },
-      { icon: "ri-truck-line",        title: "Envios em 24h",    desc: "Logística própria. Seus clientes não esperam, entregamos em tempo recorde." },
-      { icon: "ri-shield-check-line", title: "Garantia",         desc: "Trocas físicas sem burocracia nem perguntas. Respaldo total da marca." },
-      { icon: "ri-line-chart-line",   title: "Melhor Margem",    desc: "Preços diretos de fábrica projetados para maximizar seu lucro líquido." }
+      { icon: "ri-stack-line",        title: "Estoque Total",   desc: "Capacidade para atender grandes pedidos instantaneamente. Seu armazém sempre abastecido." },
+      { icon: "ri-truck-line",        title: "Envios em 24h",   desc: "Logística própria. Seus clientes não esperam, entregamos em tempo recorde." },
+      { icon: "ri-shield-check-line", title: "Garantia",        desc: "Trocas físicas sem burocracia nem perguntas. Total respaldo da marca." },
+      { icon: "ri-line-chart-line",   title: "Melhor Margem",   desc: "Preços diretos de fábrica projetados para maximizar seu lucro líquido." }
     ],
     stats: [
-      { val: 25, symbol: "k", label: "Toneladas Mensais" },
-      { val: 35, symbol: "+", label: "Anos de História" },
-      { val: 15, symbol: "M", label: "Vendas Totais" }
+      { val: 25, symbol: "k", label: "Toneladas Mensais"  },
+      { val: 35, symbol: "+", label: "Anos de História"   },
+      { val: 15, symbol: "M", label: "Vendas Totais"      }
     ],
     form: {
       title: "Solicitação <br>de Cadastro",
-      desc: "Junte-se à rede. Complete seu perfil para atribuição de zona e lista de preços preferencial.",
+      desc: "Junte-se à rede. Complete seu perfil para receber sua zona e lista de preços preferencial.",
       support_label: "SUPORTE DIRETO",
       labels: {
-        name:     "Nome de Contato",
+        name:     "Nome do Contato",
         business: "Razão Social",
         whatsapp: "WhatsApp",
         email:    "E-mail",
         products: "PRODUTOS DE INTERESSE"
       },
-      products_list: ["Sacos", "Flexíveis", "Ráfia", "Cantoneira", "Cordas", "Stretch", "Outro", "Todos"],
+      products_list: ["Sacos", "Flexíveis", "Rafia", "Cantoneira", "Cordas", "Stretch", "Outro", "Todos"],
       btn:         "ENVIAR SOLICITAÇÃO",
       success_msg: "Solicitação Enviada"
     }
@@ -829,80 +838,43 @@ export const pt = {
     meta_title: "Quem Somos | Grupo Ortiz",
 
     timeline: {
-      title_white: "NOSSA",
-      title_orange: "TRAJETÓRIA",
-      nav_prev: "Anterior",
-      nav_next: "Próximo",
+      title_white:   "NOSSA",
+      title_orange:  "TRAJETÓRIA",
+      nav_prev:      "Anterior",
+      nav_next:      "Próximo",
+      video_bg:      "/videos/background.mp4",
+      video_bg_webm: "",
+      video_poster:  "",
       events: [
-        {
-          year: "1959",
-          title: "O Começo",
-          short: "Fundação em Morelia",
-          img: "tiempo/timeline-1959.webp",
-          description: "Desde 1959, o Grupo Ortiz faz parte do desenvolvimento industrial do México. Fundado em Morelia por Nicandro Ortiz, o grupo nasceu com uma visão firme: combinar tecnologia de ponta com o talento e a dedicação de sua equipe para construir uma empresa sólida, inovadora e comprometida com a qualidade."
-        },
-        {
-          year: "1970",
-          title: "Expansão Industrial",
-          short: "Sacos e malhas",
-          img: "tiempo/timeline-1970.webp",
-          description: "Em 1970, iniciamos a produção de sacos e malhas de polipropileno, marcando uma etapa-chave em nosso crescimento industrial. Este passo estratégico fortaleceu nossa capacidade operacional, ampliou nossa participação comercial e consolidou nossa presença no mercado nacional."
-        },
-        {
-          year: "1985",
-          title: "Inovação Tecnológica",
-          short: "Maquinário europeu",
-          img: "tiempo/timeline-1985.webp",
-          description: "Em 1985, incorporamos maquinário europeu de última geração, fortalecendo nossa infraestrutura industrial e otimizando nossos processos produtivos. Este investimento estratégico elevou nossos padrões de qualidade, aumentou a eficiência operacional e reafirmou nosso compromisso com a inovação tecnológica."
-        },
-        {
-          year: "1995",
-          title: "Diversificação",
-          short: "Novas linhas",
-          img: "tiempo/timeline-1995.webp",
-          description: "Em 1995, ampliamos nossas linhas de produção incorporando stretch film, embalagens flexíveis e produtos especializados para a indústria. Esta expansão estratégica diversificou nosso portfólio, fortaleceu nossa competitividade no setor e nos permitiu atender novas demandas do mercado nacional."
-        },
-        {
-          year: "2005",
-          title: "Expansão Internacional",
-          short: "América e Europa",
-          img: "tiempo/timeline-2005.webp",
-          description: "Em 2005, iniciamos exportações para América e Europa, marcando um passo decisivo em nossa expansão internacional. Esta conquista posicionou a empresa como referência na indústria de polímeros plásticos, fortalecendo nossa presença global e consolidando nossa competitividade em mercados internacionais."
-        },
-        {
-          year: "2015",
-          title: "Sustentabilidade",
-          short: "Planta de reciclagem",
-          img: "tiempo/timeline-2015.webp",
-          description: "Em 2015, implementamos uma planta de reciclagem e fortalecemos nossos programas de sustentabilidade, reafirmando nosso compromisso com o meio ambiente. Esta iniciativa estratégica otimizou o aproveitamento de recursos, impulsionou práticas responsáveis e consolidou nossa visão de crescimento."
-        },
-        {
-          year: "2026",
-          title: "Presente",
-          short: "Líder industrial",
-          img: "tiempo/timeline-2026.webp",
-          description: "Em 2026, contamos com 17 plantas de produção, mais de 4.000 colaboradores e uma capacidade anual de 220.000 toneladas. Este crescimento sustentado nos consolida como líderes na indústria do plástico, respaldados por uma infraestrutura sólida, talento humano especializado e uma visão estratégica orientada ao futuro."
-        }
+        { year: "1959", title: "O Começo",                short: "Fundação em Morelia",      img: "/images/tiempo/timeline-1959.webp",  description: "Desde 1959, o Grupo Ortiz faz parte do desenvolvimento industrial do México. Fundado em Morelia por Nicandro Ortiz, o grupo nasceu com uma visão firme: combinar tecnologia de ponta com o talento e a dedicação de sua equipe para construir uma empresa sólida, inovadora e comprometida com a qualidade." },
+        { year: "1970", title: "Expansão Industrial",     short: "Sacos e redes",            img: "/images/tiempo/timeline-1970.webp",  description: "Em 1970, iniciamos a produção de sacos e redes de polipropileno, marcando uma etapa-chave em nosso crescimento industrial. Este passo estratégico fortaleceu nossa capacidade operacional, ampliou nossa participação comercial e consolidou nossa presença no mercado nacional." },
+        { year: "1985", title: "Inovação Tecnológica",    short: "Maquinário europeu",       img: "/images/tiempo/timeline-1985.webp",  description: "Em 1985, incorporamos maquinário europeu de última geração, fortalecendo nossa infraestrutura industrial e otimizando nossos processos produtivos. Este investimento estratégico elevou nossos padrões de qualidade, aumentou a eficiência operacional e reafirmou nosso compromisso com a inovação tecnológica." },
+        { year: "1995", title: "Diversificação",          short: "Novas linhas",             img: "/images/tiempo/timeline-1995.webp",  description: "Em 1995, ampliamos nossas linhas de produção incorporando stretch film, embalagens flexíveis e produtos especializados para a indústria. Esta expansão estratégica diversificou nosso portfólio, fortaleceu nossa competitividade no setor e nos permitiu atender novas demandas do mercado nacional." },
+        { year: "2005", title: "Expansão Internacional",  short: "Américas e Europa",        img: "/images/tiempo/timeline-2005.webp",  description: "Em 2005, iniciamos exportações para as Américas e a Europa, marcando um passo decisivo em nossa expansão internacional. Esta conquista posicionou a empresa como referência na indústria de polímeros plásticos, fortalecendo nossa presença global e consolidando nossa competitividade em mercados internacionais." },
+        { year: "2015", title: "Sustentabilidade",        short: "Planta de reciclagem",     img: "/images/tiempo/timeline-2015.webp",  description: "Em 2015, implementamos uma planta de reciclagem e fortalecemos nossos programas de sustentabilidade, reafirmando nosso compromisso com o meio ambiente. Esta iniciativa estratégica otimizou o aproveitamento de recursos, impulsionou práticas responsáveis e consolidou nossa visão de crescimento sustentável." },
+        { year: "2026", title: "Presente",                short: "Líder industrial",         img: "/images/tiempo/timeline-2026.webp",  description: "Em 2026, contamos com 17 plantas de produção, mais de 4.000 colaboradores e uma capacidade anual de 220.000 toneladas. Este crescimento sustentado nos consolida como líderes na indústria do plástico, respaldados por uma infraestrutura sólida, talento humano especializado e uma visão estratégica orientada ao futuro." }
       ]
     },
 
     filosofia: {
       label: "Nossos Princípios",
       title: "Filosofia GO",
+      img:   "/images/about/GO.webp",
       items: [
         "Obsessão pela satisfação do cliente, não pela concorrência.",
-        "Paixão pela invenção e inovação constante.",
+        "Paixão pela invenção e inovação constantes.",
         "Excelência operacional em cada processo.",
-        "Pensamento a longo prazo com resultados imediatos.",
-        "Ser o melhor empregador e o lugar de trabalho mais seguro do planeta."
+        "Pensamento de longo prazo com resultados imediatos.",
+        "Ser o melhor empregador e o local de trabalho mais seguro do planeta."
       ]
     },
 
     vision: {
       label: "Para onde vamos",
       title: "Visão",
+      img:   "/images/about/GO2.webp",
       items: [
-        "Ser a empresa do planeta mais orientada ao cliente.",
+        "Ser a empresa mais orientada ao cliente do planeta.",
         "Oferecer toda solução integrada para qualquer negócio.",
         "Ser a única solução em embalagens para qualquer negócio do planeta.",
         "Crescer com presença global sem perder o foco humano."
@@ -911,21 +883,25 @@ export const pt = {
 
     infraestructura: {
       title_white:  "Infraestrutura",
-      title_orange: "que respalda",
+      title_orange: "que nos sustenta",
       stats: [
-        { number: "10",      label: "Plantas de Produção",    desc: "Instalações estrategicamente localizadas para atender mercados nacionais e internacionais.", icon: "number" },
-        { number: "+3.000",  label: "Colaboradores",          desc: "Equipe especializada que impulsiona cada processo produtivo.", icon: "number" },
-        { number: "260",     label: "Unidades Logísticas",    desc: "Frota própria que garante distribuição eficiente e entregas seguras a nível nacional e internacional.", icon: "number" },
-        { number: "Global",  label: "Presença Internacional", desc: "Exportação e distribuição na América e Europa.", icon: "globe" }
+        { number: "10",     label: "Plantas de Produção",    desc: "Instalações estrategicamente localizadas para atender mercados nacionais e internacionais.", icon: "number" },
+        { number: "+3.000", label: "Colaboradores",          desc: "Equipe especializada que impulsiona cada processo produtivo.", icon: "number" },
+        { number: "260",    label: "Unidades Logísticas",    desc: "Frota própria que garante distribuição eficiente e entregas seguras em todo o país e no exterior.", icon: "number" },
+        { number: "Global", label: "Presença Internacional", desc: "Exportação e distribuição nas Américas e na Europa.", icon: "globe" }
       ]
     },
 
     plantas: {
-      title:    "Nossas Plantas",
-      subtitle: "17 Plantas de Produção",
+      title:           "Nossas Plantas",
+      subtitle:        "17 Plantas de Produção",
+      map_img:         "/images/about/mexico_map.png",
+      layer_michoacan: "/images/about/michoacan_layer.png",
+      layer_monterrey: "/images/about/monterrey_layer.png",
+      layer_both:      "/images/about/both_states_layer.png",
       locations: [
-        { key: "monterrey", number: "1 PLANTA",    badge: "Monterrey, Nuevo León" },
-        { key: "michoacan", number: "16 PLANTAS",   badge: "Morelia, Michoacán" }
+        { key: "monterrey", number: "1 PLANTA",   badge: "Monterrey, Nuevo León" },
+        { key: "michoacan", number: "16 PLANTAS", badge: "Morelia, Michoacán"    }
       ]
     },
 
@@ -933,46 +909,15 @@ export const pt = {
       title_white:  "NOSSAS",
       title_orange: "INSTALAÇÕES",
       subtitle:     "Tours Virtuais 360°",
-      badge_soon:   "Em breve",
+      badge_soon:   "Em Breve",
       badge_tour:   "Ver tour",
       btn_tour:     "Ver Tour 3D",
-      btn_soon:     "Em breve",
+      btn_soon:     "Em Breve",
       items: [
-        {
-          id: "extrusoras", num: "01",
-          title: "Stretch Film",
-          tag:   "Morelia, Mich.",
-          desc:  "Linhas de extrusão de alta capacidade onde o polipropileno é transformado em fio plano de precisão.",
-          thumb: "/images/virtual/RT.webp",
-          link:  "https://my.matterport.com/show/?m=YoM2tyXMeyb&ss=2&sr=2.97,.12&play=1&qs=1&ts=1",
-          soon:  true
-        },
-        {
-          id: "telares", num: "02",
-          title: "Sacos de Malha",
-          tag:   "Morelia, Mich.",
-          desc:  "Teares de última geração que tecem o fio para produzir tecido de polipropileno com máxima uniformidade.",
-          link:  "https://my.matterport.com/show/?m=2xCe1VajMjj&ss=1&sr=2.28,-1.47&play=1&qs=1&ts=1",
-          thumb: "/images/virtual/RA.webp",
-          soon:  false
-        },
-        {
-          id: "laminado", num: "03",
-          title: "Laminação e Impressão",
-          tag:   "Morelia, Mich.",
-          desc:  "Área de laminação e flexografia onde os sacos recebem acabamentos, impressão e tratamento final de qualidade.",
-          link:  "",
-          thumb: "/images/virtual/RS.webp",
-          soon:  true
-        },
-        {
-          id: "reciclado", num: "04",
-          title: "Planta de Reciclagem",
-          tag:   "Morelia, Mich.",
-          desc:  "Nosso centro de reciclagem de polipropileno, comprometido com a economia circular e o meio ambiente.",
-          link:  "",
-          soon:  true
-        }
+        { id: "extrusoras", num: "01", title: "Stretch Film",         tag: "Morelia, Mich.", desc: "Linhas de extrusão de alta capacidade onde o polipropileno é transformado em fio plano de precisão.",                           thumb: "/images/virtual/RT.webp", link: "https://my.matterport.com/show/?m=YoM2tyXMeyb&ss=2&sr=2.97,.12&play=1&qs=1&ts=1", soon: true  },
+        { id: "telares",    num: "02", title: "Redes",                tag: "Morelia, Mich.", desc: "Teares de última geração que tecem o fio para produzir tecido de polipropileno com máxima uniformidade.",                       thumb: "/images/virtual/RA.webp", link: "https://my.matterport.com/show/?m=2xCe1VajMjj&ss=1&sr=2.28,-1.47&play=1&qs=1&ts=1", soon: false },
+        { id: "laminado",   num: "03", title: "Laminação e Impressão", tag: "Morelia, Mich.", desc: "Área de laminação e flexografia onde os sacos recebem acabamentos, impressão e tratamento final de qualidade.",               thumb: "/images/virtual/RS.webp", link: "", soon: true  },
+        { id: "reciclado",  num: "04", title: "Planta de Reciclagem", tag: "Morelia, Mich.", desc: "Nosso centro de reciclagem de polipropileno, comprometido com a economia circular e o meio ambiente.",                         link: "", soon: true  }
       ]
     },
 
@@ -982,16 +927,16 @@ export const pt = {
       planta_label:  "PLANTA",
       plantas_label: "PLANTAS",
       items: [
-        { num: "04", label: "Produção de Sacos",         width: 100, delay: 0   },
-        { num: "02", label: "Produção de Sacos de Malha", width: 50,  delay: 100 },
-        { num: "01", label: "Corda e Ráfia",              width: 25,  delay: 200 },
-        { num: "02", label: "Stretch Film",               width: 50,  delay: 300 },
-        { num: "01", label: "Embalagens Flexíveis",       width: 25,  delay: 400 },
-        { num: "01", label: "Reciclagem",                 width: 25,  delay: 500 },
-        { num: "03", label: "Cantoneiras",                width: 75,  delay: 600 },
-        { num: "01", label: "Fita de Amarração",          width: 25,  delay: 700 },
-        { num: "01", label: "Descartáveis",               width: 25,  delay: 800 },
-        { num: "01", label: "Bolsas",                     width: 25,  delay: 900 }
+        { num: "04", label: "Produção de Sacos",     width: 100, delay: 0   },
+        { num: "02", label: "Produção de Redes",     width: 50,  delay: 100 },
+        { num: "01", label: "Corda e Rafia",         width: 25,  delay: 200 },
+        { num: "02", label: "Stretch Film",          width: 50,  delay: 300 },
+        { num: "01", label: "Embalagens Flexíveis",  width: 25,  delay: 400 },
+        { num: "01", label: "Reciclagem",            width: 25,  delay: 500 },
+        { num: "03", label: "Cantoneiras",           width: 75,  delay: 600 },
+        { num: "01", label: "Fita de Arquear",       width: 25,  delay: 700 },
+        { num: "01", label: "Descartáveis",          width: 25,  delay: 800 },
+        { num: "01", label: "Bolsas",                width: 25,  delay: 900 }
       ]
     },
 
@@ -999,13 +944,13 @@ export const pt = {
       title:    "Nossos Valores",
       subtitle: "Os pilares da nossa cultura",
       items: [
-        { title: "Responsabilidade", description: "Cumprimos nossos compromissos com ética e profissionalismo, sendo conscientes do impacto de nossas ações em clientes, colaboradores e comunidades." },
-        { title: "Confiança",        description: "Construímos relações sólidas baseadas na transparência, honestidade e cumprimento de promessas, gerando segurança em cada interação." },
-        { title: "Paixão",           description: "Amamos o que fazemos e refletimos isso em cada produto, processo e inovação, impulsionando a excelência com entusiasmo e dedicação genuína." },
-        { title: "Perseverança",     description: "Enfrentamos desafios com determinação e constância, mantendo-nos firmes em nossos objetivos até alcançar resultados extraordinários." },
-        { title: "Disciplina",       description: "Seguimos processos rigorosos e padrões de qualidade com ordem e método, garantindo consistência e excelência em cada entrega." },
-        { title: "Proatividade",     description: "Antecipamos necessidades e tomamos ação antes que surjam problemas, criando soluções inovadoras que geram valor contínuo." },
-        { title: "Respeito",         description: "Valorizamos a diversidade, dignidade e contribuição de cada pessoa, fomentando um ambiente de colaboração, inclusão e tratamento equitativo." }
+        { title: "Responsabilidade", description: "Cumprimos nossos compromissos com ética e profissionalismo, conscientes do impacto de nossas ações em clientes, colaboradores e comunidades." },
+        { title: "Confiança",        description: "Construímos relacionamentos sólidos baseados em transparência, honestidade e cumprimento de promessas, gerando segurança em cada interação."   },
+        { title: "Paixão",           description: "Amamos o que fazemos e refletimos isso em cada produto, processo e inovação, impulsionando a excelência com entusiasmo e dedicação genuína."   },
+        { title: "Perseverança",     description: "Enfrentamos desafios com determinação e constância, mantendo-nos firmes em nossos objetivos até alcançar resultados extraordinários."            },
+        { title: "Disciplina",       description: "Seguimos processos rigorosos e padrões de qualidade com ordem e método, garantindo consistência e excelência em cada entrega."                  },
+        { title: "Proatividade",     description: "Antecipamos necessidades e agimos antes que os problemas surjam, criando soluções inovadoras que geram valor contínuo."                        },
+        { title: "Respeito",         description: "Valorizamos a diversidade, a dignidade e a contribuição de cada pessoa, fomentando um ambiente de colaboração, inclusão e tratamento justo."    }
       ]
     }
   },
@@ -1032,12 +977,13 @@ export const pt = {
 
     hero: {
       eyebrow:          "IMPACTO SOCIAL",
-      title_top:    "Construímos Juntos",
-      title_bottom: "UM MUNDO MELHOR",
-      subtitle:         "Apoiamos lares, empoderamos mulheres, damos segundas oportunidades e cuidamos do planeta. Cada passo que damos busca transformar vidas e construir um futuro cheio de esperança.",
+      title_top:        "Construímos Juntos",
+      title_bottom:     "UM MUNDO MELHOR",
+      subtitle:         "Apoiamos lares, empoderamos mulheres, damos segundas chances e cuidamos do planeta. Cada passo que damos busca transformar vidas e construir um futuro cheio de esperança.",
       stat_female:      "% Quadro Feminino",
       stat_recycled:    "Toneladas Recicladas",
-      stat_initiatives: "Iniciativas Ativas"
+      stat_initiatives: "Iniciativas Ativas",
+      video:            "/videos/waves2.mp4",
     },
 
     ods: {
@@ -1045,23 +991,23 @@ export const pt = {
       subtitle:    "Agenda 2030",
       description: "Nos guiamos pelos Objetivos de Desenvolvimento Sustentável da ONU para construir um mundo mais justo, próspero e sustentável.",
       cards: [
-        { n: 1,  title: "Erradicação da Pobreza",       link: "https://sdgs.un.org/es/goals/goal1",  img: "/images/odc/1.png"  },
-        { n: 2,  title: "Fome Zero",                    link: "https://sdgs.un.org/es/goals/goal2",  img: "/images/odc/2.png"  },
-        { n: 3,  title: "Saúde e Bem-Estar",            link: "https://sdgs.un.org/es/goals/goal3",  img: "/images/odc/3.png"  },
-        { n: 4,  title: "Educação de Qualidade",        link: "https://sdgs.un.org/es/goals/goal4",  img: "/images/odc/4.png"  },
-        { n: 5,  title: "Igualdade de Gênero",          link: "https://sdgs.un.org/es/goals/goal5",  img: "/images/odc/5.png"  },
-        { n: 6,  title: "Água Limpa",                   link: "https://sdgs.un.org/es/goals/goal6",  img: "/images/odc/6.png"  },
-        { n: 7,  title: "Energia Acessível",             link: "https://sdgs.un.org/es/goals/goal7",  img: "/images/odc/7.png"  },
-        { n: 8,  title: "Trabalho Decente",              link: "https://sdgs.un.org/es/goals/goal8",  img: "/images/odc/8.png"  },
-        { n: 9,  title: "Indústria e Inovação",         link: "https://sdgs.un.org/es/goals/goal9",  img: "/images/odc/9.png"  },
-        { n: 10, title: "Redução das Desigualdades",     link: "https://sdgs.un.org/es/goals/goal10", img: "/images/odc/10.png" },
-        { n: 11, title: "Cidades Sustentáveis",          link: "https://sdgs.un.org/es/goals/goal11", img: "/images/odc/11.png" },
-        { n: 12, title: "Produção Responsável",          link: "https://sdgs.un.org/es/goals/goal12", img: "/images/odc/12.png" },
-        { n: 13, title: "Ação Climática",                link: "https://sdgs.un.org/es/goals/goal13", img: "/images/odc/13.png" },
-        { n: 14, title: "Vida na Água",                  link: "https://sdgs.un.org/es/goals/goal14", img: "/images/odc/14.png" },
-        { n: 15, title: "Vida Terrestre",                link: "https://sdgs.un.org/es/goals/goal15", img: "/images/odc/15.png" },
-        { n: 16, title: "Paz e Justiça",                 link: "https://sdgs.un.org/es/goals/goal16", img: "/images/odc/16.png" },
-        { n: 17, title: "Parcerias para os Objetivos",   link: "https://sdgs.un.org/es/goals/goal17", img: "/images/odc/17.png" },
+        { n: 1,  title: "Erradicação da Pobreza",          link: "https://sdgs.un.org/goals/goal1",  img: "/images/odc/1.png"  },
+        { n: 2,  title: "Fome Zero",                       link: "https://sdgs.un.org/goals/goal2",  img: "/images/odc/2.png"  },
+        { n: 3,  title: "Saúde e Bem-Estar",               link: "https://sdgs.un.org/goals/goal3",  img: "/images/odc/3.png"  },
+        { n: 4,  title: "Educação de Qualidade",           link: "https://sdgs.un.org/goals/goal4",  img: "/images/odc/4.png"  },
+        { n: 5,  title: "Igualdade de Gênero",             link: "https://sdgs.un.org/goals/goal5",  img: "/images/odc/5.png"  },
+        { n: 6,  title: "Água Potável e Saneamento",       link: "https://sdgs.un.org/goals/goal6",  img: "/images/odc/6.png"  },
+        { n: 7,  title: "Energia Limpa e Acessível",       link: "https://sdgs.un.org/goals/goal7",  img: "/images/odc/7.png"  },
+        { n: 8,  title: "Trabalho Decente",                link: "https://sdgs.un.org/goals/goal8",  img: "/images/odc/8.png"  },
+        { n: 9,  title: "Indústria, Inovação e Infraestrutura", link: "https://sdgs.un.org/goals/goal9", img: "/images/odc/9.png" },
+        { n: 10, title: "Redução das Desigualdades",       link: "https://sdgs.un.org/goals/goal10", img: "/images/odc/10.png" },
+        { n: 11, title: "Cidades Sustentáveis",            link: "https://sdgs.un.org/goals/goal11", img: "/images/odc/11.png" },
+        { n: 12, title: "Consumo e Produção Responsáveis", link: "https://sdgs.un.org/goals/goal12", img: "/images/odc/12.png" },
+        { n: 13, title: "Ação Climática",                  link: "https://sdgs.un.org/goals/goal13", img: "/images/odc/13.png" },
+        { n: 14, title: "Vida na Água",                    link: "https://sdgs.un.org/goals/goal14", img: "/images/odc/14.png" },
+        { n: 15, title: "Vida Terrestre",                  link: "https://sdgs.un.org/goals/goal15", img: "/images/odc/15.png" },
+        { n: 16, title: "Paz, Justiça e Instituições Eficazes", link: "https://sdgs.un.org/goals/goal16", img: "/images/odc/16.png" },
+        { n: 17, title: "Parcerias e Meios de Implementação", link: "https://sdgs.un.org/goals/goal17", img: "/images/odc/17.png" },
       ]
     },
 
@@ -1085,7 +1031,7 @@ export const pt = {
         {
           label: "PILAR 03",
           title: "TERRA SOCIAL",
-          desc:  "Compromisso integral com clientes, colaboradores e comunidades, gerando impacto social positivo e oportunidades reais.",
+          desc:  "Compromisso integral com clientes, funcionários e comunidades, gerando impacto social positivo e oportunidades reais.",
           img:   "/images/impacto/social.webp"
         }
       ]
@@ -1094,12 +1040,13 @@ export const pt = {
     oceanos: {
       hero_title:           "Comprometidos com um futuro",
       hero_title_highlight: "mais limpo para nossos oceanos",
+      hero_video:           "/videos/waves.mp4",
       intro: "No Grupo Ortiz, acreditamos em um mundo onde os oceanos voltem a brilhar. Ao apoiar iniciativas globais como The Ocean Cleanup e o Tom Ford Plastic Innovation Prize powered by Lonely Whale, trabalhamos para reduzir o plástico em nossos mares. Cada compra que você faz conosco é um passo em direção a um planeta mais limpo e um futuro sustentável para todos. Juntos salvamos os oceanos!",
       features: [
-        { title: "Apoiamos a limpeza global",           desc: "Colaborando com iniciativas como The Ocean Cleanup." },
-        { title: "Promovemos a inovação sustentável",   desc: "Através de programas como o Tom Ford Plastic Innovation Prize." },
-        { title: "Fomentamos produtos responsáveis",    desc: "que reduzem o impacto ambiental nos oceanos." },
-        { title: "Inspiramos ação coletiva",            desc: "convidando clientes e parceiros a fazer parte da mudança." }
+        { title: "Apoiamos a limpeza global",           desc: "Colaborando com iniciativas como The Ocean Cleanup."                          },
+        { title: "Promovemos a inovação sustentável",   desc: "Por meio de programas como o Tom Ford Plastic Innovation Prize."              },
+        { title: "Incentivamos produtos responsáveis",  desc: "que reduzem o impacto ambiental nos oceanos."                                },
+        { title: "Inspiramos ação coletiva",            desc: "convidando clientes e parceiros a serem parte da mudança."                    }
       ],
       partners: [
         {
@@ -1111,8 +1058,8 @@ export const pt = {
           poster: "/images/impacto/cultura-calidad.jpg"
         },
         {
-          title:  "Limpeza do oceano",
-          desc:   "Dedicada a limpar os oceanos do mundo, esta organização desenvolve tecnologia avançada para eliminar plásticos acumulados nos mares e prevenir sua chegada mediante a intervenção nos rios, principais fontes de contaminação. Sua missão é restaurar a saúde dos ecossistemas marinhos, protegendo a biodiversidade e assegurando um futuro limpo para as próximas gerações.",
+          title:  "Limpeza dos oceanos",
+          desc:   "Dedicada à limpeza dos oceanos do mundo, esta organização desenvolve tecnologia avançada para eliminar plásticos acumulados nos mares e prevenir sua chegada por meio da intervenção nos rios, principais fontes de contaminação. Sua missão é restaurar a saúde dos ecossistemas marinhos, protegendo a biodiversidade e assegurando um futuro limpo para as próximas gerações.",
           btn:    "SAIBA MAIS",
           link:   "https://theoceancleanup.com/",
           video:  "/videos/impacto/tomford.mp4",
@@ -1133,14 +1080,14 @@ export const pt = {
       items: [
         {
           num: "01", title: "LAR DE ESPERANÇA",
-          desc:       "Apoio a Lar de Crianças em Tacámbaro, Michoacán. Cada criança merece um lar cheio de amor.",
-          desc_short: "Apoio a Lar de Crianças em Tacámbaro, Michoacán.",
+          desc:       "Apoio à Casa Lar em Tacámbaro, Michoacán. Cada criança merece um lar cheio de amor.",
+          desc_short: "Apoio à Casa Lar em Tacámbaro, Michoacán.",
           img:        "/images/impacto/hogar.mp4",
           isVideo:    true,
-          poster:     "/images/impacto/hogar.webp"
+          poster:     "/images/impacto/hogar.mp4"
         },
         {
-          num: "02", title: "CESTA GO",
+          num: "02", title: "CESTA BÁSICA GO",
           desc:       "Unidos pela comunidade. Entrega de cestas básicas com amor.",
           desc_short: "Entrega de cestas básicas com amor à comunidade.",
           img:        "/images/impacto/despensas.webp",
@@ -1162,15 +1109,15 @@ export const pt = {
         },
         {
           num: "05", title: "BRILHA GO",
-          desc:       "Presentes por desempenho à equipe GO. Reconhecendo o esforço.",
+          desc:       "Presentes por desempenho para a equipe GO. Reconhecendo o esforço.",
           desc_short: "Reconhecimento à equipe GO pelo seu desempenho.",
           img:        "/images/impacto/woman.webp",
           isVideo:    false
         },
         {
           num: "06", title: "MÃOS QUE LIDERAM",
-          desc:       "Quadro 84% feminino. Empoderando mulheres líderes.",
-          desc_short: "56,82% quadro feminino. Empoderando líderes.",
+          desc:       "84% de quadro feminino. Empoderando mulheres líderes.",
+          desc_short: "56,82% de quadro feminino. Empoderando líderes.",
           img:        "/images/impacto/bio.webp",
           isVideo:    false
         }
@@ -1181,7 +1128,7 @@ export const pt = {
       title:        "Juntos",
       title_orange: "Transformamos",
       desc:         "Somos o parceiro estratégico que sua empresa precisa para crescer com tecnologia, experiência e resultados.",
-      contact:      "Entre em Contato",
+      contact:      "Fale Conosco",
       products:     "Ver Produtos"
     }
   },
@@ -1199,11 +1146,11 @@ export const pt = {
       video:        "background.mp4",
       subtitle:     "Mais de 65 anos fabricando soluções de alta engenharia para indústrias nos cinco continentes.",
       btn_products: "Nossos Produtos",
-      btn_about:    "Saiba Mais",
+      btn_about:    "Conhecer Mais",
       stats: [
         { number: 65,   label: "Anos de Experiência" },
         { number: 3000, prefix: "+", label: "Colaboradores" },
-        { number: 5,    prefix: "", label: "Continentes" }
+        { number: 5,    prefix: "",  label: "Continentes"   }
       ]
     },
 
@@ -1213,46 +1160,14 @@ export const pt = {
       title_em:  "especialização",
       link_text: "Ver produtos",
       items: [
-        {
-          title: "Saco de Malha",   tag: "Divisão 01",
-          description: "Sacos de malha de ráfia de polipropileno em tecido plano e circular. Design ventilado ideal para frutas, verduras e produtos agrícolas.",
-          img: "/images/divisiones/arpilla.webp",           color: "#2d8a4e",  slug: "arpillas",           soon: false
-        },
-        {
-          title: "Corda",           tag: "Divisão 02",
-          description: "Cordas de polipropileno de alta tenacidade para usos agrícolas, industriais e marítimos. Grande resistência às intempéries e filtro UV incorporado.",
-          img: "/images/divisiones/cuerdas.webp",           color: "#1a5f8a",  slug: "cuerdas",            soon: false
-        },
-        {
-          title: "Ráfia",           tag: "Divisão 03",
-          description: "Ráfia de polipropileno de alto desempenho. Grande leveza, alta resistência à ruptura e versatilidade para agricultura, avicultura e horticultura.",
-          img: "/images/divisiones/rafia.webp",             color: "#8a6d2d",  slug: "rafias",             soon: false
-        },
-        {
-          title: "Embalagem Flexível", tag: "Divisão 04",
-          description: "Filmes de alta barreira e laminação especializada. Proteção ideal para alimentos e produtos industriais com tecnologia de vanguarda.",
-          img: "/images/divisiones/bolsa.webp",             color: "#0d7377",  slug: "empaques-flexibles", soon: false
-        },
-        {
-          title: "Saco",            tag: "Divisão 05",
-          description: "Sacos de ráfia de qualidade superior. Solução de embalagem robusta para alimentos, produtos químicos, fertilizantes e produtos a granel.",
-          img: "/images/divisiones/sacos.webp",             color: "#3a7d44",  slug: "sacos",              soon: false
-        },
-        {
-          title: "Stretch Film",    tag: "Divisão 06",
-          description: "Filme extensível de alta claridade óptica. Garante a integridade da carga com eficiência em custos. Inclui opção biodegradável.",
-          img: "/images/divisiones/film-estirable.webp",    color: "#2c5f8a",  slug: "stretch-film",       soon: false
-        },
-        {
-          title: "Cantoneira",      tag: "Divisão 07",
-          description: "Cantoneiras de papelão kraft para proteção de bordas durante o armazenamento e transporte. Distribuição uniforme de pressão e máxima estabilidade de carga.",
-          img: "/images/divisiones/esquineros.webp",        color: "#7b3fa0",  slug: "esquineros",         soon: false
-        },
-        {
-          title: "Descartável",     tag: "Divisão 10",
-          description: "Produtos descartáveis de polipropileno para uso industrial, alimentício e hospitalar. Soluções higiênicas, econômicas e de alta resistência.",
-          img: "/images/divisiones/desechables.webp",       color: "#e05500",  slug: "desechables",        soon: true
-        }
+        { title: "Rede / Saco de Tela", tag: "Divisão 01", description: "Sacos de malha de rafia de polipropileno em tecido plano e circular. Design ventilado ideal para frutas, verduras e produtos agrícolas.",                      img: "/images/divisiones/arpilla.webp",        color: "#2d8a4e", slug: "arpillas",           soon: false },
+        { title: "Corda",               tag: "Divisão 02", description: "Cordas de polipropileno de alta tenacidade para usos agrícolas, industriais e marinhos. Grande resistência às intempéries e filtro UV incorporado.",            img: "/images/divisiones/cuerdas.webp",        color: "#1a5f8a", slug: "cuerdas",            soon: false },
+        { title: "Rafia",               tag: "Divisão 03", description: "Rafia de polipropileno de alto desempenho. Grande leveza, alta resistência à ruptura e versatilidade para agricultura, avicultura e horticultura.",             img: "/images/divisiones/rafia.webp",          color: "#8a6d2d", slug: "rafias",             soon: false },
+        { title: "Embalagem Flexível",  tag: "Divisão 04", description: "Filmes de alta barreira e laminação especializada. Proteção ideal para alimentos e produtos industriais com tecnologia de vanguarda.",                          img: "/images/divisiones/bolsa.webp",          color: "#0d7377", slug: "empaques-flexibles", soon: false },
+        { title: "Saco",                tag: "Divisão 05", description: "Sacos de rafia de qualidade superior. Solução de embalagem robusta para alimentos, produtos químicos, fertilizantes e produtos a granel.",                      img: "/images/divisiones/sacos.webp",          color: "#3a7d44", slug: "sacos",              soon: false },
+        { title: "Stretch Film",        tag: "Divisão 06", description: "Filme stretch de alta claridade óptica. Garante a integridade da carga com eficiência em custos. Inclui opção biodegradável.",                                  img: "/images/divisiones/film-estirable.webp", color: "#2c5f8a", slug: "stretch-film",       soon: false },
+        { title: "Cantoneira",          tag: "Divisão 07", description: "Cantoneiras de papelão kraft para proteção de bordas durante o armazenamento e transporte. Distribuição uniforme de pressão e máxima estabilidade de carga.",   img: "/images/divisiones/esquineros.webp",     color: "#7b3fa0", slug: "esquineros",         soon: false },
+        { title: "Descartável",         tag: "Divisão 10", description: "Produtos descartáveis de polipropileno para uso industrial, alimentício e hospitalar. Soluções higiênicas, econômicas e de alta resistência.",                  img: "/images/divisiones/desechables.webp",    color: "#e05500", slug: "desechables",        soon: true  }
       ]
     },
 
@@ -1260,17 +1175,17 @@ export const pt = {
       tag:           "Por que nos escolher",
       title:         "Mais de 65 anos",
       title_em:      "de liderança",
-      body:          "Somos referência na indústria de polímeros plásticos no México e América Latina, com processos certificados e capacidade de resposta global.",
+      body:          "Somos referência na indústria de polímeros plásticos no México e na América Latina, com processos certificados e capacidade de resposta global.",
       btn:           "Nossa História",
       badge1_label:  "Unidades de Negócio",
       badge1_number: 10,
       badge2_label:  "Divisões",
       badge2_number: 6,
-      img:           "/images/planta-produccion.webp",
+      img:           "/images/home/planta-produccion.webp",
       features: [
-        { title: "Qualidade Certificada",  description: "Produtos que cumprem os mais altos padrões internacionais de manufatura." },
-        { title: "Inovação Constante",     description: "Investimento permanente em P&D para manter a liderança tecnológica do setor." },
-        { title: "Alcance Global",         description: "Presença ativa em 5 continentes com uma rede de distribuição eficiente." }
+        { title: "Qualidade Certificada",  description: "Produtos que atendem aos mais altos padrões internacionais de fabricação."         },
+        { title: "Inovação Constante",     description: "Investimento permanente em P&D para manter a liderança tecnológica do setor."      },
+        { title: "Alcance Global",         description: "Presença ativa em 5 continentes com uma rede de distribuição eficiente."           }
       ]
     },
 
@@ -1279,23 +1194,23 @@ export const pt = {
       title:    "Nossas",
       title_em: "Certificações",
       items: [
-        { code: "Kosher Pareve", name: "KMD México",     img: "/images/certificaciones/KOSHER.jpeg"   },
-        { code: "FSSC 22000",    name: "LRQA Certified", img: "/images/certificaciones/LRQA.png"      },
-        { code: "AIB International", name: "Since 1919", img: "/images/certificaciones/AIB.png"       },
-        { code: "ISO 9001",      name: "Bureau Veritas", img: "/images/certificaciones/CERTIFIED.png" }
+        { code: "Kosher Pareve",     name: "KMD México",     img: "/images/certificaciones/KOSHER.jpeg"   },
+        { code: "FSSC 22000",        name: "LRQA Certified", img: "/images/certificaciones/LRQA.png"      },
+        { code: "AIB International", name: "Since 1919",     img: "/images/certificaciones/AIB.png"       },
+        { code: "ISO 9001",          name: "Bureau Veritas", img: "/images/certificaciones/CERTIFIED.png" }
       ]
     },
 
     compromiso: {
       card1: {
-        eyebrow: "Nosso Foco",
+        eyebrow: "Nossa Abordagem",
         title:   "Inovação",
         text:    "Investimos em P&D para oferecer produtos que superem as expectativas do mercado global com tecnologia de vanguarda."
       },
       card2: {
         eyebrow: "Nosso Compromisso",
         title:   "Sustentabilidade",
-        text:    "Processos responsáveis com o meio ambiente, programas ativos de reciclagem e redução de pegada de carbono em toda a cadeia."
+        text:    "Processos responsáveis com o meio ambiente, programas ativos de reciclagem e redução da pegada de carbono em toda a cadeia."
       }
     },
 
@@ -1304,11 +1219,11 @@ export const pt = {
       title:    "Exportamos para o",
       title_em: "mundo",
       desc:     "Nossos produtos chegam a clientes em mais de 30 países, consolidando nossa posição como líderes em polímeros plásticos.",
-      video:    "/camion.mp4",
+      video:    "/videos/camion.mp4",
       stats: [
         { number: 65,   label: "Anos"        },
-        { number: 30,   prefix: "+", label: "Países"     },
-        { number: 3000, prefix: "+", label: "Pessoas"    },
+        { number: 30,   prefix: "+", label: "Países"      },
+        { number: 3000, prefix: "+", label: "Pessoas"     },
         { number: 5,    prefix: "",  label: "Continentes" }
       ]
     },
@@ -1318,7 +1233,7 @@ export const pt = {
       title:    "Vamos trabalhar",
       title_em: "juntos",
       sub:      "Descubra como nossas soluções podem transformar sua operação",
-      btn:      "Entre em Contato"
+      btn:      "Fale Conosco"
     }
   }
 
