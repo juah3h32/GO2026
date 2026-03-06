@@ -1,30 +1,18 @@
 ---
 // src/layouts/BaseLayout.astro
 
-// -----------------------------
-// 1. IMPORTS Y CONFIGURACIÓN
-// -----------------------------
-
 import { pwaInfo } from "virtual:pwa-info";
 
-// i18n
 import { translations } from "../i18n";
 
-// Componentes UI Estructurales
 import Loader from "../components/Loader.astro";
 import InstallPWA from '../components/InstallPWA.jsx';
-
 import Navbar from "../components/Nadbar.astro";
 import FondoGlobal from "../components/FondoGlobal.astro";
 import Cursor from "../components/CustomCursor.astro";
-
-// Componentes UI Flotantes / Interactivos
 import DockMenu from "../components/DockMenu.astro";
 import BotGO from "../components/BotGO.jsx";
 
-// ⚡ AdminPanel ya NO se importa aquí — se carga lazy vía script
-
-// Props
 const {
   title = "Mi sitio",
   currentLang = "es",
@@ -32,7 +20,6 @@ const {
   pwaIcon = "/pwa-192x192.png",
 } = Astro.props;
 
-// Traducciones según idioma activo
 const lang = (currentLang && currentLang in translations) ? currentLang : "es";
 const t = translations[lang as keyof typeof translations] as any;
 const pwaTexts = (t && t.pwa) ? t.pwa : {
@@ -63,7 +50,7 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
 
     {pwaInfo && <Fragment set:html={pwaInfo.webManifest.linkTag} />}
 
-    <!-- ⚡ CRÍTICO: tema aplicado lo antes posible, sin bloquear render -->
+    <!-- ⚡ Tema aplicado lo antes posible -->
     <script is:inline>
       (function () {
         try {
@@ -73,17 +60,30 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
       })();
     </script>
 
+    <!-- ⚡ Detección PWA temprana — antes de renderizar el DOM -->
+    <script is:inline>
+      (function () {
+        try {
+          const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+          const isIOS        = window.navigator.standalone === true;
+          const isAndroid    = document.referrer.includes('android-app://');
+          const isPWA        = isStandalone || isIOS || isAndroid;
+          if (isPWA) {
+            document.documentElement.classList.add('is-pwa');
+          } else {
+            document.documentElement.classList.add('no-pwa');
+          }
+        } catch (e) {}
+      })();
+    </script>
+
     <style is:global>
-      /* =============================================
-         IMPORTACIÓN DE ESTILOS SEPARADOS
-         ============================================= */
       @import "../styles/typography.css";
       @import "../styles/backgrounds.css";
 
       /* =============================================
-         UTILIDADES Y COMPONENTES ESPECÍFICOS
+         TRANSICIÓN DE PÁGINA
          ============================================= */
-
       .home-curtain {
         position: fixed;
         top: 0;
@@ -106,9 +106,17 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
         to   { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
       }
 
+      /* =============================================
+         DOCK MENU — oculto por defecto, visible en PWA
+         ============================================= */
       #dock-menu-wrapper {
+        display: none;
+      }
+
+      html.is-pwa #dock-menu-wrapper {
         display: block;
       }
+
       @media all and (display-mode: standalone) {
         #dock-menu-wrapper {
           display: block !important;
@@ -116,8 +124,7 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
       }
 
       /* =============================================
-         FIX CURSOR — El admin-panel-root no bloquea
-         el cursor personalizado cuando está cerrado.
+         ADMIN PANEL
          ============================================= */
       #admin-panel-root {
         pointer-events: none;
@@ -127,7 +134,7 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
       }
 
       /* =============================================
-         FIX SELECCIÓN / TAP HIGHLIGHT
+         FIX TAP HIGHLIGHT
          ============================================= */
       * {
         -webkit-tap-highlight-color: transparent;
@@ -188,15 +195,9 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
     <div id="home-transition-curtain" class="home-curtain"></div>
     <FondoGlobal />
 
-    <!--
-      ✅ InstallPWA con textos traducidos según el idioma activo.
-         client:load → hidrata inmediatamente (necesario para localStorage y eventos).
-    -->
     <InstallPWA pwa={pwaTexts} client:load />
 
-    <!-- Cursor siempre encima de todo -->
     <Cursor />
-
     <Loader />
     <Navbar currentLang={currentLang} moveLogoMobile={moveLogoMobile} />
 
@@ -213,30 +214,17 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
       <DockMenu />
     </div>
 
-    <!--
-      ⚡ BotGO: client:idle en lugar de client:load
-      → hidrata cuando el hilo principal está libre,
-        no bloquea el First Contentful Paint
-    -->
     <BotGO client:idle language={currentLang} />
 
-    <!--
-      ⚡ AdminPanel — carga LAZY, solo al pulsar Ctrl+9
-      El componente React NO se incluye en el bundle inicial.
-      El div wrapper tiene pointer-events:none para no
-      interferir con el cursor cuando el panel está cerrado.
-    -->
     <div id="admin-panel-root"></div>
 
     <script src="/scripts/theme-toggle.js" defer></script>
 
-    <!-- ⚡ PWA Service Worker — defer para no bloquear -->
     <script>
       import { registerSW } from "virtual:pwa-register";
-      registerSW({ immediate: false }); // immediate:false → no bloquea el hilo principal
+      registerSW({ immediate: false });
     </script>
 
-    <!-- ⚡ Loader oculto con requestAnimationFrame → no bloquea el paint -->
     <script is:inline>
       window.addEventListener("load", () => {
         requestAnimationFrame(() => {
@@ -250,16 +238,10 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
       });
     </script>
 
-    <!--
-      ⚡ AdminPanel — lazy import solo cuando el usuario pulsa Ctrl+9
-      React + el componente se descargan únicamente en ese momento,
-      ahorrando ~150-400 KB del bundle inicial.
-    -->
     <script>
       let adminMounted = false;
 
       document.addEventListener("keydown", async (e) => {
-        // Activar con Ctrl+9
         if (e.ctrlKey && e.key === "9") {
           e.preventDefault();
 
@@ -270,7 +252,6 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
             adminMounted = true;
 
             try {
-              // Importa React y el componente solo en este momento
               const [{ default: React }, { createRoot }, { default: AdminPanel }] =
                 await Promise.all([
                   import("react"),
@@ -278,8 +259,7 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
                   import("../components/AdminPanel.jsx"),
                 ]);
 
-              // Activa pointer-events ahora que el panel existe
-              root.style.pointerEvents = "none"; // el wrapper sigue sin capturar
+              root.style.pointerEvents = "none";
 
               const reactRoot = createRoot(root);
               reactRoot.render(
@@ -287,7 +267,7 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
               );
             } catch (err) {
               console.error("[AdminPanel] Error al cargar:", err);
-              adminMounted = false; // permite reintentar
+              adminMounted = false;
             }
           }
         }
