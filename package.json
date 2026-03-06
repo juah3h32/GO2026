@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
-    "dev": "astro dev",
+    "dev": "astro dev --host",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
@@ -11,10 +11,11 @@
   },
   "dependencies": {
     "@astrojs/mdx": "^4.3.12",
-    "@astrojs/node": "^9.5.1",
+    "@astrojs/node": "^9.5.4",
     "@astrojs/react": "^4.4.2",
     "@astrojs/rss": "^4.0.14",
     "@astrojs/sitemap": "^3.6.0",
+    "@astrojs/vercel": "^9.0.4",
     "@google/generative-ai": "^0.24.1",
     "@gsap/react": "^2.1.2",
     "@libsql/client": "^0.17.0",

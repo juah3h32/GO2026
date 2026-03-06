@@ -10,7 +10,7 @@ import RecruitmentTab from './RecruitmentTab';
 
 // ── Roles ──────────────────────────────────────────────────────────────────────
 const ROLES = [
-  { password: 'JCADMIN2847',   name: 'Admin',        color: '#E8521A', tabs: ['overview','activity','products','keywords','messages','distribuidores','recruitment','ai'], canDownload: true  },
+  { password: 'JC9912',   name: 'Admin',        color: '#E8521A', tabs: ['overview','activity','products','keywords','messages','distribuidores','recruitment','ai'], canDownload: true  },
   { password: 'RH5931',      name: 'RH',           color: '#8B5CF6', tabs: ['recruitment'],                                                                             canDownload: false },
   { password: 'Dist7462',    name: 'Distribuidor', color: '#22C55E', tabs: ['distribuidores'],                                                                          canDownload: false },
 ];

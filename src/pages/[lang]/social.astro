@@ -18,26 +18,20 @@ const ti = t.impacto_social as typeof translations['es']['impacto_social'];
   <div class="impacto-social-tesla">
 
     <!-- HERO -->
-<!-- HERO -->
-<!-- HERO — estructura idéntica al hero--static del index -->
     <section class="hero-tesla">
       <div class="hero-tesla-bg">
         <video autoplay muted loop playsinline class="hero-tesla-video">
-          <source src="/videos/waves2.mp4" type="video/mp4">
+          <source src={ti.hero.video} type="video/mp4">
         </video>
         <div class="hero-tesla-overlay"></div>
       </div>
 
       <div class="hero-tesla-content">
-        <!-- Eyebrow: línea | IMPACTO SOCIAL | línea -->
         <div class="hero-tesla-label">{ti.hero.eyebrow}</div>
-
-        <!-- Título dos líneas -->
         <h1 class="hero-tesla-title">
           <span class="hero-tesla-title-top">{ti.hero.title_top}</span>
           <span class="hero-tesla-title-bottom">{ti.hero.title_bottom}</span>
         </h1>
-
         <p class="hero-tesla-subtitle">{ti.hero.subtitle}</p>
       </div>
 
@@ -65,7 +59,6 @@ const ti = t.impacto_social as typeof translations['es']['impacto_social'];
             <div class="ods-carousel-wrapper faded-start">
               <div class="ods-carousel-track" id="odsTrack">
                 {(() => {
-                  /* ── Usamos los datos del i18n (imagen + link vienen del es.js) ── */
                   const ods = ti.ods.cards;
                   return [...ods, ...ods].map((card, idx) => (
                     <div
@@ -111,17 +104,17 @@ const ti = t.impacto_social as typeof translations['es']['impacto_social'];
           <!-- CARD 0 — EARTH PRODUCTS -->
           <div class="vision-card" data-index="0">
             <div class="vision-card-img">
-              <img src="/images/impacto/products.webp" alt="Oben Earth Products" loading="lazy">
+              <img src={ti.vision.pilars[0].img} alt="Oben Earth Products" loading="lazy">
               <div class="vision-overlay"></div>
             </div>
             <div class="vision-card-content">
               <div class="vision-ods-row">
                 <div class="vision-ods-badge ods-badge-anim" data-delay="0" data-ods-num="9">
-                  <img src="/images/odc/9.png" alt="ODS 9" class="vision-ods-img"/>
+                  <img src={ti.ods.cards.find(c => c.n === 9)?.img} alt="ODS 9" class="vision-ods-img"/>
                   <span class="vision-ods-label">9</span>
                 </div>
                 <div class="vision-ods-badge ods-badge-anim" data-delay="150" data-ods-num="12">
-                  <img src="/images/odc/12.png" alt="ODS 12" class="vision-ods-img"/>
+                  <img src={ti.ods.cards.find(c => c.n === 12)?.img} alt="ODS 12" class="vision-ods-img"/>
                   <span class="vision-ods-label">12</span>
                 </div>
               </div>
@@ -137,21 +130,21 @@ const ti = t.impacto_social as typeof translations['es']['impacto_social'];
           <!-- CARD 1 — EARTH PRACTICES -->
           <div class="vision-card" data-index="1">
             <div class="vision-card-img">
-              <img src="/images/impacto/practices.webp" alt="Oben Earth Practices" loading="lazy">
+              <img src={ti.vision.pilars[1].img} alt="Oben Earth Practices" loading="lazy">
               <div class="vision-overlay"></div>
             </div>
             <div class="vision-card-content">
               <div class="vision-ods-row">
                 <div class="vision-ods-badge ods-badge-anim" data-delay="0" data-ods-num="6">
-                  <img src="/images/odc/6.png" alt="ODS 6" class="vision-ods-img"/>
+                  <img src={ti.ods.cards.find(c => c.n === 6)?.img} alt="ODS 6" class="vision-ods-img"/>
                   <span class="vision-ods-label">6</span>
                 </div>
                 <div class="vision-ods-badge ods-badge-anim" data-delay="150" data-ods-num="7">
-                  <img src="/images/odc/7.png" alt="ODS 7" class="vision-ods-img"/>
+                  <img src={ti.ods.cards.find(c => c.n === 7)?.img} alt="ODS 7" class="vision-ods-img"/>
                   <span class="vision-ods-label">7</span>
                 </div>
                 <div class="vision-ods-badge ods-badge-anim" data-delay="300" data-ods-num="13">
-                  <img src="/images/odc/13.png" alt="ODS 13" class="vision-ods-img"/>
+                  <img src={ti.ods.cards.find(c => c.n === 13)?.img} alt="ODS 13" class="vision-ods-img"/>
                   <span class="vision-ods-label">13</span>
                 </div>
               </div>
@@ -167,21 +160,21 @@ const ti = t.impacto_social as typeof translations['es']['impacto_social'];
           <!-- CARD 2 — EARTH SOCIAL -->
           <div class="vision-card" data-index="2">
             <div class="vision-card-img">
-              <img src="/images/impacto/social.webp" alt="Oben Earth Social" loading="lazy">
+              <img src={ti.vision.pilars[2].img} alt="Oben Earth Social" loading="lazy">
               <div class="vision-overlay"></div>
             </div>
             <div class="vision-card-content">
               <div class="vision-ods-row">
                 <div class="vision-ods-badge ods-badge-anim" data-delay="0" data-ods-num="1">
-                  <img src="/images/odc/1.png" alt="ODS 1" class="vision-ods-img"/>
+                  <img src={ti.ods.cards.find(c => c.n === 1)?.img} alt="ODS 1" class="vision-ods-img"/>
                   <span class="vision-ods-label">1</span>
                 </div>
                 <div class="vision-ods-badge ods-badge-anim" data-delay="150" data-ods-num="4">
-                  <img src="/images/odc/4.png" alt="ODS 4" class="vision-ods-img"/>
+                  <img src={ti.ods.cards.find(c => c.n === 4)?.img} alt="ODS 4" class="vision-ods-img"/>
                   <span class="vision-ods-label">4</span>
                 </div>
                 <div class="vision-ods-badge ods-badge-anim" data-delay="300" data-ods-num="5">
-                  <img src="/images/odc/5.png" alt="ODS 5" class="vision-ods-img"/>
+                  <img src={ti.ods.cards.find(c => c.n === 5)?.img} alt="ODS 5" class="vision-ods-img"/>
                   <span class="vision-ods-label">5</span>
                 </div>
               </div>
@@ -214,7 +207,7 @@ const ti = t.impacto_social as typeof translations['es']['impacto_social'];
     <section class="oceanos-section">
       <div class="oceanos-hero">
         <video autoplay muted loop playsinline class="oceanos-bg-video">
-          <source src="/videos/waves.mp4" type="video/mp4">
+          <source src={ti.oceanos.hero_video} type="video/mp4">
         </video>
         <div class="oceanos-hero-overlay"></div>
         <div class="oceanos-hero-content">
@@ -279,49 +272,26 @@ const ti = t.impacto_social as typeof translations['es']['impacto_social'];
         </div>
 
         <div class="oceanos-partners">
-
-          <!-- Partner 0 — Tom Ford (video: oceancleanup.mp4) -->
-          <div class="oceanos-partner-card">
-            <div class="oceanos-partner-logo">
-              <video autoplay muted loop playsinline>
-                <source src="/videos/impacto/oceancleanup.mp4" type="video/mp4">
-                <img src="/images/impacto/cultura-calidad.jpg" alt={ti.oceanos.partners[0].title}>
-              </video>
+          {ti.oceanos.partners.map((partner) => (
+            <div class="oceanos-partner-card">
+              <div class="oceanos-partner-logo">
+                <video autoplay muted loop playsinline poster={partner.poster}>
+                  <source src={partner.video} type="video/mp4">
+                </video>
+              </div>
+              <div class="oceanos-partner-info">
+                <h3 class="oceanos-partner-title">{partner.title}</h3>
+                <p class="oceanos-partner-desc">{partner.desc}</p>
+                <a href={partner.link} target="_blank" rel="noopener" class="oceanos-partner-btn">
+                  {partner.btn}
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                    <polyline points="12 5 19 12 12 19"/>
+                  </svg>
+                </a>
+              </div>
             </div>
-            <div class="oceanos-partner-info">
-              <h3 class="oceanos-partner-title">{ti.oceanos.partners[0].title}</h3>
-              <p class="oceanos-partner-desc">{ti.oceanos.partners[0].desc}</p>
-              <a href={ti.oceanos.partners[0].link} target="_blank" rel="noopener" class="oceanos-partner-btn">
-                {ti.oceanos.partners[0].btn}
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <line x1="5" y1="12" x2="19" y2="12"/>
-                  <polyline points="12 5 19 12 12 19"/>
-                </svg>
-              </a>
-            </div>
-          </div>
-
-          <!-- Partner 1 — Ocean Cleanup (video: tomford.mp4) -->
-          <div class="oceanos-partner-card">
-            <div class="oceanos-partner-logo">
-              <video autoplay muted loop playsinline>
-                <source src="/videos/impacto/tomford.mp4" type="video/mp4">
-                <img src="/images/impacto/tomford.webp" alt={ti.oceanos.partners[1].title}>
-              </video>
-            </div>
-            <div class="oceanos-partner-info">
-              <h3 class="oceanos-partner-title">{ti.oceanos.partners[1].title}</h3>
-              <p class="oceanos-partner-desc">{ti.oceanos.partners[1].desc}</p>
-              <a href={ti.oceanos.partners[1].link} target="_blank" rel="noopener" class="oceanos-partner-btn">
-                {ti.oceanos.partners[1].btn}
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <line x1="5" y1="12" x2="19" y2="12"/>
-                  <polyline points="12 5 19 12 12 19"/>
-                </svg>
-              </a>
-            </div>
-          </div>
-
+          ))}
         </div>
       </div>
     </section>
@@ -345,10 +315,10 @@ const ti = t.impacto_social as typeof translations['es']['impacto_social'];
                 <p class="timeline-description">{item.desc}</p>
               </div>
               <div class="timeline-image">
-                {i === 0 ? (
-                  <video src="/images/impacto/hogar.mp4" autoplay muted loop playsinline poster="/images/impacto/hogar.webp" />
+                {item.isVideo ? (
+                  <video src={item.img} autoplay muted loop playsinline poster={item.poster} />
                 ) : (
-                  <img src={`/images/impacto/${["despensas","composta","GO","woman","bio"][i - 1]}.webp`} alt={item.title} loading="lazy" />
+                  <img src={item.img} alt={item.title} loading="lazy" />
                 )}
               </div>
               <div class="timeline-dot"></div>
@@ -358,13 +328,13 @@ const ti = t.impacto_social as typeof translations['es']['impacto_social'];
       </div>
 
       <div class="timeline-mobile-carousel" aria-hidden="true">
-        {ti.timeline.items.map((item, i) => (
+        {ti.timeline.items.map((item) => (
           <div class="tmc-card">
             <div class="tmc-img">
-              {i === 0 ? (
-                <video src="/images/impacto/hogar.mp4" autoplay muted loop playsinline poster="/images/impacto/hogar.webp" style="width:100%;height:100%;object-fit:cover;display:block;" />
+              {item.isVideo ? (
+                <video src={item.img} autoplay muted loop playsinline poster={item.poster} style="width:100%;height:100%;object-fit:cover;display:block;" />
               ) : (
-                <img src={`/images/impacto/${["despensas","composta","GO","woman","bio"][i - 1]}.webp`} alt={item.title} loading="lazy" />
+                <img src={item.img} alt={item.title} loading="lazy" />
               )}
             </div>
             <div class="tmc-body">
@@ -421,7 +391,6 @@ const ti = t.impacto_social as typeof translations['es']['impacto_social'];
     return STATE.get(v);
   }
 
-  /* ── play instantáneo sin reload ── */
   function kick(v) {
     const s = st(v);
     v.muted = true;
@@ -436,11 +405,9 @@ const ti = t.impacto_social as typeof translations['es']['impacto_social'];
       });
   }
 
-  /* ── kick ultra-rápido sin recargar el archivo ── */
   function quickRecover(v) {
     const s = st(v);
     if (!s.visible) return;
-    /* Trick: un seek mínimo desatasca el decoder sin recargar */
     try {
       if (v.readyState >= 2) {
         v.currentTime = v.currentTime > 0.05 ? v.currentTime - 0.01 : 0;
@@ -449,7 +416,6 @@ const ti = t.impacto_social as typeof translations['es']['impacto_social'];
     kick(v);
   }
 
-  /* ── watcher de freeze: cada 600 ms comprueba si el tiempo avanzó ── */
   function startWatch(v) {
     const s = st(v);
     clearInterval(s.ticker);
@@ -466,13 +432,12 @@ const ti = t.impacto_social as typeof translations['es']['impacto_social'];
         return;
       }
 
-      /* Congelado: mismo currentTime Y no está en pausa voluntaria */
       if (now === s.lastT && !v.paused && v.readyState >= 2) {
         quickRecover(v);
       }
 
       s.lastT = now;
-    }, 600); /* ← 600 ms = detección ultra-rápida */
+    }, 600);
   }
 
   function stopWatch(v) {
@@ -480,20 +445,17 @@ const ti = t.impacto_social as typeof translations['es']['impacto_social'];
     try { v.pause(); } catch (_) {}
   }
 
-  /* ── IntersectionObserver: play cuando entra, pause cuando sale ── */
   function initVideoObserver() {
     const videos = document.querySelectorAll("video");
     if (!videos.length) return;
 
-    /* Pre-configurar todos los videos */
     videos.forEach((v) => {
       v.muted = true;
       v.loop  = true;
       v.playsInline = true;
       v.setAttribute("playsinline", "");
       v.setAttribute("webkit-playsinline", "");
-      v.preload = "auto"; /* carga inmediata en PC */
-      /* GPU hint para evitar freeze de decode */
+      v.preload = "auto";
       v.style.willChange = "transform";
     });
 
@@ -511,25 +473,22 @@ const ti = t.impacto_social as typeof translations['es']['impacto_social'];
           stopWatch(v);
         }
       });
-    }, { threshold: 0.05 }); /* 5 % visible = arranca YA */
+    }, { threshold: 0.05 });
 
     videos.forEach((v) => obs.observe(v));
 
-    /* Listeners nativos como red de seguridad extra */
     videos.forEach((v) => {
       const recover = () => { if (st(v).visible) quickRecover(v); };
       v.addEventListener("stalled", recover);
       v.addEventListener("waiting", recover);
       v.addEventListener("ended",   () => { if (st(v).visible) { v.currentTime = 0; kick(v); } });
       v.addEventListener("error",   () => {
-        /* En error real sí recargamos, pero solo una vez */
         const s = st(v);
         if (s.visible && s.retries < 2) { s.retries++; v.load(); setTimeout(() => kick(v), 400); }
       });
     });
   }
 
-  /* ── Recuperación al volver pestaña o foco (PC + móvil) ── */
   function resume() {
     document.querySelectorAll("video").forEach((v) => {
       const s = st(v);
@@ -544,10 +503,6 @@ const ti = t.impacto_social as typeof translations['es']['impacto_social'];
       if (s.visible) { v.load(); setTimeout(() => kick(v), 300); }
     });
   });
-
-  /* ─────────────────────────────────────────────────────────────
-     RESTO DE FUNCIONES DE LA PÁGINA (contadores, carruseles…)
-  ───────────────────────────────────────────────────────────── */
 
   /* ── Contadores animados ── */
   function initCounters() {
@@ -843,7 +798,7 @@ const ti = t.impacto_social as typeof translations['es']['impacto_social'];
      INIT PRINCIPAL
   ═══════════════════════════ */
   function init() {
-    initVideoObserver();   /* ← gestor global de videos */
+    initVideoObserver();
     initCounters();
     initAOS();
     initVisionCarousel();

@@ -1021,6 +1021,9 @@ body.no-scroll {
   .montfort-header.scrolled {
     padding-top: 0;
   }
+  .montfort-header.logo-shifted .logo { 
+    display: none; 
+  }
 }
 
 @media (max-width: 480px) {
@@ -1057,8 +1060,10 @@ body.no-scroll {
   right: auto; 
 }
 
-.montfort-header.logo-shifted .logo { 
-  display: none; 
+@media (max-width: 1024px) {
+  .montfort-header.logo-shifted .logo { 
+    display: none; 
+  }
 }
 /* ===== LOGO ===== */
 

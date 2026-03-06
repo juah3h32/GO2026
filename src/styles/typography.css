@@ -201,25 +201,11 @@
 
   /* ══════════════════════════════════════════════════════════════════════
      GAPS DE PÁGINA DE PRODUCTO  (--pd-*)
-     ──────────────────────────────────────────────────────────────────────
-     Márgenes internos del layout de producto. Centralizar aquí permite
-     ajustar el ritmo vertical sin tocar product.css.
-
-     TOKEN                  VALOR                  USO
-     ──────────────────────────────────────────────────────────────────────
-     --pd-h1-gap            h1 → párrafo desc.     aire bajo el título
-     --pd-p-gap             párrafo → specs         acerca specs al texto
-     --pd-specs-title-gap   specs-title → grid      aprieta encabezado+cards
-     --pd-specs-bottom      specs-grid → thumbnails separa zona inferior
      ══════════════════════════════════════════════════════════════════════ */
   --pd-h1-gap          : clamp(0.8rem,  1.8vh, 1.6rem);
   --pd-p-gap           : clamp(0.5rem,  1.0vh, 1.0rem);
   --pd-specs-title-gap : clamp(0.4rem,  0.8vh, 0.8rem);
   --pd-specs-bottom    : clamp(0.5rem,  1.0vh, 1.2rem);
-  /* Tracking del título de producto — positivo para que respire en desktop
-     (el h1 global usa --ls-display-hero: -0.02em que aplasta la fuente
-     condensada MorganitePro a tamaños grandes de display)
-     Móvil: se neutraliza a 0em en ≤1024px para no tocar el comportamiento original */
   --pd-h1-ls           : 0.01em;
 }
 
@@ -247,16 +233,12 @@
     --fs-display-lg : clamp(3rem,   7vw, 6rem);
     --fs-display-md : clamp(1.8rem, 3vw, 3rem);
     --section-gap   : 60px;
-    /* A tamaños menores el tracking negativo ya no aprieta tanto,
-       pero lo suavizamos igual para consistencia */
     --ls-display-hero : -0.015em;
     --ls-display      : -0.005em;
-    /* Gaps producto en tablet — ligeramente más compactos */
     --pd-h1-gap          : clamp(0.6rem, 1.4vh, 1.2rem);
     --pd-p-gap           : clamp(0.4rem, 0.8vh, 0.8rem);
     --pd-specs-title-gap : clamp(0.3rem, 0.6vh, 0.6rem);
     --pd-specs-bottom    : clamp(0.4rem, 0.8vh, 1.0rem);
-    /* Móvil: sin tracking extra en el h1, se comporta igual que antes */
     --pd-h1-ls           : 0em;
   }
 }
@@ -273,7 +255,6 @@
     --fs-body-xl     : clamp(0.95rem,  3vw,  1.1rem);
     --fs-body-lg     : clamp(0.9rem,  2.5vw,  1rem);
     --section-gap    : 40px;
-    /* En móvil el tracking neutro/ligeramente positivo da más legibilidad */
     --ls-display-hero : 0em;
     --ls-display      : 0em;
     --ls-display-md   : 0.005em;
@@ -304,13 +285,6 @@ body {
   text-rendering          : optimizeLegibility;
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   HEADINGS GLOBALES
-   h1 → tracking hero (-0.02em), escala XL
-   h2 → tracking display (-0.01em), escala LG
-   h3 → tracking display-md (0em), escala MD
-   h4-h6 → tracking display-sm (0.01em), escala SM/XS
-   ───────────────────────────────────────────────────────────────────────────── */
 h1, h2, h3, h4, h5, h6 {
   font-family    : var(--font-display);
   font-weight    : var(--fw-display);
@@ -321,28 +295,28 @@ h1, h2, h3, h4, h5, h6 {
 h1 {
   font-size      : var(--fs-display-xl);
   line-height    : var(--lh-display);
-  letter-spacing : var(--ls-display-hero);  /* -0.02em — respira en tamaños grandes */
+  letter-spacing : var(--ls-display-hero);
   text-transform : uppercase;
 }
 
 h2 {
   font-size      : var(--fs-display-lg);
   line-height    : var(--lh-display);
-  letter-spacing : var(--ls-display);       /* -0.01em — limpio y simétrico */
+  letter-spacing : var(--ls-display);
   text-transform : uppercase;
 }
 
 h3 {
   font-size      : var(--fs-display-md);
   line-height    : var(--lh-display-md);
-  letter-spacing : var(--ls-display-md);    /* 0em — neutro para cards */
+  letter-spacing : var(--ls-display-md);
   text-transform : uppercase;
 }
 
 h4, h5, h6 {
   font-size      : var(--fs-display-sm);
   line-height    : var(--lh-display-md);
-  letter-spacing : var(--ls-display-sm);    /* 0.01em — levemente abierto */
+  letter-spacing : var(--ls-display-sm);
   text-transform : uppercase;
 }
 
@@ -351,39 +325,36 @@ h4, h5, h6 {
    CLASES TIPOGRÁFICAS BASE
    ============================================================================ */
 
-/* ── Título de sección ── */
 .block-title {
   font-family    : var(--font-display);
   font-weight    : var(--fw-display);
   font-size      : var(--fs-display-lg);
   line-height    : var(--lh-display);
-  letter-spacing : var(--ls-display);       /* -0.01em */
+  letter-spacing : var(--ls-display);
   text-transform : uppercase;
   font-synthesis : none;
   margin         : 0;
 }
 
-/* ── Subtítulo de sección ── */
 .block-subtitle {
   font-family    : var(--font-subtitle);
   font-weight    : var(--fw-subtitle);
   font-size      : var(--fs-display-sm);
   line-height    : var(--lh-subtitle);
-  letter-spacing : var(--ls-subtitle);      /* 0.05em — contraste con título */
+  letter-spacing : var(--ls-subtitle);
   text-transform : uppercase;
   font-synthesis : weight;
   margin         : 0;
   display        : block;
 }
 
-/* ── Subtítulos utilitarios ── */
 .subtitle-lg,
 .subtitle-md,
 .subtitle-sm {
   font-family    : var(--font-subtitle);
   font-weight    : var(--fw-subtitle);
   line-height    : var(--lh-subtitle);
-  letter-spacing : var(--ls-subtitle);      /* 0.05em */
+  letter-spacing : var(--ls-subtitle);
   text-transform : uppercase;
   font-synthesis : weight;
   margin         : 0;
@@ -393,35 +364,31 @@ h4, h5, h6 {
 .subtitle-md { font-size: var(--fs-subtitle-md); }
 .subtitle-sm { font-size: var(--fs-subtitle-sm); }
 
-/* ── Label compacto ── */
 .label-text {
   font-family    : var(--font-body);
   font-weight    : var(--fw-label);
   font-size      : var(--fs-body-sm);
-  letter-spacing : var(--ls-label);         /* 0.15em */
+  letter-spacing : var(--ls-label);
   text-transform : uppercase;
   line-height    : var(--lh-label);
   margin         : 0;
 }
 
-/* ── Eyebrow (tracking abierto 0.35em) ── */
 .eyebrow {
   font-family    : var(--font-body);
   font-weight    : var(--fw-label);
   font-size      : var(--fs-body-sm);
-  letter-spacing : var(--ls-loose);         /* 0.35em */
+  letter-spacing : var(--ls-loose);
   text-transform : uppercase;
   line-height    : var(--lh-label);
   margin         : 0;
 }
 
-/* ── Utilidades de cuerpo ── */
 .body-xl { font-family: var(--font-body); font-size: var(--fs-body-xl); line-height: var(--lh-body); }
 .body-lg { font-family: var(--font-body); font-size: var(--fs-body-lg); line-height: var(--lh-body); }
 .body-md { font-family: var(--font-body); font-size: var(--fs-body-md); line-height: var(--lh-body); }
 .body-sm { font-family: var(--font-body); font-size: var(--fs-body-sm); line-height: var(--lh-label); }
 
-/* ── Texto decorativo (Moisette) ── */
 .text-decorative {
   font-family : var(--font-decorative);
   font-weight : normal;
@@ -460,9 +427,6 @@ h4, h5, h6 {
 .section-header > .subtitle-sm:last-child {
   margin-bottom: var(--section-gap) !important;
 }
-/* ============================================================================
-   ▼ AGREGAR AL FINAL DE typography.css
-   ============================================================================ */
 
 
 /* ============================================================================
@@ -475,15 +439,14 @@ h4, h5, h6 {
   --clr-text        : #111111;
   --clr-muted       : #666666;
   --clr-border      : #e8e5e0;
-  --clr-accent      : #FB670B;
-  --clr-accent-dark : #d45500;
+  --clr-accent      : #fb670b;
+  --clr-accent-dark : #fb670b;
   --clr-dark        : #111111;
   --clr-dark-2      : #1c1c1c;
 
   /* ── Layout ── */
   --max-w    : 1400px;
   --pad      : clamp(20px, 4vw, 60px);
-  /* --section-gap ya definido arriba en typography.css */
 
   /* ── Forma ── */
   --radius    : 4px;
@@ -526,10 +489,6 @@ a   { text-decoration: none; }
 
 /* ============================================================================
    SECTION-TAG
-   Eyebrow de sección con línea decorativa naranja a la izquierda.
-
-   <p class="section-tag">Divisiones</p>
-   <p class="section-tag section-tag--light">Global</p>
    ============================================================================ */
 .section-tag {
   display        : inline-flex;
@@ -556,10 +515,6 @@ a   { text-decoration: none; }
 
 /* ============================================================================
    SECTION-HEADING
-   H2 de sección. El <em> es color acento (no cursiva).
-
-   <h2 class="section-heading">Nuestras <em>Divisiones</em></h2>
-   <h2 class="section-heading section-heading--light">Global <em>Reach</em></h2>
    ============================================================================ */
 .section-heading {
   font-family    : var(--font-display);
@@ -583,14 +538,6 @@ a   { text-decoration: none; }
 
 /* ============================================================================
    BOTONES
-   .btn            → base
-   .btn--solid     → naranja sólido
-   .btn--ghost     → transparente borde blanco (fondos oscuros)
-   .btn--dark-ghost→ transparente borde oscuro (fondos claros)
-   .btn--xl        → tamaño grande
-
-   <a class="btn btn--solid">Ver productos</a>
-   <a class="btn btn--ghost">Nosotros</a>
    ============================================================================ */
 .btn {
   display        : inline-flex;

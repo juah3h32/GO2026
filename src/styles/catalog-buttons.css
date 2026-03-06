@@ -6,6 +6,7 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
+    align-items: flex-start; /* ← Alineado a la izquierda en PC */
 }
 
 .download-label {
@@ -13,7 +14,7 @@
     font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.15em;
-    color: #fb670b; /* Naranja corporativo */
+    color: #fb670b;
     text-transform: uppercase;
     opacity: 0.8;
 }
@@ -24,19 +25,18 @@
     flex-wrap: wrap;
 }
 
-/* Botones de Idioma estilo "Tag" o "Chip" minimalista */
 .lang-btn {
     text-decoration: none;
     font-family: var(--fuente-cuerpo);
     font-size: 0.75rem;
     font-weight: 700;
-    color: var(--productos-text); /* Se adapta al tema claro/oscuro si tienes variables */
-    background: rgba(0, 0, 0, 0.05); /* Fondo muy sutil */
+    color: var(--productos-text);
+    background: rgba(0, 0, 0, 0.05);
     border: 1px solid rgba(0, 0, 0, 0.1);
     
     width: 40px;
     height: 40px;
-    border-radius: 50%; /* Círculos perfectos */
+    border-radius: 50%;
     
     display: flex;
     align-items: center;
@@ -45,7 +45,6 @@
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-/* Efecto Hover */
 .lang-btn:hover {
     background: #fb670b;
     color: #ffffff;
@@ -57,7 +56,7 @@
 /* Ajustes para Móvil */
 @media screen and (max-width: 1024px) {
     .download-container {
-        align-items: center; /* Centrado en móvil */
+        align-items: center; /* Centrado en móvil (sobreescribe el flex-start) */
         margin-top: 15px;
     }
     
@@ -67,8 +66,8 @@
     }
 
     .lang-btn {
-        width: 45px; /* Un poco más grandes para el dedo */
+        width: 45px;
         height: 45px;
-        background: rgba(0, 0, 0, 0.08); /* Un poco más oscuro para contraste */
+        background: rgba(0, 0, 0, 0.08);
     }
 }

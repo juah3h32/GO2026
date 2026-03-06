@@ -43,16 +43,25 @@ export const es = {
   // CHATBOT (BotGo)
   // =================================================
   chatbot: {
-  greeting: '¡Hola! Soy BotGo 🤖. ¿En qué puedo ayudarte hoy?',
-  placeholder: 'Escribe un mensaje...',
-  listeningState: 'Escuchando...',   // ← faltaba (usabas "listening")
-  thinking: 'Pensando...',           // ← faltaba
-  errorMsg: 'Error de conexión.',    // ← faltaba (usabas "error")
-  salesBtn: 'Cotizar por WhatsApp',
-  voiceAssistantTitle: 'Asistente Virtual',  // ← faltaba
-  voiceCode: 'es-MX',
-  waStart: 'Hola Grupo Ortiz, me gustaría una cotización',
-  pdfBtn: 'Ver catálogo PDF',        // ← faltaba
+    greeting: '¡Hola! Soy BotGo 🤖. ¿En qué puedo ayudarte hoy?',
+    placeholder: 'Escribe un mensaje...',
+    listeningState: 'Escuchando...',
+    thinking: 'Pensando...',
+    errorMsg: 'Error de conexión.',
+    salesBtn: 'Cotizar por WhatsApp',
+    voiceAssistantTitle: 'Asistente Virtual',
+    voiceCode: 'es-MX',
+    waStart: 'Hola Grupo Ortiz, me gustaría una cotización',
+    pdfBtn: 'Ver catálogo PDF',
+  },
+  
+  pwa: {
+  appName: "Grupo Ortiz",
+  title: "Instalar GO App",
+  description: "Acceso rápido desde tu pantalla de inicio",
+  install: "Instalar",
+  notNow: "Ahora no",
+  timeLabel: "ahora"
 },
 
   // =================================================
@@ -129,7 +138,7 @@ export const es = {
     divisions: [
       {
         id: "1",
-        name: "PELÍCULA ESTIRABLE",
+        name: "STRETCH FILM",
         desc: "Película stretch para asegurar y proteger cargas. Solución eficiente para paletizado y transporte seguro.",
         image: "/images/catalogo/img1.webp",
         catalogs: {
@@ -745,7 +754,7 @@ export const es = {
         }
       },
       {
-        name: "STAND UP POUCH X ORIGANICS",
+        name: "STAND UP POUCH",
         description: "Línea de bolsas con diseños decorativos atractivos: Frutos Rojos, Flores, Frutas, Espigas, Regalo Azul y Regalo Rosa. Cierre tipo zipper, estructura resistente y acabados Natural o Metalizado. Disponibles en tamaños de 150 g hasta 1 kg. Ideales para quienes buscan un empaque de alta calidad y atractivo visual.",
         img: "/images/flexible/standup-origanics.png",
         video: "/videos/flexible/standup-origanics.mp4",
@@ -816,7 +825,7 @@ export const es = {
         email:    "Correo Electrónico",
         products: "PRODUCTOS DE INTERÉS"
       },
-      products_list: ["Sacos", "Flexibles", "Rafia", "Esquinero", "Cuerdas", "Stretch", "Otro","Todos"],
+      products_list: ["Sacos", "Flexibles", "Rafia", "Esquinero", "Cuerdas", "Stretch", "Otro", "Todos"],
       btn:         "ENVIAR SOLICITUD",
       success_msg: "Solicitud Enviada"
     }
@@ -829,66 +838,28 @@ export const es = {
     meta_title: "Quiénes Somos | Grupo Ortiz",
 
     timeline: {
-      title_white: "NUESTRA",
-      title_orange: "TRAYECTORIA",
-      nav_prev: "Anterior",
-      nav_next: "Siguiente",
+      title_white:   "NUESTRA",
+      title_orange:  "TRAYECTORIA",
+      nav_prev:      "Anterior",
+      nav_next:      "Siguiente",
+      video_bg:      "/videos/background.mp4",
+      video_bg_webm: "",
+      video_poster:  "",
       events: [
-        {
-          year: "1959",
-          title: "El Comienzo",
-          short: "Fundación en Morelia",
-          img: "tiempo/timeline-1959.webp",
-          description: "Desde 1959, Grupo Ortiz formó parte del desarrollo industrial de México. Fundado en Morelia por Nicandro Ortiz, el grupo nació con una visión firme: combinar tecnología de punta con el talento y la dedicación de su gente para construir una empresa sólida, innovadora y comprometida con la calidad."
-        },
-        {
-          year: "1970",
-          title: "Expansión Industrial",
-          short: "Sacos y arpillas",
-          img: "tiempo/timeline-1970.webp",
-          description: "En 1970, iniciamos la producción de sacos y arpillas de polipropileno, marcando una etapa clave en nuestro crecimiento industrial. Este paso estratégico fortaleció nuestra capacidad operativa, amplió nuestra participación comercial y consolidó nuestra presencia dentro del mercado nacional."
-        },
-        {
-          year: "1985",
-          title: "Innovación Tecnológica",
-          short: "Maquinaria europea",
-          img: "tiempo/timeline-1985.webp",
-          description: "En 1985, incorporamos maquinaria europea de última generación, fortaleciendo nuestra infraestructura industrial y optimizando nuestros procesos productivos. Esta inversión estratégica elevó nuestros estándares de calidad, incrementó la eficiencia operativa y reafirmó nuestro compromiso con la innovación tecnológica."
-        },
-        {
-          year: "1995",
-          title: "Diversificación",
-          short: "Nuevas líneas",
-          img: "tiempo/timeline-1995.webp",
-          description: "En 1995, ampliamos nuestras líneas de producción incorporando stretch film, empaques flexibles y productos especializados para la industria. Esta expansión estratégica diversificó nuestro portafolio, fortaleció nuestra competitividad en el sector y nos permitió atender nuevas demandas del mercado nacional."
-        },
-        {
-          year: "2005",
-          title: "Expansión Internacional",
-          short: "América y Europa",
-          img: "tiempo/timeline-2005.webp",
-          description: "En 2005, iniciamos exportaciones hacia América y Europa, marcando un paso decisivo en nuestra expansión internacional. Este logro posicionó a la empresa como un referente en la industria de polímeros plásticos, fortaleciendo nuestra presencia global y consolidando nuestra competitividad en mercados internacionales."
-        },
-        {
-          year: "2015",
-          title: "Sostenibilidad",
-          short: "Planta de reciclado",
-          img: "tiempo/timeline-2015.webp",
-          description: "En 2015, implementamos una planta de reciclado y fortalecimos nuestros programas de sustentabilidad, reafirmando nuestro compromiso con el medio ambiente. Esta iniciativa estratégica optimizó el aprovechamiento de recursos, impulsó prácticas responsables y consolidó nuestra visión de crecimiento."
-        },
-        {
-          year: "2026",
-          title: "Presente",
-          short: "Líder industrial",
-          img: "tiempo/timeline-2026.webp",
-          description: "En 2026, contamos con 17 plantas de producción, más de 4,000 colaboradores y una capacidad anual de 220,000 toneladas. Este crecimiento sostenido nos consolida como líderes en la industria del plástico, respaldados por una infraestructura sólida, talento humano especializado y una visión estratégica orientada al futuro."
-        }
+        { year: "1959", title: "El Comienzo",             short: "Fundación en Morelia",  img: "/images/tiempo/timeline-1959.webp",  description: "Desde 1959, Grupo Ortiz formó parte del desarrollo industrial de México. Fundado en Morelia por Nicandro Ortiz, el grupo nació con una visión firme: combinar tecnología de punta con el talento y la dedicación de su gente para construir una empresa sólida, innovadora y comprometida con la calidad." },
+        { year: "1970", title: "Expansión Industrial",    short: "Sacos y arpillas",      img: "/images/tiempo/timeline-1970.webp",  description: "En 1970, iniciamos la producción de sacos y arpillas de polipropileno, marcando una etapa clave en nuestro crecimiento industrial. Este paso estratégico fortaleció nuestra capacidad operativa, amplió nuestra participación comercial y consolidó nuestra presencia dentro del mercado nacional." },
+        { year: "1985", title: "Innovación Tecnológica",  short: "Maquinaria europea",    img: "/images/tiempo/timeline-1985.webp",  description: "En 1985, incorporamos maquinaria europea de última generación, fortaleciendo nuestra infraestructura industrial y optimizando nuestros procesos productivos. Esta inversión estratégica elevó nuestros estándares de calidad, incrementó la eficiencia operativa y reafirmó nuestro compromiso con la innovación tecnológica." },
+        { year: "1995", title: "Diversificación",         short: "Nuevas líneas",         img: "/images/tiempo/timeline-1995.webp",  description: "En 1995, ampliamos nuestras líneas de producción incorporando stretch film, empaques flexibles y productos especializados para la industria. Esta expansión estratégica diversificó nuestro portafolio, fortaleció nuestra competitividad en el sector y nos permitió atender nuevas demandas del mercado nacional." },
+        { year: "2005", title: "Expansión Internacional", short: "América y Europa",      img: "/images/tiempo/timeline-2005.webp",  description: "En 2005, iniciamos exportaciones hacia América y Europa, marcando un paso decisivo en nuestra expansión internacional. Este logro posicionó a la empresa como un referente en la industria de polímeros plásticos, fortaleciendo nuestra presencia global y consolidando nuestra competitividad en mercados internacionales." },
+        { year: "2015", title: "Sostenibilidad",          short: "Planta de reciclado",   img: "/images/tiempo/timeline-2015.webp",  description: "En 2015, implementamos una planta de reciclado y fortalecimos nuestros programas de sustentabilidad, reafirmando nuestro compromiso con el medio ambiente. Esta iniciativa estratégica optimizó el aprovechamiento de recursos, impulsó prácticas responsables y consolidó nuestra visión de crecimiento." },
+        { year: "2026", title: "Presente",                short: "Líder industrial",      img: "/images/tiempo/timeline-2026.webp",  description: "En 2026, contamos con 17 plantas de producción, más de 4,000 colaboradores y una capacidad anual de 220,000 toneladas. Este crecimiento sostenido nos consolida como líderes en la industria del plástico, respaldados por una infraestructura sólida, talento humano especializado y una visión estratégica orientada al futuro." }
       ]
     },
 
-   filosofia: {
+    filosofia: {
       label: "Nuestros Principios",
       title: "Filosofía GO",
+      img:   "/images/about/GO.webp",
       items: [
         "Obsesión por la satisfacción del cliente, no por la competencia.",
         "Pasión por la invención e innovación constante.",
@@ -901,6 +872,7 @@ export const es = {
     vision: {
       label: "Hacia dónde vamos",
       title: "Visión",
+      img:   "/images/about/GO2.webp",
       items: [
         "Ser la compañía del planeta más orientada al cliente.",
         "Ofrecer toda solución integral para cualquier negocio.",
@@ -913,16 +885,20 @@ export const es = {
       title_white:  "Infraestructura",
       title_orange: "que respalda",
       stats: [
-  { number: "10",      label: "Plantas de Producción",   desc: "Instalaciones estratégicamente ubicadas para atender mercados nacionales e internacionales.", icon: "number" },
-  { number: "+3,000",  label: "Colaboradores",           desc: "Equipo especializado que impulsa cada proceso productivo.", icon: "number" },
-  { number: "260",     label: "Unidades Logísticas",     desc: "Flota propia que garantiza distribución eficiente y entregas seguras a nivel nacional e internacional.", icon: "number" },
-  { number: "Global",  label: "Presencia Internacional", desc: "Exportación y distribución en América y Europa.", icon: "globe" }
-]
+        { number: "10",     label: "Plantas de Producción",   desc: "Instalaciones estratégicamente ubicadas para atender mercados nacionales e internacionales.", icon: "number" },
+        { number: "+3,000", label: "Colaboradores",           desc: "Equipo especializado que impulsa cada proceso productivo.", icon: "number" },
+        { number: "260",    label: "Unidades Logísticas",     desc: "Flota propia que garantiza distribución eficiente y entregas seguras a nivel nacional e internacional.", icon: "number" },
+        { number: "Global", label: "Presencia Internacional", desc: "Exportación y distribución en América y Europa.", icon: "globe" }
+      ]
     },
 
     plantas: {
-      title:    "Nuestras Plantas",
-      subtitle: "17 Plantas de Producción",
+      title:           "Nuestras Plantas",
+      subtitle:        "17 Plantas de Producción",
+      map_img:         "/images/about/mexico_map.png",
+      layer_michoacan: "/images/about/michoacan_layer.png",
+      layer_monterrey: "/images/about/monterrey_layer.png",
+      layer_both:      "/images/about/both_states_layer.png",
       locations: [
         { key: "monterrey", number: "1 PLANTA",   badge: "Monterrey, Nuevo León" },
         { key: "michoacan", number: "16 PLANTAS", badge: "Morelia, Michoacán"    }
@@ -938,41 +914,10 @@ export const es = {
       btn_tour:     "Ver Recorrido 3D",
       btn_soon:     "Próximamente",
       items: [
-        {
-          id: "extrusoras", num: "01",
-          title: "Stretch Film",
-          tag:   "Morelia, Mich.",
-          desc:  "Líneas de extrusión de alta capacidad donde el polipropileno se transforma en hilo plano de precisión.",
-          thumb: "/images/virtual/RT.webp",
-          link:  "https://my.matterport.com/show/?m=YoM2tyXMeyb&ss=2&sr=2.97,.12&play=1&qs=1&ts=1",
-          soon:  true
-        },
-        {
-          id: "telares", num: "02",
-          title: "Arpillas",
-          tag:   "Morelia, Mich.",
-          desc:  "Telares de última generación que tejen el hilo para producir tela de polipropileno con máxima uniformidad.",
-          link:  "https://my.matterport.com/show/?m=2xCe1VajMjj&ss=1&sr=2.28,-1.47&play=1&qs=1&ts=1",
-          thumb: "/images/virtual/RA.webp",
-          soon:  false
-        },
-        {
-          id: "laminado", num: "03",
-          title: "Laminado e Impresión",
-          tag:   "Morelia, Mich.",
-          desc:  "Área de laminado y flexografía donde los sacos reciben acabados, impresión y tratamiento final de calidad.",
-          link:  "",
-          thumb: "/images/virtual/RS.webp",
-          soon:  true
-        },
-        {
-          id: "reciclado", num: "04",
-          title: "Planta de Reciclado",
-          tag:   "Morelia, Mich.",
-          desc:  "Nuestro centro de reciclado de polipropileno, comprometido con la economía circular y el medio ambiente.",
-          link:  "",
-          soon:  true
-        }
+        { id: "extrusoras", num: "01", title: "Stretch Film",         tag: "Morelia, Mich.", desc: "Líneas de extrusión de alta capacidad donde el polipropileno se transforma en hilo plano de precisión.",                   thumb: "/images/virtual/RT.webp", link: "https://my.matterport.com/show/?m=YoM2tyXMeyb&ss=2&sr=2.97,.12&play=1&qs=1&ts=1", soon: true  },
+        { id: "telares",    num: "02", title: "Arpillas",             tag: "Morelia, Mich.", desc: "Telares de última generación que tejen el hilo para producir tela de polipropileno con máxima uniformidad.",               thumb: "/images/virtual/RA.webp", link: "https://my.matterport.com/show/?m=2xCe1VajMjj&ss=1&sr=2.28,-1.47&play=1&qs=1&ts=1", soon: false },
+        { id: "laminado",   num: "03", title: "Laminado e Impresión", tag: "Morelia, Mich.", desc: "Área de laminado y flexografía donde los sacos reciben acabados, impresión y tratamiento final de calidad.",               thumb: "/images/virtual/RS.webp", link: "", soon: true  },
+        { id: "reciclado",  num: "04", title: "Planta de Reciclado",  tag: "Morelia, Mich.", desc: "Nuestro centro de reciclado de polipropileno, comprometido con la economía circular y el medio ambiente.",                 link: "", soon: true  }
       ]
     },
 
@@ -1027,164 +972,166 @@ export const es = {
   // =================================================
   // PÁGINA: IMPACTO SOCIAL
   // =================================================
- impacto_social: {
-  page_title: "Impacto Social | Grupo Ortiz",
+  impacto_social: {
+    page_title: "Impacto Social | Grupo Ortiz",
 
-  hero: {
-    eyebrow:          "IMPACTO SOCIAL",
-    title_top:    "Construimos Juntos",
-title_bottom: "UN MUNDO MEJOR",
-    subtitle:         "Apoyamos hogares, empoderamos mujeres, damos segundas oportunidades y cuidamos el planeta. Cada paso que damos busca transformar vidas y construir un futuro lleno de esperanza.",
-    stat_female:      "% Plantilla Femenina",
-    stat_recycled:    "Toneladas Recicladas",
-    stat_initiatives: "Iniciativas Activas"
+    hero: {
+      eyebrow:          "IMPACTO SOCIAL",
+      title_top:        "Construimos Juntos",
+      title_bottom:     "UN MUNDO MEJOR",
+      subtitle:         "Apoyamos hogares, empoderamos mujeres, damos segundas oportunidades y cuidamos el planeta. Cada paso que damos busca transformar vidas y construir un futuro lleno de esperanza.",
+      stat_female:      "% Plantilla Femenina",
+      stat_recycled:    "Toneladas Recicladas",
+      stat_initiatives: "Iniciativas Activas",
+      video:            "/videos/waves2.mp4",
+    },
+
+    ods: {
+      title:       "NUESTRO NORTE",
+      subtitle:    "Agenda 2030",
+      description: "Nos guiamos por los Objetivos de Desarrollo Sostenible de la ONU para construir un mundo más justo, próspero y sostenible.",
+      cards: [
+        { n: 1,  title: "Fin de la Pobreza",          link: "https://sdgs.un.org/es/goals/goal1",  img: "/images/odc/1.png"  },
+        { n: 2,  title: "Hambre Cero",                link: "https://sdgs.un.org/es/goals/goal2",  img: "/images/odc/2.png"  },
+        { n: 3,  title: "Salud y Bienestar",          link: "https://sdgs.un.org/es/goals/goal3",  img: "/images/odc/3.png"  },
+        { n: 4,  title: "Educación de Calidad",       link: "https://sdgs.un.org/es/goals/goal4",  img: "/images/odc/4.png"  },
+        { n: 5,  title: "Igualdad de Género",         link: "https://sdgs.un.org/es/goals/goal5",  img: "/images/odc/5.png"  },
+        { n: 6,  title: "Agua Limpia",                link: "https://sdgs.un.org/es/goals/goal6",  img: "/images/odc/6.png"  },
+        { n: 7,  title: "Energía Asequible",          link: "https://sdgs.un.org/es/goals/goal7",  img: "/images/odc/7.png"  },
+        { n: 8,  title: "Trabajo Decente",            link: "https://sdgs.un.org/es/goals/goal8",  img: "/images/odc/8.png"  },
+        { n: 9,  title: "Industria e Innovación",     link: "https://sdgs.un.org/es/goals/goal9",  img: "/images/odc/9.png"  },
+        { n: 10, title: "Reducción de Desigualdades", link: "https://sdgs.un.org/es/goals/goal10", img: "/images/odc/10.png" },
+        { n: 11, title: "Ciudades Sostenibles",       link: "https://sdgs.un.org/es/goals/goal11", img: "/images/odc/11.png" },
+        { n: 12, title: "Producción Responsable",     link: "https://sdgs.un.org/es/goals/goal12", img: "/images/odc/12.png" },
+        { n: 13, title: "Acción por el Clima",        link: "https://sdgs.un.org/es/goals/goal13", img: "/images/odc/13.png" },
+        { n: 14, title: "Vida Submarina",             link: "https://sdgs.un.org/es/goals/goal14", img: "/images/odc/14.png" },
+        { n: 15, title: "Vida de Ecosistemas",        link: "https://sdgs.un.org/es/goals/goal15", img: "/images/odc/15.png" },
+        { n: 16, title: "Paz y Justicia",             link: "https://sdgs.un.org/es/goals/goal16", img: "/images/odc/16.png" },
+        { n: 17, title: "Alianzas para Lograrlos",    link: "https://sdgs.un.org/es/goals/goal17", img: "/images/odc/17.png" },
+      ]
+    },
+
+    vision: {
+      title:        "NUESTRO IMPACTO",
+      title_orange: "POSITIVO",
+      subtitle:     "Transformamos la industria",
+      pilars: [
+        {
+          label: "PILAR 01",
+          title: "PRODUCTOS DE LA TIERRA",
+          desc:  "Desarrollo de materiales innovadores y ecológicos para empaques flexibles que respetan el medio ambiente y reducen la huella de carbono.",
+          img:   "/images/impacto/products.webp"
+        },
+        {
+          label: "PILAR 02",
+          title: "PRÁCTICAS DE LA TIERRA",
+          desc:  "Manufactura limpia y economía circular en todos nuestros procesos productivos, cerrando ciclos y eliminando desperdicios.",
+          img:   "/images/impacto/practices.webp"
+        },
+        {
+          label: "PILAR 03",
+          title: "TIERRA SOCIAL",
+          desc:  "Compromiso integral con clientes, empleados y comunidades, generando impacto social positivo y oportunidades reales.",
+          img:   "/images/impacto/social.webp"
+        }
+      ]
+    },
+
+    oceanos: {
+      hero_title:           "Comprometidos con un futuro",
+      hero_title_highlight: "más limpio para nuestros océanos",
+      hero_video:           "/videos/waves.mp4",
+      intro: "En Grupo Ortiz, creemos en un mundo donde los océanos vuelvan a brillar. Al apoyar iniciativas globales como The Ocean Cleanup y el Tom Ford Plastic Innovation Prize powered by Lonely Whale, trabajamos para reducir el plástico en nuestros mares. Cada compra que haces con nosotros es un paso hacia un planeta más limpio y un futuro sostenible para todos. ¡Juntos salvamos los océanos!",
+      features: [
+        { title: "Apoyamos la limpieza global",         desc: "Colaborando con iniciativas como The Ocean Cleanup."                         },
+        { title: "Promovemos la innovación sostenible", desc: "A través de programas como el Tom Ford Plastic Innovation Prize."            },
+        { title: "Fomentamos productos responsables",   desc: "que reducen el impacto ambiental en los océanos."                           },
+        { title: "Inspiramos acción colectiva",         desc: "invitando a clientes y socios a ser parte del cambio."                      }
+      ],
+      partners: [
+        {
+          title:  "Innovación Tom Ford",
+          desc:   "Esta iniciativa global busca revolucionar la industria del plástico al premiar y promover soluciones innovadoras que reemplacen los plásticos desechables. Su enfoque está en alternativas sostenibles y escalables que reduzcan el impacto ambiental, protejan los océanos y fomenten un cambio hacia materiales más responsables para el planeta.",
+          btn:    "CONOCE MÁS",
+          link:   "https://unwrapthefuture.org/",
+          video:  "/videos/impacto/oceancleanup.mp4",
+          poster: "/images/impacto/cultura-calidad.jpg"
+        },
+        {
+          title:  "Limpieza del océano",
+          desc:   "Dedicada a limpiar los océanos del mundo, esta organización desarrolla tecnología avanzada para eliminar plásticos acumulados en los mares y prevenir su llegada mediante la intervención en los ríos, principales fuentes de contaminación. Su misión es restaurar la salud de los ecosistemas marinos, protegiendo la biodiversidad y asegurando un futuro limpio para las próximas generaciones.",
+          btn:    "CONOCE MÁS",
+          link:   "https://theoceancleanup.com/",
+          video:  "/videos/impacto/tomford.mp4",
+          poster: "/images/impacto/tomford.webp"
+        }
+      ]
+    },
+
+    stats: {
+      recycled: "Toneladas Recicladas",
+      female:   "% Plantilla Femenina",
+      families: "Familias Beneficiadas"
+    },
+
+    timeline: {
+      title:    "INICIATIVAS QUE TRANSFORMAN",
+      subtitle: "Impacto positivo duradero",
+      items: [
+        {
+          num: "01", title: "HOGAR DE ESPERANZA",
+          desc:       "Apoyo a Casa Hogar en Tacámbaro, Michoacán. Cada niño merece un hogar lleno de amor.",
+          desc_short: "Apoyo a Casa Hogar en Tacámbaro, Michoacán.",
+          img:        "/images/impacto/hogar.mp4",
+          isVideo:    true,
+          poster:     "/images/impacto/hogar.mp4"
+        },
+        {
+          num: "02", title: "DESPENSA GO",
+          desc:       "Unidos por la comunidad. Entrega de despensas con amor.",
+          desc_short: "Entrega de despensas con amor a la comunidad.",
+          img:        "/images/impacto/despensas.webp",
+          isVideo:    false
+        },
+        {
+          num: "03", title: "CERO HUELLA",
+          desc:       "Política de cero desperdicios. Transformando residuos en oportunidades.",
+          desc_short: "Política de cero desperdicios. Transformando residuos.",
+          img:        "/images/impacto/composta.webp",
+          isVideo:    false
+        },
+        {
+          num: "04", title: "COMPOSTA VIVA",
+          desc:       "Fabricación de productos compostables. Innovación que respeta la naturaleza.",
+          desc_short: "Productos compostables. Innovación sustentable.",
+          img:        "/images/impacto/GO.webp",
+          isVideo:    false
+        },
+        {
+          num: "05", title: "BRILLA GO",
+          desc:       "Regalos por desempeño al equipo GO. Reconociendo el esfuerzo.",
+          desc_short: "Reconocimiento al equipo GO por su desempeño.",
+          img:        "/images/impacto/woman.webp",
+          isVideo:    false
+        },
+        {
+          num: "06", title: "MANOS QUE LIDERAN",
+          desc:       "Plantilla 84% femenina. Empoderando mujeres líderes.",
+          desc_short: "56.82% plantilla femenina. Empoderando líderes.",
+          img:        "/images/impacto/bio.webp",
+          isVideo:    false
+        }
+      ]
+    },
+
+    cta: {
+      title:        "Juntos",
+      title_orange: "Transformamos",
+      desc:         "Somos el socio estratégico que tu empresa necesita para crecer con tecnología, experiencia y resultados.",
+      contact:      "Contáctanos",
+      products:     "Ver Productos"
+    }
   },
-
-  ods: {
-    title:       "NUESTRO NORTE",
-    subtitle:    "Agenda 2030",
-    description: "Nos guiamos por los Objetivos de Desarrollo Sostenible de la ONU para construir un mundo más justo, próspero y sostenible.",
-    cards: [
-      { n: 1,  title: "Fin de la Pobreza",          link: "https://sdgs.un.org/es/goals/goal1",  img: "/images/odc/1.png"  },
-      { n: 2,  title: "Hambre Cero",                link: "https://sdgs.un.org/es/goals/goal2",  img: "/images/odc/2.png"  },
-      { n: 3,  title: "Salud y Bienestar",          link: "https://sdgs.un.org/es/goals/goal3",  img: "/images/odc/3.png"  },
-      { n: 4,  title: "Educación de Calidad",       link: "https://sdgs.un.org/es/goals/goal4",  img: "/images/odc/4.png"  },
-      { n: 5,  title: "Igualdad de Género",         link: "https://sdgs.un.org/es/goals/goal5",  img: "/images/odc/5.png"  },
-      { n: 6,  title: "Agua Limpia",                link: "https://sdgs.un.org/es/goals/goal6",  img: "/images/odc/6.png"  },
-      { n: 7,  title: "Energía Asequible",          link: "https://sdgs.un.org/es/goals/goal7",  img: "/images/odc/7.png"  },
-      { n: 8,  title: "Trabajo Decente",            link: "https://sdgs.un.org/es/goals/goal8",  img: "/images/odc/8.png"  },
-      { n: 9,  title: "Industria e Innovación",     link: "https://sdgs.un.org/es/goals/goal9",  img: "/images/odc/9.png"  },
-      { n: 10, title: "Reducción de Desigualdades", link: "https://sdgs.un.org/es/goals/goal10", img: "/images/odc/10.png" },
-      { n: 11, title: "Ciudades Sostenibles",       link: "https://sdgs.un.org/es/goals/goal11", img: "/images/odc/11.png" },
-      { n: 12, title: "Producción Responsable",     link: "https://sdgs.un.org/es/goals/goal12", img: "/images/odc/12.png" },
-      { n: 13, title: "Acción por el Clima",        link: "https://sdgs.un.org/es/goals/goal13", img: "/images/odc/13.png" },
-      { n: 14, title: "Vida Submarina",             link: "https://sdgs.un.org/es/goals/goal14", img: "/images/odc/14.png" },
-      { n: 15, title: "Vida de Ecosistemas",        link: "https://sdgs.un.org/es/goals/goal15", img: "/images/odc/15.png" },
-      { n: 16, title: "Paz y Justicia",             link: "https://sdgs.un.org/es/goals/goal16", img: "/images/odc/16.png" },
-      { n: 17, title: "Alianzas para Lograrlos",    link: "https://sdgs.un.org/es/goals/goal17", img: "/images/odc/17.png" },
-    ]
-  },
-
-  vision: {
-    title:        "NUESTRO IMPACTO",
-    title_orange: "POSITIVO",
-    subtitle:     "Transformamos la industria",
-    pilars: [
-      {
-        label: "PILAR 01",
-        title: "PRODUCTOS DE LA TIERRA",
-        desc:  "Desarrollo de materiales innovadores y ecológicos para empaques flexibles que respetan el medio ambiente y reducen la huella de carbono.",
-        img:   "/images/impacto/products.webp"
-      },
-      {
-        label: "PILAR 02",
-        title: "PRÁCTICAS DE LA TIERRA",
-        desc:  "Manufactura limpia y economía circular en todos nuestros procesos productivos, cerrando ciclos y eliminando desperdicios.",
-        img:   "/images/impacto/practices.webp"
-      },
-      {
-        label: "PILAR 03",
-        title: "TIERRA SOCIAL",
-        desc:  "Compromiso integral con clientes, empleados y comunidades, generando impacto social positivo y oportunidades reales.",
-        img:   "/images/impacto/social.webp"
-      }
-    ]
-  },
-
-  oceanos: {
-    hero_title:           "Comprometidos con un futuro",
-    hero_title_highlight: "más limpio para nuestros océanos",
-    intro: "En Grupo Ortiz, creemos en un mundo donde los océanos vuelvan a brillar. Al apoyar iniciativas globales como The Ocean Cleanup y el Tom Ford Plastic Innovation Prize powered by Lonely Whale, trabajamos para reducir el plástico en nuestros mares. Cada compra que haces con nosotros es un paso hacia un planeta más limpio y un futuro sostenible para todos. ¡Juntos salvamos los océanos!",
-    features: [
-      { title: "Apoyamos la limpieza global",        desc: "Colaborando con iniciativas como The Ocean Cleanup."                          },
-      { title: "Promovemos la innovación sostenible", desc: "A través de programas como el Tom Ford Plastic Innovation Prize."             },
-      { title: "Fomentamos productos responsables",   desc: "que reducen el impacto ambiental en los océanos."                            },
-      { title: "Inspiramos acción colectiva",         desc: "invitando a clientes y socios a ser parte del cambio."                       }
-    ],
-    partners: [
-      {
-        title:  "Innovación Tom Ford",
-        desc:   "Esta iniciativa global busca revolucionar la industria del plástico al premiar y promover soluciones innovadoras que reemplacen los plásticos desechables. Su enfoque está en alternativas sostenibles y escalables que reduzcan el impacto ambiental, protejan los océanos y fomenten un cambio hacia materiales más responsables para el planeta.",
-        btn:    "CONOCE MÁS",
-        link:   "https://unwrapthefuture.org/",
-        video:  "/videos/impacto/oceancleanup.mp4",
-        poster: "/images/impacto/cultura-calidad.jpg"
-      },
-      {
-        title:  "Limpieza del océano",
-        desc:   "Dedicada a limpiar los océanos del mundo, esta organización desarrolla tecnología avanzada para eliminar plásticos acumulados en los mares y prevenir su llegada mediante la intervención en los ríos, principales fuentes de contaminación. Su misión es restaurar la salud de los ecosistemas marinos, protegiendo la biodiversidad y asegurando un futuro limpio para las próximas generaciones.",
-        btn:    "CONOCE MÁS",
-        link:   "https://theoceancleanup.com/",
-        video:  "/videos/impacto/tomford.mp4",
-        poster: "/images/impacto/tomford.webp"
-      }
-    ]
-  },
-
-  stats: {
-    recycled: "Toneladas Recicladas",
-    female:   "% Plantilla Femenina",
-    families: "Familias Beneficiadas"
-  },
-
-  timeline: {
-    title:    "INICIATIVAS QUE TRANSFORMAN",
-    subtitle: "Impacto positivo duradero",
-    items: [
-      {
-        num: "01", title: "HOGAR DE ESPERANZA",
-        desc:       "Apoyo a Casa Hogar en Tacámbaro, Michoacán. Cada niño merece un hogar lleno de amor.",
-        desc_short: "Apoyo a Casa Hogar en Tacámbaro, Michoacán.",
-        img:        "/images/impacto/hogar.mp4",
-        isVideo:    true,
-        poster:     "/images/impacto/hogar.webp"
-      },
-      {
-        num: "02", title: "DESPENSA GO",
-        desc:       "Unidos por la comunidad. Entrega de despensas con amor.",
-        desc_short: "Entrega de despensas con amor a la comunidad.",
-        img:        "/images/impacto/despensas.webp",
-        isVideo:    false
-      },
-      {
-        num: "03", title: "CERO HUELLA",
-        desc:       "Política de cero desperdicios. Transformando residuos en oportunidades.",
-        desc_short: "Política de cero desperdicios. Transformando residuos.",
-        img:        "/images/impacto/composta.webp",
-        isVideo:    false
-      },
-      {
-        num: "04", title: "COMPOSTA VIVA",
-        desc:       "Fabricación de productos compostables. Innovación que respeta la naturaleza.",
-        desc_short: "Productos compostables. Innovación sustentable.",
-        img:        "/images/impacto/GO.webp",
-        isVideo:    false
-      },
-      {
-        num: "05", title: "BRILLA GO",
-        desc:       "Regalos por desempeño al equipo GO. Reconociendo el esfuerzo.",
-        desc_short: "Reconocimiento al equipo GO por su desempeño.",
-        img:        "/images/impacto/woman.webp",
-        isVideo:    false
-      },
-      {
-        num: "06", title: "MANOS QUE LIDERAN",
-        desc:       "Plantilla 84% femenina. Empoderando mujeres líderes.",
-        desc_short: "56.82% plantilla femenina. Empoderando líderes.",
-        img:        "/images/impacto/bio.webp",
-        isVideo:    false
-      }
-    ]
-  },
-
-  cta: {
-    title:        "Juntos",
-    title_orange: "Transformamos",
-    desc:         "Somos el socio estratégico que tu empresa necesita para crecer con tecnología, experiencia y resultados.",
-    contact:      "Contáctanos",
-    products:     "Ver Productos"
-  }
-},
 
   // =================================================
   // PÁGINA: HOME (Index)
@@ -1202,8 +1149,8 @@ title_bottom: "UN MUNDO MEJOR",
       btn_about:    "Conocer Más",
       stats: [
         { number: 65,   label: "Años de Experiencia" },
-        { number: 3000, prefix: "+", label: "Colaboradores"        },
-        { number: 5,    prefix: "", label: "Continentes" }
+        { number: 3000, prefix: "+", label: "Colaboradores" },
+        { number: 5,    prefix: "",  label: "Continentes"   }
       ]
     },
 
@@ -1213,46 +1160,14 @@ title_bottom: "UN MUNDO MEJOR",
       title_em:  "especialización",
       link_text: "Ver productos",
       items: [
-        {
-          title: "Arpilla",         tag: "División 01",
-          description: "Sacos de malla de rafia de polipropileno en tejido plano y circular. Diseño ventilado ideal para frutas, verduras y productos agrícolas.",
-          img: "/images/divisiones/arpilla.webp",           color: "#2d8a4e",  slug: "arpillas",           soon: false
-        },
-        {
-          title: "Cuerda",          tag: "División 02",
-          description: "Cuerdas de polipropileno de alta tenacidad para usos agrícolas, industriales y marinos. Gran resistencia a la intemperie y filtro UV incorporado.",
-          img: "/images/divisiones/cuerdas.webp",           color: "#1a5f8a",  slug: "cuerdas",            soon: false
-        },
-        {
-          title: "Rafia",            tag: "División 03",
-          description: "Rafia de polipropileno de alto rendimiento. Gran ligereza, alta resistencia a la rotura y versatilidad para agricultura, avicultura y horticultura.",
-          img: "/images/divisiones/rafia.webp",             color: "#8a6d2d",  slug: "rafias",             soon: false
-        },
-        {
-          title: "Empaque Flexible", tag: "División 04",
-          description: "Películas de alta barrera y laminación especializada. Protección óptima para alimentos y productos industriales con tecnología de vanguardia.",
-          img: "/images/divisiones/bolsa.webp",             color: "#0d7377",  slug: "empaques-flexibles", soon: false
-        },
-        {
-          title: "Saco",            tag: "División 05",
-          description: "Sacos de rafia de calidad superior. Solución de envasado robusta para alimentos, productos químicos, fertilizantes y productos a granel.",
-          img: "/images/divisiones/sacos.webp",             color: "#3a7d44",  slug: "sacos",              soon: false
-        },
-        {
-          title: "Stretch film", tag: "División 06",
-          description: "Película estirable de alta claridad óptica. Asegura la integridad de la carga con eficiencia en costos. Incluye opción biodegradable.",
-          img: "/images/divisiones/film-estirable.webp",    color: "#2c5f8a",  slug: "stretch-film",       soon: false
-        },
-        {
-          title: "Esquinero",       tag: "División 07",
-          description: "Esquineros de cartón kraft para protección de bordes durante el almacenamiento y transporte. Distribución uniforme de presión y máxima estabilidad de carga.",
-          img: "/images/divisiones/esquineros.webp",        color: "#7b3fa0",  slug: "esquineros",         soon: false
-        },
-        {
-          title: "Desechable",      tag: "División 10",
-          description: "Productos desechables de polipropileno para uso industrial, alimentario y hospitalario. Soluciones higiénicas, económicas y de alta resistencia.",
-          img: "/images/divisiones/desechables.webp",       color: "#e05500",  slug: "desechables",        soon: true
-        }
+        { title: "Arpilla",          tag: "División 01", description: "Sacos de malla de rafia de polipropileno en tejido plano y circular. Diseño ventilado ideal para frutas, verduras y productos agrícolas.",                     img: "/images/divisiones/arpilla.webp",           color: "#2d8a4e", slug: "arpillas",           soon: false },
+        { title: "Cuerda",           tag: "División 02", description: "Cuerdas de polipropileno de alta tenacidad para usos agrícolas, industriales y marinos. Gran resistencia a la intemperie y filtro UV incorporado.",            img: "/images/divisiones/cuerdas.webp",           color: "#1a5f8a", slug: "cuerdas",            soon: false },
+        { title: "Rafia",            tag: "División 03", description: "Rafia de polipropileno de alto rendimiento. Gran ligereza, alta resistencia a la rotura y versatilidad para agricultura, avicultura y horticultura.",          img: "/images/divisiones/rafia.webp",             color: "#8a6d2d", slug: "rafias",             soon: false },
+        { title: "Empaque Flexible", tag: "División 04", description: "Películas de alta barrera y laminación especializada. Protección óptima para alimentos y productos industriales con tecnología de vanguardia.",               img: "/images/divisiones/bolsa.webp",             color: "#0d7377", slug: "empaques-flexibles", soon: false },
+        { title: "Saco",             tag: "División 05", description: "Sacos de rafia de calidad superior. Solución de envasado robusta para alimentos, productos químicos, fertilizantes y productos a granel.",                    img: "/images/divisiones/sacos.webp",             color: "#3a7d44", slug: "sacos",              soon: false },
+        { title: "Stretch film",     tag: "División 06", description: "Película estirable de alta claridad óptica. Asegura la integridad de la carga con eficiencia en costos. Incluye opción biodegradable.",                       img: "/images/divisiones/film-estirable.webp",    color: "#2c5f8a", slug: "stretch-film",       soon: false },
+        { title: "Esquinero",        tag: "División 07", description: "Esquineros de cartón kraft para protección de bordes durante el almacenamiento y transporte. Distribución uniforme de presión y máxima estabilidad de carga.", img: "/images/divisiones/esquineros.webp",        color: "#7b3fa0", slug: "esquineros",         soon: false },
+        { title: "Desechable",       tag: "División 10", description: "Productos desechables de polipropileno para uso industrial, alimentario y hospitalario. Soluciones higiénicas, económicas y de alta resistencia.",            img: "/images/divisiones/desechables.webp",       color: "#e05500", slug: "desechables",        soon: true  }
       ]
     },
 
@@ -1266,11 +1181,11 @@ title_bottom: "UN MUNDO MEJOR",
       badge1_number: 10,
       badge2_label:  "Divisiones",
       badge2_number: 6,
-      img:           "/images/planta-produccion.webp",
+      img:           "/images/home/planta-produccion.webp",
       features: [
-        { title: "Calidad Certificada",  description: "Productos que cumplen con los más altos estándares internacionales de manufactura."   },
-        { title: "Innovación Constante", description: "Inversión permanente en I+D para mantener el liderazgo tecnológico del sector."        },
-        { title: "Alcance Global",       description: "Presencia activa en 5 continentes con una red de distribución eficiente."             }
+        { title: "Calidad Certificada",  description: "Productos que cumplen con los más altos estándares internacionales de manufactura."  },
+        { title: "Innovación Constante", description: "Inversión permanente en I+D para mantener el liderazgo tecnológico del sector."       },
+        { title: "Alcance Global",       description: "Presencia activa en 5 continentes con una red de distribución eficiente."            }
       ]
     },
 
@@ -1279,10 +1194,10 @@ title_bottom: "UN MUNDO MEJOR",
       title:    "Nuestras",
       title_em: "Certificaciones",
       items: [
-        { code: "Kosher Pareve", name: "KMD México",     img: "/images/certificaciones/KOSHER.jpeg"   },
-        { code: "FSSC 22000",    name: "LRQA Certified", img: "/images/certificaciones/LRQA.png"      },
-        { code: "AIB International", name: "Since 1919", img: "/images/certificaciones/AIB.png"       },
-        { code: "ISO 9001",      name: "Bureau Veritas", img: "/images/certificaciones/CERTIFIED.png" }
+        { code: "Kosher Pareve",     name: "KMD México",     img: "/images/certificaciones/KOSHER.jpeg"   },
+        { code: "FSSC 22000",        name: "LRQA Certified", img: "/images/certificaciones/LRQA.png"      },
+        { code: "AIB International", name: "Since 1919",     img: "/images/certificaciones/AIB.png"       },
+        { code: "ISO 9001",          name: "Bureau Veritas", img: "/images/certificaciones/CERTIFIED.png" }
       ]
     },
 
@@ -1304,7 +1219,7 @@ title_bottom: "UN MUNDO MEJOR",
       title:    "Exportamos al",
       title_em: "mundo",
       desc:     "Nuestros productos llegan a clientes en más de 30 países, consolidando nuestra posición como líderes en polímeros plásticos.",
-      video:    "/camion.mp4",
+      video:    "/videos/camion.mp4",
       stats: [
         { number: 65,   label: "Años"        },
         { number: 30,   prefix: "+", label: "Países"      },

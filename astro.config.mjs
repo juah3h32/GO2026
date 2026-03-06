@@ -7,12 +7,12 @@ import node from '@astrojs/node';
 import basicSsl from '@vitejs/plugin-basic-ssl';
 
 export default defineConfig({
-  site: 'https://example.com',
+  site: 'https://grupo-ortiz.com',
 
-  // ✅ Server Rendered
   output: 'server',
-  adapter: node({ mode: 'standalone' }),  // ← el servidor real
+  adapter: node({ mode: 'standalone' }),
 
+  // ← AÑADIDO AQUÍ AFUERA
   server: {
     host: true,
     port: 4321
@@ -24,8 +24,11 @@ export default defineConfig({
     sitemap(),
     AstroPWA({
       registerType: 'autoUpdate',
+      devOptions: {
+        enabled: true
+      },
       manifest: {
-        name: 'GO',
+        name: 'GO - Grupo Ortiz',
         short_name: 'GO',
         description: 'UI GO',
         theme_color: '#ffffff',
@@ -33,27 +36,35 @@ export default defineConfig({
         display: 'standalone',
         orientation: 'portrait',
         start_url: '/',
+        scope: '/',
         icons: [
           { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
-          { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+          { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png' },
+          { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
         ]
       },
       workbox: {
         maximumFileSizeToCacheInBytes: 45000000,
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,webp}']
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,webp}'],
+        navigateFallback: null,
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/grupo-ortiz\.com\/.*/i,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'pages-cache',
+              expiration: { maxEntries: 50, maxAgeSeconds: 86400 }
+            }
+          }
+        ]
       }
     })
   ],
 
   vite: {
-    plugins: [
-      process.env.NODE_ENV === 'development' && basicSsl()
-    ].filter(Boolean),
-
-    server: {
-      host: true,
-      allowedHosts: 'all',
-      strictPort: true
+   
+    ssr: {
+      noExternal: ['three', 'cesium']
     },
 
     define: {

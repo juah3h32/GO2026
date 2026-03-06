@@ -103,7 +103,7 @@ html.dark .video-background-container::after {
 
 .section-title {
   color        : var(--productos-text);
-  margin-bottom: 40px;
+  margin-bottom: 5px;
   text-align   : center;
 }
 
@@ -307,7 +307,6 @@ html.dark .mv-card.dark .mv-icon-bg svg { stroke: #ffffff !important; }
   background  : rgba(255,255,255,0.1);
 }
 
-/* MV h3: color/gradient — tamaño escala a display-lg por diseño */
 .mv-card h3 {
   font-size             : var(--fs-display-lg);
   line-height           : var(--lh-display);
@@ -462,7 +461,6 @@ html.dark .infra-card { background: #262626; border-color: #333; box-shadow: 0 8
   min-height     : 80px;
 }
 
-/* infra h3: override de tamaño porque h3 global = display-md (aquí necesita display-xs) */
 .infra-card h3 {
   font-size     : var(--fs-display-xs);
   letter-spacing: var(--ls-display-sm);
@@ -815,10 +813,10 @@ html.dark .valor-item:hover .valor-title { color: var(--productos-hover); }
   overflow        : hidden;
   min-height      : 100vh;
 }
-.tl-block .section-header { text-align: center; margin-bottom: 80px; padding: 0 20px; }
+.tl-block .section-header { text-align: center; margin-bottom: 0; padding: 0 20px; }
 
 .tl-block .block-title    { color: #ffffff !important; text-align: center; }
-.tl-block .block-subtitle { color: var(--productos-hover); margin-bottom: 60px; text-align: center; }
+.tl-block .block-subtitle { color: var(--productos-hover); text-align: center; }
 
 .tl-wrapper {
   position             : relative;
@@ -826,7 +824,7 @@ html.dark .valor-item:hover .valor-title { color: var(--productos-hover); }
   max-width            : var(--max-w);
   margin               : 0 auto;
   z-index              : 2;
-  min-height           : 70vh;    /* ← SUBE a 85vh */
+  min-height           : 70vh;
   display              : grid;
   grid-template-columns: 45% 55%;
   gap                  : 0;
@@ -845,7 +843,6 @@ html.dark .valor-item:hover .valor-title { color: var(--productos-hover); }
   z-index        : 2;
 }
 
-/* tl-main-title: usa clamp propio porque necesita ser extra grande (hero display) */
 .tl-main-title {
   font-family   : var(--font-display);
   font-weight   : var(--fw-display);
@@ -985,7 +982,6 @@ html.dark .valor-item:hover .valor-title { color: var(--productos-hover); }
   transition     : all 0.5s ease;
 }
 
-/* tl-card-year: tamaño hero especial para el año, no existe variable equivalente */
 .tl-card-year {
   font-family   : var(--font-display);
   font-weight   : var(--fw-display);
@@ -1215,9 +1211,6 @@ html.dark .inst-cta-text { color: rgba(255,255,255,0.55); }
   .mv-card       { padding: 28px 44px; }
 }
 
-/* =========================================
-   RESPONSIVE — ≤ 1600px
-   ========================================= */
 @media screen and (max-width: 1600px) {
   .quienes-somos { padding-top: 130px; padding-bottom: 70px; }
   .historia-block, .mision-vision-block, .infraestructura-section,
@@ -1233,9 +1226,6 @@ html.dark .inst-cta-text { color: rgba(255,255,255,0.55); }
   .blob-mask    { max-width: 450px; }
 }
 
-/* =========================================
-   RESPONSIVE — ≤ 1440px
-   ========================================= */
 @media screen and (max-width: 1440px) {
   .quienes-somos { padding-top: 120px; padding-bottom: 60px; }
   .historia-block, .mision-vision-block, .infraestructura-section,
@@ -1247,9 +1237,6 @@ html.dark .inst-cta-text { color: rgba(255,255,255,0.55); }
   .blob-mask { max-width: 420px; }
 }
 
-/* =========================================
-   RESPONSIVE — ≤ 1280px
-   ========================================= */
 @media screen and (max-width: 1280px) {
   .quienes-somos { padding-top: 110px; padding-bottom: 55px; }
   .historia-block, .mision-vision-block, .infraestructura-section,
@@ -1264,9 +1251,6 @@ html.dark .inst-cta-text { color: rgba(255,255,255,0.55); }
   .blob-mask { max-width: 380px; }
 }
 
-/* =========================================
-   RESPONSIVE — ≤ 1024px tablet landscape
-   ========================================= */
 @media (min-width: 768px) and (max-width: 1024px) {
   .quienes-somos { padding-top: 100px; }
   .historia-block, .mision-vision-block, .infraestructura-section,
@@ -1324,7 +1308,6 @@ html.dark .inst-cta-text { color: rgba(255,255,255,0.55); }
   }
 
   /* ── TIMELINE ── */
-/* ── TIMELINE ── */
 .tl-block {
   position      : relative !important;
   width         : 100vw !important;
@@ -1338,9 +1321,9 @@ html.dark .inst-cta-text { color: rgba(255,255,255,0.55); }
   box-sizing    : border-box;
   overflow      : visible !important;
   min-height    : 100vh !important;
-  min-height    : 100dvh !important;  /* ← AÑADE ESTO */
-  height        : 100vh !important;   /* ← AÑADE ESTO */
-  height        : 100dvh !important;  /* ← AÑADE ESTO */
+  min-height    : 100dvh !important;
+  height        : 100vh !important;
+  height        : 100dvh !important;
   margin-bottom : 70px !important;
 }
 
@@ -1535,10 +1518,10 @@ html.dark .inst-cta-text { color: rgba(255,255,255,0.55); }
     width: var(--tl-card-width-mobile) !important;
     height: 100% !important; max-height: 320px !important; min-height: 240px !important;
     margin: 0 !important; scroll-snap-align: center;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3) !important; border-radius: 20px;
+    box-shadow: none !important; border-radius: 20px;
   }
   .tech-name {
-  font-size     : var(--fs-display-sm) !important;  /* ← aún más grande en móvil */
+  font-size     : var(--fs-display-sm) !important;
   font-weight   : var(--fw-display) !important;
   letter-spacing: var(--ls-display-sm) !important;
   line-height   : var(--lh-display-md) !important;
@@ -1549,7 +1532,101 @@ html.dark .inst-cta-text { color: rgba(255,255,255,0.55); }
 }
 
 .tech-card {
-  min-height: 100px !important;  /* ← más altura para acomodar el texto */
+  min-height: 100px !important;
+}
+
+/* ── TIMELINE MÓVIL: tap para revelar info ── */
+.tl-card .tl-card-tap-hint {
+  position: absolute;
+  bottom: 14px;
+  right: 14px;
+  z-index: 4;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(251,103,11,0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.3s ease;
+}
+.tl-card.tl-info-open .tl-card-tap-hint { opacity: 0; pointer-events: none; }
+
+.tl-card.tl-info-open .tl-card-content { opacity: 0; pointer-events: none; }
+
+/* ═══ OVERLAY — padding compacto + scroll ═══ */
+.tl-card .tl-card-mobile-info {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 20px 16px;
+  background: linear-gradient(to top, rgba(0,0,0,0.96) 0%, rgba(0,0,0,0.80) 60%, rgba(0,0,0,0.65) 100%);
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+  pointer-events: none;
+  overflow-y: auto;
+}
+.tl-card.tl-info-open .tl-card-mobile-info {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* Año grande — SIN CAMBIO de tamaño */
+.tl-card-mobile-year {
+  font-family: var(--font-display);
+  font-weight: var(--fw-display);
+  font-size: clamp(3.5rem, 16vw, 5rem);
+  color: var(--productos-hover);
+  line-height: 0.9;
+  margin-bottom: 6px;
+  font-synthesis: none;
+  letter-spacing: var(--ls-display-hero);
+}
+
+/* Título grande — SIN CAMBIO de tamaño */
+.tl-card-mobile-title {
+  font-family: var(--font-display);
+  font-weight: var(--fw-display);
+  font-size: clamp(1.4rem, 6vw, 1.9rem);
+  color: #ffffff;
+  text-transform: uppercase;
+  line-height: var(--lh-display);
+  margin-bottom: 8px;
+  font-synthesis: none;
+  letter-spacing: var(--ls-display-sm);
+}
+
+/* Línea divisora — compacta */
+.tl-card-mobile-divider {
+  width: 32px;
+  height: 2px;
+  background: var(--productos-hover);
+  margin: 0 auto 8px;
+  flex-shrink: 0;
+}
+
+/* Descripción — MÁS PEQUEÑA */
+.tl-card-mobile-desc {
+  font-family: var(--font-body);
+  font-size: clamp(0.65rem, 2.6vw, 0.75rem);
+  color: rgba(255,255,255,0.85);
+  line-height: 1.4;
+}
+
+/* Hint cerrar — compacto */
+.tl-card-mobile-close {
+  margin-top: 8px;
+  font-size: 0.6rem;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 }
 

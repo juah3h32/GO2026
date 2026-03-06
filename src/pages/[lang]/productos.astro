@@ -35,8 +35,19 @@ const productsList = t.products_list as ProductItem[];
 const seeMoreText = t.common.seeMore;
 const divisionText = t.common.division;
 
+// 3. HELPER: Resuelve la URL correcta sin importar si viene con http, /images/ o solo nombre
+function resolveImg(img: string): string {
+  if (!img) return "";
+  // Ya es URL completa (Cloudinary, http, https)
+  if (img.startsWith("http://") || img.startsWith("https://")) return img;
+  // Ya tiene slash inicial (ruta absoluta local)
+  if (img.startsWith("/")) return img;
+  // Solo nombre de archivo → agrega /images/
+  return `/images/${img}`;
+}
+
 const firstProductImg =
-  productsList.length > 0 ? `/images/${productsList[0].img}` : null;
+  productsList.length > 0 ? resolveImg(productsList[0].img) : null;
 ---
 
 <BaseLayout title={`${t.nav.products} | Grupo Ortiz`} currentLang={currentLang}>
@@ -69,7 +80,7 @@ const firstProductImg =
               {item.model ? (
                 <model-viewer
                   src={`/${item.model}`}
-                  poster={`/images/${item.img}`}
+                  poster={resolveImg(item.img)}
                   alt={item.division}
                   class="product-thumb model-viewer-custom"
                   camera-controls
@@ -79,7 +90,7 @@ const firstProductImg =
                 ></model-viewer>
               ) : (
                 <img
-                  src={`/images/${item.img}`}
+                  src={resolveImg(item.img)}
                   alt={item.division}
                   class="product-thumb"
                   loading={index === 0 ? "eager" : "lazy"}
@@ -159,7 +170,13 @@ const firstProductImg =
     window.PRODUCTS_DATA = {};
     productsList.forEach((item) => {
       if (item.video) {
-        window.PRODUCTS_DATA[item.division] = `/videos/${item.video}`;
+        // Si el video ya es URL completa, úsalo directo; si no, agrega /videos/
+        const videoSrc = item.video.startsWith("http")
+          ? item.video
+          : item.video.startsWith("/")
+          ? item.video
+          : `/videos/${item.video}`;
+        window.PRODUCTS_DATA[item.division] = videoSrc;
       }
     });
   </script>

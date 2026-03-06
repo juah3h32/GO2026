@@ -1,7 +1,6 @@
 ---
 // src/pages/[lang]/catalogo.astro
 import "../../styles/catalogo.css";
-import "../../styles/catalogo-carousel.css";
 import "../../styles/global.css";
 import "../../styles/flechas.css";
 
@@ -17,25 +16,60 @@ export function getStaticPaths() {
 
 const { lang } = Astro.params;
 const currentLang = (lang && lang in translations) ? lang : 'es';
-
 const t = translations[currentLang as keyof typeof translations] as typeof es;
 
-// --- DATOS ---
 const generalCatalog = {
   es: "https://drive.google.com/file/d/1348E3b37R1KmpggjAURhsuQMfARyBaXB/view",
   en: "https://drive.google.com/file/d/1OcXZGR5adoeyIW1Tspsaa7BVv0Lx1bLC/view",
 };
 
+// Banderas SVG inline — precisas, sin emoji, elegantes
+const heroFlags = [
+  {
+    langKey : 'es',
+    label   : 'Español',
+    sublabel: 'Catálogo General',
+    flagSvg : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 40" preserveAspectRatio="xMidYMid meet">
+      <rect width="20" height="40" fill="#006847"/>
+      <rect x="20" width="20" height="40" fill="#ffffff"/>
+      <rect x="40" width="20" height="40" fill="#ce1126"/>
+      <circle cx="30" cy="20" r="4.5" fill="#5C8A3C" opacity="0.55"/>
+      <circle cx="30" cy="20" r="2"   fill="#8B6914" opacity="0.65"/>
+    </svg>`,
+  },
+  {
+    langKey : 'en',
+    label   : 'English',
+    sublabel: 'General Catalog',
+    flagSvg : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 40" preserveAspectRatio="xMidYMid meet">
+      <rect width="60" height="40" fill="#B22234"/>
+      <rect y="5.7"  width="60" height="2.86" fill="#fff"/>
+      <rect y="11.4" width="60" height="2.86" fill="#fff"/>
+      <rect y="17.1" width="60" height="2.86" fill="#fff"/>
+      <rect y="22.9" width="60" height="2.86" fill="#fff"/>
+      <rect y="28.6" width="60" height="2.86" fill="#fff"/>
+      <rect y="34.3" width="60" height="2.86" fill="#fff"/>
+      <rect width="24" height="20" fill="#3C3B6E"/>
+      <circle cx="3"   cy="2.5"  r="1.1" fill="#fff"/><circle cx="7"   cy="2.5"  r="1.1" fill="#fff"/>
+      <circle cx="11"  cy="2.5"  r="1.1" fill="#fff"/><circle cx="15"  cy="2.5"  r="1.1" fill="#fff"/>
+      <circle cx="19"  cy="2.5"  r="1.1" fill="#fff"/><circle cx="23"  cy="2.5"  r="1.1" fill="#fff"/>
+      <circle cx="5"   cy="7"    r="1.1" fill="#fff"/><circle cx="9"   cy="7"    r="1.1" fill="#fff"/>
+      <circle cx="13"  cy="7"    r="1.1" fill="#fff"/><circle cx="17"  cy="7"    r="1.1" fill="#fff"/>
+      <circle cx="21"  cy="7"    r="1.1" fill="#fff"/>
+      <circle cx="3"   cy="11.5" r="1.1" fill="#fff"/><circle cx="7"   cy="11.5" r="1.1" fill="#fff"/>
+      <circle cx="11"  cy="11.5" r="1.1" fill="#fff"/><circle cx="15"  cy="11.5" r="1.1" fill="#fff"/>
+      <circle cx="19"  cy="11.5" r="1.1" fill="#fff"/><circle cx="23"  cy="11.5" r="1.1" fill="#fff"/>
+      <circle cx="5"   cy="16"   r="1.1" fill="#fff"/><circle cx="9"   cy="16"   r="1.1" fill="#fff"/>
+      <circle cx="13"  cy="16"   r="1.1" fill="#fff"/><circle cx="17"  cy="16"   r="1.1" fill="#fff"/>
+      <circle cx="21"  cy="16"   r="1.1" fill="#fff"/>
+    </svg>`,
+  },
+];
+
 const catalogsData = t.catalog?.divisions || [];
-
-// Se convierte a JSON para que JS pueda leerlo
 const catalogsJson = JSON.stringify(catalogsData.map(item => ({
-  id: item.id,
-  name: item.name,
-  desc: item.desc,
-  catalogs: item.catalogs
+  id: item.id, name: item.name, desc: item.desc, catalogs: item.catalogs
 })));
-
 const firstCatalogImg = catalogsData.length > 0 ? catalogsData[0].image : null;
 ---
 
@@ -45,8 +79,198 @@ const firstCatalogImg = catalogsData.length > 0 ? catalogsData[0].image : null;
     <link rel="preload" as="image" href={firstCatalogImg} slot="head" />
   )}
 
+  <style>
+    /* ═══════════════════════════════════════════════════
+       HERO LANG CARDS — diseño glassmorphism refinado
+    ═══════════════════════════════════════════════════ */
+    .hero-lang-row {
+      display        : flex;
+      flex-direction : row;
+      gap            : 14px;
+      justify-content: center;
+      align-items    : stretch;
+      margin-top     : 10px;
+    }
+
+    .hero-lang-card {
+      position       : relative;
+      display        : flex;
+      flex-direction : row;
+      align-items    : center;
+      gap            : 14px;
+      padding        : 14px 24px 14px 14px;
+      min-width      : 210px;
+      text-decoration: none;
+      border-radius  : 14px;
+      overflow       : hidden;
+      cursor         : pointer;
+      /* Glass */
+      background     : rgba(255,255,255,0.06);
+      border         : 1px solid rgba(255,255,255,0.15);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      /* Transiciones */
+      transition     :
+        transform    0.4s cubic-bezier(0.34,1.56,0.64,1),
+        border-color 0.3s ease,
+        box-shadow   0.3s ease;
+      /* Entrada animada */
+      opacity  : 0;
+      transform: translateY(16px);
+      animation: langCardIn 0.55s cubic-bezier(0.34,1.2,0.64,1) forwards;
+    }
+
+    .hero-section.animate-hero .hero-lang-card:nth-child(1) { animation-delay: 0.38s; }
+    .hero-section.animate-hero .hero-lang-card:nth-child(2) { animation-delay: 0.50s; }
+
+    @keyframes langCardIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Brillo naranja en hover */
+    .hero-lang-card::before {
+      content   : '';
+      position  : absolute;
+      inset     : 0;
+      background: linear-gradient(
+        135deg,
+        rgba(251,103,11,0)    0%,
+        rgba(251,103,11,0.16) 55%,
+        rgba(251,103,11,0)    100%
+      );
+      opacity   : 0;
+      transition: opacity 0.35s ease;
+      z-index   : 0;
+      pointer-events: none;
+    }
+    .hero-lang-card:hover::before { opacity: 1; }
+
+    .hero-lang-card:hover {
+      transform   : translateY(-5px) scale(1.025);
+      border-color: rgba(251,103,11,0.55);
+      box-shadow  :
+        0 22px 55px rgba(251,103,11,0.22),
+        0  0   0 1px rgba(251,103,11,0.12);
+    }
+
+    /* ── Bandera ── */
+    .hero-lang-flag {
+      position     : relative;
+      /* ratio 3:2 exacto — mismo que el viewBox="0 0 60 40" */
+      width        : 60px;
+      height       : 40px;
+      border-radius: 7px;
+      overflow     : hidden;
+      flex-shrink  : 0;
+      z-index      : 1;
+      box-shadow   :
+        0 4px 16px rgba(0,0,0,0.4),
+        0  0   0 1px rgba(255,255,255,0.1);
+      transition   :
+        transform  0.4s cubic-bezier(0.34,1.56,0.64,1),
+        box-shadow 0.35s ease;
+    }
+    .hero-lang-card:hover .hero-lang-flag {
+      transform : scale(1.1) rotate(-1.5deg);
+      box-shadow:
+        0 10px 28px rgba(0,0,0,0.5),
+        0  0   0 2px rgba(251,103,11,0.55);
+    }
+    /* El SVG debe ocupar TODO el contenedor, sin escalar ni recortar */
+    .hero-lang-flag svg {
+      display : block;
+      width   : 100%;
+      height  : 100%;
+      /* preserveAspectRatio="xMidYMid meet" ya está en el SVG,
+         pero forzamos también desde CSS para máxima compatibilidad */
+      object-fit: fill;
+    }
+
+    /* ── Textos ── */
+    .hero-lang-text {
+      display       : flex;
+      flex-direction: column;
+      gap           : 3px;
+      z-index       : 1;
+    }
+    .hero-lang-name {
+      font-family   : var(--font-display, 'MorganitePro', sans-serif);
+      font-size     : clamp(1.1rem, 1.4vw, 1.4rem);
+      font-weight   : 800;
+      letter-spacing: 0.05em;
+      line-height   : 1;
+      color         : #ffffff;
+      text-transform: uppercase;
+    }
+    .hero-lang-sub {
+      font-family   : var(--font-body, 'NeueMontreal', sans-serif);
+      font-size     : 0.65rem;
+      font-weight   : 500;
+      letter-spacing: 0.12em;
+      color         : rgba(255,255,255,0.45);
+      text-transform: uppercase;
+    }
+
+    /* ── Ícono descarga ── */
+    .hero-lang-arrow {
+      margin-left: auto;
+      padding-left: 4px;
+      color      : #fb670b;
+      opacity    : 0;
+      transform  : translateX(-8px) translateY(2px);
+      transition :
+        opacity   0.3s ease,
+        transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+      z-index    : 1;
+      flex-shrink: 0;
+    }
+    .hero-lang-card:hover .hero-lang-arrow {
+      opacity  : 1;
+      transform: translateX(0) translateY(0);
+    }
+
+    /* ── Separador vertical sutil entre los textos y la flecha ── */
+    .hero-lang-divider {
+      width     : 1px;
+      height    : 28px;
+      background: rgba(255,255,255,0.12);
+      flex-shrink: 0;
+      z-index   : 1;
+      margin-left: auto;
+      margin-right: 10px;
+      transition: background 0.3s;
+    }
+    .hero-lang-card:hover .hero-lang-divider {
+      background: rgba(251,103,11,0.3);
+    }
+
+    /* ══ RESPONSIVE ══════════════════════════════════════════════ */
+    @media (max-width: 767px) {
+      .hero-lang-row {
+        gap      : 10px;
+        flex-wrap: nowrap;
+        width    : 100%;
+        max-width: 420px;
+      }
+      .hero-lang-card {
+        flex          : 1;
+        min-width     : unset;
+        padding       : 12px;
+        gap           : 10px;
+        border-radius : 12px;
+        justify-content: center;
+      }
+      .hero-lang-flag       { width: 45px; height: 30px; } /* ratio 3:2 */
+      .hero-lang-name       { font-size: 1rem; }
+      .hero-lang-sub        { display: none; }
+      .hero-lang-divider    { display: none; }
+      .hero-lang-arrow      { display: none; }
+    }
+  </style>
+
   <main class="catalogo-main" data-catalogs={catalogsJson}>
-    
+
+    <!-- ══ HERO ══════════════════════════════════════════════════ -->
     <section class="hero-section">
       <div class="hero-video-container">
         <div class="video-wrapper">
@@ -63,13 +287,28 @@ const firstCatalogImg = catalogsData.length > 0 ? catalogsData[0].image : null;
         <p class="hero-desc">
           {t.catalog?.hero?.description || "Accede a nuestra oferta comercial completa."}
         </p>
-        <div class="hero-download-grid">
-          {Object.entries(generalCatalog).map(([langKey, url]) => (
-            <a href={url} class="hero-download-item" download>
-              <span class="lang-flag">
-              {langKey === 'es' ? '🇲🇽' : '🇺🇸'}
-              </span>
-              <span>{langKey.toUpperCase()}</span>
+
+        <!-- Cards de idioma elegantes -->
+        <div class="hero-lang-row">
+          {heroFlags.map(({ langKey, label, sublabel, flagSvg }) => (
+            <a
+              href={generalCatalog[langKey as keyof typeof generalCatalog]}
+              class="hero-lang-card"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`Descargar catálogo en ${label}`}
+            >
+              <div class="hero-lang-flag" set:html={flagSvg} />
+              <div class="hero-lang-text">
+                <span class="hero-lang-name">{label}</span>
+                <span class="hero-lang-sub">{sublabel}</span>
+              </div>
+              <div class="hero-lang-divider" aria-hidden="true"></div>
+              <svg class="hero-lang-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
             </a>
           ))}
         </div>
@@ -83,6 +322,7 @@ const firstCatalogImg = catalogsData.length > 0 ? catalogsData[0].image : null;
       </div>
     </section>
 
+    <!-- ══ CARRUSEL ══════════════════════════════════════════════ -->
     <section class="carousel-section" id="carousel-target">
       <div class="section-divider" dir={currentLang === 'ar' ? 'rtl' : 'ltr'}>
         <div class="division-label">{t.catalog?.carousel?.label || "DIVISIONES"}</div>
@@ -101,21 +341,19 @@ const firstCatalogImg = catalogsData.length > 0 ? catalogsData[0].image : null;
                 fetchpriority={index === 0 ? "high" : "auto"}
                 decoding="async"
               />
-
               <div class="introduce" dir={currentLang === 'ar' ? 'rtl' : 'ltr'}>
                 <div class="title">{t.common?.division || "DIVISIÓN"}</div>
                 <div class="topic">{item.name}</div>
                 <div class="des">{item.desc}</div>
-
                 <div class="catalog-actions">
                   <div class="language-selector">
                     <label>{t.catalog?.languageLabel || "Idioma / Language"}</label>
-            <div class="lang-options">
-  <button class="lang-btn active" data-lang="es" data-catalog-id={item.id}>ESP</button>
-  <button class="lang-btn" data-lang="en" data-catalog-id={item.id}>ENG</button>
-</div>
+                    <div class="lang-options">
+                      <button class="lang-btn active" data-lang="es" data-catalog-id={item.id}>ESP</button>
+                      <button class="lang-btn" data-lang="en" data-catalog-id={item.id}>ENG</button>
+                    </div>
                   </div>
-                  <a href={item.catalogs.es} class="download-btn" data-catalog-id={item.id} download>
+                  <a href={item.catalogs.es} class="download-btn" data-catalog-id={item.id} target="_blank" rel="noopener noreferrer">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                     </svg>
@@ -141,15 +379,14 @@ const firstCatalogImg = catalogsData.length > 0 ? catalogsData[0].image : null;
         </div>
       </div>
 
+      <!-- Controles móvil -->
       <div class="catalog-mobile-controls" id="mobile-controls">
         <div class="mobile-lang-label">LANGUAGE / IDIOMA</div>
-
-<div class="mobile-lang-selector">
-  <button class="mobile-lang-btn active" data-lang="es">ESP</button>
-  <button class="mobile-lang-btn" data-lang="en">ENG</button>
-</div>
-
-        <a href="#" class="mobile-download-btn" id="mobile-download-btn" download>
+        <div class="mobile-lang-selector">
+          <button class="mobile-lang-btn active" data-lang="es">ESP</button>
+          <button class="mobile-lang-btn" data-lang="en">ENG</button>
+        </div>
+        <a href="#" class="mobile-download-btn" id="mobile-download-btn" target="_blank" rel="noopener noreferrer">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
           </svg>
@@ -166,7 +403,6 @@ const firstCatalogImg = catalogsData.length > 0 ? catalogsData[0].image : null;
   </main>
 
   <Footer currentLang={currentLang} />
-
   <script src="/scripts/catalogo.js" defer></script>
 
 </BaseLayout>
