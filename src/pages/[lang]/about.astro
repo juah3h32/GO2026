@@ -3,6 +3,7 @@
 // QUIENES SOMOS — [lang]/index.astro
 // ─────────────────────────────────────────────────────────────────────────────
 import "../../styles/quienessomos.css";
+export const prerender = true;  // ← AGREGAR ESTA LÍNEA
 import "../../styles/global.css";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Footer from "../../components/Footer.astro";

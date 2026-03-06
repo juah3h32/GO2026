@@ -2,6 +2,7 @@
 // src/pages/[lang]/arpillas.astro
 
 import "../../styles/cuerdas.css";
+export const prerender = true;  // ← AGREGAR ESTA LÍNEA
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import BuyButton from "../../components/BuyButton.astro";
 import { languages, translations } from "../../i18n";
