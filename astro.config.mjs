@@ -3,16 +3,14 @@ import react from '@astrojs/react';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import AstroPWA from '@vite-pwa/astro';
-import node from '@astrojs/node';
-import basicSsl from '@vitejs/plugin-basic-ssl';
+import vercel from '@astrojs/vercel/serverless';  // ← CAMBIO
 
 export default defineConfig({
   site: 'https://grupo-ortiz.com',
 
   output: 'server',
-  adapter: node({ mode: 'standalone' }),
+  adapter: vercel(),  // ← CAMBIO (eliminar node)
 
-  // ← AÑADIDO AQUÍ AFUERA
   server: {
     host: true,
     port: 4321
@@ -62,11 +60,9 @@ export default defineConfig({
   ],
 
   vite: {
-   
     ssr: {
       noExternal: ['three', 'cesium']
     },
-
     define: {
       CESIUM_BASE_URL: JSON.stringify('/cesium')
     }

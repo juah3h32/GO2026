@@ -27,3 +27,4 @@ pnpm-debug.log*
 node_modules/
 dist/
 .env  <-- Agrega esto si no está
+.vercel
