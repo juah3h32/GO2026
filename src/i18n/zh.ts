@@ -8,7 +8,6 @@ export const zh = {
     home: '首页',
     products: '产品',
     catalog: '目录',
-    promos: '促销',
     about: '关于我们',
     company: '公司简介',
     social: '社会影响',

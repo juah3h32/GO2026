@@ -8,7 +8,6 @@ export const ar = {
     home: 'الرئيسية',
     products: 'المنتجات',
     catalog: 'الكتالوج',
-    promos: 'العروض',
     about: 'من نحن',
     company: 'الشركة',
     social: 'الأثر الاجتماعي',

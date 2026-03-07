@@ -8,7 +8,6 @@ export const pt = {
     home: 'Início',
     products: 'Produtos',
     catalog: 'Catálogo',
-    promos: 'Promoções',
     about: 'Sobre Nós',
     company: 'A Empresa',
     social: 'Impacto Social',
