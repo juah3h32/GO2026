@@ -497,7 +497,7 @@ export const ar = {
     products: [
       {
         name: 'كيس شبك دائري',
-        img: '/images/arpillas/arpilla.png',
+        img: '/images/arpillas/arpilla.webp',
         video: "/videos/arpilla/circular.mp4",
         link: '#',
         description: "مصنوع من بولي بروبيلين بكر 100٪ بتركيبة رافيا، يوفر هذا الكيس الشبكي مقاومة عالية وإنتاجية ممتازة في تطبيقات التعبئة والتخزين. جودته تضمن المتانة والأداء الموثوق في التعامل مع المنتجات المختلفة.",
@@ -507,14 +507,14 @@ export const ar = {
           features: "خيط سحب"
         },
         gallery: [
-          '/images/arpillas/circular2.png',
-          '/images/arpillas/arpilla.png',
-          '/images/arpillas/circular3.png'
+          '/images/arpillas/circular2.webp',
+          '/images/arpillas/arpilla.webp',
+          '/images/arpillas/circular3.webp'
         ]
       },
       {
         name: 'كيس شبك أحادي الخيط',
-        img: '/images/arpillas/arpilla2.png',
+        img: '/images/arpillas/arpilla2.webp',
         video: "/videos/arpilla/mono.mp4",
         link: '#',
         description: "مصنوع من بولي بروبيلين بكر 100٪ بتركيبة رافيا/خيط أحادي، يوفر هذا الكيس الشبكي مقاومة عالية وإنتاجية ممتازة في تطبيقات التعبئة والتخزين. هيكله يوفر المتانة والأداء الموثوق في التعامل وحماية المنتجات المختلفة.",
@@ -525,14 +525,14 @@ export const ar = {
           features: "خيط سحب"
         },
         gallery: [
-          '/images/arpillas/mono2.png',
-          '/images/arpillas/arpilla2.png',
-          '/images/arpillas/mono3.png'
+          '/images/arpillas/mono2.webp',
+          '/images/arpillas/arpilla2.webp',
+          '/images/arpillas/mono3.webp'
         ]
       },
       {
         name: 'كيس شبك بخياطة جانبية',
-        img: '/images/arpillas/arpilla3.png',
+        img: '/images/arpillas/arpilla3.webp',
         video: "/videos/arpilla/costura.mp4",
         link: '#',
         description: "مصنوع من بولي بروبيلين بكر 100٪ بتركيبة رافيا/خيط أحادي، يوفر هذا الكيس الشبكي مقاومة عالية وأداءً ممتازاً في تطبيقات التعبئة والتخزين. هيكله يضمن المتانة والموثوقية في التعامل مع المنتجات المختلفة.",
@@ -544,14 +544,14 @@ export const ar = {
           features: "معزز"
         },
         gallery: [
-          '/images/arpillas/lateral1.png',
-          '/images/arpillas/arpilla3.png',
-          '/images/arpillas/lateral3.png'
+          '/images/arpillas/lateral1.webp',
+          '/images/arpillas/arpilla3.webp',
+          '/images/arpillas/lateral3.webp'
         ]
       },
       {
         name: 'كيس شبك بطاقة مصفّحة',
-        img: '/images/arpillas/arpilla4.png',
+        img: '/images/arpillas/arpilla4.webp',
         video: "/videos/arpilla/etiqueta.mp4",
         link: '#',
         description: "مصنوع من بولي بروبيلين بكر 100٪ بتركيبة رافيا/رافيا، يوفر هذا الكيس الشبكي مقاومة عالية وأداءً ممتازاً في عمليات التعبئة والتخزين. نسيجه يضمن المتانة والموثوقية للتطبيقات المتطلبة في السوقين المحلي والتصديري.",
@@ -563,9 +563,9 @@ export const ar = {
           features: "خيط سحب"
         },
         gallery: [
-          '/images/arpillas/laminado1.png',
-          '/images/arpillas/arpilla4.png',
-          '/images/arpillas/laminado3.png'
+          '/images/arpillas/laminado1.webp',
+          '/images/arpillas/arpilla4.webp',
+          '/images/arpillas/laminado3.webp'
         ]
       }
     ]

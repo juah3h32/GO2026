@@ -497,7 +497,7 @@ export const pt = {
     products: [
       {
         name: 'REDE CIRCULAR',
-        img: '/images/arpillas/arpilla.png',
+        img: '/images/arpillas/arpilla.webp',
         video: "/videos/arpilla/circular.mp4",
         link: '#',
         description: "Fabricada com polipropileno 100% virgem e construção em rafia, esta rede oferece alta resistência e excelente rendimento em aplicações de embalagem e armazenamento. Sua qualidade garante durabilidade e desempenho confiável no manuseio de diversos produtos.",
@@ -507,14 +507,14 @@ export const pt = {
           features: "Cordão"
         },
         gallery: [
-          '/images/arpillas/circular2.png',
-          '/images/arpillas/arpilla.png',
-          '/images/arpillas/circular3.png'
+          '/images/arpillas/circular2.webp',
+          '/images/arpillas/arpilla.webp',
+          '/images/arpillas/circular3.webp'
         ]
       },
       {
         name: 'REDE MONOFILAMENTO',
-        img: '/images/arpillas/arpilla2.png',
+        img: '/images/arpillas/arpilla2.webp',
         video: "/videos/arpilla/mono.mp4",
         link: '#',
         description: "Fabricada com polipropileno 100% virgem e construção rafia/monofilamento, esta rede oferece alta resistência e excelente rendimento em aplicações de embalagem e armazenamento. Sua estrutura proporciona durabilidade e desempenho confiável no manuseio e proteção de diversos produtos.",
@@ -525,14 +525,14 @@ export const pt = {
           features: "Cordão"
         },
         gallery: [
-          '/images/arpillas/mono2.png',
-          '/images/arpillas/arpilla2.png',
-          '/images/arpillas/mono3.png'
+          '/images/arpillas/mono2.webp',
+          '/images/arpillas/arpilla2.webp',
+          '/images/arpillas/mono3.webp'
         ]
       },
       {
         name: 'REDE COM COSTURA LATERAL',
-        img: '/images/arpillas/arpilla3.png',
+        img: '/images/arpillas/arpilla3.webp',
         video: "/videos/arpilla/costura.mp4",
         link: '#',
         description: "Fabricada com polipropileno 100% virgem e construção rafia/monofilamento, esta rede oferece alta resistência e excelente desempenho em aplicações de embalagem e armazenamento. Sua estrutura garante durabilidade e confiabilidade no manuseio de diferentes produtos.",
@@ -544,14 +544,14 @@ export const pt = {
           features: "Reforçado"
         },
         gallery: [
-          '/images/arpillas/lateral1.png',
-          '/images/arpillas/arpilla3.png',
-          '/images/arpillas/lateral3.png'
+          '/images/arpillas/lateral1.webp',
+          '/images/arpillas/arpilla3.webp',
+          '/images/arpillas/lateral3.webp'
         ]
       },
       {
         name: 'REDE COM ETIQUETA LAMINADA',
-        img: '/images/arpillas/arpilla4.png',
+        img: '/images/arpillas/arpilla4.webp',
         video: "/videos/arpilla/etiqueta.mp4",
         link: '#',
         description: "Fabricada com polipropileno 100% virgem e construção rafia/rafia, esta rede oferece alta resistência e excelente desempenho em processos de embalagem e armazenamento. Sua trama garante durabilidade e confiabilidade para aplicações exigentes tanto no mercado doméstico quanto de exportação.",
@@ -563,9 +563,9 @@ export const pt = {
           features: "Cordão"
         },
         gallery: [
-          '/images/arpillas/laminado1.png',
-          '/images/arpillas/arpilla4.png',
-          '/images/arpillas/laminado3.png'
+          '/images/arpillas/laminado1.webp',
+          '/images/arpillas/arpilla4.webp',
+          '/images/arpillas/laminado3.webp'
         ]
       }
     ]

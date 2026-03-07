@@ -497,7 +497,7 @@ export const zh = {
     products: [
       {
         name: '圆织网眼袋',
-        img: '/images/arpillas/arpilla.png',
+        img: '/images/arpillas/arpilla.webp',
         video: "/videos/arpilla/circular.mp4",
         link: '#',
         description: "采用100%原生聚丙烯和拉菲草结构制造，这款网眼袋在包装和储存应用中提供高强度和出色产出率。其质量保证了耐久性和处理各类产品时的可靠性能。",
@@ -507,14 +507,14 @@ export const zh = {
           features: "抽绳"
         },
         gallery: [
-          '/images/arpillas/circular2.png',
-          '/images/arpillas/arpilla.png',
-          '/images/arpillas/circular3.png'
+          '/images/arpillas/circular2.webp',
+          '/images/arpillas/arpilla.webp',
+          '/images/arpillas/circular3.webp'
         ]
       },
       {
         name: '单丝网眼袋',
-        img: '/images/arpillas/arpilla2.png',
+        img: '/images/arpillas/arpilla2.webp',
         video: "/videos/arpilla/mono.mp4",
         link: '#',
         description: "采用100%原生聚丙烯和拉菲草/单丝结构制造，这款网眼袋在包装和储存应用中提供高强度和出色产出率。其结构提供耐久性和处理及保护各类产品时的可靠性能。",
@@ -525,14 +525,14 @@ export const zh = {
           features: "抽绳"
         },
         gallery: [
-          '/images/arpillas/mono2.png',
-          '/images/arpillas/arpilla2.png',
-          '/images/arpillas/mono3.png'
+          '/images/arpillas/mono2.webp',
+          '/images/arpillas/arpilla2.webp',
+          '/images/arpillas/mono3.webp'
         ]
       },
       {
         name: '侧缝网眼袋',
-        img: '/images/arpillas/arpilla3.png',
+        img: '/images/arpillas/arpilla3.webp',
         video: "/videos/arpilla/costura.mp4",
         link: '#',
         description: "采用100%原生聚丙烯和拉菲草/单丝结构制造，这款网眼袋在包装和储存应用中提供高强度和出色性能。其结构保证了处理不同产品时的耐久性和可靠性。",
@@ -544,14 +544,14 @@ export const zh = {
           features: "加强型"
         },
         gallery: [
-          '/images/arpillas/lateral1.png',
-          '/images/arpillas/arpilla3.png',
-          '/images/arpillas/lateral3.png'
+          '/images/arpillas/lateral1.webp',
+          '/images/arpillas/arpilla3.webp',
+          '/images/arpillas/lateral3.webp'
         ]
       },
       {
         name: '覆膜标签网眼袋',
-        img: '/images/arpillas/arpilla4.png',
+        img: '/images/arpillas/arpilla4.webp',
         video: "/videos/arpilla/etiqueta.mp4",
         link: '#',
         description: "采用100%原生聚丙烯和拉菲草/拉菲草结构制造，这款网眼袋在包装和储存过程中提供高强度和出色性能。其编织结构保证了在国内外市场高要求应用中的耐久性和可靠性。",
@@ -563,9 +563,9 @@ export const zh = {
           features: "抽绳"
         },
         gallery: [
-          '/images/arpillas/laminado1.png',
-          '/images/arpillas/arpilla4.png',
-          '/images/arpillas/laminado3.png'
+          '/images/arpillas/laminado1.webp',
+          '/images/arpillas/arpilla4.webp',
+          '/images/arpillas/laminado3.webp'
         ]
       }
     ]

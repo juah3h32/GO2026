@@ -497,7 +497,7 @@ export const es = {
     products: [
       {
         name: 'ARPILLA CIRCULAR',
-        img: '/images/arpillas/arpilla.png',
+        img: '/images/arpillas/arpilla.webp',
         video: "/videos/arpilla/circular.mp4",
         link: '#',
         description: "Fabricada con polipropileno 100% virgen y construcción rafia, esta arpilla ofrece alta resistencia y excelente rendimiento en aplicaciones de empaque y almacenamiento. Su calidad garantiza durabilidad y un desempeño confiable en el manejo de diversos productos.",
@@ -507,14 +507,14 @@ export const es = {
           features: "Jareta"
         },
         gallery: [
-          '/images/arpillas/circular2.png',
-          '/images/arpillas/arpilla.png',
-          '/images/arpillas/circular3.png'
+          '/images/arpillas/circular2.webp',
+          '/images/arpillas/arpilla.webp',
+          '/images/arpillas/circular3.webp'
         ]
       },
       {
         name: 'ARPILLA MONOFILAMENTO',
-        img: '/images/arpillas/arpilla2.png',
+        img: '/images/arpillas/arpilla2.webp',
         video: "/videos/arpilla/mono.mp4",
         link: '#',
         description: "Fabricada con polipropileno 100% virgen y construcción rafia/monofilamento, esta arpilla ofrece alta resistencia y excelente rendimiento en aplicaciones de empaque y almacenamiento. Su estructura proporciona durabilidad y desempeño confiable en el manejo y protección de diversos productos.",
@@ -525,14 +525,14 @@ export const es = {
           features: "Jareta"
         },
         gallery: [
-          '/images/arpillas/mono2.png',
-          '/images/arpillas/arpilla2.png',
-          '/images/arpillas/mono3.png'
+          '/images/arpillas/mono2.webp',
+          '/images/arpillas/arpilla2.webp',
+          '/images/arpillas/mono3.webp'
         ]
       },
       {
         name: 'ARPILLA COSTURA LATERAL',
-        img: '/images/arpillas/arpilla3.png',
+        img: '/images/arpillas/arpilla3.webp',
         video: "/videos/arpilla/costura.mp4",
         link: '#',
         description: "Fabricada con polipropileno 100% virgen y construcción rafia/monofilamento, esta arpilla ofrece alta resistencia y excelente desempeño en aplicaciones de empaque y almacenamiento. Su estructura garantiza durabilidad y confiabilidad en el manejo de distintos productos.",
@@ -544,14 +544,14 @@ export const es = {
           features: "Reforzado"
         },
         gallery: [
-          '/images/arpillas/lateral1.png',
-          '/images/arpillas/arpilla3.png',
-          '/images/arpillas/lateral3.png'
+          '/images/arpillas/lateral1.webp',
+          '/images/arpillas/arpilla3.webp',
+          '/images/arpillas/lateral3.webp'
         ]
       },
       {
         name: 'ARPILLA ETIQUETA LAMINADA',
-        img: '/images/arpillas/arpilla4.png',
+        img: '/images/arpillas/arpilla4.webp',
         video: "/videos/arpilla/etiqueta.mp4",
         link: '#',
         description: "Fabricada con polipropileno 100% virgen y construcción rafia/rafia, esta arpilla ofrece alta resistencia y excelente desempeño en procesos de empaque y almacenamiento. Su tejido garantiza durabilidad y confiabilidad para aplicaciones exigentes tanto en el mercado nacional como de exportación.",
@@ -563,9 +563,9 @@ export const es = {
           features: "Jareta"
         },
         gallery: [
-          '/images/arpillas/laminado1.png',
-          '/images/arpillas/arpilla4.png',
-          '/images/arpillas/laminado3.png'
+          '/images/arpillas/laminado1.webp',
+          '/images/arpillas/arpilla4.webp',
+          '/images/arpillas/laminado3.webp'
         ]
       }
     ]
