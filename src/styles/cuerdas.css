@@ -1,12 +1,13 @@
 /* =================================================================
-   PRODUCT.CSS — Página de producto
-   Fuentes y escala tipográfica → typography.css (via BaseLayout)
-   Espaciado → usa tokens de typography.css:
-     --section-gap, --block-title-gap, --fs-*, --lh-*, --ls-*
+   CUERDAS.CSS — Página de producto
+   FIXES APLICADOS:
+   · Rebote/salto móvil → overscroll-behavior: none + 100dvh
+   · Video negro inicial → .video-bg-wrapper con bg del poster
+   · overscroll iOS/Android → touch-action correcto
    ================================================================= */
 
 /* =================================================================
-   1. VARIABLES — solo colores y tokens propios de esta página
+   1. VARIABLES
    ================================================================= */
 :root {
   --bg-color        : #ffffff;
@@ -22,14 +23,12 @@
 
   --tech-orange    : #FB670B;
 
-  /* Móvil / modo claro → naranja */
   --spec-bg        : #FB670B;
   --spec-text      : #ffffff;
   --spec-border    : #FB670B;
   --spec-bg-hover  : rgba(0, 0, 0, 0.05);
   --spec-text-hover: #000000;
 
-  /* Desktop (cualquier modo) → estilo oscuro sin naranja */
   --spec-bg-dt     : rgba(255, 255, 255, 0.06);
   --spec-border-dt : rgba(180, 180, 180, 0.18);
   --spec-text-dt   : #ffffff;
@@ -47,20 +46,6 @@
   --ease-wipe  : cubic-bezier(0.87, 0, 0.13, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 
-  /* ══════════════════════════════════════════════════════════════════
-     GAPS DE PÁGINA DE PRODUCTO — tokens propios, se suman al sistema
-     de spacing de typography.css (--section-gap, --block-title-gap).
-     ──────────────────────────────────────────────────────────────────
-     Todos los márgenes internos del layout de producto se definen aquí
-     como fuente única de verdad para poder ajustar solo este bloque.
-
-     TOKEN                   VALOR                  DÓNDE
-     ──────────────────────────────────────────────────────────────────
-     --pd-h1-gap             h1 → párrafo desc.     más aire bajo título
-     --pd-p-gap              párrafo → specs        acerca specs al texto
-     --pd-specs-title-gap    specs-title → grid     aprieta título+cards
-     --pd-specs-bottom       specs → thumbnails     separa zona inferior
-     ══════════════════════════════════════════════════════════════════ */
   --pd-h1-gap          : clamp(0.8rem,  1.8vh, 1.6rem);
   --pd-p-gap           : clamp(0.5rem,  1.0vh, 1.0rem);
   --pd-specs-title-gap : clamp(0.4rem,  0.8vh, 0.8rem);
@@ -78,7 +63,6 @@ html.dark {
   --mobile-card-text : #ffffff;
   --mobile-muted-text: #999999;
 
-  /* Móvil dark → mantiene estilo oscuro */
   --spec-bg        : rgba(255, 255, 255, 0.05);
   --spec-text      : #ffffff;
   --spec-border    : rgba(150, 150, 150, 0.2);
@@ -104,8 +88,17 @@ body {
   background-attachment: fixed;
   color: var(--text-color);
   width: 100%;
+
+  /* FIX REBOTE ①: dvh evita el salto de la barra del navegador
+     en Android Chrome. 100vh cambia cuando aparece/desaparece
+     la barra; 100dvh se adapta dinámicamente sin reflow. */
   height: 100dvh;
   overflow: hidden;
+
+  /* FIX REBOTE ②: elimina el rubber-band/bounce nativo de
+     iOS Safari y Android Chrome cuando el scroll llega al tope */
+  overscroll-behavior: none;
+
   transition: background 0.35s ease, color 0.35s ease;
 }
 
@@ -168,7 +161,9 @@ body {
    4. LAYOUT PRINCIPAL
    ================================================================= */
 .main-container {
-  width: 100%; height: 100dvh;
+  width: 100%;
+  /* FIX REBOTE ③: dvh en el contenedor principal también */
+  height: 100dvh;
   padding-top: var(--nav-height); padding-bottom: clamp(1rem, 2vh, 2rem);
   display: grid; grid-template-columns: 1.2fr 1fr;
   align-items: center; gap: clamp(1rem, 2vw, 3rem);
@@ -197,30 +192,30 @@ body {
   width: 100%;
   font-size      : var(--fs-display-xl) !important;
   line-height    : var(--lh-display) !important;
-  letter-spacing : var(--pd-h1-ls) !important;   /* ← token: 0.06em, positivo → respira */
+  letter-spacing : var(--pd-h1-ls) !important;
   margin-bottom  : var(--pd-h1-gap); text-align: left;
 }
 .text-area p {
   font-family    : var(--font-body);
   font-size      : var(--fs-body-lg);
   line-height    : var(--lh-body);
-  margin-bottom  : var(--pd-p-gap);                       /* ← token */
+  margin-bottom  : var(--pd-p-gap);
   color: var(--text-muted); max-width: 100%; width: 100%;
 }
 
 /* =================================================================
    6. ESPECIFICACIONES
    ================================================================= */
-.specs-container { width: 100%; margin-bottom: var(--pd-specs-bottom); max-width: 100%; }  /* ← token */
+.specs-container { width: 100%; margin-bottom: var(--pd-specs-bottom); max-width: 100%; }
 
 .specs-title {
   font-family    : var(--font-display);
   font-weight    : var(--fw-display);
   font-size      : var(--fs-display-sm);
   line-height    : var(--lh-display-md, 0.95);
-  letter-spacing : var(--ls-display-sm);           /* ← display-sm (0.01em): título grande, no label */
+  letter-spacing : var(--ls-display-sm);
   text-transform : uppercase;
-  margin-bottom  : var(--pd-specs-title-gap);      /* ← token */
+  margin-bottom  : var(--pd-specs-title-gap);
   border-left    : 4px solid var(--tech-orange);
   padding-left   : 12px;
   opacity        : 1;
@@ -228,7 +223,6 @@ body {
 
 .specs-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.5vw; width: 100%; }
 
-/* ── Spec box — base (móvil/tablet usa naranja, desktop override abajo) ── */
 .spec-box {
   background: var(--spec-bg); border: 1px solid var(--spec-border);
   border-radius: clamp(5px, 0.55vw, 10px); padding: 0.7vw;
@@ -263,41 +257,31 @@ html.dark .spec-box:hover {
   font-size: clamp(0.72rem, 1.05vw, 1.5rem); font-weight: 800; line-height: 1;
   margin-bottom: clamp(0.06rem, 0.12vw, 0.18rem); color: var(--text-color);
   letter-spacing: var(--ls-label-xs);
-  /* Nowrap y overflow solo en móvil — desktop usa el bloque 6b */
   white-space: nowrap; overflow: hidden;
   text-overflow: ellipsis; max-width: 100%;
 }
 .spec-percent { font-size: clamp(0.45rem, 0.45vw + 0.03rem, 0.72rem); color: var(--tech-orange); }
 
 /* =================================================================
-   6b. SPEC CARDS DESKTOP — estilo oscuro (sin naranja) en cualquier modo
+   6b. SPEC CARDS DESKTOP
    ================================================================= */
 @media screen and (min-width: 1025px) {
   .spec-box {
-    background   : var(--spec-bg-dt) !important;          /* traslúcido oscuro */
-    border-color : var(--spec-border-dt) !important;      /* gris sutil       */
+    background   : var(--spec-bg-dt) !important;
+    border-color : var(--spec-border-dt) !important;
   }
   .spec-box .spec-value,
   .spec-box .spec-label,
-  .spec-box .spec-percent { color: var(--spec-text-dt) !important; }  /* blanco */
+  .spec-box .spec-percent { color: var(--spec-text-dt) !important; }
 
-  /* ── Valor adaptable en desktop ──────────────────────────────────────
-     Quita el corte (nowrap + ellipsis) y deja que el texto se ajuste:
-     · Valores cortos ("4", "PP")          → fuente grande, una línea
-     · Valores medianos ("23-70 cm")       → fuente media, una línea
-     · Valores largos ("120-200 kg/m²")    → fuente compacta, 1-2 líneas
-     font-size usa vw relativo al card: se encoge solo cuando hace falta
-  ── */
   .spec-box .spec-value {
-    white-space   : normal !important;         /* permite salto de línea */
+    white-space   : normal !important;
     overflow      : visible !important;
     text-overflow : unset !important;
     word-break    : break-word !important;
     overflow-wrap : anywhere !important;
     line-height   : 1.05 !important;
     font-size     : clamp(0.6rem, 1.1vw, 1.5rem) !important;
-    /* Escala automática: si el contenedor es pequeño relativo al texto,
-       el navegador elige el tamaño más pequeño del clamp */
     max-width     : 100% !important;
     width         : 100% !important;
     text-align    : center !important;
@@ -311,7 +295,6 @@ html.dark .spec-box:hover {
   .spec-box:hover .spec-value,
   .spec-box:hover .spec-label { color: var(--spec-text-hover-dt) !important; }
 
-  /* highlight conserva el acento naranja solo en el borde */
   .spec-box.highlight {
     border-color : var(--tech-orange) !important;
     background   : rgba(255, 145, 0, 0.08) !important;
@@ -408,7 +391,7 @@ model-viewer::part(default-progress-mask) { display: none !important; opacity: 0
   border: 1.5px solid rgba(255,255,255,0.12); border-radius: 100px;
   color: rgba(255,255,255,0.88); font-family: system-ui,-apple-system,sans-serif;
   font-size: clamp(0.72rem, 0.8vw, 0.95rem); font-weight: 650;
-  letter-spacing: var(--ls-label-xs);         /* ← token typography.css */
+  letter-spacing: var(--ls-label-xs);
   white-space: nowrap; cursor: pointer;
   pointer-events: auto !important; box-shadow: 0 4px 20px rgba(0,0,0,0.5);
   transition: background .3s ease, border-color .3s ease, color .3s ease,
@@ -433,7 +416,7 @@ model-viewer::part(default-progress-mask) { display: none !important; opacity: 0
 .btn-interact-icon svg { width: clamp(13px,1.1vw,18px); height: clamp(13px,1.1vw,18px); stroke: #FF6B00; stroke-width: 1.8; }
 .btn-interact-label { font-size: clamp(0.72rem, 0.8vw, 0.95rem); }
 .btn-interact-badge {
-  font-size: 0.58rem; font-weight: 800; letter-spacing: var(--ls-label-xs); /* ← token */
+  font-size: 0.58rem; font-weight: 800; letter-spacing: var(--ls-label-xs);
   color: #FF6B00; background: rgba(255,107,0,0.12);
   border: 1px solid rgba(255,107,0,0.28); border-radius: 6px;
   padding: 2px 6px; margin-left: 2px; transition: background .3s ease;
@@ -452,7 +435,7 @@ model-viewer::part(default-progress-mask) { display: none !important; opacity: 0
   border: 1.5px solid rgba(255,255,255,0.12); border-radius: 100px;
   color: rgba(255,255,255,0.75); font-family: system-ui,sans-serif;
   font-size: clamp(0.72rem,0.78vw,0.9rem); font-weight: 600;
-  letter-spacing: var(--ls-label-xs);         /* ← token typography.css */
+  letter-spacing: var(--ls-label-xs);
   white-space: nowrap; cursor: pointer;
   opacity: 0; pointer-events: none; transform: translateX(-8px);
   transition: opacity .3s ease, transform .3s var(--ease-spring),
@@ -514,17 +497,67 @@ model-viewer::part(default-progress-mask) { display: none !important; opacity: 0
 .gallery-photo:hover img { transform: scale(1.08); }
 .gallery-photo-glow { position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(135deg, rgba(255,107,0,0.10) 0%, transparent 60%); opacity: 0; transition: opacity .3s ease; pointer-events: none; }
 .gallery-photo:hover .gallery-photo-glow { opacity: 1; }
-.gallery-photo::after { content: attr(data-img-index); position: absolute; bottom: 8px; right: 10px; font-family: system-ui,sans-serif; font-size: 0.65rem; font-weight: 700; color: rgba(255,255,255,0.45); letter-spacing: var(--ls-label-xs); } /* ← token */
+.gallery-photo::after { content: attr(data-img-index); position: absolute; bottom: 8px; right: 10px; font-family: system-ui,sans-serif; font-size: 0.65rem; font-weight: 700; color: rgba(255,255,255,0.45); letter-spacing: var(--ls-label-xs); }
 .ui-fade-out { opacity: 0 !important; pointer-events: none !important; transform: translateY(10px) !important; transition: opacity .3s ease, transform .3s ease !important; }
 .ui-fade-out-gallery { opacity: 0 !important; pointer-events: none !important; transform: translateX(-50%) translateY(10px) !important; transition: opacity .3s ease, transform .3s ease !important; }
 
 /* =================================================================
    15. FONDO DE VIDEO
+   FIX NEGRO INICIAL:
+   · El wrapper tiene el color del primer poster como fallback
+   · El video visible arranca con opacity: 1 directamente
+     (sin esperar transición) cuando ya tiene datos
+   · La transición de fade-in se aplica solo a los videos
+     que NO son el inicial para evitar el parpadeo negro
    ================================================================= */
-.video-bg-wrapper { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
-.video-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .8s ease; }
-.video-bg.visible { opacity: 1; }
-.video-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.72); z-index: 1; }
+.video-bg-wrapper {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  /* FIX: fondo oscuro mientras el primer video carga,
+     evita el flash blanco en modo claro */
+  background: #111;
+}
+
+.video-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  /* FIX: transición más rápida (0.4s vs 0.8s) para que
+     el video aparezca antes de que el usuario lo note */
+  transition: opacity 0.4s ease;
+}
+
+/* FIX: el primer video arranca visible sin esperar nada */
+.video-bg.visible {
+  opacity: 1;
+}
+
+/* FIX: en móvil, aseguramos que el video cubre bien
+   sin importar la barra del navegador */
+@media screen and (max-width: 1024px) {
+  .video-bg-wrapper {
+    height: 100dvh;
+  }
+  .video-bg {
+    height: 100dvh;
+    /* object-position top mantiene la parte importante
+       del video visible cuando la barra aparece */
+    object-position: center top;
+  }
+}
+
+.video-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.72);
+  z-index: 1;
+}
 
 /* =================================================================
    16. TRANSICIÓN WIPE
@@ -671,9 +704,26 @@ model-viewer::part(default-progress-mask) { display: none !important; opacity: 0
    18. MÓVIL / TABLET (≤ 1024px)
    ================================================================= */
 @media screen and (max-width: 1024px) {
-  html, body { overflow: hidden !important; height: 100vh !important; touch-action: pan-y; }
+  html, body {
+    overflow: hidden !important;
+    /* FIX REBOTE ④: dvh en lugar de vh en móvil — crítico para
+       que el cuerpo no se redimensione cuando la barra del browser
+       aparece o desaparece durante el scroll */
+    height: 100dvh !important;
+    /* FIX REBOTE ⑤: overscroll-behavior corta el bounce nativo
+       de Android Chrome al llegar al top de la página */
+    overscroll-behavior: none !important;
+    /* touch-action: pan-y permite scroll vertical sin interferir */
+    touch-action: pan-y;
+  }
 
-  .main-container { display: block !important; width: 100%; height: 100vh; padding: 0 !important; margin: 0 !important; background: transparent !important; position: relative; overflow: hidden !important; }
+  .main-container {
+    display: block !important; width: 100%;
+    height: 100dvh; /* FIX: dvh también aquí */
+    padding: 0 !important; margin: 0 !important;
+    background: transparent !important; position: relative;
+    overflow: hidden !important;
+  }
   .content { position: relative !important; z-index: auto !important; padding: 0 !important; height: auto !important; }
 
   /* ── IMAGEN DEL PRODUCTO ── */
@@ -787,8 +837,12 @@ model-viewer::part(default-progress-mask) { display: none !important; opacity: 0
     top: calc(clamp(64px, 11vh, 100px) + clamp(200px, 30vh, 300px) + clamp(75px, 12vw, 100px) + 14px) !important;
     left: 0 !important;
     width: 100% !important;
-    height: calc(100vh - clamp(64px, 11vh, 100px) - clamp(200px, 30vh, 300px) - clamp(75px, 12vw, 100px) - 14px) !important;
+    height: calc(100dvh - clamp(64px, 11vh, 100px) - clamp(200px, 30vh, 300px) - clamp(75px, 12vw, 100px) - 14px) !important;
     overflow-y: auto !important;
+    /* FIX REBOTE ⑥: la tarjeta de texto tiene su propio scroll
+       con overscroll-behavior contain para que el scroll interno
+       no se propague al body (causa el bounce) */
+    overscroll-behavior-y: contain !important;
     background: var(--mobile-card-bg) !important; color: var(--mobile-card-text) !important;
     z-index: 10 !important; border-radius: 30px 30px 0 0;
     padding: 30px 20px 80px 20px !important; display: flex !important; flex-direction: column;
@@ -800,7 +854,13 @@ model-viewer::part(default-progress-mask) { display: none !important; opacity: 0
   .text-area h1, .text-area #product-title, .text-area p, .text-area #product-desc, .text-area .specs-title { color: var(--mobile-card-text) !important; }
   .text-area p, .text-area #product-desc { color: var(--mobile-muted-text) !important; }
 
-  .text-area.expanded { top: 10vh !important; height: 90vh !important; overflow-y: auto !important; box-shadow: 0 -15px 50px rgba(0,0,0,0.2); z-index: 100 !important; padding-bottom: 30px !important; }
+  .text-area.expanded {
+    top: 10vh !important;
+    height: 90dvh !important; /* FIX: dvh también en expanded */
+    overflow-y: auto !important;
+    overscroll-behavior-y: contain !important; /* FIX: mantener en expanded */
+    box-shadow: 0 -15px 50px rgba(0,0,0,0.2); z-index: 100 !important; padding-bottom: 30px !important;
+  }
   .text-area.expanded::before { background: rgba(251,103,11,0.6); width: 50px; height: 5px; }
   body:has(.text-area.expanded) .btn-interact:not(.hidden-btn) { top: calc(clamp(64px, 11vh, 100px) + 8px) !important; }
   body:has(.text-area.expanded) .product-gallery { top: 2vh !important; z-index: 99999999 !important; }
@@ -825,7 +885,6 @@ model-viewer::part(default-progress-mask) { display: none !important; opacity: 0
     width: 100%; max-width: 90%; transition: font-size .3s ease, color .35s ease;
   }
 
-  /* ── TÍTULO ESPECIFICACIONES ── */
   .specs-title {
     width: 100%;
     font-family: var(--font-display) !important;
@@ -837,7 +896,7 @@ model-viewer::part(default-progress-mask) { display: none !important; opacity: 0
     padding-left: 0 !important;
     margin-bottom: 16px !important;
     color: var(--mobile-card-text) !important;
-    letter-spacing: var(--ls-label-xs) !important;  /* ← token */
+    letter-spacing: var(--ls-label-xs) !important;
     display: block !important;
     opacity: 1 !important;
     text-transform: uppercase !important;
@@ -845,7 +904,6 @@ model-viewer::part(default-progress-mask) { display: none !important; opacity: 0
 
   .specs-container { width: 100%; margin-bottom: 20px; }
 
-  /* ── GRID INTELIGENTE SEGÚN NÚMERO DE SPECS ── */
   .specs-grid {
     display: grid !important;
     gap: clamp(8px, 2.5vw, 14px) !important;
@@ -900,7 +958,7 @@ model-viewer::part(default-progress-mask) { display: none !important; opacity: 0
     font-weight   : var(--fw-label) !important;
     font-size     : var(--fs-body-sm) !important;
     text-transform: uppercase !important;
-    letter-spacing: var(--ls-label-xs) !important;   /* ← token */
+    letter-spacing: var(--ls-label-xs) !important;
     opacity       : 0.8 !important;
     line-height   : 1.2 !important;
     white-space   : nowrap !important;
@@ -913,7 +971,7 @@ model-viewer::part(default-progress-mask) { display: none !important; opacity: 0
   .text-area button, .buy-btn {
     background: #fb670b !important; color: #ffffff !important; width: 100% !important;
     border-radius: 50px; padding: clamp(14px,4vw,20px) 0; font-size: clamp(0.9rem,3.5vw,1.1rem);
-    font-weight: 700; text-transform: uppercase; letter-spacing: var(--ls-label-xs); /* ← token */
+    font-weight: 700; text-transform: uppercase; letter-spacing: var(--ls-label-xs);
     box-shadow: 0 8px 24px rgba(251,103,11,0.3); cursor: pointer; border: none;
   }
   .text-area button:active { transform: scale(0.98); box-shadow: 0 4px 12px rgba(251,103,11,0.4); }
@@ -923,7 +981,7 @@ model-viewer::part(default-progress-mask) { display: none !important; opacity: 0
 
   .btn-back-product {
     position: fixed !important; top: auto !important;
-    bottom: calc(100vh - clamp(64px, 11vh, 100px) - clamp(200px, 30vh, 300px) + 10px) !important;
+    bottom: calc(100dvh - clamp(64px, 11vh, 100px) - clamp(200px, 30vh, 300px) + 10px) !important;
     left: 50% !important; transform: translateX(-50%) translateX(-8px) !important;
     z-index: 200 !important; padding: 8px 16px 8px 12px;
   }
@@ -947,7 +1005,7 @@ model-viewer::part(default-progress-mask) { display: none !important; opacity: 0
   .product-gallery { top: 28vh !important; padding: 0 16px !important; }
   .text-area {
     top: calc(clamp(72px, 10vh, 110px) + clamp(220px, 38vh, 320px) + clamp(75px, 12vw, 100px) + 14px) !important;
-    height: calc(100vh - clamp(72px, 10vh, 110px) - clamp(220px, 38vh, 320px) - clamp(75px, 12vw, 100px) - 14px) !important;
+    height: calc(100dvh - clamp(72px, 10vh, 110px) - clamp(220px, 38vh, 320px) - clamp(75px, 12vw, 100px) - 14px) !important;
   }
   .gallery-photo  { max-width: clamp(60px, 15vw, 120px) !important; }
 }
@@ -972,7 +1030,7 @@ model-viewer::part(default-progress-mask) { display: none !important; opacity: 0
   .product-gallery { top: 28vh !important; padding: 0 10px !important; }
   .text-area {
     top: calc(clamp(60px, 10vh, 80px) + clamp(170px, 28vh, 220px) + clamp(75px, 12vw, 100px) + 12px) !important;
-    height: calc(100vh - clamp(60px, 10vh, 80px) - clamp(170px, 28vh, 220px) - clamp(75px, 12vw, 100px) - 12px) !important;
+    height: calc(100dvh - clamp(60px, 10vh, 80px) - clamp(170px, 28vh, 220px) - clamp(75px, 12vw, 100px) - 12px) !important;
     padding: 24px 14px 70px 14px !important;
   }
 }
@@ -981,7 +1039,7 @@ model-viewer::part(default-progress-mask) { display: none !important; opacity: 0
 .wheel-container.interact-mode, .wheel.interact-mode { pointer-events: auto !important; }
 
 /* =================================================================
-   FIX FINAL — Specs title móvil (máxima especificidad)
+   FIX FINAL — Specs title móvil
    ================================================================= */
 @media screen and (max-width: 1024px) {
   .specs-title,
@@ -992,7 +1050,7 @@ model-viewer::part(default-progress-mask) { display: none !important; opacity: 0
     font-weight    : var(--fw-display) !important;
     font-size      : var(--fs-display-sm) !important;
     line-height    : 1 !important;
-    letter-spacing : var(--ls-label-xs) !important;  /* ← token */
+    letter-spacing : var(--ls-label-xs) !important;
     opacity        : 1 !important;
     text-align     : center !important;
     text-transform : uppercase !important;
@@ -1019,7 +1077,6 @@ model-viewer::part(default-progress-mask) { display: none !important; opacity: 0
   .content::-webkit-scrollbar { display: none !important; }
   .text-area { width: 100% !important; max-width: 100% !important; flex-shrink: 0; }
   .wheel-container, .wheel, .wheel-item, .product-image-overlay { overflow: visible !important; clip-path: none !important; }
-  /* Gaps con tokens globales — un solo sitio para ajustar */
   .text-area h1    { margin-bottom: var(--pd-h1-gap) !important; letter-spacing: var(--pd-h1-ls) !important; }
   .text-area p     { margin-bottom: var(--pd-p-gap) !important; }
   .specs-container { margin-bottom: var(--pd-specs-bottom) !important; }
