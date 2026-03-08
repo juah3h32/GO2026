@@ -68,7 +68,7 @@ html.dark {
   --clr-bg     : #262626;
   --clr-surface: #262626;
   --clr-text   : #f0ede8;
-  --clr-muted  : #999;
+  --clr-muted: #aaaaaa;
   --clr-border : #3a3a3a;
   --clr-dark   : #262626;
   --clr-dark-2 : #262626;
@@ -115,8 +115,8 @@ a   { text-decoration: none; }
   background: var(--clr-accent);
   flex-shrink: 0;
 }
-.section-tag--light { color: rgba(255,255,255,0.6); }
-.section-tag--light::before { background: rgba(255,255,255,0.4); }
+.section-tag--light { color: rgba(255,255,255,0.85); }
+.section-tag--light::before { background: rgba(255,255,255,0.7); }
 
 .section-heading {
   font-family   : var(--font-display);
@@ -222,7 +222,7 @@ html.dark .hero__veil  { background: var(--video-veil-dark); }
   display: flex; align-items: center; gap: 14px;
   font-size: var(--fs-body-sm);
   letter-spacing: var(--ls-loose);
-  text-transform: uppercase; color: rgba(255,255,255,0.6);
+  text-transform: uppercase; color: rgba(255,255,255,0.80);
   margin-bottom: clamp(12px,2vh,24px); font-weight: 600;
 }
 .hero__line { display: block; width: 40px; height: 1px; background: var(--clr-accent); }
@@ -240,8 +240,7 @@ html.dark .hero__veil  { background: var(--video-veil-dark); }
 }
 .hero__heading-bottom {
   display: block;
-  font-size: clamp(2.8rem, 5.5vw, 5.5rem);
-  color: rgba(255,255,255,0.35);
+  color: rgba(255,255,255,0.55);
   letter-spacing: var(--ls-display);
 }
 .hero__heading-bottom em {
@@ -298,7 +297,7 @@ html.dark .hero__veil  { background: var(--video-veil-dark); }
   font-size: var(--fs-body-xs);
   letter-spacing: var(--ls-label-sm);
   text-transform: uppercase;
-  color: rgba(255,255,255,0.5);
+  color: rgba(255,255,255,0.75);
   margin-top: 6px; font-weight: 600;
   line-height: 1.3; overflow-wrap: break-word;
   word-break: break-word; hyphens: auto;
@@ -316,7 +315,7 @@ html.dark .hero__veil  { background: var(--video-veil-dark); }
   position: absolute; right: var(--pad); bottom: 48px; z-index: 10;
   display: flex; flex-direction: column; align-items: center; gap: 12px;
   font-size: var(--fs-body-xs); letter-spacing: var(--ls-label); text-transform: uppercase;
-  color: rgba(255,255,255,0.4); writing-mode: vertical-rl;
+  color: rgba(255,255,255,0.65); writing-mode: vertical-rl;
 }
 .hero__scroll-line {
   width: 1px; height: 60px;
@@ -360,7 +359,7 @@ html.dark .hero__gradient-overlay { background: var(--video-gradient-dark); }
   font-size: var(--fs-body-sm);
   letter-spacing: var(--ls-loose);
   text-transform: uppercase;
-  color: rgba(255,255,255,0.5); font-weight: 600;
+  color: rgba(255,255,255,0.80); font-weight: 600;
   margin-bottom: clamp(16px,2.5vh,28px);
 }
 .hero__eyebrow--center .hero__line { width: 40px; height: 1px; background: var(--clr-accent); display: block; flex-shrink: 0; }
@@ -376,7 +375,7 @@ html.dark .hero__gradient-overlay { background: var(--video-gradient-dark); }
 .hero__heading--center .hero__heading-bottom {
   display: block;
   font-size: clamp(2.8rem, 6.5vw, 8rem);
-  color: rgba(255,255,255,0.28);
+  color: rgba(255,255,255,0.50);
   letter-spacing: var(--ls-display);
   line-height: 1; margin-top: 4px;
 }
@@ -678,7 +677,7 @@ html.dark .compromiso__card--dark { background: #262626; }
 .compromiso__eyebrow {
   display: block; font-size: var(--fs-body-xs);
   letter-spacing: var(--ls-label);
-  text-transform: uppercase; opacity: 0.65; margin-bottom: 16px; font-weight: 600;
+  text-transform: uppercase; opacity: 0.85; margin-bottom: 16px; font-weight: 600;
 }
 .compromiso__title {
   font-family: var(--font-display); font-size: var(--fs-display-lg);
@@ -700,7 +699,7 @@ html.dark .compromiso__card--dark { background: #262626; }
 html.dark .global { background: #262626; }
 .global::before { display: none; }
 .global__inner { position: relative; z-index: 3; max-width: var(--max-w); margin: 0 auto; padding: 0 var(--pad); text-align: center; }
-.global__desc { font-size: var(--fs-body-lg); line-height: var(--lh-body); color: rgba(255,255,255,0.45); max-width: 600px; margin: 28px auto 72px; }
+.global__desc { font-size: var(--fs-body-lg); line-height: var(--lh-body); color: rgba(255,255,255,0.70); max-width: 600px; margin: 28px auto 72px; }
 
 .global__video {
   position: absolute; inset: 0; width: 100%; height: 100%;
@@ -745,7 +744,7 @@ html.dark .global__video-overlay { background: var(--global-overlay-dark); }
   font-size: var(--fs-body-xs);
   letter-spacing: var(--ls-label-xs);
   text-transform: uppercase;
-  color: rgba(255,255,255,0.4); font-weight: 600;
+  color: rgba(255,255,255,0.65); font-weight: 600;
   line-height: 1.3; overflow-wrap: break-word;
   word-break: break-word; hyphens: auto;
 }

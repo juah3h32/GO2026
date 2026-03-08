@@ -24,7 +24,6 @@ export default function InstallPWA({ pwa }) {
   const startAutoDismiss = () => {
     setProgress(100);
 
-    // Barra de progreso: va de 100 a 0 en AUTO_DISMISS_MS ms
     const steps    = 60;
     const interval = AUTO_DISMISS_MS / steps;
     let   current  = steps;
@@ -35,7 +34,6 @@ export default function InstallPWA({ pwa }) {
       if (current <= 0) clearInterval(progressRef.current);
     }, interval);
 
-    // Al terminar → mismo comportamiento que "Ahora no"
     autoDismissRef.current = setTimeout(() => {
       handleDismissNotification();
     }, AUTO_DISMISS_MS);
@@ -86,7 +84,7 @@ export default function InstallPWA({ pwa }) {
       setState('icon');
     } else {
       setState('notification');
-      startAutoDismiss(); // ← arranca el auto-dismiss al mostrar
+      startAutoDismiss();
     }
 
     if (isDev) return;
@@ -146,7 +144,7 @@ export default function InstallPWA({ pwa }) {
 
   const handleIconClick = () => {
     setState('notification');
-    startAutoDismiss(); // ← también arranca si el usuario reabre desde el icono
+    startAutoDismiss();
   };
 
   const handleBubbleClose = () => {
@@ -183,7 +181,6 @@ export default function InstallPWA({ pwa }) {
       {/* ── NOTIFICACIÓN ── */}
       {(state === 'notification' || state === 'exiting') && (
         <div
-          // Pausar auto-dismiss si el usuario toca la notificación
           onMouseEnter={cancelAutoDismiss}
           onTouchStart={cancelAutoDismiss}
           style={{
@@ -217,8 +214,14 @@ export default function InstallPWA({ pwa }) {
               padding:      '10px 14px',
               borderBottom: '1px solid rgba(255,255,255,0.06)',
             }}>
-              <img src="/pwa-192x192.png" width="16" height="16"
-                   style={{ borderRadius: '4px' }} />
+              {/* ✅ alt agregado */}
+              <img
+                src="/pwa-192x192.png"
+                width="16"
+                height="16"
+                alt="Grupo Ortiz App"
+                style={{ borderRadius: '4px' }}
+              />
               <span style={{
                 fontSize:      '11px',
                 color:         'rgba(255,255,255,0.45)',
@@ -240,8 +243,14 @@ export default function InstallPWA({ pwa }) {
             {/* Body */}
             <div style={{ padding: '12px 14px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <img src="/pwa-192x192.png" width="42" height="42"
-                     style={{ borderRadius: '10px', flexShrink: 0 }} />
+                {/* ✅ alt agregado */}
+                <img
+                  src="/pwa-192x192.png"
+                  width="42"
+                  height="42"
+                  alt="Grupo Ortiz App"
+                  style={{ borderRadius: '10px', flexShrink: 0 }}
+                />
                 <div>
                   <div style={{ fontWeight: 700, fontSize: '14px', color: '#fff', marginBottom: '2px' }}>
                     {txt.title}
@@ -305,21 +314,27 @@ export default function InstallPWA({ pwa }) {
           animation: 'pwaIconPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
         }}>
           <button onClick={handleIconClick} style={{
-            width:        '52px',
-            height:       '52px',
-            borderRadius: '50%',
-            border:       'none',
-            background:   'linear-gradient(135deg, #ff6600, #ff8533)',
-            cursor:       'pointer',
-            display:      'flex',
-            alignItems:   'center',
+            width:         '52px',
+            height:        '52px',
+            borderRadius:  '50%',
+            border:        'none',
+            background:    'linear-gradient(135deg, #ff6600, #ff8533)',
+            cursor:        'pointer',
+            display:       'flex',
+            alignItems:    'center',
             justifyContent:'center',
-            boxShadow:    '0 4px 16px rgba(255,102,0,0.4)',
-            animation:    'pwaPulse 2s ease-in-out infinite',
-            position:     'relative',
+            boxShadow:     '0 4px 16px rgba(255,102,0,0.4)',
+            animation:     'pwaPulse 2s ease-in-out infinite',
+            position:      'relative',
           }}>
-            <img src="/pwa-192x192.png" width="30" height="30"
-                 style={{ borderRadius: '6px' }} />
+            {/* ✅ alt agregado */}
+            <img
+              src="/pwa-192x192.png"
+              width="30"
+              height="30"
+              alt="Instalar Grupo Ortiz App"
+              style={{ borderRadius: '6px' }}
+            />
             <div style={{
               position:      'absolute',
               top:           '-2px',

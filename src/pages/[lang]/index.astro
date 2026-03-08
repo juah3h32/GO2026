@@ -39,8 +39,10 @@ const certsLoop = [...certifications, ...certifications];
     preload="metadata"
     poster="/images/capturas/portada.webp"
     class="hero__video hero__video--fill"
-    id="heroVideo"
-  ></video>
+      id="heroVideo"
+>
+  <track kind="captions" srclang="es" label="Español" default />
+</video>
   <div class="hero__gradient-overlay"></div>
 
   <div class="hero__content is-visible" id="heroContent">
@@ -115,31 +117,46 @@ const certsLoop = [...certifications, ...certifications];
 
     <div class="div-grid" id="divGrid">
       {th.divisiones.items.map((div, i) => (
-        <a
-          href={(div as any).soon ? undefined : `/${currentLang}/${(div as any).slug}`}
-          class={`div-card${(div as any).soon ? ' div-card--soon' : ''}`}
-          style={`--accent: ${div.color}; --img: url('${div.img}')`}
-          aria-disabled={(div as any).soon ? "true" : undefined}
-        >
-          <div class="div-card__bg"></div>
-          <div class="div-card__overlay"></div>
-          {(div as any).soon && (
+        (div as any).soon ? (
+          /* ── PRÓXIMAMENTE: <div> en lugar de <a> — sin enlace vacío para Google ── */
+          <div
+            class="div-card div-card--soon"
+            style={`--accent: ${div.color}; --img: url('${div.img}')`}
+            aria-label={`${div.title} - Próximamente`}
+          >
+            <div class="div-card__bg"></div>
+            <div class="div-card__overlay"></div>
             <span class="div-card__soon-badge">Próximamente</span>
-          )}
-          <span class="div-card__num">{String(i + 1).padStart(2, '0')}</span>
-          <div class="div-card__content">
-            <span class="div-card__tag">{div.tag}</span>
-            <h3 class="div-card__title">{div.title}</h3>
-            <p class="div-card__desc">{div.description}</p>
-            {!(div as any).soon && (
+            <span class="div-card__num">{String(i + 1).padStart(2, '0')}</span>
+            <div class="div-card__content">
+              <span class="div-card__tag">{div.tag}</span>
+              <h3 class="div-card__title">{div.title}</h3>
+              <p class="div-card__desc">{div.description}</p>
+            </div>
+            <div class="div-card__line"></div>
+          </div>
+        ) : (
+          /* ── DISPONIBLE: <a> con href correcto ── */
+          <a
+            href={`/${currentLang}/${(div as any).slug}`}
+            class="div-card"
+            style={`--accent: ${div.color}; --img: url('${div.img}')`}
+          >
+            <div class="div-card__bg"></div>
+            <div class="div-card__overlay"></div>
+            <span class="div-card__num">{String(i + 1).padStart(2, '0')}</span>
+            <div class="div-card__content">
+              <span class="div-card__tag">{div.tag}</span>
+              <h3 class="div-card__title">{div.title}</h3>
+              <p class="div-card__desc">{div.description}</p>
               <span class="div-card__cta">
                 {th.divisiones.link_text}
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
               </span>
-            )}
-          </div>
-          <div class="div-card__line"></div>
-        </a>
+            </div>
+            <div class="div-card__line"></div>
+          </a>
+        )
       ))}
     </div>
 
@@ -255,8 +272,10 @@ const certsLoop = [...certifications, ...certifications];
     preload="metadata"
     poster="/images/capturas/portada2.webp"
     class="global__video"
-    id="globalVideo"
-  ></video>
+  id="globalVideo"
+>
+  <track kind="captions" srclang="es" label="Español" default />
+</video>
   <div class="global__video-overlay"></div>
   <div class="global__inner">
     <p class="section-tag section-tag--light">{th.global.tag}</p>
@@ -452,55 +471,25 @@ function initDivGrid() {
   window.addEventListener('resize', updateProgress);
 }
 
-/* ANTES */
+/* ---- VIDEOS ---- */
 function initVideos() {
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
       const video = entry.target;
       if (entry.isIntersecting) {
         if (video.readyState === 0) video.load();
-        const showVideo = () => video.classList.add('is-loaded');
-        if (video.readyState >= 3) {
-          showVideo();
-        } else {
-          video.addEventListener('canplay', showVideo, { once: true });
-        }
-        video.play().catch(() => {});
-      } else {
-        video.pause();
-      }
-    });
-  }, { threshold: 0.15 });
-
-  ['heroVideo', 'globalVideo'].forEach((id) => {
-    const v = document.getElementById(id);
-    if (v) observer.observe(v);
-  });
-}
-
-/* DESPUÉS */
-function initVideos() {
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      const video = entry.target;
-      if (entry.isIntersecting) {
-        if (video.readyState === 0) video.load();
-
-        // Marca como cargado (solo afecta dark-mode opacity)
-        // El video ya es visible desde el inicio mostrando el poster
         const markLoaded = () => video.classList.add('is-loaded');
         if (video.readyState >= 3) {
           markLoaded();
         } else {
           video.addEventListener('canplay', markLoaded, { once: true });
         }
-
         video.play().catch(() => {});
       } else {
         video.pause();
       }
     });
-  }, { threshold: 0.0 });  // 0.0 para empezar a cargar antes
+  }, { threshold: 0.0 });
 
   ['heroVideo', 'globalVideo'].forEach((id) => {
     const v = document.getElementById(id);
