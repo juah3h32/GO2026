@@ -45,19 +45,19 @@ const getLink = (slug: string) => {
       <div class="links-area">
         
         <div class="col">
-          <a href={getLink("about")}>{t.footer.about_us}</a>
-          <a href="#">{t.footer.about}</a>
-          <a href="#">{t.footer.social_impact}</a>
+          <a href="#">{t.footer.about_us}</a>
+          <a href="about">{t.footer.about}</a>
+          <a href="social">{t.footer.social_impact}</a>
         </div>
 
         <div class="col">
           <a href="#">{t.footer.customer_service}</a>
-          <a href={getLink("distribuidor")}>{t.footer.be_distributor}</a>
-          <a href={getLink("catalogo")}>{t.footer.catalog}</a>
+          <a href="distribuidor">{t.footer.be_distributor}</a>
+          <a href="catalogo">{t.footer.catalog}</a>
         </div>
 
         <div class="col distribute-col">
-          <a href={getLink("distribuidor")} class="btn-orange">{t.footer.cta_button}</a>
+          <a href="distribuidor" class="btn-orange">{t.footer.cta_button}</a>
         </div>
 
       </div>
