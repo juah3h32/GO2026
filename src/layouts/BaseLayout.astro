@@ -40,7 +40,7 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
     <meta charset="utf-8" />
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1, viewport-fit=cover"
+      content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
     />
     <meta name="theme-color" content="#ffffff" />
 
@@ -218,6 +218,15 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
         -webkit-tap-highlight-color: transparent;
       }
 
+      /* =============================================
+         PERMITIR ZOOM CON DEDOS EN MÓVIL
+         manipulation = permite tap + pinch-to-zoom
+         pero elimina el delay de 300ms en clicks
+         ============================================= */
+      html, body {
+        touch-action: pan-x pan-y;
+      }
+
       a,
       button,
       [role="button"],
@@ -231,6 +240,8 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
         -moz-user-select: none;
         user-select: none;
         outline: none;
+        /* ✅ manipulation en botones también permite zoom */
+        touch-action: pan-x pan-y;
       }
 
       section,
