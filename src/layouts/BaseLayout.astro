@@ -15,11 +15,12 @@ import BotGO from "../components/BotGO.jsx";
 
 const {
   title = "Mi sitio",
+  description = "",
+  author = "JP",
   currentLang = "es",
   moveLogoMobile = false,
   pwaIcon = "/pwa-192x192.png",
 } = Astro.props;
-
 const lang = (currentLang && currentLang in translations) ? currentLang : "es";
 const t = translations[lang as keyof typeof translations] as any;
 const pwaTexts = (t && t.pwa) ? t.pwa : {
@@ -71,6 +72,9 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
     <link rel="preload" href="/fonts/NeueMontreal-Medium.otf" as="font" type="font/otf" crossorigin />
 
     <title>{title}</title>
+    {description && <meta name="description" content={description} />}
+    <meta name="author" content={author} />
+    <meta name="robots" content="index, follow" />
 
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" type="image/png" href="/images/logo/logob.png" />

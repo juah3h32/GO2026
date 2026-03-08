@@ -1136,7 +1136,8 @@ export const pt = {
   // PÁGINA: HOME (Início)
   // =================================================
   home: {
-    meta_title: "Início | Grupo Ortiz",
+   meta_title: "Grupo Ortiz | Fabricante de Polímeros e Embalagens no México",
+meta_description: "Mais de 65 anos fabricando stretch film, sacos, cordas, ráfia, redes e embalagens flexíveis. Líder em polímeros plásticos no México e na América Latina.",
 
     hero: {
       eyebrow:      "Desde 1959",

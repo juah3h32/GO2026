@@ -23,7 +23,11 @@ const certifications = th.certs.items;
 const certsLoop = [...certifications, ...certifications];
 ---
 
-<BaseLayout title={th.meta_title} currentLang={currentLang}>
+<BaseLayout 
+  title={th.meta_title} 
+  description={th.meta_description}
+  currentLang={currentLang}
+>
 
 <!-- ═══════════════════════════════════════
      HERO

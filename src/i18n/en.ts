@@ -1136,7 +1136,8 @@ export const en = {
   // PAGE: HOME (Index)
   // =================================================
   home: {
-    meta_title: "Home | Grupo Ortiz",
+    meta_title: "Grupo Ortiz | Polymer and Packaging Manufacturer in Mexico",
+meta_description: "Over 65 years manufacturing stretch film, bags, ropes, raffia, mesh netting, and flexible packaging. Leader in plastic polymers in Mexico and Latin America.",
 
     hero: {
       eyebrow:      "Since 1959",

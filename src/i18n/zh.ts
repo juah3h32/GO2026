@@ -1136,7 +1136,8 @@ export const zh = {
   // 页面：首页
   // =================================================
   home: {
-    meta_title: "首页 | Grupo Ortiz",
+    meta_title: "Grupo Ortiz | 墨西哥聚合物及包装制造商",
+meta_description: "超过65年的拉伸膜、袋子、绳索、拉菲草、网袋及柔性包装制造经验。墨西哥及拉丁美洲塑料聚合物领域的领导者。",
 
     hero: {
       eyebrow:      "自1959年起",
