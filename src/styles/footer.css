@@ -219,13 +219,3 @@ footer {
     max-width: 250px;
   }
 }
-/* ✅ FIX — protege iconos Font Awesome en el footer */
-.social-icons a i {
-  display: inline-block;
-  font-style: normal;
-  font-variant: normal;
-  text-rendering: auto;
-  -webkit-font-smoothing: antialiased;
-  font-family: "Font Awesome 6 Brands" !important;
-  font-weight: 400;
-}

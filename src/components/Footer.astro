@@ -1,15 +1,18 @@
 ---
 // src/components/Footer.astro
 import "../styles/footer.css"; 
-import { translations } from "../i18n";
+import { translations } from "../i18n"; // Asegúrate que la ruta a i18n sea correcta
 
 interface Props {
   currentLang?: string;
 }
 
+// 1. Lógica para obtener el idioma y las traducciones
 const { currentLang = 'es' } = Astro.props;
 const t = translations[currentLang as keyof typeof translations] || translations.es;
 
+// 2. Función helper para los links (opcional, para mantener el idioma en la URL)
+// Ejemplo: si estás en inglés, devuelve "/en/slug"
 const getLink = (slug: string) => {
   return currentLang === 'es' ? `/${slug}` : `/${currentLang}/${slug}`;
 };
@@ -38,12 +41,12 @@ const getLink = (slug: string) => {
         
         <div class="col">
           <a href="about">{t.footer.about_us}</a>
-          <a href="about">{t.footer.about}</a>
-          <a href="social">{t.footer.social_impact}</a>
+          <a href="#">{t.footer.about}</a>
+          <a href="#">{t.footer.social_impact}</a>
         </div>
 
         <div class="col">
-          <a href="customer-service">{t.footer.customer_service}</a>
+          <a href="#">{t.footer.customer_service}</a>
           <a href="distribuidor">{t.footer.be_distributor}</a>
           <a href="catalogo">{t.footer.catalog}</a>
         </div>
@@ -59,25 +62,10 @@ const getLink = (slug: string) => {
 
     <div class="bottom-section">
       <div class="social-icons">
-        <!-- ✅ aria-label agregado a cada red social -->
-        <a href="https://www.facebook.com/people/Grupo-Ort%C3%ADz/61559817857366/"
-           aria-label="Visitar Grupo Ortiz en Facebook"
-           target="_blank" rel="noopener noreferrer">
-          <i class="fab fa-facebook-f"></i>
-        </a>
-        <a href="https://www.instagram.com/grupoortiz_mexico?igsh=dWJtbHhrN3A2d254"
-           aria-label="Visitar Grupo Ortiz en Instagram"
-           target="_blank" rel="noopener noreferrer">
-          <i class="fab fa-instagram"></i>
-        </a>
-        <a href="https://www.linkedin.com/company/grupo-ortiz-mexico-pol%C3%ADmeros/"
-           aria-label="Visitar Grupo Ortiz en LinkedIn"
-           target="_blank" rel="noopener noreferrer">
-          <i class="fab fa-linkedin-in"></i>
-        </a>
-        <a href="#" aria-label="Visitar Grupo Ortiz en YouTube">
-          <i class="fab fa-youtube"></i>
-        </a>
+        <a href="https://www.facebook.com/people/Grupo-Ort%C3%ADz/61559817857366/"><i class="fab fa-facebook-f"></i></a>
+        <a href="https://www.instagram.com/grupoortiz_mexico?igsh=dWJtbHhrN3A2d254"><i class="fab fa-instagram"></i></a>
+        <a href="https://www.linkedin.com/company/grupo-ortiz-mexico-pol%C3%ADmeros/"><i class="fab fa-linkedin-in"></i></a>
+        <a href="#"><i class="fab fa-youtube"></i></a>
       </div>
       <p class="copyright">
         &copy; {new Date().getFullYear()} Grupo Ortiz, SA. de CV. {t.footer.rights}
