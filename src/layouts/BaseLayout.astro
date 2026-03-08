@@ -14,13 +14,14 @@ import DockMenu from "../components/DockMenu.astro";
 import BotGO from "../components/BotGO.jsx";
 
 const {
-  title = "Mi sitio",
-  description = "",
-  author = "JP",
+  title = "Grupo Ortiz | Fabricante de Polímeros y Empaques en México",
+  description = "Más de 65 años fabricando stretch film, sacos, cuerdas, rafia, arpillas y empaques flexibles. Líder en polímeros plásticos en México y Latinoamérica.",
+  author = "Grupo Ortiz",
   currentLang = "es",
   moveLogoMobile = false,
   pwaIcon = "/pwa-192x192.png",
 } = Astro.props;
+
 const lang = (currentLang && currentLang in translations) ? currentLang : "es";
 const t = translations[lang as keyof typeof translations] as any;
 const pwaTexts = (t && t.pwa) ? t.pwa : {
@@ -42,8 +43,9 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
       content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover"
     />
     <meta name="theme-color" content="#ffffff" />
-    
+
     <meta name="google-site-verification" content="rOmVFzyWzonDprnnaI7IaKK0inenxoZB4zXYCa7R5GU" />
+
     <!-- ⚡ 1. Tema aplicado PRIMERO — evita FOUC antes que cualquier otra cosa -->
     <script is:inline>
       (function () {
@@ -71,16 +73,58 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
     <link rel="preload" href="/fonts/MorganitePro-ExtraBold.ttf" as="font" type="font/ttf" crossorigin />
     <link rel="preload" href="/fonts/NeueMontreal-Medium.otf" as="font" type="font/otf" crossorigin />
 
+    <!-- ═══════════════════════════════════════
+         SEO BÁSICO
+    ═══════════════════════════════════════ -->
     <title>{title}</title>
     {description && <meta name="description" content={description} />}
     <meta name="author" content={author} />
     <meta name="robots" content="index, follow" />
+    <link rel="canonical" href={`https://grupo-ortiz.com/${currentLang}/`} />
 
+    <!-- ═══════════════════════════════════════
+         OPEN GRAPH — Facebook, WhatsApp, LinkedIn
+    ═══════════════════════════════════════ -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    {description && <meta property="og:description" content={description} />}
+    <meta property="og:locale" content={currentLang === 'es' ? 'es_MX' : 'en_US'} />
+    <meta property="og:site_name" content="Grupo Ortiz" />
+    <meta property="og:image" content="https://grupo-ortiz.com/images/og-preview.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:url" content={`https://grupo-ortiz.com/${currentLang}/`} />
+
+    <!-- ═══════════════════════════════════════
+         TWITTER / X CARD
+    ═══════════════════════════════════════ -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    {description && <meta name="twitter:description" content={description} />}
+    <meta name="twitter:image" content="https://grupo-ortiz.com/images/og-preview.jpg" />
+    <meta name="twitter:site" content="@GrupoOrtiz" />
+
+    <!-- ═══════════════════════════════════════
+         ICONOS Y PWA
+    ═══════════════════════════════════════ -->
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" type="image/png" href="/images/logo/logob.png" />
     <link rel="apple-touch-icon" href={pwaIcon} />
 
     {pwaInfo && <Fragment set:html={pwaInfo.webManifest.linkTag} />}
+
+    <!-- ═══════════════════════════════════════
+         GOOGLE ANALYTICS — sin error TypeScript
+    ═══════════════════════════════════════ -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7T6MCL6P98"></script>
+    <script is:inline>
+      (function(){
+        window['dataLayer'] = window['dataLayer'] || [];
+        function gtag(){ window['dataLayer'].push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-7T6MCL6P98');
+      })();
+    </script>
 
     <style is:global>
       @import "../styles/typography.css";
