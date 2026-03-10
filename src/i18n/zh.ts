@@ -900,7 +900,7 @@ export const zh = {
       layer_both:      "/images/about/both_states_layer.png",
       locations: [
         { key: "monterrey", number: "1 座工厂",  badge: "新莱昂州蒙特雷" },
-        { key: "michoacan", number: "16 座工厂", badge: "米却肯州莫雷利亚" }
+        { key: "michoacan", number: "12 座工厂", badge: "米却肯州莫雷利亚" }
       ]
     },
 

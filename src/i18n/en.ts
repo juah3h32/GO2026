@@ -900,7 +900,7 @@ export const en = {
       layer_both:      "/images/about/both_states_layer.png",
       locations: [
         { key: "monterrey", number: "1 PLANT",   badge: "Monterrey, Nuevo León" },
-        { key: "michoacan", number: "16 PLANTS", badge: "Morelia, Michoacán"    }
+        { key: "michoacan", number: "12 PLANTS", badge: "Morelia, Michoacán"    }
       ]
     },
 

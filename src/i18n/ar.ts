@@ -900,7 +900,7 @@ export const ar = {
       layer_both:      "/images/about/both_states_layer.png",
       locations: [
         { key: "monterrey", number: "مصنع ١",    badge: "مونتيري، نويفو ليون" },
-        { key: "michoacan", number: "١٦ مصنعاً", badge: "موريليا، ميتشواكان"  }
+        { key: "michoacan", number: "١٢ مصنعاً", badge: "موريليا، ميتشواكان"  }
       ]
     },
 
