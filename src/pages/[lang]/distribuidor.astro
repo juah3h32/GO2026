@@ -1,7 +1,5 @@
 ---
 // src/pages/[lang]/distribuidor.astro
-
-// src/pages/[lang]/distribuidor.astro
 import "../../styles/distribuidor.css";
 export const prerender = true;
 import BaseLayout from "../../layouts/BaseLayout.astro";
@@ -76,36 +74,30 @@ const placeholderImg =
 ---
 
 <BaseLayout title={metaTitle} currentLang={currentLang}>
-    <!-- ✅ MOVER ESTOS AL HEAD via slot -->
+
+  <!-- ✅ ÍCONOS Y LIBRERÍAS EN EL HEAD - solo una vez -->
   <Fragment slot="head">
+    <link
+      rel="preconnect"
+      href="https://cdn.jsdelivr.net"
+      crossorigin
+    />
+    <link
+      rel="preconnect"
+      href="https://cdnjs.cloudflare.com"
+      crossorigin
+    />
     <link
       href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css"
       rel="stylesheet"
     />
   </Fragment>
-  <link
-    href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css"
-    rel="stylesheet"
-  />
-    <!-- Scripts CDN sin defer para que estén listos -->
+
+  <!-- ✅ Scripts CDN: solo is:inline, SIN defer, en orden correcto -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" is:inline></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" is:inline></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" is:inline></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.0/vanilla-tilt.min.js" is:inline></script>
-
-
-  <script
-    src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"
-    defer></script>
-  <script
-    src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"
-    defer></script>
-  <script
-    src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"
-    defer></script>
-  <script
-    src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.0/vanilla-tilt.min.js"
-    defer></script>
 
   <!-- Efecto de revelación al enviar formulario -->
   <div class="reveal-container" id="revealEffect">
@@ -273,65 +265,59 @@ const placeholderImg =
   </div>
 
   <script is:inline>
+    // ─────────────────────────────────────────────
+    // INIT: espera que TODAS las libs estén listas
+    // ─────────────────────────────────────────────
+    function waitForLibs(callback, maxWait) {
+      var waited = 0;
+      var interval = setInterval(function () {
+        waited += 50;
+        var gsapReady = typeof window.gsap !== "undefined";
+        var stReady   = typeof window.ScrollTrigger !== "undefined";
+        var threeReady = typeof window.THREE !== "undefined";
+        var tiltReady  = typeof window.VanillaTilt !== "undefined";
+
+        if (gsapReady && stReady) {
+          clearInterval(interval);
+          callback();
+        } else if (waited >= (maxWait || 5000)) {
+          clearInterval(interval);
+          // Intentar igual con lo que haya cargado
+          callback();
+        }
+      }, 50);
+    }
+
     function initDistribuidor() {
-      // Verificar que GSAP esté cargado
-      if (!window.gsap || !window.ScrollTrigger) {
-        setTimeout(initDistribuidor, 100);
+      if (typeof window.gsap === "undefined" || typeof window.ScrollTrigger === "undefined") {
+        console.warn("GSAP no disponible, reintentando...");
+        setTimeout(initDistribuidor, 200);
         return;
       }
 
-      const gsap = window.gsap;
-      const ScrollTrigger = window.ScrollTrigger;
+      var gsap = window.gsap;
+      var ScrollTrigger = window.ScrollTrigger;
       gsap.registerPlugin(ScrollTrigger);
 
-      // Limpiar ScrollTriggers previos
-      ScrollTrigger.getAll().forEach((st) => st.kill());
+      // Limpiar ScrollTriggers previos (para SPA routing de Astro)
+      ScrollTrigger.getAll().forEach(function (st) { st.kill(); });
 
-      // === HERO ANIMATIONS ===
-      const heroTimeline = gsap.timeline({ defaults: { ease: "power4.out" } });
+      // ── HERO ANIMATIONS ──────────────────────────
+      var heroTimeline = gsap.timeline({ defaults: { ease: "power4.out" } });
 
       heroTimeline
-        .from(".gs-title", {
-          y: 100,
-          opacity: 0,
-          duration: 1.2,
-        })
-        .from(
-          ".gs-fade",
-          {
-            y: 30,
-            opacity: 0,
-            duration: 0.8,
-            stagger: 0.15,
-          },
-          "-=0.6",
-        )
-        .from(
-          ".gs-img",
-          {
-            scale: 0.9,
-            opacity: 0,
-            duration: 1.5,
-            ease: "power2.out",
-          },
-          "-=1",
-        );
+        .from(".gs-title", { y: 100, opacity: 0, duration: 1.2 })
+        .from(".gs-fade",  { y: 30,  opacity: 0, duration: 0.8, stagger: 0.15 }, "-=0.6")
+        .from(".gs-img",   { scale: 0.9, opacity: 0, duration: 1.5, ease: "power2.out" }, "-=1");
 
-      // === CARDS ANIMATIONS ===
-      const cards = document.querySelectorAll(".card");
-
+      // ── CARDS ANIMATIONS ─────────────────────────
+      var cards = document.querySelectorAll(".card");
       if (cards.length > 0) {
         gsap.fromTo(
           cards,
+          { y: 80, autoAlpha: 0, scale: 0.95 },
           {
-            y: 80,
-            autoAlpha: 0,
-            scale: 0.95,
-          },
-          {
-            y: 0,
-            autoAlpha: 1,
-            scale: 1,
+            y: 0, autoAlpha: 1, scale: 1,
             duration: 0.9,
             stagger: { amount: 0.4, from: "start" },
             ease: "back.out(1.4)",
@@ -340,39 +326,32 @@ const placeholderImg =
               start: "top 85%",
               toggleActions: "play none none reverse",
             },
-          },
+          }
         );
       }
 
-      // === STATS & FORM REVEAL ===
-      gsap.utils.toArray(".gs-reveal").forEach((elem) => {
+      // ── STATS & FORM REVEAL ───────────────────────
+      gsap.utils.toArray(".gs-reveal").forEach(function (elem) {
         gsap.fromTo(
           elem,
+          { y: 60, autoAlpha: 0 },
           {
-            y: 60,
-            autoAlpha: 0,
-          },
-          {
-            y: 0,
-            autoAlpha: 1,
-            duration: 1.2,
-            ease: "power3.out",
+            y: 0, autoAlpha: 1, duration: 1.2, ease: "power3.out",
             scrollTrigger: {
               trigger: elem,
               start: "top 88%",
               toggleActions: "play none none reverse",
             },
-          },
+          }
         );
       });
 
-      // === COUNTER ANIMATIONS ===
-      document.querySelectorAll(".counter").forEach((counter) => {
-        const targetAttr = counter.getAttribute("data-target");
+      // ── COUNTER ANIMATIONS ────────────────────────
+      document.querySelectorAll(".counter").forEach(function (counter) {
+        var targetAttr = counter.getAttribute("data-target");
         if (!targetAttr) return;
-
-        const targetValue = parseInt(targetAttr.replace(/\D/g, ""), 10) || 0;
-        const countObj = { val: 0 };
+        var targetValue = parseInt(targetAttr.replace(/\D/g, ""), 10) || 0;
+        var countObj = { val: 0 };
 
         gsap.to(countObj, {
           val: targetValue,
@@ -383,19 +362,19 @@ const placeholderImg =
             start: "top 90%",
             toggleActions: "play none none reset",
           },
-          onUpdate: () => {
+          onUpdate: function () {
             counter.textContent = Math.round(countObj.val).toString();
           },
         });
       });
 
-      // === THREE.JS PARTICLE BACKGROUND ===
-      if (window.THREE && window.innerWidth > 768) {
+      // ── THREE.JS PARTICLES ────────────────────────
+      if (typeof window.THREE !== "undefined" && window.innerWidth > 768) {
         initThreeJSBackground();
       }
 
-      // === VANILLA TILT ===
-      if (window.VanillaTilt) {
+      // ── VANILLA TILT ──────────────────────────────
+      if (typeof window.VanillaTilt !== "undefined") {
         window.VanillaTilt.init(document.querySelectorAll(".js-tilt"), {
           max: 8,
           speed: 400,
@@ -405,47 +384,36 @@ const placeholderImg =
         });
       }
 
-      // === FORM SUBMISSION ===
+      // ── FORM ──────────────────────────────────────
       setupFormSubmission();
     }
 
     function initThreeJSBackground() {
-      const container = document.getElementById("canvas-bg");
+      var container = document.getElementById("canvas-bg");
       if (!container) return;
 
       container.innerHTML = "";
 
-      const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(
-        75,
-        window.innerWidth / window.innerHeight,
-        0.1,
-        1000,
-      );
+      var scene    = new THREE.Scene();
+      var camera   = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
       camera.position.z = 40;
 
-      const renderer = new THREE.WebGLRenderer({
-        alpha: true,
-        antialias: true,
-      });
+      var renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
       renderer.setSize(window.innerWidth, window.innerHeight);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       container.appendChild(renderer.domElement);
 
-      const geometry = new THREE.BufferGeometry();
-      const particleCount = 600;
-      const positions = new Float32Array(particleCount * 3);
+      var geometry      = new THREE.BufferGeometry();
+      var particleCount = 600;
+      var positions     = new Float32Array(particleCount * 3);
 
-      for (let i = 0; i < particleCount * 3; i++) {
+      for (var i = 0; i < particleCount * 3; i++) {
         positions[i] = (Math.random() - 0.5) * 120;
       }
 
-      geometry.setAttribute(
-        "position",
-        new THREE.BufferAttribute(positions, 3),
-      );
+      geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
 
-      const material = new THREE.PointsMaterial({
+      var material = new THREE.PointsMaterial({
         size: 0.15,
         color: 0xfb670b,
         transparent: true,
@@ -453,90 +421,98 @@ const placeholderImg =
         sizeAttenuation: true,
       });
 
-      const particles = new THREE.Points(geometry, material);
+      var particles = new THREE.Points(geometry, material);
       scene.add(particles);
 
-      let animationFrameId;
+      var animationFrameId;
 
       function animate() {
         if (!document.getElementById("canvas-bg")) {
           cancelAnimationFrame(animationFrameId);
           return;
         }
-
         animationFrameId = requestAnimationFrame(animate);
-
         particles.rotation.y += 0.0008;
         particles.rotation.x -= 0.0005;
-
         renderer.render(scene, camera);
       }
 
       animate();
 
-      // Responsive resize
-      window.addEventListener("resize", () => {
+      window.addEventListener("resize", function () {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
       });
     }
 
-function setupFormSubmission() {
-  const form   = document.getElementById("distribuidor-form");
-  const reveal = document.getElementById("revealEffect");
+    function setupFormSubmission() {
+      var formEl  = document.getElementById("distribuidor-form");
+      var reveal  = document.getElementById("revealEffect");
 
-  if (!form || !reveal) return;
+      if (!formEl || !reveal) return;
 
-  const newForm = form.cloneNode(true);
-  form.parentNode.replaceChild(newForm, form);
+      // Clonar para eliminar listeners previos (evita doble submit en SPA)
+      var newForm = formEl.cloneNode(true);
+      formEl.parentNode.replaceChild(newForm, formEl);
 
-  newForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
+      newForm.addEventListener("submit", async function (e) {
+        e.preventDefault();
 
-    const checked = [...newForm.querySelectorAll('input[name="products"]:checked')]
-      .map(el => el.value).join(", ");
+        var checked = Array.from(newForm.querySelectorAll('input[name="products"]:checked'))
+          .map(function (el) { return el.value; })
+          .join(", ");
 
-    const payload = {
-      action   : "lead",
-      nombre   : newForm.querySelector('[name="name"]').value,
-      empresa  : newForm.querySelector('[name="business"]').value,
-      whatsapp : newForm.querySelector('[name="whatsapp"]').value,
-      email    : newForm.querySelector('[name="email"]').value,
-      productos: checked,
-    };
+        var payload = {
+          action   : "lead",
+          nombre   : newForm.querySelector('[name="name"]').value,
+          empresa  : newForm.querySelector('[name="business"]').value,
+          whatsapp : newForm.querySelector('[name="whatsapp"]').value,
+          email    : newForm.querySelector('[name="email"]').value,
+          productos: checked,
+        };
 
-    const btn = newForm.querySelector('.submit-btn');
-    btn.disabled = true;
+        var btn = newForm.querySelector(".submit-btn");
+        if (btn) btn.disabled = true;
 
-    try {
-      await fetch('/api/analytics', {
-        method : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body   : JSON.stringify(payload),
+        try {
+          await fetch("/api/analytics", {
+            method : "POST",
+            headers: { "Content-Type": "application/json" },
+            body   : JSON.stringify(payload),
+          });
+        } catch (err) {
+          console.error("Error guardando lead:", err);
+        }
+
+        reveal.classList.add("active");
+
+        setTimeout(function () {
+          reveal.classList.remove("active");
+          newForm.reset();
+          if (btn) btn.disabled = false;
+        }, 3500);
       });
-    } catch (err) {
-      console.error('Error guardando lead:', err);
     }
 
-    reveal.classList.add("active");
-    setTimeout(() => {
-      reveal.classList.remove("active");
-      newForm.reset();
-      btn.disabled = false;
-    }, 3500);
-  });
-}
-    // Inicialización
+    // ── ARRANQUE ──────────────────────────────────────
+    // Para carga normal: esperar libs con polling seguro
     if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", initDistribuidor);
+      document.addEventListener("DOMContentLoaded", function () {
+        waitForLibs(initDistribuidor, 6000);
+      });
     } else {
-      initDistribuidor();
+      waitForLibs(initDistribuidor, 6000);
     }
 
-    // Para SPA routing de Astro
-    document.addEventListener("astro:page-load", initDistribuidor);
-    document.addEventListener("astro:after-swap", initDistribuidor);
+    // Para SPA routing de Astro (View Transitions)
+    document.addEventListener("astro:page-load", function () {
+      waitForLibs(initDistribuidor, 6000);
+    });
+    document.addEventListener("astro:after-swap", function () {
+      waitForLibs(initDistribuidor, 6000);
+    });
   </script>
-    <Footer currentLang={currentLang} />
+
+  <Footer currentLang={currentLang} />
 </BaseLayout>
