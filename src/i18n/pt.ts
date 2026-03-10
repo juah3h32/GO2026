@@ -884,7 +884,7 @@ export const pt = {
       title_white:  "Infraestrutura",
       title_orange: "que nos sustenta",
       stats: [
-        { number: "17",     label: "Plantas de Produção",   desc: "Instalações estrategicamente localizadas para atender mercados nacionais e internacionais.", icon: "number" },
+        { number: "13",     label: "Plantas de Produção",   desc: "Instalações estrategicamente localizadas para atender mercados nacionais e internacionais.", icon: "number" },
         { number: "+3.000", label: "Colaboradores",         desc: "Equipe especializada que impulsiona cada processo produtivo.", icon: "number" },
         { number: "260",    label: "Unidades Logísticas",   desc: "Frota própria que garante distribuição eficiente e entregas seguras em âmbito nacional e internacional.", icon: "number" },
         { number: "Global", label: "Presença Internacional",desc: "Exportação e distribuição nas Américas e na Europa.", icon: "globe" }
@@ -893,7 +893,7 @@ export const pt = {
 
     plantas: {
       title:           "Nossas Plantas",
-      subtitle:        "17 Plantas de Produção",
+      subtitle:        "13 Plantas de Produção",
       map_img:         "/images/about/mexico_map.png",
       layer_michoacan: "/images/about/michoacan_layer.png",
       layer_monterrey: "/images/about/monterrey_layer.png",

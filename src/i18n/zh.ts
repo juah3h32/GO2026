@@ -884,7 +884,7 @@ export const zh = {
       title_white:  "支撑我们的",
       title_orange: "基础设施",
       stats: [
-        { number: "10",     label: "生产工厂",     desc: "战略布局的设施，服务国内外市场。", icon: "number" },
+        { number: "13",     label: "生产工厂",     desc: "战略布局的设施，服务国内外市场。", icon: "number" },
         { number: "+3,000", label: "员工",          desc: "推动每个生产流程的专业团队。", icon: "number" },
         { number: "260",    label: "物流单元",      desc: "自有车队，保证全国及国际高效配送与安全交付。", icon: "number" },
         { number: "全球",   label: "国际化布局",    desc: "在美洲和欧洲的出口与分销。", icon: "globe" }
@@ -893,7 +893,7 @@ export const zh = {
 
     plantas: {
       title:           "我们的工厂",
-      subtitle:        "17 座生产工厂",
+      subtitle:        "13 座生产工厂",
       map_img:         "/images/about/mexico_map.png",
       layer_michoacan: "/images/about/michoacan_layer.png",
       layer_monterrey: "/images/about/monterrey_layer.png",

@@ -884,7 +884,7 @@ export const en = {
       title_white:  "Infrastructure",
       title_orange: "that delivers",
       stats: [
-        { number: "17",     label: "Production Plants",      desc: "Strategically located facilities to serve national and international markets.", icon: "number" },
+        { number: "13",     label: "Production Plants",      desc: "Strategically located facilities to serve national and international markets.", icon: "number" },
         { number: "+3,000", label: "Team Members",           desc: "Specialized team that drives every production process.", icon: "number" },
         { number: "260",    label: "Logistics Units",        desc: "Own fleet that guarantees efficient distribution and safe deliveries nationwide and internationally.", icon: "number" },
         { number: "Global", label: "International Presence", desc: "Export and distribution in the Americas and Europe.", icon: "globe" }
@@ -893,7 +893,7 @@ export const en = {
 
     plantas: {
       title:           "Our Plants",
-      subtitle:        "17 Production Plants",
+      subtitle:        "13 Production Plants",
       map_img:         "/images/about/mexico_map.png",
       layer_michoacan: "/images/about/michoacan_layer.png",
       layer_monterrey: "/images/about/monterrey_layer.png",

@@ -884,7 +884,7 @@ export const ar = {
       title_white:  "البنية التحتية",
       title_orange: "التي تدعمنا",
       stats: [
-        { number: "١٧",     label: "مصانع إنتاج",      desc: "منشآت استراتيجية لخدمة الأسواق المحلية والدولية.", icon: "number" },
+        { number: "١٣",     label: "مصانع إنتاج",      desc: "منشآت استراتيجية لخدمة الأسواق المحلية والدولية.", icon: "number" },
         { number: "+٣٬٠٠٠", label: "موظف",             desc: "فريق متخصص يقود كل عملية إنتاجية.", icon: "number" },
         { number: "٢٦٠",    label: "وحدة لوجستية",     desc: "أسطول خاص يضمن التوزيع الفعّال والتسليم الآمن على المستويين المحلي والدولي.", icon: "number" },
         { number: "عالمي",  label: "حضور دولي",        desc: "تصدير وتوزيع في الأمريكتين وأوروبا.", icon: "globe" }
@@ -893,7 +893,7 @@ export const ar = {
 
     plantas: {
       title:           "مصانعنا",
-      subtitle:        "١٧ مصنع إنتاج",
+      subtitle: "١٣ جولات افتراضية ٣٦٠°",
       map_img:         "/images/about/mexico_map.png",
       layer_michoacan: "/images/about/michoacan_layer.png",
       layer_monterrey: "/images/about/monterrey_layer.png",
