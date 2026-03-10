@@ -112,6 +112,9 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
     <link rel="apple-touch-icon" href={pwaIcon} />
 
     {pwaInfo && <Fragment set:html={pwaInfo.webManifest.linkTag} />}
+    <!-- ✅ Slot para inyectar links/scripts desde páginas hijas -->
+<slot name="head" />
+    
 
     <!-- ═══════════════════════════════════════
          GOOGLE ANALYTICS — sin error TypeScript
@@ -278,6 +281,7 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
         user-select: text;
       }
     </style>
+
   </head>
 
   <body>

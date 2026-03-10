@@ -1,8 +1,9 @@
 ---
 // src/pages/[lang]/distribuidor.astro
 
+// src/pages/[lang]/distribuidor.astro
 import "../../styles/distribuidor.css";
-export const prerender = true;  // ← AGREGAR ESTA LÍNEA
+export const prerender = true;
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Footer from "../../components/Footer.astro";
 import { languages, translations } from "../../i18n";
@@ -75,10 +76,23 @@ const placeholderImg =
 ---
 
 <BaseLayout title={metaTitle} currentLang={currentLang}>
+    <!-- ✅ MOVER ESTOS AL HEAD via slot -->
+  <Fragment slot="head">
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css"
+      rel="stylesheet"
+    />
+  </Fragment>
   <link
     href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css"
     rel="stylesheet"
   />
+    <!-- Scripts CDN sin defer para que estén listos -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" is:inline></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" is:inline></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" is:inline></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.0/vanilla-tilt.min.js" is:inline></script>
+
 
   <script
     src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"

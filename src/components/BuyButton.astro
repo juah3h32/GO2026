@@ -1,184 +1,125 @@
 ---
-/* src/components/BuyButton.astro */
-
-// 1. Recibimos los textos desde el componente padre
 const { 
   text = "Cotizar por WhatsApp", 
   redirecting = "Abriendo WhatsApp...",
-  whatsappNumber = "5214432072593" // Tu número de WhatsApp (incluye código de país sin +)
+  whatsappNumber = "5214432072593"
 } = Astro.props;
 ---
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
 <button id="truck-cta-btn" class="cta-btn" data-whatsapp={whatsappNumber}>
-  
   <span class="default">{text}</span>
-  
   <span class="success">
     {redirecting}
-    <svg viewBox="0 0 12 10">
-      <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
-    </svg>
+    <svg viewBox="0 0 12 10"><polyline points="1.5 6 4.5 9 10.5 1"></polyline></svg>
   </span>
-
   <div class="truck">
     <div class="wheel"></div>
     <div class="back">
-      <img src="/images/logo.png" alt="Logo Grupo Ortiz" class="truck-logo" />
+      <img src="/images/logoN.png" alt="Logo Grupo Ortiz" class="truck-logo" />
     </div>
     <div class="front"></div>
     <div class="box"></div>
   </div>
 </button>
 
-<script>
-  // @ts-nocheck 
+<script is:inline>
   document.addEventListener("DOMContentLoaded", () => {
     const button = document.getElementById("truck-cta-btn");
-    
     if (!button) return;
-
     const truck = button.querySelector(".truck");
     const box = button.querySelector(".box");
-
-    if (!truck || !box) {
-        return;
-    }
+    if (!truck || !box) return;
 
     const resetBtn = () => {
       button.classList.remove("animation", "done");
-      gsap.set(truck, { x: 4 });
-      gsap.set(button, {
-        "--progress": 0,
-        "--hx": 0,
-        "--bx": 0,
-        "--box-s": 0.5,
-        "--box-o": 0,
-        "--truck-y": 0,
-        "--truck-y-n": -26,
-      });
+      gsap.set(truck, { x: -90, opacity: 0 });
+      gsap.set(button, { "--progress": 0, "--hx": 0, "--bx": 0, "--box-s": 0.5, "--box-o": 0 });
       gsap.set(box, { x: -24, y: -6 });
     };
 
-    // Función para obtener datos del producto activo
     const getActiveProductData = () => {
-      // 1. Buscar miniatura activa
       const activeThumb = document.querySelector(".thumb-item.active");
       if (!activeThumb) return null;
-
-      // 2. Obtener índice del producto activo
       const productIndex = parseInt(activeThumb.dataset.index || "0");
-
-      // 3. Obtener el contenedor principal con los datos
-      const mainContainer = document.querySelector('.main-container');
+      const mainContainer = document.querySelector(".main-container");
       if (!mainContainer) return null;
-
-      // 4. Parsear los datos de productos
-      const productsData = JSON.parse(mainContainer.dataset.products || '[]');
+      const productsData = JSON.parse(mainContainer.dataset.products || "[]");
       const product = productsData[productIndex];
-
       if (!product) return null;
-
-      // 5. Retornar datos estructurados
       return {
         name: product.name || "Producto",
         description: product.description || "",
-        specs: product.specs_values ? {
-          load: product.specs_values.load || "",
-          unit: product.specs_values.unit || "",
-          material: product.specs_values.mat || "",
-          weight: product.specs_values.weight || "",
-          resistance: product.specs_values.resist || "",
-          charge: product.specs_values.charge || ""
-        } : null
+        specs: product.specs_values
+          ? {
+              load: product.specs_values.load || "",
+              unit: product.specs_values.unit || "",
+              material: product.specs_values.mat || "",
+              weight: product.specs_values.weight || "",
+              resistance: product.specs_values.resist || "",
+              charge: product.specs_values.charge || "",
+            }
+          : null,
       };
     };
 
-    // Función para construir el mensaje de WhatsApp
     const buildWhatsAppMessage = (productData) => {
-      if (!productData) {
-        return encodeURIComponent("¡Hola! Me interesa cotizar sus productos.");
-      }
-
-      const greeting = "¡Hola! Me interesa cotizar el siguiente producto:";
-      let message = `${greeting}\n\n`;
+      if (!productData) return encodeURIComponent("Hola! Me interesa cotizar sus productos.");
+      let message = "Hola! Me interesa cotizar el siguiente producto:\n\n";
       message += `📦 *${productData.name}*\n`;
-      
-      if (productData.description) {
-        message += `${productData.description}\n`;
-      }
-
-      // Agregar especificaciones si existen
+      if (productData.description) message += `${productData.description}\n`;
       if (productData.specs) {
-        message += `\n*Especificaciones:*\n`;
-        
-        if (productData.specs.load) message += `• Carga: ${productData.specs.load}\n`;
-        if (productData.specs.unit) message += `• Unidad: ${productData.specs.unit}\n`;
-        if (productData.specs.material) message += `• Material: ${productData.specs.material}\n`;
-        if (productData.specs.weight) message += `• Peso: ${productData.specs.weight}\n`;
+        message += "\n*Especificaciones:*\n";
+        if (productData.specs.load)       message += `• Carga: ${productData.specs.load}\n`;
+        if (productData.specs.unit)       message += `• Unidad: ${productData.specs.unit}\n`;
+        if (productData.specs.material)   message += `• Material: ${productData.specs.material}\n`;
+        if (productData.specs.weight)     message += `• Peso: ${productData.specs.weight}\n`;
         if (productData.specs.resistance) message += `• Resistencia: ${productData.specs.resistance}\n`;
-        if (productData.specs.charge) message += `• Capacidad: ${productData.specs.charge}\n`;
+        if (productData.specs.charge)     message += `• Capacidad: ${productData.specs.charge}\n`;
       }
-      
-      message += `\n¿Podrían proporcionarme más información y precio?`;
-      
+      message += "\n¿Podrían proporcionarme más información y precio?";
       return encodeURIComponent(message);
     };
 
     button.addEventListener("click", (e) => {
       e.preventDefault();
-
       const whatsappNumber = button.dataset.whatsapp || "5214431234567";
-      
-      // Obtener datos del producto activo
       const productData = getActiveProductData();
 
-      if (!button.classList.contains("done")) {
-        if (!button.classList.contains("animation")) {
-          button.classList.add("animation");
+      if (!button.classList.contains("done") && !button.classList.contains("animation")) {
+        button.classList.add("animation");
 
-          gsap.to(button, { "--box-s": 1, "--box-o": 1, duration: 0.3, delay: 0.5 });
-          gsap.to(box, { x: 0, duration: 0.4, delay: 0.7 });
-          gsap.to(button, { "--hx": -5, "--bx": 50, duration: 0.18, delay: 0.92 });
-          gsap.to(box, { y: 0, duration: 0.1, delay: 1.15 });
-          gsap.set(button, { "--truck-y": 0, "--truck-y-n": -26 });
+        gsap.to(truck, { x: 4, opacity: 1, duration: 0.4, ease: "power2.out" });
+        gsap.to(button, { "--box-s": 1, "--box-o": 1, duration: 0.3, delay: 0.5 });
+        gsap.to(box, { x: 0, duration: 0.4, delay: 0.7 });
+        gsap.to(button, { "--hx": -5, "--bx": 50, duration: 0.18, delay: 0.92 });
+        gsap.to(box, { y: 0, duration: 0.1, delay: 1.15 });
 
-          gsap.to(button, {
-            "--truck-y": 1,
-            "--truck-y-n": -25,
-            duration: 0.2,
-            delay: 1.25,
-            onComplete() {
-              gsap.timeline({
-                  onComplete() {
-                    button.classList.add("done");
-                    setTimeout(() => {
-                      // Construir mensaje personalizado
-                      const message = buildWhatsAppMessage(productData);
-                      const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${message}`;
-                      
-                      // Abrir WhatsApp
-                      window.open(whatsappUrl, '_blank');
-                      
-                      // Resetear botón después de abrir WhatsApp
-                      setTimeout(() => {
-                        resetBtn();
-                      }, 1000);
-                    }, 500);
-                  },
-                })
-                .to(truck, { x: 0, duration: 0.4 })
-                .to(truck, { x: 40, duration: 1 })
-                .to(truck, { x: 20, duration: 0.6 })
-                .to(truck, { x: 96, duration: 0.4 });
+        gsap.to(truck, {
+          y: -2,
+          duration: 0.2,
+          delay: 1.25,
+          onComplete() {
+            gsap.to(truck, { y: 0, duration: 0.1 });
+            gsap.timeline({
+              onComplete() {
+                button.classList.add("done");
+                setTimeout(() => {
+                  const message = buildWhatsAppMessage(productData);
+                  window.open(`https://wa.me/${whatsappNumber}?text=${message}`, "_blank");
+                  setTimeout(() => { resetBtn(); }, 1000);
+                }, 500);
+              },
+            })
+              .to(truck, { x: 0, duration: 0.4 })
+              .to(truck, { x: 40, duration: 1 })
+              .to(truck, { x: 20, duration: 0.6 })
+              .to(truck, { x: 240, duration: 0.4 });
 
-              gsap.to(button, {
-                "--progress": 1,
-                duration: 2.4,
-                ease: "power2.in",
-              });
-            },
-          });
-        }
+            gsap.to(button, { "--progress": 1, duration: 2.4, ease: "power2.in" });
+          },
+        });
       }
     });
   });
@@ -186,90 +127,46 @@ const {
 
 <style>
   .cta-btn {
-    /* --- PALETA DE COLORES NARANJA --- */
-    --color: #fff;
-    --background: #fb670b;  /* Naranja Grupo Ortiz */
-    --street: #d65608;
+    --background: #fb670b;
     --street-fill: #b34606;
     --tick: #16bf78;
-    --base: #0d0f18;
-    --wheel: #1b1b1b;
-    --wheel-inner: #646464;
-    --truck-body: #f4f6f8;
-    --truck-body-shadow: #d0d4d8;
-    --window: #2a2d35;
-    --bumper: #333;
+    --wheel: #555;
+    --wheel-inner: #999;
+    --truck-body: #ffffff;
+    --truck-body-shadow: #dddddd;
+    --window: #a8d4f5;
+    --bumper: #cccccc;
     --box: #dcb97a;
     --box-shadow: #b89b66;
 
     padding: 12px 0;
-    width: 220px; /* Aumentado para el texto más largo */
+    width: 220px;
     cursor: pointer;
     text-align: center;
     position: relative;
     border: none;
     outline: none;
-    
     color: #ffffff !important;
     background: var(--background);
-    
-    /* FIX MÓVIL: Prefijo Webkit añadido */
-    -webkit-transform-style: flat;
-    transform-style: flat; 
-    
-    border-radius: var(--br, 15px);
+    border-radius: 15px;
     appearance: none;
     -webkit-appearance: none;
     -webkit-tap-highlight-color: transparent;
-    
-    transition: transform 0.5s, border-radius 0.3s linear var(--br-d, 0s);
-    transform: rotateX(var(--rx, 0deg)) translateZ(0);
-    
+    overflow: hidden;
     margin-top: 20px;
     box-shadow: 0 10px 20px -8px rgba(251, 103, 11, 0.5);
   }
 
-  .cta-btn.animation {
-    /* FIX MÓVIL: Prefijo Webkit añadido */
-    -webkit-transform-style: preserve-3d;
-    transform-style: preserve-3d;
-    --rx: -90deg; 
-    --br: 0;
-  }
-
-  .cta-btn.animation.done { 
-    --rx: 0deg; 
-    --br: 15px; 
-    --br-d: .2s; 
-    -webkit-transform-style: preserve-3d;
-    transform-style: preserve-3d;
-  }
-
-  .cta-btn:hover,
-  .cta-btn:focus,
-  .cta-btn:active {
-      color: #ffffff !important;
-      background: var(--background);
-  }
-
-  .cta-btn:before,
   .cta-btn:after {
     content: "";
     position: absolute;
     left: 0;
-    top: 0;
-    width: 100%;
-    height: 6px;
-    display: block;
-    background: var(--b, var(--street));
-    transform-origin: 0 100%;
-    transform: rotateX(90deg) scaleX(var(--sy, 1));
+    bottom: 0;
+    height: 3px;
+    width: calc(var(--progress, 0) * 100%);
+    background: var(--street-fill);
     pointer-events: none;
-    z-index: -1;
-  }
-  .cta-btn:after {
-    --sy: var(--progress, 0);
-    --b: var(--street-fill);
+    z-index: 1;
   }
 
   .cta-btn .default,
@@ -280,7 +177,7 @@ const {
     line-height: 24px;
     opacity: var(--o, 1);
     transition: opacity 0.3s;
-    color: #ffffff !important; 
+    color: #ffffff !important;
     position: relative;
     z-index: 10;
   }
@@ -292,9 +189,9 @@ const {
     left: 0;
     right: 0;
   }
-  
+
   .cta-btn.animation .default { --o: 0; }
-  .cta-btn.animation.done .success { --o: 1; --offset: 0; }
+  .cta-btn.animation.done .success { --o: 1; }
 
   .cta-btn .success svg {
     width: 12px;
@@ -312,80 +209,59 @@ const {
     transition: stroke-dashoffset 0.4s ease 0.45s;
   }
 
-  /* --- CAMIÓN --- */
   .cta-btn .truck {
     position: absolute;
     width: 80px;
-    height: 28px;
-    transform: rotateX(90deg) translate3d(var(--truck-x, 4px), calc(var(--truck-y-n, -26) * 1px), 12px);
+    height: 26px;
+    bottom: 5px;
+    left: 4px;
+    transform: translateX(-90px);
+    opacity: 0;
     z-index: 5;
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
+    pointer-events: none;
   }
 
   .cta-btn .truck:before,
   .cta-btn .truck:after {
     content: "";
     position: absolute;
-    bottom: -6px;
-    width: 9px;
-    height: 9px;
+    bottom: -4px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
-    z-index: 2;
-    box-shadow: inset 0 0 0 2px var(--wheel), inset 0 0 0 3px var(--wheel-inner);
-    background: #333;
-    transform: translateY(calc(var(--truck-y) * -1px)) translateZ(0);
+    z-index: 1;
+    box-shadow: inset 0 0 0 2px #333, inset 0 0 0 3px #777;
+    background: #444;
   }
 
-  .cta-btn .truck:before { left: 6px; }
-  .cta-btn .truck:after { left: 52px; }
+  .cta-btn .truck:before { left: 5px; }
+  .cta-btn .truck:after  { left: 48px; }
 
-  .cta-btn .truck .wheel {
-    position: absolute;
-    bottom: -6px;
-    left: 70px;
-    width: 9px;
-    height: 9px;
-    border-radius: 50%;
-    z-index: 2;
-    box-shadow: inset 0 0 0 2px var(--wheel), inset 0 0 0 3px var(--wheel-inner);
-    background: #333;
-    transform: translateY(calc(var(--truck-y) * -1px)) translateZ(0);
-  }
+  .cta-btn .truck .wheel { display: none; }
 
   .cta-btn .truck .front,
   .cta-btn .truck .back,
-  .cta-btn .truck .box {
-    position: absolute;
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-  }
+  .cta-btn .truck .box { position: absolute; }
 
   .cta-btn .truck .back {
     left: 0;
     bottom: 0;
-    z-index: 3; 
-    width: 53px;
-    height: 28px;
+    z-index: 3;
+    width: 50px;
+    height: 26px;
     border-radius: 2px;
     background: var(--truck-body);
-    border: 1px solid #eee;
-    transform: translateZ(0);
+    border: 1px solid #fb670b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .cta-btn .truck .back .truck-logo {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 45%;
+    width: 22px;
     height: auto;
+    display: block;
     object-fit: contain;
-    z-index: 10;
-    opacity: 0.9;
-    pointer-events: none;
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
   }
 
   .cta-btn .truck .back:before {
@@ -393,59 +269,60 @@ const {
     position: absolute;
     right: -2px;
     top: 2px;
-    width: 4px;
-    height: 14px;
+    width: 3px;
+    height: 12px;
     background: var(--truck-body-shadow);
     border-radius: 0 2px 2px 0;
   }
+
   .cta-btn .truck .back:after {
     content: "";
     position: absolute;
-    left: 14px;
-    right: 6px;
+    left: 10px;
+    right: 4px;
     bottom: -2px;
-    height: 4px;
+    height: 3px;
     background: var(--bumper);
     border-radius: 2px;
   }
 
   .cta-btn .truck .front {
-    left: 56px;
-    bottom: 0px;
-    height: 28px;
-    width: 24px;
+    left: 52px;
+    bottom: 0;
+    height: 26px;
+    width: 22px;
     background: var(--truck-body);
-    border-radius: 4px 10px 4px 4px;
+    border: 1px solid #fb670b;
+    border-radius: 3px 4px 3px 3px;
     z-index: 3;
-    transform: translateZ(0);
   }
 
   .cta-btn .truck .front:before {
     content: "";
     position: absolute;
-    width: 14px;
-    height: 10px;
+    width: 13px;
+    height: 9px;
     background: var(--window);
     right: 2px;
     top: 3px;
-    border-radius: 2px 6px 2px 2px;
-    clip-path: polygon(0 0, 100% 0, 100% 100%, 20% 100%);
+    border-radius: 2px 5px 2px 2px;
   }
+
   .cta-btn .truck .front:after {
     content: "";
     position: absolute;
     width: 3px;
-    height: 10px;
+    height: 9px;
     right: 0;
-    bottom: 4px;
+    bottom: 3px;
     background: var(--truck-body-shadow);
     border-radius: 1px 0 0 1px;
   }
 
   .cta-btn .truck .box {
-    width: 13px;
-    height: 13px;
-    right: 65px;
+    width: 12px;
+    height: 12px;
+    right: 60px;
     bottom: 0;
     z-index: 0;
     border-radius: 1px;
@@ -456,19 +333,21 @@ const {
     background-size: 250% 100%;
     background-position-x: calc(var(--bx, 0) * 1%);
   }
+
   .cta-btn .truck .box:before {
     content: "";
     position: absolute;
     background: rgba(255, 255, 255, 0.2);
     left: 0;
     right: 0;
-    top: 6px;
+    top: 5px;
     height: 1px;
   }
+
   .cta-btn .truck .box:after {
     content: "";
     position: absolute;
-    width: 6px;
+    width: 5px;
     left: 100%;
     top: 0;
     bottom: 0;

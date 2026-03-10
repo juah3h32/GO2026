@@ -219,6 +219,13 @@ export const es = {
       slug: "stretch-film",
       video: "carrusel/stretch-film.mp4"
     },
+      {
+      img: "carrusel/img4.webp",
+      division: "ARPILLA",
+      descripcion: "Sacos de malla de Rafia de Polipropileno en tejido circular de alta resistencia y durabilidad. Diseño ventilado ideal para frutas y verduras.",
+      slug: "arpillas",
+      video: "carrusel/arpillas.mp4"
+    },
     {
       img: "carrusel/img2.webp",
       division: "CUERDA",
@@ -233,13 +240,7 @@ export const es = {
       slug: "rafias",
       video: "carrusel/rafia.mp4"
     },
-    {
-      img: "carrusel/img4.webp",
-      division: "ARPILLA",
-      descripcion: "Sacos de malla de Rafia de Polipropileno en tejido plano con costura reforzada tipo 'L'. Diseño ventilado ideal para frutas y verduras.",
-      slug: "arpillas",
-      video: "carrusel/arpillas.mp4"
-    },
+
     {
       img: "carrusel/img5.webp",
       division: "SACO",
@@ -274,8 +275,8 @@ export const es = {
     specs_labels: {
       width: "Ancho",
       length: "Largo",
-      gauge: "Calibre/Micras",
-      weight: "Peso del Rollo",
+      gauge: "Gauge",
+      weight: "Peso",
       type: "Uso"
     },
 
@@ -285,8 +286,8 @@ export const es = {
         img: '/images/stretch/stretch.png',
         video: "/videos/stretch/fondo.mp4",
         link: '#',
-        description: "Diseñada para el paletizado manual, esta película stretch de estiramiento moderado ofrece una solución práctica y eficiente para asegurar cargas sin necesidad de maquinaria automática. Su composición garantiza buena resistencia y desempeño confiable en procesos de embalaje.",
-        specs_values: { width: "19-30 cm", length: "1000-15000", gauge: "40-110", weight: "10-40 kg", type: "Manual" },
+        description: "Diseñada para maquinaria de alta exigencia, esta película stretch de estiramiento moderado ofrece una solución eficiente y confiable para asegurar cargas en procesos automatizados. Su composición garantiza alta resistencia y desempeño superior en aplicaciones de embalaje exigente.",
+        specs_values: { width: "19-30 pulg", length: "1000-15000 fit", gauge: "40-110", weight: "10-40 kg", type: "Manual" },
         gallery: [
           '/images/stretch/stretch2.png',
           '/images/stretch/stretch.png',
@@ -298,8 +299,8 @@ export const es = {
         img: '/images/stretch/stretch.png',
         video: "/videos/stretch/fondo.mp4",
         link: '#',
-        description: "Diseñada para aplicarse con máquinas envolvedoras de baja y media velocidad, esta película stretch ofrece alto rendimiento y excelente desempeño en procesos automatizados de paletizado. Su formulación garantiza resistencia y estabilidad en la sujeción de cargas.",
-        specs_values: { width: "18-30 cm", length: "2000-15000", gauge: "50-110", weight: "10-49 kg", type: "Automático" },
+        description: "Diseñada para aplicarse con máquinas envolvedoras tradicionales, esta película stretch ofrece alto rendimiento y excelente desempeño en procesos automatizados de paletizado. Su formulación garantiza resistencia y estabilidad en la sujeción de cargas.",
+        specs_values: { width: "18-30 pulg", length: "2000-15000 fit", gauge: "50-110", weight: "10-49 kg", type: "Automático" },
         gallery: [
           '/images/stretch/stretch2.png',
           '/images/stretch/stretch.png',
@@ -312,7 +313,7 @@ export const es = {
         video: "/videos/stretch/fondo.mp4",
         link: '#',
         description: "Diseñada para aplicación manual de alto desempeño, esta película preestirada destaca por ofrecer uno de los menores espesores del mercado. Su tecnología elimina la necesidad de ejercer fuerza adicional al envolver, facilitando su uso inmediato y mejorando la eficiencia en el proceso de paletizado.",
-        specs_values: { width: "16-17 cm", length: "7000-25000", gauge: "40-120", weight: "10-40 kg", type: "Manual" },
+        specs_values: { width: "16-17 pulg", length: "7000-25000 fit", gauge: "40-120", weight: "10-40 kg", type: "Manual" },
         gallery: [
           '/images/stretch/stretch2.png',
           '/images/stretch/stretch.png',
@@ -325,24 +326,24 @@ export const es = {
         video: "/videos/stretch/fondo.mp4",
         link: '#',
         description: "Diseñada para su aplicación en envoltura manual con estiramiento moderado, esta película stretch tradicional ofrece excelente desempeño en procesos de embalaje y aseguramiento de carga. Su composición garantiza resistencia y estabilidad en aplicaciones generales.",
-        specs_values: { width: "3-12 cm", length: "7000-25000", gauge: "40-120", weight: "10-40 kg", type: "Manual" },
+        specs_values: { width: "3-12 pulg", length: "7000-25000 fit", gauge: "40-120", weight: "10-40 kg", type: "Manual" },
         gallery: [
-          '/images/stretch/stretch2.png',
+          '/images/stretch/rigido2.png',
           '/images/stretch/manual.png',
           '/images/stretch/rigido3.png'
         ]
       },
       {
         name: 'MANUAL RÍGIDO',
-        img: '/images/stretch/rigido.png',
+        img: '/images/stretch/stretch.png',
         video: "/videos/stretch/fondo.mp4",
         link: '#',
         description: "Formulada especialmente para aplicaciones en envoltura manual con estiramiento limitado, esta película stretch ofrece alto desempeño y gran confiabilidad en procesos de embalaje. Su composición garantiza estabilidad y eficiencia en la sujeción de cargas.",
-        specs_values: { width: "17-30 cm", length: "1000-15000", gauge: "40-90", weight: "10-40 kg", type: "Manual", color: "Negro/Color" },
+        specs_values: { width: "17-30 pulg", length: "1000-15000 fit", gauge: "40-90", weight: "10-40 kg", type: "Manual", color: "Negro/Color" },
         gallery: [
-          '/images/stretch/rigido2.png',
-          '/images/stretch/rigido.png',
-          '/images/stretch/rigido3.png'
+          '/images/stretch/stretch2.png',
+          '/images/stretch/stretch.png',
+          '/images/stretch/stretch3.png'
         ]
       }
     ]
@@ -630,7 +631,7 @@ export const es = {
         link: '#',
         description: "Fabricados con material reciclado proveniente de la merma del mismo proceso de producción, estos sacos ofrecen resistencia y buena durabilidad a un costo más accesible. Su fabricación permite un desempeño confiable en aplicaciones generales de empaque y almacenamiento.",
         specs_values: {
-          load: "30-80 kg",
+          load: "45-80 kg",
           unit: "49-115 cm",
           mat: "PP",
           weight: "120-200 kgf"
@@ -669,9 +670,9 @@ export const es = {
         video: "/videos/esquinero/esquinero.mp4",
         link: "#",
         specs_values: {
-          tab:    "1.5",
-          thick:  "0.08",
-          length: "11.81"
+          tab:    "1.5 pulg",
+          thick:  "0.08 mm",
+          length: "11.81 cm"
         },
         gallery: [
           '/images/esquinero/esquinero2.png',
@@ -686,9 +687,9 @@ export const es = {
         video: "/videos/esquinero/esquinero.mp4",
         link: "#",
         specs_values: {
-          tab:    "1.5",
-          thick:  "0.08",
-          length: "11.81"
+          tab:    "1.5 pulg",
+          thick:  "0.08 mm",
+          length: "11.81 cm"
         },
         gallery: [
           '/images/esquinero/esquinerob2.png',
@@ -884,7 +885,7 @@ export const es = {
       title_white:  "Infraestructura",
       title_orange: "que respalda",
       stats: [
-        { number: "10",     label: "Plantas de Producción",   desc: "Instalaciones estratégicamente ubicadas para atender mercados nacionales e internacionales.", icon: "number" },
+        { number: "17",     label: "Plantas de Producción",   desc: "Instalaciones estratégicamente ubicadas para atender mercados nacionales e internacionales.", icon: "number" },
         { number: "+3,000", label: "Colaboradores",           desc: "Equipo especializado que impulsa cada proceso productivo.", icon: "number" },
         { number: "260",    label: "Unidades Logísticas",     desc: "Flota propia que garantiza distribución eficiente y entregas seguras a nivel nacional e internacional.", icon: "number" },
         { number: "Global", label: "Presencia Internacional", desc: "Exportación y distribución en América y Europa.", icon: "globe" }
