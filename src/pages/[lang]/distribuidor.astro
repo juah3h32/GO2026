@@ -75,25 +75,24 @@ const placeholderImg =
 
 <BaseLayout title={metaTitle} currentLang={currentLang}>
 
-  <!-- ✅ ÍCONOS Y LIBRERÍAS EN EL HEAD - solo una vez -->
+  <!-- ── HEAD: íconos con preload para garantizar carga antes del paint ── -->
   <Fragment slot="head">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+
+    <!-- preload garantiza que el font de íconos llegue antes del primer render -->
     <link
-      rel="preconnect"
-      href="https://cdn.jsdelivr.net"
-      crossorigin
-    />
-    <link
-      rel="preconnect"
-      href="https://cdnjs.cloudflare.com"
-      crossorigin
-    />
-    <link
+      rel="preload"
       href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css"
+      as="style"
+    />
+    <link
       rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css"
     />
   </Fragment>
 
-  <!-- ✅ Scripts CDN: solo is:inline, SIN defer, en orden correcto -->
+  <!-- ── SCRIPTS CDN en orden, is:inline, SIN defer ── -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" is:inline></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" is:inline></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" is:inline></script>
@@ -116,6 +115,7 @@ const placeholderImg =
   <div id="canvas-bg" aria-hidden="true"></div>
 
   <div class="distribuidor-container">
+
     <!-- Hero Section -->
     <section class="hero-split">
       <div class="hero-content">
@@ -157,15 +157,16 @@ const placeholderImg =
       }
     </div>
 
+    <!-- Dots carrusel (móvil) -->
+    <div class="carousel-dots" id="cardsDots"></div>
+
     <!-- Stats Section -->
-    <div class="stats-row gs-reveal">
+    <div class="stats-row gs-reveal" id="statsRow">
       {
         stats.map((stat: any) => (
           <div class="stat-box">
             <div class="stat-number">
-              <span class="counter" data-target={stat.val}>
-                0
-              </span>
+              <span class="counter" data-target={stat.val}>0</span>
               <span class="stat-symbol">{stat.symbol}</span>
             </div>
             <div class="stat-label">{stat.label}</div>
@@ -193,45 +194,21 @@ const placeholderImg =
           <div class="input-row">
             <div class="field-group">
               <label for="name">{form.labels.name}</label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                required
-                autocomplete="name"
-              />
+              <input type="text" id="name" name="name" required autocomplete="name" />
             </div>
             <div class="field-group">
               <label for="business">{form.labels.business}</label>
-              <input
-                type="text"
-                id="business"
-                name="business"
-                required
-                autocomplete="organization"
-              />
+              <input type="text" id="business" name="business" required autocomplete="organization" />
             </div>
           </div>
           <div class="input-row">
             <div class="field-group">
               <label for="whatsapp">{form.labels.whatsapp}</label>
-              <input
-                type="tel"
-                id="whatsapp"
-                name="whatsapp"
-                required
-                autocomplete="tel"
-              />
+              <input type="tel" id="whatsapp" name="whatsapp" required autocomplete="tel" />
             </div>
             <div class="field-group">
               <label for="email">{form.labels.email}</label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                required
-                autocomplete="email"
-              />
+              <input type="email" id="email" name="email" required autocomplete="email" />
             </div>
           </div>
 
@@ -262,76 +239,88 @@ const placeholderImg =
         </form>
       </div>
     </section>
-  </div>
+
+  </div><!-- /distribuidor-container -->
 
   <script is:inline>
-    // ─────────────────────────────────────────────
-    // INIT: espera que TODAS las libs estén listas
-    // ─────────────────────────────────────────────
-    function waitForLibs(callback, maxWait) {
-      var waited = 0;
-      var interval = setInterval(function () {
-        waited += 50;
-        var gsapReady = typeof window.gsap !== "undefined";
-        var stReady   = typeof window.ScrollTrigger !== "undefined";
-        var threeReady = typeof window.THREE !== "undefined";
-        var tiltReady  = typeof window.VanillaTilt !== "undefined";
+  // ─────────────────────────────────────────────────────────────
+  // UTILIDAD: espera a que las libs estén listas (polling seguro)
+  // ─────────────────────────────────────────────────────────────
+  function waitForLibs(callback, maxWait) {
+    var waited = 0;
+    var interval = setInterval(function () {
+      waited += 50;
+      if (typeof window.gsap !== "undefined" && typeof window.ScrollTrigger !== "undefined") {
+        clearInterval(interval);
+        callback();
+      } else if (waited >= (maxWait || 6000)) {
+        clearInterval(interval);
+        callback(); // intentar igual con lo disponible
+      }
+    }, 50);
+  }
 
-        if (gsapReady && stReady) {
-          clearInterval(interval);
-          callback();
-        } else if (waited >= (maxWait || 5000)) {
-          clearInterval(interval);
-          // Intentar igual con lo que haya cargado
-          callback();
-        }
-      }, 50);
+  // ─────────────────────────────────────────────────────────────
+  // FUNCIÓN PRINCIPAL
+  // ─────────────────────────────────────────────────────────────
+  function initDistribuidor() {
+    if (typeof window.gsap === "undefined") {
+      setTimeout(initDistribuidor, 200);
+      return;
     }
 
-    function initDistribuidor() {
-      if (typeof window.gsap === "undefined" || typeof window.ScrollTrigger === "undefined") {
-        console.warn("GSAP no disponible, reintentando...");
-        setTimeout(initDistribuidor, 200);
-        return;
-      }
+    var gsap = window.gsap;
+    var ScrollTrigger = window.ScrollTrigger;
 
-      var gsap = window.gsap;
-      var ScrollTrigger = window.ScrollTrigger;
+    if (ScrollTrigger) {
       gsap.registerPlugin(ScrollTrigger);
-
-      // Limpiar ScrollTriggers previos (para SPA routing de Astro)
+      // Limpiar instancias anteriores (SPA/View Transitions de Astro)
       ScrollTrigger.getAll().forEach(function (st) { st.kill(); });
+    }
 
-      // ── HERO ANIMATIONS ──────────────────────────
-      var heroTimeline = gsap.timeline({ defaults: { ease: "power4.out" } });
+    // ── HERO ─────────────────────────────────────────────────────
+    var heroTl = gsap.timeline({ defaults: { ease: "power4.out" } });
+    heroTl
+      .from(".gs-title", { y: 100, opacity: 0, duration: 1.2 })
+      .from(".gs-fade",  { y: 30,  opacity: 0, duration: 0.8, stagger: 0.15 }, "-=0.6")
+      .from(".gs-img",   { scale: 0.9, opacity: 0, duration: 1.5, ease: "power2.out" }, "-=1");
 
-      heroTimeline
-        .from(".gs-title", { y: 100, opacity: 0, duration: 1.2 })
-        .from(".gs-fade",  { y: 30,  opacity: 0, duration: 0.8, stagger: 0.15 }, "-=0.6")
-        .from(".gs-img",   { scale: 0.9, opacity: 0, duration: 1.5, ease: "power2.out" }, "-=1");
+    // ── CARDS ─────────────────────────────────────────────────────
+    var cards = document.querySelectorAll(".card");
+    if (cards.length > 0 && ScrollTrigger) {
+      gsap.fromTo(
+        cards,
+        { y: 80, autoAlpha: 0, scale: 0.95 },
+        {
+          y: 0, autoAlpha: 1, scale: 1,
+          duration: 0.9,
+          stagger: { amount: 0.4, from: "start" },
+          ease: "back.out(1.4)",
+          scrollTrigger: {
+            trigger: ".grid-features",
+            start: "top 90%",
+            toggleActions: "play none none none",
+          },
+        }
+      );
+    }
 
-      // ── CARDS ANIMATIONS ─────────────────────────
-      var cards = document.querySelectorAll(".card");
-      if (cards.length > 0) {
+    // ── GS-REVEAL (stats + form)
+    // CLAVE FIX VERCEL: detecta si el elemento ya está en viewport al cargar
+    // para no depender de scroll en páginas SSG servidas desde CDN
+    // ──────────────────────────────────────────────────────────────
+    document.querySelectorAll(".gs-reveal").forEach(function (elem) {
+      var rect = elem.getBoundingClientRect();
+      var alreadyVisible = rect.top < window.innerHeight * 0.98;
+
+      if (alreadyVisible || !ScrollTrigger) {
+        // Animar directamente sin esperar scroll
         gsap.fromTo(
-          cards,
-          { y: 80, autoAlpha: 0, scale: 0.95 },
-          {
-            y: 0, autoAlpha: 1, scale: 1,
-            duration: 0.9,
-            stagger: { amount: 0.4, from: "start" },
-            ease: "back.out(1.4)",
-            scrollTrigger: {
-              trigger: ".grid-features",
-              start: "top 85%",
-              toggleActions: "play none none reverse",
-            },
-          }
+          elem,
+          { y: 60, autoAlpha: 0 },
+          { y: 0, autoAlpha: 1, duration: 1.2, ease: "power3.out", delay: 0.4 }
         );
-      }
-
-      // ── STATS & FORM REVEAL ───────────────────────
-      gsap.utils.toArray(".gs-reveal").forEach(function (elem) {
+      } else {
         gsap.fromTo(
           elem,
           { y: 60, autoAlpha: 0 },
@@ -339,179 +328,226 @@ const placeholderImg =
             y: 0, autoAlpha: 1, duration: 1.2, ease: "power3.out",
             scrollTrigger: {
               trigger: elem,
-              start: "top 88%",
-              toggleActions: "play none none reverse",
+              start: "top 95%",
+              toggleActions: "play none none none",
             },
           }
         );
-      });
+      }
+    });
 
-      // ── COUNTER ANIMATIONS ────────────────────────
-      document.querySelectorAll(".counter").forEach(function (counter) {
-        var targetAttr = counter.getAttribute("data-target");
-        if (!targetAttr) return;
-        var targetValue = parseInt(targetAttr.replace(/\D/g, ""), 10) || 0;
-        var countObj = { val: 0 };
+    // ── COUNTERS ──────────────────────────────────────────────────
+    // FIX VERCEL: si el stat ya está en viewport (page load desde CDN),
+    // arrancar la animación directamente con un delay pequeño.
+    document.querySelectorAll(".counter").forEach(function (counter) {
+      var targetAttr = counter.getAttribute("data-target");
+      if (!targetAttr) return;
 
+      var targetValue = parseInt(targetAttr.replace(/\D/g, ""), 10) || 0;
+      if (targetValue === 0) return; // nada que animar
+
+      var countObj = { val: 0 };
+
+      var rect = counter.getBoundingClientRect();
+      var alreadyVisible = rect.top < window.innerHeight * 0.98;
+
+      // Formateador de números (puntos de miles)
+      function formatNum(n) {
+        return Math.round(n).toLocaleString("es-MX");
+      }
+
+      if (alreadyVisible || !ScrollTrigger) {
+        // Ya visible: animar con delay para que se vea después del reveal
+        gsap.to(countObj, {
+          val: targetValue,
+          duration: 2.5,
+          delay: 0.8,
+          ease: "power2.out",
+          onUpdate: function () { counter.textContent = formatNum(countObj.val); },
+          onComplete: function () { counter.textContent = formatNum(targetValue); },
+        });
+      } else {
         gsap.to(countObj, {
           val: targetValue,
           duration: 2.5,
           ease: "power2.out",
           scrollTrigger: {
             trigger: counter,
-            start: "top 90%",
+            start: "top 95%",
             toggleActions: "play none none reset",
           },
-          onUpdate: function () {
-            counter.textContent = Math.round(countObj.val).toString();
-          },
-        });
-      });
-
-      // ── THREE.JS PARTICLES ────────────────────────
-      if (typeof window.THREE !== "undefined" && window.innerWidth > 768) {
-        initThreeJSBackground();
-      }
-
-      // ── VANILLA TILT ──────────────────────────────
-      if (typeof window.VanillaTilt !== "undefined") {
-        window.VanillaTilt.init(document.querySelectorAll(".js-tilt"), {
-          max: 8,
-          speed: 400,
-          glare: true,
-          "max-glare": 0.15,
-          scale: 1.03,
+          onUpdate: function () { counter.textContent = formatNum(countObj.val); },
+          onComplete: function () { counter.textContent = formatNum(targetValue); },
         });
       }
+    });
 
-      // ── FORM ──────────────────────────────────────
-      setupFormSubmission();
+    // ── THREE.JS PARTICLES ───────────────────────────────────────
+    if (typeof window.THREE !== "undefined" && window.innerWidth > 768) {
+      initThreeJSBackground();
     }
 
-    function initThreeJSBackground() {
-      var container = document.getElementById("canvas-bg");
-      if (!container) return;
+    // ── VANILLA TILT ─────────────────────────────────────────────
+    if (typeof window.VanillaTilt !== "undefined") {
+      var tiltEls = document.querySelectorAll(".js-tilt");
+      if (tiltEls.length) {
+        window.VanillaTilt.init(tiltEls, {
+          max: 8, speed: 400, glare: true, "max-glare": 0.15, scale: 1.03,
+        });
+      }
+    }
 
-      container.innerHTML = "";
+    // ── CAROUSEL DOTS (móvil) ────────────────────────────────────
+    setupCarouselDots();
 
-      var scene    = new THREE.Scene();
-      var camera   = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-      camera.position.z = 40;
+    // ── FORM ─────────────────────────────────────────────────────
+    setupFormSubmission();
+  }
 
-      var renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+  // ─────────────────────────────────────────────────────────────
+  // THREE.JS BACKGROUND
+  // ─────────────────────────────────────────────────────────────
+  function initThreeJSBackground() {
+    var container = document.getElementById("canvas-bg");
+    if (!container) return;
+    container.innerHTML = "";
+
+    var scene  = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 40;
+
+    var renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    container.appendChild(renderer.domElement);
+
+    var geo       = new THREE.BufferGeometry();
+    var count     = 600;
+    var positions = new Float32Array(count * 3);
+    for (var i = 0; i < count * 3; i++) { positions[i] = (Math.random() - 0.5) * 120; }
+    geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+
+    var mat = new THREE.PointsMaterial({
+      size: 0.15, color: 0xfb670b, transparent: true, opacity: 0.6, sizeAttenuation: true,
+    });
+
+    var particles = new THREE.Points(geo, mat);
+    scene.add(particles);
+
+    var rafId;
+    function animate() {
+      if (!document.getElementById("canvas-bg")) { cancelAnimationFrame(rafId); return; }
+      rafId = requestAnimationFrame(animate);
+      particles.rotation.y += 0.0008;
+      particles.rotation.x -= 0.0005;
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener("resize", function () {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-      container.appendChild(renderer.domElement);
+    });
+  }
 
-      var geometry      = new THREE.BufferGeometry();
-      var particleCount = 600;
-      var positions     = new Float32Array(particleCount * 3);
+  // ─────────────────────────────────────────────────────────────
+  // CAROUSEL DOTS
+  // ─────────────────────────────────────────────────────────────
+  function setupCarouselDots() {
+    var grid = document.querySelector(".grid-features");
+    var dotsContainer = document.getElementById("cardsDots");
+    if (!grid || !dotsContainer) return;
 
-      for (var i = 0; i < particleCount * 3; i++) {
-        positions[i] = (Math.random() - 0.5) * 120;
+    var cards = grid.querySelectorAll(".card");
+    if (!cards.length) return;
+
+    dotsContainer.innerHTML = "";
+    cards.forEach(function (_, i) {
+      var dot = document.createElement("button");
+      dot.className = "carousel-dot" + (i === 0 ? " active" : "");
+      dot.setAttribute("aria-label", "Ir a card " + (i + 1));
+      dot.addEventListener("click", function () {
+        cards[i].scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" });
+      });
+      dotsContainer.appendChild(dot);
+    });
+
+    grid.addEventListener("scroll", function () {
+      var scrollLeft = grid.scrollLeft;
+      var cardWidth  = cards[0].offsetWidth + 14; // gap
+      var active     = Math.round(scrollLeft / cardWidth);
+      dotsContainer.querySelectorAll(".carousel-dot").forEach(function (dot, i) {
+        dot.classList.toggle("active", i === active);
+      });
+    }, { passive: true });
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // FORM SUBMISSION
+  // ─────────────────────────────────────────────────────────────
+  function setupFormSubmission() {
+    var formEl = document.getElementById("distribuidor-form");
+    var reveal = document.getElementById("revealEffect");
+    if (!formEl || !reveal) return;
+
+    // Clonar para eliminar listeners anteriores (evita doble submit en SPA)
+    var newForm = formEl.cloneNode(true);
+    formEl.parentNode.replaceChild(newForm, formEl);
+
+    newForm.addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      var checked = Array.from(newForm.querySelectorAll('input[name="products"]:checked'))
+        .map(function (el) { return el.value; })
+        .join(", ");
+
+      var payload = {
+        action   : "lead",
+        nombre   : newForm.querySelector('[name="name"]').value,
+        empresa  : newForm.querySelector('[name="business"]').value,
+        whatsapp : newForm.querySelector('[name="whatsapp"]').value,
+        email    : newForm.querySelector('[name="email"]').value,
+        productos: checked,
+      };
+
+      var btn = newForm.querySelector(".submit-btn");
+      if (btn) btn.disabled = true;
+
+      try {
+        await fetch("/api/analytics", {
+          method : "POST",
+          headers: { "Content-Type": "application/json" },
+          body   : JSON.stringify(payload),
+        });
+      } catch (err) {
+        console.warn("Error guardando lead:", err);
       }
 
-      geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+      reveal.classList.add("active");
 
-      var material = new THREE.PointsMaterial({
-        size: 0.15,
-        color: 0xfb670b,
-        transparent: true,
-        opacity: 0.6,
-        sizeAttenuation: true,
-      });
+      setTimeout(function () {
+        reveal.classList.remove("active");
+        newForm.reset();
+        if (btn) btn.disabled = false;
+      }, 3500);
+    });
+  }
 
-      var particles = new THREE.Points(geometry, material);
-      scene.add(particles);
-
-      var animationFrameId;
-
-      function animate() {
-        if (!document.getElementById("canvas-bg")) {
-          cancelAnimationFrame(animationFrameId);
-          return;
-        }
-        animationFrameId = requestAnimationFrame(animate);
-        particles.rotation.y += 0.0008;
-        particles.rotation.x -= 0.0005;
-        renderer.render(scene, camera);
-      }
-
-      animate();
-
-      window.addEventListener("resize", function () {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-      });
-    }
-
-    function setupFormSubmission() {
-      var formEl  = document.getElementById("distribuidor-form");
-      var reveal  = document.getElementById("revealEffect");
-
-      if (!formEl || !reveal) return;
-
-      // Clonar para eliminar listeners previos (evita doble submit en SPA)
-      var newForm = formEl.cloneNode(true);
-      formEl.parentNode.replaceChild(newForm, formEl);
-
-      newForm.addEventListener("submit", async function (e) {
-        e.preventDefault();
-
-        var checked = Array.from(newForm.querySelectorAll('input[name="products"]:checked'))
-          .map(function (el) { return el.value; })
-          .join(", ");
-
-        var payload = {
-          action   : "lead",
-          nombre   : newForm.querySelector('[name="name"]').value,
-          empresa  : newForm.querySelector('[name="business"]').value,
-          whatsapp : newForm.querySelector('[name="whatsapp"]').value,
-          email    : newForm.querySelector('[name="email"]').value,
-          productos: checked,
-        };
-
-        var btn = newForm.querySelector(".submit-btn");
-        if (btn) btn.disabled = true;
-
-        try {
-          await fetch("/api/analytics", {
-            method : "POST",
-            headers: { "Content-Type": "application/json" },
-            body   : JSON.stringify(payload),
-          });
-        } catch (err) {
-          console.error("Error guardando lead:", err);
-        }
-
-        reveal.classList.add("active");
-
-        setTimeout(function () {
-          reveal.classList.remove("active");
-          newForm.reset();
-          if (btn) btn.disabled = false;
-        }, 3500);
-      });
-    }
-
-    // ── ARRANQUE ──────────────────────────────────────
-    // Para carga normal: esperar libs con polling seguro
-    if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", function () {
-        waitForLibs(initDistribuidor, 6000);
-      });
-    } else {
-      waitForLibs(initDistribuidor, 6000);
-    }
-
-    // Para SPA routing de Astro (View Transitions)
-    document.addEventListener("astro:page-load", function () {
+  // ─────────────────────────────────────────────────────────────
+  // ARRANQUE — compatible con carga normal + SPA (View Transitions)
+  // ─────────────────────────────────────────────────────────────
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", function () {
       waitForLibs(initDistribuidor, 6000);
     });
-    document.addEventListener("astro:after-swap", function () {
-      waitForLibs(initDistribuidor, 6000);
-    });
+  } else {
+    waitForLibs(initDistribuidor, 6000);
+  }
+
+  // Astro View Transitions / SPA routing
+  document.addEventListener("astro:page-load",  function () { waitForLibs(initDistribuidor, 6000); });
+  document.addEventListener("astro:after-swap", function () { waitForLibs(initDistribuidor, 6000); });
   </script>
 
   <Footer currentLang={currentLang} />
