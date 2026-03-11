@@ -107,9 +107,11 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
     <!-- ═══════════════════════════════════════
          ICONOS Y PWA
     ═══════════════════════════════════════ -->
-    <link rel="icon" href="/favicon.ico" sizes="32x32" />
-    <link rel="icon" type="image/png" href="/images/logo/logob.png" />
-    <link rel="apple-touch-icon" href={pwaIcon} />
+<!-- ✅ Así debe quedar -->
+<link rel="icon" href="/favicon.ico" sizes="32x32" />
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png" />
+<link rel="icon" type="image/png" sizes="512x512" href="/favicon-512x512.png" />
+<link rel="apple-touch-icon" href={pwaIcon} />
 
     {pwaInfo && <Fragment set:html={pwaInfo.webManifest.linkTag} />}
     <!-- ✅ Slot para inyectar links/scripts desde páginas hijas -->
