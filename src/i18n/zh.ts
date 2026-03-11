@@ -926,16 +926,16 @@ export const zh = {
       planta_label:  "工厂",
       plantas_label: "座工厂",
       items: [
-        { num: "04", label: "编织袋生产",   width: 100, delay: 0   },
-        { num: "02", label: "网袋生产",     width: 50,  delay: 100 },
-        { num: "01", label: "绳索与拉菲草", width: 25,  delay: 200 },
-        { num: "02", label: "拉伸膜",       width: 50,  delay: 300 },
-        { num: "01", label: "软包装",       width: 25,  delay: 400 },
-        { num: "01", label: "回收",         width: 25,  delay: 500 },
-        { num: "03", label: "护角条",       width: 75,  delay: 600 },
-        { num: "01", label: "打包带",       width: 25,  delay: 700 },
-        { num: "01", label: "一次性用品",   width: 25,  delay: 800 },
-        { num: "01", label: "袋类",         width: 25,  delay: 900 }
+        { num: "04", label: "袋子",        width: 100, delay: 0   },
+        { num: "02", label: "麻布袋",      width: 50,  delay: 100 },
+        { num: "01", label: "繩索",        width: 25,  delay: 200 },
+        { num: "03", label: "拉伸膜",      width: 50,  delay: 300 },
+        { num: "01", label: "柔性包裝",    width: 25,  delay: 400 },
+        { num: "01", label: "回收",        width: 25,  delay: 500 },
+        { num: "03", label: "護角",        width: 75,  delay: 600 },
+        { num: "01", label: "貨運",        width: 25,  delay: 700 },
+        { num: "01", label: "一次性用品",  width: 25,  delay: 800 },
+        { num: "01", label: "塑膠袋",      width: 25,  delay: 900 }
       ]
     },
 

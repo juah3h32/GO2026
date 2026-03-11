@@ -926,16 +926,16 @@ export const pt = {
       planta_label:  "PLANTA",
       plantas_label: "PLANTAS",
       items: [
-        { num: "04", label: "Produção de Sacos",        width: 100, delay: 0   },
-        { num: "02", label: "Produção de Sacos de Tela",width: 50,  delay: 100 },
-        { num: "01", label: "Corda e Rafia",            width: 25,  delay: 200 },
-        { num: "02", label: "Filme Stretch",            width: 50,  delay: 300 },
-        { num: "01", label: "Embalagens Flexíveis",     width: 25,  delay: 400 },
-        { num: "01", label: "Reciclagem",               width: 25,  delay: 500 },
-        { num: "03", label: "Cantoneiras",              width: 75,  delay: 600 },
-        { num: "01", label: "Fita de Aço",              width: 25,  delay: 700 },
-        { num: "01", label: "Descartáveis",             width: 25,  delay: 800 },
-        { num: "01", label: "Embalagens",               width: 25,  delay: 900 }
+        { num: "04", label: "Sacos",               width: 100, delay: 0   },
+        { num: "02", label: "Aniagem",             width: 50,  delay: 100 },
+        { num: "01", label: "Corda",               width: 25,  delay: 200 },
+        { num: "03", label: "Filme Stretch",       width: 50,  delay: 300 },
+        { num: "01", label: "Embalagens Flexíveis",width: 25,  delay: 400 },
+        { num: "01", label: "Reciclagem",          width: 25,  delay: 500 },
+        { num: "03", label: "Cantoneiras",         width: 75,  delay: 600 },
+        { num: "01", label: "Frete",               width: 25,  delay: 700 },
+        { num: "01", label: "Descartáveis",        width: 25,  delay: 800 },
+        { num: "01", label: "Bolsas",              width: 25,  delay: 900 }
       ]
     },
 

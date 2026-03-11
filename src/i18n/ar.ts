@@ -926,16 +926,16 @@ export const ar = {
       planta_label:  "مصنع",
       plantas_label: "مصانع",
       items: [
-        { num: "٠٤", label: "إنتاج الأكياس المضفورة",  width: 100, delay: 0   },
-        { num: "٠٢", label: "إنتاج الأكياس الشبكية",   width: 50,  delay: 100 },
-        { num: "٠١", label: "حبال ورافيا",              width: 25,  delay: 200 },
-        { num: "٠٢", label: "فيلم التمديد",             width: 50,  delay: 300 },
-        { num: "٠١", label: "تغليف مرن",                width: 25,  delay: 400 },
-        { num: "٠١", label: "إعادة تدوير",              width: 25,  delay: 500 },
-        { num: "٠٣", label: "واقيات الزوايا",           width: 75,  delay: 600 },
-        { num: "٠١", label: "شرائط تعبئة",              width: 25,  delay: 700 },
-        { num: "٠١", label: "منتجات للاستخدام مرة واحدة", width: 25,  delay: 800 },
-        { num: "٠١", label: "أكياس",                    width: 25,  delay: 900 }
+        { num: "04", label: "أكياس",              width: 100, delay: 0   },
+        { num: "02", label: "خيش",                width: 50,  delay: 100 },
+        { num: "01", label: "حبال",               width: 25,  delay: 200 },
+        { num: "03", label: "فيلم التمدد",        width: 50,  delay: 300 },
+        { num: "01", label: "التغليف المرن",      width: 25,  delay: 400 },
+        { num: "01", label: "إعادة التدوير",      width: 25,  delay: 500 },
+        { num: "03", label: "واقيات الزوايا",     width: 75,  delay: 600 },
+        { num: "01", label: "الشحن",              width: 25,  delay: 700 },
+        { num: "01", label: "مواد للاستخدام مرة واحدة", width: 25, delay: 800 },
+        { num: "01", label: "أكياس",              width: 25,  delay: 900 }
       ]
     },
 

@@ -927,14 +927,14 @@ export const es = {
       planta_label:  "PLANTA",
       plantas_label: "PLANTAS",
       items: [
-        { num: "04", label: "Producción de Saco",     width: 100, delay: 0   },
-        { num: "02", label: "Producción de Arpillas", width: 50,  delay: 100 },
-        { num: "01", label: "Cuerda y Rafia",          width: 25,  delay: 200 },
-        { num: "02", label: "Stretch Film",            width: 50,  delay: 300 },
+        { num: "04", label: "Saco",     width: 100, delay: 0   },
+        { num: "02", label: "Arpillas", width: 50,  delay: 100 },
+        { num: "01", label: "Cuerda",          width: 25,  delay: 200 },
+        { num: "03", label: "Stretch Film",            width: 50,  delay: 300 },
         { num: "01", label: "Empaques Flexibles",      width: 25,  delay: 400 },
         { num: "01", label: "Reciclado",               width: 25,  delay: 500 },
         { num: "03", label: "Esquineros",              width: 75,  delay: 600 },
-        { num: "01", label: "Fleje",                   width: 25,  delay: 700 },
+        { num: "01", label: "Fletera",                   width: 25,  delay: 700 },
         { num: "01", label: "Desechables",             width: 25,  delay: 800 },
         { num: "01", label: "Bolsas",                  width: 25,  delay: 900 }
       ]

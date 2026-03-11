@@ -926,16 +926,16 @@ export const en = {
       planta_label:  "PLANT",
       plantas_label: "PLANTS",
       items: [
-        { num: "04", label: "Sack Production",        width: 100, delay: 0   },
-        { num: "02", label: "Mesh Bag Production",    width: 50,  delay: 100 },
-        { num: "01", label: "Rope and Raffia",        width: 25,  delay: 200 },
-        { num: "02", label: "Stretch Film",           width: 50,  delay: 300 },
-        { num: "01", label: "Flexible Packaging",     width: 25,  delay: 400 },
-        { num: "01", label: "Recycling",              width: 25,  delay: 500 },
-        { num: "03", label: "Edge Protectors",        width: 75,  delay: 600 },
-        { num: "01", label: "Strapping",              width: 25,  delay: 700 },
-        { num: "01", label: "Disposables",            width: 25,  delay: 800 },
-        { num: "01", label: "Bags",                   width: 25,  delay: 900 }
+        { num: "04", label: "Bags",             width: 100, delay: 0   },
+        { num: "02", label: "Burlap",           width: 50,  delay: 100 },
+        { num: "01", label: "Rope",             width: 25,  delay: 200 },
+        { num: "03", label: "Stretch Film",     width: 50,  delay: 300 },
+        { num: "01", label: "Flexible Packaging", width: 25, delay: 400 },
+        { num: "01", label: "Recycling",        width: 25,  delay: 500 },
+        { num: "03", label: "Corner Protectors",width: 75,  delay: 600 },
+        { num: "01", label: "Freight",          width: 25,  delay: 700 },
+        { num: "01", label: "Disposables",      width: 25,  delay: 800 },
+        { num: "01", label: "Bags",             width: 25,  delay: 900 }
       ]
     },
 
