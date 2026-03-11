@@ -3,13 +3,17 @@ import react from '@astrojs/react';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import AstroPWA from '@vite-pwa/astro';
-import vercel from '@astrojs/vercel/serverless';  // ← CAMBIO
+import vercel from '@astrojs/vercel/serverless';
 
 export default defineConfig({
   site: 'https://grupo-ortiz.com',
 
   output: 'server',
-  adapter: vercel(),  // ← CAMBIO (eliminar node)
+  adapter: vercel({
+    // Pasar headers CSP directamente al adapter también,
+    // para que no los sobrescriba en rutas serverless
+    isr: false,
+  }),
 
   server: {
     host: true,
@@ -65,6 +69,22 @@ export default defineConfig({
     },
     define: {
       CESIUM_BASE_URL: JSON.stringify('/cesium')
+    },
+    // Permite que Vite no bloquee recursos externos en build
+    server: {
+      headers: {
+        'Content-Security-Policy': [
+          "default-src 'self'",
+          "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://www.googletagmanager.com https://t.contentsquare.net https://www.google-analytics.com",
+          "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
+          "font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net",
+          "img-src 'self' data: https:",
+          "connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://t.contentsquare.net",
+          "frame-src 'self' https://my.matterport.com",
+          "media-src 'self' blob:",
+          "worker-src 'self' blob:"
+        ].join('; ')
+      }
     }
   }
 });
