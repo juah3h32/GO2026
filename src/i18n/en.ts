@@ -41,18 +41,33 @@ export const en = {
   // =================================================
   // CHATBOT (BotGo)
   // =================================================
-  chatbot: {
-    greeting: 'Hi! I\'m BotGo 🤖. How can I help you today?',
-    placeholder: 'Type a message...',
-    listeningState: 'Listening...',
-    thinking: 'Thinking...',
-    errorMsg: 'Connection error.',
-    salesBtn: 'Quote via WhatsApp',
-    voiceAssistantTitle: 'Virtual Assistant',
-    voiceCode: 'en-US',
-    waStart: 'Hello Grupo Ortiz, I would like a quote',
-    pdfBtn: 'View PDF catalog',
-  },
+chatbot: {
+  greeting:            'Hi! I\'m BotGo 🤖. How can I help you today?',
+  placeholder:         'Type a message...',
+  listeningState:      'Listening...',
+  thinking:            'Thinking...',
+  errorMsg:            'Connection error.',
+  voiceAssistantTitle: 'Virtual Assistant',
+  voiceCode:           'en-US',
+
+  salesBtn:   'Quote via WhatsApp',
+  pdfBtn:     'View PDF catalog',
+  waStart:    'Hello Grupo Ortiz, I would like a quote',
+
+  tooltipTitle:  'How can I',
+  tooltipAccent: 'help you today?',
+  tooltipCta:    'Start chat now!',
+  tooltipItems: [
+    { text: 'Apply to our',    bold: 'job openings'          },
+    { text: 'Request',         bold: 'product information'   },
+    { text: 'Place your',      bold: 'order directly'        },
+    { text: 'Contact',         bold: 'customer support'      },
+    { text: 'Download',        bold: 'catalogs & datasheets' },
+  ],
+
+  pillLabelSmall: 'How can I',
+  pillLabelBig:   'HELP YOU TODAY?',
+},
 
   pwa: {
     appName: "Grupo Ortiz",

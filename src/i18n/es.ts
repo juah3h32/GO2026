@@ -41,18 +41,37 @@ export const es = {
   // =================================================
   // CHATBOT (BotGo)
   // =================================================
-  chatbot: {
-    greeting: '¡Hola! Soy BotGo 🤖. ¿En qué puedo ayudarte hoy?',
-    placeholder: 'Escribe un mensaje...',
-    listeningState: 'Escuchando...',
-    thinking: 'Pensando...',
-    errorMsg: 'Error de conexión.',
-    salesBtn: 'Cotizar por WhatsApp',
-    voiceAssistantTitle: 'Asistente Virtual',
-    voiceCode: 'es-MX',
-    waStart: 'Hola Grupo Ortiz, me gustaría una cotización',
-    pdfBtn: 'Ver catálogo PDF',
-  },
+chatbot: {
+  // ── Mensajes generales ──
+  greeting:            '¡Hola! Soy BotGo 🤖. ¿En qué puedo ayudarte hoy?',
+  placeholder:         'Escribe un mensaje...',
+  listeningState:      'Escuchando...',
+  thinking:            'Pensando...',
+  errorMsg:            'Error de conexión.',
+  voiceAssistantTitle: 'Asistente Virtual',
+  voiceCode:           'es-MX',
+
+  // ── Botones de acción ──
+  salesBtn:   'Cotizar por WhatsApp',
+  pdfBtn:     'Ver catálogo PDF',
+  waStart:    'Hola Grupo Ortiz, me gustaría una cotización',
+
+  // ── Tooltip desktop (tarjeta) ──
+  tooltipTitle:  '¿En qué puedo',
+  tooltipAccent: 'ayudarte hoy?',
+  tooltipCta:    '¡Iniciar chat ahora!',
+  tooltipItems: [
+    { text: 'Postúlate a nuestras', bold: 'vacantes'                  },
+    { text: 'Solicita',             bold: 'información de productos'  },
+    { text: 'Realiza tu',           bold: 'pedido directamente'       },
+    { text: 'Contacta',             bold: 'atención al cliente'       },
+    { text: 'Descarga',             bold: 'catálogos y fichas técnicas'},
+  ],
+
+  // ── Pill móvil ──
+  pillLabelSmall: '¿En qué puedo',
+  pillLabelBig:   'AYUDARTE HOY?',
+},
 
   pwa: {
   appName: "Grupo Ortiz",
@@ -928,12 +947,12 @@ export const es = {
       plantas_label: "PLANTAS",
       items: [
         { num: "04", label: "Bolsas",                  width: 100, delay: 0   },
-        { num: "02", label: "Arpillera",               width: 50,  delay: 100 },
+        { num: "02", label: "Arpillas",               width: 50,  delay: 100 },
         { num: "01", label: "Cuerda",                  width: 25,  delay: 200 },
-        { num: "03", label: "Film Estirable",          width: 50,  delay: 300 },
+        { num: "03", label: "Stretch Film",          width: 50,  delay: 300 },
         { num: "01", label: "Embalaje Flexible",       width: 25,  delay: 400 },
         { num: "01", label: "Reciclaje",               width: 25,  delay: 500 },
-        { num: "03", label: "Protectores de Esquina",  width: 75,  delay: 600 },
+        { num: "03", label: "Esquineros",  width: 75,  delay: 600 },
         { num: "01", label: "Flete",                   width: 25,  delay: 700 },
         { num: "01", label: "Desechables",             width: 25,  delay: 800 },
         { num: "01", label: "Bolsas",                  width: 25,  delay: 900 }

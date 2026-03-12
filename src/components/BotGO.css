@@ -2,8 +2,8 @@
    1. VARIABLES & CONFIGURACIÓN GLOBAL
    ========================================= */
 :root {
-  --primary-orange: #F24F13;
-  --primary-orange-dark: #d63f0a;
+  --primary-orange: #FB670B;
+  --primary-orange-dark: #e05500;
   --bg-light: #F9F9FB;
   --white: #ffffff;
   --text-dark: #333333;
@@ -16,7 +16,7 @@
   --chat-text-secondary: #666666;
   --chat-bubble-assistant-bg: #262626;
   --chat-bubble-assistant-text: #ffffff;
-  --chat-bubble-user-bg: #F24F13;
+  --chat-bubble-user-bg: #FB670B;
   --chat-bubble-user-text: #ffffff;
   --chat-input-bg: #ffffff;
   --chat-input-text: #333333;
@@ -31,9 +31,9 @@ html.dark {
   --chat-window-bg: rgba(38, 38, 38, 0.98);
   --chat-text-main: #ffffff;
   --chat-text-secondary: #cccccc;
---chat-bubble-assistant-bg: #ffffff;
---chat-bubble-assistant-text: #333333;
-  --chat-bubble-user-bg: #F24F13;
+  --chat-bubble-assistant-bg: #ffffff;
+  --chat-bubble-assistant-text: #333333;
+  --chat-bubble-user-bg: #FB670B;
   --chat-bubble-user-text: #ffffff;
   --chat-input-bg: #3a3a3a;
   --chat-input-text: #ffffff;
@@ -57,7 +57,7 @@ html.dark {
 }
 
 /* =========================================
-   3. BOTÓN FLOTANTE (LAUNCHER)
+   3. BOTÓN FLOTANTE (LAUNCHER) — solo desktop
    ========================================= */
 .botgo-button {
   width: 60px;
@@ -172,7 +172,7 @@ html.dark .header-back-btn { color: #ffffff; }
   flex: 1;
   padding: 15px 20px;
   overflow-y: auto;
-  overflow-x: visible;        /* ✅ FIX: era hidden, ocultaba botones */
+  overflow-x: visible;
   background-color: transparent;
   display: flex;
   flex-direction: column;
@@ -191,12 +191,11 @@ html.dark .header-back-btn { color: #ffffff; }
   background-color: rgba(242, 79, 19, 0.3);
 }
 
-/* ── Fila de mensaje ── */
 .msg-row {
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  max-width: 85%;             /* ✅ FIX: era 92%, ahora da más espacio */
+  max-width: 85%;
   min-width: 0;
   flex-shrink: 0;
 }
@@ -208,7 +207,6 @@ html.dark .header-back-btn { color: #ffffff; }
   align-self: flex-start;
 }
 
-/* ── Columna burbuja + botones ── */
 .msg-col {
   display: flex;
   flex-direction: column;
@@ -216,13 +214,12 @@ html.dark .header-back-btn { color: #ffffff; }
   min-width: 0;
   max-width: 100%;
   align-items: flex-start;
-  overflow: visible;          /* ✅ FIX: agregar para no ocultar botones */
+  overflow: visible;
 }
 .msg-row.user .msg-col {
   align-items: flex-end;
 }
 
-/* ── Avatar pequeño ── */
 .msg-avatar-small {
   width: 28px;
   height: 28px;
@@ -231,7 +228,6 @@ html.dark .header-back-btn { color: #ffffff; }
 }
 .msg-icon-svg { width: 100%; height: 100%; }
 
-/* ── Burbuja base ── */
 .msg-bubble {
   padding: 12px 16px;
   border-radius: 20px;
@@ -284,8 +280,8 @@ html.dark .msg-bubble.assistant a {
 .msg-bubble th { background: #000; color: white; padding: 6px; text-align: left; word-break: break-word; }
 .msg-bubble td { border: 1px solid #ffffff; padding: 6px; word-break: break-word; }
 
-.msg-bubble.assistant strong, .msg-bubble.assistant b { color: #F24F13; font-weight: 700; }
-html.dark .msg-bubble.assistant strong, html.dark .msg-bubble.assistant b { color: #F24F13; font-weight: 700; }
+.msg-bubble.assistant strong, .msg-bubble.assistant b { color: #FB670B; font-weight: 700; }
+html.dark .msg-bubble.assistant strong, html.dark .msg-bubble.assistant b { color: #FB670B; font-weight: 700; }
 
 .msg-bubble.assistant p { margin: 0 0 8px 0; }
 .msg-bubble.assistant p:last-child { margin-bottom: 0; }
@@ -295,17 +291,16 @@ html.dark .msg-bubble.assistant strong, html.dark .msg-bubble.assistant b { colo
 .msg-bubble.assistant li p { margin: 0; display: inline; }
 .msg-bubble.assistant h1,.msg-bubble.assistant h2,.msg-bubble.assistant h3,
 .msg-bubble.assistant h4,.msg-bubble.assistant h5,.msg-bubble.assistant h6 {
-  color: #F24F13; font-weight: 800; margin-top: 12px; margin-bottom: 6px;
+  color: #FB670B; font-weight: 800; margin-top: 12px; margin-bottom: 6px;
   line-height: 1.2; font-size: 16px;
 }
 html.dark .msg-bubble.assistant h1,html.dark .msg-bubble.assistant h2,
-html.dark .msg-bubble.assistant h3,html.dark .msg-bubble.assistant h4 { color: #F24F13; }
-
+html.dark .msg-bubble.assistant h3,html.dark .msg-bubble.assistant h4 { color: #FB670B; }
 .msg-bubble.assistant h1:first-child,.msg-bubble.assistant h2:first-child,
 .msg-bubble.assistant h3:first-child { margin-top: 0; }
 
 /* =========================================
-   7. BOTONES DE ACCIÓN (ÚNICA DEFINICIÓN)
+   7. BOTONES DE ACCIÓN
    ========================================= */
 .msg-actions {
   display: flex;
@@ -368,17 +363,6 @@ html.dark .msg-action-pdf {
   background: rgba(242, 79, 19, 0.15) !important;
   color: #ff8055 !important;
   border-color: rgba(242, 79, 19, 0.6) !important;
-}
-
-/* Móvil: botones full-width */
-@media screen and (max-width: 1024px) {
-  .msg-actions { width: 100%; max-width: 100%; }
-  .msg-action-btn {
-    width: 100% !important;
-    min-width: unset !important;
-    justify-content: center;
-    align-self: stretch;
-  }
 }
 
 /* =========================================
@@ -465,13 +449,13 @@ html.dark .action-btn-mic:hover { color: var(--primary-orange); }
 }
 html.dark .action-btn-send {
   background-color: #ffffff;
-  color: #F24F13;
+  color: #FB670B;
   box-shadow: 0 2px 5px rgba(255,255,255,0.4);
 }
 html.dark .action-btn-send:hover:not(:disabled) {
   background-color: #f0f0f0;
   transform: scale(1.05);
-  color: #F24F13;
+  color: #FB670B;
 }
 
 /* =========================================
@@ -507,83 +491,17 @@ html.dark .action-btn-send:hover:not(:disabled) {
 }
 
 /* =========================================
-   10. RESPONSIVE
+   10. ESTRUCTURA DE TEXTO EN BURBUJA
    ========================================= */
-@media screen and (max-width: 1024px) {
-  .botgo-container {
-    right: 0; left: auto;
-    top: 20%; bottom: auto;
-    transform: translateY(-50%);
-    width: auto;
-    z-index: 100000 !important;
-    display: flex;
-    justify-content: flex-end;
-  }
-  .botgo-button {
-    width: 60px; height: 50px;
-    border-radius: 25px 0 0 25px;
-    border-right: none;
-    margin: 0;
-    box-shadow: -4px 0 15px rgba(0,0,0,0.15);
-    padding-right: 5px;
-  }
-  .botgo-btn-icon { width: 28px; height: 28px; }
-
-  .botgo-container.open {
-    top: 0; left: 0; bottom: 0; right: 0;
-    width: 100%; height: 100%;
-    transform: none;
-    align-items: flex-start;
-  }
-  .botgo-container.open .botgo-button { display: none; }
-
-  .botgo-window {
-    position: fixed !important;
-    z-index: 10000 !important;
-    top: 0; left: 0; right: 0; bottom: 0;
-    width: 100vw !important;
-    height: 100dvh !important;
-    max-height: none !important;
-    border-radius: 0 !important;
-    border: none !important;
-    margin: 0 !important;
-    transform: translateY(110%);
-    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  }
-  .botgo-window.show { transform: translateY(0); }
-
-  .botgo-footer-curve {
-    border-radius: 0;
-    padding: 12px 20px;
-    padding-bottom: calc(16px + env(safe-area-inset-bottom));
-  }
-  .botgo-header-clean {
-    padding-top: calc(15px + env(safe-area-inset-top));
-  }
-  .botgo-input-field { font-size: 16px; }
-
-  /* En móvil los botones ocupan todo el ancho */
-  .msg-actions {
-    width: 100%;
-    max-width: 100%;
-  }
-  .msg-action-btn {
-    width: 100% !important;
-    min-width: unset !important;
-    justify-content: center;
-    align-self: stretch;
-  }
-  /* En móvil el msg-row puede ser más ancho */
-  .msg-row {
-    max-width: 92%;
-  }
-}
-
-@media screen and (min-width: 1025px) and (max-height: 800px) {
-  .botgo-window { height: 480px; bottom: 70px; }
-  .botgo-messages { padding: 10px 15px; }
-  .botgo-header-clean { padding: 15px 20px 5px 20px; }
-}
+.msg-p { margin: 0 0 6px 0; line-height: 1.55; }
+.msg-p:last-child { margin-bottom: 0; }
+.msg-strong { font-weight: 700; color: #FB670B; }
+html.dark .msg-strong { color: #FB670B; }
+.msg-ul, .msg-ol { margin: 4px 0 8px 16px; padding: 0; }
+.msg-ul { list-style-type: disc; }
+.msg-ol { list-style-type: decimal; }
+.msg-li { margin-bottom: 3px; line-height: 1.45; color: inherit; }
+.msg-link-stripped { font-weight: 600; }
 
 /* =========================================
    11. INTERFAZ DE VOZ
@@ -646,11 +564,6 @@ html.dark .action-btn-send:hover:not(:disabled) {
 }
 .user-listening-text { font-size: 1.2rem; color: var(--primary-orange); font-style: italic; }
 .assistant-thinking-text { font-size: 1.1rem; color: #999; }
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
 
 /* =========================================
    12. ESFERA (ORB)
@@ -736,38 +649,340 @@ html.dark .action-btn-send:hover:not(:disabled) {
 }
 
 /* =========================================
-   14. ESTRUCTURA DE TEXTO EN BURBUJA
+   14. DESKTOP — TOOLTIP TARJETA
    ========================================= */
-.msg-p { margin: 0 0 6px 0; line-height: 1.55; }
-.msg-p:last-child { margin-bottom: 0; }
-.msg-strong { font-weight: 700; color: #F24F13; }
-html.dark .msg-strong { color: #F24F13; }
-.msg-ul, .msg-ol { margin: 4px 0 8px 16px; padding: 0; }
-.msg-ul { list-style-type: disc; }
-.msg-ol { list-style-type: decimal; }
-.msg-li { margin-bottom: 3px; line-height: 1.45; color: inherit; }
-.msg-link-stripped { font-weight: 600; }
 
-.msg-actions {
+/* Wrapper launcher desktop */
+.botgo-launcher {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-top: 8px;
+  align-items: flex-end;
+  gap: 10px;
 }
 
-.msg-action-btn {
+/* Punto rojo notificación */
+.botgo-notif-dot {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 13px;
+  height: 13px;
+  background: #ff3b30;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  animation: notif-pulse 2s ease infinite;
+  pointer-events: none;
+  z-index: 10;
+}
+@keyframes notif-pulse {
+  0%,100% { box-shadow: 0 0 0 0   rgba(255,59,48,0.7); }
+  50%      { box-shadow: 0 0 0 7px rgba(255,59,48,0);   }
+}
+
+/* Tarjeta desktop */
+.botgo-tooltip {
+  background: var(--chat-window-bg, #ffffff);
+  border-radius: 20px;
+  padding: 18px 18px 16px;
+  width: 270px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.16), 0 2px 8px rgba(0,0,0,0.08);
+  position: relative;
+  transform-origin: bottom right;
+  animation: tooltip-in 0.42s cubic-bezier(0.34,1.56,0.64,1) both;
+  border: 1px solid rgba(242,79,19,0.12);
+}
+.botgo-tooltip.exiting {
+  animation: tooltip-out 0.25s ease forwards;
+}
+@keyframes tooltip-in {
+  from { opacity:0; transform:scale(0.65) translateY(16px); }
+  to   { opacity:1; transform:scale(1)    translateY(0);    }
+}
+@keyframes tooltip-out {
+  to { opacity:0; transform:scale(0.88) translateY(8px); }
+}
+
+.botgo-tooltip-arrow {
+  position: absolute;
+  bottom: -9px; right: 20px;
+  width:0; height:0;
+  border-left:  9px solid transparent;
+  border-right: 9px solid transparent;
+  border-top:   9px solid var(--chat-window-bg,#ffffff);
+  filter: drop-shadow(0 3px 2px rgba(0,0,0,0.06));
+}
+
+.botgo-tooltip-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border-radius: 8px;
-  text-decoration: none;
-  font-weight: bold;
-  font-size: 14px;
-  width: fit-content;
+  gap: 9px;
+  margin-bottom: 12px;
+}
+.botgo-tooltip-avatar {
+  width: 34px; height: 34px;
+  background: linear-gradient(135deg,#FB670B,#fb670b);
+  border-radius: 50%;
+  display: flex; align-items:center; justify-content:center;
+  flex-shrink: 0; padding: 4px;
+  box-shadow: 0 3px 10px rgba(242,79,19,0.35);
+}
+.botgo-tooltip-robot { width:100%; height:100%; }
+
+.botgo-tooltip-title { display:flex; flex-direction:column; line-height:1.15; flex:1; }
+.botgo-tooltip-title-main   { font-size:12px; color:var(--chat-text-secondary,#666); font-weight:500; }
+.botgo-tooltip-title-accent { font-size:14px; font-weight:800; color:var(--primary-orange,#FB670B); text-transform:uppercase; letter-spacing:0.3px; }
+
+.botgo-tooltip-close {
+  background:none; border:none; cursor:pointer;
+  color:var(--chat-text-secondary,#999);
+  display:flex; align-items:center; justify-content:center;
+  width:26px; height:26px; border-radius:50%;
+  transition:background 0.2s, color 0.2s; flex-shrink:0;
+}
+.botgo-tooltip-close:hover { background:rgba(242,79,19,0.08); color:var(--primary-orange,#FB670B); }
+
+.botgo-tooltip-divider {
+  height:2px;
+  background:linear-gradient(90deg,#FB670B 0%,rgba(242,79,19,0.2) 70%,transparent 100%);
+  border-radius:2px; margin-bottom:12px;
 }
 
-.msg-action-wa {
-  background-color: #25D366;
-  color: white;
+.botgo-tooltip-list { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:8px; }
+.botgo-tooltip-item {
+  display:flex; align-items:center; gap:9px;
+  opacity:0; animation:item-slide 0.3s ease both;
+  font-size:12.5px; color:var(--chat-text-main,#333); font-weight:400;
+}
+.botgo-tooltip-item strong { font-weight:700; color:var(--chat-text-main,#222); }
+@keyframes item-slide {
+  from { opacity:0; transform:translateX(8px); }
+  to   { opacity:1; transform:translateX(0);   }
+}
+.botgo-tooltip-dot {
+  width:24px; height:24px;
+  background:rgba(242,79,19,0.08); border:1.5px solid rgba(242,79,19,0.3);
+  border-radius:50%; display:flex; align-items:center; justify-content:center;
+  flex-shrink:0; color:var(--primary-orange,#FB670B); transition:background 0.2s;
+}
+
+.botgo-tooltip-cta {
+  display:block; margin-top:14px; width:100%;
+  background:linear-gradient(135deg,#FB670B,#fb670b);
+  color:#fff; border:none; border-radius:12px; padding:10px 0;
+  font-family:inherit; font-weight:700; font-size:13px;
+  text-transform:uppercase; letter-spacing:0.8px; cursor:pointer;
+  box-shadow:0 4px 14px rgba(242,79,19,0.35);
+  transition:transform 0.15s ease, box-shadow 0.15s ease;
+}
+.botgo-tooltip-cta:hover  { transform:translateY(-1px); box-shadow:0 6px 20px rgba(242,79,19,0.5); }
+.botgo-tooltip-cta:active { transform:translateY(0); }
+
+html.dark .botgo-tooltip       { border-color:rgba(242,79,19,0.2); }
+html.dark .botgo-tooltip-arrow { border-top-color:var(--chat-window-bg,#262626); }
+html.dark .botgo-tooltip-dot   { background:rgba(242,79,19,0.12); border-color:rgba(242,79,19,0.35); }
+
+/* =========================================
+   15. RESPONSIVE DESKTOP pequeño
+   ========================================= */
+@media screen and (min-width: 1025px) and (max-height: 800px) {
+  .botgo-window { height: 480px; bottom: 70px; }
+  .botgo-messages { padding: 10px 15px; }
+  .botgo-header-clean { padding: 15px 20px 5px 20px; }
+}
+
+/* =========================================
+   16. MÓVIL — todo el override
+   ========================================= */
+@media screen and (max-width: 1024px) {
+
+  /* Contenedor principal en móvil */
+  .botgo-container {
+    right: 0;
+    left: auto;
+    bottom: 0;
+    width: auto;
+    z-index: 100000 !important;
+  }
+
+  /* Chat abierto — pantalla completa */
+  .botgo-container.open {
+    top: 0; left: 0; bottom: 0; right: 0;
+    width: 100%; height: 100%;
+  }
+  .botgo-container.open .botgo-launcher { display: none; }
+
+  .botgo-window {
+    position: fixed !important;
+    z-index: 10000 !important;
+    top: 0; left: 0; right: 0; bottom: 0;
+    width: 100vw !important;
+    height: 100dvh !important;
+    max-height: none !important;
+    border-radius: 0 !important;
+    border: none !important;
+    margin: 0 !important;
+    transform: translateY(110%);
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+  .botgo-window.show { transform: translateY(0); }
+
+  .botgo-footer-curve {
+    border-radius: 0;
+    padding: 12px 20px;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  }
+  .botgo-header-clean {
+    padding-top: calc(15px + env(safe-area-inset-top));
+  }
+  .botgo-input-field { font-size: 16px; }
+
+  /* Botones de acción full-width en móvil */
+  .msg-actions { width: 100%; max-width: 100%; }
+  .msg-action-btn {
+    width: 100% !important;
+    min-width: unset !important;
+    justify-content: center;
+    align-self: stretch;
+  }
+  .msg-row { max-width: 92%; }
+
+  /* ── LAUNCHER MÓVIL — fijo en lateral derecho ── */
+  .botgo-launcher {
+    position: fixed !important;
+    top: 18% !important;
+    bottom: auto !important;
+    right: 0 !important;
+    left: auto !important;
+    transform: none !important;
+    flex-direction: column !important;
+    align-items: flex-end !important;
+    gap: 0 !important;
+    z-index: 200001 !important;
+  }
+
+  /* Ocultar botón circular desktop en móvil — la pill lo reemplaza */
+  .botgo-launcher .botgo-button {
+    display: none !important;
+  }
+
+  /* ══════════════════════════════════════
+     PILL MÓVIL — UN SOLO ELEMENTO
+     Fases: entering → expanded → collapsing → done
+     ══════════════════════════════════════ */
+  .botgo-pill-wrapper {
+    display: flex;
+    align-items: center;
+    background: linear-gradient(135deg, #FB670B, #d63f0a);
+    /* Esquinas redondeadas solo a la izquierda — pegado al borde derecho */
+    border-radius: 16px 0 0 16px;
+    border: 2.5px solid rgba(255, 255, 255, 0.9);
+    border-right: none;
+    overflow: hidden;
+    cursor: pointer;
+    box-shadow: -4px 4px 18px rgba(242, 79, 19, 0.5);
+    /* Arranca cerrado: solo el ícono (54px) */
+    max-width: 54px;
+    height: 54px;
+    transition: max-width 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+    /* Sin botgo-notif-dot visible en entering */
+  }
+
+  /* Expandido: abre hacia la izquierda mostrando texto */
+  .botgo-pill-wrapper.phase-expanded {
+    max-width: 250px;
+  }
+
+  /* Contrayendo: vuelve al tamaño del ícono */
+  .botgo-pill-wrapper.phase-collapsing {
+    max-width: 54px;
+    transition: max-width 0.55s ease-in;
+  }
+
+  /* Done: queda como pestaña con solo el ícono — SIEMPRE VISIBLE */
+  .botgo-pill-wrapper.phase-done {
+    max-width: 54px;
+    transition: none;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  /* ── Ícono del robot — siempre visible ── */
+  .botgo-pill-icon {
+    width: 54px;
+    min-width: 54px;
+    height: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .botgo-pill-icon .botgo-btn-icon {
+    width: 30px;
+    height: 30px;
+    color: white;
+  }
+  /* Punto de notificación dentro del ícono */
+  .botgo-pill-icon .botgo-notif-dot {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 10px;
+    height: 10px;
+    background: #ff3b30;
+    border-radius: 50%;
+    border: 2px solid #FB670B;
+    animation: notif-pulse 2s ease infinite;
+    pointer-events: none;
+  }
+
+  /* ── Texto — se oculta por overflow cuando está colapsado ── */
+  .botgo-pill-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+    flex: 1;
+    min-width: 0;
+    padding: 0 8px 0 4px;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .botgo-pill-label-small {
+    font-size: 9px;
+    color: rgba(255, 255, 255, 0.75);
+    font-weight: 500;
+    font-family: 'Poppins', 'Segoe UI', sans-serif;
+  }
+  .botgo-pill-label-big {
+    font-size: 12px;
+    color: #ffffff;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    font-family: 'Poppins', 'Segoe UI', sans-serif;
+  }
+
+  /* ── Botón cerrar — se oculta al colapsar ── */
+  .botgo-pill-close {
+    background: none;
+    border: none;
+    border-left: 1px solid rgba(255, 255, 255, 0.25);
+    color: rgba(255, 255, 255, 0.85);
+    width: 38px;
+    min-width: 38px;
+    height: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.2s;
+  }
+  .botgo-pill-close:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+  }
+
+  /* Ocultar elementos del tooltip desktop que no aplican en móvil */
+  .botgo-tooltip { display: none !important; }
 }
