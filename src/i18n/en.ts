@@ -8,7 +8,7 @@ export const en = {
     home: 'Home',
     products: 'Products',
     catalog: 'Catalog',
-    about: 'About',
+    about: 'About Us',
     company: 'The Company',
     social: 'Social Impact',
     distributor: 'Distributor',
@@ -20,7 +20,7 @@ export const en = {
   // =================================================
   hero: {
     title: "Welcome",
-    subtitle: "Quality that lasts"
+    subtitle: "Quality that endures"
   },
 
   // =================================================
@@ -41,33 +41,37 @@ export const en = {
   // =================================================
   // CHATBOT (BotGo)
   // =================================================
-chatbot: {
-  greeting:            'Hi! I\'m BotGo 🤖. How can I help you today?',
-  placeholder:         'Type a message...',
-  listeningState:      'Listening...',
-  thinking:            'Thinking...',
-  errorMsg:            'Connection error.',
-  voiceAssistantTitle: 'Virtual Assistant',
-  voiceCode:           'en-US',
+  chatbot: {
+    // ── General messages ──
+    greeting:            'Hello! I\'m BotGo 🤖. How can I help you today?',
+    placeholder:         'Type a message...',
+    listeningState:      'Listening...',
+    thinking:            'Thinking...',
+    errorMsg:            'Connection error.',
+    voiceAssistantTitle: 'Virtual Assistant',
+    voiceCode:           'en-US',
 
-  salesBtn:   'Quote via WhatsApp',
-  pdfBtn:     'View PDF catalog',
-  waStart:    'Hello Grupo Ortiz, I would like a quote',
+    // ── Action buttons ──
+    salesBtn:   'Quote via WhatsApp',
+    pdfBtn:     'View PDF catalog',
+    waStart:    'Hello Grupo Ortiz, I would like a quote',
 
-  tooltipTitle:  'How can I',
-  tooltipAccent: 'help you today?',
-  tooltipCta:    'Start chat now!',
-  tooltipItems: [
-    { text: 'Apply to our',    bold: 'job openings'          },
-    { text: 'Request',         bold: 'product information'   },
-    { text: 'Place your',      bold: 'order directly'        },
-    { text: 'Contact',         bold: 'customer support'      },
-    { text: 'Download',        bold: 'catalogs & datasheets' },
-  ],
+    // ── Desktop tooltip (card) ──
+    tooltipTitle:  'How can I',
+    tooltipAccent: 'help you today?',
+    tooltipCta:    'Start chatting now!',
+    tooltipItems: [
+      { text: 'Apply for our',   bold: 'job openings'               },
+      { text: 'Request',         bold: 'product information'        },
+      { text: 'Place your',      bold: 'order directly'             },
+      { text: 'Contact',         bold: 'customer service'           },
+      { text: 'Download',        bold: 'catalogs and data sheets'   },
+    ],
 
-  pillLabelSmall: 'How can I',
-  pillLabelBig:   'HELP YOU TODAY?',
-},
+    // ── Mobile pill ──
+    pillLabelSmall: 'How can I',
+    pillLabelBig:   'HELP YOU TODAY?',
+  },
 
   pwa: {
     appName: "Grupo Ortiz",
@@ -86,7 +90,7 @@ chatbot: {
     hero: {
       label: "SPECIAL OFFERS",
       title: "PROMOTIONS",
-      subtitle: "Take advantage of our limited-time deals",
+      subtitle: "Take advantage of our limited-time offers",
       validity: "Valid while supplies last*"
     },
     discount_badge: "UP TO",
@@ -163,7 +167,7 @@ chatbot: {
       {
         id: "2",
         name: "ROPE",
-        desc: "Strength and durability for industrial and fishing ties. Made with high-quality materials for intensive use.",
+        desc: "Resistance and durability for industrial and fishing lashing. Made with high-quality materials for heavy-duty use.",
         image: "/images/catalogo/img2.webp",
         catalogs: {
           es: "https://drive.google.com/file/d/14GrV9P1ViQKvFp3BucYjgmryRgWKLEZh/view?usp=sharing",
@@ -183,7 +187,7 @@ chatbot: {
       {
         id: "4",
         name: "MESH BAG",
-        desc: "Open-mesh fabric for maximum agricultural ventilation. Versatile solutions for packaging and transporting field products.",
+        desc: "Open-mesh fabric for maximum agricultural ventilation. Versatile solutions for packing and transporting farm products.",
         image: "/images/catalogo/img4.webp",
         catalogs: {
           es: "https://drive.google.com/file/d/1OQKGpnRCfA2yFdAlT6q7GczYua2FFFVU/view?usp=sharing",
@@ -192,8 +196,8 @@ chatbot: {
       },
       {
         id: "5",
-        name: "SACK",
-        desc: "Flat-woven polypropylene for bulk packaging. Superior strength for bulk products.",
+        name: "WOVEN SACK",
+        desc: "Flat-woven polypropylene for bulk packaging. Superior resistance for bulk products.",
         image: "/images/catalogo/img5.webp",
         catalogs: {
           es: "https://drive.google.com/file/d/16S43-PUrQECO9q2J1fOgbN-YeIxQ2GhP/view?usp=sharing",
@@ -230,49 +234,49 @@ chatbot: {
     {
       img: "carrusel/img1.webp",
       division: "STRETCH FILM",
-      descripcion: "High optical clarity stretch film meeting rigorous quality standards. Ensures load integrity and cost efficiency. Our line includes a Biodegradable option formulated to degrade 90% faster.",
+      descripcion: "High optical clarity stretch film meeting strict quality standards. Ensures load integrity and cost efficiency. Our line includes a Biodegradable option, formulated to degrade 90% faster.",
       slug: "stretch-film",
       video: "carrusel/stretch-film.mp4"
     },
     {
       img: "carrusel/img4.webp",
       division: "MESH BAG",
-      descripcion: "Polypropylene raffia mesh bags in high-strength, durable circular weave. Ventilated design ideal for fruits and vegetables.",
+      descripcion: "High-resistance, durable circular-woven polypropylene raffia mesh bags. Ventilated design ideal for fruits and vegetables.",
       slug: "arpillas",
       video: "carrusel/arpillas.mp4"
     },
     {
       img: "carrusel/img2.webp",
       division: "ROPE",
-      descripcion: "High-performance Polypropylene (PP) filament rope. The perfect balance: extreme lightness without sacrificing breaking strength.",
+      descripcion: "High-performance polypropylene filament (PP) rope. The perfect balance: extreme lightness without sacrificing breaking resistance.",
       slug: "cuerdas",
       video: "carrusel/cuerdas.mp4"
     },
     {
       img: "carrusel/img3.webp",
       division: "RAFFIA",
-      descripcion: "High-performance Polypropylene (PP) film raffia. Very lightweight and highly resistant to breakage. Flexible and versatile.",
+      descripcion: "High-performance polypropylene film (PP) raffia. Very lightweight with high breaking resistance. Flexible and versatile.",
       slug: "rafias",
       video: "carrusel/rafia.mp4"
     },
     {
       img: "carrusel/img5.webp",
-      division: "SACK",
-      descripcion: "Premium quality raffia sacks. Robust packaging solution for food, chemicals, and fertilizers.",
+      division: "WOVEN SACK",
+      descripcion: "Premium quality raffia sacks. Robust packaging solution for food, chemicals and fertilizers.",
       slug: "sacos",
       video: "carrusel/sacos.mp4"
     },
     {
       img: "carrusel/img6.webp",
       division: "EDGE PROTECTOR",
-      descripcion: "Cardboard edge protectors to optimize logistics. Structural strength and greater load stability.",
+      descripcion: "Cardboard edge protectors to optimize logistics. Structural resistance and greater load stability.",
       slug: "esquineros",
       video: "carrusel/esquineros.mp4"
     },
     {
       img: "carrusel/img7.webp",
       division: "FLEXIBLE",
-      descripcion: "Neo Empaques International specializes in advanced flexible packaging solutions designed to optimize product preservation and presentation across multiple industries.",
+      descripcion: "Neo Empaques International specializes in advanced flexible packaging solutions, designed to optimize preservation and product presentation across multiple industries.",
       slug: "empaques-flexibles",
       video: "carrusel/bobina-impresa.mp4"
     }
@@ -296,12 +300,12 @@ chatbot: {
 
     products: [
       {
-        name: 'STRETCH PREMIUM',
+        name: 'PREMIUM STRETCH',
         img: '/images/stretch/stretch.png',
         video: "/videos/stretch/fondo.mp4",
         link: '#',
         description: "Designed for high-demand machinery, this moderate-elongation stretch film offers an efficient and reliable solution for securing loads in automated processes. Its composition guarantees high resistance and superior performance in demanding packaging applications.",
-        specs_values: { width: "19–30 in", length: "1,000–15,000 ft", gauge: "40–110", weight: "22–88 lb", type: "Manual" },
+        specs_values: { width: "19-30 in", length: "1000-15000 ft", gauge: "40-110", weight: "10-40 kg", type: "Manual" },
         gallery: [
           '/images/stretch/stretch2.png',
           '/images/stretch/stretch.png',
@@ -313,8 +317,8 @@ chatbot: {
         img: '/images/stretch/stretch.png',
         video: "/videos/stretch/fondo.mp4",
         link: '#',
-        description: "Designed for use with traditional wrapping machines, this stretch film delivers high performance and excellent results in automated palletizing processes. Its formulation ensures strength and stability when securing loads.",
-        specs_values: { width: "18–30 in", length: "2,000–15,000 ft", gauge: "50–110", weight: "22–108 lb", type: "Automatic" },
+        description: "Designed for use with conventional wrapping machines, this stretch film offers high performance and excellent output in automated palletizing processes. Its formulation guarantees resistance and stability in load securing.",
+        specs_values: { width: "18-30 in", length: "2000-15000 ft", gauge: "50-110", weight: "10-49 kg", type: "Automatic" },
         gallery: [
           '/images/stretch/stretch2.png',
           '/images/stretch/stretch.png',
@@ -326,8 +330,8 @@ chatbot: {
         img: '/images/stretch/stretch.png',
         video: "/videos/stretch/fondo.mp4",
         link: '#',
-        description: "Designed for high-performance manual application, this pre-stretched film stands out for offering one of the thinnest gauges on the market. Its technology eliminates the need to apply extra force when wrapping, enabling immediate use and improving efficiency in the palletizing process.",
-        specs_values: { width: "16–17 in", length: "7,000–25,000 ft", gauge: "40–120", weight: "22–88 lb", type: "Manual" },
+        description: "Designed for high-performance manual application, this pre-stretched film stands out for offering one of the lowest gauges on the market. Its technology eliminates the need to apply additional force when wrapping, enabling immediate use and improving efficiency in the palletizing process.",
+        specs_values: { width: "16-17 in", length: "7000-25000 ft", gauge: "40-120", weight: "10-40 kg", type: "Manual" },
         gallery: [
           '/images/stretch/stretch2.png',
           '/images/stretch/stretch.png',
@@ -339,8 +343,8 @@ chatbot: {
         img: '/images/stretch/manual.png',
         video: "/videos/stretch/fondo.mp4",
         link: '#',
-        description: "Designed for manual wrapping with moderate elongation, this traditional stretch film delivers excellent performance in packaging and load-securing processes. Its composition ensures strength and stability for general applications.",
-        specs_values: { width: "3–12 in", length: "7,000–25,000 ft", gauge: "40–120", weight: "22–88 lb", type: "Manual" },
+        description: "Designed for manual wrapping with moderate elongation, this traditional stretch film offers excellent performance in packaging and load-securing processes. Its composition guarantees resistance and stability in general applications.",
+        specs_values: { width: "3-12 in", length: "7000-25000 ft", gauge: "40-120", weight: "10-40 kg", type: "Manual" },
         gallery: [
           '/images/stretch/rigido2.png',
           '/images/stretch/manual.png',
@@ -352,8 +356,8 @@ chatbot: {
         img: '/images/stretch/stretch.png',
         video: "/videos/stretch/fondo.mp4",
         link: '#',
-        description: "Specially formulated for manual wrapping applications with limited elongation, this stretch film offers high performance and great reliability in packaging processes. Its composition ensures stability and efficiency when securing loads.",
-        specs_values: { width: "17–30 in", length: "1,000–15,000 ft", gauge: "40–90", weight: "22–88 lb", type: "Manual", color: "Black / Color" },
+        description: "Specially formulated for manual wrapping applications with limited elongation, this stretch film offers high performance and great reliability in packaging processes. Its composition guarantees stability and efficiency in load securing.",
+        specs_values: { width: "17-30 in", length: "1000-15000 ft", gauge: "40-90", weight: "10-40 kg", type: "Manual", color: "Black/Color" },
         gallery: [
           '/images/stretch/stretch2.png',
           '/images/stretch/stretch.png',
@@ -376,7 +380,7 @@ chatbot: {
       load: "Yield",
       mat: "Material",
       weight: "Weight",
-      resist: "Breaking Strength",
+      resist: "Resistance",
       charge: "Presentation"
     },
 
@@ -386,8 +390,8 @@ chatbot: {
         img: '/images/cuerdas/CuerdaT1.webp',
         video: "/videos/cuerdas/cuerda-1.mp4",
         link: '#',
-        description: "Made with polypropylene and an advanced UV filter, this rope is ideal for activities with high sun exposure. Its specialized formulation slows natural wear and extends service life, guaranteeing greater resistance and durability against the elements. It is the perfect hardware rope to provide firmness, safety, and reliable performance in general and demanding applications.",
-        specs_values: { load: "1,980 m", mat: "PP-UV", weight: "40 lb", resist: "386 lb", charge: "5/32–3/4 in" },
+        description: "Made with polypropylene and an advanced UV filter, this rope is ideal for activities with high sun exposure. Its specialized formulation slows natural wear and extends service life, guaranteeing greater resistance and durability against the elements. It is the perfect hardware rope for providing firmness, safety and reliable performance in general applications and demanding work.",
+        specs_values: { load: "1,980 m", mat: "PP-UV", weight: "18 kg", resist: "175 kg", charge: "4-19 mm" },
         gallery: [
           '/images/cuerdas/CuerdaT1-2.png',
           '/images/cuerdas/CuerdaT1.webp',
@@ -399,8 +403,8 @@ chatbot: {
         img: '/images/cuerdas/CuerdaNegra.webp',
         video: "/videos/cuerdas/CuerdaI.mp4",
         link: '#',
-        description: "Made with polypropylene (PP) and a UV stabilizer, this rope is ideal for the marine sector and activities with high sun exposure. Its specialized formulation slows UV-radiation degradation, extending service life and ensuring greater weather resistance. It is the perfect solution for providing firmness and stability in agricultural macrotunnels.",
-        specs_values: { load: "3,240 m", mat: "PP-UV", weight: "40 lb", resist: "232 lb", charge: "1/8–5/16 in" },
+        description: "Made with polypropylene (PP) and a UV stabilizer, this rope is ideal for the maritime sector and activities with high sun exposure. Its specialized formulation slows UV-induced degradation, extending service life and guaranteeing greater weather resistance. It is the perfect solution for providing firmness and stability in agricultural macro-tunnels.",
+        specs_values: { load: "3,240 m", mat: "PP-UV", weight: "18 kg", resist: "105 kg", charge: "3-8 mm" },
         gallery: [
           '/images/cuerdas/CuerdaNegra6-1.png',
           '/images/cuerdas/CuerdaNegra.webp',
@@ -412,8 +416,8 @@ chatbot: {
         img: '/images/cuerdas/CuerdaEco.png',
         video: "/videos/cuerdas/CuerdaE.mp4",
         link: '#',
-        description: "Made from high-quality polypropylene (PP), this rope is available in a wide variety of presentations, gauges, and colors — plain or combined, reinforced or branded. Its versatility and strength make it a reliable option for multiple applications, including industries, factories, warehouses, supply markets, hardware stores, and machining areas.",
-        specs_values: { load: "3,240 m", mat: "PP-UV", weight: "40 lb", resist: "232 lb", charge: "1/8–5/16 in" },
+        description: "Made with high-quality polypropylene (PP), this rope is available in a wide variety of presentations, gauges and colors, in plain or combined versions, reinforced or branded. Its versatility and resistance make it a reliable option for multiple applications in industries, factories, warehouses, wholesale markets, hardware stores, and machining areas.",
+        specs_values: { load: "3,240 m", mat: "PP-UV", weight: "18 kg", resist: "105 kg", charge: "3-8 mm" },
         gallery: [
           '/images/cuerdas/CuerdaEco1.png',
           '/images/cuerdas/CuerdaEco.png',
@@ -434,20 +438,20 @@ chatbot: {
     specs_labels: {
       cal: "Gauge",
       yield: "Yield (m)",
-      resist: "Breaking Strength (kg)",
+      resist: "Resistance (kg)",
       usage: "Material"
     },
 
     products: [
       {
         name: "TYING RAFFIA",
-        description: "Made from 100% virgin polypropylene, this raffia offers high strength and excellent yield, maintaining its physical properties even in outdoor conditions. Its quality guarantees durability and reliable performance in demanding applications. Widely used in the agricultural, poultry, and horticulture sectors.",
+        description: "Made with 100% virgin polypropylene, this raffia offers high resistance and excellent yield, maintaining its physical properties even in outdoor conditions. Its quality guarantees durability and reliable performance in demanding applications. It is widely used in the agricultural, poultry and horticultural sectors.",
         img: "/images/rafias/atar.png",
         video: "/videos/rafia/fondoN.mp4",
         specs_values: {
-          cal: "5/64–5/16 in",
+          cal: "2-8 mm",
           yield: "90 kg",
-          resist: "60–320 f",
+          resist: "60-320 f",
           usage: "PP-UV"
         },
         gallery: [
@@ -458,13 +462,13 @@ chatbot: {
       },
       {
         name: "ECO RAFFIA",
-        description: "Made from high-quality polypropylene, this raffia offers excellent strength and maintains its physical properties even in outdoor conditions. Its reliable yield makes it an ideal option for agricultural, poultry, and horticulture applications.",
+        description: "Made with high-quality polypropylene, this raffia offers excellent resistance and maintains its physical properties even in outdoor conditions. Its reliable yield makes it an ideal option for agricultural, poultry and horticultural applications.",
         img: "/images/rafias/Eco.png",
         video: "/videos/rafia/fondoE.mp4",
         specs_values: {
-          cal: "5/64–5/16 in",
-          yield: "90–500 kg",
-          resist: "59–255 f",
+          cal: "2-8",
+          yield: "90-500 kg",
+          resist: "59-255 f",
           usage: "PP-UV"
         },
         gallery: [
@@ -475,13 +479,13 @@ chatbot: {
       },
       {
         name: "BLACK FIBRILLATED RAFFIA",
-        description: "Made from high-quality polypropylene, this raffia offers great strength and maintains its physical properties even in outdoor conditions. Its excellent yield makes it ideal for industrial, hardware, and packaging applications as well as the agricultural, poultry, and horticulture sectors.",
+        description: "Made with high-quality polypropylene, this raffia offers great resistance and maintains its physical properties even in outdoor conditions. Its excellent yield makes it ideal for industrial, hardware and packaging applications, as well as for the agricultural, poultry and horticultural sectors.",
         img: "/images/rafias/negra.png",
         video: "/videos/rafia/fondoR.mp4",
         specs_values: {
-          cal: "5/64–5/16 in",
-          yield: "90–500 kg",
-          resist: "59–255 f",
+          cal: "2-8",
+          yield: "90-500 kg",
+          resist: "59-255 f",
           usage: "PP-UV"
         },
         gallery: [
@@ -505,7 +509,7 @@ chatbot: {
       construction: "Construction",
       sizes: "Width",
       colors: "Colors",
-      features: "Closure Type"
+      features: "Closure type"
     },
 
     products: [
@@ -514,9 +518,9 @@ chatbot: {
         img: '/images/arpillas/arpilla.webp',
         video: "/videos/arpilla/circular.mp4",
         link: '#',
-        description: "Made from 100% virgin polypropylene with a raffia construction, this mesh bag offers high strength and excellent performance in packaging and storage applications. Its quality guarantees durability and reliable performance when handling a variety of products.",
+        description: "Made with 100% virgin polypropylene and raffia construction, this mesh bag offers high resistance and excellent performance in packaging and storage applications. Its quality guarantees durability and reliable performance in handling various products.",
         specs_values: {
-          sizes: "9–27.5 in",
+          sizes: "23-70 cm",
           colors: "4",
           features: "Drawstring"
         },
@@ -531,10 +535,10 @@ chatbot: {
         img: '/images/arpillas/arpilla2.webp',
         video: "/videos/arpilla/mono.mp4",
         link: '#',
-        description: "Made from 100% virgin polypropylene with a raffia/monofilament construction, this mesh bag offers high strength and excellent performance in packaging and storage applications. Its structure provides durability and reliable performance when handling and protecting various products.",
+        description: "Made with 100% virgin polypropylene and raffia/monofilament construction, this mesh bag offers high resistance and excellent performance in packaging and storage applications. Its structure provides durability and reliable performance in the handling and protection of various products.",
         specs_values: {
           construction: "Monofilament",
-          sizes: "9–27.5 in",
+          sizes: "23-70 cm",
           colors: "2",
           features: "Drawstring"
         },
@@ -549,11 +553,11 @@ chatbot: {
         img: '/images/arpillas/arpilla3.webp',
         video: "/videos/arpilla/costura.mp4",
         link: '#',
-        description: "Made from 100% virgin polypropylene with a raffia/monofilament construction, this mesh bag offers high strength and excellent performance in packaging and storage applications. Its structure guarantees durability and reliability when handling different products.",
+        description: "Made with 100% virgin polypropylene and raffia/monofilament construction, this mesh bag offers high resistance and excellent performance in packaging and storage applications. Its structure guarantees durability and reliability in the handling of various products.",
         specs_values: {
-          type: "Side",
+          type: "Lateral",
           construction: "Monofilament",
-          sizes: "9–23.5 in",
+          sizes: "23-60 cm",
           colors: "4",
           features: "Reinforced"
         },
@@ -568,11 +572,11 @@ chatbot: {
         img: '/images/arpillas/arpilla4.webp',
         video: "/videos/arpilla/etiqueta.mp4",
         link: '#',
-        description: "Made from 100% virgin polypropylene with a raffia/raffia construction, this mesh bag offers high strength and excellent performance in packaging and storage processes. Its weave guarantees durability and reliability for demanding applications in both domestic and export markets.",
+        description: "Made with 100% virgin polypropylene and raffia/raffia construction, this mesh bag offers high resistance and excellent performance in packaging and storage processes. Its weave guarantees durability and reliability for demanding applications in both domestic and export markets.",
         specs_values: {
           type: "Laminated",
           construction: "Raffia",
-          sizes: "9–27.5 in",
+          sizes: "23-70 cm",
           colors: "4",
           features: "Drawstring"
         },
@@ -586,10 +590,10 @@ chatbot: {
   },
 
   // =================================================
-  // PAGE: SACKS
+  // PAGE: WOVEN SACKS
   // =================================================
   sacos: {
-    meta_title: "Sacks | Grupo Ortiz",
+    meta_title: "Woven Sacks | Grupo Ortiz",
     back_aria: "Back to products",
     specs_title: "TECHNICAL SPECIFICATIONS",
 
@@ -597,22 +601,22 @@ chatbot: {
       load: "Width",
       unit: "Length",
       mat: "Material",
-      weight: "Breaking Strength"
+      weight: "Resistance"
     },
 
     products: [
       {
-        name: 'UNLAMINATED RAFFIA SACK',
+        name: 'UNLAMINATED WOVEN SACK',
         img: '/images/sacos/saco2.png',
         model: '/models/saco_blanco.glb',
         video: "/videos/saco/slaminar.mp4",
         link: '#',
-        description: "Made with interlaced polypropylene strips, unlaminated raffia sacks offer great strength and excellent durability in packaging and storage applications. Their structure can withstand heavy loads without tearing, ensuring reliable performance in demanding work.",
+        description: "Made with interlaced polypropylene tapes, unlaminated woven sacks offer great resistance and excellent durability in packaging and storage applications. Their structure can withstand heavy loads without tearing, guaranteeing reliable performance in demanding work.",
         specs_values: {
-          load: "14–31.5 in",
-          unit: "19–45 in",
+          load: "35-80 cm",
+          unit: "49-115 cm",
           mat: "PP",
-          weight: "265–441 lbf"
+          weight: "120-200 kgf"
         },
         gallery: [
           '/images/sacos/slaminado1.png',
@@ -625,12 +629,12 @@ chatbot: {
         img: '/images/sacos/saco.png',
         video: "/videos/saco/transp.mp4",
         link: '#',
-        description: "Made with polypropylene strips and a transparent finish, these sacks offer high strength and allow excellent visibility of the packaged product. Their structure guarantees durability and reliable performance in storage and transport applications.",
+        description: "Made with polypropylene tapes and a transparent finish, these sacks offer high resistance and allow excellent visibility of the packaged product. Their structure guarantees durability and reliable performance in storage and transport applications.",
         specs_values: {
-          load: "14–31.5 in",
-          unit: "19–45 in",
+          load: "35-80 kg",
+          unit: "49-115 cm",
           mat: "PP",
-          weight: "265–441 lbf"
+          weight: "120-200 kgf"
         },
         gallery: [
           '/images/sacos/laminado2.png',
@@ -639,16 +643,16 @@ chatbot: {
         ]
       },
       {
-        name: 'ECO RAFFIA SACK',
+        name: 'ECO WOVEN SACK',
         img: '/images/sacos/saco3.png',
         video: "/videos/saco/eco.mp4",
         link: '#',
-        description: "Made from recycled material sourced from the waste generated during the same production process, these sacks offer strength and good durability at a more accessible cost. Their construction enables reliable performance in general packaging and storage applications.",
+        description: "Made with recycled material from the waste of the same production process, these sacks offer resistance and good durability at a more accessible cost. Their manufacture allows reliable performance in general packaging and storage applications.",
         specs_values: {
-          load: "17.5–31.5 in",
-          unit: "19–45 in",
+          load: "45-80 kg",
+          unit: "49-115 cm",
           mat: "PP",
-          weight: "265–441 lbf"
+          weight: "120-200 kgf"
         },
         gallery: [
           '/images/sacos/eco2.png',
@@ -668,10 +672,10 @@ chatbot: {
     specs_title: "TECHNICAL SPECIFICATIONS",
 
     specs_labels: {
-      tab:      "Flange",
+      tab:      "Tab",
       thick:    "Thickness",
       length:   "Length",
-      tabyd:    "Flange (yd)",
+      tabyd:    "Tab (yd)",
       thickyd:  "Thickness (yd)",
       lengthyd: "Length (yd)"
     },
@@ -679,14 +683,14 @@ chatbot: {
     products: [
       {
         name: "BROWN KRAFT EDGE PROTECTOR",
-        description: "Manufactured to protect edges and corners during transport and storage, this edge protector distributes pressure evenly, preventing deformation and damage to goods. Its structure offers strength and stability in demanding packaging applications.",
+        description: "Designed to protect edges and corners during transport and storage, this edge protector distributes pressure evenly, preventing deformation and damage to merchandise. Its structure offers resistance and stability in demanding packaging applications.",
         img: "/images/esquinero/esquinero.png",
         video: "/videos/esquinero/esquinero.mp4",
         link: "#",
         specs_values: {
           tab:    "1.5 in",
           thick:  "0.08 mm",
-          length: "4.65 in"
+          length: "11.81 cm"
         },
         gallery: [
           '/images/esquinero/esquinero2.png',
@@ -696,14 +700,14 @@ chatbot: {
       },
       {
         name: "WHITE KRAFT EDGE PROTECTOR",
-        description: "Manufactured to protect edges and corners during transport and storage, this edge protector distributes pressure evenly, preventing deformation and damage to goods. Its structure offers strength and stability in demanding packaging applications.",
+        description: "Designed to protect edges and corners during transport and storage, this edge protector distributes pressure evenly, preventing deformation and damage to merchandise. Its structure offers resistance and stability in demanding packaging applications.",
         img: "/images/esquinero/esquinerob.png",
         video: "/videos/esquinero/esquinero.mp4",
         link: "#",
         specs_values: {
           tab:    "1.5 in",
           thick:  "0.08 mm",
-          length: "4.65 in"
+          length: "11.81 cm"
         },
         gallery: [
           '/images/esquinero/esquinerob2.png',
@@ -725,7 +729,7 @@ chatbot: {
     specs_labels: {
       lamination: "Lamination",
       finish:     "Finish",
-      size:       "Max. Size",
+      size:       "Dimensions up to",
       zipper:     "Zipper",
       type:       "Type"
     },
@@ -733,7 +737,7 @@ chatbot: {
     products: [
       {
         name: "PRINTED ROLL",
-        description: "Our rolls offer a wide variety of laminations, gauges, and finishes. Printing available in up to 10 inks and 133 lines per inch. Maximum development: 44.9 in. Maximum print width: 57.1 in. Compatible with automatic packaging machinery to optimize production efficiency.",
+        description: "Our rolls feature a wide variety of laminations, gauges and finishes. With printing options of up to 10 inks and 133 lines per inch. Maximum development: 1,140 mm. Maximum print width: 1,450 mm. Compatible with automatic packaging machinery to optimize production efficiency.",
         img: "/images/flexible/bobina-impresa.png",
         video: "/videos/flexible/bobinaf.mp4",
         gallery: [
@@ -744,14 +748,14 @@ chatbot: {
         specs_values: {
           lamination: "3 Types",
           finish:     "Various",
-          size:       "57.1 in",
+          size:       "1,450 mm",
           zipper:     "N/A",
           type:       "Roll"
         }
       },
       {
-        name: "STAND UP POUCH BAG",
-        description: "Versatile stand-up pouch bags with laminated structure and high moisture and oxygen barrier. Ideal for dry or wet foods, powders, liquids, cosmetics, and chemicals. Available in Natural, Matte, and Metallic finishes, in sizes from 5.3 oz to 35.3 oz, with optional zipper closure and window.",
+        name: "STAND UP POUCH",
+        description: "Versatile stand-up pouch bags with laminated structure and high moisture and oxygen barrier. Ideal for dry or wet foods, powders, liquids, cosmetics and chemicals. Available in Natural, Matte and Metallic finishes, in sizes from 150 g to 1 kg, with optional zipper closure and window.",
         img: "/images/flexible/standup-generica.png",
         video: "/videos/flexible/standup.mp4",
         gallery: [
@@ -762,14 +766,14 @@ chatbot: {
         specs_values: {
           lamination: "Laminated",
           finish:     "3 Types",
-          size:       "35.3 oz",
+          size:       "1 kg",
           zipper:     "Yes / No",
           type:       "Bag"
         }
       },
       {
-        name: "STAND UP POUCH",
-        description: "Line of bags with attractive decorative designs: Red Berries, Flowers, Fruits, Wheat Ears, Blue Gift, and Pink Gift. Zipper closure, sturdy structure, and Natural or Metallic finishes. Available in sizes from 5.3 oz to 35.3 oz. Ideal for those seeking high-quality, visually appealing packaging.",
+        name: "PRINTED STAND UP POUCH",
+        description: "Line of bags with attractive decorative designs: Red Berries, Flowers, Fruits, Wheat, Blue Gift and Pink Gift. Zipper closure, resistant structure and Natural or Metallic finishes. Available in sizes from 150 g to 1 kg. Ideal for those seeking high-quality, visually appealing packaging.",
         img: "/images/flexible/standup-origanics.png",
         video: "/videos/flexible/standup-origanics.mp4",
         gallery: [
@@ -780,14 +784,14 @@ chatbot: {
         specs_values: {
           lamination: "2 Types",
           finish:     "Gift",
-          size:       "35.3 oz",
+          size:       "1 kg",
           zipper:     "Yes",
           type:       "Printed bag"
         }
       },
       {
-        name: "HIGH VACUUM BAG",
-        description: "Designed to maximize freshness and shelf life of meats, cheeses, cold cuts, and fresh products. Their hermetic seal eliminates air, retains the product's natural properties, and prevents loss of flavor, texture, and quality. Made with high-resistance, high-barrier materials.",
+        name: "VACUUM BAG",
+        description: "Designed to maximize freshness and shelf life of meats, cheeses, cold cuts and fresh products. Their hermetic seal eliminates air, retains the product's natural properties and prevents loss of flavor, texture and quality. Made with high-resistance, high-barrier materials.",
         img: "/images/flexible/bolsa-alto-vacio.png",
         video: "/videos/flexible/bolsa-alto-vacio.mp4",
         gallery: [
@@ -814,23 +818,23 @@ chatbot: {
     hero: {
       subtitle: "Wholesale Portal",
       title: "Multiply <br>your <span>Profits</span>",
-      desc: "Distribute high-demand products backed by the leading manufacturer. Guaranteed stock, no middlemen, and 24-hour logistics.",
-      cta: "Get Started"
+      desc: "Distribute high-demand products backed by the leading manufacturer. Guaranteed stock, no middlemen and 24h logistics.",
+      cta: "Get Started Now"
     },
     cards: [
-      { icon: "ri-stack-line",        title: "Full Stock",      desc: "Capacity to fulfill large orders instantly. Your warehouse always full." },
-      { icon: "ri-truck-line",        title: "24h Shipping",    desc: "Own logistics. Your customers don't wait — we deliver in record time." },
-      { icon: "ri-shield-check-line", title: "Guarantee",       desc: "Physical exchanges with no red tape or questions. Full brand backing." },
-      { icon: "ri-line-chart-line",   title: "Better Margins",  desc: "Factory-direct prices designed to maximize your net profit." }
+      { icon: "ri-stack-line",        title: "Full Stock",     desc: "Capacity to fulfill large orders instantly. Your warehouse always fully stocked." },
+      { icon: "ri-truck-line",        title: "24h Shipping",   desc: "Own logistics. Your customers won't wait — we deliver in record time." },
+      { icon: "ri-shield-check-line", title: "Guarantee",      desc: "Physical exchanges with no red tape or questions. Full brand backing." },
+      { icon: "ri-line-chart-line",   title: "Better Margins", desc: "Factory-direct prices designed to maximize your net profit." }
     ],
     stats: [
-      { val: 25, symbol: "k", label: "Monthly Tons"    },
+      { val: 25, symbol: "k", label: "Monthly Tonnes"  },
       { val: 35, symbol: "+", label: "Years of History" },
-      { val: 15, symbol: "M", label: "Total Sales"     }
+      { val: 15, symbol: "M", label: "Total Sales"      }
     ],
     form: {
       title: "Registration <br>Request",
-      desc: "Join the network. Complete your profile so we can assign you a territory and a preferential price list.",
+      desc: "Join the network. Complete your profile so we can assign your zone and preferred price list.",
       support_label: "DIRECT SUPPORT",
       labels: {
         name:     "Contact Name",
@@ -840,7 +844,7 @@ chatbot: {
         products: "PRODUCTS OF INTEREST"
       },
       products_list: ["Sacks", "Flexible", "Raffia", "Edge Protector", "Ropes", "Stretch", "Other", "All"],
-      btn:         "SUBMIT REQUEST",
+      btn:         "SEND REQUEST",
       success_msg: "Request Sent"
     }
   },
@@ -853,20 +857,20 @@ chatbot: {
 
     timeline: {
       title_white:   "OUR",
-      title_orange:  "HISTORY",
+      title_orange:  "JOURNEY",
       nav_prev:      "Previous",
       nav_next:      "Next",
       video_bg:      "/videos/background.mp4",
       video_bg_webm: "",
       video_poster:  "",
       events: [
-        { year: "1959", title: "The Beginning",           short: "Founded in Morelia",       img: "/images/tiempo/timeline-1959.webp",  description: "Since 1959, Grupo Ortiz has been part of Mexico's industrial development. Founded in Morelia by Nicandro Ortiz, the group was born with a firm vision: to combine cutting-edge technology with the talent and dedication of its people to build a solid, innovative company committed to quality." },
-        { year: "1970", title: "Industrial Expansion",    short: "Sacks and mesh bags",      img: "/images/tiempo/timeline-1970.webp",  description: "In 1970, we began producing polypropylene sacks and mesh bags, marking a key stage in our industrial growth. This strategic step strengthened our operational capacity, expanded our commercial participation, and consolidated our presence in the national market." },
-        { year: "1985", title: "Technological Innovation",short: "European machinery",       img: "/images/tiempo/timeline-1985.webp",  description: "In 1985, we incorporated state-of-the-art European machinery, strengthening our industrial infrastructure and optimizing our production processes. This strategic investment raised our quality standards, increased operational efficiency, and reaffirmed our commitment to technological innovation." },
-        { year: "1995", title: "Diversification",         short: "New product lines",        img: "/images/tiempo/timeline-1995.webp",  description: "In 1995, we expanded our production lines by incorporating stretch film, flexible packaging, and specialized industrial products. This strategic expansion diversified our portfolio, strengthened our sector competitiveness, and allowed us to meet new demands in the national market." },
-        { year: "2005", title: "International Expansion", short: "Americas and Europe",      img: "/images/tiempo/timeline-2005.webp",  description: "In 2005, we began exporting to the Americas and Europe, marking a decisive step in our international expansion. This achievement positioned the company as a benchmark in the plastics polymer industry, strengthening our global presence and consolidating our competitiveness in international markets." },
-        { year: "2015", title: "Sustainability",          short: "Recycling plant",          img: "/images/tiempo/timeline-2015.webp",  description: "In 2015, we implemented a recycling plant and strengthened our sustainability programs, reaffirming our commitment to the environment. This strategic initiative optimized resource use, promoted responsible practices, and consolidated our vision of sustainable growth." },
-        { year: "2026", title: "Present",                 short: "Industrial leader",        img: "/images/tiempo/timeline-2026.webp",  description: "In 2026, we operate 17 production plants, employ more than 4,000 team members, and have an annual capacity of 220,000 metric tons. This sustained growth consolidates us as leaders in the plastics industry, supported by a solid infrastructure, specialized human talent, and a forward-looking strategic vision." }
+        { year: "1959", title: "The Beginning",          short: "Founded in Morelia",     img: "/images/tiempo/timeline-1959.webp",  description: "Since 1959, Grupo Ortiz has been part of Mexico's industrial development. Founded in Morelia by Nicandro Ortiz, the group was born with a firm vision: to combine cutting-edge technology with the talent and dedication of its people to build a solid, innovative company committed to quality." },
+        { year: "1970", title: "Industrial Expansion",   short: "Sacks and mesh bags",    img: "/images/tiempo/timeline-1970.webp",  description: "In 1970, we began production of polypropylene sacks and mesh bags, marking a key stage in our industrial growth. This strategic step strengthened our operational capacity, broadened our commercial reach and consolidated our presence in the national market." },
+        { year: "1985", title: "Technological Innovation", short: "European machinery",  img: "/images/tiempo/timeline-1985.webp",  description: "In 1985, we incorporated state-of-the-art European machinery, strengthening our industrial infrastructure and optimizing our production processes. This strategic investment raised our quality standards, increased operational efficiency and reaffirmed our commitment to technological innovation." },
+        { year: "1995", title: "Diversification",        short: "New product lines",      img: "/images/tiempo/timeline-1995.webp",  description: "In 1995, we expanded our production lines by incorporating stretch film, flexible packaging and specialized industrial products. This strategic expansion diversified our portfolio, strengthened our sector competitiveness and allowed us to meet new demands in the national market." },
+        { year: "2005", title: "International Expansion", short: "Americas and Europe",   img: "/images/tiempo/timeline-2005.webp",  description: "In 2005, we began exporting to the Americas and Europe, marking a decisive step in our international expansion. This achievement positioned the company as a benchmark in the plastics polymer industry, strengthening our global presence and consolidating our competitiveness in international markets." },
+        { year: "2015", title: "Sustainability",         short: "Recycling plant",        img: "/images/tiempo/timeline-2015.webp",  description: "In 2015, we implemented a recycling plant and strengthened our sustainability programs, reaffirming our commitment to the environment. This strategic initiative optimized resource use, promoted responsible practices and consolidated our vision of responsible growth." },
+        { year: "2026", title: "Present",                short: "Industrial leader",      img: "/images/tiempo/timeline-2026.webp",  description: "In 2026, we have 17 production plants, more than 4,000 employees and an annual capacity of 220,000 tonnes. This sustained growth consolidates us as leaders in the plastics industry, backed by solid infrastructure, specialized human talent and a strategic vision oriented toward the future." }
       ]
     },
 
@@ -875,7 +879,7 @@ chatbot: {
       title: "GO Philosophy",
       img:   "/images/about/GO.webp",
       items: [
-        "Obsession with customer satisfaction, not the competition.",
+        "Obsession with customer satisfaction, not competition.",
         "Passion for constant invention and innovation.",
         "Operational excellence in every process.",
         "Long-term thinking with immediate results.",
@@ -888,21 +892,21 @@ chatbot: {
       title: "Vision",
       img:   "/images/about/GO2.webp",
       items: [
-        "To be the most customer-centric company on the planet.",
+        "To be the most customer-oriented company on the planet.",
         "To offer a complete integrated solution for any business.",
-        "To be the single packaging solution for any business on the planet.",
-        "To grow with a global presence without losing the human focus."
+        "To be the only packaging solution for any business on the planet.",
+        "To grow with a global presence without losing our human focus."
       ]
     },
 
     infraestructura: {
       title_white:  "Infrastructure",
-      title_orange: "that delivers",
+      title_orange: "that backs you",
       stats: [
-        { number: "13",     label: "Production Plants",      desc: "Strategically located facilities to serve national and international markets.", icon: "number" },
-        { number: "+3,000", label: "Team Members",           desc: "Specialized team that drives every production process.", icon: "number" },
-        { number: "260",    label: "Logistics Units",        desc: "Own fleet that guarantees efficient distribution and safe deliveries nationwide and internationally.", icon: "number" },
-        { number: "Global", label: "International Presence", desc: "Export and distribution in the Americas and Europe.", icon: "globe" }
+        { number: "13",     label: "Production Plants",       desc: "Strategically located facilities to serve national and international markets.", icon: "number" },
+        { number: "+3,000", label: "Employees",               desc: "Specialized team driving every production process.", icon: "number" },
+        { number: "260",    label: "Logistics Units",         desc: "Own fleet guaranteeing efficient distribution and safe deliveries nationally and internationally.", icon: "number" },
+        { number: "Global", label: "International Presence",  desc: "Export and distribution across the Americas and Europe.", icon: "globe" }
       ]
     },
 
@@ -928,10 +932,10 @@ chatbot: {
       btn_tour:     "View 3D Tour",
       btn_soon:     "Coming Soon",
       items: [
-        { id: "extrusoras", num: "01", title: "Stretch Film",          tag: "Morelia, Mich.", desc: "High-capacity extrusion lines where polypropylene is transformed into precision flat yarn.",                               thumb: "/images/virtual/RT.webp", link: "https://my.matterport.com/show/?m=YoM2tyXMeyb&ss=2&sr=2.97,.12&play=1&qs=1&ts=1", soon: true  },
-        { id: "telares",    num: "02", title: "Mesh Bags",             tag: "Morelia, Mich.", desc: "State-of-the-art looms that weave yarn to produce polypropylene fabric with maximum uniformity.",                          thumb: "/images/virtual/RA.webp", link: "https://my.matterport.com/show/?m=2xCe1VajMjj&ss=1&sr=2.28,-1.47&play=1&qs=1&ts=1", soon: false },
-        { id: "laminado",   num: "03", title: "Lamination & Printing", tag: "Morelia, Mich.", desc: "Lamination and flexography area where sacks receive finishes, printing, and final quality treatment.",                     thumb: "/images/virtual/RS.webp", link: "", soon: true  },
-        { id: "reciclado",  num: "04", title: "Recycling Plant",       tag: "Morelia, Mich.", desc: "Our polypropylene recycling center, committed to the circular economy and the environment.",                               link: "", soon: true  }
+        { id: "extrusoras", num: "01", title: "Stretch Film",         tag: "Morelia, Mich.", desc: "High-capacity extrusion lines where polypropylene is transformed into precision flat yarn.",                                       thumb: "/images/virtual/RT.webp", link: "https://my.matterport.com/show/?m=YoM2tyXMeyb&ss=2&sr=2.97,.12&play=1&qs=1&ts=1", soon: true  },
+        { id: "telares",    num: "02", title: "Mesh Bags",            tag: "Morelia, Mich.", desc: "State-of-the-art looms that weave yarn to produce polypropylene fabric with maximum uniformity.",                                   thumb: "/images/virtual/RA.webp", link: "https://my.matterport.com/show/?m=2xCe1VajMjj&ss=1&sr=2.28,-1.47&play=1&qs=1&ts=1", soon: false },
+        { id: "laminado",   num: "03", title: "Laminating & Printing", tag: "Morelia, Mich.", desc: "Laminating and flexographic area where sacks receive finishes, printing and final quality treatment.",                             thumb: "/images/virtual/RS.webp", link: "", soon: true  },
+        { id: "reciclado",  num: "04", title: "Recycling Plant",      tag: "Morelia, Mich.", desc: "Our polypropylene recycling center, committed to circular economy and environmental responsibility.",                                link: "", soon: true  }
       ]
     },
 
@@ -941,16 +945,16 @@ chatbot: {
       planta_label:  "PLANT",
       plantas_label: "PLANTS",
       items: [
-        { num: "04", label: "Bags",             width: 100, delay: 0   },
-        { num: "02", label: "Burlap",           width: 50,  delay: 100 },
-        { num: "01", label: "Rope",             width: 25,  delay: 200 },
-        { num: "03", label: "Stretch Film",     width: 50,  delay: 300 },
+        { num: "04", label: "Bags",              width: 100, delay: 0   },
+        { num: "02", label: "Mesh Bags",         width: 50,  delay: 100 },
+        { num: "01", label: "Rope",              width: 25,  delay: 200 },
+        { num: "03", label: "Stretch Film",      width: 50,  delay: 300 },
         { num: "01", label: "Flexible Packaging", width: 25, delay: 400 },
-        { num: "01", label: "Recycling",        width: 25,  delay: 500 },
-        { num: "03", label: "Corner Protectors",width: 75,  delay: 600 },
-        { num: "01", label: "Freight",          width: 25,  delay: 700 },
-        { num: "01", label: "Disposables",      width: 25,  delay: 800 },
-        { num: "01", label: "Bags",             width: 25,  delay: 900 }
+        { num: "01", label: "Recycling",         width: 25,  delay: 500 },
+        { num: "03", label: "Edge Protectors",   width: 75,  delay: 600 },
+        { num: "01", label: "Freight",           width: 25,  delay: 700 },
+        { num: "01", label: "Disposables",       width: 25,  delay: 800 },
+        { num: "01", label: "Bags",              width: 25,  delay: 900 }
       ]
     },
 
@@ -958,13 +962,13 @@ chatbot: {
       title:    "Our Values",
       subtitle: "The pillars of our culture",
       items: [
-        { title: "Responsibility",  description: "We fulfill our commitments with ethics and professionalism, aware of the impact our actions have on customers, team members, and communities." },
-        { title: "Trust",           description: "We build solid relationships based on transparency, honesty, and keeping our promises, creating confidence in every interaction."              },
-        { title: "Passion",         description: "We love what we do and reflect it in every product, process, and innovation, driving excellence with enthusiasm and genuine dedication."      },
-        { title: "Perseverance",    description: "We face challenges with determination and consistency, staying firm in our objectives until we achieve extraordinary results."                 },
-        { title: "Discipline",      description: "We follow rigorous processes and quality standards with order and method, ensuring consistency and excellence in every delivery."             },
-        { title: "Proactivity",     description: "We anticipate needs and take action before problems arise, creating innovative solutions that continuously generate value."                   },
-        { title: "Respect",         description: "We value the diversity, dignity, and contribution of every person, fostering an environment of collaboration, inclusion, and fair treatment." }
+        { title: "Responsibility",  description: "We fulfill our commitments with ethics and professionalism, being aware of the impact our actions have on clients, employees and communities." },
+        { title: "Trust",           description: "We build solid relationships based on transparency, honesty and keeping our promises, generating confidence in every interaction."              },
+        { title: "Passion",         description: "We love what we do and reflect it in every product, process and innovation, driving excellence with enthusiasm and genuine dedication."        },
+        { title: "Perseverance",    description: "We face challenges with determination and consistency, staying firm in our objectives until we achieve extraordinary results."                  },
+        { title: "Discipline",      description: "We follow rigorous processes and quality standards with order and method, guaranteeing consistency and excellence in every delivery."           },
+        { title: "Proactivity",     description: "We anticipate needs and take action before problems arise, creating innovative solutions that generate continuous value."                       },
+        { title: "Respect",         description: "We value the diversity, dignity and contribution of every person, fostering an environment of collaboration, inclusion and equal treatment."    }
       ]
     }
   },
@@ -979,7 +983,7 @@ chatbot: {
     customer_service: "Customer Service",
     be_distributor:   "Become a Distributor",
     catalog:          "Catalog",
-    cta_button:       "I Want to Be a Distributor",
+    cta_button:       "I Want to be a Distributor",
     rights:           "All rights reserved."
   },
 
@@ -993,21 +997,21 @@ chatbot: {
       eyebrow:          "SOCIAL IMPACT",
       title_top:        "Building Together",
       title_bottom:     "A BETTER WORLD",
-      subtitle:         "We support families, empower women, give second chances, and care for the planet. Every step we take seeks to transform lives and build a future full of hope.",
+      subtitle:         "We support families, empower women, give second chances and care for the planet. Every step we take seeks to transform lives and build a future full of hope.",
       stat_female:      "% Female Workforce",
-      stat_recycled:    "Tons Recycled",
+      stat_recycled:    "Tonnes Recycled",
       stat_initiatives: "Active Initiatives",
       video:            "/videos/waves2.mp4",
     },
 
     ods: {
       title:       "OUR NORTH STAR",
-      subtitle:    "Agenda 2030",
-      description: "We are guided by the UN Sustainable Development Goals to build a more just, prosperous, and sustainable world.",
+      subtitle:    "2030 Agenda",
+      description: "We are guided by the UN Sustainable Development Goals to build a more just, prosperous and sustainable world.",
       cards: [
         { n: 1,  title: "No Poverty",                  link: "https://sdgs.un.org/goals/goal1",  img: "/images/odc/1.png"  },
         { n: 2,  title: "Zero Hunger",                 link: "https://sdgs.un.org/goals/goal2",  img: "/images/odc/2.png"  },
-        { n: 3,  title: "Good Health and Well-Being",  link: "https://sdgs.un.org/goals/goal3",  img: "/images/odc/3.png"  },
+        { n: 3,  title: "Good Health and Well-being",  link: "https://sdgs.un.org/goals/goal3",  img: "/images/odc/3.png"  },
         { n: 4,  title: "Quality Education",           link: "https://sdgs.un.org/goals/goal4",  img: "/images/odc/4.png"  },
         { n: 5,  title: "Gender Equality",             link: "https://sdgs.un.org/goals/goal5",  img: "/images/odc/5.png"  },
         { n: 6,  title: "Clean Water",                 link: "https://sdgs.un.org/goals/goal6",  img: "/images/odc/6.png"  },
@@ -1016,7 +1020,7 @@ chatbot: {
         { n: 9,  title: "Industry and Innovation",     link: "https://sdgs.un.org/goals/goal9",  img: "/images/odc/9.png"  },
         { n: 10, title: "Reduced Inequalities",        link: "https://sdgs.un.org/goals/goal10", img: "/images/odc/10.png" },
         { n: 11, title: "Sustainable Cities",          link: "https://sdgs.un.org/goals/goal11", img: "/images/odc/11.png" },
-        { n: 12, title: "Responsible Production",      link: "https://sdgs.un.org/goals/goal12", img: "/images/odc/12.png" },
+        { n: 12, title: "Responsible Consumption",     link: "https://sdgs.un.org/goals/goal12", img: "/images/odc/12.png" },
         { n: 13, title: "Climate Action",              link: "https://sdgs.un.org/goals/goal13", img: "/images/odc/13.png" },
         { n: 14, title: "Life Below Water",            link: "https://sdgs.un.org/goals/goal14", img: "/images/odc/14.png" },
         { n: 15, title: "Life on Land",                link: "https://sdgs.un.org/goals/goal15", img: "/images/odc/15.png" },
@@ -1033,39 +1037,39 @@ chatbot: {
         {
           label: "PILLAR 01",
           title: "PRODUCTS OF THE EARTH",
-          desc:  "Development of innovative, eco-friendly materials for flexible packaging that respect the environment and reduce the carbon footprint.",
+          desc:  "Development of innovative and eco-friendly materials for flexible packaging that respect the environment and reduce the carbon footprint.",
           img:   "/images/impacto/products.webp"
         },
         {
           label: "PILLAR 02",
           title: "PRACTICES OF THE EARTH",
-          desc:  "Clean manufacturing and circular economy throughout all our production processes, closing cycles and eliminating waste.",
+          desc:  "Clean manufacturing and circular economy across all our production processes, closing cycles and eliminating waste.",
           img:   "/images/impacto/practices.webp"
         },
         {
           label: "PILLAR 03",
           title: "SOCIAL EARTH",
-          desc:  "Comprehensive commitment to customers, employees, and communities, generating positive social impact and real opportunities.",
+          desc:  "Comprehensive commitment to clients, employees and communities, generating positive social impact and real opportunities.",
           img:   "/images/impacto/social.webp"
         }
       ]
     },
 
     oceanos: {
-      hero_title:           "Committed to a",
-      hero_title_highlight: "cleaner future for our oceans",
+      hero_title:           "Committed to a cleaner",
+      hero_title_highlight: "future for our oceans",
       hero_video:           "/videos/waves.mp4",
-      intro: "At Grupo Ortiz, we believe in a world where oceans shine again. By supporting global initiatives like The Ocean Cleanup and the Tom Ford Plastic Innovation Prize powered by Lonely Whale, we work to reduce plastic in our seas. Every purchase you make with us is a step toward a cleaner planet and a sustainable future for all. Together we save the oceans!",
+      intro: "At Grupo Ortiz, we believe in a world where the oceans shine again. By supporting global initiatives like The Ocean Cleanup and the Tom Ford Plastic Innovation Prize powered by Lonely Whale, we work to reduce plastic in our seas. Every purchase you make with us is a step toward a cleaner planet and a sustainable future for all. Together we save the oceans!",
       features: [
-        { title: "We support global cleanup",          desc: "Collaborating with initiatives like The Ocean Cleanup."                          },
-        { title: "We promote sustainable innovation",  desc: "Through programs like the Tom Ford Plastic Innovation Prize."                   },
-        { title: "We encourage responsible products",  desc: "that reduce the environmental impact on the oceans."                            },
-        { title: "We inspire collective action",       desc: "inviting customers and partners to be part of the change."                      }
+        { title: "We support global clean-up",       desc: "Collaborating with initiatives such as The Ocean Cleanup."                          },
+        { title: "We promote sustainable innovation", desc: "Through programs like the Tom Ford Plastic Innovation Prize."                      },
+        { title: "We encourage responsible products", desc: "that reduce environmental impact on the oceans."                                   },
+        { title: "We inspire collective action",      desc: "inviting clients and partners to be part of the change."                           }
       ],
       partners: [
         {
           title:  "Tom Ford Innovation",
-          desc:   "This global initiative seeks to revolutionize the plastics industry by rewarding and promoting innovative solutions that replace single-use plastics. Its focus is on sustainable and scalable alternatives that reduce environmental impact, protect the oceans, and foster a shift toward more responsible materials for the planet.",
+          desc:   "This global initiative seeks to revolutionize the plastics industry by rewarding and promoting innovative solutions that replace single-use plastics. Its focus is on sustainable and scalable alternatives that reduce environmental impact, protect the oceans and drive a shift toward more responsible materials for the planet.",
           btn:    "LEARN MORE",
           link:   "https://unwrapthefuture.org/",
           video:  "/videos/impacto/oceancleanup.mp4",
@@ -1073,7 +1077,7 @@ chatbot: {
         },
         {
           title:  "Ocean Cleanup",
-          desc:   "Dedicated to cleaning the world's oceans, this organization develops advanced technology to remove accumulated plastics from the seas and prevent new plastics from entering via rivers — the main source of ocean pollution. Its mission is to restore the health of marine ecosystems, protecting biodiversity and securing a clean future for coming generations.",
+          desc:   "Dedicated to cleaning the world's oceans, this organization develops advanced technology to remove accumulated plastics from the seas and prevent new plastic from entering through rivers, the main source of pollution. Its mission is to restore the health of marine ecosystems, protecting biodiversity and ensuring a clean future for coming generations.",
           btn:    "LEARN MORE",
           link:   "https://theoceancleanup.com/",
           video:  "/videos/impacto/tomford.mp4",
@@ -1083,9 +1087,9 @@ chatbot: {
     },
 
     stats: {
-      recycled: "Tons Recycled",
+      recycled: "Tonnes Recycled",
       female:   "% Female Workforce",
-      families: "Families Benefited"
+      families: "Families Supported"
     },
 
     timeline: {
@@ -1093,15 +1097,15 @@ chatbot: {
       subtitle: "Lasting positive impact",
       items: [
         {
-          num: "01", title: "HOGAR DE ESPERANZA",
-          desc:       "Support for a children's home in Tacámbaro, Michoacán. Every child deserves a home full of love.",
-          desc_short: "Support for a children's home in Tacámbaro, Michoacán.",
+          num: "01", title: "HOPE HOME",
+          desc:       "Support for Casa Hogar in Tacámbaro, Michoacán. Every child deserves a home full of love.",
+          desc_short: "Support for Casa Hogar in Tacámbaro, Michoacán.",
           img:        "/images/impacto/hogar.mp4",
           isVideo:    true,
           poster:     "/images/impacto/hogar.mp4"
         },
         {
-          num: "02", title: "GO FOOD BASKET",
+          num: "02", title: "GO PANTRY",
           desc:       "United for the community. Delivering food baskets with love.",
           desc_short: "Delivering food baskets with love to the community.",
           img:        "/images/impacto/despensas.webp",
@@ -1109,27 +1113,27 @@ chatbot: {
         },
         {
           num: "03", title: "ZERO FOOTPRINT",
-          desc:       "Zero-waste policy. Transforming waste into opportunities.",
-          desc_short: "Zero-waste policy. Transforming waste.",
+          desc:       "Zero-waste policy. Turning waste into opportunities.",
+          desc_short: "Zero-waste policy. Turning waste into opportunities.",
           img:        "/images/impacto/composta.webp",
           isVideo:    false
         },
         {
-          num: "04", title: "LIVE COMPOST",
-          desc:       "Manufacturing of compostable products. Innovation that respects nature.",
+          num: "04", title: "LIVING COMPOST",
+          desc:       "Manufacturing compostable products. Innovation that respects nature.",
           desc_short: "Compostable products. Sustainable innovation.",
           img:        "/images/impacto/GO.webp",
           isVideo:    false
         },
         {
-          num: "05", title: "BRILLA GO",
+          num: "05", title: "GO SHINE",
           desc:       "Performance gifts for the GO team. Recognizing effort.",
-          desc_short: "Recognition for the GO team's performance.",
+          desc_short: "Recognition of the GO team for their performance.",
           img:        "/images/impacto/woman.webp",
           isVideo:    false
         },
         {
-          num: "06", title: "HANDS THAT LEAD",
+          num: "06", title: "LEADING HANDS",
           desc:       "84% female workforce. Empowering women leaders.",
           desc_short: "56.82% female workforce. Empowering leaders.",
           img:        "/images/impacto/bio.webp",
@@ -1141,7 +1145,7 @@ chatbot: {
     cta: {
       title:        "Together",
       title_orange: "We Transform",
-      desc:         "We are the strategic partner your company needs to grow with technology, experience, and results.",
+      desc:         "We are the strategic partner your company needs to grow with technology, experience and results.",
       contact:      "Contact Us",
       products:     "View Products"
     }
@@ -1152,19 +1156,19 @@ chatbot: {
   // =================================================
   home: {
     meta_title: "Grupo Ortiz | Polymer and Packaging Manufacturer in Mexico",
-    meta_description: "Over 65 years manufacturing stretch film, sacks, ropes, raffia, mesh bags, and flexible packaging. Leader in plastic polymers in Mexico and Latin America.",
+    meta_description: "Over 65 years manufacturing stretch film, sacks, ropes, raffia, mesh bags and flexible packaging. Leader in plastic polymers in Mexico and Latin America.",
     hero: {
       eyebrow:      "Since 1959",
       title_top:    "WE ARE THE LEADING",
       title_bot:    "MANUFACTURER IN LATIN AMERICA",
       video:        "background.mp4",
-      subtitle:     "Over 65 years manufacturing high-engineering solutions for industries on five continents.",
+      subtitle:     "More than 65 years manufacturing high-engineering solutions for industries across five continents.",
       btn_products: "Our Products",
       btn_about:    "Learn More",
       stats: [
         { number: 65,   label: "Years of Experience" },
-        { number: 3000, prefix: "+", label: "Team Members" },
-        { number: 5,    prefix: "",  label: "Continents"   }
+        { number: 3000, prefix: "+", label: "Employees"   },
+        { number: 5,    prefix: "",  label: "Continents"  }
       ]
     },
 
@@ -1174,14 +1178,14 @@ chatbot: {
       title_em:  "specialization",
       link_text: "View products",
       items: [
-        { title: "Mesh Bag",          tag: "Division 01", description: "Polypropylene raffia mesh bags in flat and circular weave. Ventilated design ideal for fruits, vegetables, and agricultural products.",                       img: "/images/divisiones/arpilla.webp",           color: "#2d8a4e", slug: "arpillas",           soon: false },
-        { title: "Rope",              tag: "Division 02", description: "High-tenacity polypropylene ropes for agricultural, industrial, and marine use. Great weather resistance with built-in UV filter.",                            img: "/images/divisiones/cuerdas.webp",           color: "#1a5f8a", slug: "cuerdas",            soon: false },
-        { title: "Raffia",            tag: "Division 03", description: "High-performance polypropylene raffia. Very lightweight and highly resistant to breakage — versatile for agriculture, poultry, and horticulture.",            img: "/images/divisiones/rafia.webp",             color: "#8a6d2d", slug: "rafias",             soon: false },
-        { title: "Flexible Packaging",tag: "Division 04", description: "High-barrier films and specialized lamination. Optimal protection for food and industrial products with cutting-edge technology.",                            img: "/images/divisiones/bolsa.webp",             color: "#0d7377", slug: "empaques-flexibles", soon: false },
-        { title: "Sack",              tag: "Division 05", description: "Premium-quality raffia sacks. Robust packaging solution for food, chemicals, fertilizers, and bulk products.",                                               img: "/images/divisiones/sacos.webp",             color: "#3a7d44", slug: "sacos",              soon: false },
-        { title: "Stretch Film",      tag: "Division 06", description: "High optical clarity stretch film. Ensures load integrity with cost efficiency. Includes a biodegradable option.",                                           img: "/images/divisiones/film-estirable.webp",    color: "#2c5f8a", slug: "stretch-film",       soon: false },
-        { title: "Edge Protector",    tag: "Division 07", description: "Kraft cardboard edge protectors for border protection during storage and transport. Even pressure distribution and maximum load stability.",                  img: "/images/divisiones/esquineros.webp",        color: "#7b3fa0", slug: "esquineros",         soon: false },
-        { title: "Disposable",        tag: "Division 10", description: "Polypropylene disposable products for industrial, food, and hospital use. Hygienic, economical, and high-strength solutions.",                               img: "/images/divisiones/desechables.webp",       color: "#e05500", slug: "desechables",        soon: true  }
+        { title: "Mesh Bag",          tag: "Division 01", description: "Polypropylene raffia mesh bags in flat and circular weave. Ventilated design ideal for fruits, vegetables and agricultural products.",                              img: "/images/divisiones/arpilla.webp",        color: "#2d8a4e", slug: "arpillas",           soon: false },
+        { title: "Rope",              tag: "Division 02", description: "High-tenacity polypropylene ropes for agricultural, industrial and marine use. Great weather resistance with built-in UV filter.",                                  img: "/images/divisiones/cuerdas.webp",        color: "#1a5f8a", slug: "cuerdas",            soon: false },
+        { title: "Raffia",            tag: "Division 03", description: "High-performance polypropylene raffia. Very lightweight with high breaking resistance and versatility for agriculture, poultry and horticulture.",                 img: "/images/divisiones/rafia.webp",          color: "#8a6d2d", slug: "rafias",             soon: false },
+        { title: "Flexible Packaging", tag: "Division 04", description: "High-barrier films and specialized lamination. Optimal protection for food and industrial products with cutting-edge technology.",                               img: "/images/divisiones/bolsa.webp",          color: "#0d7377", slug: "empaques-flexibles", soon: false },
+        { title: "Woven Sack",        tag: "Division 05", description: "Premium quality raffia sacks. Robust packaging solution for food, chemicals, fertilizers and bulk products.",                                                     img: "/images/divisiones/sacos.webp",          color: "#3a7d44", slug: "sacos",              soon: false },
+        { title: "Stretch Film",      tag: "Division 06", description: "High optical clarity stretch film. Ensures load integrity with cost efficiency. Includes biodegradable option.",                                                   img: "/images/divisiones/film-estirable.webp", color: "#2c5f8a", slug: "stretch-film",       soon: false },
+        { title: "Edge Protector",    tag: "Division 07", description: "Kraft cardboard edge protectors for edge protection during storage and transport. Uniform pressure distribution and maximum load stability.",                     img: "/images/divisiones/esquineros.webp",     color: "#7b3fa0", slug: "esquineros",         soon: false },
+        { title: "Disposable",        tag: "Division 10", description: "Polypropylene disposable products for industrial, food and hospital use. Hygienic, economical and high-resistance solutions.",                                    img: "/images/divisiones/desechables.webp",    color: "#e05500", slug: "desechables",        soon: true  }
       ]
     },
 
@@ -1189,26 +1193,26 @@ chatbot: {
       tag:           "Why choose us",
       title:         "Over 65 years",
       title_em:      "of leadership",
-      body:          "We are a benchmark in the plastic polymer industry in Mexico and Latin America, with certified processes and global response capacity.",
-      btn:           "Our History",
+      body:          "We are a benchmark in the plastics polymer industry in Mexico and Latin America, with certified processes and global response capacity.",
+      btn:           "Our Story",
       badge1_label:  "Business Units",
       badge1_number: 13,
       badge2_label:  "Divisions",
       badge2_number: 6,
       img:           "/images/home/planta-produccion.webp",
       features: [
-        { title: "Certified Quality",     description: "Products that meet the highest international manufacturing standards."             },
-        { title: "Constant Innovation",   description: "Ongoing investment in R&D to maintain technological leadership in the sector."   },
-        { title: "Global Reach",          description: "Active presence on 5 continents with an efficient distribution network."         }
+        { title: "Certified Quality",     description: "Products that meet the highest international manufacturing standards."         },
+        { title: "Constant Innovation",   description: "Permanent investment in R&D to maintain the sector's technological leadership." },
+        { title: "Global Reach",          description: "Active presence on 5 continents with an efficient distribution network."       }
       ]
     },
 
     certs: {
-      tag:      "Quality Guaranteed",
+      tag:      "Guaranteed Quality",
       title:    "Our",
       title_em: "Certifications",
       items: [
-        { code: "Kosher Pareve",     name: "KMD México",     img: "/images/certificaciones/KOSHER.jpeg"   },
+        { code: "Kosher Pareve",     name: "KMD Mexico",     img: "/images/certificaciones/KOSHER.jpeg"   },
         { code: "FSSC 22000",        name: "LRQA Certified", img: "/images/certificaciones/LRQA.png"      },
         { code: "AIB International", name: "Since 1919",     img: "/images/certificaciones/AIB.png"       },
         { code: "ISO 9001",          name: "Bureau Veritas", img: "/images/certificaciones/CERTIFIED.png" }
@@ -1219,12 +1223,12 @@ chatbot: {
       card1: {
         eyebrow: "Our Approach",
         title:   "Innovation",
-        text:    "We invest in R&D to deliver products that exceed global market expectations with cutting-edge technology."
+        text:    "We invest in R&D to deliver products that exceed the expectations of the global market with cutting-edge technology."
       },
       card2: {
         eyebrow: "Our Commitment",
         title:   "Sustainability",
-        text:    "Environmentally responsible processes, active recycling programs, and carbon footprint reduction throughout the entire chain."
+        text:    "Environmentally responsible processes, active recycling programs and carbon footprint reduction throughout the entire supply chain."
       }
     },
 
@@ -1232,13 +1236,13 @@ chatbot: {
       tag:      "Global Presence",
       title:    "We export to the",
       title_em: "world",
-      desc:     "Our products reach customers in more than 30 countries, consolidating our position as leaders in plastic polymers.",
+      desc:     "Our products reach clients in more than 30 countries, consolidating our position as leaders in plastic polymers.",
       video:    "/videos/camion.mp4",
       stats: [
         { number: 65,   label: "Years"       },
-        { number: 30,   prefix: "+", label: "Countries"   },
-        { number: 3000, prefix: "+", label: "People"      },
-        { number: 5,    prefix: "",  label: "Continents"  }
+        { number: 30,   prefix: "+", label: "Countries"  },
+        { number: 3000, prefix: "+", label: "People"     },
+        { number: 5,    prefix: "",  label: "Continents" }
       ]
     },
 

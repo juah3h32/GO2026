@@ -57,7 +57,7 @@ const KeyboardIcon = () => (
     <line x1="6" y1="8" x2="6" y2="8"/><line x1="10" y1="8" x2="10" y2="8"/>
     <line x1="14" y1="8" x2="14" y2="8"/><line x1="18" y1="8" x2="18" y2="8"/>
     <line x1="6" y1="12" x2="6" y2="12"/><line x1="10" y1="12" x2="10" y2="12"/>
-    <line x1="14" y1="12" x2="14" y2="12"/><line x1="18" y1="12" x2="18" y2="12"/>
+    <line x1="14" y1="12" x2="14" y2="12"/><line x1="18" y1="12" x2="18" y2="18"/>
     <line x1="6" y1="16" x2="11" y2="16"/><line x1="15" y1="16" x2="18" y2="16"/>
   </svg>
 );
@@ -84,14 +84,12 @@ const PdfIcon = () => (
   </svg>
 );
 
-// ── Tooltip capability icons ──
 const VacanteIcon = () => (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 00-8 0v2"/><circle cx="12" cy="7" r="4"/></svg>);
 const InfoIcon    = () => (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>);
 const CartIcon    = () => (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.61L23 6H6"/></svg>);
 const PhoneIcon   = () => (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2A19.86 19.86 0 013.1 5.18 2 2 0 015.09 3h3a2 2 0 012 1.72 12.07 12.07 0 00.7 2.81 2 2 0 01-.45 2.11L9.1 10.91a16 16 0 006.99 6.99l1.27-1.27a2 2 0 012.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0122 16.92z"/></svg>);
 const FileIcon    = () => (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>);
 
-// Íconos en orden fijo — el texto viene de i18n
 const TOOLTIP_ICONS = [VacanteIcon, InfoIcon, CartIcon, PhoneIcon, FileIcon];
 
 const PDF_MAP = {
@@ -187,20 +185,12 @@ const MessageActions = ({ waLink, pdfData, t }) => {
   );
 };
 
-// ══════════════════════════════════════════
-//  MOBILE PILL — un solo elemento animado
-//  Fases: entering → expanded → collapsing → done
-//  En "done" queda SIEMPRE visible como pestaña
-// ══════════════════════════════════════════
 const MobilePill = ({ onOpen, t }) => {
   const [phase, setPhase] = useState('entering');
 
   useEffect(() => {
-    // 0.1s  → expande hacia la izquierda mostrando el texto
     const t1 = setTimeout(() => setPhase('expanded'), 100);
-    // 4.5s  → empieza a contraerse
     const t2 = setTimeout(() => setPhase('collapsing'), 4500);
-    // 5.2s  → queda solo el ícono — NO se desmonta, sigue ahí
     const t3 = setTimeout(() => setPhase('done'), 5200);
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, []);
@@ -208,7 +198,6 @@ const MobilePill = ({ onOpen, t }) => {
   const handleClose = (e) => {
     e.stopPropagation();
     setPhase('collapsing');
-    // Solo colapsa visualmente, nunca desaparece
     setTimeout(() => setPhase('done'), 700);
   };
 
@@ -219,19 +208,14 @@ const MobilePill = ({ onOpen, t }) => {
       role="button"
       aria-label="Abrir asistente virtual BotGO"
     >
-      {/* Ícono — siempre visible, es el "botón" final */}
       <div className="botgo-pill-icon">
         <RobotIcon className="botgo-btn-icon" />
         {phase !== 'done' && <span className="botgo-notif-dot" aria-hidden="true" />}
       </div>
-
-      {/* Texto — se muestra/oculta con la animación de ancho */}
       <div className="botgo-pill-text">
         <span className="botgo-pill-label-small">{t?.pillLabelSmall || '¿En qué puedo'}</span>
         <span className="botgo-pill-label-big">{t?.pillLabelBig    || 'AYUDARTE HOY?'}</span>
       </div>
-
-      {/* Cerrar */}
       <button className="botgo-pill-close" onClick={handleClose} aria-label="Cerrar">
         <CloseIcon size={13} />
       </button>
@@ -239,9 +223,6 @@ const MobilePill = ({ onOpen, t }) => {
   );
 };
 
-// ══════════════════════════════════════════
-//  DESKTOP TOOLTIP — tarjeta flotante
-// ══════════════════════════════════════════
 const DesktopTooltip = ({ onOpen, onDismiss, t }) => {
   const [visible, setVisible] = useState(true);
   const [exiting, setExiting] = useState(false);
@@ -258,7 +239,6 @@ const DesktopTooltip = ({ onOpen, onDismiss, t }) => {
 
   if (!visible) return null;
 
-  // Combina ícono (fijo) con texto (de i18n)
   const items = (t.tooltipItems || []).map((item, i) => ({
     icon: React.createElement(TOOLTIP_ICONS[i] || FileIcon),
     text: item.text,
@@ -279,9 +259,7 @@ const DesktopTooltip = ({ onOpen, onDismiss, t }) => {
           <CloseIcon size={16} />
         </button>
       </div>
-
       <div className="botgo-tooltip-divider" />
-
       <ul className="botgo-tooltip-list">
         {items.map((item, i) => (
           <li key={i} className="botgo-tooltip-item" style={{ animationDelay: `${0.25 + i * 0.1}s` }}>
@@ -290,11 +268,9 @@ const DesktopTooltip = ({ onOpen, onDismiss, t }) => {
           </li>
         ))}
       </ul>
-
       <button className="botgo-tooltip-cta" onClick={() => dismiss(true)}>
         {t.tooltipCta || '¡Iniciar chat ahora!'}
       </button>
-
       <div className="botgo-tooltip-arrow" />
     </div>
   );
@@ -333,12 +309,10 @@ export default function BotGO({ language = 'es' }) {
   const audioRef             = useRef(null);
   const messagesEndRef       = useRef(null);
 
-  // Detectar mobile una sola vez en el cliente
   useEffect(() => {
     setIsMobile(window.innerWidth <= 1024);
   }, []);
 
-  // Auto-scroll mensajes
   useEffect(() => {
     if (viewMode === 'chat' && messagesEndRef.current) {
       setTimeout(() => {
@@ -347,14 +321,12 @@ export default function BotGO({ language = 'es' }) {
     }
   }, [messages, loading, viewMode]);
 
-  // Focus input al abrir chat desktop
   useEffect(() => {
     if (isOpen && viewMode === 'chat' && window.innerWidth > 768) {
       setTimeout(() => inputRef.current?.focus(), 300);
     }
   }, [isOpen, viewMode]);
 
-  // Atajos de teclado
   useEffect(() => {
     const onKey = (e) => {
       if (e.key.toLowerCase() === 'f') {
@@ -365,8 +337,8 @@ export default function BotGO({ language = 'es' }) {
         }
       }
     };
-    const onEsc      = (e) => { if (e.key === 'Escape') handleCloseChat(); };
-    const onOutside  = (e) => {
+    const onEsc     = (e) => { if (e.key === 'Escape') handleCloseChat(); };
+    const onOutside = (e) => {
       if (isOpen && chatWindowRef.current && !chatWindowRef.current.contains(e.target)) {
         const btn = document.querySelector('.botgo-pill-wrapper, .botgo-button');
         if (btn && btn.contains(e.target)) return;
@@ -385,16 +357,22 @@ export default function BotGO({ language = 'es' }) {
     };
   }, [isOpen]);
 
+  // ── Abre el chat + avisa a InstallPWA ─────────────────────────────────────
   const handleCloseChat = () => {
     setIsOpen(false);
     setViewMode('voice');
     inputRef.current?.blur();
     window.focus();
+    // 🔔 Avisa a InstallPWA que el bot se cerró → ícono flotante reaparece
+    window.dispatchEvent(new Event('pwa:bot-close'));
   };
 
+  // ── Cierra el chat + avisa a InstallPWA ───────────────────────────────────
   const handleOpenChat = () => {
     setShowTooltip(false);
     setIsOpen(true);
+    // 🔔 Avisa a InstallPWA que el bot se abrió → ícono flotante se oculta
+    window.dispatchEvent(new Event('pwa:bot-open'));
   };
 
   const toggleListening = () => {
@@ -530,6 +508,32 @@ export default function BotGO({ language = 'es' }) {
                   </div>
                 )}
               </div>
+
+              {!isListening && !loading && !isBotSpeaking && (
+                <div className="voice-caps-grid">
+                  {(t.tooltipItems || []).map((item, i) => {
+                    const Icon = TOOLTIP_ICONS[i] || FileIcon;
+                    return (
+                      <button
+                        key={i}
+                        className="voice-cap-card"
+                        onClick={() => {
+                          const query = `${item.text} ${item.bold}`;
+                          setInput(query);
+                          setViewMode('chat');
+                          setTimeout(() => sendMessage(null, query, false), 100);
+                        }}
+                        style={{ animationDelay: `${i * 0.07}s` }}
+                      >
+                        <span className="voice-cap-icon"><Icon /></span>
+                        <span className="voice-cap-text">
+                          {item.text} <strong>{item.bold}</strong>
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
             <div className="voice-controls">
               <button className="voice-control-btn secondary" onClick={() => setViewMode('chat')} aria-label="Cambiar a modo teclado">
@@ -610,17 +614,12 @@ export default function BotGO({ language = 'es' }) {
         )}
       </div>
 
-      {/* ── LAUNCHER — solo visible cuando el chat está cerrado ── */}
+      {/* ── LAUNCHER ── */}
       {!isOpen && (
         <div className="botgo-launcher">
-
-          {/* MÓVIL: pill — siempre montada, nunca se desmonta
-              En phase-done queda como pestaña con solo el ícono */}
           {isMobile && (
             <MobilePill onOpen={handleOpenChat} t={t} />
           )}
-
-          {/* DESKTOP: tooltip tarjeta + botón circular */}
           {!isMobile && (
             <>
               {showTooltip && (
