@@ -486,7 +486,7 @@ function getStrength(pw) {
 
 // ── Users Tab ─────────────────────────────────────────────────────────────────
 const SYSTEM_USERS = [
-  { id:'Admin',        label:'ORRT',        role:'Administrador',      desc:'Acceso completo a todas las secciones y estadísticas', icon:'🛡️', color:C.orange, colorDim:'rgba(232,82,26,0.10)' },
+  { id:'Admin',        label:'GO',        role:'Administrador',      desc:'Acceso completo a todas las secciones y estadísticas', icon:'🛡️', color:C.orange, colorDim:'rgba(232,82,26,0.10)' },
   { id:'RH',           label:'RH',          role:'Recursos Humanos',   desc:'Acceso a reclutamiento y panel de candidatos',          icon:'👥', color:C.purple, colorDim:C.purpleDim },
   { id:'Distribuidor', label:'Distribuidor', role:'Atención a Clientes',desc:'Acceso a solicitudes de distribuidores y leads',        icon:'🤝', color:C.blue,   colorDim:'rgba(59,130,246,0.10)' },
 ];
