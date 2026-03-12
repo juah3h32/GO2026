@@ -530,7 +530,7 @@ export const en = {
         ]
       },
       {
-        name: 'MONOFILAMENT MESH BAG',
+        name: 'Circular monofilament burlap',
         img: '/images/arpillas/arpilla2.webp',
         video: "/videos/arpilla/mono.mp4",
         link: '#',

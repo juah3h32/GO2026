@@ -532,7 +532,7 @@ chatbot: {
         ]
       },
       {
-        name: 'ARPILLA MONOFILAMENTO',
+        name: 'ARPILLA MONOFILAMENTO CIRCULAR',
         img: '/images/arpillas/arpilla2.webp',
         video: "/videos/arpilla/mono.mp4",
         link: '#',

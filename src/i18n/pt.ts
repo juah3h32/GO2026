@@ -530,7 +530,7 @@ export const pt = {
         ]
       },
       {
-        name: 'SACO DE REDE MONOFILAMENTO',
+        name: 'JUTA MONOFILAMENTO CIRCULAR',
         img: '/images/arpillas/arpilla2.webp',
         video: "/videos/arpilla/mono.mp4",
         link: '#',

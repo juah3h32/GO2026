@@ -530,7 +530,7 @@ export const zh = {
         ]
       },
       {
-        name: '单丝网袋',
+        name: '圓形單絲粗麻布',
         img: '/images/arpillas/arpilla2.webp',
         video: "/videos/arpilla/mono.mp4",
         link: '#',
