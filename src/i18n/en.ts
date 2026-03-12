@@ -61,7 +61,6 @@ export const en = {
     tooltipAccent: 'help you today?',
     tooltipCta:    'Start chatting now!',
     tooltipItems: [
-      { text: 'Apply for our',   bold: 'job openings'               },
       { text: 'Request',         bold: 'product information'        },
       { text: 'Place your',      bold: 'order directly'             },
       { text: 'Contact',         bold: 'customer service'           },

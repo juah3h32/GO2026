@@ -664,20 +664,20 @@ html.dark .msg-strong { color: #FB670B; }
 /* Punto rojo notificación */
 .botgo-notif-dot {
   position: absolute;
-  top: 2px;
+  bottom: 2px;
   right: 2px;
-  width: 13px;
-  height: 13px;
-  background: #ff3b30;
+  width: 11px;
+  height: 11px;
+  background: #22c55e;
   border-radius: 50%;
   border: 2px solid #fff;
-  animation: notif-pulse 2s ease infinite;
+  animation: notif-pulse-green 2s ease infinite;
   pointer-events: none;
   z-index: 10;
 }
-@keyframes notif-pulse {
-  0%,100% { box-shadow: 0 0 0 0   rgba(255,59,48,0.7); }
-  50%      { box-shadow: 0 0 0 7px rgba(255,59,48,0);   }
+@keyframes notif-pulse-green {
+  0%,100% { box-shadow: 0 0 0 0   rgba(34, 197, 94, 0.7); }
+  50%      { box-shadow: 0 0 0 5px rgba(34, 197, 94, 0);   }
 }
 
 /* Tarjeta desktop */
@@ -796,6 +796,17 @@ html.dark .botgo-tooltip-dot   { background:rgba(242,79,19,0.12); border-color:r
    ========================================= */
 @media screen and (max-width: 1024px) {
 
+  /* Botón fijo lateral en móvil — páginas que no son home */
+/* Botón fijo lateral en móvil — páginas que NO son home */
+.botgo-launcher .botgo-button {
+  width: 54px;
+  height: 54px;
+  border-radius: 16px 0 0 16px;
+  border: 2.5px solid rgba(255,255,255,0.9);
+  border-right: none;
+  box-shadow: -4px 4px 18px rgba(242,79,19,0.5);
+}
+
   /* Contenedor principal en móvil */
   .botgo-container {
     right: 0;
@@ -850,7 +861,7 @@ html.dark .botgo-tooltip-dot   { background:rgba(242,79,19,0.12); border-color:r
   /* ── LAUNCHER MÓVIL — fijo en lateral derecho ── */
   .botgo-launcher {
     position: fixed !important;
-    top: 18% !important;
+    top: 15% !important;
     bottom: auto !important;
     right: 0 !important;
     left: auto !important;
@@ -862,50 +873,66 @@ html.dark .botgo-tooltip-dot   { background:rgba(242,79,19,0.12); border-color:r
   }
 
   /* Ocultar botón circular desktop en móvil — la pill lo reemplaza */
-  .botgo-launcher .botgo-button {
-    display: none !important;
-  }
+.botgo-launcher:has(.botgo-pill-wrapper) .botgo-button {
+  display: none !important;
+}
 
   /* ══════════════════════════════════════
      PILL MÓVIL — UN SOLO ELEMENTO
      Fases: entering → expanded → collapsing → done
      ══════════════════════════════════════ */
-  .botgo-pill-wrapper {
-    display: flex;
-    align-items: center;
-    background: linear-gradient(135deg, #FB670B, #d63f0a);
-    /* Esquinas redondeadas solo a la izquierda — pegado al borde derecho */
-    border-radius: 16px 0 0 16px;
-    border: 2.5px solid rgba(255, 255, 255, 0.9);
-    border-right: none;
-    overflow: hidden;
-    cursor: pointer;
-    box-shadow: -4px 4px 18px rgba(242, 79, 19, 0.5);
-    /* Arranca cerrado: solo el ícono (54px) */
-    max-width: 54px;
-    height: 54px;
-    transition: max-width 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
-    /* Sin botgo-notif-dot visible en entering */
-  }
+ .botgo-pill-wrapper {
+  display: flex;
+  align-items: center;
+  background: linear-gradient(135deg, #FB670B, #d63f0a);
+  border-radius: 16px 0 0 16px;
+  border: 2.5px solid rgba(255, 255, 255, 0.9);
+  border-right: none;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: -4px 4px 18px rgba(242, 79, 19, 0.5);
+  max-width: 54px;
+  height: 54px;
+  transition: max-width 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 
-  /* Expandido: abre hacia la izquierda mostrando texto */
-  .botgo-pill-wrapper.phase-expanded {
-    max-width: 250px;
-  }
+  /* ✅ NUEVO — arranca invisible, sin ocupar espacio visual */
+  opacity: 0;
+  pointer-events: none;
+}
+
+.botgo-pill-wrapper.phase-entering {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Expanded: aparece y es clickeable */
+.botgo-pill-wrapper.phase-expanded {
+  max-width: 250px;
+  opacity: 1;
+  pointer-events: all;
+ transition: max-width 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 0.25s ease;
+}
+
 
   /* Contrayendo: vuelve al tamaño del ícono */
-  .botgo-pill-wrapper.phase-collapsing {
-    max-width: 54px;
-    transition: max-width 0.55s ease-in;
-  }
+.botgo-pill-wrapper.phase-collapsing {
+  max-width: 54px;
+  opacity: 1;
+  pointer-events: all;
+  transition: max-width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 
   /* Done: queda como pestaña con solo el ícono — SIEMPRE VISIBLE */
-  .botgo-pill-wrapper.phase-done {
-    max-width: 54px;
-    transition: none;
-    opacity: 1 !important;
-    visibility: visible !important;
-  }
+.botgo-pill-wrapper.phase-done {
+  max-width: 54px;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: all;
+  transition: none;
+  overflow: visible;
+}
 
   /* ── Ícono del robot — siempre visible ── */
   .botgo-pill-icon {
@@ -930,9 +957,10 @@ html.dark .botgo-tooltip-dot   { background:rgba(242,79,19,0.12); border-color:r
     right: 6px;
     width: 10px;
     height: 10px;
-    background: #ff3b30;
+      background: #22c55e;
+  border: 2px solid #FB670B;
     border-radius: 50%;
-    border: 2px solid #FB670B;
+    
     animation: notif-pulse 2s ease infinite;
     pointer-events: none;
   }

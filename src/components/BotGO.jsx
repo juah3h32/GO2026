@@ -90,7 +90,27 @@ const CartIcon    = () => (<svg width="14" height="14" viewBox="0 0 24 24" fill=
 const PhoneIcon   = () => (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2A19.86 19.86 0 013.1 5.18 2 2 0 015.09 3h3a2 2 0 012 1.72 12.07 12.07 0 00.7 2.81 2 2 0 01-.45 2.11L9.1 10.91a16 16 0 006.99 6.99l1.27-1.27a2 2 0 012.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0122 16.92z"/></svg>);
 const FileIcon    = () => (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>);
 
-const TOOLTIP_ICONS = [VacanteIcon, InfoIcon, CartIcon, PhoneIcon, FileIcon];
+const ICON_BY_KEYWORD = {
+  vacan:    VacanteIcon,
+  inform:   InfoIcon,
+  produc:   InfoIcon,
+  pedido:   CartIcon,
+  orden:    CartIcon,
+  contac:   PhoneIcon,
+  atencion: PhoneIcon,
+  catalog:  FileIcon,
+  descar:   FileIcon,
+  ficha:    FileIcon,
+};
+
+function getIconForItem(item) {
+  const key = `${item.text} ${item.bold}`.toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  for (const [kw, Icon] of Object.entries(ICON_BY_KEYWORD)) {
+    if (key.includes(kw)) return Icon;
+  }
+  return FileIcon;
+}
 
 const PDF_MAP = {
   rafia:      { label: 'Catálogo Rafia',            url: 'https://drive.google.com/file/d/1uAiR4uxO2iX_LsNFul6kXeb7jnnCEV_J/view' },
@@ -189,9 +209,9 @@ const MobilePill = ({ onOpen, t }) => {
   const [phase, setPhase] = useState('entering');
 
   useEffect(() => {
-    const t1 = setTimeout(() => setPhase('expanded'), 100);
-    const t2 = setTimeout(() => setPhase('collapsing'), 4500);
-    const t3 = setTimeout(() => setPhase('done'), 5200);
+    const t1 = setTimeout(() => setPhase('expanded'),   400);  // aparece más rápido
+const t2 = setTimeout(() => setPhase('collapsing'), 3800); // se queda menos tiempo
+const t3 = setTimeout(() => setPhase('done'),       4300); // cierre más ágil
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, []);
 
@@ -210,7 +230,7 @@ const MobilePill = ({ onOpen, t }) => {
     >
       <div className="botgo-pill-icon">
         <RobotIcon className="botgo-btn-icon" />
-        {phase !== 'done' && <span className="botgo-notif-dot" aria-hidden="true" />}
+        {phase === 'expanded' && <span className="botgo-notif-dot" aria-hidden="true" />}
       </div>
       <div className="botgo-pill-text">
         <span className="botgo-pill-label-small">{t?.pillLabelSmall || '¿En qué puedo'}</span>
@@ -239,8 +259,8 @@ const DesktopTooltip = ({ onOpen, onDismiss, t }) => {
 
   if (!visible) return null;
 
-  const items = (t.tooltipItems || []).map((item, i) => ({
-    icon: React.createElement(TOOLTIP_ICONS[i] || FileIcon),
+  const items = (t.tooltipItems || []).map((item) => ({
+    icon: React.createElement(getIconForItem(item)),
     text: item.text,
     bold: item.bold,
   }));
@@ -252,7 +272,7 @@ const DesktopTooltip = ({ onOpen, onDismiss, t }) => {
           <RobotIcon className="botgo-tooltip-robot" />
         </div>
         <div className="botgo-tooltip-title">
-          <span className="botgo-tooltip-title-main">{t.tooltipTitle  || '¿En qué puedo'}</span>
+          <span className="botgo-tooltip-title-main">{t.tooltipTitle   || '¿En qué puedo'}</span>
           <span className="botgo-tooltip-title-accent">{t.tooltipAccent || 'ayudarte hoy?'}</span>
         </div>
         <button className="botgo-tooltip-close" onClick={() => dismiss(false)} aria-label="Cerrar notificación">
@@ -299,7 +319,13 @@ export default function BotGO({ language = 'es' }) {
   const [lastVoiceResponse, setLastVoiceResponse] = useState(t.greeting);
   const [isBotSpeaking,     setIsBotSpeaking]     = useState(false);
   const [showTooltip,       setShowTooltip]       = useState(true);
-  const [isMobile,          setIsMobile]          = useState(false);
+
+  // ✅ FIX DEFINITIVO: mounted empieza en false
+  // El launcher NO se renderiza hasta que useEffect confirme
+  // dónde estamos — elimina el flash de SSR/hidratación de Astro
+  const [mounted,    setMounted]    = useState(false);
+  const [isMobile,   setIsMobile]   = useState(false);
+  const [isHomePage, setIsHomePage] = useState(false);
 
   const chatWindowRef        = useRef(null);
   const inputRef             = useRef(null);
@@ -309,8 +335,19 @@ export default function BotGO({ language = 'es' }) {
   const audioRef             = useRef(null);
   const messagesEndRef       = useRef(null);
 
+  // ✅ Un solo useEffect — corre SOLO en cliente, después de hidratación
   useEffect(() => {
-    setIsMobile(window.innerWidth <= 1024);
+    const mobile = window.innerWidth <= 1024;
+    const path   = window.location.pathname.replace(/\/$/, '');
+    const home   = ['', '/', '/es', '/en', '/index', '/home'].includes(path);
+
+    setIsMobile(mobile);
+    setIsHomePage(home);
+    setMounted(true); // ← activa el launcher solo cuando ya sabemos todo
+
+    const onResize = () => setIsMobile(window.innerWidth <= 1024);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
   }, []);
 
   useEffect(() => {
@@ -357,21 +394,17 @@ export default function BotGO({ language = 'es' }) {
     };
   }, [isOpen]);
 
-  // ── Abre el chat + avisa a InstallPWA ─────────────────────────────────────
   const handleCloseChat = () => {
     setIsOpen(false);
     setViewMode('voice');
     inputRef.current?.blur();
     window.focus();
-    // 🔔 Avisa a InstallPWA que el bot se cerró → ícono flotante reaparece
     window.dispatchEvent(new Event('pwa:bot-close'));
   };
 
-  // ── Cierra el chat + avisa a InstallPWA ───────────────────────────────────
   const handleOpenChat = () => {
     setShowTooltip(false);
     setIsOpen(true);
-    // 🔔 Avisa a InstallPWA que el bot se abrió → ícono flotante se oculta
     window.dispatchEvent(new Event('pwa:bot-open'));
   };
 
@@ -512,7 +545,7 @@ export default function BotGO({ language = 'es' }) {
               {!isListening && !loading && !isBotSpeaking && (
                 <div className="voice-caps-grid">
                   {(t.tooltipItems || []).map((item, i) => {
-                    const Icon = TOOLTIP_ICONS[i] || FileIcon;
+                    const Icon = getIconForItem(item);
                     return (
                       <button
                         key={i}
@@ -614,31 +647,55 @@ export default function BotGO({ language = 'es' }) {
         )}
       </div>
 
-      {/* ── LAUNCHER ── */}
-      {!isOpen && (
+      {/* ══════════════════════════════════════════
+          LAUNCHER
+          mounted=false → no renderiza NADA
+          Esto elimina completamente el flash de SSR:
+          Astro pinta HTML vacío → React hidrata →
+          useEffect corre → mounted=true → aparece
+          el launcher correcto sin ningún flash.
+      ══════════════════════════════════════════ */}
+      {!isOpen && mounted && (
         <div className="botgo-launcher">
-          {isMobile && (
+
+          {/* HOME MOBILE: solo pill animada */}
+          {isMobile && isHomePage && (
             <MobilePill onOpen={handleOpenChat} t={t} />
           )}
-          {!isMobile && (
-            <>
-              {showTooltip && (
-                <DesktopTooltip
-                  onOpen={handleOpenChat}
-                  onDismiss={() => setShowTooltip(false)}
-                  t={t}
-                />
-              )}
-              <button
-                className="botgo-button"
-                onClick={handleOpenChat}
-                aria-label="Abrir asistente virtual BotGO"
-              >
-                <RobotIcon className="botgo-btn-icon"/>
-                {showTooltip && <span className="botgo-notif-dot" aria-hidden="true"/>}
-              </button>
-            </>
+
+          {/* OTRAS PÁGINAS MOBILE: botón lateral fijo */}
+          {isMobile && !isHomePage && (
+            <button
+              className="botgo-button"
+              onClick={handleOpenChat}
+              aria-label="Abrir asistente virtual BotGO"
+            >
+              <RobotIcon className="botgo-btn-icon"/>
+            </button>
           )}
+
+          {/* DESKTOP: tooltip + botón circular */}
+     
+{!isMobile && isHomePage && (
+  <DesktopTooltip
+    onOpen={handleOpenChat}
+    onDismiss={() => setShowTooltip(false)}
+    t={t}
+  />
+)}
+{!isMobile && (
+  <button
+    className="botgo-button"
+    onClick={handleOpenChat}
+    aria-label="Abrir asistente virtual BotGO"
+  >
+    <RobotIcon className="botgo-btn-icon"/>
+    {!isMobile && isHomePage && showTooltip && (
+      <span className="botgo-notif-dot" aria-hidden="true"/>
+    )}
+  </button>
+)}
+
         </div>
       )}
     </div>
