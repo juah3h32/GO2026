@@ -27,7 +27,7 @@ export default defineConfig({
     AstroPWA({
       registerType: 'autoUpdate',
       devOptions: {
-        enabled: true
+        enabled: false
       },
       manifest: {
         name: 'GO - Grupo Ortiz',
@@ -63,10 +63,11 @@ export default defineConfig({
     })
   ],
 
-  vite: {
-    ssr: {
-      noExternal: ['three', 'cesium']
-    },
+vite: {
+  envPrefix: ['TURSO_', 'JWT_', 'OPENAI_', 'NOTIFY_'],
+  ssr: {
+    noExternal: ['three', 'cesium']
+  },
     define: {
       CESIUM_BASE_URL: JSON.stringify('/cesium')
     },

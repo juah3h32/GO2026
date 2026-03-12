@@ -1,5 +1,6 @@
 // src/pages/api/analytics.js
-import { logInteraction, readAllData, resetData, saveLead, readLeads, resetLeads } from '../../lib/analytics-db';
+import { logInteraction, readAllData, resetData, saveLead, readLeads, resetLeads, saveRecruitmentLead } from '../../lib/analytics-db';
+import { notifyNewDistribuidor, notifyNewVacante } from '../../lib/notify';
 
 export const prerender = false;
 
@@ -68,7 +69,7 @@ function filterByDateRange(data, from, to) {
 // ── POST ──────────────────────────────────────────────────────────────────────
 export async function POST({ request }) {
   try {
-    const body           = await request.json();
+    const body            = await request.json();
     const { action = '' } = body;
 
     // ── GET analytics con filtro opcional ────────────────────────────────────
@@ -122,6 +123,36 @@ export async function POST({ request }) {
       }
 
       await saveLead({ nombre, empresa, whatsapp, email, productos });
+
+      console.log('📲 Enviando notificación distribuidor para:', nombre);
+      await notifyNewDistribuidor({ nombre, empresa, whatsapp, productos });
+      console.log('✅ Notificación distribuidor enviada');
+
+      return json({ ok: true });
+    }
+
+    // ── GUARDAR lead de vacante ───────────────────────────────────────────────
+    if (action === 'leadVacante') {
+      const { nombre, puesto, whatsapp, email, mensaje } = body;
+
+      if (!nombre || !whatsapp) {
+        return json({ ok: false, error: 'nombre y whatsapp son requeridos' }, 400);
+      }
+
+      // ← Guardado en recruitment_leads en Turso (no en distribuidor_leads)
+      await saveRecruitmentLead({
+        nombre,
+        puesto:    puesto   || '',
+        telefono:  whatsapp,
+        email:     email    || '',
+        mensaje:   mensaje  || '',
+        sessionId: '',
+      });
+
+      console.log('📲 Enviando notificación vacante para:', nombre);
+      await notifyNewVacante({ nombre, puesto, whatsapp, email, mensaje });
+      console.log('✅ Notificación vacante enviada');
+
       return json({ ok: true });
     }
 
@@ -131,7 +162,7 @@ export async function POST({ request }) {
       return json({ ok: true, leads });
     }
 
-    // ── RESET leads ───────────────────────────────────────────────────────────
+    // ── RESET leads de distribuidores ─────────────────────────────────────────
     if (action === 'resetLeads') {
       await resetLeads();
       return json({ ok: true });

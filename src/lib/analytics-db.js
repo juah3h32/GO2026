@@ -228,3 +228,62 @@ export async function resetLeads() {
   await ensureLeadsTable();
   await db.execute({ sql: 'DELETE FROM distribuidor_leads', args: [] });
 }
+// ─── RECRUITMENT LEADS ───────────────────────────────────────────────────────
+
+async function ensureRecruitmentTable() {
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS recruitment_leads (
+      id        INTEGER PRIMARY KEY AUTOINCREMENT,
+      ts        TEXT NOT NULL DEFAULT (datetime('now')),
+      nombre    TEXT NOT NULL DEFAULT '',
+      email     TEXT NOT NULL DEFAULT '',
+      telefono  TEXT NOT NULL DEFAULT '',
+      puesto    TEXT NOT NULL DEFAULT '',
+      mensaje   TEXT NOT NULL DEFAULT '',
+      sessionId TEXT NOT NULL DEFAULT '',
+      estado    TEXT NOT NULL DEFAULT 'nuevo'
+    )
+  `);
+  await db.execute(`CREATE INDEX IF NOT EXISTS idx_recruitment_ts ON recruitment_leads(ts DESC)`);
+}
+
+export async function saveRecruitmentLead({ nombre, email, telefono, puesto, mensaje, sessionId }) {
+  await ensureInit();
+  await ensureRecruitmentTable();
+  await db.execute({
+    sql: `INSERT INTO recruitment_leads (nombre, email, telefono, puesto, mensaje, sessionId)
+          VALUES (?, ?, ?, ?, ?, ?)`,
+    args: [nombre||'', email||'', telefono||'', puesto||'', mensaje||'', sessionId||''],
+  });
+}
+
+export async function readRecruitmentLeads() {
+  await ensureInit();
+  await ensureRecruitmentTable();
+  const res = await db.execute(
+    `SELECT id, ts, nombre, email, telefono, puesto, mensaje, sessionId, estado
+     FROM recruitment_leads ORDER BY id DESC LIMIT 500`
+  );
+  return res.rows;
+}
+
+export async function updateRecruitmentStatus(id, estado) {
+  await ensureInit();
+  await ensureRecruitmentTable();
+  const valid = ['nuevo', 'revisado', 'contactado', 'descartado'];
+  if (!valid.includes(estado)) return false;
+  await db.execute({ sql: `UPDATE recruitment_leads SET estado = ? WHERE id = ?`, args: [estado, id] });
+  return true;
+}
+
+export async function deleteRecruitmentLead(id) {
+  await ensureInit();
+  await ensureRecruitmentTable();
+  await db.execute({ sql: 'DELETE FROM recruitment_leads WHERE id = ?', args: [id] });
+}
+
+export async function resetRecruitmentLeads() {
+  await ensureInit();
+  await ensureRecruitmentTable();
+  await db.execute({ sql: 'DELETE FROM recruitment_leads', args: [] });
+}

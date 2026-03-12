@@ -2,8 +2,9 @@
 import { MsEdgeTTS, OUTPUT_FORMAT } from "msedge-tts";
 import * as googleTTS from 'google-tts-api';
 import { Buffer } from 'node:buffer';
-import { logInteraction } from '../../lib/analytics-db.js';
-import { saveCandidate } from '../../lib/recruitment-db.js';
+import { logInteraction, saveRecruitmentLead } from '../../lib/analytics-db.js';
+// Al inicio, agrega el import
+import { notifyNewVacante } from '../../lib/notify';
 
 export const prerender = false;
 
@@ -457,14 +458,31 @@ export async function POST({ request }) {
       });
     } catch (e) { console.warn('⚠️ analytics log error:', e.message); }
 
-    // ── Guardar candidato ─────────────────────────────────────────────────
-    if (accionReclutamiento && recruitData) {
-      try {
-        recruitData.mensaje   = lastUserMsg;
-        recruitData.sessionId = sessionId;
-        saveCandidate(recruitData);
-      } catch (e) { console.warn('⚠️ recruitment save error:', e.message); }
-    }
+if (accionReclutamiento && recruitData) {
+  try {
+    recruitData.mensaje   = lastUserMsg;
+    recruitData.sessionId = sessionId;
+
+    await saveRecruitmentLead({
+      nombre:    recruitData.nombre    || '',
+      email:     recruitData.email     || '',
+      telefono:  recruitData.telefono  || '',
+      puesto:    recruitData.puesto    || '',
+      mensaje:   recruitData.mensaje   || '',
+      sessionId: recruitData.sessionId || '',
+    });
+
+    await notifyNewVacante({
+      nombre:   recruitData.nombre   || '',
+      puesto:   recruitData.puesto   || '',
+      whatsapp: recruitData.telefono || '',
+      email:    recruitData.email    || '',
+      mensaje:  recruitData.mensaje  || '',
+    });
+    console.log('✅ Candidato en Turso + Notificación RH enviada');
+
+  } catch (e) { console.warn('⚠️ recruitment save error:', e.message); }
+}
 
     // ── Audio ─────────────────────────────────────────────────────────────
     const audioUrl = isVoice ? await generarAudio(replyText, langCode) : null;
