@@ -91,8 +91,8 @@ html.dark {
    ========================================= */
 .botgo-window {
   width: 360px;
-  height: min(520px, calc(100vh - 140px));
-  max-height: calc(100vh - 140px);
+  height: 460px;
+  max-height: 460px;
   background-color: var(--chat-window-bg);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -796,13 +796,6 @@ html.dark .botgo-tooltip-card  { background:rgba(242,79,19,0.08); border-color:r
    ========================================= */
 
 /* ── Desktop: todos los tamaños se adaptan ── */
-@media screen and (min-width: 1025px) {
-  /* Pantalla grande (1080p+) — más compacto para no tapar el menú */
-  .botgo-window {
-    height: min(500px, calc(100vh - 150px));
-    max-height: calc(100vh - 150px);
-  }
-}
 
 @media screen and (min-width: 1025px) and (max-height: 820px) {
   .botgo-window { height: calc(100vh - 130px); min-height: 380px; }
