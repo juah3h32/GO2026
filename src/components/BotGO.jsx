@@ -136,15 +136,27 @@ function extraerDatosDeHistorial(msgs) {
 }
 
 // ─── RECRUITMENT PROGRESS ─────────────────────────────────────────────────────
+// SVG icons for recruitment steps (professional, no emojis)
+const RpIcons = {
+  puesto:  () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>,
+  nombre:  () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
+  edad:    () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>,
+  estado:  () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>,
+  colonia: () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
+  email:   () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>,
+  tel:     () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2A19.86 19.86 0 013.1 5.18 2 2 0 015.09 3h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L9.1 10.91a16 16 0 006.99 6.99l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>,
+  cv:      () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>,
+};
+
 const RECRUIT_STEPS = [
-  { key: 'puesto',  label: 'Puesto',  icon: '💼', regex: /puesto|posición|aplicar a/i },
-  { key: 'nombre',  label: 'Nombre',  icon: '👤', regex: /nombre completo|cómo te llamas/i },
-  { key: 'edad',    label: 'Edad',    icon: '🎂', regex: /cuántos años|años tienes|edad/i },
-  { key: 'estado',  label: 'Estado',  icon: '📍', regex: /estado.*república|estado.*vives|qué estado/i },
-  { key: 'colonia', label: 'Colonia', icon: '🏘️', regex: /colonia|municipio|localidad/i },
-  { key: 'email',   label: 'Email',   icon: '📧', regex: /correo|email|e-mail/i },
-  { key: 'tel',     label: 'Tel',     icon: '📱', regex: /whatsapp|teléfono|número.*contact/i },
-  { key: 'cv',      label: 'CV',      icon: '📄', regex: /tienes.*cv|adjunta.*cv|cv.*disponible/i },
+  { key: 'puesto',  label: 'Puesto',  Icon: RpIcons.puesto,  regex: /puesto|posición|aplicar a/i },
+  { key: 'nombre',  label: 'Nombre',  Icon: RpIcons.nombre,  regex: /nombre completo|cómo te llamas/i },
+  { key: 'edad',    label: 'Edad',    Icon: RpIcons.edad,    regex: /cuántos años|años tienes|edad/i },
+  { key: 'estado',  label: 'Estado',  Icon: RpIcons.estado,  regex: /estado.*república|estado.*vives|qué estado/i },
+  { key: 'colonia', label: 'Col.',    Icon: RpIcons.colonia, regex: /colonia|municipio|localidad/i },
+  { key: 'email',   label: 'Email',   Icon: RpIcons.email,   regex: /correo|email|e-mail/i },
+  { key: 'tel',     label: 'Tel',     Icon: RpIcons.tel,     regex: /whatsapp|teléfono|número.*contact/i },
+  { key: 'cv',      label: 'CV',      Icon: RpIcons.cv,      regex: /tienes.*cv|adjunta.*cv|cv.*disponible/i },
 ];
 
 function calcularPasoActual(messages) {
@@ -184,7 +196,7 @@ const RecruitmentProgress = ({ messages }) => {
           return (
             <div key={step.key} className={`rp-step rp-step--${state}`}>
               <div className="rp-step-dot">
-                {state === 'done' ? '✓' : step.icon}
+                {state === 'done' ? <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg> : <step.Icon />}
               </div>
               <span className="rp-step-label">{step.label}</span>
             </div>
@@ -228,6 +240,27 @@ const MessageActions = ({ waLink, pdfData, t }) => {
   );
 };
 
+// ─── QUICK REPLY ICONS ───────────────────────────────────────────────────────
+const QR_ICONS = {
+  // CV
+  'Sí, tengo CV':   () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>,
+  'No tengo CV':    () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>,
+  // Puestos
+  'Producción':     () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>,
+  'Logística':      () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>,
+  'Ventas':         () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>,
+  'Mantenimiento':  () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>,
+  'Ay. General':    () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>,
+  'Otro puesto':    () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>,
+  // Estados
+  'Michoacán':        () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>,
+  'Ciudad de México': () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>,
+  'Jalisco':          () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>,
+  'Nuevo León':       () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>,
+  'Guanajuato':       () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>,
+  'Otro estado':      () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>,
+};
+
 // ─── QUICK REPLIES ────────────────────────────────────────────────────────────
 const QuickReplies = ({ options, type, onSelect, disabled }) => {
   const [selected, setSelected] = useState(null);
@@ -249,6 +282,7 @@ const QuickReplies = ({ options, type, onSelect, disabled }) => {
           disabled={disabled || !!selected}
           style={{ animationDelay: `${i * 0.07}s` }}
         >
+          {(() => { const Icon = QR_ICONS[opt.label]; return Icon ? <span className="qr-icon"><Icon /></span> : null; })()}
           <span className="qr-label">{opt.label}</span>
         </button>
       ))}

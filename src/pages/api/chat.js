@@ -271,8 +271,8 @@ function detectarQuickReplies(text) {
     return {
       type: 'cv',
       options: [
-        { label: '📎 Sí, tengo CV', value: 'si_cv',  action: 'solicitar_cv' },
-        { label: '❌ No tengo CV',  value: 'no_cv',   action: 'continuar'    },
+        { label: 'Sí, tengo CV', value: 'si_cv',  action: 'solicitar_cv' },
+        { label: 'No tengo CV',  value: 'no_cv',   action: 'continuar'    },
       ],
     };
   }
@@ -282,12 +282,12 @@ function detectarQuickReplies(text) {
     return {
       type: 'puesto',
       options: [
-        { label: '🏭 Producción',     value: 'Operador de producción', action: 'text'  },
-        { label: '🚚 Logística',      value: 'Logística',              action: 'text'  },
-        { label: '💼 Ventas',         value: 'Ventas',                 action: 'text'  },
-        { label: '⚙️ Mantenimiento',  value: 'Mantenimiento',          action: 'text'  },
-        { label: '🖥️ Administración', value: 'Administrativo',         action: 'text'  },
-        { label: '✏️ Otro puesto',    value: 'otro',                   action: 'input' },
+        { label: 'Producción',       value: 'Operador de producción', action: 'text'  },
+        { label: 'Logística',        value: 'Logística',              action: 'text'  },
+        { label: 'Ventas',           value: 'Ventas',                 action: 'text'  },
+        { label: 'Mantenimiento',    value: 'Mantenimiento',          action: 'text'  },
+        { label: 'Ay. General',      value: 'Ayudante General',       action: 'text'  },
+        { label: 'Otro puesto',      value: 'otro',                   action: 'input' },
       ],
     };
   }
@@ -297,12 +297,12 @@ function detectarQuickReplies(text) {
     return {
       type: 'estado',
       options: [
-        { label: '🏔️ Michoacán',   value: 'Michoacán',        action: 'text'  },
-        { label: '🌆 CDMX',        value: 'Ciudad de México', action: 'text'  },
-        { label: '🌵 Jalisco',      value: 'Jalisco',          action: 'text'  },
-        { label: '⛰️ Nuevo León',  value: 'Nuevo León',       action: 'text'  },
-        { label: '🌾 Guanajuato',  value: 'Guanajuato',       action: 'text'  },
-        { label: '📍 Otro estado', value: 'otro',             action: 'input' },
+        { label: 'Michoacán',   value: 'Michoacán',        action: 'text'  },
+        { label: 'CDMX',        value: 'Ciudad de México', action: 'text'  },
+        { label: 'Jalisco',      value: 'Jalisco',          action: 'text'  },
+        { label: 'Nuevo León',  value: 'Nuevo León',       action: 'text'  },
+        { label: 'Guanajuato',  value: 'Guanajuato',       action: 'text'  },
+        { label: 'Otro estado', value: 'otro',             action: 'input' },
       ],
     };
   }

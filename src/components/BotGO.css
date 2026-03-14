@@ -1081,6 +1081,7 @@ html.dark .voice-cap-text { color: #bbb; }
   transition: all 0.3s ease;
   flex-shrink: 0;
 }
+.rp-step-dot svg { display: block; }
 
 .rp-step--done .rp-step-dot {
   background: var(--primary-orange);
@@ -1128,14 +1129,14 @@ html.dark .rp-step--pending .rp-step-label { color: #555; }
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 8px;
+  margin-top: 10px;
   padding-left: 2px;
 }
 
-/* Grid 2 columnas para puesto y estado */
+/* Grid 3 columnas para puesto y estado */
 .quick-replies-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: 7px;
 }
 
@@ -1161,23 +1162,60 @@ html.dark .rp-step--pending .rp-step-label { color: #555; }
   text-align: center;
 }
 
-/* Para las opciones grid (puesto/estado) — más cuadradas */
+/* Grid cards — 3 columnas, compactos, dinámicos */
 .quick-reply-btn--grid {
-  border-radius: 12px;
-  padding: 10px 8px;
-  font-size: 0.78rem;
+  border-radius: 10px;
+  padding: 10px 4px 9px;
+  font-size: 0.66rem;
+  font-weight: 600;
   flex-direction: column;
-  gap: 3px;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
   height: auto;
-  min-height: 52px;
+  min-height: 62px;
+  letter-spacing: -0.01em;
+  text-align: center;
+  overflow: hidden;
+  transition: background 0.18s, border-color 0.18s, transform 0.18s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.18s;
 }
 
-/* Botón "Otro..." — contorno distinto */
+.quick-reply-btn--grid:hover:not(:disabled) {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 6px 16px rgba(251,103,11,0.22);
+}
+
+.quick-reply-btn--grid:active:not(:disabled) {
+  transform: scale(0.95);
+  transition-duration: 0.1s;
+}
+
+.quick-reply-btn--grid.selected {
+  transform: scale(0.97);
+  animation: qr-select-pop 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+@keyframes qr-select-pop {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.08); }
+  100% { transform: scale(0.97); }
+}
+
+/* Botón "Otro..." — contorno distinto, span full row en grid de 3 */
 .quick-reply-btn--outline {
   background: transparent;
   border-style: dashed;
   color: #888;
   border-color: #ccc;
+}
+.quick-replies-grid .quick-reply-btn--outline {
+  grid-column: 1 / -1;
+  flex-direction: row;
+  min-height: auto;
+  padding: 9px 14px;
+  justify-content: center;
+  font-size: 0.76rem;
+  gap: 8px;
 }
 .quick-reply-btn--outline:hover:not(:disabled) {
   border-color: var(--primary-orange);
@@ -1186,11 +1224,45 @@ html.dark .rp-step--pending .rp-step-label { color: #555; }
 }
 
 @keyframes qrSlideIn {
-  from { opacity: 0; transform: translateY(6px) scale(0.95); }
-  to   { opacity: 1; transform: translateY(0)  scale(1);    }
+  from { opacity: 0; transform: translateY(10px) scale(0.92); }
+  50%  { opacity: 1; transform: translateY(-2px) scale(1.02); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
 }
 
-.qr-label { line-height: 1.3; }
+.qr-label {
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.qr-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  opacity: 0.9;
+  transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), opacity 0.18s;
+}
+
+/* Grid buttons — icon on top, label below */
+.quick-reply-btn--grid .qr-icon {
+  width: 30px;
+  height: 30px;
+  background: rgba(251,103,11,0.10);
+  border-radius: 8px;
+  transition: background 0.18s, transform 0.2s cubic-bezier(0.34,1.56,0.64,1);
+}
+.quick-reply-btn--grid:hover:not(:disabled) .qr-icon {
+  background: rgba(255,255,255,0.18);
+  transform: scale(1.1) rotate(-4deg);
+  opacity: 1;
+}
+.quick-reply-btn--grid.selected .qr-icon {
+  background: rgba(255,255,255,0.2);
+  opacity: 1;
+}
 
 .quick-reply-btn:hover:not(:disabled) {
   background: rgba(251,103,11,0.12);
