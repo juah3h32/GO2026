@@ -246,11 +246,11 @@ const QR_ICONS = {
   'Sí, tengo CV':   () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>,
   'No tengo CV':    () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>,
   // Puestos
-  'Producción':     () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>,
-  'Logística':      () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>,
-  'Ventas':         () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>,
-  'Mantenimiento':  () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>,
-  'Ay. General':    () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>,
+  'Producción':  () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>,
+  'Logística':   () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>,
+  'Ventas':      () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>,
+  'Técnico':     () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>,
+  'Ay. Gral.':   () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>,
   'Otro puesto':    () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>,
   // Estados
   'Michoacán':        () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>,
@@ -472,6 +472,7 @@ export default function BotGO({ language = 'es' }) {
   const productoCtxRef       = useRef(null);
   const audioRef             = useRef(null);
   const messagesEndRef       = useRef(null);
+  const recRef               = useRef(null);
 
   // ── detección de flujo de reclutamiento ──
   const enFlujoReclutamiento = messages.some(m =>
@@ -588,17 +589,59 @@ export default function BotGO({ language = 'es' }) {
   // ── VOZ ────────────────────────────────────────────────────────────────────
   const toggleListening = () => {
     if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; setIsBotSpeaking(false); }
-    if (isListening) { setIsListening(false); return; }
+
+    // Si ya está escuchando — detener
+    if (isListening) {
+      try { recRef.current?.stop(); } catch {}
+      recRef.current = null;
+      setIsListening(false);
+      return;
+    }
+
     if (typeof window === 'undefined') return;
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SR) { alert('Tu navegador no soporta reconocimiento de voz.'); return; }
+    if (!SR) { alert('Tu navegador no soporta reconocimiento de voz. Usa Chrome o Edge.'); return; }
+
+    // Cancelar instancia previa si existe
+    try { recRef.current?.abort(); } catch {}
+
     const rec = new SR();
-    rec.lang = t?.voiceCode || 'es-ES'; rec.continuous = false; rec.interimResults = true;
-    rec.onstart  = () => { setIsListening(true); voiceTextRef.current = ''; };
-    rec.onresult = (e) => { const txt = Array.from(e.results).map(r => r[0].transcript).join(''); setInput(txt); voiceTextRef.current = txt; };
-    rec.onerror  = () => setIsListening(false);
-    rec.onend    = () => { setIsListening(false); if (voiceTextRef.current.trim()) setTimeout(() => sendMessage(null, voiceTextRef.current, true), 600); };
-    try { rec.start(); } catch (err) { console.error(err); }
+    recRef.current = rec;
+
+    rec.lang           = t?.voiceCode || 'es-MX';
+    rec.continuous     = false;
+    rec.interimResults = true;
+    rec.maxAlternatives = 1;
+
+    rec.onstart  = () => { setIsListening(true); voiceTextRef.current = ''; setInput(''); };
+// ✅ CORRECTO — solo procesa desde el resultado actual
+rec.onresult = (e) => {
+  let txt = '';
+  for (let i = e.resultIndex; i < e.results.length; i++) {
+    txt += e.results[i][0].transcript;
+  }
+  setInput(txt);
+  voiceTextRef.current = txt;
+};
+    rec.onerror = (e) => {
+      console.warn('🎤 Speech error:', e.error);
+      setIsListening(false);
+      recRef.current = null;
+      if (e.error === 'not-allowed') alert('Permiso de micrófono denegado. Habilítalo en la configuración del navegador.');
+    };
+    rec.onend = () => {
+      setIsListening(false);
+      recRef.current = null;
+      const texto = voiceTextRef.current.trim();
+      if (texto) setTimeout(() => sendMessage(null, texto, true), 400);
+    };
+
+    try {
+      rec.start();
+    } catch (err) {
+      console.error('🎤 start error:', err);
+      recRef.current = null;
+    }
   };
 
   const playAudio = async (b64) => {
