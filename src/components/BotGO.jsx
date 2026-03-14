@@ -649,10 +649,30 @@ export default function BotGO({ language = 'es' }) {
   const waveAnimRef          = useRef(null);
 
   // ── Detección flujo reclutamiento ──────────────────────────────────────────
-  const enFlujoReclutamiento = messages.some(m =>
-    m.role === 'assistant' &&
-    /vacante|empleo|puesto|reclutamiento|aplicar|solicitud.*empleo|trabajo/i.test(m.content || '')
-  );
+  // Solo mostrar la barra si los últimos 4 mensajes siguen en el flujo.
+  // Si el usuario preguntó algo diferente (catálogo, productos, etc.) la barra desaparece.
+  const enFlujoReclutamiento = (() => {
+    // 1. Debe haber al menos un mensaje de reclutamiento en el historial
+    const hayReclutamiento = messages.some(m =>
+      m.role === 'assistant' &&
+      /vacante|empleo|puesto|reclutamiento|aplicar|solicitud.*empleo|trabajo/i.test(m.content || '')
+    );
+    if (!hayReclutamiento) return false;
+
+    // 2. El proceso no debe estar completado (candidatoRegistrado = terminó)
+    if (candidatoRegistrado) return false;
+
+    // 3. Los últimos 4 mensajes no deben contener temas fuera de reclutamiento
+    const ultimos = messages.slice(-4);
+    const salioDeFlujo = ultimos.some(m => {
+      const txt = (m.content || '').toLowerCase();
+      // Temas que indican que el usuario salió del flujo de reclutamiento
+      return /catálogo|catalogo|producto|rafia|stretch|saco|arpilla|cuerda|esquinero|empaque|precio|cotiz|whatsapp|pdf|ficha/i.test(txt);
+    });
+    if (salioDeFlujo) return false;
+
+    return true;
+  })();
 
   // ── Detección de plataforma ────────────────────────────────────────────────
   useEffect(() => {
