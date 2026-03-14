@@ -726,10 +726,10 @@ export default function BotGO({ language = 'es' }) {
   const handleQuickReply = async (opt, msgIdx) => {
     setMessages(prev => prev.map((m, i) => i === msgIdx ? { ...m, quickRepliesUsed: true } : m));
     if (opt.action === 'solicitar_cv') {
+      // FIX CV DEFINITIVO: activar mostrarSubirCV INMEDIATAMENTE en el estado
+      // React — no esperar al servidor, no depender de showCVUpload en mensajes.
       setMostrarSubirCV(true);
-      // FIX CV: pasar flag para que sendMessage inyecte showCVUpload=true en
-      // la respuesta del bot, sin depender de que el servidor repita accionCV.
-      await sendMessage(null, 'Sí, tengo mi CV para adjuntar', false, null, true);
+      await sendMessage(null, 'Sí, tengo mi CV para adjuntar', false);
     } else if (opt.action === 'continuar') {
       setMostrarSubirCV(false);
       await sendMessage(null, 'No, no tengo CV en este momento', false);
@@ -925,9 +925,7 @@ export default function BotGO({ language = 'es' }) {
   };
 
   // ── SEND MESSAGE ───────────────────────────────────────────────────────────
-  // forzarCV = true cuando viene del quick reply "Sí, tengo CV" para mostrar
-  // el botón de subida sin depender de que el servidor repita accionCV
-  const sendMessage = async (e = null, textOverride = null, isVoice = false, cvAdjunto = null, forzarCV = false) => {
+  const sendMessage = async (e = null, textOverride = null, isVoice = false, cvAdjunto = null) => {
     if (e) e.preventDefault();
     const text = (textOverride ?? input).trim();
     if (!text) return;
@@ -1002,9 +1000,8 @@ export default function BotGO({ language = 'es' }) {
         pdfData = PDF_MAP[clave] || PDF_MAP['general'];
       }
 
-      // Activar CV upload si el servidor lo indica O si fue forzado desde quick reply
-      const mostrarCV = (accionCV || forzarCV) && !cvSubido;
-      if (mostrarCV) {
+      // Activar CV upload si el servidor lo indica (y no hay CV subido ya)
+      if (accionCV && !cvSubido) {
         setMostrarSubirCV(true);
       }
 
@@ -1025,8 +1022,7 @@ export default function BotGO({ language = 'es' }) {
         content: replyText,
         waLink,
         pdfData,
-        // mostrarCV cubre tanto accionCV del servidor como forzarCV del quick reply
-        showCVUpload: mostrarCV,
+        showCVUpload: accionCV && !cvSubido,
         quickReplies,
         quickRepliesUsed: false,
       }]);
@@ -1167,20 +1163,24 @@ export default function BotGO({ language = 'es' }) {
                         disabled={msg.quickRepliesUsed || loading}
                       />
                     )}
-
-                    {/* FIX BUG #2: mostrar CV upload si showCVUpload está activo
-                        en este mensaje y no hay CV subido aún */}
-                    {msg.role === 'assistant' && msg.showCVUpload && !cvSubido && (
-                      <CVUploadButton
-                        onFileSelect={handleCVFileSelect}
-                        cvSubido={cvSubido}
-                        uploading={cvUploading}
-                        t={t}
-                      />
-                    )}
                   </div>
                 </div>
               ))}
+
+              {/* ── CV UPLOAD — controlado por estado, aparece inmediato ── */}
+              {mostrarSubirCV && !cvSubido && (
+                <div className="msg-row assistant">
+                  <div className="msg-avatar-small"><RobotIcon className="msg-icon-svg" /></div>
+                  <div className="msg-col">
+                    <CVUploadButton
+                      onFileSelect={handleCVFileSelect}
+                      cvSubido={cvSubido}
+                      uploading={cvUploading}
+                      t={t}
+                    />
+                  </div>
+                </div>
+              )}
 
               {loading && (
                 <div className="msg-row assistant">
