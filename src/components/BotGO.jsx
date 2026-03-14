@@ -806,7 +806,19 @@ export default function BotGO({ language = 'es' }) {
     setIsListening(false);
     setIsOpen(false);
     setViewMode('voice');
-    setVoiceActivated(false); // resetear al cerrar — al reabrir vuelven las cards
+    setVoiceActivated(false);
+    // Reset completo — al reabrir el chat empieza desde cero
+    setMessages([{
+      role: 'assistant', content: t.greeting,
+      waLink: null, pdfData: null,
+      showCVUpload: false, quickReplies: null, quickRepliesUsed: false,
+    }]);
+    setCvSubido(null);
+    setCvPendiente(null);
+    setMostrarSubirCV(false);
+    setCandidatoRegistrado(null);
+    setLastVoiceResponse(t.greeting);
+    productoCtxRef.current = null;
     inputRef.current?.blur();
     try { window.focus(); } catch {}
     window.dispatchEvent(new Event('pwa:bot-close'));
@@ -1070,7 +1082,15 @@ export default function BotGO({ language = 'es' }) {
       cvAdjunto: cvParaEnviar ? { nombre: cvParaEnviar.nombre, tamaño: cvParaEnviar.tamaño } : null,
     };
 
-    setMessages(prev => [...prev, userMsg]);
+    setMessages(prev => [
+      // Deshabilitar TODOS los quick replies anteriores cuando el usuario manda un nuevo mensaje
+      // Así los botones quedan inactivos si el usuario salió del flujo
+      ...prev.map(m => m.quickReplies && !m.quickRepliesUsed
+        ? { ...m, quickRepliesUsed: true }
+        : m
+      ),
+      userMsg,
+    ]);
     setInput('');
     if (cvParaEnviar) setCvPendiente(null);
     setLoading(true);
