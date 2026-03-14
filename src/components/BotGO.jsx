@@ -3,7 +3,7 @@ import ReactMarkdown from 'react-markdown';
 import './BotGO.css';
 import { translations } from '../i18n';
 
-console.log('🚀 BotGO v9 (3 bugs fixed) CARGADO');
+
 
 // ─── ICONS ────────────────────────────────────────────────────────────────────
 const RobotIcon = ({ className }) => (
@@ -619,6 +619,9 @@ export default function BotGO({ language = 'es' }) {
   const [lastVoiceResponse, setLastVoiceResponse] = useState(t.greeting);
   const [isBotSpeaking,     setIsBotSpeaking]     = useState(false);
   const [showTooltip,       setShowTooltip]       = useState(true);
+  // voiceActivated: true desde que el usuario presiona el mic por primera vez
+  // Una vez true, las cards y el texto del bot NO se muestran en modo voz
+  const [voiceActivated,    setVoiceActivated]    = useState(false);
 
   const [cvPendiente,    setCvPendiente]    = useState(null);
   const [cvSubido,       setCvSubido]       = useState(null);
@@ -642,6 +645,8 @@ export default function BotGO({ language = 'es' }) {
   const messagesEndRef       = useRef(null);
   const recRef               = useRef(null);
   const abortedRef           = useRef(false);
+  const waveCanvasRef        = useRef(null);
+  const waveAnimRef          = useRef(null);
 
   // ── Detección flujo reclutamiento ──────────────────────────────────────────
   const enFlujoReclutamiento = messages.some(m =>
@@ -711,6 +716,67 @@ export default function BotGO({ language = 'es' }) {
     };
   }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // ── Ondas fluidas Gemini — canvas animado en modo voz ─────────────────────
+  useEffect(() => {
+    if (viewMode !== 'voice') {
+      if (waveAnimRef.current) { cancelAnimationFrame(waveAnimRef.current); waveAnimRef.current = null; }
+      return;
+    }
+    const canvas = waveCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let t = 0;
+    const WAVES = [
+      { color: '#FB670B', amp: 26, freq: 0.013, speed: 0.022, phase: 0,   alpha: 0.65, yRatio: 0.42 },
+      { color: '#FB670B', amp: 16, freq: 0.019, speed: 0.032, phase: 1.2, alpha: 0.30, yRatio: 0.50 },
+      { color: '#C5C5C5', amp: 20, freq: 0.015, speed: 0.018, phase: 2.4, alpha: 0.28, yRatio: 0.46 },
+      { color: '#535353', amp: 30, freq: 0.009, speed: 0.014, phase: 0.8, alpha: 0.38, yRatio: 0.54 },
+      { color: '#C5C5C5', amp: 12, freq: 0.023, speed: 0.027, phase: 3.1, alpha: 0.18, yRatio: 0.38 },
+      { color: '#FB670B', amp: 18, freq: 0.017, speed: 0.024, phase: 1.7, alpha: 0.22, yRatio: 0.58 },
+    ];
+
+    function resize() {
+      const r = canvas.parentElement.getBoundingClientRect();
+      canvas.width  = r.width;
+      canvas.height = r.height;
+    }
+
+    function drawWave(w) {
+      const cw = canvas.width, ch = canvas.height;
+      const yBase = ch * w.yRatio;
+      ctx.beginPath();
+      ctx.moveTo(0, ch);
+      for (let x = 0; x <= cw; x += 2) {
+        const y = yBase
+          + Math.sin(x * w.freq + t * w.speed + w.phase) * w.amp
+          + Math.sin(x * w.freq * 0.55 + t * w.speed * 1.4 + w.phase + 1) * w.amp * 0.38;
+        ctx.lineTo(x, y);
+      }
+      ctx.lineTo(cw, ch); ctx.lineTo(0, ch); ctx.closePath();
+      const hex = Math.round(w.alpha * 255).toString(16).padStart(2, '0');
+      const grad = ctx.createLinearGradient(0, yBase - w.amp * 2, 0, ch);
+      grad.addColorStop(0, w.color + hex);
+      grad.addColorStop(1, w.color + '00');
+      ctx.fillStyle = grad;
+      ctx.fill();
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      WAVES.forEach(drawWave);
+      t++;
+      waveAnimRef.current = requestAnimationFrame(animate);
+    }
+
+    resize();
+    animate();
+    window.addEventListener('resize', resize);
+    return () => {
+      cancelAnimationFrame(waveAnimRef.current);
+      window.removeEventListener('resize', resize);
+    };
+  }, [viewMode]);
+
   const handleCloseChat = () => {
     if (recRef.current) {
       abortedRef.current = true;
@@ -720,6 +786,7 @@ export default function BotGO({ language = 'es' }) {
     setIsListening(false);
     setIsOpen(false);
     setViewMode('voice');
+    setVoiceActivated(false); // resetear al cerrar — al reabrir vuelven las cards
     inputRef.current?.blur();
     try { window.focus(); } catch {}
     window.dispatchEvent(new Event('pwa:bot-close'));
@@ -852,6 +919,7 @@ export default function BotGO({ language = 'es' }) {
     abortedRef.current   = false;
     voiceTextRef.current = '';
     setInput('');
+    setVoiceActivated(true); // desde este momento: solo orbe, sin cards ni texto
 
     const rec = new SR();
     recRef.current = rec;
@@ -1095,55 +1163,82 @@ export default function BotGO({ language = 'es' }) {
               <span>{t.voiceAssistantTitle || 'Asistente Virtual'}</span>
               <button className="voice-close-btn" onClick={handleCloseChat} aria-label="Cerrar"><CloseIcon /></button>
             </div>
+
             <div className="voice-content">
-              <div className={`voice-orb-container ${loading ? 'thinking' : isBotSpeaking ? 'speaking' : isListening ? 'listening' : 'idle'}`}>
-                <div className="voice-orb-core" />
-                <div className="voice-orb-ring ring-1" />
-                <div className="voice-orb-ring ring-2" />
-              </div>
-              <div className="voice-text-display">
-                {isListening ? (
-                  <p className="user-listening-text">{input || t.listeningState || 'Escuchando...'}</p>
-                ) : loading ? (
-                  <p className="assistant-thinking-text">{t.thinking || 'Pensando...'}</p>
-                ) : (
-                  <div className="assistant-speech-text">
-                    <ReactMarkdown>
-                      {(lastVoiceResponse || '')
-                        .replace(/\[ACCION:[^\]]+\]/gi, '')
-                        .replace(/https?:\/\/\S+/g, '')
-                        .split(/\n+/)
-                        .filter(Boolean)
-                        .slice(0, 2)
-                        .join('\n\n')}
-                    </ReactMarkdown>
+
+              {/* ── MODO VOZ ACTIVO: solo orbe con ondas, centrado ── */}
+              {voiceActivated ? (
+                <div className="voice-orb-only">
+                  <div className={`voice-orb-container ${loading ? 'thinking' : isBotSpeaking ? 'speaking' : isListening ? 'listening' : 'idle'}`}>
+                    <div className="voice-orb-core" />
+                    <div className="voice-orb-ring ring-1" />
+                    <div className="voice-orb-ring ring-2" />
+                    <div className="voice-orb-ring ring-3" />
                   </div>
-                )}
-              </div>
-              {!isListening && !loading && !isBotSpeaking && (
-                <div className="voice-caps-grid">
-                  {(t.tooltipItems || []).map((item, i) => {
-                    const Icon = getIconForItem(item);
-                    return (
-                      <button
-                        key={i}
-                        className="voice-cap-card"
-                        style={{ animationDelay: `${i * 0.07}s` }}
-                        onClick={() => {
-                          const query = `${item.text} ${item.bold}`;
-                          setInput(query);
-                          setViewMode('chat');
-                          setTimeout(() => sendMessage(null, query, false), 100);
-                        }}
-                      >
-                        <span className="voice-cap-icon"><Icon /></span>
-                        <span className="voice-cap-text">{item.text} <strong>{item.bold}</strong></span>
-                      </button>
-                    );
-                  })}
+                  {/* Estado debajo del orbe: breve label */}
+                  <p className="voice-orb-status">
+                    {isListening
+                      ? (input || t.listeningState || 'Escuchando...')
+                      : loading
+                        ? (t.thinking || 'Pensando...')
+                        : isBotSpeaking
+                          ? 'Hablando...'
+                          : 'Presiona el micrófono para hablar'}
+                  </p>
                 </div>
+              ) : (
+                /* ── MODO INICIAL: orbe + texto saludo + cards ── */
+                <>
+                  <div className={`voice-orb-container ${loading ? 'thinking' : isBotSpeaking ? 'speaking' : isListening ? 'listening' : 'idle'}`}>
+                    <div className="voice-orb-core" />
+                    <div className="voice-orb-ring ring-1" />
+                    <div className="voice-orb-ring ring-2" />
+                  </div>
+                  <div className="voice-text-display">
+                    <div className="assistant-speech-text">
+                      <ReactMarkdown>
+                        {(lastVoiceResponse || '')
+                          .replace(/\[ACCION:[^\]]+\]/gi, '')
+                          .replace(/https?:\/\/\S+/g, '')
+                          .split(/\n+/)
+                          .filter(Boolean)
+                          .slice(0, 2)
+                          .join('\n\n')}
+                      </ReactMarkdown>
+                    </div>
+                  </div>
+                  <div className="voice-caps-grid">
+                    {(t.tooltipItems || []).map((item, i) => {
+                      const Icon = getIconForItem(item);
+                      return (
+                        <button
+                          key={i}
+                          className="voice-cap-card"
+                          style={{ animationDelay: `${i * 0.07}s` }}
+                          onClick={() => {
+                            const query = `${item.text} ${item.bold}`;
+                            setInput(query);
+                            setViewMode('chat');
+                            setTimeout(() => sendMessage(null, query, false), 100);
+                          }}
+                        >
+                          <span className="voice-cap-icon"><Icon /></span>
+                          <span className="voice-cap-text">{item.text} <strong>{item.bold}</strong></span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </>
               )}
             </div>
+
+            {/* ── Ondas fluidas — solo cuando el mic fue activado ── */}
+            {voiceActivated && (
+              <div className="voice-wave-area">
+                <canvas ref={waveCanvasRef} className="voice-wave-canvas" />
+              </div>
+            )}
+
             <div className="voice-controls">
               <button className="voice-control-btn secondary" onClick={() => setViewMode('chat')} aria-label="Modo teclado"><KeyboardIcon /></button>
               <button className={`voice-control-btn primary-mic ${isListening ? 'active' : ''}`} onClick={toggleListening} aria-label={isListening ? 'Detener' : 'Hablar'}>
@@ -1151,7 +1246,6 @@ export default function BotGO({ language = 'es' }) {
               </button>
               <button className="voice-control-btn secondary" onClick={handleCloseChat} aria-label="Cerrar"><CloseIcon /></button>
             </div>
-            {/* FIX BUG #3: toast inline para errores de micrófono */}
             <MicToast message={micToast} onDismiss={() => setMicToast('')} />
           </div>
         )}
