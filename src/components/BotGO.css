@@ -91,19 +91,19 @@ html.dark {
    ========================================= */
 .botgo-window {
   width: 360px;
-  height: 580px;
-  max-height: calc(100vh - 100px);
+  height: min(520px, calc(100vh - 140px));
+  max-height: calc(100vh - 140px);
   background-color: var(--chat-window-bg);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   color: var(--chat-text-main) !important;
-  border-radius: 35px;
+  border-radius: 28px;
   box-shadow: var(--shadow-soft);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   position: absolute;
-  bottom: 70px;
+  bottom: 75px;
   right: 0;
   opacity: 0;
   transform: translateY(20px) scale(0.95);
@@ -795,37 +795,42 @@ html.dark .botgo-tooltip-card  { background:rgba(242,79,19,0.08); border-color:r
    15. RESPONSIVE DESKTOP
    ========================================= */
 
-/* Desktop pantalla baja / laptop 768px altura */
+/* ── Desktop: todos los tamaños se adaptan ── */
+@media screen and (min-width: 1025px) {
+  /* Pantalla grande (1080p+) — más compacto para no tapar el menú */
+  .botgo-window {
+    height: min(500px, calc(100vh - 150px));
+    max-height: calc(100vh - 150px);
+  }
+}
+
 @media screen and (min-width: 1025px) and (max-height: 820px) {
-  .botgo-window { height: calc(100vh - 120px); min-height: 400px; max-height: 560px; }
-  .voice-header { padding: 12px 18px; }
+  .botgo-window { height: calc(100vh - 130px); min-height: 380px; }
+  .voice-header { padding: 10px 18px; }
   .voice-content { gap: 10px; padding: 8px 14px 0; }
-  .voice-text-display { height: 56px; max-height: 56px; }
-  .voice-orb-container { width: 76px; height: 76px; }
-  .voice-orb-core { width: 42px; height: 42px; }
-  .voice-orb-ring { width: 42px; height: 42px; }
-  .voice-controls { padding: 10px 36px 16px; }
-  .voice-control-btn.primary-mic { width: 64px; height: 64px; }
-  .voice-control-btn.secondary { width: 44px; height: 44px; }
+  .voice-text-display { height: 50px; max-height: 50px; }
+  .voice-orb-container { width: 72px; height: 72px; }
+  .voice-orb-core { width: 40px; height: 40px; }
+  .voice-orb-ring { width: 40px; height: 40px; }
+  .voice-controls { padding: 10px 36px 14px; }
+  .voice-control-btn.primary-mic { width: 60px; height: 60px; }
+  .voice-control-btn.secondary { width: 42px; height: 42px; }
   .voice-caps-grid { gap: 6px; }
-  .voice-cap-card { padding: 8px 9px; }
-  .voice-cap-text { font-size: 10px; }
-  .voice-cap-text strong { font-size: 10.5px; }
+  .voice-cap-card { padding: 7px 9px; }
   .botgo-messages { padding: 10px 15px; }
-  .botgo-header-clean { padding: 12px 20px 8px 20px; }
-  .rp-wrapper { padding: 8px 16px 10px; }
-  .rp-step-dot { width: 22px; height: 22px; font-size: 9px; }
+  .botgo-header-clean { padding: 10px 20px 6px 20px; }
+  .rp-wrapper { padding: 7px 16px 9px; }
+  .rp-step-dot { width: 22px; height: 22px; }
   .rp-step-label { font-size: 7.5px; }
 }
 
-/* Desktop muy bajo / ventana pequeña */
 @media screen and (min-width: 1025px) and (max-height: 680px) {
-  .botgo-window { height: calc(100vh - 90px); min-height: 420px; }
+  .botgo-window { height: calc(100vh - 110px); min-height: 360px; }
   .voice-caps-grid { grid-template-columns: 1fr 1fr 1fr; }
-  .voice-cap-card { padding: 7px 8px; }
+  .voice-cap-card { padding: 6px 8px; }
   .voice-cap-icon { width: 22px; height: 22px; min-width: 22px; }
-  .voice-orb-container { width: 66px; height: 66px; }
-  .voice-orb-core { width: 36px; height: 36px; }
+  .voice-orb-container { width: 60px; height: 60px; }
+  .voice-orb-core { width: 32px; height: 32px; }
 }
 
 /* =========================================
