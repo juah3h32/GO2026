@@ -1731,3 +1731,43 @@ html.dark .cv-upload-hint { color: rgba(180,180,180,0.6); }
   50%  { transform: scale(1.05); opacity: 0.2; }
   100% { transform: scale(0.95); opacity: 0.6; }
 }
+
+/* =========================================
+   PATCH: QUICK REPLIES MÓVIL — 3 columnas
+   Pegar al FINAL de BotGO.css
+   ========================================= */
+
+@media screen and (max-width: 1024px) {
+
+  /* 3 columnas compactas en móvil */
+  .quick-replies-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 6px;
+    width: 100%;
+  }
+
+  /* "Otro puesto" / "Otro estado" — fila completa */
+  .quick-replies-grid .quick-reply-btn--outline {
+    grid-column: 1 / -1;
+  }
+
+  /* Cards más compactas para que entren 3 */
+  .quick-reply-btn--grid {
+    min-height: 64px;
+    font-size: 0.62rem;
+    padding: 10px 3px 8px;
+    letter-spacing: -0.02em;
+  }
+
+  .quick-reply-btn--grid .qr-icon {
+    width: 26px;
+    height: 26px;
+  }
+
+  .quick-reply-btn--grid .qr-label {
+    font-size: 0.62rem;
+    white-space: normal;
+    line-height: 1.15;
+    text-align: center;
+  }
+}
