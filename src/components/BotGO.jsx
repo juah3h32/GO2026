@@ -933,17 +933,30 @@ export default function BotGO({ language = 'es' }) {
     if (!b64) return;
     if (audioRef.current) {
       audioRef.current.pause();
+      URL.revokeObjectURL(audioRef.current._blobUrl || '');
       audioRef.current = null;
     }
     try {
-      const a = new Audio(b64);
+      // Convertir base64 a Blob URL — más compatible que data: URI en producción
+      // y no bloqueado por media-src CSP cuando viene de data:
+      let src = b64;
+      if (b64.startsWith('data:')) {
+        const [meta, base64Data] = b64.split(',');
+        const mimeType = meta.match(/:(.*?);/)?.[1] || 'audio/mpeg';
+        const bytes = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
+        const blob = new Blob([bytes], { type: mimeType });
+        src = URL.createObjectURL(blob);
+      }
+      const a = new Audio(src);
+      a._blobUrl = src.startsWith('blob:') ? src : null;
       audioRef.current = a;
       a.onplay  = () => setIsBotSpeaking(true);
-      a.onended = () => setIsBotSpeaking(false);
+      a.onended = () => { setIsBotSpeaking(false); URL.revokeObjectURL(a._blobUrl || ''); };
       a.onpause = () => setIsBotSpeaking(false);
-      a.onerror = () => setIsBotSpeaking(false);
+      a.onerror = () => { setIsBotSpeaking(false); URL.revokeObjectURL(a._blobUrl || ''); };
       await a.play();
-    } catch {
+    } catch (err) {
+      console.warn('🔊 playAudio error:', err);
       setIsBotSpeaking(false);
     }
   };
