@@ -25,7 +25,6 @@ export const POST: APIRoute = async ({ request }) => {
         return new Response(JSON.stringify({ ok: false, error: 'Mínimo 6 caracteres' }), { status: 400 });
       }
 
-      // userId = name del usuario en Turso: 'Admin' | 'RH' | 'Distribuidor'
       const VALID_NAMES = ['Admin', 'RH', 'Distribuidor'];
       if (!VALID_NAMES.includes(userId)) {
         return new Response(JSON.stringify({ ok: false, error: 'Usuario no válido' }), { status: 400 });
@@ -108,14 +107,17 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     const row  = result.rows[0];
+
+    // ✅ canDelete: solo el usuario Admin puede borrar datos
     const role = {
       name:        row.name        as string,
       color:       row.color       as string,
       tabs:        JSON.parse(row.tabs as string),
       canDownload: Boolean(row.can_download),
+      canDelete:   (row.name as string) === 'Admin',  // ← RH y Distribuidor = false
     };
 
-    console.log('✅ Login exitoso, rol:', role.name);
+    console.log(`✅ Login exitoso — rol: ${role.name} | canDelete: ${role.canDelete}`);
 
     const token = await new SignJWT({ role })
       .setProtectedHeader({ alg: 'HS256' })

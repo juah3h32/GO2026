@@ -3,11 +3,9 @@ import ReactMarkdown from 'react-markdown';
 import './BotGO.css';
 import { translations } from '../i18n';
 
-console.log('🚀 BotGO v4 (Astro Ready) CARGADO');
+console.log('🚀 BotGO v7 (Progress Bar + Desktop Cards + Dynamic Recruitment) CARGADO');
 
-// ══════════════════════════════════════════
-//  ICONS
-// ══════════════════════════════════════════
+// ─── ICONS ────────────────────────────────────────────────────────────────────
 const RobotIcon = ({ className }) => (
   <svg className={className} viewBox="0 0 100 100" fill="none">
     <defs>
@@ -27,63 +25,16 @@ const RobotIcon = ({ className }) => (
     <ellipse cx="50" cy="78" rx="6" ry="2" fill="#D35400" opacity="0.8"/>
   </svg>
 );
-
-const SendIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="22" y1="2" x2="11" y2="13"/>
-    <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-  </svg>
-);
-
-const MicIcon = ({ isListening, size = 24 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill={isListening ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={isListening ? "pulse-animation" : ""}>
-    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
-    <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-    <line x1="12" y1="19" x2="12" y2="23"/>
-    <line x1="8" y1="23" x2="16" y2="23"/>
-  </svg>
-);
-
-const BackArrowIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="19" y1="12" x2="5" y2="12"/>
-    <polyline points="12 19 5 12 12 5"/>
-  </svg>
-);
-
-const KeyboardIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="2" y="4" width="20" height="16" rx="2"/>
-    <line x1="6" y1="8" x2="6" y2="8"/><line x1="10" y1="8" x2="10" y2="8"/>
-    <line x1="14" y1="8" x2="14" y2="8"/><line x1="18" y1="8" x2="18" y2="8"/>
-    <line x1="6" y1="12" x2="6" y2="12"/><line x1="10" y1="12" x2="10" y2="12"/>
-    <line x1="14" y1="12" x2="14" y2="12"/><line x1="18" y1="12" x2="18" y2="18"/>
-    <line x1="6" y1="16" x2="11" y2="16"/><line x1="15" y1="16" x2="18" y2="16"/>
-  </svg>
-);
-
-const CloseIcon = ({ size = 24 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="18" y1="6" x2="6" y2="18"/>
-    <line x1="6" y1="6" x2="18" y2="18"/>
-  </svg>
-);
-
-const WhatsAppIcon = () => (
-  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.008-.57-.008-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
-  </svg>
-);
-
-const PdfIcon = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-    <polyline points="14 2 14 8 20 8"/>
-    <line x1="16" y1="13" x2="8" y2="13"/>
-    <line x1="16" y1="17" x2="8" y2="17"/>
-  </svg>
-);
-
+const SendIcon = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>);
+const MicIcon = ({ isListening, size = 24 }) => (<svg width={size} height={size} viewBox="0 0 24 24" fill={isListening ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={isListening ? "pulse-animation" : ""}><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>);
+const BackArrowIcon = () => (<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>);
+const KeyboardIcon = () => (<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="6" y1="8" x2="6" y2="8"/><line x1="10" y1="8" x2="10" y2="8"/><line x1="14" y1="8" x2="14" y2="8"/><line x1="18" y1="8" x2="18" y2="8"/><line x1="6" y1="12" x2="6" y2="12"/><line x1="10" y1="12" x2="10" y2="12"/><line x1="14" y1="12" x2="14" y2="12"/><line x1="18" y1="12" x2="18" y2="18"/><line x1="6" y1="16" x2="11" y2="16"/><line x1="15" y1="16" x2="18" y2="16"/></svg>);
+const CloseIcon = ({ size = 24 }) => (<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>);
+const WhatsAppIcon = () => (<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.008-.57-.008-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>);
+const PdfIcon = () => (<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>);
+const AttachIcon = () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>);
+const CheckCircleIcon = () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>);
+const SuccessIcon = () => (<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>);
 const VacanteIcon = () => (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 00-8 0v2"/><circle cx="12" cy="7" r="4"/></svg>);
 const InfoIcon    = () => (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>);
 const CartIcon    = () => (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.61L23 6H6"/></svg>);
@@ -91,27 +42,20 @@ const PhoneIcon   = () => (<svg width="14" height="14" viewBox="0 0 24 24" fill=
 const FileIcon    = () => (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>);
 
 const ICON_BY_KEYWORD = {
-  vacan:    VacanteIcon,
-  inform:   InfoIcon,
-  produc:   InfoIcon,
-  pedido:   CartIcon,
-  orden:    CartIcon,
-  contac:   PhoneIcon,
-  atencion: PhoneIcon,
-  catalog:  FileIcon,
-  descar:   FileIcon,
-  ficha:    FileIcon,
+  vacan: VacanteIcon, inform: InfoIcon, produc: InfoIcon,
+  pedido: CartIcon, orden: CartIcon, contac: PhoneIcon,
+  atencion: PhoneIcon, catalog: FileIcon, descar: FileIcon, ficha: FileIcon,
 };
 
 function getIconForItem(item) {
-  const key = `${item.text} ${item.bold}`.toLowerCase()
-    .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const key = `${item.text} ${item.bold}`.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   for (const [kw, Icon] of Object.entries(ICON_BY_KEYWORD)) {
     if (key.includes(kw)) return Icon;
   }
   return FileIcon;
 }
 
+// ─── PDF MAP ──────────────────────────────────────────────────────────────────
 const PDF_MAP = {
   rafia:      { label: 'Catálogo Rafia',            url: 'https://drive.google.com/file/d/1uAiR4uxO2iX_LsNFul6kXeb7jnnCEV_J/view' },
   stretch:    { label: 'Catálogo Stretch Film',     url: 'https://drive.google.com/file/d/1HYGcpgkRO_7OX22IcWvRpzpLZKgpYV3A/view' },
@@ -129,9 +73,6 @@ const PDF_MAP = {
   general:    { label: 'Catálogo General',          url: 'https://drive.google.com/file/d/1348E3b37R1KmpggjAURhsuQMfARyBaXB/view' },
 };
 
-// ══════════════════════════════════════════
-//  HELPERS
-// ══════════════════════════════════════════
 function detectarProducto(texto) {
   if (!texto) return null;
   const lower = texto.toLowerCase();
@@ -143,11 +84,7 @@ function detectarProducto(texto) {
 function esIntencionCompra(texto) {
   if (!texto) return false;
   const u = texto.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-  const regexTolerantes = [
-    /comp[a-z]{0,4}r/,/coti[a-z]{0,6}/,/preci[a-z]{0,3}/,/cuant[a-z]{0,2}/,
-    /cost[a-z]{0,3}/,/presup[a-z]{0,6}/,/adquir[a-z]{0,4}/,/dispon[a-z]{0,8}/,
-    /pedid[a-z]{0,2}/,/orden[a-z]{0,2}/,
-  ];
+  const regexTolerantes = [/comp[a-z]{0,4}r/,/coti[a-z]{0,6}/,/preci[a-z]{0,3}/,/cuant[a-z]{0,2}/,/cost[a-z]{0,3}/,/presup[a-z]{0,6}/,/adquir[a-z]{0,4}/,/dispon[a-z]{0,8}/,/pedid[a-z]{0,2}/,/orden[a-z]{0,2}/];
   if (regexTolerantes.some(r => r.test(u))) return true;
   const frases = ['me interesa','me gustaria','quisiera','estoy interesad','hay stock','tienen stock','hay disponible','como compro','donde compro','voy a comprar','contactar','whatsapp','llamar'];
   if (frases.some(k => u.includes(k))) return true;
@@ -162,9 +99,103 @@ function esSolicitudPDF(texto) {
   return ['pdf','catalogo','ficha tecnica','ficha del producto','descargar','descarga','brochure','folleto','informacion del producto','mas informacion','especificaciones','hoja tecnica'].some(k => u.includes(k));
 }
 
-// ══════════════════════════════════════════
-//  SUB-COMPONENTS
-// ══════════════════════════════════════════
+function formatFileSize(bytes) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function extraerDatosDeHistorial(msgs) {
+  const data = { nombre: '', puesto: '', edad: '', estado: '', colonia: '', email: '', telefono: '' };
+  for (let i = 0; i < msgs.length - 1; i++) {
+    const bot  = msgs[i];
+    const user = msgs[i + 1];
+    if (bot.role !== 'assistant' || user.role !== 'user') continue;
+    const pregunta  = (bot.content  || '').toLowerCase();
+    const respuesta = (user.content || '').trim();
+    if (!respuesta || respuesta.length < 2) continue;
+
+    if (/nombre completo|cómo te llamas|como te llamas|tu nombre|cuál es tu nombre/i.test(pregunta) && !data.nombre) {
+      if (!/^\d+$/.test(respuesta)) data.nombre = respuesta;
+    } else if (/puesto|posición|posicion|área|area|trabajo.*interesa|tipo de puesto|aplicar a/i.test(pregunta) && !data.puesto) {
+      data.puesto = respuesta;
+    } else if (/cuántos años|cuantos años|años tienes|edad/i.test(pregunta) && !data.edad) {
+      data.edad = respuesta;
+    } else if (/estado.*república|estado.*vives|qué estado|que estado/i.test(pregunta) && !data.estado) {
+      data.estado = respuesta;
+    } else if (/colonia|municipio|localidad/i.test(pregunta) && !data.colonia) {
+      data.colonia = respuesta;
+    } else if (/correo|email|e-mail|mail/i.test(pregunta) && !data.email) {
+      const emailMatch = respuesta.match(/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/);
+      data.email = emailMatch ? emailMatch[0] : respuesta;
+    } else if (/whatsapp|teléfono|telefono|número|numero|celular/i.test(pregunta) && !data.telefono) {
+      data.telefono = respuesta;
+    }
+  }
+  return data;
+}
+
+// ─── RECRUITMENT PROGRESS ─────────────────────────────────────────────────────
+const RECRUIT_STEPS = [
+  { key: 'puesto',  label: 'Puesto',  icon: '💼', regex: /puesto|posición|aplicar a/i },
+  { key: 'nombre',  label: 'Nombre',  icon: '👤', regex: /nombre completo|cómo te llamas/i },
+  { key: 'edad',    label: 'Edad',    icon: '🎂', regex: /cuántos años|años tienes|edad/i },
+  { key: 'estado',  label: 'Estado',  icon: '📍', regex: /estado.*república|estado.*vives|qué estado/i },
+  { key: 'colonia', label: 'Colonia', icon: '🏘️', regex: /colonia|municipio|localidad/i },
+  { key: 'email',   label: 'Email',   icon: '📧', regex: /correo|email|e-mail/i },
+  { key: 'tel',     label: 'Tel',     icon: '📱', regex: /whatsapp|teléfono|número.*contact/i },
+  { key: 'cv',      label: 'CV',      icon: '📄', regex: /tienes.*cv|adjunta.*cv|cv.*disponible/i },
+];
+
+function calcularPasoActual(messages) {
+  let completed = 0;
+  for (let i = 0; i < messages.length - 1; i++) {
+    const bot  = messages[i];
+    const user = messages[i + 1];
+    if (bot.role !== 'assistant' || user.role !== 'user') continue;
+    const pregunta  = (bot.content || '');
+    const respuesta = (user.content || '').trim();
+    if (!respuesta || respuesta.length < 1) continue;
+    for (let s = 0; s < RECRUIT_STEPS.length; s++) {
+      if (RECRUIT_STEPS[s].regex.test(pregunta)) {
+        completed = Math.max(completed, s + 1);
+      }
+    }
+  }
+  return completed;
+}
+
+const RecruitmentProgress = ({ messages }) => {
+  const completed = calcularPasoActual(messages);
+  const pct = Math.round((completed / RECRUIT_STEPS.length) * 100);
+
+  return (
+    <div className="rp-wrapper">
+      <div className="rp-header">
+        <span className="rp-title">📋 Solicitud de empleo</span>
+        <span className="rp-badge">{pct}% completado</span>
+      </div>
+      <div className="rp-bar-track">
+        <div className="rp-bar-fill" style={{ width: `${pct}%` }} />
+      </div>
+      <div className="rp-steps">
+        {RECRUIT_STEPS.map((step, i) => {
+          const state = i < completed ? 'done' : i === completed ? 'active' : 'pending';
+          return (
+            <div key={step.key} className={`rp-step rp-step--${state}`}>
+              <div className="rp-step-dot">
+                {state === 'done' ? '✓' : step.icon}
+              </div>
+              <span className="rp-step-label">{step.label}</span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+// ─── RENDERERS ────────────────────────────────────────────────────────────────
 const MessageRenderer = ({ content, isAssistant }) => {
   if (!isAssistant) return <span>{content}</span>;
   const clean = content
@@ -191,93 +222,168 @@ const MessageActions = ({ waLink, pdfData, t }) => {
   if (!waLink && !pdfData) return null;
   return (
     <div className="msg-actions">
-      {waLink && (
-        <a href={waLink} target="_blank" rel="noopener noreferrer" className="msg-action-btn msg-action-wa">
-          <WhatsAppIcon /> <span>{t?.salesBtn || 'Cotizar por WhatsApp'}</span>
-        </a>
-      )}
-      {pdfData && (
-        <a href={pdfData.url} target="_blank" rel="noopener noreferrer" className="msg-action-btn msg-action-pdf">
-          <PdfIcon /> <span>{t?.pdfBtn || 'Ver catálogo PDF'}</span>
-        </a>
-      )}
+      {waLink  && (<a href={waLink}     target="_blank" rel="noopener noreferrer" className="msg-action-btn msg-action-wa"><WhatsAppIcon /><span>{t?.salesBtn || 'Cotizar por WhatsApp'}</span></a>)}
+      {pdfData && (<a href={pdfData.url} target="_blank" rel="noopener noreferrer" className="msg-action-btn msg-action-pdf"><PdfIcon /><span>{t?.pdfBtn || 'Ver catálogo PDF'}</span></a>)}
     </div>
   );
 };
 
-const MobilePill = ({ onOpen, t }) => {
-  const [phase, setPhase] = useState('entering');
+// ─── QUICK REPLIES ────────────────────────────────────────────────────────────
+const QuickReplies = ({ options, type, onSelect, disabled }) => {
+  const [selected, setSelected] = useState(null);
+  const isGrid = type === 'puesto' || type === 'estado';
 
-  useEffect(() => {
-    const t1 = setTimeout(() => setPhase('expanded'),   400);  // aparece más rápido
-const t2 = setTimeout(() => setPhase('collapsing'), 3800); // se queda menos tiempo
-const t3 = setTimeout(() => setPhase('done'),       4300); // cierre más ágil
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
-  }, []);
-
-  const handleClose = (e) => {
-    e.stopPropagation();
-    setPhase('collapsing');
-    setTimeout(() => setPhase('done'), 700);
+  const handleClick = (opt) => {
+    if (disabled || selected) return;
+    setSelected(opt.value);
+    onSelect(opt);
   };
 
   return (
-    <div
-      className={`botgo-pill-wrapper phase-${phase}`}
-      onClick={onOpen}
-      role="button"
-      aria-label="Abrir asistente virtual BotGO"
-    >
+    <div className={`quick-replies-container ${isGrid ? 'quick-replies-grid' : ''}`}>
+      {options.map((opt, i) => (
+        <button
+          key={opt.value}
+          className={`quick-reply-btn ${isGrid ? 'quick-reply-btn--grid' : ''} ${opt.action === 'input' ? 'quick-reply-btn--outline' : ''} ${selected === opt.value ? 'selected' : ''} ${selected && selected !== opt.value ? 'faded' : ''}`}
+          onClick={() => handleClick(opt)}
+          disabled={disabled || !!selected}
+          style={{ animationDelay: `${i * 0.07}s` }}
+        >
+          <span className="qr-label">{opt.label}</span>
+        </button>
+      ))}
+    </div>
+  );
+};
+
+// ─── CV UPLOAD ────────────────────────────────────────────────────────────────
+let _cvIdCounter = 0;
+
+const CVUploadButton = ({ onFileSelect, cvSubido, uploading, t }) => {
+  const [inputId] = useState(() => `cv-input-${++_cvIdCounter}`);
+  const handleChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) onFileSelect(file);
+    e.target.value = '';
+  };
+  if (cvSubido) {
+    return (
+      <div className="cv-upload-success" title={cvSubido.nombre}>
+        <CheckCircleIcon />
+        <span className="cv-upload-filename">{cvSubido.nombre}</span>
+        <span className="cv-upload-size">{formatFileSize(cvSubido.tamaño)}</span>
+      </div>
+    );
+  }
+  if (uploading) {
+    return (
+      <div className="cv-upload-zone">
+        <span className="msg-action-btn msg-action-cv" style={{ opacity: 0.65, cursor: 'wait' }}>
+          <AttachIcon /><span>{t?.cvUploading || 'Subiendo CV...'}</span>
+        </span>
+      </div>
+    );
+  }
+  return (
+    <div className="cv-upload-zone">
+      <input id={inputId} type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" onChange={handleChange}
+        style={{ position:'absolute', width:'1px', height:'1px', padding:0, margin:'-1px', overflow:'hidden', clip:'rect(0,0,0,0)', whiteSpace:'nowrap', borderWidth:0 }}
+      />
+      <label htmlFor={inputId} className="msg-action-btn msg-action-cv" style={{ cursor:'pointer', userSelect:'none' }} tabIndex={0} role="button" aria-label={t?.cvBtn || 'Adjuntar CV'}
+        onKeyDown={(e) => { if (e.key==='Enter'||e.key===' ') { e.preventDefault(); document.getElementById(inputId)?.click(); } }}
+      >
+        <AttachIcon /><span>{t?.cvBtn || 'Adjuntar CV (PDF, DOC, imagen)'}</span>
+      </label>
+      <p className="cv-upload-hint">{t?.cvHint || 'Máx. 5MB · PDF, DOC, DOCX, JPG, PNG'}</p>
+    </div>
+  );
+};
+
+// ─── RECRUITMENT CONFIRMATION ─────────────────────────────────────────────────
+const RecruitmentConfirmation = ({ candidato, t }) => {
+  const [visible, setVisible] = useState(false);
+  useEffect(() => { const timer = setTimeout(() => setVisible(true), 120); return () => clearTimeout(timer); }, []);
+  return (
+    <div className={`recruitment-confirmation ${visible ? 'confirmation-visible' : ''}`} role="status" aria-live="polite">
+      <div className="confirmation-icon-wrapper">
+        <div className="confirmation-icon-circle"><SuccessIcon /></div>
+        <div className="confirmation-icon-ring" />
+      </div>
+      <div className="confirmation-body">
+        <p className="confirmation-title">{t?.confirmTitle || '¡Solicitud registrada con éxito!'}</p>
+        <p className="confirmation-subtitle">{t?.confirmSubtitle || 'Nuestro equipo de RH se pondrá en contacto contigo pronto.'}</p>
+        {candidato && (
+          <div className="confirmation-badge">
+            {candidato.nombre && (
+              <div className="confirmation-badge-row">
+                <span className="confirmation-badge-label">Nombre</span>
+                <span className="confirmation-badge-value">{candidato.nombre}</span>
+              </div>
+            )}
+            {candidato.puesto && (
+              <div className="confirmation-badge-row">
+                <span className="confirmation-badge-label">Puesto</span>
+                <span className="confirmation-badge-value">{candidato.puesto}</span>
+              </div>
+            )}
+            {candidato.id && (
+              <div className="confirmation-badge-row">
+                <span className="confirmation-badge-label">Folio</span>
+                <span className="confirmation-badge-value confirmation-folio">#{String(candidato.id).padStart(5,'0')}</span>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// ─── MOBILE PILL ──────────────────────────────────────────────────────────────
+const MobilePill = ({ onOpen, t }) => {
+  const [phase, setPhase] = useState('entering');
+  useEffect(() => {
+    const t1 = setTimeout(() => setPhase('expanded'),   400);
+    const t2 = setTimeout(() => setPhase('collapsing'), 3800);
+    const t3 = setTimeout(() => setPhase('done'),       4300);
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+  }, []);
+  const handleClose = (e) => { e.stopPropagation(); setPhase('collapsing'); setTimeout(() => setPhase('done'), 700); };
+  return (
+    <div className={`botgo-pill-wrapper phase-${phase}`} onClick={onOpen} role="button" aria-label="Abrir asistente virtual BotGO">
       <div className="botgo-pill-icon">
         <RobotIcon className="botgo-btn-icon" />
         {phase === 'expanded' && <span className="botgo-notif-dot" aria-hidden="true" />}
       </div>
       <div className="botgo-pill-text">
         <span className="botgo-pill-label-small">{t?.pillLabelSmall || '¿En qué puedo'}</span>
-        <span className="botgo-pill-label-big">{t?.pillLabelBig    || 'AYUDARTE HOY?'}</span>
+        <span className="botgo-pill-label-big">{t?.pillLabelBig || 'AYUDARTE HOY?'}</span>
       </div>
-      <button className="botgo-pill-close" onClick={handleClose} aria-label="Cerrar">
-        <CloseIcon size={13} />
-      </button>
+      <button className="botgo-pill-close" onClick={handleClose} aria-label="Cerrar"><CloseIcon size={13} /></button>
     </div>
   );
 };
 
+// ─── DESKTOP TOOLTIP — diseño original con lista ─────────────────────────────
 const DesktopTooltip = ({ onOpen, onDismiss, t }) => {
   const [visible, setVisible] = useState(true);
   const [exiting, setExiting] = useState(false);
-
   const dismiss = (open = false) => {
     setExiting(true);
     setTimeout(() => { setVisible(false); open ? onOpen() : onDismiss(); }, 300);
   };
-
-  useEffect(() => {
-    const timer = setTimeout(() => dismiss(false), 12000);
-    return () => clearTimeout(timer);
-  }, []);
-
+  useEffect(() => { const timer = setTimeout(() => dismiss(false), 12000); return () => clearTimeout(timer); }, []);
   if (!visible) return null;
-
-  const items = (t.tooltipItems || []).map((item) => ({
-    icon: React.createElement(getIconForItem(item)),
-    text: item.text,
-    bold: item.bold,
-  }));
-
+  const items = (t.tooltipItems || []).map((item) => ({ icon: React.createElement(getIconForItem(item)), text: item.text, bold: item.bold }));
   return (
     <div className={`botgo-tooltip ${exiting ? 'exiting' : ''}`} role="dialog" aria-label={`${t.tooltipTitle} ${t.tooltipAccent}`}>
       <div className="botgo-tooltip-header">
-        <div className="botgo-tooltip-avatar">
-          <RobotIcon className="botgo-tooltip-robot" />
-        </div>
+        <div className="botgo-tooltip-avatar"><RobotIcon className="botgo-tooltip-robot" /></div>
         <div className="botgo-tooltip-title">
-          <span className="botgo-tooltip-title-main">{t.tooltipTitle   || '¿En qué puedo'}</span>
+          <span className="botgo-tooltip-title-main">{t.tooltipTitle || '¿En qué puedo'}</span>
           <span className="botgo-tooltip-title-accent">{t.tooltipAccent || 'ayudarte hoy?'}</span>
         </div>
-        <button className="botgo-tooltip-close" onClick={() => dismiss(false)} aria-label="Cerrar notificación">
-          <CloseIcon size={16} />
-        </button>
+        <button className="botgo-tooltip-close" onClick={() => dismiss(false)} aria-label="Cerrar notificación"><CloseIcon size={16} /></button>
       </div>
       <div className="botgo-tooltip-divider" />
       <ul className="botgo-tooltip-list">
@@ -288,27 +394,22 @@ const DesktopTooltip = ({ onOpen, onDismiss, t }) => {
           </li>
         ))}
       </ul>
-      <button className="botgo-tooltip-cta" onClick={() => dismiss(true)}>
-        {t.tooltipCta || '¡Iniciar chat ahora!'}
-      </button>
+      <button className="botgo-tooltip-cta" onClick={() => dismiss(true)}>{t.tooltipCta || '¡Iniciar chat ahora!'}</button>
       <div className="botgo-tooltip-arrow" />
     </div>
   );
 };
 
-// ══════════════════════════════════════════
-//  MAIN COMPONENT
-// ══════════════════════════════════════════
+// ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
 export default function BotGO({ language = 'es' }) {
   const currentLangCode = translations[language] ? language : 'es';
   const t = translations[currentLangCode].chatbot;
   const isRTL = currentLangCode === 'ar';
 
   const [messages, setMessages] = useState([{
-    role: 'assistant',
-    content: t.greeting,
-    waLink: null,
-    pdfData: null,
+    role: 'assistant', content: t.greeting,
+    waLink: null, pdfData: null,
+    showCVUpload: false, quickReplies: null, quickRepliesUsed: false,
   }]);
 
   const [input,             setInput]             = useState('');
@@ -320,9 +421,12 @@ export default function BotGO({ language = 'es' }) {
   const [isBotSpeaking,     setIsBotSpeaking]     = useState(false);
   const [showTooltip,       setShowTooltip]       = useState(true);
 
-  // ✅ FIX DEFINITIVO: mounted empieza en false
-  // El launcher NO se renderiza hasta que useEffect confirme
-  // dónde estamos — elimina el flash de SSR/hidratación de Astro
+  const [cvPendiente,    setCvPendiente]    = useState(null);
+  const [cvSubido,       setCvSubido]       = useState(null);
+  const [cvUploading,    setCvUploading]    = useState(false);
+  const [mostrarSubirCV, setMostrarSubirCV] = useState(false);
+
+  const [candidatoRegistrado, setCandidatoRegistrado] = useState(null);
   const [mounted,    setMounted]    = useState(false);
   const [isMobile,   setIsMobile]   = useState(false);
   const [isHomePage, setIsHomePage] = useState(false);
@@ -335,16 +439,17 @@ export default function BotGO({ language = 'es' }) {
   const audioRef             = useRef(null);
   const messagesEndRef       = useRef(null);
 
-  // ✅ Un solo useEffect — corre SOLO en cliente, después de hidratación
+  // ── detección de flujo de reclutamiento ──
+  const enFlujoReclutamiento = messages.some(m =>
+    m.role === 'assistant' &&
+    /vacante|empleo|puesto|reclutamiento|aplicar|solicitud.*empleo|trabajo/i.test(m.content || '')
+  );
+
   useEffect(() => {
     const mobile = window.innerWidth <= 1024;
     const path   = window.location.pathname.replace(/\/$/, '');
     const home   = ['', '/', '/es', '/en', '/index', '/home'].includes(path);
-
-    setIsMobile(mobile);
-    setIsHomePage(home);
-    setMounted(true); // ← activa el launcher solo cuando ya sabemos todo
-
+    setIsMobile(mobile); setIsHomePage(home); setMounted(true);
     const onResize = () => setIsMobile(window.innerWidth <= 1024);
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
@@ -352,9 +457,7 @@ export default function BotGO({ language = 'es' }) {
 
   useEffect(() => {
     if (viewMode === 'chat' && messagesEndRef.current) {
-      setTimeout(() => {
-        messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
-      }, 150);
+      setTimeout(() => { messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' }); }, 150);
     }
   }, [messages, loading, viewMode]);
 
@@ -368,10 +471,7 @@ export default function BotGO({ language = 'es' }) {
     const onKey = (e) => {
       if (e.key.toLowerCase() === 'f') {
         const tag = e.target.tagName;
-        if (tag !== 'INPUT' && tag !== 'TEXTAREA' && !e.target.isContentEditable) {
-          e.preventDefault();
-          setIsOpen(true);
-        }
+        if (tag !== 'INPUT' && tag !== 'TEXTAREA' && !e.target.isContentEditable) { e.preventDefault(); setIsOpen(true); }
       }
     };
     const onEsc     = (e) => { if (e.key === 'Escape') handleCloseChat(); };
@@ -383,31 +483,75 @@ export default function BotGO({ language = 'es' }) {
       }
     };
     window.addEventListener('keydown', onKey);
-    if (isOpen) {
-      document.addEventListener('mousedown', onOutside);
-      document.addEventListener('keydown', onEsc);
-    }
-    return () => {
-      window.removeEventListener('keydown', onKey);
-      document.removeEventListener('mousedown', onOutside);
-      document.removeEventListener('keydown', onEsc);
-    };
+    if (isOpen) { document.addEventListener('mousedown', onOutside); document.addEventListener('keydown', onEsc); }
+    return () => { window.removeEventListener('keydown', onKey); document.removeEventListener('mousedown', onOutside); document.removeEventListener('keydown', onEsc); };
   }, [isOpen]);
 
   const handleCloseChat = () => {
-    setIsOpen(false);
-    setViewMode('voice');
-    inputRef.current?.blur();
-    window.focus();
+    setIsOpen(false); setViewMode('voice');
+    inputRef.current?.blur(); window.focus();
     window.dispatchEvent(new Event('pwa:bot-close'));
   };
 
   const handleOpenChat = () => {
-    setShowTooltip(false);
-    setIsOpen(true);
+    setShowTooltip(false); setIsOpen(true);
     window.dispatchEvent(new Event('pwa:bot-open'));
   };
 
+  // ── QUICK REPLIES (versión mejorada) ──────────────────────────────────────
+  const handleQuickReply = async (opt, msgIdx) => {
+    setMessages(prev => prev.map((m, i) => i === msgIdx ? { ...m, quickRepliesUsed: true } : m));
+
+    if (opt.action === 'solicitar_cv') {
+      setMostrarSubirCV(true);
+      await sendMessage(null, 'Sí, tengo mi CV para adjuntar', false);
+    } else if (opt.action === 'continuar') {
+      setMostrarSubirCV(false);
+      await sendMessage(null, 'No, no tengo CV en este momento', false);
+    } else if (opt.action === 'text') {
+      // Envía el valor directamente como si el usuario lo hubiera escrito
+      await sendMessage(null, opt.value, false);
+    } else if (opt.action === 'input') {
+      // Abre el teclado para que el usuario escriba su respuesta personalizada
+      setInput('');
+      setTimeout(() => {
+        inputRef.current?.focus();
+        inputRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }, 150);
+    } else {
+      await sendMessage(null, opt.label, false);
+    }
+  };
+
+  // ── CV ─────────────────────────────────────────────────────────────────────
+  const handleCVFileSelect = async (file) => {
+    if (!file) return;
+    const allowedTypes = ['application/pdf','application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document','image/jpeg','image/png'];
+    if (!allowedTypes.includes(file.type)) { alert('Tipo de archivo no permitido. Usa PDF, DOC, DOCX, JPG o PNG.'); return; }
+    if (file.size > 5 * 1024 * 1024) { alert('El archivo es demasiado grande. Máximo 5MB.'); return; }
+    setCvUploading(true);
+    try {
+      const base64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload  = () => resolve(reader.result.split(',')[1]);
+        reader.onerror = () => reject(new Error('Error leyendo archivo'));
+        reader.readAsDataURL(file);
+      });
+      const cvData = { nombre: file.name, tipo: file.type, base64, tamaño: file.size };
+      try {
+        const formData = new FormData();
+        formData.append('cv', file); formData.append('sessionId', Date.now().toString());
+        const res = await fetch('/api/recruitment', { method: 'POST', body: formData });
+        if (res.ok) { const data = await res.json(); if (data.ok) { setCvSubido(data.cv || cvData); setCvPendiente(data.cv || cvData); } else { setCvSubido(cvData); setCvPendiente(cvData); } }
+        else { setCvSubido(cvData); setCvPendiente(cvData); }
+      } catch { setCvSubido(cvData); setCvPendiente(cvData); }
+      setMostrarSubirCV(false);
+      await sendMessage(null, t?.cvConfirmMsg || '📎 CV adjuntado correctamente.', false, cvData);
+    } catch (err) { console.error('❌ CV upload error:', err); alert('Ocurrió un error al procesar el archivo. Intenta de nuevo.'); }
+    finally { setCvUploading(false); }
+  };
+
+  // ── VOZ ────────────────────────────────────────────────────────────────────
   const toggleListening = () => {
     if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; setIsBotSpeaking(false); }
     if (isListening) { setIsListening(false); return; }
@@ -415,9 +559,7 @@ export default function BotGO({ language = 'es' }) {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) { alert('Tu navegador no soporta reconocimiento de voz.'); return; }
     const rec = new SR();
-    rec.lang           = t?.voiceCode || 'es-ES';
-    rec.continuous     = false;
-    rec.interimResults = true;
+    rec.lang = t?.voiceCode || 'es-ES'; rec.continuous = false; rec.interimResults = true;
     rec.onstart  = () => { setIsListening(true); voiceTextRef.current = ''; };
     rec.onresult = (e) => { const txt = Array.from(e.results).map(r => r[0].transcript).join(''); setInput(txt); voiceTextRef.current = txt; };
     rec.onerror  = () => setIsListening(false);
@@ -428,102 +570,111 @@ export default function BotGO({ language = 'es' }) {
   const playAudio = async (b64) => {
     if (!b64) return;
     if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
-    const a = new Audio(b64);
-    audioRef.current = a;
+    const a = new Audio(b64); audioRef.current = a;
     a.onplay  = () => setIsBotSpeaking(true);
     a.onended = () => setIsBotSpeaking(false);
     a.onpause = () => setIsBotSpeaking(false);
-    try { await a.play(); } catch (err) { setIsBotSpeaking(false); }
+    try { await a.play(); } catch { setIsBotSpeaking(false); }
   };
 
-  const sendMessage = async (e = null, textOverride = null, isVoice = false) => {
+  // ── SEND MESSAGE ───────────────────────────────────────────────────────────
+  const sendMessage = async (e = null, textOverride = null, isVoice = false, cvAdjunto = null) => {
     if (e) e.preventDefault();
     const text = (textOverride ?? input).trim();
     if (!text) return;
-
     if (audioRef.current) { audioRef.current.pause(); setIsBotSpeaking(false); }
     if (typeof window !== 'undefined') window.speechSynthesis?.cancel();
-
-    const userMsg = { role: 'user', content: text, waLink: null, pdfData: null };
+    const cvParaEnviar = cvAdjunto || cvPendiente || null;
+    const userMsg = {
+      role: 'user', content: text, waLink: null, pdfData: null,
+      showCVUpload: false, quickReplies: null, quickRepliesUsed: false,
+      cvAdjunto: cvParaEnviar ? { nombre: cvParaEnviar.nombre, tamaño: cvParaEnviar.tamaño } : null,
+    };
     setMessages(prev => [...prev, userMsg]);
     setInput('');
+    if (cvParaEnviar) setCvPendiente(null);
     setLoading(true);
-
     const prodUser  = detectarProducto(text);
     if (prodUser) productoCtxRef.current = prodUser;
     const compraNow = esIntencionCompra(text);
     const pdfNow    = esSolicitudPDF(text);
-
     try {
-      const res  = await fetch('/api/chat', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ messages: [...messages, userMsg], isVoice, language: currentLangCode }),
+      const res = await fetch('/api/chat', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: [...messages, userMsg], isVoice, language: currentLangCode,
+          cvAdjunto: cvParaEnviar ? { nombre: cvParaEnviar.nombre, tipo: cvParaEnviar.tipo, base64: cvParaEnviar.base64, tamaño: cvParaEnviar.tamaño } : null,
+        }),
       });
       const data = await res.json();
-
-      const replyText = data.reply    || '';
-      const audioUrl  = data.audio    || null;
-      const accionWA  = data.accionWA || false;
-      const accionPDF = data.accionPDF || null;
-
+      const replyText           = data.reply              || '';
+      const audioUrl            = data.audio              || null;
+      const accionWA            = data.accionWA           || false;
+      const accionPDF           = data.accionPDF          || null;
+      const accionCV            = data.accionCV           || false;
+      const accionReclutamiento = data.accionReclutamiento || false;
+      const candidatoId         = data.candidatoId        || null;
+      const quickReplies        = data.quickReplies       || null;
       const prodReply = detectarProducto(replyText);
       if (prodReply && !prodUser) productoCtxRef.current = prodReply;
       const prodFinal = productoCtxRef.current || 'sus productos';
-
-      const mostrarWA  = compraNow || accionWA === true;
-      const mostrarPDF = pdfNow    || accionPDF != null;
-
-      let waLink  = null;
-      let pdfData = null;
-
-      if (mostrarWA) {
+      let waLink = null, pdfData = null;
+      if (compraNow || accionWA === true) {
         const waText = t.waStart || 'Hola Grupo Ortiz, me interesa cotizar';
         waLink = `https://wa.me/524432072593?text=${encodeURIComponent(waText + ' ' + prodFinal)}`;
       }
-      if (mostrarPDF) {
+      if (pdfNow || accionPDF != null) {
         const clave = accionPDF || prodUser || prodReply || productoCtxRef.current || 'general';
         pdfData = PDF_MAP[clave] || PDF_MAP['general'];
       }
+      if (accionCV && !cvSubido) setMostrarSubirCV(true);
 
-      setMessages(prev => [...prev, { role: 'assistant', content: replyText, waLink, pdfData }]);
+      if (accionReclutamiento && candidatoId) {
+        const todosLosMsgs = [...messages, userMsg];
+        const datosExtraidos = extraerDatosDeHistorial(todosLosMsgs);
+        setCandidatoRegistrado({
+          id:     candidatoId,
+          nombre: datosExtraidos.nombre || '',
+          puesto: datosExtraidos.puesto || '',
+        });
+      }
+
+      setMessages(prev => [...prev, {
+        role: 'assistant', content: replyText, waLink, pdfData,
+        showCVUpload: accionCV && !cvSubido, quickReplies, quickRepliesUsed: false,
+      }]);
       setLastVoiceResponse(replyText);
       if (isVoice && audioUrl) await playAudio(audioUrl);
-
     } catch (err) {
       console.error('❌', err);
-      setMessages(prev => [...prev, { role: 'assistant', content: t.errorMsg || 'Error de conexión.', waLink: null, pdfData: null }]);
+      setMessages(prev => [...prev, {
+        role: 'assistant', content: t.errorMsg || 'Error de conexión.',
+        waLink: null, pdfData: null, showCVUpload: false, quickReplies: null, quickRepliesUsed: false,
+      }]);
     } finally {
       setLoading(false);
-      if (viewMode === 'chat' && typeof window !== 'undefined' && window.innerWidth > 768) {
+      if (viewMode === 'chat' && typeof window !== 'undefined' && window.innerWidth > 768)
         setTimeout(() => inputRef.current?.focus(), 50);
-      }
     }
   };
 
-  // ══════════════════════════════════════════
-  //  RENDER
-  // ══════════════════════════════════════════
+  // ─── RENDER ────────────────────────────────────────────────────────────────
   return (
     <div className={`botgo-container ${isOpen ? 'open' : ''}`} style={{ fontFamily: isRTL ? 'Tahoma, Arial, sans-serif' : 'inherit' }}>
-
-      {/* ── Ventana del chat ── */}
       <div ref={chatWindowRef} className={`botgo-window ${isOpen ? 'show' : ''}`}>
 
-        {/* VISTA VOZ */}
+        {/* ══════════════════════════════════════════════════
+            VOICE INTERFACE
+            ══════════════════════════════════════════════════ */}
         {viewMode === 'voice' && (
           <div className="botgo-voice-interface">
             <div className="voice-header">
               <span>{t.voiceAssistantTitle || 'Asistente Virtual'}</span>
-              <button className="voice-close-btn" onClick={handleCloseChat} aria-label="Cerrar asistente de voz">
-                <CloseIcon />
-              </button>
+              <button className="voice-close-btn" onClick={handleCloseChat} aria-label="Cerrar"><CloseIcon /></button>
             </div>
             <div className="voice-content">
               <div className={`voice-orb-container ${loading ? 'thinking' : isBotSpeaking ? 'speaking' : isListening ? 'listening' : 'idle'}`}>
-                <div className="voice-orb-core"/>
-                <div className="voice-orb-ring ring-1"/>
-                <div className="voice-orb-ring ring-2"/>
+                <div className="voice-orb-core"/><div className="voice-orb-ring ring-1"/><div className="voice-orb-ring ring-2"/>
               </div>
               <div className="voice-text-display">
                 {isListening ? (
@@ -532,36 +683,20 @@ export default function BotGO({ language = 'es' }) {
                   <p className="assistant-thinking-text">{t.thinking || 'Pensando...'}</p>
                 ) : (
                   <div className="assistant-speech-text">
-                    <ReactMarkdown>
-                      {lastVoiceResponse
-                        .replace(/\[ACCION:[^\]]+\]/gi, '')
-                        .replace(/https?:\/\/\S+/g, '')
-                        .split(/\n+/).filter(Boolean).slice(0, 2).join('\n\n')}
-                    </ReactMarkdown>
+                    <ReactMarkdown>{lastVoiceResponse.replace(/\[ACCION:[^\]]+\]/gi,'').replace(/https?:\/\/\S+/g,'').split(/\n+/).filter(Boolean).slice(0,2).join('\n\n')}</ReactMarkdown>
                   </div>
                 )}
               </div>
-
               {!isListening && !loading && !isBotSpeaking && (
                 <div className="voice-caps-grid">
                   {(t.tooltipItems || []).map((item, i) => {
                     const Icon = getIconForItem(item);
                     return (
-                      <button
-                        key={i}
-                        className="voice-cap-card"
-                        onClick={() => {
-                          const query = `${item.text} ${item.bold}`;
-                          setInput(query);
-                          setViewMode('chat');
-                          setTimeout(() => sendMessage(null, query, false), 100);
-                        }}
-                        style={{ animationDelay: `${i * 0.07}s` }}
+                      <button key={i} className="voice-cap-card" style={{ animationDelay: `${i * 0.07}s` }}
+                        onClick={() => { const query = `${item.text} ${item.bold}`; setInput(query); setViewMode('chat'); setTimeout(() => sendMessage(null, query, false), 100); }}
                       >
                         <span className="voice-cap-icon"><Icon /></span>
-                        <span className="voice-cap-text">
-                          {item.text} <strong>{item.bold}</strong>
-                        </span>
+                        <span className="voice-cap-text">{item.text} <strong>{item.bold}</strong></span>
                       </button>
                     );
                   })}
@@ -569,31 +704,31 @@ export default function BotGO({ language = 'es' }) {
               )}
             </div>
             <div className="voice-controls">
-              <button className="voice-control-btn secondary" onClick={() => setViewMode('chat')} aria-label="Cambiar a modo teclado">
-                <KeyboardIcon />
-              </button>
-              <button className={`voice-control-btn primary-mic ${isListening ? 'active' : ''}`} onClick={toggleListening} aria-label={isListening ? 'Detener grabación' : 'Iniciar grabación'}>
-                <MicIcon isListening={isListening} size={32}/>
-              </button>
-              <button className="voice-control-btn secondary" onClick={handleCloseChat} aria-label="Cerrar asistente">
-                <CloseIcon />
-              </button>
+              <button className="voice-control-btn secondary" onClick={() => setViewMode('chat')} aria-label="Modo teclado"><KeyboardIcon /></button>
+              <button className={`voice-control-btn primary-mic ${isListening ? 'active' : ''}`} onClick={toggleListening} aria-label={isListening ? 'Detener' : 'Hablar'}><MicIcon isListening={isListening} size={32}/></button>
+              <button className="voice-control-btn secondary" onClick={handleCloseChat} aria-label="Cerrar"><CloseIcon /></button>
             </div>
           </div>
         )}
 
-        {/* VISTA CHAT */}
+        {/* ══════════════════════════════════════════════════
+            CHAT INTERFACE
+            ══════════════════════════════════════════════════ */}
         {viewMode === 'chat' && (
           <div className="botgo-chat-interface">
             <div className="botgo-header-clean" style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}>
-              <button onClick={() => setViewMode('voice')} className="header-back-btn" aria-label="Volver al modo de voz">
-                <BackArrowIcon />
-              </button>
+              <button onClick={() => setViewMode('voice')} className="header-back-btn" aria-label="Volver al modo de voz"><BackArrowIcon /></button>
               <div className="header-title"><h2>BotGo</h2></div>
               <div className="header-avatar-container"><RobotIcon className="header-robot-icon"/></div>
             </div>
 
+            {/* ── Barra de progreso reclutamiento — fija bajo el header ── */}
+            {enFlujoReclutamiento && (
+              <RecruitmentProgress messages={messages} />
+            )}
+
             <div className="botgo-messages" ref={messagesContainerRef}>
+
               {messages.map((msg, idx) => (
                 <div key={idx} className={`msg-row ${msg.role}`}>
                   {msg.role === 'assistant' && (
@@ -603,8 +738,30 @@ export default function BotGO({ language = 'es' }) {
                     <div className={`msg-bubble ${msg.role}`} style={{ direction: isRTL ? 'rtl' : 'ltr' }}>
                       <MessageRenderer content={msg.content} isAssistant={msg.role === 'assistant'}/>
                     </div>
+
+                    {msg.role === 'user' && msg.cvAdjunto && (
+                      <div className="msg-cv-badge">
+                        <AttachIcon />
+                        <span className="msg-cv-badge-name">{msg.cvAdjunto.nombre}</span>
+                        <span className="msg-cv-badge-size">{formatFileSize(msg.cvAdjunto.tamaño)}</span>
+                      </div>
+                    )}
+
                     {msg.role === 'assistant' && (msg.waLink || msg.pdfData) && (
                       <MessageActions waLink={msg.waLink} pdfData={msg.pdfData} t={t}/>
+                    )}
+
+                    {msg.role === 'assistant' && msg.quickReplies && (
+                      <QuickReplies
+                        options={msg.quickReplies.options}
+                        type={msg.quickReplies.type}
+                        onSelect={(opt) => handleQuickReply(opt, idx)}
+                        disabled={msg.quickRepliesUsed || loading}
+                      />
+                    )}
+
+                    {msg.role === 'assistant' && msg.showCVUpload && !cvSubido && (
+                      <CVUploadButton onFileSelect={handleCVFileSelect} cvSubido={cvSubido} uploading={cvUploading} t={t}/>
                     )}
                   </div>
                 </div>
@@ -620,14 +777,31 @@ export default function BotGO({ language = 'es' }) {
                   </div>
                 </div>
               )}
+
+              {candidatoRegistrado && <RecruitmentConfirmation candidato={candidatoRegistrado} t={t}/>}
               <div ref={messagesEndRef} />
             </div>
 
             <div className="botgo-footer-curve">
+              {cvSubido && !mostrarSubirCV && (
+                <div className="footer-cv-badge">
+                  <CheckCircleIcon />
+                  <span>{cvSubido.nombre} · {formatFileSize(cvSubido.tamaño)}</span>
+                </div>
+              )}
               <form onSubmit={(e) => sendMessage(e, null, false)} className="botgo-input-capsule" style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}>
-                <button type="button" className="action-btn-mic" onClick={toggleListening} aria-label={isListening ? 'Detener grabación' : 'Activar micrófono'}>
-                  <MicIcon isListening={isListening}/>
-                </button>
+                {(() => {
+                  const lastPdf = [...messages].reverse().find(m => m.role === 'assistant' && m.pdfData)?.pdfData;
+                  return lastPdf ? (
+                    <a href={lastPdf.url} target="_blank" rel="noopener noreferrer" className="action-btn-pdf-footer" aria-label="Ver catálogo PDF" title={lastPdf.label}>
+                      <PdfIcon />
+                    </a>
+                  ) : (
+                    <button type="button" className="action-btn-mic" onClick={toggleListening} aria-label={isListening ? 'Detener grabación' : 'Activar micrófono'}>
+                      <MicIcon isListening={isListening}/>
+                    </button>
+                  );
+                })()}
                 <input
                   ref={inputRef}
                   className="botgo-input-field"
@@ -647,55 +821,26 @@ export default function BotGO({ language = 'es' }) {
         )}
       </div>
 
-      {/* ══════════════════════════════════════════
-          LAUNCHER
-          mounted=false → no renderiza NADA
-          Esto elimina completamente el flash de SSR:
-          Astro pinta HTML vacío → React hidrata →
-          useEffect corre → mounted=true → aparece
-          el launcher correcto sin ningún flash.
-      ══════════════════════════════════════════ */}
+      {/* ══════════════════════════════════════════════════
+          LAUNCHER (botón flotante)
+          ══════════════════════════════════════════════════ */}
       {!isOpen && mounted && (
         <div className="botgo-launcher">
-
-          {/* HOME MOBILE: solo pill animada */}
-          {isMobile && isHomePage && (
-            <MobilePill onOpen={handleOpenChat} t={t} />
-          )}
-
-          {/* OTRAS PÁGINAS MOBILE: botón lateral fijo */}
+          {isMobile && isHomePage  && <MobilePill onOpen={handleOpenChat} t={t} />}
           {isMobile && !isHomePage && (
-            <button
-              className="botgo-button"
-              onClick={handleOpenChat}
-              aria-label="Abrir asistente virtual BotGO"
-            >
+            <button className="botgo-button" onClick={handleOpenChat} aria-label="Abrir asistente virtual BotGO">
               <RobotIcon className="botgo-btn-icon"/>
             </button>
           )}
-
-          {/* DESKTOP: tooltip + botón circular */}
-     
-{!isMobile && isHomePage && (
-  <DesktopTooltip
-    onOpen={handleOpenChat}
-    onDismiss={() => setShowTooltip(false)}
-    t={t}
-  />
-)}
-{!isMobile && (
-  <button
-    className="botgo-button"
-    onClick={handleOpenChat}
-    aria-label="Abrir asistente virtual BotGO"
-  >
-    <RobotIcon className="botgo-btn-icon"/>
-    {!isMobile && isHomePage && showTooltip && (
-      <span className="botgo-notif-dot" aria-hidden="true"/>
-    )}
-  </button>
-)}
-
+          {!isMobile && isHomePage && (
+            <DesktopTooltip onOpen={handleOpenChat} onDismiss={() => setShowTooltip(false)} t={t} />
+          )}
+          {!isMobile && (
+            <button className="botgo-button" onClick={handleOpenChat} aria-label="Abrir asistente virtual BotGO">
+              <RobotIcon className="botgo-btn-icon"/>
+              {!isMobile && isHomePage && showTooltip && <span className="botgo-notif-dot" aria-hidden="true"/>}
+            </button>
+          )}
         </div>
       )}
     </div>

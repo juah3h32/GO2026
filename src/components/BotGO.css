@@ -57,7 +57,7 @@ html.dark {
 }
 
 /* =========================================
-   3. BOTÓN FLOTANTE (LAUNCHER) — solo desktop
+   3. BOTÓN FLOTANTE (LAUNCHER)
    ========================================= */
 .botgo-button {
   width: 60px;
@@ -649,10 +649,9 @@ html.dark .msg-strong { color: #FB670B; }
 }
 
 /* =========================================
-   14. DESKTOP — TOOLTIP TARJETA
+   14. DESKTOP — TOOLTIP CON CARDS
+   (ahora igual que la vista móvil)
    ========================================= */
-
-/* Wrapper launcher desktop */
 .botgo-launcher {
   position: relative;
   display: flex;
@@ -661,13 +660,11 @@ html.dark .msg-strong { color: #FB670B; }
   gap: 10px;
 }
 
-/* Punto rojo notificación */
+/* Punto verde notificación */
 .botgo-notif-dot {
   position: absolute;
-  bottom: 2px;
-  right: 2px;
-  width: 11px;
-  height: 11px;
+  bottom: 2px; right: 2px;
+  width: 11px; height: 11px;
   background: #22c55e;
   border-radius: 50%;
   border: 2px solid #fff;
@@ -680,12 +677,12 @@ html.dark .msg-strong { color: #FB670B; }
   50%      { box-shadow: 0 0 0 5px rgba(34, 197, 94, 0);   }
 }
 
-/* Tarjeta desktop */
+/* ── Tarjeta tooltip ── */
 .botgo-tooltip {
   background: var(--chat-window-bg, #ffffff);
   border-radius: 20px;
   padding: 18px 18px 16px;
-  width: 270px;
+  width: 290px;
   box-shadow: 0 10px 40px rgba(0,0,0,0.16), 0 2px 8px rgba(0,0,0,0.08);
   position: relative;
   transform-origin: bottom right;
@@ -713,11 +710,12 @@ html.dark .msg-strong { color: #FB670B; }
   filter: drop-shadow(0 3px 2px rgba(0,0,0,0.06));
 }
 
+/* ── Tooltip header ── */
 .botgo-tooltip-header {
   display: flex;
   align-items: center;
   gap: 9px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 .botgo-tooltip-avatar {
   width: 34px; height: 34px;
@@ -730,8 +728,8 @@ html.dark .msg-strong { color: #FB670B; }
 .botgo-tooltip-robot { width:100%; height:100%; }
 
 .botgo-tooltip-title { display:flex; flex-direction:column; line-height:1.15; flex:1; }
-.botgo-tooltip-title-main   { font-size:12px; color:var(--chat-text-secondary,#666); font-weight:500; }
-.botgo-tooltip-title-accent { font-size:14px; font-weight:800; color:var(--primary-orange,#FB670B); text-transform:uppercase; letter-spacing:0.3px; }
+.botgo-tooltip-title-main   { font-size:11px; color:var(--chat-text-secondary,#666); font-weight:500; }
+.botgo-tooltip-title-accent { font-size:13px; font-weight:800; color:var(--primary-orange,#FB670B); text-transform:uppercase; letter-spacing:0.3px; }
 
 .botgo-tooltip-close {
   background:none; border:none; cursor:pointer;
@@ -748,11 +746,13 @@ html.dark .msg-strong { color: #FB670B; }
   border-radius:2px; margin-bottom:12px;
 }
 
-.botgo-tooltip-list { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:8px; }
+/* ── Lista original del tooltip ── */
+.botgo-tooltip-list { list-style:none; padding:0; margin:0 0 14px 0; display:flex; flex-direction:column; gap:11px; }
 .botgo-tooltip-item {
   display:flex; align-items:center; gap:9px;
   opacity:0; animation:item-slide 0.3s ease both;
   font-size:12.5px; color:var(--chat-text-main,#333); font-weight:400;
+  line-height: 1.4;
 }
 .botgo-tooltip-item strong { font-weight:700; color:var(--chat-text-main,#222); }
 @keyframes item-slide {
@@ -760,14 +760,16 @@ html.dark .msg-strong { color: #FB670B; }
   to   { opacity:1; transform:translateX(0);   }
 }
 .botgo-tooltip-dot {
-  width:24px; height:24px;
+  width:26px; height:26px; min-width:26px;
   background:rgba(242,79,19,0.08); border:1.5px solid rgba(242,79,19,0.3);
   border-radius:50%; display:flex; align-items:center; justify-content:center;
   flex-shrink:0; color:var(--primary-orange,#FB670B); transition:background 0.2s;
 }
+.botgo-tooltip-text { font-size: 12.5px; }
 
+/* ── CTA del tooltip ── */
 .botgo-tooltip-cta {
-  display:block; margin-top:14px; width:100%;
+  display:block; width:100%;
   background:linear-gradient(135deg,#FB670B,#fb670b);
   color:#fff; border:none; border-radius:12px; padding:10px 0;
   font-family:inherit; font-weight:700; font-size:13px;
@@ -780,7 +782,7 @@ html.dark .msg-strong { color: #FB670B; }
 
 html.dark .botgo-tooltip       { border-color:rgba(242,79,19,0.2); }
 html.dark .botgo-tooltip-arrow { border-top-color:var(--chat-window-bg,#262626); }
-html.dark .botgo-tooltip-dot   { background:rgba(242,79,19,0.12); border-color:rgba(242,79,19,0.35); }
+html.dark .botgo-tooltip-card  { background:rgba(242,79,19,0.08); border-color:rgba(242,79,19,0.2); }
 
 /* =========================================
    15. RESPONSIVE DESKTOP pequeño
@@ -792,31 +794,23 @@ html.dark .botgo-tooltip-dot   { background:rgba(242,79,19,0.12); border-color:r
 }
 
 /* =========================================
-   16. MÓVIL — todo el override
+   16. MÓVIL
    ========================================= */
 @media screen and (max-width: 1024px) {
 
-  /* Botón fijo lateral en móvil — páginas que no son home */
-/* Botón fijo lateral en móvil — páginas que NO son home */
-.botgo-launcher .botgo-button {
-  width: 54px;
-  height: 54px;
-  border-radius: 16px 0 0 16px;
-  border: 2.5px solid rgba(255,255,255,0.9);
-  border-right: none;
-  box-shadow: -4px 4px 18px rgba(242,79,19,0.5);
-}
-
-  /* Contenedor principal en móvil */
-  .botgo-container {
-    right: 0;
-    left: auto;
-    bottom: 0;
-    width: auto;
-    z-index: 100000 !important;
+  .botgo-launcher .botgo-button {
+    width: 54px;
+    height: 54px;
+    border-radius: 16px 0 0 16px;
+    border: 2.5px solid rgba(255,255,255,0.9);
+    border-right: none;
+    box-shadow: -4px 4px 18px rgba(242,79,19,0.5);
   }
 
-  /* Chat abierto — pantalla completa */
+  .botgo-container {
+    right: 0; left: auto; bottom: 0;
+    width: auto; z-index: 100000 !important;
+  }
   .botgo-container.open {
     top: 0; left: 0; bottom: 0; right: 0;
     width: 100%; height: 100%;
@@ -848,7 +842,6 @@ html.dark .botgo-tooltip-dot   { background:rgba(242,79,19,0.12); border-color:r
   }
   .botgo-input-field { font-size: 16px; }
 
-  /* Botones de acción full-width en móvil */
   .msg-actions { width: 100%; max-width: 100%; }
   .msg-action-btn {
     width: 100% !important;
@@ -858,7 +851,6 @@ html.dark .botgo-tooltip-dot   { background:rgba(242,79,19,0.12); border-color:r
   }
   .msg-row { max-width: 92%; }
 
-  /* ── LAUNCHER MÓVIL — fijo en lateral derecho ── */
   .botgo-launcher {
     position: fixed !important;
     top: 15% !important;
@@ -872,153 +864,89 @@ html.dark .botgo-tooltip-dot   { background:rgba(242,79,19,0.12); border-color:r
     z-index: 200001 !important;
   }
 
-  /* Ocultar botón circular desktop en móvil — la pill lo reemplaza */
-.botgo-launcher:has(.botgo-pill-wrapper) .botgo-button {
-  display: none !important;
-}
+  .botgo-launcher:has(.botgo-pill-wrapper) .botgo-button {
+    display: none !important;
+  }
 
-  /* ══════════════════════════════════════
-     PILL MÓVIL — UN SOLO ELEMENTO
-     Fases: entering → expanded → collapsing → done
-     ══════════════════════════════════════ */
- .botgo-pill-wrapper {
-  display: flex;
-  align-items: center;
-  background: linear-gradient(135deg, #FB670B, #d63f0a);
-  border-radius: 16px 0 0 16px;
-  border: 2.5px solid rgba(255, 255, 255, 0.9);
-  border-right: none;
-  overflow: hidden;
-  cursor: pointer;
-  box-shadow: -4px 4px 18px rgba(242, 79, 19, 0.5);
-  max-width: 54px;
-  height: 54px;
-  transition: max-width 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-
-  /* ✅ NUEVO — arranca invisible, sin ocupar espacio visual */
-  opacity: 0;
-  pointer-events: none;
-}
-
-.botgo-pill-wrapper.phase-entering {
-  opacity: 0;
-  pointer-events: none;
-}
-
-/* Expanded: aparece y es clickeable */
-.botgo-pill-wrapper.phase-expanded {
-  max-width: 250px;
-  opacity: 1;
-  pointer-events: all;
- transition: max-width 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-              opacity 0.25s ease;
-}
-
-
-  /* Contrayendo: vuelve al tamaño del ícono */
-.botgo-pill-wrapper.phase-collapsing {
-  max-width: 54px;
-  opacity: 1;
-  pointer-events: all;
-  transition: max-width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-
-  /* Done: queda como pestaña con solo el ícono — SIEMPRE VISIBLE */
-.botgo-pill-wrapper.phase-done {
-  max-width: 54px;
-  opacity: 1 !important;
-  visibility: visible !important;
-  pointer-events: all;
-  transition: none;
-  overflow: visible;
-}
-
-  /* ── Ícono del robot — siempre visible ── */
-  .botgo-pill-icon {
-    width: 54px;
-    min-width: 54px;
-    height: 54px;
+  /* ── PILL MÓVIL ── */
+  .botgo-pill-wrapper {
     display: flex;
     align-items: center;
-    justify-content: center;
-    position: relative;
-    flex-shrink: 0;
+    background: linear-gradient(135deg, #FB670B, #d63f0a);
+    border-radius: 16px 0 0 16px;
+    border: 2.5px solid rgba(255, 255, 255, 0.9);
+    border-right: none;
+    overflow: hidden;
+    cursor: pointer;
+    box-shadow: -4px 4px 18px rgba(242, 79, 19, 0.5);
+    max-width: 54px;
+    height: 54px;
+    transition: max-width 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    opacity: 0;
+    pointer-events: none;
   }
-  .botgo-pill-icon .botgo-btn-icon {
-    width: 30px;
-    height: 30px;
-    color: white;
+  .botgo-pill-wrapper.phase-entering { opacity: 0; pointer-events: none; }
+  .botgo-pill-wrapper.phase-expanded {
+    max-width: 250px;
+    opacity: 1;
+    pointer-events: all;
+    transition: max-width 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.25s ease;
   }
-  /* Punto de notificación dentro del ícono */
+  .botgo-pill-wrapper.phase-collapsing {
+    max-width: 54px;
+    opacity: 1;
+    pointer-events: all;
+    transition: max-width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .botgo-pill-wrapper.phase-done {
+    max-width: 54px;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: all;
+    transition: none;
+    overflow: visible;
+  }
+
+  .botgo-pill-icon {
+    width: 54px; min-width: 54px; height: 54px;
+    display: flex; align-items: center; justify-content: center;
+    position: relative; flex-shrink: 0;
+  }
+  .botgo-pill-icon .botgo-btn-icon { width: 30px; height: 30px; color: white; }
   .botgo-pill-icon .botgo-notif-dot {
-    position: absolute;
-    top: 6px;
-    right: 6px;
-    width: 10px;
-    height: 10px;
-      background: #22c55e;
-  border: 2px solid #FB670B;
+    position: absolute; top: 6px; right: 6px;
+    width: 10px; height: 10px;
+    background: #22c55e;
+    border: 2px solid #FB670B;
     border-radius: 50%;
-    
     animation: notif-pulse 2s ease infinite;
     pointer-events: none;
   }
 
-  /* ── Texto — se oculta por overflow cuando está colapsado ── */
   .botgo-pill-text {
-    display: flex;
-    flex-direction: column;
-    line-height: 1.2;
-    flex: 1;
-    min-width: 0;
-    padding: 0 8px 0 4px;
-    white-space: nowrap;
-    overflow: hidden;
+    display: flex; flex-direction: column; line-height: 1.2;
+    flex: 1; min-width: 0; padding: 0 8px 0 4px;
+    white-space: nowrap; overflow: hidden;
   }
-  .botgo-pill-label-small {
-    font-size: 9px;
-    color: rgba(255, 255, 255, 0.75);
-    font-weight: 500;
-    font-family: 'Poppins', 'Segoe UI', sans-serif;
-  }
-  .botgo-pill-label-big {
-    font-size: 12px;
-    color: #ffffff;
-    font-weight: 800;
-    letter-spacing: 0.3px;
-    font-family: 'Poppins', 'Segoe UI', sans-serif;
-  }
+  .botgo-pill-label-small { font-size: 9px; color: rgba(255,255,255,0.75); font-weight: 500; font-family: 'Poppins','Segoe UI',sans-serif; }
+  .botgo-pill-label-big   { font-size: 12px; color: #ffffff; font-weight: 800; letter-spacing: 0.3px; font-family: 'Poppins','Segoe UI',sans-serif; }
 
-  /* ── Botón cerrar — se oculta al colapsar ── */
   .botgo-pill-close {
-    background: none;
-    border: none;
-    border-left: 1px solid rgba(255, 255, 255, 0.25);
-    color: rgba(255, 255, 255, 0.85);
-    width: 38px;
-    min-width: 38px;
-    height: 54px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    flex-shrink: 0;
-    transition: background 0.2s;
+    background: none; border: none;
+    border-left: 1px solid rgba(255,255,255,0.25);
+    color: rgba(255,255,255,0.85);
+    width: 38px; min-width: 38px; height: 54px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; flex-shrink: 0; transition: background 0.2s;
   }
-  .botgo-pill-close:hover {
-    background: rgba(255, 255, 255, 0.12);
-    color: #ffffff;
-  }
+  .botgo-pill-close:hover { background: rgba(255,255,255,0.12); color: #ffffff; }
 
-  /* Ocultar elementos del tooltip desktop que no aplican en móvil */
   .botgo-tooltip { display: none !important; }
 }
 
-/* ══════════════════════════════════════════════════════
-   VOICE CAPS GRID — cards de capacidades en vista voz
-   ══════════════════════════════════════════════════════ */
-
+/* =========================================
+   17. VOICE CAPS GRID (móvil)
+   ========================================= */
 .voice-caps-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1056,41 +984,379 @@ html.dark .botgo-tooltip-dot   { background:rgba(242,79,19,0.12); border-color:r
 }
 
 .voice-cap-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  min-width: 28px;
+  display: flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; min-width: 28px;
   background: rgba(251, 103, 11, 0.12);
-  border-radius: 8px;
-  color: #FB670B;
+  border-radius: 8px; color: #FB670B;
 }
 
 .voice-cap-text {
-  font-size: 11px;
-  line-height: 1.3;
-  color: #555;
+  font-size: 11px; line-height: 1.3; color: #555;
   font-family: 'Poppins', 'Segoe UI', sans-serif;
 }
-
 .voice-cap-text strong {
-  color: #FB670B;
-  font-weight: 700;
-  display: block;
-  font-size: 11.5px;
+  color: #FB670B; font-weight: 700;
+  display: block; font-size: 11.5px;
 }
 
-html.dark .voice-cap-card {
-  background: rgba(251, 103, 11, 0.08);
-  border-color: rgba(251, 103, 11, 0.22);
-}
+html.dark .voice-cap-card { background: rgba(251,103,11,0.08); border-color: rgba(251,103,11,0.22); }
 html.dark .voice-cap-text { color: #bbb; }
 
-/* En desktop también se muestran las cards (aunque ya tiene tooltip, 
-   si el usuario abre directo también las ve) */
-@media screen and (min-width: 1025px) {
-  .voice-caps-grid {
-    display: none;
-  }
+/* voice-caps-grid visible en desktop también — dentro de la vista de voz */
+
+/* =========================================
+   18. RECRUITMENT PROGRESS BAR
+   ========================================= */
+.rp-wrapper {
+  background: linear-gradient(135deg, rgba(251,103,11,0.07) 0%, rgba(251,103,11,0.03) 100%);
+  border-bottom: 1.5px solid rgba(251,103,11,0.18);
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  padding: 10px 20px 12px 20px;
+  margin: 0;
+  flex-shrink: 0;
+  animation: actionsIn 0.4s ease both;
 }
+
+.rp-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.rp-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--primary-orange);
+  letter-spacing: 0.01em;
+}
+
+.rp-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--primary-orange);
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.rp-bar-track {
+  height: 5px;
+  background: rgba(251,103,11,0.15);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.rp-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #FB670B, #ff9f5a);
+  border-radius: 999px;
+  transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.rp-steps {
+  display: flex;
+  gap: 6px;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+}
+
+.rp-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+
+.rp-step-dot {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.rp-step--done .rp-step-dot {
+  background: var(--primary-orange);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(251,103,11,0.4);
+}
+.rp-step--active .rp-step-dot {
+  background: rgba(251,103,11,0.12);
+  color: var(--primary-orange);
+  border: 2px solid var(--primary-orange);
+  animation: rp-pulse 1.5s infinite ease-in-out;
+}
+.rp-step--pending .rp-step-dot {
+  background: rgba(0,0,0,0.04);
+  color: #bbb;
+  border: 1.5px solid #e0e0e0;
+}
+
+@keyframes rp-pulse {
+  0%,100% { box-shadow: 0 0 0 0   rgba(251,103,11,0.5); }
+  50%      { box-shadow: 0 0 0 5px rgba(251,103,11,0);   }
+}
+
+.rp-step-label {
+  font-size: 8.5px;
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.rp-step--done   .rp-step-label { color: var(--primary-orange); }
+.rp-step--active .rp-step-label { color: var(--primary-orange); font-weight: 800; }
+.rp-step--pending .rp-step-label { color: #bbb; }
+
+html.dark .rp-wrapper { background: rgba(251,103,11,0.06); border-color: rgba(251,103,11,0.25); }
+html.dark .rp-step--pending .rp-step-dot { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.15); color: #555; }
+html.dark .rp-step--pending .rp-step-label { color: #555; }
+
+/* =========================================
+   19. QUICK REPLIES — mejorados con grid
+   ========================================= */
+.quick-replies-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+  padding-left: 2px;
+}
+
+/* Grid 2 columnas para puesto y estado */
+.quick-replies-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+}
+
+.quick-reply-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 14px;
+  border-radius: 12px;
+  border: 1.5px solid rgba(251,103,11,0.3);
+  background: rgba(251,103,11,0.05);
+  color: var(--primary-orange);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease, transform 0.15s ease,
+              opacity 0.2s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+  white-space: nowrap;
+  animation: qrSlideIn 0.3s ease both;
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+}
+
+/* Para las opciones grid (puesto/estado) — más cuadradas */
+.quick-reply-btn--grid {
+  border-radius: 12px;
+  padding: 10px 8px;
+  font-size: 0.78rem;
+  flex-direction: column;
+  gap: 3px;
+  height: auto;
+  min-height: 52px;
+}
+
+/* Botón "Otro..." — contorno distinto */
+.quick-reply-btn--outline {
+  background: transparent;
+  border-style: dashed;
+  color: #888;
+  border-color: #ccc;
+}
+.quick-reply-btn--outline:hover:not(:disabled) {
+  border-color: var(--primary-orange);
+  color: var(--primary-orange);
+  background: rgba(251,103,11,0.05);
+}
+
+@keyframes qrSlideIn {
+  from { opacity: 0; transform: translateY(6px) scale(0.95); }
+  to   { opacity: 1; transform: translateY(0)  scale(1);    }
+}
+
+.qr-label { line-height: 1.3; }
+
+.quick-reply-btn:hover:not(:disabled) {
+  background: rgba(251,103,11,0.12);
+  border-color: rgba(251,103,11,0.6);
+  color: #d35400;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(251,103,11,0.2);
+}
+.quick-reply-btn:active:not(:disabled) { transform: scale(0.96); }
+
+.quick-reply-btn.selected {
+  background: var(--primary-orange);
+  color: #fff;
+  border-color: var(--primary-orange);
+  cursor: default;
+  pointer-events: none;
+  box-shadow: 0 3px 10px rgba(251,103,11,0.35);
+}
+.quick-reply-btn.faded {
+  opacity: 0.25;
+  cursor: default;
+  pointer-events: none;
+  border-color: #ddd;
+  color: #aaa;
+  background: transparent;
+}
+.quick-reply-btn:disabled { cursor: not-allowed; }
+
+/* =========================================
+   20. RECRUITMENT CONFIRMATION
+   ========================================= */
+.recruitment-confirmation {
+  margin: 12px 8px 4px 44px;
+  padding: 16px;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border: 1.5px solid #86efac;
+  border-radius: 16px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  opacity: 0;
+  transform: translateY(10px) scale(0.97);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.confirmation-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.confirmation-icon-wrapper {
+  position: relative; flex-shrink: 0;
+  width: 48px; height: 48px;
+  display: flex; align-items: center; justify-content: center;
+}
+.confirmation-icon-circle {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: #16a34a; color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  position: relative; z-index: 1;
+  animation: confirmPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.25s both;
+}
+@keyframes confirmPop {
+  0%   { transform: scale(0); }
+  70%  { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+.confirmation-icon-ring {
+  position: absolute; inset: -5px; border-radius: 50%;
+  border: 2px solid #22c55e;
+  animation: confirmRing 0.7s ease-out 0.6s both; opacity: 0;
+}
+@keyframes confirmRing {
+  0%   { transform: scale(0.8); opacity: 0.8; }
+  100% { transform: scale(1.5); opacity: 0;   }
+}
+
+.confirmation-body { flex: 1; min-width: 0; }
+.confirmation-title    { font-size: 0.875rem; font-weight: 700; color: #15803d; margin: 0 0 4px 0; }
+.confirmation-subtitle { font-size: 0.78rem; color: #166534; margin: 0 0 10px 0; line-height: 1.45; }
+
+.confirmation-badge {
+  background: rgba(255,255,255,0.65); border-radius: 10px;
+  padding: 8px 10px; display: flex; flex-direction: column; gap: 5px;
+}
+.confirmation-badge-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.confirmation-badge-label { font-size: 0.7rem; color: #4b7a5a; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; flex-shrink: 0; }
+.confirmation-badge-value { font-size: 0.78rem; color: #14532d; font-weight: 600; text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 170px; }
+.confirmation-folio { color: #16a34a; font-family: monospace; font-size: 0.82rem; letter-spacing: 0.06em; }
+
+/* =========================================
+   21. BOTÓN PDF EN FOOTER
+   ========================================= */
+.action-btn-pdf-footer {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: transparent; border: none;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; cursor: pointer;
+  color: var(--primary-orange); text-decoration: none;
+  transition: background 0.2s, transform 0.15s;
+  animation: pdf-btn-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.action-btn-pdf-footer:hover  { background: rgba(251,103,11,0.12); transform: scale(1.1); }
+.action-btn-pdf-footer:active { transform: scale(0.95); }
+@keyframes pdf-btn-in {
+  from { opacity: 0; transform: scale(0.5) rotate(-15deg); }
+  to   { opacity: 1; transform: scale(1)   rotate(0deg);  }
+}
+
+/* =========================================
+   22. CV BADGE & UPLOAD
+   ========================================= */
+.msg-cv-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.92);
+  border: 1.5px solid rgba(251,103,11,0.35);
+  color: #c44e00;
+  font-size: 0.78rem;
+  font-weight: 600;
+  max-width: 100%;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  animation: actionsIn 0.3s ease both;
+}
+.msg-cv-badge svg { flex-shrink: 0; color: #FB670B; opacity: 0.85; }
+.msg-cv-badge-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 160px; color: #c44e00; }
+.msg-cv-badge-size { flex-shrink: 0; color: rgba(180,80,0,0.65); font-size: 0.72rem; font-weight: 500; }
+
+html.dark .msg-cv-badge { background: rgba(40,25,10,0.9); border-color: rgba(251,103,11,0.45); color: #ffb88a; }
+html.dark .msg-cv-badge-name { color: #ffb88a; }
+html.dark .msg-cv-badge-size { color: rgba(255,160,100,0.6); }
+html.dark .msg-cv-badge svg  { color: #FB670B; }
+
+.footer-cv-badge {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 12px 8px;
+  color: rgba(255,255,255,0.9); font-size: 0.78rem; font-weight: 500;
+}
+.footer-cv-badge svg { color: rgba(255,255,255,0.85); flex-shrink: 0; }
+
+.cv-upload-zone { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; }
+
+.msg-action-cv {
+  background: rgba(251,103,11,0.08) !important;
+  color: #FB670B !important;
+  border: 1.5px dashed rgba(251,103,11,0.5) !important;
+  box-shadow: none !important;
+}
+.msg-action-cv:hover { background: rgba(251,103,11,0.15) !important; border-style: solid !important; }
+html.dark .msg-action-cv { background: rgba(251,103,11,0.1) !important; color: #ff8a4a !important; border-color: rgba(251,103,11,0.4) !important; }
+
+.cv-upload-hint { font-size: 0.72rem; color: rgba(102,102,102,0.75); margin: 0; padding-left: 4px; }
+
+.cv-upload-success {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 8px 14px;
+  background: rgba(34,197,94,0.1);
+  border: 1.5px solid rgba(34,197,94,0.35);
+  border-radius: 20px; color: #15803d;
+  font-size: 0.8rem; font-weight: 600; margin-top: 6px;
+}
+.cv-upload-success svg { color: #22c55e; flex-shrink: 0; }
+.cv-upload-filename { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 150px; }
+.cv-upload-size { color: rgba(21,128,61,0.65); font-size: 0.72rem; font-weight: 500; flex-shrink: 0; }
+
+html.dark .cv-upload-success { background: rgba(34,197,94,0.08); border-color: rgba(34,197,94,0.3); color: #4ade80; }
+html.dark .cv-upload-hint { color: rgba(180,180,180,0.6); }
