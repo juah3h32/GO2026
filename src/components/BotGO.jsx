@@ -371,15 +371,20 @@ const QuickReplies = ({ options, type, onSelect, disabled }) => {
 };
 
 // ─── CV UPLOAD ────────────────────────────────────────────────────────────────
-let _cvIdCounter = 0;
 
 const CVUploadButton = ({ onFileSelect, cvSubido, uploading, t }) => {
-  const [inputId] = useState(() => `cv-input-${++_cvIdCounter}`);
+  const inputRef = useRef(null);
+
   const handleChange = (e) => {
     const file = e.target.files?.[0];
     if (file) onFileSelect(file);
     e.target.value = '';
   };
+
+  const handleClick = () => {
+    inputRef.current?.click();
+  };
+
   if (cvSubido) {
     return (
       <div className="cv-upload-success" title={cvSubido.nombre}>
@@ -400,19 +405,23 @@ const CVUploadButton = ({ onFileSelect, cvSubido, uploading, t }) => {
   }
   return (
     <div className="cv-upload-zone">
+      {/* Input oculto — activado por ref, no por label/htmlFor */}
       <input
-        id={inputId} type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+        ref={inputRef}
+        type="file"
+        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
         onChange={handleChange}
-        style={{ position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px', overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap', borderWidth: 0 }}
+        style={{ display: 'none' }}
       />
-      <label
-        htmlFor={inputId} className="msg-action-btn msg-action-cv"
-        style={{ cursor: 'pointer', userSelect: 'none' }}
-        tabIndex={0} role="button" aria-label={t?.cvBtn || 'Adjuntar CV'}
-        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); document.getElementById(inputId)?.click(); } }}
+      <button
+        type="button"
+        className="msg-action-btn msg-action-cv"
+        onClick={handleClick}
+        style={{ cursor: 'pointer' }}
       >
-        <AttachIcon /><span>{t?.cvBtn || 'Adjuntar CV (PDF, DOC, imagen)'}</span>
-      </label>
+        <AttachIcon />
+        <span>{t?.cvBtn || 'Adjuntar CV (PDF, DOC, imagen)'}</span>
+      </button>
       <p className="cv-upload-hint">{t?.cvHint || 'Máx. 5MB · PDF, DOC, DOCX, JPG, PNG'}</p>
     </div>
   );
@@ -726,9 +735,12 @@ export default function BotGO({ language = 'es' }) {
   const handleQuickReply = async (opt, msgIdx) => {
     setMessages(prev => prev.map((m, i) => i === msgIdx ? { ...m, quickRepliesUsed: true } : m));
     if (opt.action === 'solicitar_cv') {
-      // FIX CV DEFINITIVO: activar mostrarSubirCV INMEDIATAMENTE en el estado
-      // React — no esperar al servidor, no depender de showCVUpload en mensajes.
+      // FIX CV: activar el botón ANTES de llamar sendMessage.
+      // React batching puede retrasar el render si setMostrarSubirCV y
+      // sendMessage se llaman juntos — con flushSync garantizamos render inmediato.
       setMostrarSubirCV(true);
+      // Dar un tick para que React renderice el botón antes del await
+      await new Promise(r => setTimeout(r, 50));
       await sendMessage(null, 'Sí, tengo mi CV para adjuntar', false);
     } else if (opt.action === 'continuar') {
       setMostrarSubirCV(false);
@@ -804,9 +816,11 @@ export default function BotGO({ language = 'es' }) {
   };
 
   // ── VOZ ─────────────────────────────────────────────────────────────────────
-  // FIX BUG #3: reemplazar todos los alert() por setMicToast() — no bloqueante,
-  // no aparece como popup del navegador en producción, no requiere permisos extra.
-  const toggleListening = () => {
+  // FIX MIC PRODUCCIÓN: en HTTPS el navegador requiere que el usuario haya
+  // concedido permiso explícito. Usamos getUserMedia para solicitar el permiso
+  // ANTES de arrancar SpeechRecognition — así el navegador muestra el diálogo
+  // de permiso estándar en lugar de bloquear silenciosamente.
+  const toggleListening = async () => {
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current = null;
@@ -825,8 +839,22 @@ export default function BotGO({ language = 'es' }) {
 
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) {
-      // FIX BUG #3: toast en lugar de alert()
       setMicToast('Tu navegador no soporta voz. Usa Chrome o Edge.');
+      return;
+    }
+
+    // FIX: pedir permiso explícito con getUserMedia — resuelve el bloqueo en
+    // producción HTTPS donde SpeechRecognition falla con 'not-allowed' sin
+    // mostrar el diálogo de permiso al usuario.
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      // Liberar el stream inmediatamente — solo necesitábamos el permiso
+      stream.getTracks().forEach(track => track.stop());
+    } catch (permErr) {
+      const msg = permErr.name === 'NotAllowedError' || permErr.name === 'PermissionDeniedError'
+        ? 'Micrófono bloqueado. Toca el ícono 🔒 en la barra del navegador y permite el micrófono.'
+        : 'No se pudo acceder al micrófono. Verifica que esté disponible.';
+      setMicToast(msg);
       return;
     }
 
@@ -836,7 +864,7 @@ export default function BotGO({ language = 'es' }) {
       recRef.current = null;
     }
 
-    abortedRef.current  = false;
+    abortedRef.current   = false;
     voiceTextRef.current = '';
     setInput('');
 
