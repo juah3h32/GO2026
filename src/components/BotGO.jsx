@@ -3,7 +3,7 @@ import ReactMarkdown from 'react-markdown';
 import './BotGO.css';
 import { translations } from '../i18n';
 
-
+console.log('🚀 BotGO v9 (3 bugs fixed) CARGADO');
 
 // ─── ICONS ────────────────────────────────────────────────────────────────────
 const RobotIcon = ({ className }) => (
@@ -718,7 +718,7 @@ export default function BotGO({ language = 'es' }) {
 
   // ── Ondas fluidas Gemini — canvas animado en modo voz ─────────────────────
   useEffect(() => {
-    if (viewMode !== 'voice') {
+    if (!isBotSpeaking) {
       if (waveAnimRef.current) { cancelAnimationFrame(waveAnimRef.current); waveAnimRef.current = null; }
       return;
     }
@@ -775,7 +775,7 @@ export default function BotGO({ language = 'es' }) {
       cancelAnimationFrame(waveAnimRef.current);
       window.removeEventListener('resize', resize);
     };
-  }, [viewMode]);
+  }, [isBotSpeaking]);
 
   const handleCloseChat = () => {
     if (recRef.current) {
@@ -1232,8 +1232,8 @@ export default function BotGO({ language = 'es' }) {
               )}
             </div>
 
-            {/* ── Ondas fluidas — solo cuando el mic fue activado ── */}
-            {voiceActivated && (
+            {/* ── Ondas fluidas — solo cuando el bot está hablando ── */}
+            {isBotSpeaking && (
               <div className="voice-wave-area">
                 <canvas ref={waveCanvasRef} className="voice-wave-canvas" />
               </div>
