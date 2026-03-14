@@ -178,7 +178,7 @@ Nunca mezcles ambos pasos.
 Fundado en 1959 en Morelia, Michoacán, México por Nicandro Ortiz.
 Líderes fabricantes de empaques industriales y agrícolas en Latinoamérica.
 Más de 65 años de experiencia. Presencia en 5 continentes y más de 30 países.
-3,000 colaboradores. 17 plantas de producción (16 en Morelia, 1 en Monterrey).
+3,000 colaboradores. 13 plantas de producción (12 en Morelia, 1 en Monterrey).
 Capacidad: 220,000 toneladas anuales.
 Certificaciones: FSSC 22000, ISO 9001:2015, AIB International, Kosher Pareve.
 Contacto: WhatsApp +52 443-207-2593 | contacto@grupoo.com.mx | Morelia, Michoacán.
