@@ -816,10 +816,6 @@ export default function BotGO({ language = 'es' }) {
   };
 
   // ── VOZ ─────────────────────────────────────────────────────────────────────
-  // FIX MIC PRODUCCIÓN: en HTTPS el navegador requiere que el usuario haya
-  // concedido permiso explícito. Usamos getUserMedia para solicitar el permiso
-  // ANTES de arrancar SpeechRecognition — así el navegador muestra el diálogo
-  // de permiso estándar en lugar de bloquear silenciosamente.
   const toggleListening = async () => {
     if (audioRef.current) {
       audioRef.current.pause();
@@ -843,19 +839,16 @@ export default function BotGO({ language = 'es' }) {
       return;
     }
 
-    // FIX: pedir permiso explícito con getUserMedia — resuelve el bloqueo en
-    // producción HTTPS donde SpeechRecognition falla con 'not-allowed' sin
-    // mostrar el diálogo de permiso al usuario.
+    // Verificar permiso SIN ocupar el micrófono (no getUserMedia)
+    // Solo bloqueamos si el permiso ya fue denegado explícitamente
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      // Liberar el stream inmediatamente — solo necesitábamos el permiso
-      stream.getTracks().forEach(track => track.stop());
-    } catch (permErr) {
-      const msg = permErr.name === 'NotAllowedError' || permErr.name === 'PermissionDeniedError'
-        ? 'Micrófono bloqueado. Toca el ícono 🔒 en la barra del navegador y permite el micrófono.'
-        : 'No se pudo acceder al micrófono. Verifica que esté disponible.';
-      setMicToast(msg);
-      return;
+      const perm = await navigator.permissions?.query({ name: 'microphone' });
+      if (perm?.state === 'denied') {
+        setMicToast('Micrófono bloqueado. Toca 🔒 en la barra del navegador y permite el micrófono.');
+        return;
+      }
+    } catch {
+      // navigator.permissions no disponible en algunos browsers — continuar normal
     }
 
     if (recRef.current) {
@@ -899,13 +892,17 @@ export default function BotGO({ language = 'es' }) {
       console.warn('🎤 Speech error:', e.error);
       setIsListening(false);
       recRef.current = null;
-      // FIX BUG #3: toast inline en lugar de alert() para todos los errores
       if (e.error === 'no-speech') {
-        // silencioso — no molestar al usuario
+        // silencioso — el usuario simplemente no habló
       } else if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
-        setMicToast('Micrófono bloqueado. Ve a Ajustes del sitio y permite el micrófono.');
+        // Dar instrucción según si es mobile o desktop
+        const esMobile = /iPhone|iPad|Android/i.test(navigator.userAgent);
+        const msg = esMobile
+          ? 'Permiso de micrófono denegado. Ve a Ajustes > Safari/Chrome > Micrófono y actívalo.'
+          : 'Permiso de micrófono denegado. Haz clic en 🔒 junto a la URL y activa el micrófono.';
+        setMicToast(msg);
       } else if (e.error === 'network') {
-        setMicToast('Error de red en reconocimiento de voz. Revisa tu conexión.');
+        setMicToast('Error de red. Verifica tu conexión e intenta de nuevo.');
       } else if (e.error === 'audio-capture') {
         setMicToast('No se detectó micrófono. Verifica que esté conectado.');
       }
