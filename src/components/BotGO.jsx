@@ -816,7 +816,11 @@ export default function BotGO({ language = 'es' }) {
   };
 
   // ── VOZ ─────────────────────────────────────────────────────────────────────
-  const toggleListening = async () => {
+  // CRÍTICO: toggleListening debe ser SÍNCRONO — no puede tener ningún `await`
+  // antes de rec.start(). Los navegadores en HTTPS (Vercel, producción) solo
+  // permiten SpeechRecognition si se llama dentro del mismo "user gesture tick".
+  // Cualquier await rompe esa cadena y causa not-allowed aunque el permiso esté activo.
+  const toggleListening = () => {
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current = null;
@@ -839,18 +843,6 @@ export default function BotGO({ language = 'es' }) {
       return;
     }
 
-    // Verificar permiso SIN ocupar el micrófono (no getUserMedia)
-    // Solo bloqueamos si el permiso ya fue denegado explícitamente
-    try {
-      const perm = await navigator.permissions?.query({ name: 'microphone' });
-      if (perm?.state === 'denied') {
-        setMicToast('Micrófono bloqueado. Toca 🔒 en la barra del navegador y permite el micrófono.');
-        return;
-      }
-    } catch {
-      // navigator.permissions no disponible en algunos browsers — continuar normal
-    }
-
     if (recRef.current) {
       abortedRef.current = true;
       try { recRef.current.abort(); } catch {}
@@ -869,17 +861,15 @@ export default function BotGO({ language = 'es' }) {
     rec.interimResults  = true;
     rec.maxAlternatives = 1;
 
-    rec.onstart = () => {
-      setIsListening(true);
-    };
+    rec.onstart = () => setIsListening(true);
 
     rec.onresult = (e) => {
+      let finalText = '';
       let interimText = '';
-      let finalText   = '';
       for (let i = e.resultIndex; i < e.results.length; i++) {
         const transcript = e.results[i][0].transcript;
-        if (e.results[i].isFinal) finalText   += transcript;
-        else                       interimText += transcript;
+        if (e.results[i].isFinal) finalText += transcript;
+        else interimText += transcript;
       }
       const detected = finalText || interimText;
       if (detected) {
@@ -889,23 +879,21 @@ export default function BotGO({ language = 'es' }) {
     };
 
     rec.onerror = (e) => {
-      console.warn('🎤 Speech error:', e.error);
+      console.warn('🎤 error:', e.error);
       setIsListening(false);
       recRef.current = null;
-      if (e.error === 'no-speech') {
-        // silencioso — el usuario simplemente no habló
-      } else if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
-        // Dar instrucción según si es mobile o desktop
+      if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
         const esMobile = /iPhone|iPad|Android/i.test(navigator.userAgent);
-        const msg = esMobile
-          ? 'Permiso de micrófono denegado. Ve a Ajustes > Safari/Chrome > Micrófono y actívalo.'
-          : 'Permiso de micrófono denegado. Haz clic en 🔒 junto a la URL y activa el micrófono.';
-        setMicToast(msg);
+        setMicToast(esMobile
+          ? 'Activa el micrófono en Ajustes > Apps > Chrome/Safari > Micrófono.'
+          : 'Activa el micrófono: haz clic en 🔒 junto a la URL y permite el micrófono.'
+        );
       } else if (e.error === 'network') {
         setMicToast('Error de red. Verifica tu conexión e intenta de nuevo.');
       } else if (e.error === 'audio-capture') {
         setMicToast('No se detectó micrófono. Verifica que esté conectado.');
       }
+      // no-speech: silencioso
     };
 
     rec.onend = () => {
@@ -916,11 +904,11 @@ export default function BotGO({ language = 'es' }) {
         return;
       }
       const texto = voiceTextRef.current.trim();
-      if (texto) {
-        setTimeout(() => sendMessage(null, texto, true), 300);
-      }
+      if (texto) setTimeout(() => sendMessage(null, texto, true), 300);
     };
 
+    // rec.start() debe llamarse DIRECTAMENTE aquí, en el mismo tick síncrono
+    // del click del usuario. Cualquier await antes de esta línea lo rompe.
     try {
       rec.start();
     } catch (err) {
