@@ -883,11 +883,22 @@ export default function BotGO({ language = 'es' }) {
       setIsListening(false);
       recRef.current = null;
       if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
-        const esMobile = /iPhone|iPad|Android/i.test(navigator.userAgent);
-        setMicToast(esMobile
-          ? 'Activa el micrófono en Ajustes > Apps > Chrome/Safari > Micrófono.'
-          : 'Activa el micrófono: haz clic en 🔒 junto a la URL y permite el micrófono.'
-        );
+        // Verificar si el permiso ya está concedido — si sí, el problema es
+        // de configuración del servidor, no del usuario
+        navigator.permissions?.query({ name: 'microphone' }).then(perm => {
+          if (perm.state === 'granted') {
+            // Permiso concedido pero SpeechRecognition bloqueado = problema de headers
+            setMicToast('Recarga la página (F5) e intenta de nuevo con el micrófono.');
+          } else {
+            const esMobile = /iPhone|iPad|Android/i.test(navigator.userAgent);
+            setMicToast(esMobile
+              ? 'Permite el micrófono: Ajustes > Apps > Chrome/Safari > Micrófono.'
+              : 'Permite el micrófono: haz clic en 🔒 junto a la URL y actívalo.'
+            );
+          }
+        }).catch(() => {
+          setMicToast('Recarga la página e intenta de nuevo con el micrófono.');
+        });
       } else if (e.error === 'network') {
         setMicToast('Error de red. Verifica tu conexión e intenta de nuevo.');
       } else if (e.error === 'audio-capture') {
