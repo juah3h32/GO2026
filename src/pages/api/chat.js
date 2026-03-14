@@ -1,4 +1,5 @@
 // src/pages/api/chat.js
+// ─── FIX v9: puesto extraído correctamente del historial ─────────────────────
 import { MsEdgeTTS, OUTPUT_FORMAT } from "msedge-tts";
 import * as googleTTS from 'google-tts-api';
 import { Buffer } from 'node:buffer';
@@ -8,13 +9,13 @@ import { notifyNewVacante } from '../../lib/notify';
 export const prerender = false;
 
 const VOICE_MAP = {
-  es:"es-MX-DaliaNeural", en:"en-US-JennyNeural",
-  pt:"pt-BR-FranciscaNeural", fr:"fr-FR-DeniseNeural",
-  zh:"zh-CN-XiaoxiaoNeural", ar:"ar-EG-SalmaNeural"
+  es: "es-MX-DaliaNeural", en: "en-US-JennyNeural",
+  pt: "pt-BR-FranciscaNeural", fr: "fr-FR-DeniseNeural",
+  zh: "zh-CN-XiaoxiaoNeural", ar: "ar-EG-SalmaNeural",
 };
 const LANGUAGES_MAP = {
-  es:'Spanish', en:'English', pt:'Portuguese',
-  zh:'Chinese', ar:'Arabic', fr:'French'
+  es: 'Spanish', en: 'English', pt: 'Portuguese',
+  zh: 'Chinese', ar: 'Arabic',  fr: 'French',
 };
 
 // ─── Mapa de productos ────────────────────────────────────────────────────────
@@ -35,7 +36,9 @@ function detectarProducto(texto) {
     .replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
   for (const [producto, aliases] of Object.entries(PRODUCT_ALIASES)) {
     for (const alias of aliases) {
-      const aliasNorm = alias.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9 ]/g, ' ').trim();
+      const aliasNorm = alias.normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9 ]/g, ' ').trim();
       if (norm.includes(aliasNorm)) return producto;
     }
   }
@@ -45,7 +48,13 @@ function detectarProducto(texto) {
 function esIntencionCotizar(texto) {
   if (!texto) return false;
   const norm = texto.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-  return ['precio','precios','costo','costos','cuanto cuesta','cuanto vale','cotiza','cotizar','cotizacion','comprar','compra','pedido','pedir','adquirir','ordenar','tarifa','presupuesto','quiero comprar','me interesa','cuanto cobran','cuanto me sale','valor','valores','cuánto','cuanto','quanto','how much','prix','prezo'].some(k => norm.includes(k));
+  return [
+    'precio','precios','costo','costos','cuanto cuesta','cuanto vale',
+    'cotiza','cotizar','cotizacion','comprar','compra','pedido','pedir',
+    'adquirir','ordenar','tarifa','presupuesto','quiero comprar','me interesa',
+    'cuanto cobran','cuanto me sale','valor','valores','cuánto','cuanto',
+    'quanto','how much','prix','prezo',
+  ].some(k => norm.includes(k));
 }
 
 function analizarHistorial(messages) {
@@ -53,7 +62,7 @@ function analizarHistorial(messages) {
   let waEnviado     = false;
   const pdfEnviados = new Set();
   for (let i = 0; i < messages.length; i++) {
-    const m = messages[i];
+    const m       = messages[i];
     if (m.role !== 'assistant') continue;
     const content = m.content || '';
     if (/\[ACCION\s*:\s*WHATSAPP\]/i.test(content)) {
@@ -81,24 +90,13 @@ function detectarFlujoReclutamiento(messages) {
   );
 }
 
-function detectarPasoReclutamiento(messages) {
-  for (let i = messages.length - 1; i >= 0; i--) {
-    const m = messages[i];
-    if (m.role !== 'assistant') continue;
-    const c = (m.content || '').toLowerCase();
-    if (/tienes.*cv|adjunta.*cv|curriculum|adjuntar.*cv|sin.*cv|cv.*disponible/i.test(c)) return 'pregunta_cv';
-    if (/whatsapp|teléfono|telefono|número de contacto|num.*tel/i.test(c))              return 'espera_telefono';
-    if (/correo|email|e-mail|mail/i.test(c))                                            return 'espera_email';
-    if (/colonia|municipio|localidad/i.test(c))                                         return 'espera_colonia';
-    if (/estado.*república|estado.*vives|qué estado|que estado/i.test(c))               return 'espera_estado';
-    if (/cuántos años|años tienes|edad/i.test(c))                                       return 'espera_edad';
-    if (/nombre completo|cómo te llamas|tu nombre/i.test(c))                            return 'espera_nombre';
-    if (/puesto|posición|area|área|trabajo.*interesa|tipo de puesto/i.test(c))          return 'espera_puesto';
-    if (/vacante|empleo|trabajo|postular|aplicar|oportunidad laboral/i.test(c))         return 'inicio_reclutamiento';
-  }
-  return null;
-}
-
+// ─────────────────────────────────────────────────────────────────────────────
+// FIX CRÍTICO BUG #1 (backend): extraerDatosDeHistorial con regex ampliado
+// para capturar el puesto cuando la pregunta dice "¿A qué puesto te gustaría
+// aplicar?" — antes el regex /puesto|posición|aplicar a/ no coincidía con
+// "¿A qué puesto..." en algunas variantes del prompt.
+// También corrige nombre (no guardar si es número) y edad (guardar tal cual).
+// ─────────────────────────────────────────────────────────────────────────────
 function extraerDatosDeHistorial(messages) {
   const data = {
     nombre: '', email: '', telefono: '',
@@ -113,24 +111,29 @@ function extraerDatosDeHistorial(messages) {
 
     const pregunta  = (bot.content  || '').toLowerCase();
     const respuesta = (user.content || '').trim();
-    if (!respuesta) continue;
+    if (!respuesta || respuesta.length < 1) continue;
 
-    if (/puesto|posición|posicion|área|area|trabajo.*interesa|tipo de puesto|aplicar a/i.test(pregunta) && !data.puesto) {
+    // FIX: regex ampliado — captura "¿A qué puesto te gustaría aplicar?"
+    if (/puesto|posici[oó]n|posicion|[aá]rea|area|trabajo.*interesa|tipo de puesto|aplicar a|qu[eé].*puesto|a qu[eé].*puesto/i.test(pregunta) && !data.puesto) {
       data.puesto = respuesta;
-    } else if (/nombre completo|cómo te llamas|como te llamas|tu nombre|cuál es tu nombre/i.test(pregunta) && !data.nombre) {
-      const numMatch = respuesta.match(/\d+/);
-      data.nombre = numMatch ? numMatch[0] : respuesta;
-    } else if (/cuántos años|cuantos años|años tienes|edad/i.test(pregunta) && !data.edad) {
-      const numMatch = respuesta.match(/\d+/);
-      data.edad = numMatch ? numMatch[0] : respuesta;
-    } else if (/estado.*república|estado.*vives|qué estado|que estado|en qué estado/i.test(pregunta) && !data.estado) {
+
+    } else if (/nombre completo|c[oó]mo te llamas|como te llamas|tu nombre|cu[aá]l es tu nombre/i.test(pregunta) && !data.nombre) {
+      if (!/^\d+$/.test(respuesta)) data.nombre = respuesta;
+
+    } else if (/cu[aá]ntos a[nñ]os|cuantos anos|a[nñ]os tienes|edad/i.test(pregunta) && !data.edad) {
+      data.edad = respuesta;
+
+    } else if (/estado.*rep[uú]blica|estado.*vives|qu[eé] estado|que estado|en qu[eé] estado/i.test(pregunta) && !data.estado) {
       data.estado = respuesta;
+
     } else if (/colonia|municipio|localidad/i.test(pregunta) && !data.colonia) {
       data.colonia = respuesta;
+
     } else if (/correo|email|e-mail|mail/i.test(pregunta) && !data.email) {
       const emailMatch = respuesta.match(/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/);
       data.email = emailMatch ? emailMatch[0] : respuesta;
-    } else if (/whatsapp|teléfono|telefono|número|numero|celular/i.test(pregunta) && !data.telefono) {
+
+    } else if (/whatsapp|tel[eé]fono|telefono|n[uú]mero|numero|celular/i.test(pregunta) && !data.telefono) {
       const telMatch = respuesta.match(/[\d\s\+\-\(\)]{7,}/);
       data.telefono = telMatch ? telMatch[0].trim() : respuesta;
     }
@@ -138,12 +141,11 @@ function extraerDatosDeHistorial(messages) {
 
   const lastUser = [...messages].reverse().find(m => m.role === 'user');
   data.mensaje = lastUser?.content || '';
-
   return data;
 }
 
 function datosSuficientes(data) {
-  const tiene = (v) => v && v.trim().length > 1;
+  const tiene = (v) => v && String(v).trim().length > 1;
   return tiene(data.nombre) && (tiene(data.telefono) || tiene(data.email)) && tiene(data.puesto);
 }
 
@@ -266,43 +268,40 @@ function detectarSolicitudCV(text) {
 }
 
 function detectarQuickReplies(text) {
-  // ── CV ──────────────────────────────────────────────────────────────────────
   if (/\[ACCION\s*:\s*QUICK_REPLY\s*:\s*cv\s*\]/i.test(text)) {
     return {
       type: 'cv',
       options: [
-        { label: 'Sí, tengo CV', value: 'si_cv',  action: 'solicitar_cv' },
-        { label: 'No tengo CV',  value: 'no_cv',   action: 'continuar'    },
+        { label: 'Sí, tengo CV', value: 'si_cv', action: 'solicitar_cv' },
+        { label: 'No tengo CV',  value: 'no_cv',  action: 'continuar'   },
       ],
     };
   }
 
-  // ── PUESTO ──────────────────────────────────────────────────────────────────
   if (/\[ACCION\s*:\s*QUICK_REPLY\s*:\s*puesto\s*\]/i.test(text)) {
     return {
       type: 'puesto',
       options: [
-        { label: 'Producción',  value: 'Operador de producción', action: 'text'  },
-        { label: 'Logística',   value: 'Logística',              action: 'text'  },
-        { label: 'Ventas',      value: 'Ventas',                 action: 'text'  },
-        { label: 'Técnico',     value: 'Mantenimiento',          action: 'text'  },
-        { label: 'Ay. Gral.',   value: 'Ayudante General',       action: 'text'  },
-        { label: 'Otro puesto', value: 'otro',                   action: 'input' },
+        { label: 'Producción', value: 'Operador de producción', action: 'text'  },
+        { label: 'Logística',  value: 'Logística',              action: 'text'  },
+        { label: 'Ventas',     value: 'Ventas',                 action: 'text'  },
+        { label: 'Técnico',    value: 'Mantenimiento',          action: 'text'  },
+        { label: 'Ay. Gral.',  value: 'Ayudante General',       action: 'text'  },
+        { label: 'Otro puesto',value: 'otro',                   action: 'input' },
       ],
     };
   }
 
-  // ── ESTADO ──────────────────────────────────────────────────────────────────
   if (/\[ACCION\s*:\s*QUICK_REPLY\s*:\s*estado\s*\]/i.test(text)) {
     return {
       type: 'estado',
       options: [
-        { label: 'Michoacán',   value: 'Michoacán',        action: 'text'  },
-        { label: 'CDMX',        value: 'Ciudad de México', action: 'text'  },
-        { label: 'Jalisco',      value: 'Jalisco',          action: 'text'  },
-        { label: 'Nuevo León',  value: 'Nuevo León',       action: 'text'  },
-        { label: 'Guanajuato',  value: 'Guanajuato',       action: 'text'  },
-        { label: 'Otro estado', value: 'otro',             action: 'input' },
+        { label: 'Michoacán',        value: 'Michoacán',        action: 'text'  },
+        { label: 'Ciudad de México', value: 'Ciudad de México', action: 'text'  },
+        { label: 'Jalisco',          value: 'Jalisco',          action: 'text'  },
+        { label: 'Nuevo León',       value: 'Nuevo León',       action: 'text'  },
+        { label: 'Guanajuato',       value: 'Guanajuato',       action: 'text'  },
+        { label: 'Otro estado',      value: 'otro',             action: 'input' },
       ],
     };
   }
@@ -315,12 +314,12 @@ function esMensajeCierre(text) {
 }
 
 function extractAcciones(text) {
-  const accionWA     = /\[ACCION\s*:\s*WHATSAPP\s*\]/i.test(text);
-  const matchPDF     = text.match(/\[ACCION\s*:\s*PDF\s*:\s*([\w-]+)\s*\]/i);
-  const accionPDF    = matchPDF ? matchPDF[1].trim().toLowerCase() : null;
-  const accionCV     = detectarSolicitudCV(text);
-  const recruitData  = parseRecruitment(text);
-  const quickReplies = detectarQuickReplies(text);
+  const accionWA    = /\[ACCION\s*:\s*WHATSAPP\s*\]/i.test(text);
+  const matchPDF    = text.match(/\[ACCION\s*:\s*PDF\s*:\s*([\w-]+)\s*\]/i);
+  const accionPDF   = matchPDF ? matchPDF[1].trim().toLowerCase() : null;
+  const accionCV    = detectarSolicitudCV(text);
+  const recruitData = parseRecruitment(text);
+  const quickReplies= detectarQuickReplies(text);
 
   const cleanText = text
     .replace(/\[RECLUTAMIENTO\s*:[^\]]+\]/gi, '')
@@ -334,23 +333,32 @@ function extractAcciones(text) {
 
 // ─── Audio ────────────────────────────────────────────────────────────────────
 function limpiarTextoParaAudio(texto) {
-  if (!texto) return "";
+  if (!texto) return '';
   return texto
-    .replace(/https?:\/\/[^\s\)\]\,]+/g, "")
-    .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, "")
-    .replace(/\*\*/g,"").replace(/\*/g,"").replace(/#/g,"")
-    .replace(/`/g,"").replace(/_/g,"")
-    .replace(/👉|▶|🔗|📎|📄|📋/g,"")
-    .replace(/^\s*[-•]\s+/gm,"")
-    .replace(/\s{2,}/g," ").replace(/\n{3,}/g,"\n\n")
+    .replace(/https?:\/\/[^\s\)\]\,]+/g, '')
+    .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, '')
+    .replace(/\*\*/g, '').replace(/\*/g, '').replace(/#+\s?/g, '')
+    .replace(/`/g, '').replace(/_/g, '')
+    .replace(/👉|▶|🔗|📎|📄|📋|🌟|😊/g, '')
+    .replace(/^\s*[-•]\s+/gm, '')
+    .replace(/\s{2,}/g, ' ').replace(/\n{3,}/g, '\n\n')
     .trim();
+}
+
+function escapeXml(str) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
 }
 
 async function streamToBuffer(readable) {
   return new Promise((resolve, reject) => {
     const chunks = [];
-    readable.on('data', c => chunks.push(Buffer.from(c)));
-    readable.on('end',  () => resolve(Buffer.concat(chunks)));
+    readable.on('data',  c => chunks.push(Buffer.from(c)));
+    readable.on('end',   () => resolve(Buffer.concat(chunks)));
     readable.on('error', e => reject(e));
   });
 }
@@ -360,10 +368,9 @@ async function generarAudio(texto, lang) {
   if (!clean) return null;
   const voice = VOICE_MAP[lang] || VOICE_MAP.es;
 
-  // SSML con velocidad +20% más rápida y volumen natural
   const ssml = `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="${lang || 'es'}">
     <voice name="${voice}">
-      <prosody rate="+20%" pitch="+0%">${clean}</prosody>
+      <prosody rate="+20%" pitch="+0%">${escapeXml(clean)}</prosody>
     </voice>
   </speak>`;
 
@@ -372,101 +379,139 @@ async function generarAudio(texto, lang) {
     await tts.setMetadata(voice, OUTPUT_FORMAT.AUDIO_24KHZ_48KBITRATE_MONO_MP3);
     const stream = await Promise.race([
       tts.toStream(ssml),
-      new Promise((_,r) => setTimeout(() => r(new Error("TTS timeout")), 6000)),
+      new Promise((_, r) => setTimeout(() => r(new Error('TTS timeout')), 6000)),
     ]);
     const buf = await streamToBuffer(stream);
-    return `data:audio/mp3;base64,${buf.toString("base64")}`;
-  } catch {
+    return `data:audio/mp3;base64,${buf.toString('base64')}`;
+  } catch (errEdge) {
+    console.warn('⚠️ MsEdgeTTS falló, usando Google TTS:', errEdge.message);
     try {
-      // Fallback Google TTS — sin SSML pero rápido
       const results = await googleTTS.getAllAudioBase64(clean, {
-        lang: lang||'es', slow:false,
-        host:'https://translate.google.com', timeout:5000, splitPunct:'.,!?',
+        lang: lang || 'es', slow: false,
+        host: 'https://translate.google.com', timeout: 5000, splitPunct: '.,!?',
       });
-      return `data:audio/mp3;base64,${Buffer.concat(results.map(r=>Buffer.from(r.base64,'base64'))).toString('base64')}`;
-    } catch { return null; }
+      const combined = Buffer.concat(results.map(r => Buffer.from(r.base64, 'base64')));
+      return `data:audio/mp3;base64,${combined.toString('base64')}`;
+    } catch (errGoogle) {
+      console.warn('⚠️ Google TTS también falló:', errGoogle.message);
+      return null;
+    }
+  }
+}
+
+async function fetchOpenAI(apiKey, body, timeoutMs = 25000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+    if (!res.ok) {
+      const errText = await res.text().catch(() => res.statusText);
+      throw new Error(`OpenAI HTTP ${res.status}: ${errText.slice(0, 200)}`);
+    }
+    const data = await res.json();
+    if (data.error) throw new Error(`OpenAI API error: ${data.error.message}`);
+    return data;
+  } finally {
+    clearTimeout(timer);
   }
 }
 
 // ─── Endpoint principal ───────────────────────────────────────────────────────
 export async function POST({ request }) {
   const apiKey = import.meta.env.OPENAI_API_KEY;
-  if (!apiKey) return new Response(
-    JSON.stringify({ reply:"Error de configuración (API Key)." }), { status:500 }
-  );
+  if (!apiKey) {
+    return new Response(
+      JSON.stringify({ reply: 'Error de configuración (API Key).' }),
+      { status: 500 }
+    );
+  }
 
   try {
     const body = await request.json();
-    const { messages, language, isVoice = false, sessionId = '', cvAdjunto = null } = body;
+    const {
+      messages,
+      language,
+      isVoice   = false,
+      sessionId = '',
+      cvAdjunto = null,
+    } = body;
+
+    if (!Array.isArray(messages) || messages.length === 0) {
+      return new Response(
+        JSON.stringify({ reply: '¿En qué puedo ayudarte?' }),
+        { status: 200 }
+      );
+    }
 
     const targetLang = LANGUAGES_MAP[language] || 'Spanish';
     const langCode   = language || 'es';
 
-    let cleanMessages = messages.map(m => ({ role:m.role, content:m.content }));
+    let cleanMessages = messages.map(m => ({ role: m.role, content: m.content || '' }));
 
-    if (cvAdjunto && cvAdjunto.nombre) {
-      const lastUserIdx = [...cleanMessages].map((m,i) => ({...m,i})).reverse().find(m => m.role==='user')?.i;
+    if (cvAdjunto?.nombre) {
+      const lastUserIdx = cleanMessages.map((m, i) => ({ ...m, i }))
+        .reverse()
+        .find(m => m.role === 'user')?.i;
       if (lastUserIdx !== undefined) {
         cleanMessages[lastUserIdx] = {
           ...cleanMessages[lastUserIdx],
-          content: `${cleanMessages[lastUserIdx].content} [El candidato adjuntó su CV: "${cvAdjunto.nombre}"]`.trim()
+          content: `${cleanMessages[lastUserIdx].content} [El candidato adjuntó su CV: "${cvAdjunto.nombre}"]`.trim(),
         };
       }
     }
 
-    const lastUserMsg  = [...cleanMessages].reverse().find(m => m.role==='user')?.content || '';
-    const userMsgCount = cleanMessages.filter(m => m.role==='user').length;
+    const lastUserMsg  = [...cleanMessages].reverse().find(m => m.role === 'user')?.content || '';
+    const userMsgCount = cleanMessages.filter(m => m.role === 'user').length;
 
-    const { pdfEnviados } = analizarHistorial(cleanMessages);
-    const intentoCotizar       = esIntencionCotizar(lastUserMsg);
-    const enFlujoReclutamiento = detectarFlujoReclutamiento(cleanMessages);
+    const { pdfEnviados }        = analizarHistorial(cleanMessages);
+    const intentoCotizar         = esIntencionCotizar(lastUserMsg);
+    const enFlujoReclutamiento   = detectarFlujoReclutamiento(cleanMessages);
 
     // ── Generar respuesta ──────────────────────────────────────────────────
-    const responseES = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: 'POST',
-      headers: { 'Content-Type':'application/json', 'Authorization':`Bearer ${apiKey}` },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: [
-          { role:"system", content:buildSystemPrompt('Spanish') },
-          ...cleanMessages
-        ],
-        temperature: 0.65,
-        max_tokens: 400,
-      }),
+    const dataES = await fetchOpenAI(apiKey, {
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: buildSystemPrompt('Spanish') },
+        ...cleanMessages,
+      ],
+      temperature: 0.65,
+      max_tokens:  400,
     });
-    const dataES = await responseES.json();
-    if (dataES.error) throw new Error(`OpenAI: ${dataES.error.message}`);
-    const rawReplyES = dataES.choices?.[0]?.message?.content || "Hola, ¿en qué puedo ayudarte?";
 
+    const rawReplyES = dataES.choices?.[0]?.message?.content || '¿En qué más puedo ayudarte?';
     let { cleanText: textoESLimpio, accionWA, accionPDF, accionCV, recruitData, quickReplies } = extractAcciones(rawReplyES);
 
     if (!accionWA && intentoCotizar) accionWA = true;
     if (accionPDF && pdfEnviados.has(accionPDF)) accionPDF = null;
 
-    // ── Agregar CV al recruitData si existe ───────────────────────────────
     if (cvAdjunto?.nombre) {
       if (!recruitData) recruitData = {};
       recruitData.cvNombre = cvAdjunto.nombre;
     }
 
-    // ── Fallback de guardado ───────────────────────────────────────────────
+    // Fallback: extraer datos del historial si el mensaje parece ser el cierre
     if (!recruitData && enFlujoReclutamiento && esMensajeCierre(textoESLimpio)) {
-      const datosHistorial = extraerDatosDeHistorial([...cleanMessages, {
-        role: 'assistant', content: textoESLimpio
-      }]);
+      const datosHistorial = extraerDatosDeHistorial([
+        ...cleanMessages,
+        { role: 'assistant', content: textoESLimpio },
+      ]);
       if (datosSuficientes(datosHistorial)) {
-        console.log('🔄 Usando fallback: datos extraídos del historial', datosHistorial);
+        console.log('🔄 Fallback: datos extraídos del historial', datosHistorial);
         recruitData = datosHistorial;
       } else {
-        console.warn('⚠️ Mensaje de cierre detectado pero datos insuficientes:', datosHistorial);
+        console.warn('⚠️ Cierre detectado pero datos insuficientes:', datosHistorial);
       }
     }
 
-    // ── Complementar recruitData con historial ────────────────────────────
+    // Complementar campos faltantes con historial
     if (recruitData && enFlujoReclutamiento) {
       const datosHistorial = extraerDatosDeHistorial(cleanMessages);
-      for (const campo of ['nombre','email','telefono','puesto','edad','estado','colonia']) {
+      for (const campo of ['nombre', 'email', 'telefono', 'puesto', 'edad', 'estado', 'colonia']) {
         if (!recruitData[campo] && datosHistorial[campo]) {
           recruitData[campo] = datosHistorial[campo];
           console.log(`🔧 Campo "${campo}" completado desde historial: ${datosHistorial[campo]}`);
@@ -485,22 +530,22 @@ export async function POST({ request }) {
     let replyText = textoESLimpio;
     if (langCode !== 'es') {
       try {
-        const responseTrad = await fetch("https://api.openai.com/v1/chat/completions", {
-          method: 'POST',
-          headers: { 'Content-Type':'application/json', 'Authorization':`Bearer ${apiKey}` },
-          body: JSON.stringify({
-            model: "gpt-4o-mini",
-            messages: [
-              { role:"system", content:`Eres un traductor profesional. Traduce al ${targetLang} de forma natural. NO traduzcas: Grupo Ortiz, BotGO, teléfonos, términos técnicos. Devuelve SOLO el texto traducido.` },
-              { role:"user", content: textoESLimpio }
-            ],
-            temperature: 0.3,
-            max_tokens: 400,
-          }),
-        });
-        const dataTrad = await responseTrad.json();
+        const dataTrad = await fetchOpenAI(apiKey, {
+          model: 'gpt-4o-mini',
+          messages: [
+            {
+              role: 'system',
+              content: `Eres un traductor profesional. Traduce al ${targetLang} de forma natural. NO traduzcas: Grupo Ortiz, BotGO, teléfonos, términos técnicos. Devuelve SOLO el texto traducido.`,
+            },
+            { role: 'user', content: textoESLimpio },
+          ],
+          temperature: 0.3,
+          max_tokens:  400,
+        }, 15000);
         replyText = dataTrad.choices?.[0]?.message?.content?.trim() || textoESLimpio;
-      } catch { /* usar español si falla */ }
+      } catch (tradErr) {
+        console.warn('⚠️ Traducción falló, usando español:', tradErr.message);
+      }
     }
 
     // ── Analytics ──────────────────────────────────────────────────────────
@@ -513,9 +558,11 @@ export async function POST({ request }) {
         language:     langCode,
         isNewSession: userMsgCount <= 1,
       });
-    } catch (e) { console.warn('⚠️ analytics log error:', e.message); }
+    } catch (e) {
+      console.warn('⚠️ analytics log error:', e.message);
+    }
 
-    // ── Guardar candidato ─────────────────────────────────────────────────
+    // ── Guardar candidato ──────────────────────────────────────────────────
     let candidatoId = null;
     if (accionReclutamiento && recruitData) {
       try {
@@ -527,13 +574,12 @@ export async function POST({ request }) {
           edad:       recruitData.edad      || '',
           estado_rep: recruitData.estado    || '',
           colonia:    recruitData.colonia   || '',
-          cvNombre:   recruitData.cvNombre  || (cvAdjunto?.nombre || ''),
+          cvNombre:   recruitData.cvNombre  || cvAdjunto?.nombre || '',
           cvBase64:   cvAdjunto?.base64     || '',
           cvTipo:     cvAdjunto?.tipo       || '',
           mensaje:    lastUserMsg,
           sessionId:  sessionId || '',
         });
-
         candidatoId = saved?.id || null;
         console.log(`✅ Candidato #${candidatoId} guardado: ${recruitData.nombre} → ${recruitData.puesto}`);
 
@@ -549,10 +595,12 @@ export async function POST({ request }) {
             cvNombre: recruitData.cvNombre || '',
             mensaje:  lastUserMsg,
           });
-        } catch (e) { console.warn('⚠️ notifyNewVacante error:', e.message); }
+        } catch (notifyErr) {
+          console.warn('⚠️ notifyNewVacante error:', notifyErr.message);
+        }
 
-      } catch (e) {
-        console.error('❌ recruitment save error:', e.message);
+      } catch (saveErr) {
+        console.error('❌ recruitment save error:', saveErr.message);
       }
     }
 
@@ -561,8 +609,8 @@ export async function POST({ request }) {
 
     return new Response(
       JSON.stringify({
-        reply: replyText,
-        audio: audioUrl,
+        reply:               replyText,
+        audio:               audioUrl,
         accionWA,
         accionPDF,
         accionCV,
@@ -571,19 +619,25 @@ export async function POST({ request }) {
         candidatoId,
         quickReplies,
       }),
-      { status:200, headers:{ 'Content-Type':'application/json' } }
+      { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
-    console.error("❌ chat error:", error.message);
+    console.error('❌ chat error:', error.message);
     return new Response(
       JSON.stringify({
-        reply: "Disculpa, tuve un problema. Puedes contactarnos directo al +52 443-207-2593 por WhatsApp 😊",
-        detail: error.message, audio:null, accionWA:false, accionPDF:null,
-        accionCV:false, accionReclutamiento:false, enFlujoReclutamiento:false,
-        candidatoId:null, quickReplies:null,
+        reply:               'Disculpa, tuve un problema. Puedes contactarnos directo al +52 443-207-2593 por WhatsApp 😊',
+        detail:              error.message,
+        audio:               null,
+        accionWA:            false,
+        accionPDF:           null,
+        accionCV:            false,
+        accionReclutamiento: false,
+        enFlujoReclutamiento:false,
+        candidatoId:         null,
+        quickReplies:        null,
       }),
-      { status:200 }
+      { status: 200 }
     );
   }
 }

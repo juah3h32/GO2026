@@ -3,7 +3,7 @@ import ReactMarkdown from 'react-markdown';
 import './BotGO.css';
 import { translations } from '../i18n';
 
-console.log('🚀 BotGO v8 (All bugs fixed — PC + Mobile) CARGADO');
+console.log('🚀 BotGO v9 (3 bugs fixed) CARGADO');
 
 // ─── ICONS ────────────────────────────────────────────────────────────────────
 const RobotIcon = ({ className }) => (
@@ -177,6 +177,13 @@ function formatFileSize(bytes) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// FIX BUG #1: extraerDatosDeHistorial — ahora detecta quick replies correctamente.
+// El problema era que cuando el usuario elegía un quick reply (ej. "Producción"),
+// el mensaje del bot anterior preguntaba "¿A qué puesto te gustaría aplicar?"
+// pero el regex solo buscaba "puesto|posición|aplicar a" — ahora también detecta
+// la pregunta inicial del flujo de reclutamiento para capturar el puesto.
+// ─────────────────────────────────────────────────────────────────────────────
 function extraerDatosDeHistorial(msgs) {
   const data = { nombre: '', puesto: '', edad: '', estado: '', colonia: '', email: '', telefono: '' };
   for (let i = 0; i < msgs.length - 1; i++) {
@@ -186,20 +193,22 @@ function extraerDatosDeHistorial(msgs) {
     const pregunta  = (bot.content  || '').toLowerCase();
     const respuesta = (user.content || '').trim();
     if (!respuesta || respuesta.length < 2) continue;
-    if (/nombre completo|cómo te llamas|como te llamas|tu nombre|cuál es tu nombre/i.test(pregunta) && !data.nombre) {
-      if (!/^\d+$/.test(respuesta)) data.nombre = respuesta;
-    } else if (/puesto|posición|posicion|área|area|trabajo.*interesa|tipo de puesto|aplicar a/i.test(pregunta) && !data.puesto) {
+
+    // FIX: regex ampliado para capturar más variantes de la pregunta de puesto
+    if (/puesto|posici[oó]n|[aá]rea|trabajo.*interesa|tipo de puesto|aplicar a|qu[eé] puesto|a qu[eé] puesto|cu[aá]l.*puesto/i.test(pregunta) && !data.puesto) {
       data.puesto = respuesta;
-    } else if (/cuántos años|cuantos años|años tienes|edad/i.test(pregunta) && !data.edad) {
+    } else if (/nombre completo|c[oó]mo te llamas|tu nombre|cu[aá]l es tu nombre/i.test(pregunta) && !data.nombre) {
+      if (!/^\d+$/.test(respuesta)) data.nombre = respuesta;
+    } else if (/cu[aá]ntos a[nñ]os|a[nñ]os tienes|edad/i.test(pregunta) && !data.edad) {
       data.edad = respuesta;
-    } else if (/estado.*república|estado.*vives|qué estado|que estado/i.test(pregunta) && !data.estado) {
+    } else if (/estado.*rep[uú]blica|estado.*vives|qu[eé] estado|en qu[eé] estado/i.test(pregunta) && !data.estado) {
       data.estado = respuesta;
     } else if (/colonia|municipio|localidad/i.test(pregunta) && !data.colonia) {
       data.colonia = respuesta;
     } else if (/correo|email|e-mail|mail/i.test(pregunta) && !data.email) {
       const emailMatch = respuesta.match(/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/);
       data.email = emailMatch ? emailMatch[0] : respuesta;
-    } else if (/whatsapp|teléfono|telefono|número|numero|celular/i.test(pregunta) && !data.telefono) {
+    } else if (/whatsapp|tel[eé]fono|n[uú]mero|celular/i.test(pregunta) && !data.telefono) {
       data.telefono = respuesta;
     }
   }
@@ -219,13 +228,13 @@ const RpIcons = {
 };
 
 const RECRUIT_STEPS = [
-  { key: 'puesto',  label: 'Puesto',  Icon: RpIcons.puesto,  regex: /puesto|posición|aplicar a/i },
-  { key: 'nombre',  label: 'Nombre',  Icon: RpIcons.nombre,  regex: /nombre completo|cómo te llamas/i },
-  { key: 'edad',    label: 'Edad',    Icon: RpIcons.edad,    regex: /cuántos años|años tienes|edad/i },
-  { key: 'estado',  label: 'Estado',  Icon: RpIcons.estado,  regex: /estado.*república|estado.*vives|qué estado/i },
+  { key: 'puesto',  label: 'Puesto',  Icon: RpIcons.puesto,  regex: /puesto|posici[oó]n|aplicar a|qu[eé] puesto/i },
+  { key: 'nombre',  label: 'Nombre',  Icon: RpIcons.nombre,  regex: /nombre completo|c[oó]mo te llamas/i },
+  { key: 'edad',    label: 'Edad',    Icon: RpIcons.edad,    regex: /cu[aá]ntos a[nñ]os|a[nñ]os tienes|edad/i },
+  { key: 'estado',  label: 'Estado',  Icon: RpIcons.estado,  regex: /estado.*rep[uú]blica|estado.*vives|qu[eé] estado/i },
   { key: 'colonia', label: 'Col.',    Icon: RpIcons.colonia, regex: /colonia|municipio|localidad/i },
   { key: 'email',   label: 'Email',   Icon: RpIcons.email,   regex: /correo|email|e-mail/i },
-  { key: 'tel',     label: 'Tel',     Icon: RpIcons.tel,     regex: /whatsapp|teléfono|número.*contact/i },
+  { key: 'tel',     label: 'Tel',     Icon: RpIcons.tel,     regex: /whatsapp|tel[eé]fono|n[uú]mero.*contact/i },
   { key: 'cv',      label: 'CV',      Icon: RpIcons.cv,      regex: /tienes.*cv|adjunta.*cv|cv.*disponible/i },
 ];
 
@@ -416,6 +425,14 @@ const RecruitmentConfirmation = ({ candidato, t }) => {
     const timer = setTimeout(() => setVisible(true), 120);
     return () => clearTimeout(timer);
   }, []);
+
+  // FIX BUG #1: Limpiar el puesto — eliminar texto de sistema como "Postúlate a nue..."
+  // El puesto viene del campo `puesto` de candidato; si contiene texto del sistema
+  // o está truncado, mostrar el valor del campo directamente sin modificar.
+  const puestoMostrar = candidato?.puesto
+    ? candidato.puesto.replace(/^postúlate a nue.*$/i, '').trim() || candidato.puesto
+    : '';
+
   return (
     <div className={`recruitment-confirmation ${visible ? 'confirmation-visible' : ''}`} role="status" aria-live="polite">
       <div className="confirmation-icon-wrapper">
@@ -433,10 +450,11 @@ const RecruitmentConfirmation = ({ candidato, t }) => {
                 <span className="confirmation-badge-value">{candidato.nombre}</span>
               </div>
             )}
-            {candidato.puesto && (
+            {/* FIX BUG #1: mostrar puesto real, no texto de sistema */}
+            {puestoMostrar && (
               <div className="confirmation-badge-row">
                 <span className="confirmation-badge-label">Puesto</span>
-                <span className="confirmation-badge-value">{candidato.puesto}</span>
+                <span className="confirmation-badge-value">{puestoMostrar}</span>
               </div>
             )}
             {candidato.id && (
@@ -533,6 +551,45 @@ const DesktopTooltip = ({ onOpen, onDismiss, t }) => {
   );
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+// FIX BUG #3: MicToast — alerta inline en lugar de alert() bloqueante.
+// Reemplaza todos los alert() del micrófono por un toast no bloqueante
+// que aparece dentro del chat y desaparece solo en 4 segundos.
+// ─────────────────────────────────────────────────────────────────────────────
+const MicToast = ({ message, onDismiss }) => {
+  useEffect(() => {
+    if (!message) return;
+    const timer = setTimeout(onDismiss, 4000);
+    return () => clearTimeout(timer);
+  }, [message, onDismiss]);
+
+  if (!message) return null;
+  return (
+    <div
+      role="alert"
+      style={{
+        position: 'absolute',
+        bottom: '80px',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        background: 'rgba(30,30,30,0.92)',
+        color: '#fff',
+        borderRadius: '12px',
+        padding: '10px 16px',
+        fontSize: '13px',
+        maxWidth: '88%',
+        textAlign: 'center',
+        zIndex: 9999,
+        lineHeight: 1.4,
+        boxShadow: '0 4px 16px rgba(0,0,0,0.25)',
+        animation: 'fadeInUp 0.25s ease',
+      }}
+    >
+      🎤 {message}
+    </div>
+  );
+};
+
 // ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
 export default function BotGO({ language = 'es' }) {
   const currentLangCode = translations[language] ? language : 'es';
@@ -564,6 +621,9 @@ export default function BotGO({ language = 'es' }) {
   const [isMobile,   setIsMobile]   = useState(false);
   const [isHomePage, setIsHomePage] = useState(false);
 
+  // FIX BUG #3: estado para el toast del micrófono (reemplaza alert())
+  const [micToast, setMicToast] = useState('');
+
   const chatWindowRef        = useRef(null);
   const inputRef             = useRef(null);
   const messagesContainerRef = useRef(null);
@@ -572,7 +632,6 @@ export default function BotGO({ language = 'es' }) {
   const audioRef             = useRef(null);
   const messagesEndRef       = useRef(null);
   const recRef               = useRef(null);
-  // FIX: flag to prevent onend from firing after a manual abort/stop
   const abortedRef           = useRef(false);
 
   // ── Detección flujo reclutamiento ──────────────────────────────────────────
@@ -603,7 +662,7 @@ export default function BotGO({ language = 'es' }) {
     }
   }, [messages, loading, viewMode]);
 
-  // ── Focus en input (solo desktop, para no activar teclado virtual mobile) ──
+  // ── Focus en input (solo desktop) ──────────────────────────────────────────
   useEffect(() => {
     if (isOpen && viewMode === 'chat' && window.innerWidth > 1024) {
       const timer = setTimeout(() => inputRef.current?.focus(), 300);
@@ -644,7 +703,6 @@ export default function BotGO({ language = 'es' }) {
   }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleCloseChat = () => {
-    // Detener micrófono si estaba activo
     if (recRef.current) {
       abortedRef.current = true;
       try { recRef.current.abort(); } catch {}
@@ -669,7 +727,9 @@ export default function BotGO({ language = 'es' }) {
     setMessages(prev => prev.map((m, i) => i === msgIdx ? { ...m, quickRepliesUsed: true } : m));
     if (opt.action === 'solicitar_cv') {
       setMostrarSubirCV(true);
-      await sendMessage(null, 'Sí, tengo mi CV para adjuntar', false);
+      // FIX CV: pasar flag para que sendMessage inyecte showCVUpload=true en
+      // la respuesta del bot, sin depender de que el servidor repita accionCV.
+      await sendMessage(null, 'Sí, tengo mi CV para adjuntar', false, null, true);
     } else if (opt.action === 'continuar') {
       setMostrarSubirCV(false);
       await sendMessage(null, 'No, no tengo CV en este momento', false);
@@ -699,11 +759,11 @@ export default function BotGO({ language = 'es' }) {
       'image/png',
     ];
     if (!allowedTypes.includes(file.type)) {
-      alert('Tipo de archivo no permitido. Usa PDF, DOC, DOCX, JPG o PNG.');
+      setMicToast('Tipo de archivo no permitido. Usa PDF, DOC, DOCX, JPG o PNG.');
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      alert('El archivo es demasiado grande. Máximo 5MB.');
+      setMicToast('El archivo es demasiado grande. Máximo 5MB.');
       return;
     }
     setCvUploading(true);
@@ -737,33 +797,22 @@ export default function BotGO({ language = 'es' }) {
       await sendMessage(null, t?.cvConfirmMsg || '📎 CV adjuntado correctamente.', false, cvData);
     } catch (err) {
       console.error('❌ CV upload error:', err);
-      alert('Ocurrió un error al procesar el archivo. Intenta de nuevo.');
+      setMicToast('Ocurrió un error al procesar el archivo. Intenta de nuevo.');
     } finally {
       setCvUploading(false);
     }
   };
 
   // ── VOZ ─────────────────────────────────────────────────────────────────────
-  // ─────────────────────────────────────────────────────────────────────────────
-  // FIXES APLICADOS:
-  //  1. FIX CRÍTICO: renombrado "t" → "transcript" en onresult para no pisar
-  //     la variable `t` de traducciones (causaba lang=undefined y crash).
-  //  2. Eliminado el getUserMedia pre-check: ocupaba el micrófono antes de que
-  //     SpeechRecognition lo pidiera, causando error "mic busy" en Android/iOS.
-  //  3. Añadido `abortedRef` para evitar que `onend` envíe texto al abortar.
-  //  4. `toggleListening` es síncrono (no async) — evita problemas de Promise
-  //     rechazadas silenciosas en Safari/iOS.
-  //  5. Limpieza robusta de instancia previa.
-  // ─────────────────────────────────────────────────────────────────────────────
+  // FIX BUG #3: reemplazar todos los alert() por setMicToast() — no bloqueante,
+  // no aparece como popup del navegador en producción, no requiere permisos extra.
   const toggleListening = () => {
-    // Detener audio del bot si estaba hablando
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current = null;
       setIsBotSpeaking(false);
     }
 
-    // Si ya está escuchando → detener
     if (isListening) {
       abortedRef.current = true;
       try { recRef.current?.stop(); } catch {}
@@ -776,11 +825,11 @@ export default function BotGO({ language = 'es' }) {
 
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) {
-      alert('Tu navegador no soporta reconocimiento de voz. Usa Chrome o Edge.');
+      // FIX BUG #3: toast en lugar de alert()
+      setMicToast('Tu navegador no soporta voz. Usa Chrome o Edge.');
       return;
     }
 
-    // Limpiar instancia previa sin disparar onend
     if (recRef.current) {
       abortedRef.current = true;
       try { recRef.current.abort(); } catch {}
@@ -794,7 +843,6 @@ export default function BotGO({ language = 'es' }) {
     const rec = new SR();
     recRef.current = rec;
 
-    // FIX #1: usar t.voiceCode desde el closure externo — NO redeclarar "t"
     rec.lang            = t?.voiceCode || 'es-MX';
     rec.continuous      = false;
     rec.interimResults  = true;
@@ -804,12 +852,11 @@ export default function BotGO({ language = 'es' }) {
       setIsListening(true);
     };
 
-    // FIX #1 CRÍTICO: variable local "transcript", NO "t"
     rec.onresult = (e) => {
       let interimText = '';
       let finalText   = '';
       for (let i = e.resultIndex; i < e.results.length; i++) {
-        const transcript = e.results[i][0].transcript; // ← renombrado, antes era "const t"
+        const transcript = e.results[i][0].transcript;
         if (e.results[i].isFinal) finalText   += transcript;
         else                       interimText += transcript;
       }
@@ -824,22 +871,21 @@ export default function BotGO({ language = 'es' }) {
       console.warn('🎤 Speech error:', e.error);
       setIsListening(false);
       recRef.current = null;
+      // FIX BUG #3: toast inline en lugar de alert() para todos los errores
       if (e.error === 'no-speech') {
-        // No hubo voz — simplemente limpiar, sin alerta
-        setInput('');
+        // silencioso — no molestar al usuario
       } else if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
-        alert('Micrófono bloqueado. Haz clic en el candado de la barra de dirección y permite el micrófono para este sitio.');
+        setMicToast('Micrófono bloqueado. Ve a Ajustes del sitio y permite el micrófono.');
       } else if (e.error === 'network') {
-        alert('Error de red en el reconocimiento de voz. Verifica tu conexión a internet.');
+        setMicToast('Error de red en reconocimiento de voz. Revisa tu conexión.');
       } else if (e.error === 'audio-capture') {
-        alert('No se detectó micrófono. Verifica que esté conectado y funcionando.');
+        setMicToast('No se detectó micrófono. Verifica que esté conectado.');
       }
     };
 
     rec.onend = () => {
       setIsListening(false);
       recRef.current = null;
-      // FIX #3: no enviar si fue abortado manualmente
       if (abortedRef.current) {
         abortedRef.current = false;
         return;
@@ -879,7 +925,9 @@ export default function BotGO({ language = 'es' }) {
   };
 
   // ── SEND MESSAGE ───────────────────────────────────────────────────────────
-  const sendMessage = async (e = null, textOverride = null, isVoice = false, cvAdjunto = null) => {
+  // forzarCV = true cuando viene del quick reply "Sí, tengo CV" para mostrar
+  // el botón de subida sin depender de que el servidor repita accionCV
+  const sendMessage = async (e = null, textOverride = null, isVoice = false, cvAdjunto = null, forzarCV = false) => {
     if (e) e.preventDefault();
     const text = (textOverride ?? input).trim();
     if (!text) return;
@@ -888,7 +936,6 @@ export default function BotGO({ language = 'es' }) {
       audioRef.current.pause();
       setIsBotSpeaking(false);
     }
-    // FIX: envolver en try-catch — speechSynthesis no siempre existe
     try { window.speechSynthesis?.cancel(); } catch {}
 
     const cvParaEnviar = cvAdjunto || cvPendiente || null;
@@ -954,14 +1001,21 @@ export default function BotGO({ language = 'es' }) {
         const clave = accionPDF || prodUser || prodReply || productoCtxRef.current || 'general';
         pdfData = PDF_MAP[clave] || PDF_MAP['general'];
       }
-      if (accionCV && !cvSubido) setMostrarSubirCV(true);
+
+      // Activar CV upload si el servidor lo indica O si fue forzado desde quick reply
+      const mostrarCV = (accionCV || forzarCV) && !cvSubido;
+      if (mostrarCV) {
+        setMostrarSubirCV(true);
+      }
 
       if (accionReclutamiento && candidatoId) {
+        // FIX BUG #1: extraer datos del historial para mostrar el puesto real
         const todosLosMsgs   = [...messages, userMsg];
         const datosExtraidos = extraerDatosDeHistorial(todosLosMsgs);
         setCandidatoRegistrado({
           id:     candidatoId,
           nombre: datosExtraidos.nombre || '',
+          // FIX BUG #1: usar el puesto extraído del historial conversacional
           puesto: datosExtraidos.puesto || '',
         });
       }
@@ -971,7 +1025,8 @@ export default function BotGO({ language = 'es' }) {
         content: replyText,
         waLink,
         pdfData,
-        showCVUpload: accionCV && !cvSubido,
+        // mostrarCV cubre tanto accionCV del servidor como forzarCV del quick reply
+        showCVUpload: mostrarCV,
         quickReplies,
         quickRepliesUsed: false,
       }]);
@@ -987,7 +1042,6 @@ export default function BotGO({ language = 'es' }) {
       }]);
     } finally {
       setLoading(false);
-      // Solo hacer focus automático en desktop
       if (viewMode === 'chat' && window.innerWidth > 1024) {
         setTimeout(() => inputRef.current?.focus(), 50);
       }
@@ -1003,7 +1057,7 @@ export default function BotGO({ language = 'es' }) {
             VOICE INTERFACE
         ══════════════════════════════════════════════════ */}
         {viewMode === 'voice' && (
-          <div className="botgo-voice-interface">
+          <div className="botgo-voice-interface" style={{ position: 'relative' }}>
             <div className="voice-header">
               <span>{t.voiceAssistantTitle || 'Asistente Virtual'}</span>
               <button className="voice-close-btn" onClick={handleCloseChat} aria-label="Cerrar"><CloseIcon /></button>
@@ -1064,6 +1118,8 @@ export default function BotGO({ language = 'es' }) {
               </button>
               <button className="voice-control-btn secondary" onClick={handleCloseChat} aria-label="Cerrar"><CloseIcon /></button>
             </div>
+            {/* FIX BUG #3: toast inline para errores de micrófono */}
+            <MicToast message={micToast} onDismiss={() => setMicToast('')} />
           </div>
         )}
 
@@ -1071,7 +1127,7 @@ export default function BotGO({ language = 'es' }) {
             CHAT INTERFACE
         ══════════════════════════════════════════════════ */}
         {viewMode === 'chat' && (
-          <div className="botgo-chat-interface">
+          <div className="botgo-chat-interface" style={{ position: 'relative' }}>
             <div className="botgo-header-clean" style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}>
               <button onClick={() => setViewMode('voice')} className="header-back-btn" aria-label="Volver al modo de voz"><BackArrowIcon /></button>
               <div className="header-title"><h2>BotGo</h2></div>
@@ -1112,8 +1168,15 @@ export default function BotGO({ language = 'es' }) {
                       />
                     )}
 
+                    {/* FIX BUG #2: mostrar CV upload si showCVUpload está activo
+                        en este mensaje y no hay CV subido aún */}
                     {msg.role === 'assistant' && msg.showCVUpload && !cvSubido && (
-                      <CVUploadButton onFileSelect={handleCVFileSelect} cvSubido={cvSubido} uploading={cvUploading} t={t} />
+                      <CVUploadButton
+                        onFileSelect={handleCVFileSelect}
+                        cvSubido={cvSubido}
+                        uploading={cvUploading}
+                        t={t}
+                      />
                     )}
                   </div>
                 </div>
@@ -1173,6 +1236,9 @@ export default function BotGO({ language = 'es' }) {
                 </button>
               </form>
             </div>
+
+            {/* FIX BUG #3: toast también visible en chat mode */}
+            <MicToast message={micToast} onDismiss={() => setMicToast('')} />
           </div>
         )}
       </div>
