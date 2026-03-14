@@ -802,11 +802,8 @@ export default function BotGO({ language = 'es' }) {
   const handleQuickReply = async (opt, msgIdx) => {
     setMessages(prev => prev.map((m, i) => i === msgIdx ? { ...m, quickRepliesUsed: true } : m));
     if (opt.action === 'solicitar_cv') {
-      // FIX CV: activar el botón ANTES de llamar sendMessage.
-      // React batching puede retrasar el render si setMostrarSubirCV y
-      // sendMessage se llaman juntos — con flushSync garantizamos render inmediato.
+      setViewMode('chat');
       setMostrarSubirCV(true);
-      // Dar un tick para que React renderice el botón antes del await
       await new Promise(r => setTimeout(r, 50));
       await sendMessage(null, 'Sí, tengo mi CV para adjuntar', false);
     } else if (opt.action === 'continuar') {
@@ -1087,7 +1084,51 @@ export default function BotGO({ language = 'es' }) {
       const accionCV             = data.accionCV           || false;
       const accionReclutamiento  = data.accionReclutamiento || false;
       const candidatoId          = data.candidatoId        || null;
-      const quickReplies         = data.quickReplies       || null;
+
+      // FIX: detectar quick replies desde el texto del bot si el servidor no los mandó
+      // Esto cubre el caso donde el usuario escribe manualmente en vez de usar quick reply
+      let quickReplies = data.quickReplies || null;
+      if (!quickReplies && replyText) {
+        const txt = replyText.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        // ¿Tienes CV? → botones Sí/No
+        if (/tienes.*cv|adjuntar.*cv|cv.*disponible|tienes un cv|tiene.*curriculum/i.test(replyText)) {
+          quickReplies = {
+            type: 'cv',
+            options: [
+              { label: 'Sí, tengo CV', value: 'si_cv', action: 'solicitar_cv' },
+              { label: 'No tengo CV',  value: 'no_cv',  action: 'continuar'   },
+            ],
+          };
+        }
+        // ¿A qué puesto? → grid de puestos
+        else if (/que puesto|a que puesto|cual.*puesto|aplicar a/i.test(replyText)) {
+          quickReplies = {
+            type: 'puesto',
+            options: [
+              { label: 'Producción', value: 'Operador de producción', action: 'text'  },
+              { label: 'Logística',  value: 'Logística',              action: 'text'  },
+              { label: 'Ventas',     value: 'Ventas',                 action: 'text'  },
+              { label: 'Técnico',    value: 'Mantenimiento',          action: 'text'  },
+              { label: 'Ay. Gral.',  value: 'Ayudante General',       action: 'text'  },
+              { label: 'Otro puesto',value: 'otro',                   action: 'input' },
+            ],
+          };
+        }
+        // ¿En qué estado? → grid de estados
+        else if (/que estado|en que estado|estado.*republica|donde vives/i.test(replyText)) {
+          quickReplies = {
+            type: 'estado',
+            options: [
+              { label: 'Michoacán',        value: 'Michoacán',        action: 'text'  },
+              { label: 'Ciudad de México', value: 'Ciudad de México', action: 'text'  },
+              { label: 'Jalisco',          value: 'Jalisco',          action: 'text'  },
+              { label: 'Nuevo León',       value: 'Nuevo León',       action: 'text'  },
+              { label: 'Guanajuato',       value: 'Guanajuato',       action: 'text'  },
+              { label: 'Otro estado',      value: 'otro',             action: 'input' },
+            ],
+          };
+        }
+      }
 
       const prodReply = detectarProducto(replyText);
       if (prodReply && !prodUser) productoCtxRef.current = prodReply;
@@ -1105,8 +1146,11 @@ export default function BotGO({ language = 'es' }) {
         pdfData = PDF_MAP[clave] || PDF_MAP['general'];
       }
 
-      // Activar CV upload si el servidor lo indica (y no hay CV subido ya)
-      if (accionCV && !cvSubido) {
+      // Activar CV upload:
+      // 1. Si el servidor envía accionCV:true
+      // 2. O si el texto del bot menciona adjuntar/CV (cuando el user escribe "sí" sin quick reply)
+      const pedirCV = (accionCV || /adjunta.*cv|por favor.*adjunta|sube.*cv|envía.*cv|manda.*cv/i.test(replyText)) && !cvSubido;
+      if (pedirCV) {
         setMostrarSubirCV(true);
       }
 
@@ -1298,7 +1342,18 @@ export default function BotGO({ language = 'es' }) {
                 </div>
               ))}
 
-              {/* ── CV UPLOAD — controlado por estado, aparece inmediato ── */}
+              {loading && (
+                <div className="msg-row assistant">
+                  <div className="msg-avatar-small"><RobotIcon className="msg-icon-svg" /></div>
+                  <div className="msg-col">
+                    <div className="msg-bubble assistant typing">
+                      <span className="dot" /><span className="dot" /><span className="dot" />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* CV UPLOAD — visible cuando mostrarSubirCV=true y no hay CV aún */}
               {mostrarSubirCV && !cvSubido && (
                 <div className="msg-row assistant">
                   <div className="msg-avatar-small"><RobotIcon className="msg-icon-svg" /></div>
@@ -1309,17 +1364,6 @@ export default function BotGO({ language = 'es' }) {
                       uploading={cvUploading}
                       t={t}
                     />
-                  </div>
-                </div>
-              )}
-
-              {loading && (
-                <div className="msg-row assistant">
-                  <div className="msg-avatar-small"><RobotIcon className="msg-icon-svg" /></div>
-                  <div className="msg-col">
-                    <div className="msg-bubble assistant typing">
-                      <span className="dot" /><span className="dot" /><span className="dot" />
-                    </div>
                   </div>
                 </div>
               )}
