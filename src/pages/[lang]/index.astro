@@ -7,6 +7,7 @@ export const prerender = true;
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Footer from "../../components/Footer.astro";
 import { languages, translations } from '../../i18n';
+import { CldVideoPlayer } from 'astro-cloudinary';
 
 export function getStaticPaths() {
   return Object.keys(languages).map((lang) => ({
@@ -33,15 +34,18 @@ const certsLoop = [...certifications, ...certifications];
      HERO
 ═══════════════════════════════════════ -->
 <section class="hero hero--static">
-  <video
-    src={`/videos/${th.hero.video}#t=0.1`}
-    muted loop playsinline
-    preload="metadata"
-    poster="/images/capturas/portada.webp"
+<CldVideoPlayer
+    src={th.hero.video}
+    autoplay
+    muted
+    loop
+    playsinline
+    controls={false}
+    width="1920"
+    height="1080"
     class="hero__video hero__video--fill"
-      id="heroVideo"
->
-  <track kind="captions" srclang="es" label="Español" default />
+  />
+
 </video>
   <div class="hero__gradient-overlay"></div>
 
@@ -266,16 +270,17 @@ const certsLoop = [...certifications, ...certifications];
      GLOBAL — VIDEO DE FONDO
 ═══════════════════════════════════════ -->
 <section class="global">
-  <video
-    src={`${th.global.video}#t=0.1`}
-    muted loop playsinline
-    preload="metadata"
-    poster="/images/capturas/portada2.webp"
-    class="global__video"
-  id="globalVideo"
->
-  <track kind="captions" srclang="es" label="Español" default />
-</video>
+<CldVideoPlayer
+  src={th.global.video}
+  width="0"
+  height="0"
+  class="global__video"
+  autoplay
+  muted
+  loop
+  playsinline
+  controls={false}
+/>
   <div class="global__video-overlay"></div>
   <div class="global__inner">
     <p class="section-tag section-tag--light">{th.global.tag}</p>
@@ -471,37 +476,12 @@ function initDivGrid() {
   window.addEventListener('resize', updateProgress);
 }
 
-/* ---- VIDEOS ---- */
-function initVideos() {
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      const video = entry.target;
-      if (entry.isIntersecting) {
-        if (video.readyState === 0) video.load();
-        const markLoaded = () => video.classList.add('is-loaded');
-        if (video.readyState >= 3) {
-          markLoaded();
-        } else {
-          video.addEventListener('canplay', markLoaded, { once: true });
-        }
-        video.play().catch(() => {});
-      } else {
-        video.pause();
-      }
-    });
-  }, { threshold: 0.0 });
-
-  ['heroVideo', 'globalVideo'].forEach((id) => {
-    const v = document.getElementById(id);
-    if (v) observer.observe(v);
-  });
-}
 
 /* ---- INIT ---- */
 function init() {
   initCounters();
   initDivGrid();
-  initVideos();
+
 }
 
 document.addEventListener('DOMContentLoaded', init);

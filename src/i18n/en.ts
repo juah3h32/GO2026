@@ -1160,7 +1160,7 @@ export const en = {
       eyebrow:      "Since 1959",
       title_top:    "WE ARE THE LEADING",
       title_bot:    "MANUFACTURER IN LATIN AMERICA",
-      video:        "background.mp4",
+      video: "home_zv3jjz",
       subtitle:     "More than 65 years manufacturing high-engineering solutions for industries across five continents.",
       btn_products: "Our Products",
       btn_about:    "Learn More",
@@ -1236,7 +1236,7 @@ export const en = {
       title:    "We export to the",
       title_em: "world",
       desc:     "Our products reach clients in more than 30 countries, consolidating our position as leaders in plastic polymers.",
-      video:    "/videos/camion.mp4",
+      video: "camion_n1nitn",
       stats: [
         { number: 65,   label: "Years"       },
         { number: 30,   prefix: "+", label: "Countries"  },

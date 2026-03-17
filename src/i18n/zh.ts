@@ -1160,7 +1160,7 @@ export const zh = {
       eyebrow:      "始于1959年",
       title_top:    "我们是拉丁美洲",
       title_bot:    "主要制造商",
-      video:        "background.mp4",
+      video: "home_zv3jjz",
       subtitle:     "超过65年为五大洲的工业提供高工程水平的解决方案。",
       btn_products: "我们的产品",
       btn_about:    "了解更多",
@@ -1236,7 +1236,7 @@ export const zh = {
       title:    "我们向",
       title_em: "全球出口",
       desc:     "我们的产品销往30多个国家的客户，巩固了我们作为塑料聚合物领导者的地位。",
-      video:    "/videos/camion.mp4",
+      video: "camion_n1nitn",
       stats: [
         { number: 65,   label: "年"    },
         { number: 30,   prefix: "+", label: "国家"  },

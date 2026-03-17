@@ -1160,7 +1160,7 @@ export const ar = {
       eyebrow:      "منذ 1959",
       title_top:    "نحن الشركة المصنّعة",
       title_bot:    "الرائدة في أمريكا اللاتينية",
-      video:        "background.mp4",
+      video: "home_zv3jjz",
       subtitle:     "أكثر من 65 عاماً في تصنيع حلول هندسية متقدمة للصناعات في القارات الخمس.",
       btn_products: "منتجاتنا",
       btn_about:    "اعرف أكثر",
@@ -1236,7 +1236,7 @@ export const ar = {
       title:    "نُصدّر إلى",
       title_em: "العالم",
       desc:     "تصل منتجاتنا إلى عملاء في أكثر من 30 دولة، مما يرسّخ موقعنا كقادة في البوليمرات البلاستيكية.",
-      video:    "/videos/camion.mp4",
+      video: "camion_n1nitn",
       stats: [
         { number: 65,   label: "عاماً"    },
         { number: 30,   prefix: "+", label: "دولة"    },

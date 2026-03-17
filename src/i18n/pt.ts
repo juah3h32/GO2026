@@ -1160,7 +1160,7 @@ export const pt = {
       eyebrow:      "Desde 1959",
       title_top:    "SOMOS O PRINCIPAL",
       title_bot:    "FABRICANTE DA AMÉRICA LATINA",
-      video:        "background.mp4",
+      video: "home_zv3jjz",
       subtitle:     "Mais de 65 anos fabricando soluções de alta engenharia para indústrias nos cinco continentes.",
       btn_products: "Nossos Produtos",
       btn_about:    "Saiba Mais",
@@ -1236,7 +1236,7 @@ export const pt = {
       title:    "Exportamos para o",
       title_em: "mundo",
       desc:     "Nossos produtos chegam a clientes em mais de 30 países, consolidando nossa posição como líderes em polímeros plásticos.",
-      video:    "/videos/camion.mp4",
+      video: "camion_n1nitn",
       stats: [
         { number: 65,   label: "Anos"        },
         { number: 30,   prefix: "+", label: "Países"      },

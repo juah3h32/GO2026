@@ -177,12 +177,76 @@ a   { text-decoration: none; }
   overflow: hidden; display: flex; flex-direction: column;
   justify-content: center; background: transparent;
 }
-
+/* Selecciona el contenedor de Cloudinary y el video nativo interno */
+.hero__video--fill,
+.hero__video--fill video {
+  position: absolute !important; 
+  inset: 0; 
+  width: 100vw !important;
+  height: 100vh !important;
+  object-fit: cover !important; 
+  object-position: center; 
+  z-index: 0; 
+  pointer-events: none; /* Evita cualquier interacción o clic en el reproductor */
+  border: none;
+  background: transparent;
+}
 .hero__video--fill {
   position: absolute; inset: 0; width: 100%; height: 100%;
   object-fit: cover; object-position: center; z-index: 0; pointer-events: none;
   opacity: 1;                    /* ✅ video completamente visible en light */
   transition: opacity 0.6s ease;
+}
+/* ============================================================================
+   GLOBAL — altura compacta
+   ============================================================================ */
+.global {
+  background: var(--clr-dark);
+  padding: clamp(48px, 5vw, 72px) 0;  /* ← reducido */
+  position: relative;
+  overflow: hidden;
+  /* ✅ Esto es lo clave — la sección se ajusta al contenido, no al video */
+  height: auto;
+  max-height: none;
+}
+/* Fuerza override sobre los estilos inline de Cloudinary */
+.global .cld-video-player,
+.global .cld-video-player-container {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-height: 100% !important;
+}
+
+/* El video se estira al 100% del section, que ahora es pequeño */
+.global__video,
+.global__video video {
+  position: absolute !important;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;     /* ← 100% del section, no de la pantalla */
+  object-fit: cover !important;
+  object-position: center;
+  z-index: 0;
+  pointer-events: none;
+  border: none;
+  background: transparent;
+}
+/* Limitar altura del video de fondo en .global */
+.global__video,
+.global__video video {
+  position: absolute !important;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center;
+  z-index: 0;
+  pointer-events: none;
+  border: none;
+  background: transparent;
+  max-height: 100%;   /* ← se contiene dentro de la sección */
 }
 html.dark .hero__video--fill { opacity: 0.65; } /* ✅ un poco más tenue en dark */
 
@@ -695,7 +759,12 @@ html.dark .compromiso__card--dark { background: #262626; }
 /* ============================================================================
    GLOBAL — sección con video de fondo
    ============================================================================ */
-.global { background: var(--clr-dark); padding: var(--section-gap) 0; position: relative; overflow: hidden; }
+.global {
+  background: var(--clr-dark);
+  padding: clamp(48px, 6vw, 80px) 0;   /* ← padding reducido */
+  position: relative;
+  overflow: hidden;
+}
 html.dark .global { background: #262626; }
 .global::before { display: none; }
 .global__inner { position: relative; z-index: 3; max-width: var(--max-w); margin: 0 auto; padding: 0 var(--pad); text-align: center; }
@@ -968,4 +1037,5 @@ html.dark .global__video {
 }
 html.dark .hero__video--fill.is-loaded { opacity: 0.65; }
 html.dark .global__video.is-loaded     { opacity: 0.65; }
+
 

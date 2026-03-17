@@ -1162,7 +1162,7 @@ chatbot: {
       eyebrow:      "Desde 1959",
       title_top:    "SOMOS EL PRINCIPAL",
       title_bot:    "FABRICANTE DE LATINOAMÉRICA",
-      video:        "background.mp4",
+      video: "home_zv3jjz",
       subtitle:     "Más de 65 años fabricando soluciones de alta ingeniería para industrias en los cinco continentes.",
       btn_products: "Nuestros Productos",
       btn_about:    "Conocer Más",
@@ -1238,7 +1238,7 @@ chatbot: {
       title:    "Exportamos al",
       title_em: "mundo",
       desc:     "Nuestros productos llegan a clientes en más de 30 países, consolidando nuestra posición como líderes en polímeros plásticos.",
-      video:    "/videos/camion.mp4",
+      video: "camion_n1nitn",
       stats: [
         { number: 65,   label: "Años"        },
         { number: 30,   prefix: "+", label: "Países"      },
