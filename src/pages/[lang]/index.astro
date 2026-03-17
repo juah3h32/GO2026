@@ -35,16 +35,17 @@ const certsLoop = [...certifications, ...certifications];
 ═══════════════════════════════════════ -->
 <section class="hero hero--static">
 <CldVideoPlayer
-    src={th.hero.video}
-    autoplay
-    muted
-    loop
-    playsinline
-    controls={false}
-    width="1920"
-    height="1080"
-    class="hero__video hero__video--fill"
-  />
+  src={th.hero.video}
+  width="1920"
+  height="1080"
+  class="hero__video hero__video--fill"
+  autoplay
+  muted
+  loop
+  playsinline
+  controls={false}
+  poster={`https://res.cloudinary.com/dfuzfdrat/video/upload/so_0/${th.hero.video}.jpg`}
+/>
 
 </video>
   <div class="hero__gradient-overlay"></div>
