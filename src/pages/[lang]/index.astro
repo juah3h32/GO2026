@@ -22,6 +22,11 @@ const th = t.home as typeof translations['es']['home'];
 
 const certifications = th.certs.items;
 const certsLoop = [...certifications, ...certifications];
+
+/* ── Cloud name para posters ── */
+const CLOUD = import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME;
+const poster = (src: string) =>
+  `https://res.cloudinary.com/${CLOUD}/video/upload/f_jpg,q_auto,so_0/${src}.jpg`;
 ---
 
 <BaseLayout 
@@ -34,20 +39,19 @@ const certsLoop = [...certifications, ...certifications];
      HERO
 ═══════════════════════════════════════ -->
 <section class="hero hero--static">
-<CldVideoPlayer
-  src={th.hero.video}
-  width="1920"
-  height="1080"
-  class="hero__video hero__video--fill"
-  autoplay
-  muted
-  loop
-  playsinline
-  controls={false}
-  poster={`https://res.cloudinary.com/dfuzfdrat/video/upload/so_0/${th.hero.video}.jpg`}
-/>
+  <CldVideoPlayer
+    src={th.hero.video}
+    width="1920"
+    height="1080"
+    class="hero__video hero__video--fill"
+    autoplay
+    muted
+    loop
+    playsinline
+    controls={false}
+    poster={poster(th.hero.video)}
+  />
 
-</video>
   <div class="hero__gradient-overlay"></div>
 
   <div class="hero__content is-visible" id="heroContent">
@@ -123,7 +127,6 @@ const certsLoop = [...certifications, ...certifications];
     <div class="div-grid" id="divGrid">
       {th.divisiones.items.map((div, i) => (
         (div as any).soon ? (
-          /* ── PRÓXIMAMENTE: <div> en lugar de <a> — sin enlace vacío para Google ── */
           <div
             class="div-card div-card--soon"
             style={`--accent: ${div.color}; --img: url('${div.img}')`}
@@ -141,7 +144,6 @@ const certsLoop = [...certifications, ...certifications];
             <div class="div-card__line"></div>
           </div>
         ) : (
-          /* ── DISPONIBLE: <a> con href correcto ── */
           <a
             href={`/${currentLang}/${(div as any).slug}`}
             class="div-card"
@@ -271,17 +273,19 @@ const certsLoop = [...certifications, ...certifications];
      GLOBAL — VIDEO DE FONDO
 ═══════════════════════════════════════ -->
 <section class="global">
-<CldVideoPlayer
-  src={th.global.video}
-  width="0"
-  height="0"
-  class="global__video"
-  autoplay
-  muted
-  loop
-  playsinline
-  controls={false}
-/>
+  <CldVideoPlayer
+    src={th.global.video}
+    width="0"
+    height="0"
+    class="global__video"
+    autoplay
+    muted
+    loop
+    playsinline
+    controls={false}
+    id="globalVideo"
+    poster={poster(th.global.video)}
+  />
   <div class="global__video-overlay"></div>
   <div class="global__inner">
     <p class="section-tag section-tag--light">{th.global.tag}</p>
@@ -352,6 +356,12 @@ function initCounters() {
     });
   }, { threshold: 0.1 });
   counters.forEach(c => observer.observe(c));
+}
+
+function initVideoFade() {
+  // Dark mode dimming — sin delay, sin esperar canplay
+  document.querySelectorAll('.hero__video--fill, .global__video')
+    .forEach(el => el.classList.add('is-loaded'));
 }
 
 /* ---- DIVISIONES GRID ---- */
@@ -478,11 +488,12 @@ function initDivGrid() {
 }
 
 
+
 /* ---- INIT ---- */
 function init() {
   initCounters();
   initDivGrid();
-
+  initVideoFade();
 }
 
 document.addEventListener('DOMContentLoaded', init);
