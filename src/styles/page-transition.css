@@ -7,7 +7,7 @@
 #page-transition {
   position: fixed;
   inset: 0;
-  z-index: 99999;
+  z-index: 9999999 !important;
   pointer-events: none;
   overflow: hidden;
 }

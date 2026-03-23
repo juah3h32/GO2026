@@ -1,0 +1,162 @@
+---
+// src/components/CldVideoPlayer.astro
+//
+// ✅ FIX CADENA CRÍTICA — Causa 1:
+// ANTES: cld-video-player.min.css (26 KiB) + su JS (248 KiB) cargaban
+//        en la cadena crítica (206ms → 229ms → 334ms), bloqueando el LCP.
+// AHORA: el CSS y el JS de Cloudinary se inyectan dinámicamente SOLO cuando
+//        el componente de video entra en el viewport.
+//        La cadena crítica ya no los incluye.
+//
+// USO en cualquier página .astro:
+//   <CldVideoPlayer publicId="mi-video" cloudName="grupo-ortiz" />
+
+interface Props {
+  publicId: string;
+  cloudName?: string;
+  autoplay?: boolean;
+  muted?: boolean;
+  controls?: boolean;
+  width?: string;
+}
+
+const {
+  publicId,
+  cloudName = "grupo-ortiz",  // ← Cambia por tu cloud name real
+  autoplay = false,
+  muted = true,
+  controls = true,
+  width = "100%",
+} = Astro.props;
+
+// ID único por instancia para soportar múltiples videos por página
+const uid = `cld-${Math.random().toString(36).slice(2, 9)}`;
+---
+
+<div
+  class="cld-video-wrapper"
+  data-uid={uid}
+  data-public-id={publicId}
+  data-cloud-name={cloudName}
+  data-autoplay={autoplay ? "true" : "false"}
+  data-muted={muted ? "true" : "false"}
+  data-controls={controls ? "true" : "false"}
+  style={`width:${width};aspect-ratio:16/9;background:#000;border-radius:4px;overflow:hidden;position:relative;`}
+>
+  <!-- Thumbnail mostrado mientras carga el SDK -->
+  <img
+    src={`https://res.cloudinary.com/${cloudName}/video/upload/so_0,w_800,q_auto,f_jpg/${publicId}.jpg`}
+    alt="Video preview"
+    loading="lazy"
+    decoding="async"
+    style="width:100%;height:100%;object-fit:cover;display:block;"
+  />
+  <!-- Botón play placeholder -->
+  <div
+    class="cld-play-overlay"
+    style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;cursor:pointer;"
+    aria-label="Reproducir video"
+  >
+    <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+      <circle cx="28" cy="28" r="28" fill="rgba(0,0,0,0.55)" />
+      <polygon points="22,18 42,28 22,38" fill="white" />
+    </svg>
+  </div>
+  <!-- El <video> real se inserta aquí por JS -->
+  <video id={uid} style="display:none;width:100%;height:100%;" />
+</div>
+
+<script>
+  // Carga el SDK de Cloudinary Video Player solo cuando el video
+  // entra en el viewport — elimina cld-video-player de la cadena crítica.
+  const SDK_CSS = 'https://unpkg.com/cloudinary-video-player/dist/cld-video-player.min.css';
+  const SDK_JS  = 'https://unpkg.com/cloudinary-video-player/dist/cld-video-player.min.js';
+
+  let sdkLoaded  = false;
+  let sdkLoading = false;
+  const pendingInits: (() => void)[] = [];
+
+  function loadSDK(): Promise<void> {
+    return new Promise((resolve) => {
+      if (sdkLoaded) { resolve(); return; }
+      pendingInits.push(resolve);
+      if (sdkLoading) return;
+      sdkLoading = true;
+
+      // 1. CSS — inyectado como link no bloqueante
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = SDK_CSS;
+      document.head.appendChild(link);
+
+      // 2. JS — inyectado dinámicamente
+      const script = document.createElement('script');
+      script.src = SDK_JS;
+      script.onload = () => {
+        sdkLoaded = true;
+        pendingInits.forEach(fn => fn());
+        pendingInits.length = 0;
+      };
+      document.head.appendChild(script);
+    });
+  }
+
+  function initPlayer(wrapper: HTMLElement) {
+    const uid       = wrapper.dataset.uid!;
+    const publicId  = wrapper.dataset.publicId!;
+    const cloudName = wrapper.dataset.cloudName!;
+    const autoplay  = wrapper.dataset.autoplay === 'true';
+    const muted     = wrapper.dataset.muted    === 'true';
+    const controls  = wrapper.dataset.controls === 'true';
+
+    // Ocultar thumbnail y overlay
+    const img     = wrapper.querySelector('img');
+    const overlay = wrapper.querySelector('.cld-play-overlay') as HTMLElement;
+    const video   = wrapper.querySelector('video') as HTMLVideoElement;
+    if (img)     img.style.display     = 'none';
+    if (overlay) overlay.style.display = 'none';
+    if (video)   video.style.display   = 'block';
+
+    // @ts-ignore — SDK cargado dinámicamente
+    const cld    = window.cloudinary.Cloudinary.new({ cloud_name: cloudName });
+    const player = cld.videoPlayer(uid, {
+      autoplay,
+      muted,
+      controls,
+      fluid: true,
+    });
+    player.source(publicId);
+    wrapper.dataset.initialized = 'true';
+  }
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        const wrapper = entry.target as HTMLElement;
+        if (wrapper.dataset.initialized) return;
+
+        observer.unobserve(wrapper);
+
+        // Clic inmediato en overlay = carga el SDK ahora mismo
+        const overlay = wrapper.querySelector('.cld-play-overlay');
+        if (overlay) {
+          overlay.addEventListener('click', async () => {
+            await loadSDK();
+            initPlayer(wrapper);
+          }, { once: true });
+        }
+
+        // Si autoplay está activo, cargar directamente al entrar en viewport
+        if (wrapper.dataset.autoplay === 'true') {
+          loadSDK().then(() => initPlayer(wrapper));
+        }
+      });
+    },
+    { rootMargin: '300px' }  // Precarga 300px antes de ser visible
+  );
+
+  document.querySelectorAll<HTMLElement>('.cld-video-wrapper:not([data-initialized])').forEach(
+    (el) => observer.observe(el)
+  );
+</script>

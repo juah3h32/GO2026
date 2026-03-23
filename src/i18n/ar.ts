@@ -297,27 +297,27 @@ export const ar = {
       type: "الاستخدام"
     },
 
-    products: [
+   products: [
       {
-        name: 'ستريتش بريميوم',
-        img: '/images/stretch/stretch.png',
+        name: 'تغليف ممتاز (STRETCH PREMIUM)',
+        img: '/images/stretch/premium.png',
         video: "/videos/stretch/fondo.mp4",
         link: '#',
-        description: "مصمّمة للآلات عالية الطلب، يقدّم فيلم التمدد هذا ذو التمدد المعتدل حلاً فعّالاً وموثوقاً لتأمين الأحمال في العمليات الآلية. تكوينه يضمن مقاومة عالية وأداءً متميزاً في تطبيقات التعبئة الصعبة.",
+        description: "مصمم للآلات ذات المتطلبات العالية، يوفر فيلم التغليف (ستريتش) متوسط التمدد هذا حلاً فعالاً وموثوقاً لتأمين الأحمال في العمليات الآلية. يضمن تركيبه مقاومة عالية وأداءً فائقاً في تطبيقات التعبئة والتغليف الشاقة.",
         specs_values: { width: "19-30 بوصة", length: "1000-15000 قدم", gauge: "40-110", weight: "10-40 كجم", type: "يدوي" },
         gallery: [
-          '/images/stretch/stretch2.png',
-          '/images/stretch/stretch.png',
-          '/images/stretch/stretch3.png'
+          '/images/stretch/premium2.png',
+          '/images/stretch/premium.png',
+          '/images/stretch/premium3.png'
         ]
       },
       {
-        name: 'أوتوماتيكي',
+        name: 'آلي (AUTOMÁTICO)',
         img: '/images/stretch/stretch.png',
         video: "/videos/stretch/fondo.mp4",
         link: '#',
-        description: "مصمّمة للتطبيق بآلات اللف التقليدية، يقدّم فيلم التمدد هذا أداءً عالياً ومتميزاً في عمليات تلبيد المنصّات الآلية. تركيبته تضمن المقاومة والاستقرار في تثبيت الأحمال.",
-        specs_values: { width: "18-30 بوصة", length: "2000-15000 قدم", gauge: "50-110", weight: "10-49 كجم", type: "أوتوماتيكي" },
+        description: "مصمم للاستخدام مع آلات التغليف التقليدية، يوفر فيلم التغليف هذا إنتاجية عالية وأداءً ممتازاً في عمليات منصات التحميل الآلية. تضمن تركيبته القوة والاستقرار في تأمين الأحمال.",
+        specs_values: { width: "18-30 بوصة", length: "2000-15000 قدم", gauge: "50-110", weight: "10-49 كجم", type: "آلي" },
         gallery: [
           '/images/stretch/stretch2.png',
           '/images/stretch/stretch.png',
@@ -325,38 +325,57 @@ export const ar = {
         ]
       },
       {
-        name: 'يدوي مسبق التمدد',
-        img: '/images/stretch/stretch.png',
+        name: 'يدوي مسبق التمدد (MANUAL PREESTIRADO)',
+        img: '/images/stretch/prestirado.png',
         video: "/videos/stretch/fondo.mp4",
         link: '#',
-        description: "مصمّمة للتطبيق اليدوي عالي الأداء، يتميّز هذا الفيلم المسبق التمدد بأنه من أرقّ الأفلام في السوق. تقنيته تلغي الحاجة لبذل جهد إضافي عند اللف، مما يسهّل استخدامه الفوري ويحسّن كفاءة عملية التلبيد.",
+        description: "مصمم للتطبيق اليدوي عالي الأداء، يتميز هذا الفيلم مسبق التمدد بتوفيره واحدة من أقل السماكات في السوق. تلغي تقنيته الحاجة إلى بذل قوة إضافية عند التغليف، مما يسهل استخدامه الفوري ويحسن الكفاءة في عملية منصات التحميل.",
         specs_values: { width: "16-17 بوصة", length: "7000-25000 قدم", gauge: "40-120", weight: "10-40 كجم", type: "يدوي" },
         gallery: [
-          '/images/stretch/stretch2.png',
-          '/images/stretch/stretch.png',
-          '/images/stretch/stretch3.png'
+          '/images/stretch/prestirado2.png',
+          '/images/stretch/prestirado.png',
+          '/images/stretch/prestirado3.png'
         ]
       },
       {
-        name: 'شريط يدوي',
-        img: '/images/stretch/manual.png',
+        name: 'ربط يدوي (MANUAL BANDING)',
+        img: '/images/stretch/banding.png',
         video: "/videos/stretch/fondo.mp4",
         link: '#',
-        description: "مصمّمة للف اليدوي بتمدد معتدل، يقدّم فيلم التمدد التقليدي هذا أداءً ممتازاً في عمليات التغليف وتأمين الأحمال. تكوينه يضمن المقاومة والاستقرار في التطبيقات العامة.",
+        description: "مصمم لتطبيقات التغليف اليدوي مع تمدد معتدل، يوفر فيلم التغليف التقليدي هذا أداءً ممتازاً في عمليات التعبئة وتأمين الأحمال. يضمن تركيبه المقاومة والاستقرار في التطبيقات العامة.",
         specs_values: { width: "3-12 بوصة", length: "7000-25000 قدم", gauge: "40-120", weight: "10-40 كجم", type: "يدوي" },
         gallery: [
-          '/images/stretch/rigido2.png',
-          '/images/stretch/manual.png',
-          '/images/stretch/rigido3.png'
+          '/images/stretch/banding3.png',
+          '/images/stretch/banding.png',
+          '/images/stretch/banding2.png'
         ]
       },
       {
-        name: 'يدوي صلب',
+        name: 'بدون قلب كرتوني (CORELESS)',
+        img: '/images/stretch/coreles.png',
+        video: "/videos/stretch/fondo.mp4",
+        link: '#',
+        description: "فيلم تغليف بدون قلب كرتوني، مصمم لتحقيق أقصى استفادة من المواد وتقليل النفايات في عملية منصات التحميل. يوفر هيكله متعدد الطبقات مقاومة عالية للتمزق، واستطالة ممتازة، وتثبيتاً محكماً للحمل، وهو مثالي للتطبيقات اليدوية ونصف الآلية.",
+        specs_values: {
+          width: "18-20 بوصة",
+          length: "1000-2000 قدم",
+          gauge: "60-80",
+          weight: "3-10 كجم",
+          type: "يدوي / نصف آلي"
+        },
+        gallery: [
+          '/images/stretch/coreles2.png',
+          '/images/stretch/coreles.png',
+          '/images/stretch/coreles3.png'
+        ]
+      },
+      {
+        name: 'يدوي صلب (MANUAL RÍGIDO)',
         img: '/images/stretch/stretch.png',
         video: "/videos/stretch/fondo.mp4",
         link: '#',
-        description: "مُصمَّم خصيصاً للف اليدوي بتمدد محدود، يقدّم فيلم التمدد هذا أداءً عالياً وموثوقية كبيرة في عمليات التغليف. تكوينه يضمن الاستقرار والكفاءة في تثبيت الأحمال.",
-        specs_values: { width: "17-30 بوصة", length: "1000-15000 قدم", gauge: "40-90", weight: "10-40 كجم", type: "يدوي", color: "أسود/ملوّن" },
+        description: "تمت صياغته خصيصاً لتطبيقات التغليف اليدوي ذات التمدد المحدود، يوفر فيلم التغليف هذا أداءً عالياً وموثوقية كبيرة في عمليات التعبئة والتغليف. يضمن تركيبه الاستقرار والكفاءة في تأمين الأحمال.",
+        specs_values: { width: "17-30 بوصة", length: "1000-15000 قدم", gauge: "40-90", weight: "10-40 كجم", type: "يدوي", color: "أسود/ملون" },
         gallery: [
           '/images/stretch/stretch2.png',
           '/images/stretch/stretch.png',

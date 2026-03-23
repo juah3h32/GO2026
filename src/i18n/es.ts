@@ -302,15 +302,15 @@ chatbot: {
     products: [
       {
         name: 'STRETCH PREMIUM',
-        img: '/images/stretch/stretch.png',
+        img: '/images/stretch/premium.png',
         video: "/videos/stretch/fondo.mp4",
         link: '#',
         description: "Diseñada para maquinaria de alta exigencia, esta película stretch de estiramiento moderado ofrece una solución eficiente y confiable para asegurar cargas en procesos automatizados. Su composición garantiza alta resistencia y desempeño superior en aplicaciones de embalaje exigente.",
         specs_values: { width: "19-30 pulg", length: "1000-15000 fit", gauge: "40-110", weight: "10-40 kg", type: "Manual" },
         gallery: [
-          '/images/stretch/stretch2.png',
-          '/images/stretch/stretch.png',
-          '/images/stretch/stretch3.png'
+          '/images/stretch/premium2.png',
+          '/images/stretch/premium.png',
+          '/images/stretch/premium3.png'
         ]
       },
       {
@@ -328,29 +328,48 @@ chatbot: {
       },
       {
         name: 'MANUAL PREESTIRADO',
-        img: '/images/stretch/stretch.png',
+        img: '/images/stretch/prestirado.png',
         video: "/videos/stretch/fondo.mp4",
         link: '#',
         description: "Diseñada para aplicación manual de alto desempeño, esta película preestirada destaca por ofrecer uno de los menores espesores del mercado. Su tecnología elimina la necesidad de ejercer fuerza adicional al envolver, facilitando su uso inmediato y mejorando la eficiencia en el proceso de paletizado.",
         specs_values: { width: "16-17 pulg", length: "7000-25000 fit", gauge: "40-120", weight: "10-40 kg", type: "Manual" },
         gallery: [
-          '/images/stretch/stretch2.png',
-          '/images/stretch/stretch.png',
-          '/images/stretch/stretch3.png'
+          '/images/stretch/prestirado2.png',
+          '/images/stretch/prestirado.png',
+          '/images/stretch/prestirado3.png'
         ]
       },
       {
         name: 'MANUAL BANDING',
-        img: '/images/stretch/manual.png',
+        img: '/images/stretch/banding.png',
         video: "/videos/stretch/fondo.mp4",
         link: '#',
         description: "Diseñada para su aplicación en envoltura manual con estiramiento moderado, esta película stretch tradicional ofrece excelente desempeño en procesos de embalaje y aseguramiento de carga. Su composición garantiza resistencia y estabilidad en aplicaciones generales.",
         specs_values: { width: "3-12 pulg", length: "7000-25000 fit", gauge: "40-120", weight: "10-40 kg", type: "Manual" },
         gallery: [
-          '/images/stretch/rigido2.png',
-          '/images/stretch/manual.png',
-          '/images/stretch/rigido3.png'
+          '/images/stretch/banding3.png',
+          '/images/stretch/banding.png',
+          '/images/stretch/banding2.png'
         ]
+      },
+      {
+        name: 'CORELES',
+img: '/images/stretch/coreles.png',
+video: "/videos/stretch/fondo.mp4",
+link: '#',
+description: "Película stretch sin núcleo de cartón, diseñada para maximizar el aprovechamiento del material y reducir residuos en el proceso de paletizado. Su construcción multicapa ofrece alta resistencia al rasgado, excelente elongación y una sujeción firme de la carga, ideal para aplicaciones manuales y semiautomáticas.",
+specs_values: {
+  width: "18-20 pulg",
+  length: "1000-2000 ft",
+  gauge: "60-80",
+  weight: "3-10 kg",
+  type: "Manual / Semiautomático"
+},
+gallery: [
+  '/images/stretch/coreles2.png',
+  '/images/stretch/coreles.png',
+  '/images/stretch/coreles3.png'
+]
       },
       {
         name: 'MANUAL RÍGIDO',
@@ -526,9 +545,9 @@ chatbot: {
           features: "Jareta"
         },
         gallery: [
-          '/images/arpillas/circular2.webp',
+          '/images/arpillas/circular2.png',
           '/images/arpillas/arpilla.webp',
-          '/images/arpillas/circular3.webp'
+          '/images/arpillas/circular3.png'
         ]
       },
       {
@@ -544,9 +563,9 @@ chatbot: {
           features: "Jareta"
         },
         gallery: [
-          '/images/arpillas/mono2.webp',
+          '/images/arpillas/mono2.png',
           '/images/arpillas/arpilla2.webp',
-          '/images/arpillas/mono3.webp'
+          '/images/arpillas/mono3.png'
         ]
       },
       {
@@ -563,9 +582,9 @@ chatbot: {
           features: "Reforzado"
         },
         gallery: [
-          '/images/arpillas/lateral1.webp',
+          '/images/arpillas/lateral1.png',
           '/images/arpillas/arpilla3.webp',
-          '/images/arpillas/lateral3.webp'
+          '/images/arpillas/lateral3.png'
         ]
       },
       {
@@ -582,9 +601,9 @@ chatbot: {
           features: "Jareta"
         },
         gallery: [
-          '/images/arpillas/laminado1.webp',
+          '/images/arpillas/laminado1.png',
           '/images/arpillas/arpilla4.webp',
-          '/images/arpillas/laminado3.webp'
+          '/images/arpillas/laminado3.png'
         ]
       }
     ]

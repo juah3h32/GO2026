@@ -300,15 +300,15 @@ export const en = {
     products: [
       {
         name: 'PREMIUM STRETCH',
-        img: '/images/stretch/stretch.png',
+        img: '/images/stretch/premium.png',
         video: "/videos/stretch/fondo.mp4",
         link: '#',
-        description: "Designed for high-demand machinery, this moderate-elongation stretch film offers an efficient and reliable solution for securing loads in automated processes. Its composition guarantees high resistance and superior performance in demanding packaging applications.",
+        description: "Designed for high-demand machinery, this moderate-stretch film offers an efficient and reliable solution for securing loads in automated processes. Its composition guarantees high resistance and superior performance in demanding packaging applications.",
         specs_values: { width: "19-30 in", length: "1000-15000 ft", gauge: "40-110", weight: "10-40 kg", type: "Manual" },
         gallery: [
-          '/images/stretch/stretch2.png',
-          '/images/stretch/stretch.png',
-          '/images/stretch/stretch3.png'
+          '/images/stretch/premium2.png',
+          '/images/stretch/premium.png',
+          '/images/stretch/premium3.png'
         ]
       },
       {
@@ -316,7 +316,7 @@ export const en = {
         img: '/images/stretch/stretch.png',
         video: "/videos/stretch/fondo.mp4",
         link: '#',
-        description: "Designed for use with conventional wrapping machines, this stretch film offers high performance and excellent output in automated palletizing processes. Its formulation guarantees resistance and stability in load securing.",
+        description: "Designed to be applied with traditional wrapping machines, this stretch film offers high yield and excellent performance in automated palletizing processes. Its formulation guarantees resistance and stability in load securing.",
         specs_values: { width: "18-30 in", length: "2000-15000 ft", gauge: "50-110", weight: "10-49 kg", type: "Automatic" },
         gallery: [
           '/images/stretch/stretch2.png',
@@ -325,37 +325,56 @@ export const en = {
         ]
       },
       {
-        name: 'MANUAL PRE-STRETCHED',
-        img: '/images/stretch/stretch.png',
+        name: 'PRE-STRETCHED MANUAL',
+        img: '/images/stretch/prestirado.png',
         video: "/videos/stretch/fondo.mp4",
         link: '#',
-        description: "Designed for high-performance manual application, this pre-stretched film stands out for offering one of the lowest gauges on the market. Its technology eliminates the need to apply additional force when wrapping, enabling immediate use and improving efficiency in the palletizing process.",
+        description: "Designed for high-performance manual application, this pre-stretched film stands out for offering one of the lowest thicknesses on the market. Its technology eliminates the need to exert additional force when wrapping, facilitating immediate use and improving efficiency in the palletizing process.",
         specs_values: { width: "16-17 in", length: "7000-25000 ft", gauge: "40-120", weight: "10-40 kg", type: "Manual" },
         gallery: [
-          '/images/stretch/stretch2.png',
-          '/images/stretch/stretch.png',
-          '/images/stretch/stretch3.png'
+          '/images/stretch/prestirado2.png',
+          '/images/stretch/prestirado.png',
+          '/images/stretch/prestirado3.png'
         ]
       },
       {
         name: 'MANUAL BANDING',
-        img: '/images/stretch/manual.png',
+        img: '/images/stretch/banding.png',
         video: "/videos/stretch/fondo.mp4",
         link: '#',
-        description: "Designed for manual wrapping with moderate elongation, this traditional stretch film offers excellent performance in packaging and load-securing processes. Its composition guarantees resistance and stability in general applications.",
+        description: "Designed for manual wrapping applications with moderate stretch, this traditional stretch film offers excellent performance in packaging and load securing processes. Its composition guarantees resistance and stability in general applications.",
         specs_values: { width: "3-12 in", length: "7000-25000 ft", gauge: "40-120", weight: "10-40 kg", type: "Manual" },
         gallery: [
-          '/images/stretch/rigido2.png',
-          '/images/stretch/manual.png',
-          '/images/stretch/rigido3.png'
+          '/images/stretch/banding3.png',
+          '/images/stretch/banding.png',
+          '/images/stretch/banding2.png'
         ]
       },
       {
-        name: 'MANUAL RIGID',
+        name: 'CORELESS',
+        img: '/images/stretch/coreles.png',
+        video: "/videos/stretch/fondo.mp4",
+        link: '#',
+        description: "Coreless stretch film, designed to maximize material usage and reduce waste in the palletizing process. Its multilayer construction offers high tear resistance, excellent elongation, and firm load securing, ideal for manual and semi-automatic applications.",
+        specs_values: {
+          width: "18-20 in",
+          length: "1000-2000 ft",
+          gauge: "60-80",
+          weight: "3-10 kg",
+          type: "Manual / Semi-automatic"
+        },
+        gallery: [
+          '/images/stretch/coreles2.png',
+          '/images/stretch/coreles.png',
+          '/images/stretch/coreles3.png'
+        ]
+      },
+      {
+        name: 'RIGID MANUAL',
         img: '/images/stretch/stretch.png',
         video: "/videos/stretch/fondo.mp4",
         link: '#',
-        description: "Specially formulated for manual wrapping applications with limited elongation, this stretch film offers high performance and great reliability in packaging processes. Its composition guarantees stability and efficiency in load securing.",
+        description: "Specially formulated for manual wrapping applications with limited stretch, this stretch film offers high performance and great reliability in packaging processes. Its composition guarantees stability and efficiency in load securing.",
         specs_values: { width: "17-30 in", length: "1000-15000 ft", gauge: "40-90", weight: "10-40 kg", type: "Manual", color: "Black/Color" },
         gallery: [
           '/images/stretch/stretch2.png',

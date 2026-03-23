@@ -299,12 +299,25 @@ export const zh = {
 
     products: [
       {
-        name: '高级拉伸膜',
+        name: '頂級纏繞膜',
+        img: '/images/stretch/premium.png',
+        video: "/videos/stretch/fondo.mp4",
+        link: '#',
+        description: "專為高要求機械設計，這款中等拉伸的纏繞膜為自動化過程中的貨物固定提供了高效可靠的解決方案。其成分保證了在高要求包裝應用中的高強度和卓越性能。",
+        specs_values: { width: "19-30 英寸", length: "1000-15000 英尺", gauge: "40-110", weight: "10-40 公斤", type: "手動" },
+        gallery: [
+          '/images/stretch/premium2.png',
+          '/images/stretch/premium.png',
+          '/images/stretch/premium3.png'
+        ]
+      },
+      {
+        name: '自動纏繞膜',
         img: '/images/stretch/stretch.png',
         video: "/videos/stretch/fondo.mp4",
         link: '#',
-        description: "专为高要求机械设计，这款中等拉伸率的拉伸膜为自动化流程中的货物固定提供高效可靠的解决方案。其配方保证了在要求严格的包装应用中具有高强度和卓越性能。",
-        specs_values: { width: "19-30 英寸", length: "1000-15000 英尺", gauge: "40-110", weight: "10-40 kg", type: "手动" },
+        description: "專為傳統纏繞機應用而設計，這款纏繞膜在自動化托盤包裝過程中提供高產量和卓越性能。其配方確保了貨物固定的強度和穩定性。",
+        specs_values: { width: "18-30 英寸", length: "2000-15000 英尺", gauge: "50-110", weight: "10-49 公斤", type: "自動" },
         gallery: [
           '/images/stretch/stretch2.png',
           '/images/stretch/stretch.png',
@@ -312,51 +325,57 @@ export const zh = {
         ]
       },
       {
-        name: '机用拉伸膜',
-        img: '/images/stretch/stretch.png',
+        name: '預拉伸手動膜',
+        img: '/images/stretch/prestirado.png',
         video: "/videos/stretch/fondo.mp4",
         link: '#',
-        description: "专为传统缠绕机械设计，这款拉伸膜在自动托盘包装流程中提供高性能和卓越表现。其配方保证了货物固定时的强度和稳定性。",
-        specs_values: { width: "18-30 英寸", length: "2000-15000 英尺", gauge: "50-110", weight: "10-49 kg", type: "机用" },
+        description: "專為高性能手動操作設計，這款預拉伸膜以提供市場上最薄的厚度之一而著稱。其技術消除了包裝時施加額外力量的需要，便於立即使用並提高托盤包裝過程的效率。",
+        specs_values: { width: "16-17 英寸", length: "7000-25000 英尺", gauge: "40-120", weight: "10-40 公斤", type: "手動" },
         gallery: [
-          '/images/stretch/stretch2.png',
-          '/images/stretch/stretch.png',
-          '/images/stretch/stretch3.png'
+          '/images/stretch/prestirado2.png',
+          '/images/stretch/prestirado.png',
+          '/images/stretch/prestirado3.png'
         ]
       },
       {
-        name: '手动预拉伸膜',
-        img: '/images/stretch/stretch.png',
+        name: '手動捆紮膜',
+        img: '/images/stretch/banding.png',
         video: "/videos/stretch/fondo.mp4",
         link: '#',
-        description: "专为高性能手动应用设计，这款预拉伸膜以市场上最薄的厚度之一著称。其技术消除了缠绕时施加额外力的需求，便于即时使用并提高托盘包装效率。",
-        specs_values: { width: "16-17 英寸", length: "7000-25000 英尺", gauge: "40-120", weight: "10-40 kg", type: "手动" },
+        description: "專為中等拉伸的手動纏繞應用而設計，這款傳統纏繞膜在包裝和貨物固定過程中表現出色。其成分保證了在一般應用中的強度和穩定性。",
+        specs_values: { width: "3-12 英寸", length: "7000-25000 英尺", gauge: "40-120", weight: "10-40 公斤", type: "手動" },
         gallery: [
-          '/images/stretch/stretch2.png',
-          '/images/stretch/stretch.png',
-          '/images/stretch/stretch3.png'
+          '/images/stretch/banding3.png',
+          '/images/stretch/banding.png',
+          '/images/stretch/banding2.png'
         ]
       },
       {
-        name: '手动捆扎膜',
-        img: '/images/stretch/manual.png',
+        name: '無紙管纏繞膜',
+        img: '/images/stretch/coreles.png',
         video: "/videos/stretch/fondo.mp4",
         link: '#',
-        description: "专为中等拉伸手动缠绕设计，这款传统拉伸膜在包装和货物固定流程中表现出色。其配方在常规应用中保证了强度和稳定性。",
-        specs_values: { width: "3-12 英寸", length: "7000-25000 英尺", gauge: "40-120", weight: "10-40 kg", type: "手动" },
+        description: "無紙管纏繞膜，旨在最大化材料利用率並減少托盤包裝過程中的浪費。其多層結構提供高抗撕裂性、優異的延伸率和牢固的貨物固定，非常適合手動和半自動應用。",
+        specs_values: {
+          width: "18-20 英寸",
+          length: "1000-2000 英尺",
+          gauge: "60-80",
+          weight: "3-10 公斤",
+          type: "手動 / 半自動"
+        },
         gallery: [
-          '/images/stretch/rigido2.png',
-          '/images/stretch/manual.png',
-          '/images/stretch/rigido3.png'
+          '/images/stretch/coreles2.png',
+          '/images/stretch/coreles.png',
+          '/images/stretch/coreles3.png'
         ]
       },
       {
-        name: '手动硬质膜',
+        name: '硬質手動膜',
         img: '/images/stretch/stretch.png',
         video: "/videos/stretch/fondo.mp4",
         link: '#',
-        description: "专为有限拉伸手动缠绕应用特殊配制，这款拉伸膜在包装流程中提供高性能和高可靠性。其配方保证了货物固定时的稳定性和效率。",
-        specs_values: { width: "17-30 英寸", length: "1000-15000 英尺", gauge: "40-90", weight: "10-40 kg", type: "手动", color: "黑色/彩色" },
+        description: "專為有限拉伸的手動纏繞應用而特別配製，這款纏繞膜在包裝過程中提供高性能和高可靠性。其成分保證了貨物固定的穩定性和效率。",
+        specs_values: { width: "17-30 英寸", length: "1000-15000 英尺", gauge: "40-90", weight: "10-40 公斤", type: "手動", color: "黑色/彩色" },
         gallery: [
           '/images/stretch/stretch2.png',
           '/images/stretch/stretch.png',

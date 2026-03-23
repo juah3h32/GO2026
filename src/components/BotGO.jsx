@@ -1,9 +1,36 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import ReactMarkdown from 'react-markdown';
+import React, { useState, useRef, useEffect, useCallback, lazy, Suspense } from 'react';
 import './BotGO.css';
 import { translations } from '../i18n';
 
-console.log('🚀 BotGO v9 (3 bugs fixed) CARGADO');
+// ✅ FIX 1: Eliminado console.log de producción
+// ANTES: console.log('🚀 BotGO v9 (3 bugs fixed) CARGADO');
+
+// ✅ FIX 2: ReactMarkdown cargado de forma lazy — no bloquea el bundle inicial (~50 KiB menos)
+// ANTES: import ReactMarkdown from 'react-markdown';
+const ReactMarkdown = lazy(() => import('react-markdown'));
+
+// ✅ FIX 3: Constantes de regex y arrays movidas FUERA del componente
+// — se crean una sola vez, no en cada render ni en cada llamada
+const INTENT_COMPRA_REGEX = [
+  /comp[a-z]{0,4}r/, /coti[a-z]{0,6}/, /preci[a-z]{0,3}/, /cuant[a-z]{0,2}/,
+  /cost[a-z]{0,3}/, /presup[a-z]{0,6}/, /adquir[a-z]{0,4}/, /dispon[a-z]{0,8}/,
+  /pedid[a-z]{0,2}/, /orden[a-z]{0,2}/,
+];
+const INTENT_COMPRA_FRASES = [
+  'me interesa', 'me gustaria', 'quisiera', 'estoy interesad', 'hay stock',
+  'tienen stock', 'hay disponible', 'como compro', 'donde compro', 'voy a comprar',
+  'contactar', 'whatsapp', 'llamar',
+];
+const INTENT_PDF_KEYS = [
+  'pdf', 'catalogo', 'ficha tecnica', 'ficha del producto', 'descargar', 'descarga',
+  'brochure', 'folleto', 'informacion del producto', 'mas informacion',
+  'especificaciones', 'hoja tecnica',
+];
+const PRODUCTOS_LISTA = [
+  'stretch film', 'pelicula stretch', 'película stretch', 'stretch', 'empaque flexible',
+  'empaque', 'esquineros', 'esquinero', 'cuerdas', 'cuerda', 'arpillas', 'arpilla',
+  'malla', 'sacos', 'saco', 'rafia', 'flexible',
+];
 
 // ─── ICONS ────────────────────────────────────────────────────────────────────
 const RobotIcon = ({ className }) => (
@@ -145,21 +172,21 @@ const PDF_MAP = {
   general:    { label: 'Catálogo General',          url: 'https://drive.google.com/file/d/1348E3b37R1KmpggjAURhsuQMfARyBaXB/view' },
 };
 
+// ✅ FIX 3: Funciones de detección usan constantes precompiladas (no recrean arrays en cada llamada)
 function detectarProducto(texto) {
   if (!texto) return null;
   const lower = texto.toLowerCase();
-  const lista = ['stretch film', 'pelicula stretch', 'película stretch', 'stretch', 'empaque flexible', 'empaque', 'esquineros', 'esquinero', 'cuerdas', 'cuerda', 'arpillas', 'arpilla', 'malla', 'sacos', 'saco', 'rafia', 'flexible'];
-  for (const p of lista) { if (lower.includes(p)) return p; }
+  for (const p of PRODUCTOS_LISTA) {
+    if (lower.includes(p)) return p;
+  }
   return null;
 }
 
 function esIntencionCompra(texto) {
   if (!texto) return false;
   const u = texto.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-  const regexTolerantes = [/comp[a-z]{0,4}r/, /coti[a-z]{0,6}/, /preci[a-z]{0,3}/, /cuant[a-z]{0,2}/, /cost[a-z]{0,3}/, /presup[a-z]{0,6}/, /adquir[a-z]{0,4}/, /dispon[a-z]{0,8}/, /pedid[a-z]{0,2}/, /orden[a-z]{0,2}/];
-  if (regexTolerantes.some(r => r.test(u))) return true;
-  const frases = ['me interesa', 'me gustaria', 'quisiera', 'estoy interesad', 'hay stock', 'tienen stock', 'hay disponible', 'como compro', 'donde compro', 'voy a comprar', 'contactar', 'whatsapp', 'llamar'];
-  if (frases.some(k => u.includes(k))) return true;
+  if (INTENT_COMPRA_REGEX.some(r => r.test(u))) return true;
+  if (INTENT_COMPRA_FRASES.some(k => u.includes(k))) return true;
   const tieneProducto = detectarProducto(texto) !== null;
   if ((u.includes('quiero') || u.includes('necesito')) && tieneProducto) return true;
   return false;
@@ -168,7 +195,7 @@ function esIntencionCompra(texto) {
 function esSolicitudPDF(texto) {
   if (!texto) return false;
   const u = texto.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-  return ['pdf', 'catalogo', 'ficha tecnica', 'ficha del producto', 'descargar', 'descarga', 'brochure', 'folleto', 'informacion del producto', 'mas informacion', 'especificaciones', 'hoja tecnica'].some(k => u.includes(k));
+  return INTENT_PDF_KEYS.some(k => u.includes(k));
 }
 
 function formatFileSize(bytes) {
@@ -177,13 +204,6 @@ function formatFileSize(bytes) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// FIX BUG #1: extraerDatosDeHistorial — ahora detecta quick replies correctamente.
-// El problema era que cuando el usuario elegía un quick reply (ej. "Producción"),
-// el mensaje del bot anterior preguntaba "¿A qué puesto te gustaría aplicar?"
-// pero el regex solo buscaba "puesto|posición|aplicar a" — ahora también detecta
-// la pregunta inicial del flujo de reclutamiento para capturar el puesto.
-// ─────────────────────────────────────────────────────────────────────────────
 function extraerDatosDeHistorial(msgs) {
   const data = { nombre: '', puesto: '', edad: '', estado: '', colonia: '', email: '', telefono: '' };
   for (let i = 0; i < msgs.length - 1; i++) {
@@ -193,8 +213,6 @@ function extraerDatosDeHistorial(msgs) {
     const pregunta  = (bot.content  || '').toLowerCase();
     const respuesta = (user.content || '').trim();
     if (!respuesta || respuesta.length < 2) continue;
-
-    // FIX: regex ampliado para capturar más variantes de la pregunta de puesto
     if (/puesto|posici[oó]n|[aá]rea|trabajo.*interesa|tipo de puesto|aplicar a|qu[eé] puesto|a qu[eé] puesto|cu[aá]l.*puesto/i.test(pregunta) && !data.puesto) {
       data.puesto = respuesta;
     } else if (/nombre completo|c[oó]mo te llamas|tu nombre|cu[aá]l es tu nombre/i.test(pregunta) && !data.nombre) {
@@ -296,6 +314,7 @@ const RecruitmentProgress = ({ messages }) => {
 };
 
 // ─── RENDERERS ────────────────────────────────────────────────────────────────
+// ✅ FIX 2: ReactMarkdown envuelto en Suspense para carga lazy
 const MessageRenderer = ({ content, isAssistant }) => {
   if (!isAssistant) return <span>{content}</span>;
   const clean = (content || '')
@@ -305,16 +324,18 @@ const MessageRenderer = ({ content, isAssistant }) => {
     .replace(/\n{3,}/g, '\n\n')
     .trim();
   return (
-    <ReactMarkdown components={{
-      p:      ({ children }) => <p className="msg-p">{children}</p>,
-      strong: ({ children }) => <strong className="msg-strong">{children}</strong>,
-      ul:     ({ children }) => <ul className="msg-ul">{children}</ul>,
-      ol:     ({ children }) => <ol className="msg-ol">{children}</ol>,
-      li:     ({ children }) => <li className="msg-li">{children}</li>,
-      a:      ({ children }) => <span className="msg-link-stripped">{children}</span>,
-    }}>
-      {clean}
-    </ReactMarkdown>
+    <Suspense fallback={<span>{clean}</span>}>
+      <ReactMarkdown components={{
+        p:      ({ children }) => <p className="msg-p">{children}</p>,
+        strong: ({ children }) => <strong className="msg-strong">{children}</strong>,
+        ul:     ({ children }) => <ul className="msg-ul">{children}</ul>,
+        ol:     ({ children }) => <ol className="msg-ol">{children}</ol>,
+        li:     ({ children }) => <li className="msg-li">{children}</li>,
+        a:      ({ children }) => <span className="msg-link-stripped">{children}</span>,
+      }}>
+        {clean}
+      </ReactMarkdown>
+    </Suspense>
   );
 };
 
@@ -379,7 +400,6 @@ const QuickReplies = ({ options, type, onSelect, disabled }) => {
 };
 
 // ─── CV UPLOAD ────────────────────────────────────────────────────────────────
-
 const CVUploadButton = ({ onFileSelect, cvSubido, uploading, t }) => {
   const inputRef = useRef(null);
 
@@ -389,9 +409,7 @@ const CVUploadButton = ({ onFileSelect, cvSubido, uploading, t }) => {
     e.target.value = '';
   };
 
-  const handleClick = () => {
-    inputRef.current?.click();
-  };
+  const handleClick = () => { inputRef.current?.click(); };
 
   if (cvSubido) {
     return (
@@ -413,7 +431,6 @@ const CVUploadButton = ({ onFileSelect, cvSubido, uploading, t }) => {
   }
   return (
     <div className="cv-upload-zone">
-      {/* Input oculto — activado por ref, no por label/htmlFor */}
       <input
         ref={inputRef}
         type="file"
@@ -443,9 +460,6 @@ const RecruitmentConfirmation = ({ candidato, t }) => {
     return () => clearTimeout(timer);
   }, []);
 
-  // FIX BUG #1: Limpiar el puesto — eliminar texto de sistema como "Postúlate a nue..."
-  // El puesto viene del campo `puesto` de candidato; si contiene texto del sistema
-  // o está truncado, mostrar el valor del campo directamente sin modificar.
   const puestoMostrar = candidato?.puesto
     ? candidato.puesto.replace(/^postúlate a nue.*$/i, '').trim() || candidato.puesto
     : '';
@@ -467,7 +481,6 @@ const RecruitmentConfirmation = ({ candidato, t }) => {
                 <span className="confirmation-badge-value">{candidato.nombre}</span>
               </div>
             )}
-            {/* FIX BUG #1: mostrar puesto real, no texto de sistema */}
             {puestoMostrar && (
               <div className="confirmation-badge-row">
                 <span className="confirmation-badge-label">Puesto</span>
@@ -568,11 +581,7 @@ const DesktopTooltip = ({ onOpen, onDismiss, t }) => {
   );
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// FIX BUG #3: MicToast — alerta inline en lugar de alert() bloqueante.
-// Reemplaza todos los alert() del micrófono por un toast no bloqueante
-// que aparece dentro del chat y desaparece solo en 4 segundos.
-// ─────────────────────────────────────────────────────────────────────────────
+// ─── MIC TOAST ────────────────────────────────────────────────────────────────
 const MicToast = ({ message, onDismiss }) => {
   useEffect(() => {
     if (!message) return;
@@ -585,20 +594,11 @@ const MicToast = ({ message, onDismiss }) => {
     <div
       role="alert"
       style={{
-        position: 'absolute',
-        bottom: '80px',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        background: 'rgba(30,30,30,0.92)',
-        color: '#fff',
-        borderRadius: '12px',
-        padding: '10px 16px',
-        fontSize: '13px',
-        maxWidth: '88%',
-        textAlign: 'center',
-        zIndex: 9999,
-        lineHeight: 1.4,
-        boxShadow: '0 4px 16px rgba(0,0,0,0.25)',
+        position: 'absolute', bottom: '80px', left: '50%',
+        transform: 'translateX(-50%)', background: 'rgba(30,30,30,0.92)',
+        color: '#fff', borderRadius: '12px', padding: '10px 16px',
+        fontSize: '13px', maxWidth: '88%', textAlign: 'center',
+        zIndex: 9999, lineHeight: 1.4, boxShadow: '0 4px 16px rgba(0,0,0,0.25)',
         animation: 'fadeInUp 0.25s ease',
       }}
     >
@@ -627,22 +627,16 @@ export default function BotGO({ language = 'es' }) {
   const [lastVoiceResponse, setLastVoiceResponse] = useState(t.greeting);
   const [isBotSpeaking,     setIsBotSpeaking]     = useState(false);
   const [showTooltip,       setShowTooltip]       = useState(true);
-  // voiceActivated: true desde que el usuario presiona el mic por primera vez
-  // Una vez true, las cards y el texto del bot NO se muestran en modo voz
   const [voiceActivated,    setVoiceActivated]    = useState(false);
-
-  const [cvPendiente,    setCvPendiente]    = useState(null);
-  const [cvSubido,       setCvSubido]       = useState(null);
-  const [cvUploading,    setCvUploading]    = useState(false);
-  const [mostrarSubirCV, setMostrarSubirCV] = useState(false);
-
+  const [cvPendiente,       setCvPendiente]       = useState(null);
+  const [cvSubido,          setCvSubido]          = useState(null);
+  const [cvUploading,       setCvUploading]       = useState(false);
+  const [mostrarSubirCV,    setMostrarSubirCV]    = useState(false);
   const [candidatoRegistrado, setCandidatoRegistrado] = useState(null);
   const [mounted,    setMounted]    = useState(false);
   const [isMobile,   setIsMobile]   = useState(false);
   const [isHomePage, setIsHomePage] = useState(false);
-
-  // FIX BUG #3: estado para el toast del micrófono (reemplaza alert())
-  const [micToast, setMicToast] = useState('');
+  const [micToast,   setMicToast]   = useState('');
 
   const chatWindowRef        = useRef(null);
   const inputRef             = useRef(null);
@@ -656,33 +650,22 @@ export default function BotGO({ language = 'es' }) {
   const waveCanvasRef        = useRef(null);
   const waveAnimRef          = useRef(null);
 
-  // ── Detección flujo reclutamiento ──────────────────────────────────────────
-  // Solo mostrar la barra si los últimos 4 mensajes siguen en el flujo.
-  // Si el usuario preguntó algo diferente (catálogo, productos, etc.) la barra desaparece.
   const enFlujoReclutamiento = (() => {
-    // 1. Debe haber al menos un mensaje de reclutamiento en el historial
     const hayReclutamiento = messages.some(m =>
       m.role === 'assistant' &&
       /vacante|empleo|puesto|reclutamiento|aplicar|solicitud.*empleo|trabajo/i.test(m.content || '')
     );
     if (!hayReclutamiento) return false;
-
-    // 2. El proceso no debe estar completado (candidatoRegistrado = terminó)
     if (candidatoRegistrado) return false;
-
-    // 3. Los últimos 4 mensajes no deben contener temas fuera de reclutamiento
     const ultimos = messages.slice(-4);
     const salioDeFlujo = ultimos.some(m => {
       const txt = (m.content || '').toLowerCase();
-      // Temas que indican que el usuario salió del flujo de reclutamiento
       return /catálogo|catalogo|producto|rafia|stretch|saco|arpilla|cuerda|esquinero|empaque|precio|cotiz|whatsapp|pdf|ficha/i.test(txt);
     });
     if (salioDeFlujo) return false;
-
     return true;
   })();
 
-  // ── Detección de plataforma ────────────────────────────────────────────────
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth <= 1024);
     const path = window.location.pathname.replace(/\/$/, '');
@@ -694,7 +677,6 @@ export default function BotGO({ language = 'es' }) {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // ── Auto-scroll ────────────────────────────────────────────────────────────
   useEffect(() => {
     if (viewMode === 'chat' && messagesEndRef.current) {
       const timer = setTimeout(() => {
@@ -704,7 +686,6 @@ export default function BotGO({ language = 'es' }) {
     }
   }, [messages, loading, viewMode]);
 
-  // ── Focus en input (solo desktop) ──────────────────────────────────────────
   useEffect(() => {
     if (isOpen && viewMode === 'chat' && window.innerWidth > 1024) {
       const timer = setTimeout(() => inputRef.current?.focus(), 300);
@@ -712,7 +693,41 @@ export default function BotGO({ language = 'es' }) {
     }
   }, [isOpen, viewMode]);
 
-  // ── Keyboard shortcuts + click outside ────────────────────────────────────
+  // ✅ FIX 4: handleCloseChat con useCallback para evitar re-renders y closures obsoletos
+  const handleCloseChat = useCallback(() => {
+    if (recRef.current) {
+      abortedRef.current = true;
+      try { recRef.current.abort(); } catch {}
+      recRef.current = null;
+    }
+    setIsListening(false);
+    setIsOpen(false);
+    setViewMode('voice');
+    setVoiceActivated(false);
+    setMessages([{
+      role: 'assistant', content: t.greeting,
+      waLink: null, pdfData: null,
+      showCVUpload: false, quickReplies: null, quickRepliesUsed: false,
+    }]);
+    setCvSubido(null);
+    setCvPendiente(null);
+    setMostrarSubirCV(false);
+    setCandidatoRegistrado(null);
+    setLastVoiceResponse(t.greeting);
+    productoCtxRef.current = null;
+    inputRef.current?.blur();
+    try { window.focus(); } catch {}
+    window.dispatchEvent(new Event('pwa:bot-close'));
+  }, [t.greeting]);
+
+  // ✅ FIX 4: handleOpenChat con useCallback
+  const handleOpenChat = useCallback(() => {
+    setShowTooltip(false);
+    setIsOpen(true);
+    window.dispatchEvent(new Event('pwa:bot-open'));
+  }, []);
+
+  // ✅ FIX 4: useEffect de keyboard ahora tiene dependencias correctas (sin eslint-disable)
   useEffect(() => {
     const onKey = (e) => {
       if (e.key.toLowerCase() === 'f') {
@@ -742,9 +757,8 @@ export default function BotGO({ language = 'es' }) {
       document.removeEventListener('mousedown', onOutside);
       document.removeEventListener('keydown', onEsc);
     };
-  }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isOpen, handleCloseChat]);
 
-  // ── Ondas fluidas Gemini — canvas animado en modo voz ─────────────────────
   useEffect(() => {
     if (!isBotSpeaking) {
       if (waveAnimRef.current) { cancelAnimationFrame(waveAnimRef.current); waveAnimRef.current = null; }
@@ -768,7 +782,6 @@ export default function BotGO({ language = 'es' }) {
       canvas.width  = r.width;
       canvas.height = r.height;
     }
-
     function drawWave(w) {
       const cw = canvas.width, ch = canvas.height;
       const yBase = ch * w.yRatio;
@@ -788,14 +801,12 @@ export default function BotGO({ language = 'es' }) {
       ctx.fillStyle = grad;
       ctx.fill();
     }
-
     function animate() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       WAVES.forEach(drawWave);
       t++;
       waveAnimRef.current = requestAnimationFrame(animate);
     }
-
     resize();
     animate();
     window.addEventListener('resize', resize);
@@ -805,40 +816,6 @@ export default function BotGO({ language = 'es' }) {
     };
   }, [isBotSpeaking]);
 
-  const handleCloseChat = () => {
-    if (recRef.current) {
-      abortedRef.current = true;
-      try { recRef.current.abort(); } catch {}
-      recRef.current = null;
-    }
-    setIsListening(false);
-    setIsOpen(false);
-    setViewMode('voice');
-    setVoiceActivated(false);
-    // Reset completo — al reabrir el chat empieza desde cero
-    setMessages([{
-      role: 'assistant', content: t.greeting,
-      waLink: null, pdfData: null,
-      showCVUpload: false, quickReplies: null, quickRepliesUsed: false,
-    }]);
-    setCvSubido(null);
-    setCvPendiente(null);
-    setMostrarSubirCV(false);
-    setCandidatoRegistrado(null);
-    setLastVoiceResponse(t.greeting);
-    productoCtxRef.current = null;
-    inputRef.current?.blur();
-    try { window.focus(); } catch {}
-    window.dispatchEvent(new Event('pwa:bot-close'));
-  };
-
-  const handleOpenChat = () => {
-    setShowTooltip(false);
-    setIsOpen(true);
-    window.dispatchEvent(new Event('pwa:bot-open'));
-  };
-
-  // ── QUICK REPLIES ──────────────────────────────────────────────────────────
   const handleQuickReply = async (opt, msgIdx) => {
     setMessages(prev => prev.map((m, i) => i === msgIdx ? { ...m, quickRepliesUsed: true } : m));
     if (opt.action === 'solicitar_cv') {
@@ -864,15 +841,12 @@ export default function BotGO({ language = 'es' }) {
     }
   };
 
-  // ── CV ─────────────────────────────────────────────────────────────────────
   const handleCVFileSelect = async (file) => {
     if (!file) return;
     const allowedTypes = [
-      'application/pdf',
-      'application/msword',
+      'application/pdf', 'application/msword',
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'image/jpeg',
-      'image/png',
+      'image/jpeg', 'image/png',
     ];
     if (!allowedTypes.includes(file.type)) {
       setMicToast('Tipo de archivo no permitido. Usa PDF, DOC, DOCX, JPG o PNG.');
@@ -919,18 +893,12 @@ export default function BotGO({ language = 'es' }) {
     }
   };
 
-  // ── VOZ ─────────────────────────────────────────────────────────────────────
-  // CRÍTICO: toggleListening debe ser SÍNCRONO — no puede tener ningún `await`
-  // antes de rec.start(). Los navegadores en HTTPS (Vercel, producción) solo
-  // permiten SpeechRecognition si se llama dentro del mismo "user gesture tick".
-  // Cualquier await rompe esa cadena y causa not-allowed aunque el permiso esté activo.
   const toggleListening = () => {
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current = null;
       setIsBotSpeaking(false);
     }
-
     if (isListening) {
       abortedRef.current = true;
       try { recRef.current?.stop(); } catch {}
@@ -938,36 +906,28 @@ export default function BotGO({ language = 'es' }) {
       setIsListening(false);
       return;
     }
-
     if (typeof window === 'undefined') return;
-
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) {
       setMicToast('Tu navegador no soporta voz. Usa Chrome o Edge.');
       return;
     }
-
     if (recRef.current) {
       abortedRef.current = true;
       try { recRef.current.abort(); } catch {}
       recRef.current = null;
     }
-
     abortedRef.current   = false;
     voiceTextRef.current = '';
     setInput('');
-    setVoiceActivated(true); // desde este momento: solo orbe, sin cards ni texto
-
+    setVoiceActivated(true);
     const rec = new SR();
     recRef.current = rec;
-
     rec.lang            = t?.voiceCode || 'es-MX';
     rec.continuous      = false;
     rec.interimResults  = true;
     rec.maxAlternatives = 1;
-
     rec.onstart = () => setIsListening(true);
-
     rec.onresult = (e) => {
       let finalText = '';
       let interimText = '';
@@ -982,17 +942,13 @@ export default function BotGO({ language = 'es' }) {
         voiceTextRef.current = detected;
       }
     };
-
     rec.onerror = (e) => {
       console.warn('🎤 error:', e.error);
       setIsListening(false);
       recRef.current = null;
       if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
-        // Verificar si el permiso ya está concedido — si sí, el problema es
-        // de configuración del servidor, no del usuario
         navigator.permissions?.query({ name: 'microphone' }).then(perm => {
           if (perm.state === 'granted') {
-            // Permiso concedido pero SpeechRecognition bloqueado = problema de headers
             setMicToast('Recarga la página (F5) e intenta de nuevo con el micrófono.');
           } else {
             const esMobile = /iPhone|iPad|Android/i.test(navigator.userAgent);
@@ -1009,9 +965,7 @@ export default function BotGO({ language = 'es' }) {
       } else if (e.error === 'audio-capture') {
         setMicToast('No se detectó micrófono. Verifica que esté conectado.');
       }
-      // no-speech: silencioso
     };
-
     rec.onend = () => {
       setIsListening(false);
       recRef.current = null;
@@ -1022,9 +976,6 @@ export default function BotGO({ language = 'es' }) {
       const texto = voiceTextRef.current.trim();
       if (texto) setTimeout(() => sendMessage(null, texto, true), 300);
     };
-
-    // rec.start() debe llamarse DIRECTAMENTE aquí, en el mismo tick síncrono
-    // del click del usuario. Cualquier await antes de esta línea lo rompe.
     try {
       rec.start();
     } catch (err) {
@@ -1042,8 +993,6 @@ export default function BotGO({ language = 'es' }) {
       audioRef.current = null;
     }
     try {
-      // Convertir base64 a Blob URL — más compatible que data: URI en producción
-      // y no bloqueado por media-src CSP cuando viene de data:
       let src = b64;
       if (b64.startsWith('data:')) {
         const [meta, base64Data] = b64.split(',');
@@ -1066,79 +1015,56 @@ export default function BotGO({ language = 'es' }) {
     }
   };
 
-  // ── SEND MESSAGE ───────────────────────────────────────────────────────────
   const sendMessage = async (e = null, textOverride = null, isVoice = false, cvAdjunto = null) => {
     if (e) e.preventDefault();
     const text = (textOverride ?? input).trim();
     if (!text) return;
-
     if (audioRef.current) {
       audioRef.current.pause();
       setIsBotSpeaking(false);
     }
     try { window.speechSynthesis?.cancel(); } catch {}
-
     const cvParaEnviar = cvAdjunto || cvPendiente || null;
     const userMsg = {
-      role: 'user',
-      content: text,
-      waLink: null,
-      pdfData: null,
-      showCVUpload: false,
-      quickReplies: null,
-      quickRepliesUsed: false,
+      role: 'user', content: text,
+      waLink: null, pdfData: null,
+      showCVUpload: false, quickReplies: null, quickRepliesUsed: false,
       cvAdjunto: cvParaEnviar ? { nombre: cvParaEnviar.nombre, tamaño: cvParaEnviar.tamaño } : null,
     };
-
     setMessages(prev => [
-      // Deshabilitar TODOS los quick replies anteriores cuando el usuario manda un nuevo mensaje
-      // Así los botones quedan inactivos si el usuario salió del flujo
-      ...prev.map(m => m.quickReplies && !m.quickRepliesUsed
-        ? { ...m, quickRepliesUsed: true }
-        : m
-      ),
+      ...prev.map(m => m.quickReplies && !m.quickRepliesUsed ? { ...m, quickRepliesUsed: true } : m),
       userMsg,
     ]);
     setInput('');
     if (cvParaEnviar) setCvPendiente(null);
     setLoading(true);
-
     const prodUser  = detectarProducto(text);
     if (prodUser) productoCtxRef.current = prodUser;
     const compraNow = esIntencionCompra(text);
     const pdfNow    = esSolicitudPDF(text);
-
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           messages: [...messages, userMsg],
-          isVoice,
-          language: currentLangCode,
+          isVoice, language: currentLangCode,
           cvAdjunto: cvParaEnviar
             ? { nombre: cvParaEnviar.nombre, tipo: cvParaEnviar.tipo, base64: cvParaEnviar.base64, tamaño: cvParaEnviar.tamaño }
             : null,
         }),
       });
-
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-
-      const replyText            = data.reply              || '';
-      const audioUrl             = data.audio              || null;
-      const accionWA             = data.accionWA           || false;
-      const accionPDF            = data.accionPDF          ?? null;
-      const accionCV             = data.accionCV           || false;
-      const accionReclutamiento  = data.accionReclutamiento || false;
-      const candidatoId          = data.candidatoId        || null;
-
-      // FIX: detectar quick replies desde el texto del bot si el servidor no los mandó
-      // Esto cubre el caso donde el usuario escribe manualmente en vez de usar quick reply
+      const replyText           = data.reply              || '';
+      const audioUrl            = data.audio              || null;
+      const accionWA            = data.accionWA           || false;
+      const accionPDF           = data.accionPDF          ?? null;
+      const accionCV            = data.accionCV           || false;
+      const accionReclutamiento = data.accionReclutamiento || false;
+      const candidatoId         = data.candidatoId        || null;
       let quickReplies = data.quickReplies || null;
       if (!quickReplies && replyText) {
-        const txt = replyText.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-        // ¿Tienes CV? → botones Sí/No
         if (/tienes.*cv|adjuntar.*cv|cv.*disponible|tienes un cv|tiene.*curriculum/i.test(replyText)) {
           quickReplies = {
             type: 'cv',
@@ -1147,9 +1073,7 @@ export default function BotGO({ language = 'es' }) {
               { label: 'No tengo CV',  value: 'no_cv',  action: 'continuar'   },
             ],
           };
-        }
-        // ¿A qué puesto? → grid de puestos
-        else if (/que puesto|a que puesto|cual.*puesto|aplicar a/i.test(replyText)) {
+        } else if (/que puesto|a que puesto|cual.*puesto|aplicar a/i.test(replyText)) {
           quickReplies = {
             type: 'puesto',
             options: [
@@ -1161,9 +1085,7 @@ export default function BotGO({ language = 'es' }) {
               { label: 'Otro puesto',value: 'otro',                   action: 'input' },
             ],
           };
-        }
-        // ¿En qué estado? → grid de estados
-        else if (/que estado|en que estado|estado.*republica|donde vives/i.test(replyText)) {
+        } else if (/que estado|en que estado|estado.*republica|donde vives/i.test(replyText)) {
           quickReplies = {
             type: 'estado',
             options: [
@@ -1177,14 +1099,11 @@ export default function BotGO({ language = 'es' }) {
           };
         }
       }
-
       const prodReply = detectarProducto(replyText);
       if (prodReply && !prodUser) productoCtxRef.current = prodReply;
       const prodFinal = productoCtxRef.current || 'sus productos';
-
       let waLink  = null;
       let pdfData = null;
-
       if (compraNow || accionWA === true) {
         const waText = t.waStart || 'Hola Grupo Ortiz, me interesa cotizar';
         waLink = `https://wa.me/524432072593?text=${encodeURIComponent(waText + ' ' + prodFinal)}`;
@@ -1193,39 +1112,25 @@ export default function BotGO({ language = 'es' }) {
         const clave = accionPDF || prodUser || prodReply || productoCtxRef.current || 'general';
         pdfData = PDF_MAP[clave] || PDF_MAP['general'];
       }
-
-      // Activar CV upload:
-      // 1. Si el servidor envía accionCV:true
-      // 2. O si el texto del bot menciona adjuntar/CV (cuando el user escribe "sí" sin quick reply)
       const pedirCV = (accionCV || /adjunta.*cv|por favor.*adjunta|sube.*cv|envía.*cv|manda.*cv/i.test(replyText)) && !cvSubido;
-      if (pedirCV) {
-        setMostrarSubirCV(true);
-      }
-
+      if (pedirCV) setMostrarSubirCV(true);
       if (accionReclutamiento && candidatoId) {
-        // FIX BUG #1: extraer datos del historial para mostrar el puesto real
         const todosLosMsgs   = [...messages, userMsg];
         const datosExtraidos = extraerDatosDeHistorial(todosLosMsgs);
         setCandidatoRegistrado({
           id:     candidatoId,
           nombre: datosExtraidos.nombre || '',
-          // FIX BUG #1: usar el puesto extraído del historial conversacional
           puesto: datosExtraidos.puesto || '',
         });
       }
-
       setMessages(prev => [...prev, {
-        role: 'assistant',
-        content: replyText,
-        waLink,
-        pdfData,
+        role: 'assistant', content: replyText,
+        waLink, pdfData,
         showCVUpload: accionCV && !cvSubido,
-        quickReplies,
-        quickRepliesUsed: false,
+        quickReplies, quickRepliesUsed: false,
       }]);
       setLastVoiceResponse(replyText);
       if (isVoice && audioUrl) await playAudio(audioUrl);
-
     } catch (err) {
       console.error('❌ sendMessage error:', err);
       setMessages(prev => [...prev, {
@@ -1246,19 +1151,13 @@ export default function BotGO({ language = 'es' }) {
     <div className={`botgo-container ${isOpen ? 'open' : ''}`} style={{ fontFamily: isRTL ? 'Tahoma, Arial, sans-serif' : 'inherit' }}>
       <div ref={chatWindowRef} className={`botgo-window ${isOpen ? 'show' : ''}`}>
 
-        {/* ══════════════════════════════════════════════════
-            VOICE INTERFACE
-        ══════════════════════════════════════════════════ */}
         {viewMode === 'voice' && (
           <div className="botgo-voice-interface" style={{ position: 'relative' }}>
             <div className="voice-header">
               <span>{t.voiceAssistantTitle || 'Asistente Virtual'}</span>
               <button className="voice-close-btn" onClick={handleCloseChat} aria-label="Cerrar"><CloseIcon /></button>
             </div>
-
             <div className="voice-content">
-
-              {/* ── MODO VOZ ACTIVO: solo orbe con ondas, centrado ── */}
               {voiceActivated ? (
                 <div className="voice-orb-only">
                   <div className={`voice-orb-container ${loading ? 'thinking' : isBotSpeaking ? 'speaking' : isListening ? 'listening' : 'idle'}`}>
@@ -1267,7 +1166,6 @@ export default function BotGO({ language = 'es' }) {
                     <div className="voice-orb-ring ring-2" />
                     <div className="voice-orb-ring ring-3" />
                   </div>
-                  {/* Estado debajo del orbe: breve label */}
                   <p className="voice-orb-status">
                     {isListening
                       ? (input || t.listeningState || 'Escuchando...')
@@ -1279,7 +1177,6 @@ export default function BotGO({ language = 'es' }) {
                   </p>
                 </div>
               ) : (
-                /* ── MODO INICIAL: orbe + texto saludo + cards ── */
                 <>
                   <div className={`voice-orb-container ${loading ? 'thinking' : isBotSpeaking ? 'speaking' : isListening ? 'listening' : 'idle'}`}>
                     <div className="voice-orb-core" />
@@ -1288,15 +1185,17 @@ export default function BotGO({ language = 'es' }) {
                   </div>
                   <div className="voice-text-display">
                     <div className="assistant-speech-text">
-                      <ReactMarkdown>
-                        {(lastVoiceResponse || '')
-                          .replace(/\[ACCION:[^\]]+\]/gi, '')
-                          .replace(/https?:\/\/\S+/g, '')
-                          .split(/\n+/)
-                          .filter(Boolean)
-                          .slice(0, 2)
-                          .join('\n\n')}
-                      </ReactMarkdown>
+                      <Suspense fallback={<span>{lastVoiceResponse}</span>}>
+                        <ReactMarkdown>
+                          {(lastVoiceResponse || '')
+                            .replace(/\[ACCION:[^\]]+\]/gi, '')
+                            .replace(/https?:\/\/\S+/g, '')
+                            .split(/\n+/)
+                            .filter(Boolean)
+                            .slice(0, 2)
+                            .join('\n\n')}
+                        </ReactMarkdown>
+                      </Suspense>
                     </div>
                   </div>
                   <div className="voice-caps-grid">
@@ -1323,14 +1222,11 @@ export default function BotGO({ language = 'es' }) {
                 </>
               )}
             </div>
-
-            {/* ── Ondas fluidas — solo cuando el bot está hablando ── */}
             {isBotSpeaking && (
               <div className="voice-wave-area">
                 <canvas ref={waveCanvasRef} className="voice-wave-canvas" />
               </div>
             )}
-
             <div className="voice-controls">
               <button className="voice-control-btn secondary" onClick={() => setViewMode('chat')} aria-label="Modo teclado"><KeyboardIcon /></button>
               <button className={`voice-control-btn primary-mic ${isListening ? 'active' : ''}`} onClick={toggleListening} aria-label={isListening ? 'Detener' : 'Hablar'}>
@@ -1342,9 +1238,6 @@ export default function BotGO({ language = 'es' }) {
           </div>
         )}
 
-        {/* ══════════════════════════════════════════════════
-            CHAT INTERFACE
-        ══════════════════════════════════════════════════ */}
         {viewMode === 'chat' && (
           <div className="botgo-chat-interface" style={{ position: 'relative' }}>
             <div className="botgo-header-clean" style={{ flexDirection: isRTL ? 'row-reverse' : 'row' }}>
@@ -1352,9 +1245,7 @@ export default function BotGO({ language = 'es' }) {
               <div className="header-title"><h2>BotGo</h2></div>
               <div className="header-avatar-container"><RobotIcon className="header-robot-icon" /></div>
             </div>
-
             {enFlujoReclutamiento && <RecruitmentProgress messages={messages} />}
-
             <div className="botgo-messages" ref={messagesContainerRef}>
               {messages.map((msg, idx) => (
                 <div key={idx} className={`msg-row ${msg.role}`}>
@@ -1365,7 +1256,6 @@ export default function BotGO({ language = 'es' }) {
                     <div className={`msg-bubble ${msg.role}`} style={{ direction: isRTL ? 'rtl' : 'ltr' }}>
                       <MessageRenderer content={msg.content} isAssistant={msg.role === 'assistant'} />
                     </div>
-
                     {msg.role === 'user' && msg.cvAdjunto && (
                       <div className="msg-cv-badge">
                         <AttachIcon />
@@ -1373,11 +1263,9 @@ export default function BotGO({ language = 'es' }) {
                         <span className="msg-cv-badge-size">{formatFileSize(msg.cvAdjunto.tamaño)}</span>
                       </div>
                     )}
-
                     {msg.role === 'assistant' && (msg.waLink || msg.pdfData) && (
                       <MessageActions waLink={msg.waLink} pdfData={msg.pdfData} t={t} />
                     )}
-
                     {msg.role === 'assistant' && msg.quickReplies && (
                       <QuickReplies
                         options={msg.quickReplies.options}
@@ -1389,7 +1277,6 @@ export default function BotGO({ language = 'es' }) {
                   </div>
                 </div>
               ))}
-
               {loading && (
                 <div className="msg-row assistant">
                   <div className="msg-avatar-small"><RobotIcon className="msg-icon-svg" /></div>
@@ -1400,8 +1287,6 @@ export default function BotGO({ language = 'es' }) {
                   </div>
                 </div>
               )}
-
-              {/* CV UPLOAD — visible cuando mostrarSubirCV=true y no hay CV aún */}
               {mostrarSubirCV && !cvSubido && (
                 <div className="msg-row assistant">
                   <div className="msg-avatar-small"><RobotIcon className="msg-icon-svg" /></div>
@@ -1415,11 +1300,9 @@ export default function BotGO({ language = 'es' }) {
                   </div>
                 </div>
               )}
-
               {candidatoRegistrado && <RecruitmentConfirmation candidato={candidatoRegistrado} t={t} />}
               <div ref={messagesEndRef} />
             </div>
-
             <div className="botgo-footer-curve">
               {cvSubido && !mostrarSubirCV && (
                 <div className="footer-cv-badge">
@@ -1459,16 +1342,11 @@ export default function BotGO({ language = 'es' }) {
                 </button>
               </form>
             </div>
-
-            {/* FIX BUG #3: toast también visible en chat mode */}
             <MicToast message={micToast} onDismiss={() => setMicToast('')} />
           </div>
         )}
       </div>
 
-      {/* ══════════════════════════════════════════════════
-          LAUNCHER (botón flotante)
-      ══════════════════════════════════════════════════ */}
       {!isOpen && mounted && (
         <div className="botgo-launcher">
           {isMobile && isHomePage  && <MobilePill onOpen={handleOpenChat} t={t} />}

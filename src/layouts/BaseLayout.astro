@@ -46,6 +46,22 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
 
     <meta name="google-site-verification" content="rOmVFzyWzonDprnnaI7IaKK0inenxoZB4zXYCa7R5GU" />
 
+    <!-- ✅ FIX CADENA CRÍTICA: preconnect Google Fonts antes del primer render -->
+    <!-- ANTES: no había preconnect — el browser hacía DNS lookup tarde -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- ✅ FIX CADENA CRÍTICA: preload de la fuente woff2 más pesada (48 KiB, llegaba a 1,293ms) -->
+    <!-- El browser la descarga en paralelo al HTML, sin esperar al CSS de Google Fonts -->
+    <!-- ⚠️  Verifica que esta URL coincida exactamente con la del woff2 en tu Lighthouse -->
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      crossorigin="anonymous"
+      href="https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z1xlFd2JQEk.woff2"
+    />
+
     <!-- ⚡ 1. Tema aplicado PRIMERO — evita FOUC antes que cualquier otra cosa -->
     <script is:inline>
       (function () {
@@ -107,27 +123,46 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
     <!-- ═══════════════════════════════════════
          ICONOS Y PWA
     ═══════════════════════════════════════ -->
-<!-- ✅ Así debe quedar -->
-<link rel="icon" href="/favicon.ico" sizes="32x32" />
-<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png" />
-<link rel="icon" type="image/png" sizes="512x512" href="/favicon-512x512.png" />
-<link rel="apple-touch-icon" href={pwaIcon} />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/favicon-512x512.png" />
+    <link rel="apple-touch-icon" href={pwaIcon} />
 
     {pwaInfo && <Fragment set:html={pwaInfo.webManifest.linkTag} />}
-    <!-- ✅ Slot para inyectar links/scripts desde páginas hijas -->
-<slot name="head" />
-    
+    <slot name="head" />
 
     <!-- ═══════════════════════════════════════
-         GOOGLE ANALYTICS — sin error TypeScript
+         GOOGLE ANALYTICS — carga diferida
+         ✅ FIX: eliminado del <head> para no bloquear LCP.
+         Se carga tras primer scroll/clic o a los 5s máximo.
     ═══════════════════════════════════════ -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XZJL55JDPH"></script>
     <script is:inline>
-      (function(){
-        window['dataLayer'] = window['dataLayer'] || [];
-        function gtag(){ window['dataLayer'].push(arguments); }
-        gtag('js', new Date());
-        gtag('config', 'G-XZJL55JDPH');
+      (function () {
+        var gtmLoaded = false;
+
+        function loadGTM() {
+          if (gtmLoaded) return;
+          gtmLoaded = true;
+
+          window['dataLayer'] = window['dataLayer'] || [];
+          function gtag() { window['dataLayer'].push(arguments); }
+          window['gtag'] = gtag;
+          gtag('js', new Date());
+          gtag('config', 'G-XZJL55JDPH');
+
+          var s = document.createElement('script');
+          s.async = true;
+          s.src = 'https://www.googletagmanager.com/gtag/js?id=G-XZJL55JDPH';
+          document.head.appendChild(s);
+        }
+
+        // Carga tras primer scroll, clic o tecla — lo que ocurra primero
+        ['scroll', 'click', 'touchstart', 'keydown'].forEach(function (evt) {
+          window.addEventListener(evt, loadGTM, { once: true, passive: true });
+        });
+
+        // Fallback: cargar a los 5s aunque no haya interacción
+        setTimeout(loadGTM, 5000);
       })();
     </script>
 
@@ -135,38 +170,10 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
       @import "../styles/typography.css";
       @import "../styles/backgrounds.css";
 
-      /*
-       * IMPORTANTE: Asegurate de tener font-display: swap en typography.css
-       * para evitar FOIT (texto invisible mientras cargan las fuentes).
-       *
-       * Ejemplo mínimo en typography.css:
-       *
-       * @font-face {
-       *   font-family: 'MorganitePro';
-       *   src: url('/fonts/MorganitePro-ExtraBold.ttf') format('truetype');
-       *   font-weight: 800;
-       *   font-style: normal;
-       *   font-display: swap;
-       * }
-       * @font-face {
-       *   font-family: 'NeueMontreal';
-       *   src: url('/fonts/NeueMontreal-Medium.otf') format('opentype');
-       *   font-weight: 500;
-       *   font-style: normal;
-       *   font-display: swap;
-       * }
-       */
-
-      /* =============================================
-         LOADER — transición suave desde CSS
-         ============================================= */
       #loader-wrapper {
         transition: opacity 0.4s ease;
       }
 
-      /* =============================================
-         TRANSICIÓN DE PÁGINA
-         ============================================= */
       .home-curtain {
         position: fixed;
         top: 0;
@@ -189,9 +196,6 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
         to   { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
       }
 
-      /* =============================================
-         DOCK MENU — oculto por defecto, visible en PWA
-         ============================================= */
       #dock-menu-wrapper {
         display: none;
       }
@@ -206,9 +210,6 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
         }
       }
 
-      /* =============================================
-         ADMIN PANEL
-         ============================================= */
       #admin-panel-root {
         pointer-events: none;
       }
@@ -216,18 +217,10 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
         pointer-events: auto;
       }
 
-      /* =============================================
-         FIX TAP HIGHLIGHT
-         ============================================= */
       * {
         -webkit-tap-highlight-color: transparent;
       }
 
-      /* =============================================
-         PERMITIR ZOOM CON DEDOS EN MÓVIL
-         manipulation = permite tap + pinch-to-zoom
-         pero elimina el delay de 300ms en clicks
-         ============================================= */
       html, body {
         touch-action: pan-x pan-y;
       }
@@ -245,7 +238,6 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
         -moz-user-select: none;
         user-select: none;
         outline: none;
-        /* ✅ manipulation en botones también permite zoom */
         touch-action: pan-x pan-y;
       }
 
@@ -287,16 +279,13 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
   </head>
 
   <body>
-    <script src="https://t.contentsquare.net/uxa/3fd14649ff498.js"></script>
+    <!-- ✅ FIX: ContentSquare con defer — no bloquea el render inicial -->
+    <!-- ANTES: <script src="https://t.contentsquare.net/uxa/3fd14649ff498.js"></script> -->
+    <script defer src="https://t.contentsquare.net/uxa/3fd14649ff498.js"></script>
+
     <div id="home-transition-curtain" class="home-curtain"></div>
     <FondoGlobal />
 
-    <!--
-      FIX: client:idle en lugar de client:load
-      El banner de instalación PWA no necesita estar listo
-      en los primeros 100ms — se hidrata cuando el browser
-      tiene tiempo libre, liberando el hilo principal.
-    -->
     <InstallPWA pwa={pwaTexts} client:idle />
 
     <Cursor />
@@ -316,22 +305,13 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
       <DockMenu />
     </div>
 
+    <!-- ✅ BotGO ya tiene client:idle — correcto, no tocar -->
     <BotGO client:idle language={currentLang} />
 
     <div id="admin-panel-root"></div>
 
-    <!--
-      theme-toggle.js con defer está bien para lógica secundaria
-      (toggles de UI, etc.). El tema inicial ya está aplicado
-      por el inline script del <head>.
-    -->
     <script src="/scripts/theme-toggle.js" defer></script>
 
-    <!--
-      FIX: Service Worker registrado de forma lazy dentro de
-      window load, para no competir con recursos críticos
-      de la primera carga (imágenes, fonts, JS principal).
-    -->
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
@@ -342,14 +322,6 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
       }
     </script>
 
-    <!--
-      FIX: Ocultar el loader lo antes posible.
-      - Si el documento ya cargó (ej: navegación con cache),
-        lo oculta de inmediato sin esperar eventos tardíos.
-      - Si todavía está cargando, espera el evento 'load'.
-      - Usar requestAnimationFrame asegura que el browser
-        ya pintó el contenido antes de ocultar el loader.
-    -->
     <script is:inline>
       (function () {
         function hideLoader() {
@@ -371,11 +343,6 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
       })();
     </script>
 
-    <!--
-      Admin Panel — carga dinámica on-demand con Ctrl+9.
-      Solo se importa cuando el usuario lo activa,
-      sin ningún costo en la carga inicial.
-    -->
     <script>
       let adminMounted = false;
 

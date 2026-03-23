@@ -297,18 +297,18 @@ export const pt = {
       type: "Uso"
     },
 
-    products: [
+   products: [
       {
         name: 'STRETCH PREMIUM',
-        img: '/images/stretch/stretch.png',
+        img: '/images/stretch/premium.png',
         video: "/videos/stretch/fondo.mp4",
         link: '#',
-        description: "Projetada para maquinário de alta exigência, este filme stretch de estiramento moderado oferece uma solução eficiente e confiável para fixar cargas em processos automatizados. Sua composição garante alta resistência e desempenho superior em aplicações de embalagem exigentes.",
-        specs_values: { width: "19-30 pol", length: "1000-15000 pés", gauge: "40-110", weight: "10-40 kg", type: "Manual" },
+        description: "Desenvolvido para maquinário de alta exigência, este filme stretch de estiramento moderado oferece uma solução eficiente e confiável para fixar cargas em processos automatizados. Sua composição garante alta resistência e desempenho superior em aplicações de embalagem exigentes.",
+        specs_values: { width: "19-30 pol", length: "1000-15000 ft", gauge: "40-110", weight: "10-40 kg", type: "Manual" },
         gallery: [
-          '/images/stretch/stretch2.png',
-          '/images/stretch/stretch.png',
-          '/images/stretch/stretch3.png'
+          '/images/stretch/premium2.png',
+          '/images/stretch/premium.png',
+          '/images/stretch/premium3.png'
         ]
       },
       {
@@ -316,8 +316,8 @@ export const pt = {
         img: '/images/stretch/stretch.png',
         video: "/videos/stretch/fondo.mp4",
         link: '#',
-        description: "Projetada para uso com máquinas envolvedoras tradicionais, este filme stretch oferece alto desempenho e excelente rendimento em processos automatizados de paletização. Sua formulação garante resistência e estabilidade na fixação de cargas.",
-        specs_values: { width: "18-30 pol", length: "2000-15000 pés", gauge: "50-110", weight: "10-49 kg", type: "Automático" },
+        description: "Desenvolvido para ser aplicado com máquinas envolvedoras tradicionais, este filme stretch oferece alto rendimento e excelente desempenho em processos automatizados de paletização. Sua formulação garante resistência e estabilidade na fixação de cargas.",
+        specs_values: { width: "18-30 pol", length: "2000-15000 ft", gauge: "50-110", weight: "10-49 kg", type: "Automático" },
         gallery: [
           '/images/stretch/stretch2.png',
           '/images/stretch/stretch.png',
@@ -325,29 +325,48 @@ export const pt = {
         ]
       },
       {
-        name: 'MANUAL PRÉ-ESTICADO',
-        img: '/images/stretch/stretch.png',
+        name: 'MANUAL PRÉ-ESTIRADO',
+        img: '/images/stretch/prestirado.png',
         video: "/videos/stretch/fondo.mp4",
         link: '#',
-        description: "Projetada para aplicação manual de alto desempenho, este filme pré-esticado se destaca por oferecer uma das menores espessuras do mercado. Sua tecnologia elimina a necessidade de exercer força adicional ao envolver, facilitando seu uso imediato e melhorando a eficiência no processo de paletização.",
-        specs_values: { width: "16-17 pol", length: "7000-25000 pés", gauge: "40-120", weight: "10-40 kg", type: "Manual" },
+        description: "Desenvolvido para aplicação manual de alto desempenho, este filme pré-estirado destaca-se por oferecer uma das menores espessuras do mercado. Sua tecnologia elimina a necessidade de exercer força adicional ao envolver, facilitando seu uso imediato e melhorando a eficiência no processo de paletização.",
+        specs_values: { width: "16-17 pol", length: "7000-25000 ft", gauge: "40-120", weight: "10-40 kg", type: "Manual" },
         gallery: [
-          '/images/stretch/stretch2.png',
-          '/images/stretch/stretch.png',
-          '/images/stretch/stretch3.png'
+          '/images/stretch/prestirado2.png',
+          '/images/stretch/prestirado.png',
+          '/images/stretch/prestirado3.png'
         ]
       },
       {
-        name: 'MANUAL BANDING',
-        img: '/images/stretch/manual.png',
+        name: 'BANDING MANUAL',
+        img: '/images/stretch/banding.png',
         video: "/videos/stretch/fondo.mp4",
         link: '#',
-        description: "Projetada para aplicação em embalagem manual com estiramento moderado, este filme stretch tradicional oferece excelente desempenho em processos de embalagem e fixação de carga. Sua composição garante resistência e estabilidade em aplicações gerais.",
-        specs_values: { width: "3-12 pol", length: "7000-25000 pés", gauge: "40-120", weight: "10-40 kg", type: "Manual" },
+        description: "Desenvolvido para aplicação em envoltório manual com estiramento moderado, este filme stretch tradicional oferece excelente desempenho em processos de embalagem e fixação de carga. Sua composição garante resistência e estabilidade em aplicações gerais.",
+        specs_values: { width: "3-12 pol", length: "7000-25000 ft", gauge: "40-120", weight: "10-40 kg", type: "Manual" },
         gallery: [
-          '/images/stretch/rigido2.png',
-          '/images/stretch/manual.png',
-          '/images/stretch/rigido3.png'
+          '/images/stretch/banding3.png',
+          '/images/stretch/banding.png',
+          '/images/stretch/banding2.png'
+        ]
+      },
+      {
+        name: 'CORELESS',
+        img: '/images/stretch/coreles.png',
+        video: "/videos/stretch/fondo.mp4",
+        link: '#',
+        description: "Filme stretch sem tubete de papelão, desenvolvido para maximizar o aproveitamento do material e reduzir resíduos no processo de paletização. Sua construção multicamadas oferece alta resistência ao rasgo, excelente alongamento e uma fixação firme da carga, ideal para aplicações manuais e semiautomáticas.",
+        specs_values: {
+          width: "18-20 pol",
+          length: "1000-2000 ft",
+          gauge: "60-80",
+          weight: "3-10 kg",
+          type: "Manual / Semiautomático"
+        },
+        gallery: [
+          '/images/stretch/coreles2.png',
+          '/images/stretch/coreles.png',
+          '/images/stretch/coreles3.png'
         ]
       },
       {
@@ -355,8 +374,8 @@ export const pt = {
         img: '/images/stretch/stretch.png',
         video: "/videos/stretch/fondo.mp4",
         link: '#',
-        description: "Formulado especialmente para aplicações em embalagem manual com estiramento limitado, este filme stretch oferece alto desempenho e grande confiabilidade em processos de embalagem. Sua composição garante estabilidade e eficiência na fixação de cargas.",
-        specs_values: { width: "17-30 pol", length: "1000-15000 pés", gauge: "40-90", weight: "10-40 kg", type: "Manual", color: "Preto/Colorido" },
+        description: "Formulado especialmente para aplicações em envoltório manual com estiramento limitado, este filme stretch oferece alto desempenho e grande confiabilidade em processos de embalagem. Sua composição garante estabilidade e eficiência na fixação de cargas.",
+        specs_values: { width: "17-30 pol", length: "1000-15000 ft", gauge: "40-90", weight: "10-40 kg", type: "Manual", color: "Preto/Colorido" },
         gallery: [
           '/images/stretch/stretch2.png',
           '/images/stretch/stretch.png',

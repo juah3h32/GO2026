@@ -40,20 +40,19 @@ const aboutRelatedPaths = [
   `/${safeLang}/social`
 ];
 
-// Helper para detectar si una sección padre está activa
 const isParentActive = (pathsGroup: string[]) => {
   return pathsGroup.some(path => pathname.startsWith(path) || pathname === path);
 };
 
-// Helper simple para home y rutas únicas
 const isActive = (path: string) => {
   if (path === `/${safeLang}/` && (pathname === `/${safeLang}/` || pathname === `/${safeLang}`)) return true;
   return pathname.startsWith(path) && path !== `/${safeLang}/`;
 };
 
-// --- LOGICA CATALOGO BLANCO ---
-const isForceWhitePage = pathname.includes('/catalogo') || pathname.includes('/')|| pathname.includes('/')|| pathname.includes('/productos')|| pathname.includes('/arpillas')|| pathname.includes('/rafias')|| pathname.includes('/about')|| pathname.includes('/social')|| pathname.includes('/cuerdas') || pathname.includes('/social');
+// --- LOGICA CLASES HEADER ---
+const isForceWhitePage = pathname.includes('/catalogo') || pathname.includes('/') || pathname.includes('/productos') || pathname.includes('/arpillas') || pathname.includes('/rafias') || pathname.includes('/about') || pathname.includes('/social') || pathname.includes('/cuerdas');
 const isForceBlackPage = pathname.includes('/distribuidor');
+
 function getLangPath(targetLang: string) {
   if (pathname === '/' || pathname === '') return `/${targetLang}/`;
   const hasLangPrefix = Object.keys(languages).some(lang => pathname.startsWith(`/${lang}`));
@@ -88,7 +87,6 @@ function getLangPath(targetLang: string) {
           <svg class="chevron" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
         </a>
         <span class="nav-glow"></span>
-        
         <div class="dropdown-menu">
            <a href={`/${safeLang}/productos`} class="dropdown-item">{t.products}</a>
            <a href={`/${safeLang}/catalogo`} class="dropdown-item">{t.catalog}</a>
@@ -101,7 +99,6 @@ function getLangPath(targetLang: string) {
           <svg class="chevron" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
         </a>
         <span class="nav-glow"></span>
-
         <div class="dropdown-menu">
           <a href={`/${safeLang}/about`} class="dropdown-item">{t.company}</a>
           <a href={`/${safeLang}/social`} class="dropdown-item">{t.social}</a>
@@ -273,7 +270,6 @@ function getLangPath(targetLang: string) {
         document.body.classList.toggle("no-scroll");
       });
       
-      // Cerrar menú móvil al hacer clic en un enlace
       const mobileLinks = mobileMenu.querySelectorAll('a');
       mobileLinks.forEach(link => {
         link.addEventListener('click', () => {
@@ -301,14 +297,12 @@ function getLangPath(targetLang: string) {
             const btn = e.currentTarget as HTMLElement;
             const wasActive = btn.classList.contains("active");
             
-            // Cerrar todos los acordeones
             accordions.forEach(otherAcc => {
                 otherAcc.classList.remove("active");
                 const panel = otherAcc.nextElementSibling as HTMLElement;
                 if (panel) panel.style.maxHeight = '';
             });
             
-            // Abrir el actual si no estaba activo
             if (!wasActive) {
                 btn.classList.add("active");
                 const panel = btn.nextElementSibling as HTMLElement;
@@ -346,11 +340,9 @@ function getLangPath(targetLang: string) {
 
 :global(html.dark) {
   --text-main: #ffffff;
-  /* CAMBIO AQUI: Fondo del header en scroll para dark mode igual a #262626 (con opacidad) */
   --header-bg-scrolled: rgba(38, 38, 38, 0.95);
 }
 
-/* Catalogo texto blanco en header transparente */
 .montfort-header.force-white.transparent {
     --text-main: #ffffff !important;
 }
@@ -361,14 +353,33 @@ body.no-scroll {
 
 /* === HEADER === */
 .montfort-header {
-  z-index: 99999 !important;
+  /* Por encima de TODAS las transiciones de página */
+  z-index: 1000000 !important;
   position: fixed; 
   top: 0; 
   left: 0; 
   width: 100%;
   height: var(--header-height);
-  transition: all 0.4s ease; 
+  /* Solo animar box-shadow y padding — evita flash de color */
+  transition: box-shadow 0.4s ease, padding 0.4s ease;
   padding-top: 25px;
+}
+
+/* Pseudo-elemento para el fondo al hacer scroll — evita flash blanco */
+.montfort-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--header-bg-scrolled);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: -1;
+  pointer-events: none;
+  backdrop-filter: blur(10px);
+}
+
+.montfort-header.scrolled::before {
+  opacity: 1;
 }
 
 .montfort-header.transparent { 
@@ -377,10 +388,8 @@ body.no-scroll {
 }
 
 .montfort-header.scrolled {
-  background: var(--header-bg-scrolled);
   padding-top: 0;
   box-shadow: 0 4px 20px rgba(0,0,0,0.1); 
-  backdrop-filter: blur(10px); 
 }
 
 :global(html.dark) .montfort-header.scrolled {
@@ -402,11 +411,20 @@ body.no-scroll {
 .logo img { 
   height: 45px; 
   width: auto; 
-  transition: transform 0.3s; 
+  filter: brightness(0) invert(1);
+  transition: transform 0.3s, filter 0.3s;
 }
 
 .logo img:hover { 
   transform: scale(1.05); 
+}
+
+.montfort-header.scrolled .logo img {
+  filter: brightness(0);
+}
+
+:global(html.dark) .montfort-header.scrolled .logo img {
+  filter: brightness(0) invert(1);
 }
 
 /* === DESKTOP NAV === */
@@ -633,7 +651,7 @@ body.no-scroll {
   border: none; 
   cursor: pointer; 
   padding: 0;
-  z-index: 100000; 
+  z-index: 1000001 !important;
 }
 
 .hamburger span {
@@ -670,14 +688,14 @@ body.no-scroll {
   right: 0; 
   width: 100%; 
   height: 100vh;
-  /* CAMBIO AQUI: Fondo del menú móvil a #262626 */
   background: #262626;
   padding-top: 100px; 
   padding-left: 30px; 
   padding-right: 30px;
   transform: translateX(100%); 
   transition: transform 0.3s ease-in-out;
-  z-index: 99998; 
+  /* Encima de transiciones de página pero debajo del header */
+  z-index: 999998 !important;
   display: flex; 
   flex-direction: column;
 }
@@ -757,6 +775,8 @@ body.no-scroll {
   display: none; 
   align-items: center; 
   gap: 10px;
+  /* Siempre por encima de transiciones */
+  z-index: 1000001 !important;
 }
 
 /* === THEME SWITCH DESKTOP === */
@@ -771,7 +791,7 @@ body.no-scroll {
 
 .theme-switch .theme-switch-outer {
   height: 100%; 
-  background: #262626; /* Ya estaba correcto */
+  background: #262626;
   width: 90px; 
   border-radius: 165px;
   box-shadow: inset 0px 5px 10px 0px #1a1a1a, 0px 3px 6px -2px #403f4e;
@@ -820,27 +840,38 @@ body.no-scroll {
   left: calc(100% - 30px); 
 }
 
-/* === THEME SWITCH MOBILE === */
+/* === THEME SWITCH MOBILE ===
+   SOLUCIÓN DEFINITIVA:
+   Círculo gris suave semitransparente con ícono blanco.
+   Visible sobre CUALQUIER fondo en CUALQUIER transición.
+   z-index alto para que no lo tape nada.
+   Sin ninguna regla adicional que lo pise.
+*/
 .mobile-theme-btn {
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+  position: relative;
+  z-index: 1000001 !important;
 }
 
 .mobile-theme-btn .icon-container {
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1); 
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  /* Gris suave semitransparente — visible sobre claro y oscuro */
+  background: rgba(120, 120, 120, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-main);
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  /* Blanco siempre — contrasta sobre el gris del círculo */
+  color: #ffffff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+  position: relative;
+  z-index: 1000001 !important;
 }
 
 .mobile-theme-btn .icon-container:active {
@@ -855,22 +886,12 @@ body.no-scroll {
   display: none; 
 }
 
-.mobile-theme-btn input:checked ~ .icon-container {
-  background: rgba(255, 255, 255, 0.15);
-  color: #ffffff;
-  border-color: rgba(251, 103, 11, 0.3);
-}
-
 .mobile-theme-btn input:checked ~ .icon-container .sun-icon { 
   display: none; 
 }
 
 .mobile-theme-btn input:checked ~ .icon-container .moon-icon { 
   display: block; 
-}
-
-:global(html.dark) .mobile-theme-btn .icon-container {
-  background: rgba(0, 0, 0, 0.3);
 }
 
 /* === LANGUAGE PILL MOBILE === */
@@ -888,6 +909,8 @@ body.no-scroll {
   cursor: pointer;
   box-shadow: 0 4px 10px rgba(255, 102, 0, 0.3);
   transition: all 0.3s ease;
+  position: relative;
+  z-index: 1000001 !important;
 }
 
 .lang-pill-btn:hover {
@@ -911,7 +934,7 @@ body.no-scroll {
   box-shadow: 0 5px 15px rgba(0,0,0,0.5); 
   display: flex; 
   flex-direction: column;
-  z-index: 100001;
+  z-index: 1000002 !important;
 }
 
 .mobile-mini-dropdown.active { 
@@ -946,19 +969,16 @@ body.no-scroll {
   position: fixed; 
   top: 25px; 
   left: 20px; 
-  z-index: 100000 !important; 
-
+  z-index: 1000001 !important;
   width: 40px;
   height: 40px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  
   border: 2px solid #000000; 
   color: #000000 !important; 
   background: #ffffff; 
-  
   text-decoration: none;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -1021,6 +1041,7 @@ body.no-scroll {
   .montfort-header.scrolled {
     padding-top: 0;
   }
+
   .montfort-header.logo-shifted .logo { 
     display: none; 
   }
@@ -1060,34 +1081,7 @@ body.no-scroll {
   right: auto; 
 }
 
-@media (max-width: 1024px) {
-  .montfort-header.logo-shifted .logo { 
-    display: none; 
-  }
-}
-/* ===== LOGO ===== */
-
-/* Todas las páginas, header transparente → blanco (sobre video/imagen) */
-.logo img {
-  height: 45px;
-  width: auto;
-  filter: brightness(0) invert(1);
-  transition: transform 0.3s, filter 0.3s;
-}
-
-/* Al hacer scroll en modo CLARO → negro (header blanco) */
-.montfort-header.scrolled .logo img {
-  filter: brightness(0);
-}
-
-/* Al hacer scroll en modo DARK → blanco (header oscuro) */
-:global(html.dark) .montfort-header.scrolled .logo img {
-  filter: brightness(0) invert(1);
-}
-
 /* ===== DISTRIBUIDOR ===== */
-
-/* Distribuidor, transparente, modo CLARO → texto y logo negros */
 .montfort-header.force-black.transparent {
   --text-main: #000000 !important;
 }
@@ -1100,7 +1094,6 @@ body.no-scroll {
   background: #000000;
 }
 
-/* Distribuidor, transparente, modo DARK → texto y logo blancos */
 :global(html.dark) .montfort-header.force-black.transparent {
   --text-main: #ffffff !important;
 }
@@ -1112,5 +1105,17 @@ body.no-scroll {
 :global(html.dark) .montfort-header.force-black.transparent .hamburger span {
   background: #ffffff;
 }
+/* Scroll en modo claro → círculo blanco suave + ícono negro */
+.montfort-header.scrolled .mobile-theme-btn .icon-container {
+  background: rgba(0, 0, 0, 0.08);
+  border-color: rgba(0, 0, 0, 0.15);
+  color: #1a1a1a;
+}
 
+/* Scroll en dark mode → se mantiene gris/blanco */
+:global(html.dark) .montfort-header.scrolled .mobile-theme-btn .icon-container {
+  background: rgba(120, 120, 120, 0.45);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
 </style>
