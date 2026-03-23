@@ -518,7 +518,7 @@ export const en = {
   // =================================================
   // PAGE: MESH BAGS
   // =================================================
-  arpillas: {
+arpillas: {
     meta_title: "Mesh Bags | Grupo Ortiz",
     back_aria: "Back",
     specs_title: "TECHNICAL SPECIFICATIONS",
@@ -536,24 +536,24 @@ export const en = {
         img: '/images/arpillas/arpilla.webp',
         video: "/videos/arpilla/circular.mp4",
         link: '#',
-        description: "Made with 100% virgin polypropylene and raffia construction, this mesh bag offers high resistance and excellent performance in packaging and storage applications. Its quality guarantees durability and reliable performance in handling various products.",
+        description: "Manufactured with 100% virgin polypropylene and raffia construction, this mesh bag offers high resistance and excellent performance in packaging and storage applications. Its quality guarantees durability and reliable performance in handling various products.",
         specs_values: {
           sizes: "23-70 cm",
           colors: "4",
           features: "Drawstring"
         },
         gallery: [
-          '/images/arpillas/circular2.webp',
+          '/images/arpillas/circular2.png',
           '/images/arpillas/arpilla.webp',
-          '/images/arpillas/circular3.webp'
+          '/images/arpillas/circular3.png'
         ]
       },
       {
-        name: 'Circular monofilament burlap',
+        name: 'CIRCULAR MONOFILAMENT MESH BAG',
         img: '/images/arpillas/arpilla2.webp',
         video: "/videos/arpilla/mono.mp4",
         link: '#',
-        description: "Made with 100% virgin polypropylene and raffia/monofilament construction, this mesh bag offers high resistance and excellent performance in packaging and storage applications. Its structure provides durability and reliable performance in the handling and protection of various products.",
+        description: "Manufactured with 100% virgin polypropylene and raffia/monofilament construction, this mesh bag offers high resistance and excellent performance in packaging and storage applications. Its structure provides durability and reliable performance in the handling and protection of various products.",
         specs_values: {
           construction: "Monofilament",
           sizes: "23-70 cm",
@@ -561,28 +561,28 @@ export const en = {
           features: "Drawstring"
         },
         gallery: [
-          '/images/arpillas/mono2.webp',
+          '/images/arpillas/mono2.png',
           '/images/arpillas/arpilla2.webp',
-          '/images/arpillas/mono3.webp'
+          '/images/arpillas/mono3.png'
         ]
       },
       {
-        name: 'SIDE-SEAM MESH BAG',
+        name: 'SIDE SEAM MESH BAG',
         img: '/images/arpillas/arpilla3.webp',
         video: "/videos/arpilla/costura.mp4",
         link: '#',
-        description: "Made with 100% virgin polypropylene and raffia/monofilament construction, this mesh bag offers high resistance and excellent performance in packaging and storage applications. Its structure guarantees durability and reliability in the handling of various products.",
+        description: "Manufactured with 100% virgin polypropylene and raffia/monofilament construction, this mesh bag offers high resistance and excellent performance in packaging and storage applications. Its structure guarantees durability and reliability in the handling of different products.",
         specs_values: {
-          type: "Lateral",
+          type: "Side",
           construction: "Monofilament",
           sizes: "23-60 cm",
           colors: "4",
           features: "Reinforced"
         },
         gallery: [
-          '/images/arpillas/lateral1.webp',
+          '/images/arpillas/lateral1.png',
           '/images/arpillas/arpilla3.webp',
-          '/images/arpillas/lateral3.webp'
+          '/images/arpillas/lateral3.png'
         ]
       },
       {
@@ -590,7 +590,7 @@ export const en = {
         img: '/images/arpillas/arpilla4.webp',
         video: "/videos/arpilla/etiqueta.mp4",
         link: '#',
-        description: "Made with 100% virgin polypropylene and raffia/raffia construction, this mesh bag offers high resistance and excellent performance in packaging and storage processes. Its weave guarantees durability and reliability for demanding applications in both domestic and export markets.",
+        description: "Manufactured with 100% virgin polypropylene and raffia/raffia construction, this mesh bag offers high resistance and excellent performance in packaging and storage processes. Its weave guarantees durability and reliability for demanding applications in both the domestic and export markets.",
         specs_values: {
           type: "Laminated",
           construction: "Raffia",
@@ -599,14 +599,13 @@ export const en = {
           features: "Drawstring"
         },
         gallery: [
-          '/images/arpillas/laminado1.webp',
+          '/images/arpillas/laminado1.png',
           '/images/arpillas/arpilla4.webp',
-          '/images/arpillas/laminado3.webp'
+          '/images/arpillas/laminado3.png'
         ]
       }
     ]
-  },
-
+},
   // =================================================
   // PAGE: WOVEN SACKS
   // =================================================

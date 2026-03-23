@@ -519,167 +519,93 @@ export const zh = {
   // 页面：网袋
   // =================================================
   arpillas: {
-    meta_title: "网袋 | Grupo Ortiz",
+    meta_title: "網袋 | Grupo Ortiz",
     back_aria: "返回",
-    specs_title: "技术规格",
+    specs_title: "技術規格",
 
     specs_labels: {
-      construction: "结构",
-      sizes: "宽度",
-      colors: "颜色",
-      features: "封口类型"
+      construction: "結構",
+      sizes: "寬度",
+      colors: "顏色",
+      features: "封口類型"
     },
 
     products: [
       {
-        name: '圆织网袋',
+        name: '圓形網袋 (ARPILLA CIRCULAR)',
         img: '/images/arpillas/arpilla.webp',
         video: "/videos/arpilla/circular.mp4",
         link: '#',
-        description: "采用100%纯聚丙烯和拉菲结构制造，这款网袋在包装和储存应用中提供高强度和出色性能。其品质保证在处理各类产品时的耐用性和可靠性能。",
+        description: "採用 100% 全新聚丙烯和拉菲草 (raffia) 結構製造，這款網袋在包裝和儲存應用中提供高強度和卓越的性能。其品質保證了在處理各種產品時的耐用性和可靠表現。",
         specs_values: {
           sizes: "23-70 cm",
           colors: "4",
-          features: "抽绳"
+          features: "抽繩"
         },
         gallery: [
-          '/images/arpillas/circular2.webp',
+          '/images/arpillas/circular2.png',
           '/images/arpillas/arpilla.webp',
-          '/images/arpillas/circular3.webp'
+          '/images/arpillas/circular3.png'
         ]
       },
       {
-        name: '圓形單絲粗麻布',
+        name: '圓形單絲網袋 (ARPILLA MONOFILAMENTO CIRCULAR)',
         img: '/images/arpillas/arpilla2.webp',
         video: "/videos/arpilla/mono.mp4",
         link: '#',
-        description: "采用100%纯聚丙烯和拉菲/单丝结构制造，这款网袋在包装和储存应用中提供高强度和出色性能。其结构为各类产品的处理和保护提供耐用性和可靠性能。",
+        description: "採用 100% 全新聚丙烯和拉菲草/單絲結構製造，這款網袋在包裝和儲存應用中提供高強度和卓越的性能。其結構在處理和保護各種產品時提供了耐用性和可靠的表現。",
         specs_values: {
-          construction: "单丝",
+          construction: "單絲",
           sizes: "23-70 cm",
           colors: "2",
-          features: "抽绳"
+          features: "抽繩"
         },
         gallery: [
-          '/images/arpillas/mono2.webp',
+          '/images/arpillas/mono2.png',
           '/images/arpillas/arpilla2.webp',
-          '/images/arpillas/mono3.webp'
+          '/images/arpillas/mono3.png'
         ]
       },
       {
-        name: '侧缝网袋',
+        name: '側縫網袋 (ARPILLA COSTURA LATERAL)',
         img: '/images/arpillas/arpilla3.webp',
         video: "/videos/arpilla/costura.mp4",
         link: '#',
-        description: "采用100%纯聚丙烯和拉菲/单丝结构制造，这款网袋在包装和储存应用中提供高强度和出色性能。其结构保证在处理不同产品时的耐用性和可靠性。",
+        description: "採用 100% 全新聚丙烯和拉菲草/單絲結構製造，這款網袋在包裝和儲存應用中提供高強度和卓越的性能。其結構保證了在處理不同產品時的耐用性和可靠性。",
         specs_values: {
-          type: "侧面",
-          construction: "单丝",
+          type: "側邊",
+          construction: "單絲",
           sizes: "23-60 cm",
           colors: "4",
           features: "加固"
         },
         gallery: [
-          '/images/arpillas/lateral1.webp',
+          '/images/arpillas/lateral1.png',
           '/images/arpillas/arpilla3.webp',
-          '/images/arpillas/lateral3.webp'
+          '/images/arpillas/lateral3.png'
         ]
       },
       {
-        name: '贴标覆膜网袋',
+        name: '覆膜標籤網袋 (ARPILLA ETIQUETA LAMINADA)',
         img: '/images/arpillas/arpilla4.webp',
         video: "/videos/arpilla/etiqueta.mp4",
         link: '#',
-        description: "采用100%纯聚丙烯和拉菲/拉菲结构制造，这款网袋在包装和储存过程中提供高强度和出色性能。其编织结构保证在国内外市场高要求应用中的耐用性和可靠性。",
+        description: "採用 100% 全新聚丙烯和拉菲草/拉菲草結構製造，這款網袋在包裝和儲存過程中提供高強度和卓越的性能。其編織工藝保證了在國內和出口市場的嚴苛應用中的耐用性和可靠性。",
         specs_values: {
           type: "覆膜",
-          construction: "拉菲",
+          construction: "拉菲草",
           sizes: "23-70 cm",
           colors: "4",
-          features: "抽绳"
+          features: "抽繩"
         },
         gallery: [
-          '/images/arpillas/laminado1.webp',
+          '/images/arpillas/laminado1.png',
           '/images/arpillas/arpilla4.webp',
-          '/images/arpillas/laminado3.webp'
+          '/images/arpillas/laminado3.png'
         ]
       }
     ]
-  },
-
-  // =================================================
-  // 页面：编织袋
-  // =================================================
-  sacos: {
-    meta_title: "编织袋 | Grupo Ortiz",
-    back_aria: "返回产品",
-    specs_title: "技术规格",
-
-    specs_labels: {
-      load: "宽度",
-      unit: "长度",
-      mat: "材质",
-      weight: "强度"
-    },
-
-    products: [
-      {
-        name: '无覆膜拉菲编织袋',
-        img: '/images/sacos/saco2.png',
-        model: '/models/saco_blanco.glb',
-        video: "/videos/saco/slaminar.mp4",
-        link: '#',
-        description: "由交织聚丙烯条制造，无覆膜拉菲编织袋在包装和储存应用中提供强大的耐用性。其结构可承受重载而不破损，保证在高强度工作中的可靠性能。",
-        specs_values: {
-          load: "35-80 cm",
-          unit: "49-115 cm",
-          mat: "PP",
-          weight: "120-200 kgf"
-        },
-        gallery: [
-          '/images/sacos/slaminado1.png',
-          '/images/sacos/saco2.png',
-          '/images/sacos/slaminado3.png'
-        ]
-      },
-      {
-        name: '透明编织袋',
-        img: '/images/sacos/saco.png',
-        video: "/videos/saco/transp.mp4",
-        link: '#',
-        description: "采用聚丙烯条和透明饰面制造，这些袋子提供高强度，并可出色地展示袋内产品。其结构保证在储存和运输应用中的耐用性和可靠性能。",
-        specs_values: {
-          load: "35-80 kg",
-          unit: "49-115 cm",
-          mat: "PP",
-          weight: "120-200 kgf"
-        },
-        gallery: [
-          '/images/sacos/laminado2.png',
-          '/images/sacos/saco.png',
-          '/images/sacos/laminado3.png'
-        ]
-      },
-      {
-        name: '环保拉菲编织袋',
-        img: '/images/sacos/saco3.png',
-        video: "/videos/saco/eco.mp4",
-        link: '#',
-        description: "采用生产过程中产生的边角料回收材料制造，这些袋子以更实惠的价格提供耐用性和良好的持久性。其制造工艺可在普通包装和储存应用中提供可靠性能。",
-        specs_values: {
-          load: "45-80 kg",
-          unit: "49-115 cm",
-          mat: "PP",
-          weight: "120-200 kgf"
-        },
-        gallery: [
-          '/images/sacos/eco2.png',
-          '/images/sacos/saco3.png',
-          '/images/sacos/eco3.png'
-        ]
-      }
-    ]
-  },
+},
 
   // =================================================
   // 页面：护角

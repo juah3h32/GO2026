@@ -519,9 +519,9 @@ export const ar = {
   // صفحة: أكياس الشبك
   // =================================================
   arpillas: {
-    meta_title: "أكياس الشبك | Grupo Ortiz",
-    back_aria: "عودة",
-    specs_title: "المواصفات التقنية",
+    meta_title: "أكياس شبكية | Grupo Ortiz",
+    back_aria: "رجوع",
+    specs_title: "المواصفات الفنية",
 
     specs_labels: {
       construction: "البنية",
@@ -532,80 +532,80 @@ export const ar = {
 
     products: [
       {
-        name: 'شبكة دائرية',
+        name: 'كيس شبكي دائري (ARPILLA CIRCULAR)',
         img: '/images/arpillas/arpilla.webp',
         video: "/videos/arpilla/circular.mp4",
         link: '#',
-        description: "مصنوعة من بولي بروبيلين 100% بكر وبنية رافيا، تقدّم هذه الشبكة مقاومة عالية وأداءً ممتازاً في تطبيقات التعبئة والتخزين. جودتها تضمن المتانة والأداء الموثوق في التعامل مع المنتجات المختلفة.",
+        description: "مصنوع من البولي بروبيلين البكر بنسبة 100% وبنية من الرافيا، يوفر هذا الكيس الشبكي مقاومة عالية وأداءً ممتازاً في تطبيقات التعبئة والتخزين. تضمن جودته المتانة والأداء الموثوق في التعامل مع المنتجات المختلفة.",
         specs_values: {
           sizes: "23-70 سم",
           colors: "4",
-          features: "حزام"
+          features: "رباط"
         },
         gallery: [
-          '/images/arpillas/circular2.webp',
+          '/images/arpillas/circular2.png',
           '/images/arpillas/arpilla.webp',
-          '/images/arpillas/circular3.webp'
+          '/images/arpillas/circular3.png'
         ]
       },
       {
-        name: 'خيط خيش أحادي الشعيرة دائري',
+        name: 'كيس شبكي دائري أحادي الخيط (ARPILLA MONOFILAMENTO CIRCULAR)',
         img: '/images/arpillas/arpilla2.webp',
         video: "/videos/arpilla/mono.mp4",
         link: '#',
-        description: "مصنوعة من بولي بروبيلين 100% بكر وبنية رافيا/أحادية الخيط، تقدّم هذه الشبكة مقاومة عالية وأداءً ممتازاً في تطبيقات التعبئة والتخزين. هيكلها يوفر المتانة والأداء الموثوق في التعامل مع المنتجات المختلفة وحمايتها.",
+        description: "مصنوع من البولي بروبيلين البكر بنسبة 100% وبنية من الرافيا/خيط أحادي، يوفر هذا الكيس الشبكي مقاومة عالية وأداءً ممتازاً في تطبيقات التعبئة والتخزين. يوفر هيكله المتانة والأداء الموثوق في التعامل مع المنتجات المختلفة وحمايتها.",
         specs_values: {
-          construction: "أحادية الخيط",
+          construction: "خيط أحادي",
           sizes: "23-70 سم",
           colors: "2",
-          features: "حزام"
+          features: "رباط"
         },
         gallery: [
-          '/images/arpillas/mono2.webp',
+          '/images/arpillas/mono2.png',
           '/images/arpillas/arpilla2.webp',
-          '/images/arpillas/mono3.webp'
+          '/images/arpillas/mono3.png'
         ]
       },
       {
-        name: 'شبكة خياطة جانبية',
+        name: 'كيس شبكي بخياطة جانبية (ARPILLA COSTURA LATERAL)',
         img: '/images/arpillas/arpilla3.webp',
         video: "/videos/arpilla/costura.mp4",
         link: '#',
-        description: "مصنوعة من بولي بروبيلين 100% بكر وبنية رافيا/أحادية الخيط، تقدّم هذه الشبكة مقاومة عالية وأداءً ممتازاً في تطبيقات التعبئة والتخزين. هيكلها يضمن المتانة والموثوقية في التعامل مع المنتجات المختلفة.",
+        description: "مصنوع من البولي بروبيلين البكر بنسبة 100% وبنية من الرافيا/خيط أحادي، يوفر هذا الكيس الشبكي مقاومة عالية وأداءً ممتازاً في تطبيقات التعبئة والتخزين. يضمن هيكله المتانة والموثوقية في التعامل مع المنتجات المختلفة.",
         specs_values: {
           type: "جانبي",
-          construction: "أحادية الخيط",
+          construction: "خيط أحادي",
           sizes: "23-60 سم",
           colors: "4",
-          features: "معزز"
+          features: "مقوى"
         },
         gallery: [
-          '/images/arpillas/lateral1.webp',
+          '/images/arpillas/lateral1.png',
           '/images/arpillas/arpilla3.webp',
-          '/images/arpillas/lateral3.webp'
+          '/images/arpillas/lateral3.png'
         ]
       },
       {
-        name: 'شبكة بطاقة مُطلَّاة',
+        name: 'كيس شبكي بملصق مصفح (ARPILLA ETIQUETA LAMINADA)',
         img: '/images/arpillas/arpilla4.webp',
         video: "/videos/arpilla/etiqueta.mp4",
         link: '#',
-        description: "مصنوعة من بولي بروبيلين 100% بكر وبنية رافيا/رافيا، تقدّم هذه الشبكة مقاومة عالية وأداءً ممتازاً في عمليات التعبئة والتخزين. نسيجها يضمن المتانة والموثوقية للتطبيقات الصعبة في السوق المحلي والتصدير.",
+        description: "مصنوع من البولي بروبيلين البكر بنسبة 100% وبنية من الرافيا/الرافيا، يوفر هذا الكيس الشبكي مقاومة عالية وأداءً ممتازاً في عمليات التعبئة والتخزين. يضمن نسيجه المتانة والموثوقية للتطبيقات الصعبة في كل من الأسواق المحلية وأسواق التصدير.",
         specs_values: {
-          type: "مُطلَّى",
+          type: "مصفح",
           construction: "رافيا",
           sizes: "23-70 سم",
           colors: "4",
-          features: "حزام"
+          features: "رباط"
         },
         gallery: [
-          '/images/arpillas/laminado1.webp',
+          '/images/arpillas/laminado1.png',
           '/images/arpillas/arpilla4.webp',
-          '/images/arpillas/laminado3.webp'
+          '/images/arpillas/laminado3.png'
         ]
       }
     ]
-  },
+},
 
   // =================================================
   // صفحة: الأكياس
