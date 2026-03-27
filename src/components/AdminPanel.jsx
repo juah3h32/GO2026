@@ -67,13 +67,14 @@ const GLOBAL_CSS = `
   *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
 
   .admin-overlay {
-    position:fixed; inset:0; z-index:999990;
+      position:fixed; inset:0; z-index:99999999;
     background:rgba(10,9,8,0.88);
     backdrop-filter:blur(28px) saturate(110%);
     -webkit-backdrop-filter:blur(28px) saturate(110%);
     display:flex; align-items:center; justify-content:center;
     padding:8px; opacity:0; transition:opacity 0.28s ease;
   }
+    
   .admin-overlay.visible { opacity:1; }
 
   .aroot, .aroot * { font-family:'DM Sans',system-ui,sans-serif !important; }
@@ -1182,7 +1183,7 @@ function Dash({ onClose, role }) {
 
 // ── MAIN EXPORT ───────────────────────────────────────────────────────────────
 export default function AdminPanel() {
-  const [visible,setVisible]=useState(false), [role,setRole]=useState(null);
+const [visible,setVisible]=useState(false), [role,setRole]=useState(null);
 
   useEffect(()=>{
     const fn=e=>{

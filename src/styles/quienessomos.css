@@ -844,18 +844,18 @@ html.dark .valor-item:hover .valor-title { color: var(--productos-hover); }
 }
 
 .tl-main-title {
-  font-family   : var(--font-display);
-  font-weight   : var(--fw-display);
-  font-size     : clamp(7rem, 9vw, 11rem);
-  line-height   : 0.75;
-  color         : #ffffff !important;
+  font-family: var(--font-display);
+  font-weight: var(--fw-display);
+  font-size: clamp(5rem, 8vw, 9rem); /* Reduje un poco el tamaño para que quepa mejor */
+  line-height: 0.7; /* Valor clave: reduce el espacio entre líneas significativamente */
+  color: #ffffff !important;
   text-transform: uppercase;
-  margin-bottom : 3vh;
-  letter-spacing: var(--ls-display-hero);
-  display       : flex;
+  margin-bottom: 2vh;
+  letter-spacing: -2px; /* Opcional: para que las letras también estén más juntas horizontalmente */
+  display: flex;
   flex-direction: column;
-  gap           : 0;
-  width         : 100%;
+  gap: 0;
+  width: 100%;
 }
 .tl-main-title .tl-title-white {
   color        : #ffffff !important;
@@ -872,30 +872,19 @@ html.dark .valor-item:hover .valor-title { color: var(--productos-hover); }
 }
 
 .tl-event-title {
-  font-family   : var(--font-display);
-  font-weight   : var(--fw-display);
-  font-size     : var(--fs-display-md);
-  line-height   : var(--lh-display);
-  letter-spacing: var(--ls-display-md);
-  color         : #ffffff !important;
+  margin-top: 40px; /* Esto crea el espacio que falta con "TRAYECTORIA" */
+  margin-bottom: 15px;
+  font-size: var(--fs-display-sm); /* Un poco más pequeño para jerarquía */
+  color: #ffffff !important;
   text-transform: uppercase;
-  margin-bottom : -10px;
-  transition    : opacity 0.3s;
 }
 
 .tl-description {
-  font-size     : var(--fs-body-lg);
-  line-height   : var(--lh-body);
-  color         : #ffffff !important;
-  opacity       : 0.9;
-  height        : 9rem;
-  min-height    : 9rem;
-  max-height    : 9rem;
-  overflow      : hidden;
-  display       : flex;
-  align-items   : flex-start;
-  margin-bottom : 0;
-  padding-bottom: 0;
+  font-size: 1.1rem; /* Ajuste manual si var(--fs-body-lg) es muy grande */
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.8) !important;
+  max-width: 90%; /* Evita que el texto sea demasiado ancho */
+  margin-bottom: 30px;
 }
 
 .tl-navigation { display: flex; align-items: center; gap: 20px; margin-top: 37px; flex-shrink: 0; }

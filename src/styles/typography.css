@@ -3,7 +3,6 @@
    Las fuentes críticas están en fonts-inline.css (base64, carga instantánea).
    Este archivo contiene solo variables, clases y estilos.
    ============================================================================ */
-@import "./fonts-inline.css";
 
 /* ============================================================================
    TYPOGRAPHY.CSS — Sistema tipográfico global

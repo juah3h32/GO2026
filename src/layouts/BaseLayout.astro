@@ -2,7 +2,6 @@
 // src/layouts/BaseLayout.astro
 
 import { pwaInfo } from "virtual:pwa-info";
-
 import { translations } from "../i18n";
 
 import Loader from "../components/Loader.astro";
@@ -12,6 +11,9 @@ import FondoGlobal from "../components/FondoGlobal.astro";
 import Cursor from "../components/CustomCursor.astro";
 import DockMenu from "../components/DockMenu.astro";
 import BotGO from "../components/BotGO.jsx";
+import "../styles/fonts-inline.css";
+import "../styles/typography.css";
+import "../styles/backgrounds.css";
 
 const {
   title = "Grupo Ortiz | Fabricante de Polímeros y Empaques en México",
@@ -43,17 +45,10 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
       content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
     />
     <meta name="theme-color" content="#ffffff" />
-
     <meta name="google-site-verification" content="rOmVFzyWzonDprnnaI7IaKK0inenxoZB4zXYCa7R5GU" />
 
-    <!-- ✅ FIX CADENA CRÍTICA: preconnect Google Fonts antes del primer render -->
-    <!-- ANTES: no había preconnect — el browser hacía DNS lookup tarde -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-
-    <!-- ✅ FIX CADENA CRÍTICA: preload de la fuente woff2 más pesada (48 KiB, llegaba a 1,293ms) -->
-    <!-- El browser la descarga en paralelo al HTML, sin esperar al CSS de Google Fonts -->
-    <!-- ⚠️  Verifica que esta URL coincida exactamente con la del woff2 en tu Lighthouse -->
     <link
       rel="preload"
       as="font"
@@ -62,7 +57,6 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
       href="https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z1xlFd2JQEk.woff2"
     />
 
-    <!-- ⚡ 1. Tema aplicado PRIMERO — evita FOUC antes que cualquier otra cosa -->
     <script is:inline>
       (function () {
         try {
@@ -72,7 +66,6 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
       })();
     </script>
 
-    <!-- ⚡ 2. Detección PWA temprana — antes de renderizar el DOM -->
     <script is:inline>
       (function () {
         try {
@@ -89,18 +82,12 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
     <link rel="preload" href="/fonts/MorganitePro-BoldOblique.ttf" as="font" type="font/ttf" crossorigin="anonymous" />
     <link rel="preload" href="/fonts/NeueMontreal-Medium.otf"      as="font" type="font/otf" crossorigin="anonymous" />
 
-    <!-- ═══════════════════════════════════════
-         SEO BÁSICO
-    ═══════════════════════════════════════ -->
     <title>{title}</title>
     {description && <meta name="description" content={description} />}
     <meta name="author" content={author} />
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href={`https://grupo-ortiz.com/${currentLang}/`} />
 
-    <!-- ═══════════════════════════════════════
-         OPEN GRAPH — Facebook, WhatsApp, LinkedIn
-    ═══════════════════════════════════════ -->
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     {description && <meta property="og:description" content={description} />}
@@ -111,18 +98,12 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
     <meta property="og:image:height" content="630" />
     <meta property="og:url" content={`https://grupo-ortiz.com/${currentLang}/`} />
 
-    <!-- ═══════════════════════════════════════
-         TWITTER / X CARD
-    ═══════════════════════════════════════ -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     {description && <meta name="twitter:description" content={description} />}
     <meta name="twitter:image" content="https://grupo-ortiz.com/images/og-preview.jpg" />
     <meta name="twitter:site" content="@GrupoOrtiz" />
 
-    <!-- ═══════════════════════════════════════
-         ICONOS Y PWA
-    ═══════════════════════════════════════ -->
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png" />
     <link rel="icon" type="image/png" sizes="512x512" href="/favicon-512x512.png" />
@@ -131,109 +112,75 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
     {pwaInfo && <Fragment set:html={pwaInfo.webManifest.linkTag} />}
     <slot name="head" />
 
-    <!-- ═══════════════════════════════════════
-         GOOGLE ANALYTICS — carga diferida
-         ✅ FIX: eliminado del <head> para no bloquear LCP.
-         Se carga tras primer scroll/clic o a los 5s máximo.
-    ═══════════════════════════════════════ -->
     <script is:inline>
       (function () {
         var gtmLoaded = false;
-
         function loadGTM() {
           if (gtmLoaded) return;
           gtmLoaded = true;
-
           window['dataLayer'] = window['dataLayer'] || [];
           function gtag() { window['dataLayer'].push(arguments); }
           window['gtag'] = gtag;
           gtag('js', new Date());
           gtag('config', 'G-XZJL55JDPH');
-
           var s = document.createElement('script');
           s.async = true;
           s.src = 'https://www.googletagmanager.com/gtag/js?id=G-XZJL55JDPH';
           document.head.appendChild(s);
         }
-
-        // Carga tras primer scroll, clic o tecla — lo que ocurra primero
         ['scroll', 'click', 'touchstart', 'keydown'].forEach(function (evt) {
           window.addEventListener(evt, loadGTM, { once: true, passive: true });
         });
-
-        // Fallback: cargar a los 5s aunque no haya interacción
         setTimeout(loadGTM, 5000);
       })();
     </script>
 
     <style is:global>
-      @import "../styles/typography.css";
-      @import "../styles/backgrounds.css";
-
       #loader-wrapper {
         transition: opacity 0.4s ease;
       }
 
       .home-curtain {
         position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
+        top: 0; left: 0;
+        width: 100vw; height: 100vh;
         z-index: 99999;
         pointer-events: none;
         background: var(--slide-gradient);
         clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
       }
-
       .home-curtain.active {
         pointer-events: all;
         animation: 2.2s cubic-bezier(0.25, 1, 0.3, 1) wipe-in-top-down both;
       }
-
       @keyframes wipe-in-top-down {
         from { clip-path: polygon(0 0, 100% 0, 100% 0, 0 0); }
         to   { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
       }
 
-      #dock-menu-wrapper {
-        display: none;
-      }
-
-      html.is-pwa #dock-menu-wrapper {
-        display: block;
-      }
-
+      #dock-menu-wrapper { display: none; }
+      html.is-pwa #dock-menu-wrapper { display: block; }
       @media all and (display-mode: standalone) {
-        #dock-menu-wrapper {
-          display: block !important;
-        }
+        #dock-menu-wrapper { display: block !important; }
       }
 
+      /* ✅ Admin panel — encima de TODO, invisible cuando cerrado */
       #admin-panel-root {
-        pointer-events: none;
+        position: fixed;
+        inset: 0;
+        z-index: 99999999;   /* encima del navbar y de todo */
+        pointer-events: none; /* no bloquea clics cuando está cerrado */
       }
-      #admin-panel-root > * {
-        pointer-events: auto;
-      }
-
-      * {
-        -webkit-tap-highlight-color: transparent;
-      }
-
-      html, body {
-        touch-action: pan-x pan-y;
+      #admin-panel-root:has(.admin-overlay.visible) {
+        pointer-events: auto; /* activa clics solo cuando el panel está abierto */
       }
 
-      a,
-      button,
-      [role="button"],
-      label,
-      input[type="button"],
-      input[type="submit"],
-      input[type="reset"],
-      select,
-      summary {
+      * { -webkit-tap-highlight-color: transparent; }
+      html, body { touch-action: pan-x pan-y; }
+
+      a, button, [role="button"], label,
+      input[type="button"], input[type="submit"],
+      input[type="reset"], select, summary {
         -webkit-user-select: none;
         -moz-user-select: none;
         user-select: none;
@@ -241,53 +188,45 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
         touch-action: pan-x pan-y;
       }
 
-      section,
-      article,
-      .card,
-      .btn,
-      [class*="container"],
-      [class*="wrapper"],
-      [class*="section"],
-      [class*="block"],
-      [class*="tile"],
-      [class*="item"],
-      [class*="box"],
-      nav,
-      header,
-      footer,
-      aside {
+      section, article, .card, .btn,
+      [class*="container"], [class*="wrapper"],
+      [class*="section"], [class*="block"],
+      [class*="tile"], [class*="item"],
+      [class*="box"], nav, header, footer, aside {
         -webkit-user-select: none;
         -moz-user-select: none;
         user-select: none;
       }
 
-      p,
-      span,
-      h1, h2, h3, h4, h5, h6,
-      input[type="text"],
-      input[type="email"],
-      input[type="password"],
-      input[type="search"],
-      input[type="number"],
-      textarea {
+      p, span, h1, h2, h3, h4, h5, h6,
+      input[type="text"], input[type="email"],
+      input[type="password"], input[type="search"],
+      input[type="number"], textarea {
         -webkit-user-select: text;
         -moz-user-select: text;
         user-select: text;
       }
     </style>
-
   </head>
 
   <body>
-    <!-- ✅ FIX: ContentSquare con defer — no bloquea el render inicial -->
-    <!-- ANTES: <script src="https://t.contentsquare.net/uxa/3fd14649ff498.js"></script> -->
-    <script defer src="https://t.contentsquare.net/uxa/3fd14649ff498.js"></script>
+    <script is:inline>
+      (function() {
+        function loadCS() {
+          var s = document.createElement('script');
+          s.src = 'https://t.contentsquare.net/uxa/3fd14649ff498.js';
+          document.body.appendChild(s);
+        }
+        ['scroll', 'click', 'touchstart'].forEach(function(e) {
+          window.addEventListener(e, loadCS, { once: true, passive: true });
+        });
+        setTimeout(loadCS, 8000);
+      })();
+    </script>
 
     <div id="home-transition-curtain" class="home-curtain"></div>
     <FondoGlobal />
-
     <InstallPWA pwa={pwaTexts} client:idle />
-
     <Cursor />
     <Loader />
     <Navbar currentLang={currentLang} moveLogoMobile={moveLogoMobile} />
@@ -296,8 +235,7 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
       id="global-audio-player"
       transition:persist
       style="position: fixed; bottom: 30px; right: 96px; z-index: 9999;"
-    >
-    </div>
+    ></div>
 
     <slot />
 
@@ -305,7 +243,6 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
       <DockMenu />
     </div>
 
-    <!-- ✅ BotGO ya tiene client:idle — correcto, no tocar -->
     <BotGO client:idle language={currentLang} />
 
     <div id="admin-panel-root"></div>
@@ -329,12 +266,9 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
             var loader = document.getElementById("loader-wrapper");
             if (!loader) return;
             loader.style.opacity = "0";
-            setTimeout(function () {
-              loader.style.display = "none";
-            }, 400);
+            setTimeout(function () { loader.style.display = "none"; }, 400);
           });
         }
-
         if (document.readyState === "complete") {
           hideLoader();
         } else {
@@ -343,18 +277,9 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
       })();
     </script>
 
+    <!-- ✅ Admin: se monta oculto al cargar, Ctrl+9 lo abre -->
     <script>
-      let adminMounted = false;
-
-      document.addEventListener("keydown", async (e) => {
-        if (!e.ctrlKey || e.key !== "9") return;
-        e.preventDefault();
-
-        const root = document.getElementById("admin-panel-root");
-        if (!root || adminMounted) return;
-
-        adminMounted = true;
-
+      window.addEventListener("load", async () => {
         try {
           const [{ default: React }, { createRoot }, { default: AdminPanel }] =
             await Promise.all([
@@ -362,16 +287,11 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
               import("react-dom/client"),
               import("../components/AdminPanel.jsx"),
             ]);
-
-          root.style.pointerEvents = "none";
-
-          const reactRoot = createRoot(root);
-          reactRoot.render(
-            React.createElement(AdminPanel, { defaultOpen: true })
-          );
+          const root = document.getElementById("admin-panel-root");
+          if (!root) return;
+          createRoot(root).render(React.createElement(AdminPanel));
         } catch (err) {
-          console.error("[AdminPanel] Error al cargar:", err);
-          adminMounted = false;
+          console.error("[AdminPanel] Error:", err);
         }
       });
     </script>
