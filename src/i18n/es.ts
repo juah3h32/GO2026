@@ -1023,7 +1023,6 @@ gallery: [
       stat_initiatives: "Iniciativas Activas",
       video:            "/videos/waves2.mp4",
     },
-
     ods: {
       title:       "NUESTRO NORTE",
       subtitle:    "Agenda 2030",
