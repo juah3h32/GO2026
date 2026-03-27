@@ -962,7 +962,7 @@ arpillas: {
       planta_label:  "PLANT",
       plantas_label: "PLANTS",
       items: [
-        { num: "04", label: "Bags",              width: 100, delay: 0   },
+        { num: "04", label: "Jackets", width: 100, delay: 0 },
         { num: "02", label: "Mesh Bags",         width: 50,  delay: 100 },
         { num: "01", label: "Rope",              width: 25,  delay: 200 },
         { num: "03", label: "Stretch Film",      width: 50,  delay: 300 },

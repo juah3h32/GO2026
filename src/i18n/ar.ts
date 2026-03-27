@@ -963,7 +963,7 @@ export const ar = {
       planta_label:  "مصنع",
       plantas_label: "مصانع",
       items: [
-        { num: "04", label: "أكياس",               width: 100, delay: 0   },
+        { num: "04", label: "سترات", width: 100, delay: 0 },
         { num: "02", label: "شبكات",               width: 50,  delay: 100 },
         { num: "01", label: "حبل",                 width: 25,  delay: 200 },
         { num: "03", label: "ستريتش فيلم",         width: 50,  delay: 300 },

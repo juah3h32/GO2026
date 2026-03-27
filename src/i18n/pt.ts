@@ -963,7 +963,7 @@ export const pt = {
       planta_label:  "PLANTA",
       plantas_label: "PLANTAS",
       items: [
-        { num: "04", label: "Bolsas",              width: 100, delay: 0   },
+        { num: "04", label: "Casacos", width: 100, delay: 0 },
         { num: "02", label: "Sacos de Rede",       width: 50,  delay: 100 },
         { num: "01", label: "Corda",               width: 25,  delay: 200 },
         { num: "03", label: "Stretch Film",        width: 50,  delay: 300 },

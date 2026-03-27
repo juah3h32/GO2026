@@ -889,7 +889,7 @@ export const zh = {
       planta_label:  "工厂",
       plantas_label: "工厂",
       items: [
-        { num: "04", label: "袋子",         width: 100, delay: 0   },
+        { num: "04", label: "西装外套", width: 100, delay: 0 },
         { num: "02", label: "网袋",         width: 50,  delay: 100 },
         { num: "01", label: "绳索",         width: 25,  delay: 200 },
         { num: "03", label: "拉伸膜",       width: 50,  delay: 300 },
