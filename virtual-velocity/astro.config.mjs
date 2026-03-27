@@ -1,16 +1,26 @@
 import { defineConfig } from 'astro/config';
 import fs from 'fs';
 
+// 1. Verificamos si los archivos existen antes de intentar usarlos.
+// Esto evita el error en Vercel (donde NO existen).
+const httpsConfig = () => {
+  if (fs.existsSync('./localhost-key.pem') && fs.existsSync('./localhost.pem')) {
+    return {
+      key: fs.readFileSync('./localhost-key.pem'),
+      cert: fs.readFileSync('./localhost.pem'),
+    };
+  }
+  return false; // Si no existen (como en Vercel), devolvemos false (sin HTTPS local)
+};
+
 export default defineConfig({
   vite: {
     server: {
-      https: {
-        key: fs.readFileSync('./localhost-key.pem'),
-        cert: fs.readFileSync('./localhost.pem'),
-      },
+      https: httpsConfig(), // <-- 2. Usamos la función de verificación aquí
     },
   },
 
+  // Tu configuración de CSP sigue igual
   server: {
     headers: {
       'Content-Security-Policy': [
