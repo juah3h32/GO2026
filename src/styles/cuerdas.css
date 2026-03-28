@@ -1055,28 +1055,27 @@ model-viewer::part(default-progress-mask) { display: none !important; opacity: 0
   }
   model-viewer.model-3d-custom, #cuerdas-model { min-height: 35vh !important; }
 
-  /* 2. SELECTOR IZQUIERDO (Seguro y lejos de la flecha) */
+  /* 2. SELECTOR IZQUIERDO */
   .thumbnails {
     position: fixed !important;
     top: 18vh !important; 
     left: 20px !important;
-    z-index: 999999 !important; 
+    z-index: 999999 !important;
     padding: 8px !important;
     gap: 12px !important;
     flex-direction: column !important;
   }
   .thumb-item { width: 50px !important; height: 50px !important; }
 
-  /* 3. GALERÍA DE 3 FOTOS (¡FUERA DE LA CÁRCEL DEL TRANSFORM!) */
+  /* 3. GALERÍA DE 3 FOTOS (¡AÚN MÁS ARRIBA!) */
   .product-gallery {
     position: fixed !important;
-    top: 45vh !important; /* Se montará justo en el borde de la tarjeta */
-    /* NUEVO CENTRADO A PRUEBA DE BUGS: */
+    top: 34vh !important; /* <--- AQUÍ ESTÁ EL CAMBIO, más cerca de la imagen */
     left: 0 !important;
     right: 0 !important;
     margin: 0 auto !important;
     width: 100% !important;
-    z-index: 999999 !important; /* Libre y por encima */
+    z-index: 999999 !important; 
     display: flex !important;
     justify-content: center !important;
     pointer-events: auto !important;
@@ -1088,27 +1087,26 @@ model-viewer::part(default-progress-mask) { display: none !important; opacity: 0
     box-shadow: 0 10px 20px rgba(0,0,0,0.5) !important;
   }
 
-  /* 4. TARJETA DE INFORMACIÓN (Centrada sin usar Transform) */
+  /* 4. TARJETA BLANCA/OSCURA DE INFORMACIÓN */
   .text-area {
     position: fixed !important;
-    top: 48vh !important; /* Empieza un poquito debajo de la galería */
-    height: 52dvh !important;
-    /* NUEVO CENTRADO A PRUEBA DE BUGS: */
+    top: 48vh !important; 
+    height: 52dvh !important; 
     left: 0 !important;
     right: 0 !important;
     margin: 0 auto !important;
-    width: 95% !important;
+    width: 95% !important; 
     max-width: 1000px !important;
     padding: 55px 30px 60px 30px !important; 
     border-radius: 30px 30px 0 0 !important;
-    z-index: 10 !important; /* Por debajo de la galería */
+    z-index: 5 !important; 
     overflow-y: auto !important;
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
   }
 
-  /* Textos de la tarjeta */
+  /* Textos centrados y amplios */
   .text-area h1, #product-title { 
     font-size: clamp(2.5rem, 5vw, 4rem) !important; 
     text-align: center !important;
@@ -1123,14 +1121,14 @@ model-viewer::part(default-progress-mask) { display: none !important; opacity: 0
     margin-bottom: 20px !important;
   }
 
-  /* 5. CUADROS DE INFO */
+  /* 5. CUADROS DE INFO / ESPECIFICACIONES */
   .specs-container { width: 100% !important; margin-bottom: 20px !important; }
   .specs-grid { gap: 10px !important; } 
   
   .spec-box { 
     aspect-ratio: unset !important;
     height: auto !important;
-    min-height: 80px !important;
+    min-height: 80px !important; 
     max-height: 110px !important;
     padding: 15px 10px !important;
     border-radius: 12px !important;
@@ -1141,8 +1139,7 @@ model-viewer::part(default-progress-mask) { display: none !important; opacity: 0
 
   /* Botón interactivo 3D */
   .btn-interact { 
-    top: 35vh !important; 
-    /* NUEVO CENTRADO: */
+    top: 28vh !important; 
     left: 0 !important;
     right: 0 !important;
     margin: 0 auto !important;
