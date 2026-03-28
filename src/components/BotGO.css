@@ -52,7 +52,7 @@ html.dark {
   bottom: 20px;
   right: 20px;
   z-index: 200000 !important;
-  font-family: 'Poppins', 'Segoe UI', sans-serif;
+  font-family: 'NeueMontreal', 'Segoe UI', sans-serif;
   cursor: default;
 }
 
@@ -1038,17 +1038,18 @@ html.dark .botgo-tooltip-card  { background:rgba(242,79,19,0.08); border-color:r
 
   .botgo-container {
     right: 0; left: auto; bottom: 0;
-    width: auto; z-index: 100000 !important;
+    width: auto; z-index: 2147483647 !important; /* máximo posible */
   }
   .botgo-container.open {
     top: 0; left: 0; bottom: 0; right: 0;
     width: 100%; height: 100%;
+    z-index: 2147483647 !important;
   }
   .botgo-container.open .botgo-launcher { display: none; }
 
-  .botgo-window {
+    .botgo-window {
     position: fixed !important;
-    z-index: 10000 !important;
+    z-index: 2147483647 !important; /* máximo posible — encima de cualquier menú */
     top: 0; left: 0; right: 0; bottom: 0;
     width: 100vw !important;
     height: 100dvh !important;
@@ -1157,8 +1158,8 @@ html.dark .botgo-tooltip-card  { background:rgba(242,79,19,0.08); border-color:r
     flex: 1; min-width: 0; padding: 0 8px 0 4px;
     white-space: nowrap; overflow: hidden;
   }
-  .botgo-pill-label-small { font-size: 9px; color: rgba(255,255,255,0.75); font-weight: 500; font-family: 'Poppins','Segoe UI',sans-serif; }
-  .botgo-pill-label-big   { font-size: 12px; color: #ffffff; font-weight: 800; letter-spacing: 0.3px; font-family: 'Poppins','Segoe UI',sans-serif; }
+  .botgo-pill-label-small { font-size: 9px; color: rgba(255,255,255,0.75); font-weight: 500; font-family: 'NeueMontreal','Segoe UI',sans-serif; }
+  .botgo-pill-label-big   { font-size: 12px; color: #ffffff; font-weight: 800; letter-spacing: 0.3px; font-family: 'NeueMontreal','Segoe UI',sans-serif; }
 
   .botgo-pill-close {
     background: none; border: none;
@@ -1222,7 +1223,7 @@ html.dark .botgo-tooltip-card  { background:rgba(242,79,19,0.08); border-color:r
 
 .voice-cap-text {
   font-size: 10.5px; line-height: 1.3; color: #555;
-  font-family: 'Poppins', 'Segoe UI', sans-serif;
+  font-family: 'NeueMontreal', 'Segoe UI', sans-serif;
   overflow: hidden;
   min-width: 0;
 }
@@ -1770,4 +1771,28 @@ html.dark .cv-upload-hint { color: rgba(180,180,180,0.6); }
     line-height: 1.15;
     text-align: center;
   }
+}
+/* ─── CLS FIX: reserva espacio del launcher antes de hidratación ─── */
+.botgo-launcher {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  contain: layout style;
+}
+
+/* Antes de montar: ocupa el espacio pero invisible */
+.botgo-launcher.launcher-prerender {
+  width: 56px;
+  height: 56px;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* Una vez montado: visible con transición suave */
+.botgo-launcher.launcher-ready {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.2s ease;
 }

@@ -47,15 +47,6 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
     <meta name="theme-color" content="#ffffff" />
     <meta name="google-site-verification" content="rOmVFzyWzonDprnnaI7IaKK0inenxoZB4zXYCa7R5GU" />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="preload"
-      as="font"
-      type="font/woff2"
-      crossorigin="anonymous"
-      href="https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z1xlFd2JQEk.woff2"
-    />
 
     <script is:inline>
       (function () {
@@ -77,10 +68,6 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
         } catch (e) {}
       })();
     </script>
-
-    <link rel="preload" href="/fonts/MorganitePro-ExtraBold.ttf"   as="font" type="font/ttf" crossorigin="anonymous" />
-    <link rel="preload" href="/fonts/MorganitePro-BoldOblique.ttf" as="font" type="font/ttf" crossorigin="anonymous" />
-    <link rel="preload" href="/fonts/NeueMontreal-Medium.otf"      as="font" type="font/otf" crossorigin="anonymous" />
 
     <title>{title}</title>
     {description && <meta name="description" content={description} />}
@@ -164,15 +151,14 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
         #dock-menu-wrapper { display: block !important; }
       }
 
-      /* ✅ Admin panel — encima de TODO, invisible cuando cerrado */
       #admin-panel-root {
         position: fixed;
         inset: 0;
-        z-index: 99999999;   /* encima del navbar y de todo */
-        pointer-events: none; /* no bloquea clics cuando está cerrado */
+        z-index: 99999999;
+        pointer-events: none;
       }
       #admin-panel-root:has(.admin-overlay.visible) {
-        pointer-events: auto; /* activa clics solo cuando el panel está abierto */
+        pointer-events: auto;
       }
 
       * { -webkit-tap-highlight-color: transparent; }
@@ -205,6 +191,15 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
         -webkit-user-select: text;
         -moz-user-select: text;
         user-select: text;
+      }
+
+      /* ✅ CLS FIX: reserva espacio del BotGO launcher */
+      .botgo-launcher {
+        position: fixed !important;
+        bottom: 24px;
+        right: 24px;
+        z-index: 9999;
+        contain: layout style;
       }
     </style>
   </head>
@@ -277,7 +272,6 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
       })();
     </script>
 
-    <!-- ✅ Admin: se monta oculto al cargar, Ctrl+9 lo abre -->
     <script>
       window.addEventListener("load", async () => {
         try {

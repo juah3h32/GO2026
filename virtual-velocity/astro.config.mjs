@@ -14,6 +14,9 @@ const httpsConfig = () => {
 };
 
 export default defineConfig({
+    build: {
+    inlineStylesheets: 'auto', // CSS < 4KB se inlinea automáticamente
+  },
   vite: {
     server: {
       https: httpsConfig(), // <-- 2. Usamos la función de verificación aquí

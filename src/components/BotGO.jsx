@@ -1347,8 +1347,8 @@ export default function BotGO({ language = 'es' }) {
         )}
       </div>
 
-      {!isOpen && mounted && (
-        <div className="botgo-launcher">
+ {!isOpen && (
+  <div className={`botgo-launcher ${mounted ? 'launcher-ready' : 'launcher-prerender'}`}>
           {isMobile && isHomePage  && <MobilePill onOpen={handleOpenChat} t={t} />}
           {isMobile && !isHomePage && (
             <button className="botgo-button" onClick={handleOpenChat} aria-label="Abrir asistente virtual BotGO">

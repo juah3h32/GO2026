@@ -73,7 +73,7 @@ export default function QuienesSomos() {
           position: relative;
           overflow: hidden;
           background: transparent;
-          font-family: 'Poppins', sans-serif;
+          font-family: 'NeueMontreal', sans-serif;
         }
 
         .full-bg {
