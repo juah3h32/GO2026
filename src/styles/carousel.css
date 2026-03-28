@@ -503,3 +503,53 @@ html.dark .arrows button {
   }
 
 }
+/* =========================================
+   FIX PARA TABLET (iPad Mini y similares)
+   (Rango: 768px a 1024px)
+   ========================================= */
+@media screen and (min-width: 768px) and (max-width: 1024px) and (min-height: 600px) {
+  
+  /* 1. CORRECCIÓN PRINCIPAL: Imagen más pequeña para no chocar */
+  .carousel .list .item img {
+    /* Mantenemos la posición para que no choque */
+    top: 25%;
+    /* NUEVO: Reducimos el ancho máximo de clamp(220px, 35vw, 320px) */
+    /* a un clamp(180px, 28vw, 280px) */
+    width: clamp(180px, 28vw, 280px);
+  }
+
+  /* 2. Tarjeta inferior más baja y ancha */
+  .carousel .list .item .introduce {
+    bottom: 12%; /* Bajamos la tarjeta */
+    width: 80%; /* Ancho aumentado */
+    max-width: 650px;
+    min-height: auto;
+    padding: 50px 40px 30px 40px;
+  }
+
+  /* 3. Flechas a los extremos de la pantalla y centradas verticalmente */
+  .arrows {
+    bottom: auto; /* Anulamos la posición dvh de móvil que causaba solapamiento */
+    top: 50%; /* Centradas en la pantalla */
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 92vw; /* Se extienden hacia los bordes */
+    max-width: none; /* Quitamos el límite para que floten lejos del texto */
+  }
+
+  /* 4. Aumentar ligeramente el tamaño de las flechas para los dedos */
+  .arrows button {
+    width: 60px;
+    height: 60px;
+  }
+
+  /* 5. Asegurar que el texto se lea completo (quitamos el difuminado del móvil) */
+  .carousel .list .item .introduce .des {
+    height: auto;
+    max-height: none;
+    -webkit-mask-image: none;
+    mask-image: none;
+    margin-bottom: 25px;
+    font-size: 1.1rem;
+  }
+}

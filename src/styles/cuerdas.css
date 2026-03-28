@@ -1037,28 +1037,120 @@ model-viewer::part(default-progress-mask) { display: none !important; opacity: 0
   }
   .btn-back-product.visible { transform: translateX(-50%) !important; }
 }
-
 /* ── Tablet (768–1024px) ── */
 @media screen and (min-width: 768px) and (max-width: 1024px) {
+  
+  /* 1. IMAGEN PRINCIPAL */
   .wheel-container {
-    height: clamp(220px, 38vh, 320px) !important;
-    top: clamp(72px, 10vh, 110px) !important;
+    position: fixed !important;
+    top: 6vh !important;
+    height: 35vh !important;
+    width: 100vw !important;
+    left: 0 !important;
   }
-  model-viewer.model-3d-custom, #cuerdas-model { min-height: 40vh !important; }
-  .text-area h1, #product-title { font-size: clamp(3rem, 6vw, 5rem) !important; }
+  .wheel-item img {
+    max-width: 65vw !important;
+    max-height: 35vh !important;
+    margin: 0 auto !important;
+  }
+  model-viewer.model-3d-custom, #cuerdas-model { min-height: 35vh !important; }
+
+  /* 2. SELECTOR IZQUIERDO (Seguro y lejos de la flecha) */
   .thumbnails {
-    top: calc(clamp(72px, 10vh, 110px) + 8px) !important;
-    left: 18px !important; padding: 9px !important; gap: 10px !important;
+    position: fixed !important;
+    top: 18vh !important; 
+    left: 20px !important;
+    z-index: 999999 !important; 
+    padding: 8px !important;
+    gap: 12px !important;
+    flex-direction: column !important;
   }
-  .thumb-item { width: 54px !important; height: 54px !important; }
-  .btn-interact { top: calc(clamp(72px, 10vh, 110px) + 8px) !important; }
-  .product-gallery { top: 28vh !important; padding: 0 16px !important; }
+  .thumb-item { width: 50px !important; height: 50px !important; }
+
+  /* 3. GALERÍA DE 3 FOTOS (¡FUERA DE LA CÁRCEL DEL TRANSFORM!) */
+  .product-gallery {
+    position: fixed !important;
+    top: 45vh !important; /* Se montará justo en el borde de la tarjeta */
+    /* NUEVO CENTRADO A PRUEBA DE BUGS: */
+    left: 0 !important;
+    right: 0 !important;
+    margin: 0 auto !important;
+    width: 100% !important;
+    z-index: 999999 !important; /* Libre y por encima */
+    display: flex !important;
+    justify-content: center !important;
+    pointer-events: auto !important;
+  }
+  .gallery-photo { 
+    max-width: 80px !important; 
+    margin: 0 8px !important; 
+    aspect-ratio: 1/1 !important; 
+    box-shadow: 0 10px 20px rgba(0,0,0,0.5) !important;
+  }
+
+  /* 4. TARJETA DE INFORMACIÓN (Centrada sin usar Transform) */
   .text-area {
-    top: calc(clamp(72px, 10vh, 110px) + clamp(220px, 38vh, 320px) + clamp(75px, 12vw, 100px) + 14px) !important;
-    height: calc(100dvh - clamp(72px, 10vh, 110px) - clamp(220px, 38vh, 320px) - clamp(75px, 12vw, 100px) - 14px) !important;
+    position: fixed !important;
+    top: 48vh !important; /* Empieza un poquito debajo de la galería */
+    height: 52dvh !important;
+    /* NUEVO CENTRADO A PRUEBA DE BUGS: */
+    left: 0 !important;
+    right: 0 !important;
+    margin: 0 auto !important;
+    width: 95% !important;
+    max-width: 1000px !important;
+    padding: 55px 30px 60px 30px !important; 
+    border-radius: 30px 30px 0 0 !important;
+    z-index: 10 !important; /* Por debajo de la galería */
+    overflow-y: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
   }
-  .gallery-photo  { max-width: clamp(60px, 15vw, 120px) !important; }
+
+  /* Textos de la tarjeta */
+  .text-area h1, #product-title { 
+    font-size: clamp(2.5rem, 5vw, 4rem) !important; 
+    text-align: center !important;
+    margin-bottom: 15px !important;
+    width: 100% !important;
+  }
+  .text-area p, #product-desc { 
+    font-size: 1.05rem !important; 
+    text-align: center !important;
+    max-width: 100% !important; 
+    line-height: 1.5 !important;
+    margin-bottom: 20px !important;
+  }
+
+  /* 5. CUADROS DE INFO */
+  .specs-container { width: 100% !important; margin-bottom: 20px !important; }
+  .specs-grid { gap: 10px !important; } 
+  
+  .spec-box { 
+    aspect-ratio: unset !important;
+    height: auto !important;
+    min-height: 80px !important;
+    max-height: 110px !important;
+    padding: 15px 10px !important;
+    border-radius: 12px !important;
+    justify-content: center !important;
+  }
+  .spec-value { font-size: clamp(1rem, 2vw, 1.2rem) !important; margin-bottom: 4px !important; } 
+  .spec-label { font-size: clamp(0.6rem, 1vw, 0.8rem) !important; }  
+
+  /* Botón interactivo 3D */
+  .btn-interact { 
+    top: 35vh !important; 
+    /* NUEVO CENTRADO: */
+    left: 0 !important;
+    right: 0 !important;
+    margin: 0 auto !important;
+    width: max-content !important;
+    z-index: 99999 !important;
+  }
 }
+
 
 /* ── Pantallas muy pequeñas (≤ 380px) ── */
 @media screen and (max-width: 380px) {
