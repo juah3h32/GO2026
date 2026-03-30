@@ -347,14 +347,21 @@ export default function InstallPWA({ pwa, botOpen = false }) {
           </button>
 
           <button onClick={handleBubbleClose} style={{
-            position: 'absolute', top: '-7px', right: '-7px',
-            width: '20px', height: '20px', borderRadius: '50%',
-            border: '1.5px solid rgba(255,255,255,0.15)',
-            background: '#1a1a1a', color: 'rgba(255,255,255,0.5)',
-            fontSize: '10px', fontWeight: 700, cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            lineHeight: 1,
-          }}>✕</button>
+  position: 'absolute', top: '-14px', right: '-14px',
+  width: '44px', height: '44px', borderRadius: '50%',
+  border: 'none', background: 'transparent',
+  cursor: 'pointer',
+  display: 'flex', alignItems: 'center', justifyContent: 'center',
+}}>
+  <span style={{
+    width: '20px', height: '20px', borderRadius: '50%',
+    border: '1.5px solid rgba(255,255,255,0.15)',
+    background: '#1a1a1a', color: 'rgba(255,255,255,0.5)',
+    fontSize: '10px', fontWeight: 700,
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    lineHeight: 1, pointerEvents: 'none',
+  }}>✕</span>
+</button>
         </div>
       )}
     </>
