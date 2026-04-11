@@ -1755,6 +1755,18 @@ export default function BotGO({ language = 'es' }) {
               <div ref={messagesEndRef} />
             </div>
             <div className="botgo-footer-curve">
+              {isMobile && !pwaInstalled && (
+  <button
+    type="button"
+    className="footer-install-btn"
+    onClick={handleInstallPWA}
+  >
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 2v13M7 11l5 5 5-5"/><path d="M3 18v2a1 1 0 001 1h16a1 1 0 001-1v-2"/>
+    </svg>
+    Instalar App GO en tu celular
+  </button>
+)}
               {cvSubido && !mostrarSubirCV && (
                 <div className="footer-cv-badge">
                   <CheckCircleIcon />

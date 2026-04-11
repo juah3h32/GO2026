@@ -88,9 +88,9 @@ export default function InstallPWA({ pwa, botOpen = false }) {
 
   // ── Efecto principal ──────────────────────────────────────────────────────
   useEffect(() => {
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    // En mobile la instalación se maneja dentro del menú de BotGO
-    if (isMobile) return;
+const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+// Solo mostrar en mobile
+if (!isMobile) return;
 
     // No mostrar en la página de vacantes — tiene su propio prompt de notificaciones
     if (window.location.pathname.includes('/vacantes')) return;
