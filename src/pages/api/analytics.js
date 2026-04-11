@@ -1,6 +1,7 @@
 // src/pages/api/analytics.js
 import { logInteraction, readAllData, resetData, saveLead, readLeads, resetLeads, saveRecruitmentLead } from '../../lib/analytics-db';
-import { notifyNewDistribuidor, notifyNewVacante } from '../../lib/notify';
+import { notifyNewDistribuidor } from '../../lib/notify.ts';
+import { notifyNewVacante } from '../../lib/notify.js';
 
 export const prerender = false;
 
@@ -116,13 +117,13 @@ export async function POST({ request }) {
 
     // ── GUARDAR lead de distribuidor ──────────────────────────────────────────
     if (action === 'lead') {
-      const { nombre, empresa, whatsapp, email, productos } = body;
+      const { nombre, empresa, whatsapp, email, productos, comentarios = '' } = body;
 
       if (!nombre || !whatsapp) {
         return json({ ok: false, error: 'nombre y whatsapp son requeridos' }, 400);
       }
 
-      await saveLead({ nombre, empresa, whatsapp, email, productos });
+      await saveLead({ nombre, empresa, whatsapp, email, productos, comentarios });
 
       console.log('📲 Enviando notificación distribuidor para:', nombre);
       await notifyNewDistribuidor({ nombre, empresa, whatsapp, productos });

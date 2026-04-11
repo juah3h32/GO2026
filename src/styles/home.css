@@ -177,6 +177,25 @@ a   { text-decoration: none; }
   overflow: hidden; display: flex; flex-direction: column;
   justify-content: center; background: transparent;
 }
+
+/* Wrapper absoluto del video — aísla CldVideoPlayer del flujo del documento */
+.hero__video-wrap {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.hero__video-wrap *:not(video):not(source) {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  aspect-ratio: unset !important;
+  max-width: none !important;
+  max-height: none !important;
+}
+
 /* Selecciona el contenedor de Cloudinary y el video nativo interno */
 .hero__video--fill,
 .hero__video--fill video {
@@ -414,6 +433,9 @@ html.dark .hero__gradient-overlay { background: var(--video-gradient-dark); }
   position: absolute; inset: 0; z-index: 2; opacity: 1; transform: none;
   pointer-events: auto; display: flex; flex-direction: column;
   align-items: center; justify-content: center;
+  /* Sin transición ni will-change — evita salto visual al cargar */
+  transition: none;
+  will-change: auto;
 }
 .hero__center {
   flex: 1; display: flex; flex-direction: column;
@@ -1016,28 +1038,14 @@ html.dark .carousel__num   { color: rgba(255,255,255,0.04); }
   .global__num  { font-size: clamp(1.9rem, 10.5vw, 2.8rem); margin-bottom: 4px; }
   .global__lbl  { font-size: clamp(0.42rem, 1.4vw, 0.54rem); }
 }
-/* ANTES */
+/* Video visible desde el inicio (muestra el poster) — sin salto de opacidad */
 .hero__video--fill,
 .global__video {
-  opacity: 0;
-  transition: opacity 0.8s ease;
-}
-.hero__video--fill.is-loaded,
-.global__video.is-loaded { opacity: 1; }
-html.dark .hero__video--fill.is-loaded { opacity: 0.65; }
-html.dark .global__video.is-loaded     { opacity: 0.65; }
-
-/* DESPUÉS */
-.hero__video--fill,
-.global__video {
-  opacity: 1;               /* visible desde el inicio — muestra el poster nativo */
+  opacity: 1;
   transition: opacity 0.6s ease;
 }
-/* En dark mode baja la opacidad solo cuando ya está cargado */
 html.dark .hero__video--fill,
-html.dark .global__video {
-  opacity: 1;               /* poster sigue visible en dark también */
-}
+html.dark .global__video { opacity: 1; }
 html.dark .hero__video--fill.is-loaded { opacity: 0.65; }
 html.dark .global__video.is-loaded     { opacity: 0.65; }
 

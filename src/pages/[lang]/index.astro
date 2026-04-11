@@ -39,18 +39,21 @@ const poster = (src: string) =>
      HERO
 ═══════════════════════════════════════ -->
 <section class="hero hero--static">
-  <CldVideoPlayer
-    src={th.hero.video}
-    width="1920"
-    height="1080"
-    class="hero__video hero__video--fill"
-    autoplay
-    muted
-    loop
-    playsinline
-    controls={false}
-    poster={poster(th.hero.video)}
-  />
+  <!-- Wrapper absoluto — aísla el CldVideoPlayer del flujo del documento -->
+  <div class="hero__video-wrap">
+    <CldVideoPlayer
+      src={th.hero.video}
+      width="1920"
+      height="1080"
+      class="hero__video hero__video--fill"
+      autoplay
+      muted
+      loop
+      playsinline
+      controls={false}
+      poster={poster(th.hero.video)}
+    />
+  </div>
 
   <div class="hero__gradient-overlay"></div>
 

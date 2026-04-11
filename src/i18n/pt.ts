@@ -12,6 +12,7 @@ export const pt = {
     company: 'A Empresa',
     social: 'Impacto Social',
     distributor: 'Distribuidor',
+    careers: 'Vagas',
     contact: 'Contato'
   },
 

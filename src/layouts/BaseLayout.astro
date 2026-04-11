@@ -69,6 +69,14 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
       })();
     </script>
 
+    <!-- Captura beforeinstallprompt antes de que React monte -->
+    <script is:inline>
+      window.addEventListener('beforeinstallprompt', function(e) {
+        e.preventDefault();
+        window.__pwaInstallPrompt = e;
+      });
+    </script>
+
     <title>{title}</title>
     {description && <meta name="description" content={description} />}
     <meta name="author" content={author} />
@@ -248,7 +256,7 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           import('virtual:pwa-register').then(({ registerSW }) => {
-            registerSW({ immediate: false });
+            registerSW({ immediate: true });
           });
         });
       }

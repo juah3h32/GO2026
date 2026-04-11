@@ -55,6 +55,8 @@ const isForceBlackPage = pathname.includes('/distribuidor');
 
 function getLangPath(targetLang: string) {
   if (pathname === '/' || pathname === '') return `/${targetLang}/`;
+  // Páginas sin traducción: redirigir al inicio del idioma destino
+  if (pathname.includes('/vacantes')) return `/${targetLang}/`;
   const hasLangPrefix = Object.keys(languages).some(lang => pathname.startsWith(`/${lang}`));
   if (hasLangPrefix) {
     return pathname.replace(new RegExp(`^/${safeLang}`), `/${targetLang}`);
@@ -109,6 +111,15 @@ function getLangPath(targetLang: string) {
         <span class="nav-text">{t.distributor}</span>
         <span class="nav-glow"></span>
       </a>
+
+      {/* Vacantes oculto temporalmente — descomentar para mostrar
+      {safeLang === 'es' && (
+        <a href={`/${safeLang}/vacantes`} class={`nav-item ${isActive(`/${safeLang}/vacantes`) ? 'active' : ''}`}>
+          <span class="nav-text">{t.careers}</span>
+          <span class="nav-glow"></span>
+        </a>
+      )}
+      */}
     </div>
 
     <div class="nav-right">
@@ -209,7 +220,9 @@ function getLangPath(targetLang: string) {
       </div>
 
       <a href={`/${safeLang}/distribuidor`} class="mobile-link">{t.distributor}</a>
-      
+      {/* Vacantes oculto temporalmente */}
+      {/* {safeLang === 'es' && <a href={`/${safeLang}/vacantes`} class="mobile-link">{t.careers}</a>} */}
+
      <a href="https://wa.me/524432072593" target="_blank" rel="noopener noreferrer" class="nav-btn btn-primary full-width" style="margin-top: 20px;">{t.contact}</a>
     </div>
   </div>

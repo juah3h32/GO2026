@@ -12,6 +12,7 @@ export const es = {
     company: 'La Empresa',
     social: 'Impacto Social',
     distributor: 'Distribuidor',
+    careers: 'Vacantes',
     contact: 'Contacto'
   },
 

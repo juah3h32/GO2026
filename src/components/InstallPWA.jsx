@@ -89,7 +89,11 @@ export default function InstallPWA({ pwa, botOpen = false }) {
   // ── Efecto principal ──────────────────────────────────────────────────────
   useEffect(() => {
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    if (!isMobile) return;
+    // En mobile la instalación se maneja dentro del menú de BotGO
+    if (isMobile) return;
+
+    // No mostrar en la página de vacantes — tiene su propio prompt de notificaciones
+    if (window.location.pathname.includes('/vacantes')) return;
 
     const installed = localStorage.getItem('pwa-installed');
     if (installed) return;
@@ -175,8 +179,12 @@ export default function InstallPWA({ pwa, botOpen = false }) {
   const handleDismissNotification = () => {
     cancelAutoDismiss();
     localStorage.setItem('pwa-saw-notification', 'true');
+    localStorage.setItem('pwa-bubble-close-count',
+      String(parseInt(localStorage.getItem('pwa-bubble-close-count') || '0') + 1));
+    localStorage.setItem('pwa-bubble-closed', Date.now().toString());
     setState('exiting');
-    timeoutRef.current = setTimeout(() => setState('icon'), 400);
+    // Va directo a 'hidden' — no deja ícono flotante
+    timeoutRef.current = setTimeout(() => setState('hidden'), 400);
   };
 
   const handleIconClick = () => {

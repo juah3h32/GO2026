@@ -1,0 +1,758 @@
+/* ==========================================================================
+   VACANTES — GRUPO ORTIZ
+   Usa el sistema tipográfico global (typography.css):
+     Títulos  → --font-display  (MorganitePro)
+     Cuerpo   → --font-body     (NeueMontreal)
+   ========================================================================== */
+
+/* ── Variables propias de la página ── */
+:root {
+  --vac-max    : 1280px;
+  --vac-pad    : var(--pad, clamp(20px, 4vw, 60px));
+  --vac-radius : 12px;
+}
+
+/* ── Sobreescrituras de color que usan las variables del sistema ── */
+.vac-page {
+  background : var(--clr-bg);
+  color      : var(--clr-text);
+  overflow-x : clip;
+}
+
+/* =========================================================================
+   HERO — patrón IDÉNTICO al home.css (.hero--static)
+   ========================================================================= */
+
+/* 1. El contenedor del hero — igual que .hero--static en home.css */
+.vac-hero {
+  position       : relative;
+  width          : 100%;
+  height         : 100vh;
+  height         : 100svh;   /* svh gana — estable al hacer scroll */
+  overflow       : hidden;
+  display        : flex;
+  flex-direction : column;
+  justify-content: center;
+  background     : #0d0d0d;
+}
+
+/* 2. Wrapper del video — igual que .hero__video-wrap en home.css
+      SIN contain, SIN will-change — el home no los usa y funciona */
+.vac-hero__video-wrap {
+  position      : absolute;
+  inset         : 0;
+  z-index       : 0;
+  overflow      : hidden;
+  pointer-events: none;
+}
+
+/* 3. Todos los wrappers intermedios de Cloudinary — igual que home.css */
+.vac-hero__video-wrap *:not(video):not(source) {
+  position    : absolute !important;
+  inset       : 0 !important;
+  width       : 100% !important;
+  height      : 100% !important;
+  aspect-ratio: unset !important;
+  max-width   : none !important;
+  max-height  : none !important;
+}
+
+/* 4. El video nativo — igual que .hero__video--fill en home.css */
+.vac-hero__video-wrap video {
+  position       : absolute !important;
+  inset          : 0 !important;
+  width          : 100% !important;
+  height         : 100% !important;
+  object-fit     : cover !important;
+  object-position: center;
+  pointer-events : none;
+  border         : none;
+  background     : transparent;
+  opacity        : 1;
+  transition     : opacity 0.6s ease;
+}
+
+/* 5. Overlay degradado — igual que .hero__gradient-overlay en home.css */
+.vac-hero__veil {
+  position      : absolute;
+  inset         : 0;
+  z-index       : 1;
+  background    :
+    radial-gradient(ellipse at center 60%, rgba(0,0,0,0.20) 0%, rgba(0,0,0,0.72) 80%),
+    linear-gradient(to bottom, rgba(0,0,0,0.52) 0%, rgba(0,0,0,0.38) 50%, rgba(0,0,0,0.76) 100%);
+  pointer-events: none;
+}
+
+/* 6. Contenido — igual que .hero--static .hero__content en home.css
+      SIN transition, SIN will-change, SIN contain — esa es la clave */
+.vac-hero__content {
+  position      : absolute;
+  inset         : 0;
+  z-index       : 2;
+  width         : 100%;
+  max-width     : var(--vac-max);
+  margin        : 0 auto;
+  padding       : clamp(40px,5vh,70px) var(--vac-pad) clamp(40px,5vh,70px);
+  display       : flex;
+  flex-direction: column;
+  justify-content: center;
+  opacity       : 1;
+  transform     : none;
+  transition    : none;        /* ← igual que home--static: sin transición */
+  will-change   : auto;        /* ← igual que home--static: sin GPU layer forzado */
+  pointer-events: auto;
+}
+
+/* Eyebrow — punto pulsante + texto */
+.vac-hero__eyebrow {
+  display       : inline-flex;
+  align-items   : center;
+  gap           : 10px;
+  font-family   : var(--font-body);
+  font-size     : var(--fs-body-sm);
+  font-weight   : 600;
+  letter-spacing: var(--ls-loose);
+  text-transform: uppercase;
+  color         : rgba(255,255,255,0.75);
+  margin-bottom : clamp(10px,1.5vh,20px);
+}
+
+.vac-hero__pulse {
+  width        : 7px;
+  height       : 7px;
+  border-radius: 50%;
+  background   : var(--clr-accent);
+  animation    : vac-pulse 2s ease-in-out infinite;
+  flex-shrink  : 0;
+}
+
+@keyframes vac-pulse {
+  0%,100% { opacity:1; transform:scale(1);   }
+  50%     { opacity:.4; transform:scale(0.7); }
+}
+
+.vac-hero__line {
+  display   : block;
+  width     : 36px;
+  height    : 1px;
+  background: var(--clr-accent);
+}
+
+/* Título hero */
+.vac-hero__title {
+  font-family   : var(--font-display);
+  font-weight   : 800;
+  font-size     : clamp(3.6rem, 7vw, 7.5rem);
+  line-height   : var(--lh-display);
+  letter-spacing: var(--ls-display-hero);
+  text-transform: uppercase;
+  color         : #ffffff;
+  margin-bottom : clamp(12px,2vh,22px);
+  max-width     : 820px;
+}
+
+.vac-hero__title em {
+  font-style : normal;
+  color      : var(--clr-accent);
+  text-shadow: 0 0 60px rgba(251,103,11,0.45);
+}
+
+/* Subtítulo */
+.vac-hero__sub {
+  font-family   : var(--font-body);
+  font-size     : var(--fs-body-lg);
+  line-height   : var(--lh-body);
+  color         : rgba(255,255,255,0.65);
+  max-width     : 520px;
+  margin-bottom : clamp(18px,2.5vh,30px);
+}
+
+/* Botones CTA */
+.vac-hero__ctas {
+  display    : flex;
+  gap        : 14px;
+  flex-wrap  : wrap;
+  align-items: center;
+}
+
+/* Stats al fondo del hero */
+.vac-hero__stats {
+  display      : flex;
+  gap          : 0;
+  margin-top   : clamp(24px,3.5vh,48px);
+  max-width    : 580px;
+}
+
+.vac-hero__stat {
+  flex        : 1 1 0;
+  padding     : 20px 24px;
+  background  : rgba(255,255,255,0.05);
+  border      : 1px solid rgba(255,255,255,0.10);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  text-align  : center;
+  transition  : background 0.3s ease, border-color 0.3s ease;
+}
+.vac-hero__stat:first-child { border-radius: 8px 0 0 8px; }
+.vac-hero__stat:last-child  { border-radius: 0 8px 8px 0; }
+.vac-hero__stat:hover {
+  background  : rgba(251,103,11,0.15);
+  border-color: rgba(251,103,11,0.45);
+}
+
+.vac-hero__stat-num {
+  display       : block;
+  font-family   : var(--font-display);
+  font-size     : clamp(2rem, 3vw, 3.2rem);
+  letter-spacing: var(--ls-display-md);
+  color         : #fff;
+  line-height   : 1;
+}
+.vac-hero__stat-num em {
+  font-style: normal;
+  color     : var(--clr-accent);
+}
+.vac-hero__stat-lbl {
+  display       : block;
+  font-family   : var(--font-body);
+  font-size     : var(--fs-body-xs);
+  letter-spacing: var(--ls-label-sm);
+  text-transform: uppercase;
+  color         : rgba(255,255,255,0.45);
+  margin-top    : 5px;
+}
+
+/* =========================================================================
+   SECCIÓN GENÉRICA
+   ========================================================================= */
+#vacantes,
+#como-aplicar {
+  scroll-margin-top: calc(var(--header-height, 80px) + 20px);
+}
+#vacantes {
+  padding-bottom: 0;
+}
+@media (max-width: 768px) {
+  #vacantes,
+  #como-aplicar {
+    scroll-margin-top: calc(var(--header-height, 80px) + 4px);
+  }
+}
+
+.vac-section {
+  padding: clamp(70px, 9vw, 120px) var(--vac-pad);
+}
+
+.vac-section-inner {
+  max-width: var(--vac-max);
+  margin   : 0 auto;
+}
+
+.vac-section--alt { background: var(--clr-surface); }
+
+.vac-section__header {
+  text-align    : center;
+  margin-bottom : clamp(40px, 6vw, 72px);
+}
+
+/* ── Sticky vacantes header ── */
+#vacantes-header.is-sticky {
+  position      : sticky;
+  top           : var(--header-height, 80px);
+  z-index       : 500;
+  background    : var(--clr-surface);
+  margin-left   : calc(-1 * var(--vac-pad));
+  margin-right  : calc(-1 * var(--vac-pad));
+  padding       : 22px var(--vac-pad) 20px;
+  margin-bottom : 0;
+  border-bottom : 1px solid var(--clr-border);
+}
+#vacantes-header.is-sticky::after {
+  content     : '';
+  position    : absolute;
+  bottom      : -56px;
+  left        : -200vw;
+  right       : -200vw;
+  height      : 56px;
+  background  : linear-gradient(to bottom, var(--clr-surface) 0%, transparent 100%);
+  pointer-events: none;
+  z-index     : 1;
+}
+
+/* =========================================================================
+   BENEFICIOS
+   ========================================================================= */
+.vac-benefits-grid {
+  display              : grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap                  : 20px;
+}
+
+.vac-benefit-card {
+  background   : var(--clr-surface);
+  border       : 1px solid var(--clr-border);
+  border-radius: var(--vac-radius);
+  padding      : 28px 24px;
+  transition   : box-shadow 0.2s ease, transform 0.2s ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .vac-benefit-card:hover {
+    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+    transform : translateY(-3px);
+  }
+}
+
+.vac-benefit-icon {
+  width          : 44px;
+  height         : 44px;
+  border-radius  : 10px;
+  background     : rgba(251,103,11,0.09);
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  color          : var(--clr-accent);
+  margin-bottom  : 18px;
+}
+
+.vac-benefit-title {
+  font-family   : var(--font-body);
+  font-weight   : 700;
+  font-size     : var(--fs-body-xl);
+  color         : var(--clr-text);
+  margin-bottom : 8px;
+}
+
+.vac-benefit-desc {
+  font-family: var(--font-body);
+  font-size  : var(--fs-body-md);
+  color      : var(--clr-muted);
+  line-height: var(--lh-body);
+}
+
+/* =========================================================================
+   VACANTES — tarjetas
+   ========================================================================= */
+.vac-positions-grid {
+  display              : grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap                  : 18px;
+}
+
+.vac-position-card {
+  background    : var(--clr-surface, #fff);
+  border        : 1px solid var(--clr-border);
+  border-radius : 16px;
+  padding       : 0;
+  display       : flex;
+  flex-direction: column;
+  cursor        : pointer;
+  text-align    : left;
+  overflow      : hidden;
+  position      : relative;
+  transition    : border-color 0.22s ease, box-shadow 0.22s ease, transform 0.22s ease;
+  box-shadow    : 0 1px 4px rgba(0,0,0,0.06);
+}
+.vac-position-card::before {
+  content   : '';
+  position  : absolute;
+  top       : 0; left: 0; right: 0;
+  height    : 3px;
+  background: linear-gradient(90deg, var(--clr-accent) 0%, rgba(251,103,11,0.35) 60%, transparent 100%);
+  opacity   : 0;
+  transition: opacity 0.22s ease;
+  border-radius: 16px 16px 0 0;
+}
+@media (hover: hover) and (pointer: fine) {
+  .vac-position-card:hover {
+    border-color: rgba(251,103,11,0.38);
+    box-shadow  : 0 8px 36px rgba(251,103,11,0.13), 0 2px 8px rgba(0,0,0,0.06);
+    transform   : translateY(-3px);
+  }
+  .vac-position-card:hover::before { opacity: 1; }
+  .vac-position-card:hover .vac-position-cta-arrow { transform: translateX(4px); }
+}
+
+.vac-position-body {
+  padding       : 24px 24px 16px;
+  flex          : 1;
+  display       : flex;
+  flex-direction: column;
+  gap           : 0;
+}
+
+.vac-position-top {
+  display        : flex;
+  align-items    : center;
+  justify-content: space-between;
+  gap            : 8px;
+  margin-bottom  : 14px;
+}
+
+.vac-position-area {
+  font-family   : var(--font-body);
+  font-size     : 10px;
+  font-weight   : 700;
+  color         : var(--clr-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  background    : rgba(251,103,11,0.08);
+  border        : 1px solid rgba(251,103,11,0.18);
+  padding       : 3px 10px;
+  border-radius : 100px;
+}
+
+.vac-position-title {
+  font-family  : var(--font-body);
+  font-size    : clamp(1.05rem, 2.2vw, 1.28rem);
+  font-weight  : 800;
+  color        : var(--clr-text);
+  line-height  : 1.25;
+  letter-spacing: -0.02em;
+  word-break   : break-word;
+  overflow-wrap: break-word;
+  margin-bottom: 7px;
+}
+
+.vac-position-meta {
+  display      : flex;
+  align-items  : center;
+  gap          : 5px;
+  font-family  : var(--font-body);
+  font-size    : 12.5px;
+  color        : var(--clr-muted);
+  margin-bottom: 16px;
+  font-weight  : 500;
+}
+.vac-position-meta-dot {
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: var(--clr-muted);
+  opacity: 0.45;
+  flex-shrink: 0;
+}
+
+.vac-position-badge {
+  flex-shrink   : 0;
+  display       : inline-flex;
+  align-items   : center;
+  gap           : 5px;
+  background    : rgba(34,197,94,0.09);
+  color         : #16a34a;
+  font-family   : var(--font-body);
+  font-size     : 10px;
+  font-weight   : 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding       : 3px 10px;
+  border-radius : 100px;
+  border        : 1px solid rgba(34,197,94,0.20);
+  white-space   : nowrap;
+}
+.vac-position-badge::before {
+  content      : '';
+  width        : 6px; height: 6px;
+  border-radius: 50%;
+  background   : #16a34a;
+  flex-shrink  : 0;
+  animation    : vac-badge-pulse 2s ease-in-out infinite;
+}
+html.dark .vac-position-badge {
+  background: rgba(34,197,94,0.08);
+  color     : #22c55e;
+}
+html.dark .vac-position-badge::before { background: #22c55e; }
+@keyframes vac-badge-pulse {
+  0%,100% { opacity:1; }
+  50%     { opacity:0.45; }
+}
+
+.vac-position-salary {
+  display      : inline-flex;
+  align-items  : center;
+  gap          : 5px;
+  background   : rgba(34,197,94,0.09);
+  border       : 1px solid rgba(34,197,94,0.20);
+  color        : #16a34a;
+  font-family  : var(--font-body);
+  font-size    : 12.5px;
+  font-weight  : 700;
+  padding      : 4px 11px;
+  border-radius: 8px;
+}
+html.dark .vac-position-salary { background: rgba(34,197,94,0.08); color: #22c55e; border-color: rgba(34,197,94,0.18); }
+
+.vac-position-tags {
+  display  : flex;
+  flex-wrap: wrap;
+  gap      : 6px;
+  margin-bottom: 8px;
+}
+
+.vac-tag {
+  display      : inline-flex;
+  align-items  : center;
+  gap          : 5px;
+  background   : var(--clr-bg, #f8f8f8);
+  border       : 1px solid var(--clr-border);
+  color        : var(--clr-muted);
+  font-family  : var(--font-body);
+  font-size    : 11.5px;
+  font-weight  : 500;
+  padding      : 4px 10px;
+  border-radius: 7px;
+}
+html.dark .vac-tag { background: rgba(255,255,255,0.04); }
+
+.vac-position-spacer { flex: 1; min-height: 8px; }
+
+.vac-position-cta {
+  display        : flex;
+  align-items    : center;
+  justify-content: space-between;
+  gap            : 8px;
+  padding        : 14px 24px;
+  border-top     : 1px solid var(--clr-border);
+  color          : var(--clr-accent);
+  font-family    : var(--font-body);
+  font-size      : 13px;
+  font-weight    : 700;
+  letter-spacing : -0.01em;
+  transition     : background 0.18s ease, color 0.18s ease;
+  width          : 100%;
+  background     : transparent;
+}
+.vac-position-cta-arrow {
+  display    : flex;
+  align-items: center;
+  transition : transform 0.22s ease;
+}
+.vac-position-card:hover .vac-position-cta {
+  background: rgba(251,103,11,0.05);
+}
+
+/* =========================================================================
+   PASOS
+   ========================================================================= */
+.vac-steps-grid {
+  display              : grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap                  : 0;
+  position             : relative;
+}
+.vac-steps-grid::before {
+  content   : '';
+  position  : absolute;
+  top       : 27px;
+  left      : 10%;
+  right     : 10%;
+  height    : 1px;
+  background: linear-gradient(to right, transparent, var(--clr-border), transparent);
+}
+
+.vac-step {
+  display       : flex;
+  flex-direction: column;
+  align-items   : center;
+  text-align    : center;
+  padding       : 0 16px;
+  position      : relative;
+}
+
+.vac-step-num {
+  width          : 54px;
+  height         : 54px;
+  border-radius  : 50%;
+  background     : var(--clr-surface);
+  border         : 1px solid var(--clr-border);
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  font-family    : var(--font-display);
+  font-size      : 20px;
+  font-weight    : 800;
+  color          : var(--clr-muted);
+  margin-bottom  : 18px;
+  position       : relative;
+  z-index        : 1;
+  transition     : all 0.2s ease;
+  letter-spacing : var(--ls-display-md);
+}
+.vac-step:hover .vac-step-num {
+  border-color: var(--clr-accent);
+  color       : var(--clr-accent);
+  background  : rgba(251,103,11,0.06);
+}
+
+.vac-step--bot {
+  background  : none;
+  border      : none;
+  outline     : none;
+  cursor      : pointer;
+  width       : 100%;
+}
+.vac-step--bot:hover .vac-step-num {
+  border-color: var(--clr-accent);
+  color       : var(--clr-accent);
+  background  : rgba(251,103,11,0.06);
+}
+
+.vac-step-title {
+  font-family   : var(--font-body);
+  font-size     : var(--fs-body-lg);
+  font-weight   : 700;
+  color         : var(--clr-text);
+  margin-bottom : 8px;
+}
+
+.vac-step-desc {
+  font-family: var(--font-body);
+  font-size  : var(--fs-body-sm);
+  color      : var(--clr-muted);
+  line-height: var(--lh-body);
+}
+
+/* =========================================================================
+   CTA FINAL
+   ========================================================================= */
+.vac-cta-section {
+  background: var(--clr-dark);
+  padding   : clamp(80px, 10vw, 130px) var(--vac-pad);
+  text-align: center;
+  position  : relative;
+  overflow  : hidden;
+}
+.vac-cta-section::before {
+  content   : '';
+  position  : absolute;
+  inset     : 0;
+  background: radial-gradient(ellipse 70% 80% at 50% 50%, rgba(251,103,11,0.11) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.vac-cta-inner {
+  position : relative;
+  z-index  : 1;
+  max-width: 600px;
+  margin   : 0 auto;
+}
+
+.vac-cta-sub {
+  font-family   : var(--font-body);
+  font-size     : var(--fs-body-lg);
+  color         : rgba(255,255,255,0.55);
+  line-height   : var(--lh-body);
+  margin-bottom : 40px;
+}
+
+/* =========================================================================
+   SCROLL BOX
+   ========================================================================= */
+.vac-scroll-box {
+  overflow-y      : auto;
+  max-height      : calc(100vh - 320px);
+  min-height      : 360px;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0px, black 56px);
+  mask-image      : linear-gradient(to bottom, transparent 0px, black 56px);
+  padding-top     : 12px;
+  padding-bottom  : 40px;
+  scrollbar-width : thin;
+  scrollbar-color : rgba(251,103,11,0.25) transparent;
+}
+.vac-scroll-box::-webkit-scrollbar         { width: 4px; }
+.vac-scroll-box::-webkit-scrollbar-track   { background: transparent; }
+.vac-scroll-box::-webkit-scrollbar-thumb   { background: rgba(251,103,11,0.30); border-radius: 99px; }
+.vac-scroll-box::-webkit-scrollbar-thumb:hover { background: rgba(251,103,11,0.55); }
+
+/* =========================================================================
+   RESPONSIVE — MÓVIL (≤ 768px)
+   ========================================================================= */
+@media (max-width: 768px) {
+
+  /* Hero — centrar contenido, igual que home en móvil */
+  .vac-hero {
+    height    : 100vh;
+    height    : 100svh;
+    min-height: 100svh;
+  }
+  .vac-hero__content  { align-items: center; text-align: center; justify-content: flex-end; padding-bottom: clamp(24px,4vh,48px); }
+  .vac-hero__eyebrow  { justify-content: center; }
+  .vac-hero__sub      { text-align: center; margin-left: auto; margin-right: auto; }
+  .vac-hero__ctas     { justify-content: center; flex-direction: column; width: 100%; }
+  .vac-hero__ctas .btn { justify-content: center; width: 100%; }
+
+  /* Stats: fila horizontal (3 columnas) */
+  .vac-hero__stats {
+    flex-direction: row;
+    gap           : 0;
+    max-width     : 100%;
+    width         : 100%;
+  }
+  .vac-hero__stat           { padding: 14px 8px; }
+  .vac-hero__stat:first-child { border-radius: 8px 0 0 8px; }
+  .vac-hero__stat:nth-child(2){ border-radius: 0; }
+  .vac-hero__stat:last-child  { border-radius: 0 8px 8px 0; }
+  .vac-hero__stat-num { font-size: clamp(1.4rem, 5.5vw, 2rem); }
+  .vac-hero__stat-lbl { font-size: 8px; }
+
+  /* Beneficios: carrusel horizontal */
+  .vac-benefits-grid {
+    display                  : flex;
+    flex-wrap                : nowrap;
+    overflow-x               : auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type         : x mandatory;
+    gap                      : 14px;
+    padding-bottom: 12px;
+    padding-right : 20px;
+    scrollbar-width: none;
+  }
+  .vac-benefits-grid::-webkit-scrollbar { display: none; }
+  .vac-benefit-card {
+    flex           : 0 0 74vw;
+    max-width      : 290px;
+    scroll-snap-align: start;
+    text-align     : center;
+  }
+  .vac-benefit-icon {
+    margin-left : auto;
+    margin-right: auto;
+  }
+
+  /* Vacantes: carrusel horizontal en móvil */
+  .vac-positions-grid {
+    display                  : flex;
+    flex-wrap                : nowrap;
+    overflow-x               : auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type         : x mandatory;
+    gap                      : 14px;
+    padding-bottom           : 12px;
+    padding-right            : 20px;
+    scrollbar-width          : none;
+  }
+  .vac-positions-grid::-webkit-scrollbar { display: none; }
+  .vac-positions-grid > * {
+    flex           : 0 0 80vw;
+    max-width      : 320px;
+    scroll-snap-align: start;
+  }
+
+  /* Cancelar el scroll box vertical en móvil */
+  .vac-scroll-box {
+    overflow       : visible;
+    max-height     : none;
+    min-height     : unset;
+    -webkit-mask-image: none;
+    mask-image     : none;
+    padding-top    : 0;
+    padding-bottom : 0;
+  }
+
+  .vac-ver-mas-btn { display: none !important; }
+
+  /* Steps */
+  .vac-steps-grid::before { display: none; }
+  .vac-steps-grid         { grid-template-columns: 1fr; gap: 28px; }
+  .vac-step               { flex-direction: row; text-align: left; gap: 16px; }
+  .vac-step-num           { flex-shrink: 0; margin-bottom: 0; }
+}

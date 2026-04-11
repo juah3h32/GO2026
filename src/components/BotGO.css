@@ -1238,6 +1238,17 @@ html.dark .botgo-tooltip-card  { background:rgba(242,79,19,0.08); border-color:r
 html.dark .voice-cap-card { background: rgba(251,103,11,0.08); border-color: rgba(251,103,11,0.22); }
 html.dark .voice-cap-text { color: #bbb; }
 
+.voice-cap-card--install {
+  background: rgba(251, 103, 11, 0.11);
+  border-color: rgba(251, 103, 11, 0.35);
+}
+.voice-cap-card--install:hover,
+.voice-cap-card--install:active {
+  background: rgba(251, 103, 11, 0.2);
+  border-color: rgba(251, 103, 11, 0.55);
+}
+html.dark .voice-cap-card--install { background: rgba(251,103,11,0.15); border-color: rgba(251,103,11,0.4); }
+
 /* voice-caps-grid visible en desktop también — dentro de la vista de voz */
 
 /* =========================================
@@ -1652,6 +1663,16 @@ html.dark .msg-cv-badge svg  { color: #FB670B; }
 .msg-action-cv:hover { background: rgba(251,103,11,0.15) !important; border-style: solid !important; }
 html.dark .msg-action-cv { background: rgba(251,103,11,0.1) !important; color: #ff8a4a !important; border-color: rgba(251,103,11,0.4) !important; }
 
+.msg-action-dist {
+  background: linear-gradient(135deg, #FB670B 0%, #fd8a40 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 4px 14px rgba(251,103,11,0.45);
+  font-weight: 600 !important;
+}
+.msg-action-dist:hover { box-shadow: 0 6px 20px rgba(251,103,11,0.6); filter: brightness(1.06); }
+html.dark .msg-action-dist { box-shadow: 0 4px 16px rgba(251,103,11,0.35); }
+
 .cv-upload-hint { font-size: 0.72rem; color: rgba(102,102,102,0.75); margin: 0; padding-left: 4px; }
 
 .cv-upload-success {
@@ -1795,4 +1816,176 @@ html.dark .cv-upload-hint { color: rgba(180,180,180,0.6); }
   opacity: 1;
   visibility: visible;
   transition: opacity 0.2s ease;
+}
+
+/* ─── PANEL VACANTES EN EL BOT ─────────────────────────────────────────────── */
+.vacpanel {
+  margin: 0 0 14px;
+}
+
+/* Header */
+.vacpanel-hdr {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.vacpanel-hdr-left {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.vacpanel-hdr-left span {
+  font-size: 10px;
+  font-weight: 700;
+  color: #FB670B;
+  text-transform: uppercase;
+  letter-spacing: 0.11em;
+}
+.vacpanel-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #22c55e;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 3px rgba(34,197,94,0.18);
+}
+.vacpanel-close {
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  font-size: 17px;
+  line-height: 1;
+  padding: 0 2px;
+  transition: color 0.15s;
+}
+.vacpanel-close:hover { color: #555; }
+
+/* Loading */
+.vacpanel-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #888;
+  padding: 6px 0 12px;
+}
+@keyframes vacpanel-spin { to { transform: rotate(360deg); } }
+.vacpanel-spinner {
+  width: 13px;
+  height: 13px;
+  border: 2px solid #eee;
+  border-top-color: #FB670B;
+  border-radius: 50%;
+  animation: vacpanel-spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+/* Lista de tarjetas */
+.vacpanel-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 10px;
+}
+
+/* Tarjeta individual — SIEMPRE blanca */
+.vacpanel-card {
+  background: #ffffff;
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  padding: 11px 13px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  transition: box-shadow 0.15s, border-color 0.15s;
+}
+.vacpanel-card:hover {
+  border-color: rgba(251,103,11,0.30);
+  box-shadow: 0 2px 10px rgba(251,103,11,0.10);
+}
+.vacpanel-card-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.vacpanel-card-area {
+  font-size: 9px;
+  font-weight: 700;
+  color: #FB670B;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+}
+.vacpanel-card-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a1a1a;
+  line-height: 1.3;
+}
+.vacpanel-card-tags {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+.vacpanel-tag {
+  font-size: 9px;
+  font-weight: 700;
+  background: rgba(34,197,94,0.10);
+  color: #16a34a;
+  border: 1px solid rgba(34,197,94,0.22);
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+/* Botón postularme en cada tarjeta */
+.vacpanel-card-btn {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: #FB670B;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 7px 11px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  white-space: nowrap;
+}
+.vacpanel-card-btn:hover  { background: #d45500; }
+.vacpanel-card-btn:active { transform: scale(0.96); }
+
+/* Botón ver más */
+.vacpanel-more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #FB670B;
+  text-decoration: none;
+  padding: 9px 12px;
+  border: 1.5px solid rgba(251,103,11,0.28);
+  border-radius: 10px;
+  background: rgba(251,103,11,0.04);
+  transition: background 0.15s, border-color 0.15s;
+}
+.vacpanel-more:hover {
+  background: rgba(251,103,11,0.10);
+  border-color: rgba(251,103,11,0.50);
+}
+.vacpanel-card--selected {
+  border-color: rgba(251,103,11,0.50);
+  box-shadow: 0 2px 10px rgba(251,103,11,0.14);
+}
+.vacpanel-card--faded {
+  opacity: 0.4 !important;
 }

@@ -1,26 +1,30 @@
+// src/components/BotGO.jsx
 import React, { useState, useRef, useEffect, useCallback, lazy, Suspense } from 'react';
 import './BotGO.css';
 import { translations } from '../i18n';
 
-// ✅ FIX 1: Eliminado console.log de producción
-// ANTES: console.log('🚀 BotGO v9 (3 bugs fixed) CARGADO');
-
-// ✅ FIX 2: ReactMarkdown cargado de forma lazy — no bloquea el bundle inicial (~50 KiB menos)
-// ANTES: import ReactMarkdown from 'react-markdown';
+// ✅ FIX: ReactMarkdown cargado de forma lazy
 const ReactMarkdown = lazy(() => import('react-markdown'));
 
-// ✅ FIX 3: Constantes de regex y arrays movidas FUERA del componente
-// — se crean una sola vez, no en cada render ni en cada llamada
 const INTENT_COMPRA_REGEX = [
-  /comp[a-z]{0,4}r/, /coti[a-z]{0,6}/, /preci[a-z]{0,3}/, /cuant[a-z]{0,2}/,
+  /\bcompr[a-z]{2,}/, /coti[a-z]{0,6}/, /preci[a-z]{0,3}/, /cuant[a-z]{0,2}/,
   /cost[a-z]{0,3}/, /presup[a-z]{0,6}/, /adquir[a-z]{0,4}/, /dispon[a-z]{0,8}/,
   /pedid[a-z]{0,2}/, /orden[a-z]{0,2}/,
 ];
 const INTENT_COMPRA_FRASES = [
-  'me interesa', 'me gustaria', 'quisiera', 'estoy interesad', 'hay stock',
-  'tienen stock', 'hay disponible', 'como compro', 'donde compro', 'voy a comprar',
-  'contactar', 'whatsapp', 'llamar',
+  'hay stock', 'tienen stock', 'hay disponible', 'como compro', 'donde compro',
+  'voy a comprar', 'quiero comprar', 'necesito comprar',
 ];
+
+// Palabras que indican contexto de empleo — nunca deben activar intención de compra
+const INTENT_EMPLEO_REGEX = /postular|vacante|empleo|trabajo|solicitud.*empleo|quiero trabajar|aplicar.*puesto|registro.*empleo|puesto de/i;
+
+function fmtSalario(raw) {
+  if (!raw) return null;
+  let str = raw.trim().replace(/\b(\d{4,})\b/g, n => Number(n).toLocaleString('es-MX'));
+  if (!str.includes('$') && /^\d/.test(str)) str = `$${str}`;
+  return str;
+}
 const INTENT_PDF_KEYS = [
   'pdf', 'catalogo', 'ficha tecnica', 'ficha del producto', 'descargar', 'descarga',
   'brochure', 'folleto', 'informacion del producto', 'mas informacion',
@@ -139,6 +143,12 @@ const FileIcon = () => (
     <polyline points="14 2 14 8 20 8" />
   </svg>
 );
+const StoreIcon = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+    <polyline points="9 22 9 12 15 12 15 22"/>
+  </svg>
+);
 
 const ICON_BY_KEYWORD = {
   vacan: VacanteIcon, inform: InfoIcon, produc: InfoIcon,
@@ -156,23 +166,22 @@ function getIconForItem(item) {
 
 // ─── PDF MAP ──────────────────────────────────────────────────────────────────
 const PDF_MAP = {
-  rafia:      { label: 'Catálogo Rafia',            url: 'https://drive.google.com/file/d/1uAiR4uxO2iX_LsNFul6kXeb7jnnCEV_J/view' },
-  stretch:    { label: 'Catálogo Stretch Film',     url: 'https://drive.google.com/file/d/1HYGcpgkRO_7OX22IcWvRpzpLZKgpYV3A/view' },
-  cuerda:     { label: 'Catálogo Cuerdas',          url: 'https://drive.google.com/file/d/14GrV9P1ViQKvFp3BucYjgmryRgWKLEZh/view' },
-  cuerdas:    { label: 'Catálogo Cuerdas',          url: 'https://drive.google.com/file/d/14GrV9P1ViQKvFp3BucYjgmryRgWKLEZh/view' },
-  saco:       { label: 'Catálogo Sacos',            url: 'https://drive.google.com/file/d/16S43-PUrQECO9q2J1fOgbN-YeIxQ2GhP/view' },
-  sacos:      { label: 'Catálogo Sacos',            url: 'https://drive.google.com/file/d/16S43-PUrQECO9q2J1fOgbN-YeIxQ2GhP/view' },
-  arpilla:    { label: 'Catálogo Arpillas',         url: 'https://drive.google.com/file/d/1OQKGpnRCfA2yFdAlT6q7GczYua2FFFVU/view' },
-  arpillas:   { label: 'Catálogo Arpillas',         url: 'https://drive.google.com/file/d/1OQKGpnRCfA2yFdAlT6q7GczYua2FFFVU/view' },
-  malla:      { label: 'Catálogo Arpillas',         url: 'https://drive.google.com/file/d/1OQKGpnRCfA2yFdAlT6q7GczYua2FFFVU/view' },
-  esquinero:  { label: 'Catálogo Esquineros',       url: 'https://drive.google.com/file/d/181Hvr0HQffLU3rmcXkccYoqj-Y_A-gxr/view' },
-  esquineros: { label: 'Catálogo Esquineros',       url: 'https://drive.google.com/file/d/181Hvr0HQffLU3rmcXkccYoqj-Y_A-gxr/view' },
+  rafia:      { label: 'Catálogo Rafia',           url: 'https://drive.google.com/file/d/1uAiR4uxO2iX_LsNFul6kXeb7jnnCEV_J/view' },
+  stretch:    { label: 'Catálogo Stretch Film',    url: 'https://drive.google.com/file/d/1HYGcpgkRO_7OX22IcWvRpzpLZKgpYV3A/view' },
+  cuerda:     { label: 'Catálogo Cuerdas',         url: 'https://drive.google.com/file/d/14GrV9P1ViQKvFp3BucYjgmryRgWKLEZh/view' },
+  cuerdas:    { label: 'Catálogo Cuerdas',         url: 'https://drive.google.com/file/d/14GrV9P1ViQKvFp3BucYjgmryRgWKLEZh/view' },
+  saco:       { label: 'Catálogo Sacos',           url: 'https://drive.google.com/file/d/16S43-PUrQECO9q2J1fOgbN-YeIxQ2GhP/view' },
+  sacos:      { label: 'Catálogo Sacos',           url: 'https://drive.google.com/file/d/16S43-PUrQECO9q2J1fOgbN-YeIxQ2GhP/view' },
+  arpilla:    { label: 'Catálogo Arpillas',        url: 'https://drive.google.com/file/d/1OQKGpnRCfA2yFdAlT6q7GczYua2FFFVU/view' },
+  arpillas:   { label: 'Catálogo Arpillas',        url: 'https://drive.google.com/file/d/1OQKGpnRCfA2yFdAlT6q7GczYua2FFFVU/view' },
+  malla:      { label: 'Catálogo Arpillas',        url: 'https://drive.google.com/file/d/1OQKGpnRCfA2yFdAlT6q7GczYua2FFFVU/view' },
+  esquinero:  { label: 'Catálogo Esquineros',      url: 'https://drive.google.com/file/d/181Hvr0HQffLU3rmcXkccYoqj-Y_A-gxr/view' },
+  esquineros: { label: 'Catálogo Esquineros',      url: 'https://drive.google.com/file/d/181Hvr0HQffLU3rmcXkccYoqj-Y_A-gxr/view' },
   flexible:   { label: 'Catálogo Empaque Flexible', url: 'https://drive.google.com/file/d/1TGxUcGHjW1NHF8K8YkRisbRE8uAuTnPO/view' },
   empaque:    { label: 'Catálogo Empaque Flexible', url: 'https://drive.google.com/file/d/1TGxUcGHjW1NHF8K8YkRisbRE8uAuTnPO/view' },
-  general:    { label: 'Catálogo General',          url: 'https://drive.google.com/file/d/1348E3b37R1KmpggjAURhsuQMfARyBaXB/view' },
+  general:    { label: 'Catálogo General',         url: 'https://drive.google.com/file/d/1348E3b37R1KmpggjAURhsuQMfARyBaXB/view' },
 };
 
-// ✅ FIX 3: Funciones de detección usan constantes precompiladas (no recrean arrays en cada llamada)
 function detectarProducto(texto) {
   if (!texto) return null;
   const lower = texto.toLowerCase();
@@ -182,8 +191,13 @@ function detectarProducto(texto) {
   return null;
 }
 
-function esIntencionCompra(texto) {
+function esIntencionCompra(texto, historial = []) {
   if (!texto) return false;
+  // Si el mensaje actual habla de empleo/vacante → nunca es intención de compra
+  if (INTENT_EMPLEO_REGEX.test(texto)) return false;
+  // Si el historial reciente contiene mensajes de empleo → no activar compra
+  const historialReciente = historial.slice(-6).map(m => m.content || '').join(' ');
+  if (INTENT_EMPLEO_REGEX.test(historialReciente)) return false;
   const u = texto.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   if (INTENT_COMPRA_REGEX.some(r => r.test(u))) return true;
   if (INTENT_COMPRA_FRASES.some(k => u.includes(k))) return true;
@@ -204,15 +218,28 @@ function formatFileSize(bytes) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+// ✅ FIX CLAVE: Esta función ahora atrapa "Quiero postularme a la vacante de X" y guarda el puesto en memoria automáticamente
 function extraerDatosDeHistorial(msgs) {
   const data = { nombre: '', puesto: '', edad: '', estado: '', colonia: '', email: '', telefono: '' };
+  
+  // 1. Detección automática del puesto desde el mensaje oculto del sistema
+  for (const m of msgs) {
+    if (m.role === 'user') {
+      const match = (m.content || '').match(/postularme a la vacante de (.*)/i);
+      if (match) data.puesto = match[1].trim();
+    }
+  }
+
+  // 2. Detección por preguntas del bot (flujo normal)
   for (let i = 0; i < msgs.length - 1; i++) {
     const bot  = msgs[i];
     const user = msgs[i + 1];
     if (bot.role !== 'assistant' || user.role !== 'user') continue;
+    
     const pregunta  = (bot.content  || '').toLowerCase();
     const respuesta = (user.content || '').trim();
     if (!respuesta || respuesta.length < 2) continue;
+
     if (/puesto|posici[oó]n|[aá]rea|trabajo.*interesa|tipo de puesto|aplicar a|qu[eé] puesto|a qu[eé] puesto|cu[aá]l.*puesto/i.test(pregunta) && !data.puesto) {
       data.puesto = respuesta;
     } else if (/nombre completo|c[oó]mo te llamas|tu nombre|cu[aá]l es tu nombre/i.test(pregunta) && !data.nombre) {
@@ -246,18 +273,24 @@ const RpIcons = {
 };
 
 const RECRUIT_STEPS = [
-  { key: 'puesto',  label: 'Puesto',  Icon: RpIcons.puesto,  regex: /puesto|posici[oó]n|aplicar a|qu[eé] puesto/i },
-  { key: 'nombre',  label: 'Nombre',  Icon: RpIcons.nombre,  regex: /nombre completo|c[oó]mo te llamas/i },
-  { key: 'edad',    label: 'Edad',    Icon: RpIcons.edad,    regex: /cu[aá]ntos a[nñ]os|a[nñ]os tienes|edad/i },
-  { key: 'estado',  label: 'Estado',  Icon: RpIcons.estado,  regex: /estado.*rep[uú]blica|estado.*vives|qu[eé] estado/i },
-  { key: 'colonia', label: 'Col.',    Icon: RpIcons.colonia, regex: /colonia|municipio|localidad/i },
-  { key: 'email',   label: 'Email',   Icon: RpIcons.email,   regex: /correo|email|e-mail/i },
-  { key: 'tel',     label: 'Tel',     Icon: RpIcons.tel,     regex: /whatsapp|tel[eé]fono|n[uú]mero.*contact/i },
-  { key: 'cv',      label: 'CV',      Icon: RpIcons.cv,      regex: /tienes.*cv|adjunta.*cv|cv.*disponible/i },
+  { key: 'puesto',      label: 'Puesto',  Icon: RpIcons.puesto,  regex: /puesto|posici[oó]n|aplicar a|qu[eé] puesto/i },
+  { key: 'nombre',      label: 'Nombre',  Icon: RpIcons.nombre,  regex: /nombre completo|c[oó]mo te llamas/i },
+  { key: 'edad',        label: 'Edad',    Icon: RpIcons.edad,    regex: /cu[aá]ntos a[nñ]os|a[nñ]os tienes|edad/i },
+  { key: 'estado',      label: 'Estado',  Icon: RpIcons.estado,  regex: /estado.*rep[uú]blica|estado.*vives|qu[eé] estado/i },
+  { key: 'colonia',     label: 'Col.',    Icon: RpIcons.colonia, regex: /colonia|municipio|localidad/i },
+  { key: 'email',       label: 'Email',   Icon: RpIcons.email,   regex: /correo|email|e-mail/i },
+  { key: 'tel',         label: 'Tel',     Icon: RpIcons.tel,     regex: /whatsapp|tel[eé]fono|n[uú]mero.*contact/i },
+  { key: 'cv',          label: 'CV',      Icon: RpIcons.cv,      regex: /tienes.*cv|adjunta.*cv|cv.*disponible/i },
+  { key: 'comentarios', label: 'Nota',    Icon: RpIcons.cv,      regex: /algo.*agregar|algo.*compartir|comentario|experiencia.*perfil/i },
 ];
 
 function calcularPasoActual(messages) {
   let completed = 0;
+  
+  // Si el usuario ya mandó el mensaje de postulación directo, marcamos Puesto como completado (0 -> 1)
+  const yaDijoPuesto = messages.some(m => m.role === 'user' && /postularme a la vacante/i.test(m.content));
+  if (yaDijoPuesto) completed = 1;
+
   for (let i = 0; i < messages.length - 1; i++) {
     const bot  = messages[i];
     const user = messages[i + 1];
@@ -314,7 +347,6 @@ const RecruitmentProgress = ({ messages }) => {
 };
 
 // ─── RENDERERS ────────────────────────────────────────────────────────────────
-// ✅ FIX 2: ReactMarkdown envuelto en Suspense para carga lazy
 const MessageRenderer = ({ content, isAssistant }) => {
   if (!isAssistant) return <span>{content}</span>;
   const clean = (content || '')
@@ -339,12 +371,13 @@ const MessageRenderer = ({ content, isAssistant }) => {
   );
 };
 
-const MessageActions = ({ waLink, pdfData, t }) => {
-  if (!waLink && !pdfData) return null;
+const MessageActions = ({ waLink, pdfData, distLink, t }) => {
+  if (!waLink && !pdfData && !distLink) return null;
   return (
     <div className="msg-actions">
-      {waLink  && <a href={waLink}      target="_blank" rel="noopener noreferrer" className="msg-action-btn msg-action-wa"><WhatsAppIcon /><span>{t?.salesBtn || 'Cotizar por WhatsApp'}</span></a>}
-      {pdfData && <a href={pdfData.url} target="_blank" rel="noopener noreferrer" className="msg-action-btn msg-action-pdf"><PdfIcon /><span>{t?.pdfBtn || 'Ver catálogo PDF'}</span></a>}
+      {waLink    && <a href={waLink}      target="_blank" rel="noopener noreferrer" className="msg-action-btn msg-action-wa"><WhatsAppIcon /><span>{t?.salesBtn || 'Cotizar por WhatsApp'}</span></a>}
+      {pdfData   && <a href={pdfData.url} target="_blank" rel="noopener noreferrer" className="msg-action-btn msg-action-pdf"><PdfIcon /><span>{t?.pdfBtn || 'Ver catálogo PDF'}</span></a>}
+      {distLink  && <a href={distLink}    target="_blank" rel="noopener noreferrer" className="msg-action-btn msg-action-dist"><StoreIcon /><span>Registrarme como Distribuidor</span></a>}
     </div>
   );
 };
@@ -377,6 +410,58 @@ const QuickReplies = ({ options, type, onSelect, disabled }) => {
     setSelected(opt.value);
     onSelect(opt);
   };
+
+  // ── Tarjetas blancas de vacantes reales ──────────────────────────────────────
+  if (type === 'vacante') {
+    const cards  = options.filter(o => o.action !== 'input');
+    const otroPuesto = options.find(o => o.action === 'input');
+    return (
+      <div className="vacpanel" style={{ marginTop: 6 }}>
+        <div className="vacpanel-hdr">
+          <div className="vacpanel-hdr-left">
+            <span className="vacpanel-dot" />
+            <span>Elige una vacante</span>
+          </div>
+        </div>
+        <div className="vacpanel-list" style={{ marginBottom: otroPuesto ? 10 : 0 }}>
+          {cards.map(opt => (
+            <div
+              key={opt.value}
+              className={`vacpanel-card ${selected === opt.value ? 'vacpanel-card--selected' : ''} ${selected && selected !== opt.value ? 'vacpanel-card--faded' : ''}`}
+              style={{ opacity: disabled ? 0.6 : 1 }}
+            >
+              <div className="vacpanel-card-body">
+                {opt.area && <span className="vacpanel-card-area">{opt.area}</span>}
+                <span className="vacpanel-card-title">{opt.label}</span>
+                <div className="vacpanel-card-tags">
+                  {fmtSalario(opt.salario) && <span className="vacpanel-tag">{fmtSalario(opt.salario)}</span>}
+                  {opt.tipo && <span className="vacpanel-tag">{opt.tipo}</span>}
+                </div>
+              </div>
+              <button
+                className="vacpanel-card-btn"
+                onClick={() => handleClick(opt)}
+                disabled={disabled || !!selected}
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                Postularme
+              </button>
+            </div>
+          ))}
+        </div>
+        {otroPuesto && (
+          <button
+            className="vacpanel-more"
+            onClick={() => handleClick(otroPuesto)}
+            disabled={disabled || !!selected}
+            style={{ width: '100%', background: 'none', cursor: disabled || selected ? 'default' : 'pointer' }}
+          >
+            + Otro puesto
+          </button>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className={`quick-replies-container ${isGrid ? 'quick-replies-grid' : ''}`}>
@@ -500,6 +585,27 @@ const RecruitmentConfirmation = ({ candidato, t }) => {
   );
 };
 
+// ─── DUPLICATE NOTICE ─────────────────────────────────────────────────────────
+const DuplicateNotice = () => {
+  const [visible, setVisible] = useState(false);
+  useEffect(() => { const t = setTimeout(() => setVisible(true), 100); return () => clearTimeout(t); }, []);
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 6,
+      background: 'rgba(251,103,11,0.08)', border: '1px solid rgba(251,103,11,0.25)',
+      borderRadius: 10, padding: '10px 13px',
+      opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(6px)',
+      transition: 'opacity 0.3s ease, transform 0.3s ease',
+    }}>
+      <span style={{ fontSize: 16, flexShrink: 0 }}>⚠️</span>
+      <div>
+        <div style={{ fontSize: 12, fontWeight: 600, color: '#FB670B', marginBottom: 2 }}>Solicitud ya registrada</div>
+        <div style={{ fontSize: 11, color: 'rgba(236,235,224,0.65)', lineHeight: 1.5 }}>Ya tenemos tus datos en nuestro sistema. El equipo de RH te contactará pronto.</div>
+      </div>
+    </div>
+  );
+};
+
 // ─── MOBILE PILL ──────────────────────────────────────────────────────────────
 const MobilePill = ({ onOpen, t }) => {
   const [phase, setPhase] = useState('entering');
@@ -615,9 +721,13 @@ export default function BotGO({ language = 'es' }) {
 
   const [messages, setMessages] = useState([{
     role: 'assistant', content: t.greeting,
-    waLink: null, pdfData: null,
+    waLink: null, pdfData: null, distLink: null, isDuplicate: false,
     showCVUpload: false, quickReplies: null, quickRepliesUsed: false,
   }]);
+
+  // ✅ FIX CLAVE: Referencia de mensajes para evitar cierres obsoletos (Stale Closures)
+  const messagesRef = useRef(messages);
+  useEffect(() => { messagesRef.current = messages; }, [messages]);
 
   const [input,             setInput]             = useState('');
   const [loading,           setLoading]           = useState(false);
@@ -633,10 +743,13 @@ export default function BotGO({ language = 'es' }) {
   const [cvUploading,       setCvUploading]       = useState(false);
   const [mostrarSubirCV,    setMostrarSubirCV]    = useState(false);
   const [candidatoRegistrado, setCandidatoRegistrado] = useState(null);
+  const [vacancyCards,        setVacancyCards]        = useState(null);
   const [mounted,    setMounted]    = useState(false);
   const [isMobile,   setIsMobile]   = useState(false);
   const [isHomePage, setIsHomePage] = useState(false);
   const [micToast,   setMicToast]   = useState('');
+  const [deferredInstallPrompt, setDeferredInstallPrompt] = useState(null);
+  const [pwaInstalled,          setPwaInstalled]          = useState(false);
 
   const chatWindowRef        = useRef(null);
   const inputRef             = useRef(null);
@@ -649,10 +762,16 @@ export default function BotGO({ language = 'es' }) {
   const abortedRef           = useRef(false);
   const waveCanvasRef        = useRef(null);
   const waveAnimRef          = useRef(null);
+  const sessionIdRef         = useRef(`s_${Date.now()}_${Math.random().toString(36).slice(2,8)}`);
+  const fetchAbortRef        = useRef(null); // cancela fetch anterior si llega uno nuevo
+  const vacListRef           = useRef([]);   // vacantes activas cargadas (para quickReplies dinámicos)
+
+  // Memoizado para que MicToast no reinicie su timer en cada render del padre
+  const dismissMicToast = useCallback(() => setMicToast(''), []);
 
   const enFlujoReclutamiento = (() => {
     const hayReclutamiento = messages.some(m =>
-      m.role === 'assistant' &&
+      (m.role === 'assistant' || m.role === 'user') &&
       /vacante|empleo|puesto|reclutamiento|aplicar|solicitud.*empleo|trabajo/i.test(m.content || '')
     );
     if (!hayReclutamiento) return false;
@@ -660,7 +779,9 @@ export default function BotGO({ language = 'es' }) {
     const ultimos = messages.slice(-4);
     const salioDeFlujo = ultimos.some(m => {
       const txt = (m.content || '').toLowerCase();
-      return /catálogo|catalogo|producto|rafia|stretch|saco|arpilla|cuerda|esquinero|empaque|precio|cotiz|whatsapp|pdf|ficha/i.test(txt);
+      // No salir del flujo si el mensaje contiene contexto de empleo
+      if (INTENT_EMPLEO_REGEX.test(m.content || '')) return false;
+      return /catálogo|catalogo|rafia|stretch|saco|arpilla|cuerda|esquinero|empaque|cotiz|pdf|ficha técnica|ficha tecnica/i.test(txt);
     });
     if (salioDeFlujo) return false;
     return true;
@@ -675,6 +796,113 @@ export default function BotGO({ language = 'es' }) {
     setMounted(true);
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // ── PWA install prompt handling ───────────────────────────────────────────────
+  useEffect(() => {
+    // Check if already installed (standalone mode or flag set)
+    const alreadyInstalled =
+      window.matchMedia('(display-mode: standalone)').matches ||
+      window.navigator.standalone === true ||
+      localStorage.getItem('pwa-installed') === 'true';
+    if (alreadyInstalled) { setPwaInstalled(true); return; }
+
+    // El evento beforeinstallprompt puede dispararse antes de que React monte.
+    // Lo capturamos en un script is:inline en <head> y lo leemos aquí.
+    if (window.__pwaInstallPrompt) {
+      setDeferredInstallPrompt(window.__pwaInstallPrompt);
+    }
+
+    const handler = (e) => {
+      e.preventDefault();
+      window.__pwaInstallPrompt = e;
+      setDeferredInstallPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+
+    const installedHandler = () => {
+      setPwaInstalled(true);
+      setDeferredInstallPrompt(null);
+      window.__pwaInstallPrompt = null;
+      try { localStorage.setItem('pwa-installed', 'true'); } catch {}
+    };
+    window.addEventListener('appinstalled', installedHandler);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handler);
+      window.removeEventListener('appinstalled', installedHandler);
+    };
+  }, []);
+
+  // ── Cargar vacantes activas al montar (para quickReplies dinámicos) ──────────
+  useEffect(() => {
+    fetch('/api/vacantes')
+      .then(r => r.json())
+      .then(data => {
+        if (data.ok) vacListRef.current = (data.vacantes || []).filter(v => v.activa);
+      })
+      .catch(() => {});
+  }, []);
+
+  // ── Trigger externo desde página de vacantes (Corregido con messagesRef) ──
+  useEffect(() => {
+    const handler = (e) => {
+      const titulo = e.detail?.titulo || '';
+      const esListaEspera = !!e.detail?.esListaEspera;
+      setIsOpen(true);
+      setViewMode('chat');
+      if (window.history && window.history.pushState) {
+        window.history.pushState({ botOpen: true }, '');
+      }
+      window.dispatchEvent(new Event('pwa:bot-open'));
+      const resetConversacion = () => {
+        setMessages([{
+          role: 'assistant', content: t.greeting,
+          waLink: null, pdfData: null, distLink: null, isDuplicate: false,
+          showCVUpload: false, quickReplies: null, quickRepliesUsed: false,
+        }]);
+        setCandidatoRegistrado(null);
+        setMostrarSubirCV(false);
+        setCvSubido(null);
+        setCvPendiente(null);
+        setVacancyCards(null);
+      };
+      if (esListaEspera) {
+        const sinPuesto = !!e.detail?.sinPuesto;
+        resetConversacion();
+        setTimeout(() => {
+          const msg = sinPuesto
+            ? 'Quiero registrarme en lista de espera. No encontré vacante para mi perfil en la lista actual, pero me interesa trabajar en Grupo Ortiz.'
+            : 'Me interesa trabajar con Grupo Ortiz. No hay vacantes abiertas por ahora pero quiero dejar mis datos para que me contacten cuando se abra una oportunidad.';
+          sendMessage(null, msg, false);
+        }, 600);
+      } else if (titulo) {
+        // Resetear conversación al cambiar de vacante para que la barra de progreso empiece desde cero
+        resetConversacion();
+        setTimeout(() => {
+          sendMessage(null, `Quiero postularme a la vacante de ${titulo}`, false);
+        }, 600);
+      } else {
+        // Sin vacante específica: mostrar tarjetas en pantalla principal
+        setViewMode('voice');
+        setVacancyCards([]); // estado de carga
+        fetch('/api/vacantes')
+          .then(r => r.json())
+          .then(data => {
+            if (data.ok) {
+              const activas = (data.vacantes || []).filter(v => v.activa);
+              vacListRef.current = activas; // sincronizar ref para quickReplies
+              setVacancyCards(activas.slice(0, 4));
+            } else {
+              setVacancyCards(null);
+            }
+          })
+          .catch(() => setVacancyCards(null));
+      }
+    };
+    window.addEventListener('botgo:open-vacancy', handler);
+    return () => window.removeEventListener('botgo:open-vacancy', handler);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -693,7 +921,7 @@ export default function BotGO({ language = 'es' }) {
     }
   }, [isOpen, viewMode]);
 
-  // ✅ FIX 4: handleCloseChat con useCallback para evitar re-renders y closures obsoletos
+  // Cierre completo — solo para el botón X explícito
   const handleCloseChat = useCallback(() => {
     if (recRef.current) {
       abortedRef.current = true;
@@ -706,13 +934,14 @@ export default function BotGO({ language = 'es' }) {
     setVoiceActivated(false);
     setMessages([{
       role: 'assistant', content: t.greeting,
-      waLink: null, pdfData: null,
+      waLink: null, pdfData: null, distLink: null, isDuplicate: false,
       showCVUpload: false, quickReplies: null, quickRepliesUsed: false,
     }]);
     setCvSubido(null);
     setCvPendiente(null);
     setMostrarSubirCV(false);
     setCandidatoRegistrado(null);
+    setVacancyCards(null);
     setLastVoiceResponse(t.greeting);
     productoCtxRef.current = null;
     inputRef.current?.blur();
@@ -720,17 +949,74 @@ export default function BotGO({ language = 'es' }) {
     window.dispatchEvent(new Event('pwa:bot-close'));
   }, [t.greeting]);
 
-  // ✅ FIX 4: handleOpenChat con useCallback
+  // Solo ocultar — preserva toda la conversación y estado de registro
+  const handleHideChat = useCallback(() => {
+    if (recRef.current) {
+      abortedRef.current = true;
+      try { recRef.current.abort(); } catch {}
+      recRef.current = null;
+    }
+    setIsListening(false);
+    setIsOpen(false);
+    inputRef.current?.blur();
+    window.dispatchEvent(new Event('pwa:bot-close'));
+  }, []);
+
+  // ── PWA install handler ───────────────────────────────────────────────────────
+  const handleInstallPWA = useCallback(async () => {
+    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+    if (isIOS) {
+      // iOS: show instructions in chat
+      setViewMode('chat');
+      setTimeout(() => {
+        setMessages(prev => [...prev, {
+          role: 'assistant',
+          content: 'Para instalar la app en iPhone:\n\n1. Toca el ícono **Compartir** (⬆) en la barra de Safari\n2. Desplázate y toca **"Agregar a pantalla de inicio"**\n3. Toca **Agregar** — ¡listo!\n\nDespués ábrela desde tu pantalla de inicio.',
+          waLink: null, pdfData: null, distLink: null, isDuplicate: false,
+          showCVUpload: false, quickReplies: null, quickRepliesUsed: false,
+        }]);
+      }, 100);
+      return;
+    }
+
+    if (deferredInstallPrompt) {
+      // Android: native install prompt available
+      deferredInstallPrompt.prompt();
+      const { outcome } = await deferredInstallPrompt.userChoice;
+      if (outcome === 'accepted') {
+        setPwaInstalled(true);
+        setDeferredInstallPrompt(null);
+        try { localStorage.setItem('pwa-installed', 'true'); } catch {}
+      }
+      return;
+    }
+
+    // Android but no prompt (HTTP local dev or already dismissed) — send to production
+    setViewMode('chat');
+    setTimeout(() => {
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: 'Para instalar la app:\n\n1. Abre **grupo-ortiz.com** en Chrome\n2. Toca los **3 puntos** (⋮) arriba a la derecha\n3. Selecciona **"Instalar app"** o **"Agregar a pantalla de inicio"**\n\nEn red local la instalación requiere conexión segura (HTTPS).',
+        waLink: null, pdfData: null, distLink: null, isDuplicate: false,
+        showCVUpload: false, quickReplies: null, quickRepliesUsed: false,
+      }]);
+    }, 100);
+  }, [deferredInstallPrompt]);
+
   const handleOpenChat = useCallback(() => {
     setShowTooltip(false);
     setIsOpen(true);
+    // Push history entry para interceptar el botón atrás en móvil
+    if (window.history && window.history.pushState) {
+      window.history.pushState({ botOpen: true }, '');
+    }
     window.dispatchEvent(new Event('pwa:bot-open'));
   }, []);
 
-  // ✅ FIX 4: useEffect de keyboard ahora tiene dependencias correctas (sin eslint-disable)
   useEffect(() => {
     const onKey = (e) => {
-      if (e.key.toLowerCase() === 'f') {
+      if (e.key && e.key.toLowerCase() === 'f') {
         const tag = e.target.tagName;
         if (tag !== 'INPUT' && tag !== 'TEXTAREA' && !e.target.isContentEditable) {
           e.preventDefault();
@@ -738,26 +1024,37 @@ export default function BotGO({ language = 'es' }) {
         }
       }
     };
-    const onEsc = (e) => { if (e.key === 'Escape') handleCloseChat(); };
+    // ESC solo oculta, no reinicia
+    const onEsc = (e) => { if (e.key === 'Escape') handleHideChat(); };
+    // Click fuera solo oculta, no reinicia
     const onOutside = (e) => {
       if (!isOpen) return;
       if (chatWindowRef.current && !chatWindowRef.current.contains(e.target)) {
         const btn = document.querySelector('.botgo-pill-wrapper, .botgo-button');
         if (btn && btn.contains(e.target)) return;
-        handleCloseChat();
+        handleHideChat();
+      }
+    };
+    // Botón atrás en móvil: solo oculta si el estado de history era botOpen
+    const onPopState = (e) => {
+      if (isOpen) {
+        handleHideChat();
+        // Re-push el state para que el historial quede limpio si vuelven a abrir
       }
     };
     window.addEventListener('keydown', onKey);
     if (isOpen) {
       document.addEventListener('mousedown', onOutside);
       document.addEventListener('keydown', onEsc);
+      window.addEventListener('popstate', onPopState);
     }
     return () => {
       window.removeEventListener('keydown', onKey);
       document.removeEventListener('mousedown', onOutside);
       document.removeEventListener('keydown', onEsc);
+      window.removeEventListener('popstate', onPopState);
     };
-  }, [isOpen, handleCloseChat]);
+  }, [isOpen, handleHideChat]);
 
   useEffect(() => {
     if (!isBotSpeaking) {
@@ -769,7 +1066,7 @@ export default function BotGO({ language = 'es' }) {
     const ctx = canvas.getContext('2d');
     let t = 0;
     const WAVES = [
-      { color: '#FB670B', amp: 26, freq: 0.013, speed: 0.022, phase: 0,   alpha: 0.65, yRatio: 0.42 },
+      { color: '#FB670B', amp: 26, freq: 0.013, speed: 0.022, phase: 0,    alpha: 0.65, yRatio: 0.42 },
       { color: '#FB670B', amp: 16, freq: 0.019, speed: 0.032, phase: 1.2, alpha: 0.30, yRatio: 0.50 },
       { color: '#C5C5C5', amp: 20, freq: 0.015, speed: 0.018, phase: 2.4, alpha: 0.28, yRatio: 0.46 },
       { color: '#535353', amp: 30, freq: 0.009, speed: 0.014, phase: 0.8, alpha: 0.38, yRatio: 0.54 },
@@ -1015,15 +1312,24 @@ export default function BotGO({ language = 'es' }) {
     }
   };
 
+  // ✅ FIX CLAVE: Se usa `messagesRef.current` para armar el body del fetch 
   const sendMessage = async (e = null, textOverride = null, isVoice = false, cvAdjunto = null) => {
     if (e) e.preventDefault();
     const text = (textOverride ?? input).trim();
     if (!text) return;
+    if (loading) return; // evitar envíos concurrentes (quick replies, voz, teclado)
+
+    // Cancelar cualquier fetch anterior que siga en vuelo
+    if (fetchAbortRef.current) { fetchAbortRef.current.abort(); fetchAbortRef.current = null; }
+    const controller = new AbortController();
+    fetchAbortRef.current = controller;
+
     if (audioRef.current) {
       audioRef.current.pause();
       setIsBotSpeaking(false);
     }
     try { window.speechSynthesis?.cancel(); } catch {}
+    
     const cvParaEnviar = cvAdjunto || cvPendiente || null;
     const userMsg = {
       role: 'user', content: text,
@@ -1031,6 +1337,10 @@ export default function BotGO({ language = 'es' }) {
       showCVUpload: false, quickReplies: null, quickRepliesUsed: false,
       cvAdjunto: cvParaEnviar ? { nombre: cvParaEnviar.nombre, tamaño: cvParaEnviar.tamaño } : null,
     };
+    
+    // Extreamos el estado congelado del Ref para no sobreescribir la memoria del bot
+    const currentMsgs = messagesRef.current;
+    
     setMessages(prev => [
       ...prev.map(m => m.quickReplies && !m.quickRepliesUsed ? { ...m, quickRepliesUsed: true } : m),
       userMsg,
@@ -1038,23 +1348,55 @@ export default function BotGO({ language = 'es' }) {
     setInput('');
     if (cvParaEnviar) setCvPendiente(null);
     setLoading(true);
+    
     const prodUser  = detectarProducto(text);
     if (prodUser) productoCtxRef.current = prodUser;
-    const compraNow = esIntencionCompra(text);
-    const pdfNow    = esSolicitudPDF(text);
+
+    // Si el usuario ya estaba registrado pero ahora pide una vacante diferente,
+    // limpiar el estado para permitir un nuevo registro
+    if (candidatoRegistrado) {
+      const esNuevaVacante = INTENT_EMPLEO_REGEX.test(text) || /postularme|aplicar|registrar|otra vacante|diferente/i.test(text);
+      const puestoAnterior = (candidatoRegistrado.puesto || '').toLowerCase();
+      const menciona_otro_puesto = esNuevaVacante && !text.toLowerCase().includes(puestoAnterior);
+      if (esNuevaVacante && (!puestoAnterior || menciona_otro_puesto)) {
+        setCandidatoRegistrado(null);
+        setCvSubido(null);
+        setCvPendiente(null);
+        setMostrarSubirCV(false);
+      }
+    }
+
+    // Detectar si el historial actual indica flujo de reclutamiento
+    const historialActual = messagesRef.current;
+    const enReclutamiento = historialActual.some(m =>
+      INTENT_EMPLEO_REGEX.test(m.content || '')
+    );
+    // Solo activar intención de compra si NO estamos en flujo de empleo
+    const compraNow = enReclutamiento ? false : esIntencionCompra(text, historialActual);
+    const pdfNow    = enReclutamiento ? false : esSolicitudPDF(text);
+    
+    // Lista segura para el body del request
+    const payloadMessages = [
+      ...currentMsgs.map(m => m.quickReplies ? { ...m, quickRepliesUsed: true } : m),
+      userMsg
+    ];
+
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
         body: JSON.stringify({
-          messages: [...messages, userMsg],
+          messages: payloadMessages,
           isVoice, language: currentLangCode,
+          sessionId: sessionIdRef.current,
           cvAdjunto: cvParaEnviar
             ? { nombre: cvParaEnviar.nombre, tipo: cvParaEnviar.tipo, base64: cvParaEnviar.base64, tamaño: cvParaEnviar.tamaño }
             : null,
         }),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      
       const data = await res.json();
       const replyText           = data.reply              || '';
       const audioUrl            = data.audio              || null;
@@ -1063,6 +1405,9 @@ export default function BotGO({ language = 'es' }) {
       const accionCV            = data.accionCV           || false;
       const accionReclutamiento = data.accionReclutamiento || false;
       const candidatoId         = data.candidatoId        || null;
+      const accionDistribuidor  = data.accionDistribuidor  || false;
+      const isDuplicate         = data.isDuplicate         || false;
+      
       let quickReplies = data.quickReplies || null;
       if (!quickReplies && replyText) {
         if (/tienes.*cv|adjuntar.*cv|cv.*disponible|tienes un cv|tiene.*curriculum/i.test(replyText)) {
@@ -1074,15 +1419,21 @@ export default function BotGO({ language = 'es' }) {
             ],
           };
         } else if (/que puesto|a que puesto|cual.*puesto|aplicar a/i.test(replyText)) {
+          const usingRealVac = vacListRef.current.length > 0;
+          const vacOpts = usingRealVac
+            ? vacListRef.current.map(v => ({ label: v.titulo, value: v.titulo, action: 'text', area: v.area, salario: v.salario, tipo: v.tipo }))
+            : [
+                { label: 'Producción', value: 'Operador de producción', action: 'text'  },
+                { label: 'Logística',  value: 'Logística',              action: 'text'  },
+                { label: 'Ventas',     value: 'Ventas',                 action: 'text'  },
+                { label: 'Técnico',    value: 'Mantenimiento',          action: 'text'  },
+                { label: 'Ay. Gral.',  value: 'Ayudante General',       action: 'text'  },
+              ];
           quickReplies = {
-            type: 'puesto',
+            type: usingRealVac ? 'vacante' : 'puesto',
             options: [
-              { label: 'Producción', value: 'Operador de producción', action: 'text'  },
-              { label: 'Logística',  value: 'Logística',              action: 'text'  },
-              { label: 'Ventas',     value: 'Ventas',                 action: 'text'  },
-              { label: 'Técnico',    value: 'Mantenimiento',          action: 'text'  },
-              { label: 'Ay. Gral.',  value: 'Ayudante General',       action: 'text'  },
-              { label: 'Otro puesto',value: 'otro',                   action: 'input' },
+              ...vacOpts,
+              { label: 'Otro puesto', value: 'otro', action: 'input' },
             ],
           };
         } else if (/que estado|en que estado|estado.*republica|donde vives/i.test(replyText)) {
@@ -1102,20 +1453,27 @@ export default function BotGO({ language = 'es' }) {
       const prodReply = detectarProducto(replyText);
       if (prodReply && !prodUser) productoCtxRef.current = prodReply;
       const prodFinal = productoCtxRef.current || 'sus productos';
-      let waLink  = null;
-      let pdfData = null;
-      if (compraNow || accionWA === true) {
+      
+      let waLink    = null;
+      let pdfData   = null;
+      let distLink  = null;
+      if ((compraNow || accionWA === true) && !enReclutamiento) {
         const waText = t.waStart || 'Hola Grupo Ortiz, me interesa cotizar';
         waLink = `https://wa.me/524432072593?text=${encodeURIComponent(waText + ' ' + prodFinal)}`;
       }
-      if (pdfNow || accionPDF != null) {
+      if ((pdfNow || accionPDF != null) && !enReclutamiento) {
         const clave = accionPDF || prodUser || prodReply || productoCtxRef.current || 'general';
         pdfData = PDF_MAP[clave] || PDF_MAP['general'];
       }
       const pedirCV = (accionCV || /adjunta.*cv|por favor.*adjunta|sube.*cv|envía.*cv|manda.*cv/i.test(replyText)) && !cvSubido;
       if (pedirCV) setMostrarSubirCV(true);
+      if (accionDistribuidor) {
+        distLink = `/${currentLangCode}/distribuidor#formulario`;
+      }
+      
       if (accionReclutamiento && candidatoId) {
-        const todosLosMsgs   = [...messages, userMsg];
+        // En lugar de `[...messages, userMsg]`, usamos `payloadMessages`
+        const todosLosMsgs   = [...payloadMessages, { role: 'assistant', content: replyText }];
         const datosExtraidos = extraerDatosDeHistorial(todosLosMsgs);
         setCandidatoRegistrado({
           id:     candidatoId,
@@ -1123,15 +1481,19 @@ export default function BotGO({ language = 'es' }) {
           puesto: datosExtraidos.puesto || '',
         });
       }
+      
       setMessages(prev => [...prev, {
         role: 'assistant', content: replyText,
-        waLink, pdfData,
+        waLink, pdfData, distLink,
         showCVUpload: accionCV && !cvSubido,
+        isDuplicate,
         quickReplies, quickRepliesUsed: false,
       }]);
       setLastVoiceResponse(replyText);
       if (isVoice && audioUrl) await playAudio(audioUrl);
+      
     } catch (err) {
+      if (err.name === 'AbortError') return; // fetch cancelado por mensaje más nuevo — ignorar silenciosamente
       console.error('❌ sendMessage error:', err);
       setMessages(prev => [...prev, {
         role: 'assistant',
@@ -1139,6 +1501,7 @@ export default function BotGO({ language = 'es' }) {
         waLink: null, pdfData: null, showCVUpload: false, quickReplies: null, quickRepliesUsed: false,
       }]);
     } finally {
+      fetchAbortRef.current = null;
       setLoading(false);
       if (viewMode === 'chat' && window.innerWidth > 1024) {
         setTimeout(() => inputRef.current?.focus(), 50);
@@ -1198,27 +1561,113 @@ export default function BotGO({ language = 'es' }) {
                       </Suspense>
                     </div>
                   </div>
-                  <div className="voice-caps-grid">
-                    {(t.tooltipItems || []).map((item, i) => {
-                      const Icon = getIconForItem(item);
-                      return (
+                  {vacancyCards !== null ? (
+                    <div className="vacpanel">
+                      <div className="vacpanel-hdr">
+                        <div className="vacpanel-hdr-left">
+                          <span className="vacpanel-dot" />
+                          <span>Vacantes abiertas</span>
+                        </div>
+                        <button className="vacpanel-close" onClick={() => setVacancyCards(null)}>×</button>
+                      </div>
+                      {vacancyCards.length === 0 ? (
+                        <div className="vacpanel-loading">
+                          <span className="vacpanel-spinner" />
+                          Cargando vacantes…
+                        </div>
+                      ) : (
+                        <div className="vacpanel-list">
+                          {vacancyCards.map(v => (
+                            <div key={v.id} className="vacpanel-card">
+                              <div className="vacpanel-card-body">
+                                <span className="vacpanel-card-area">{v.area}</span>
+                                <span className="vacpanel-card-title">{v.titulo}</span>
+                                <div className="vacpanel-card-tags">
+                                  {fmtSalario(v.salario) && <span className="vacpanel-tag">{fmtSalario(v.salario)}</span>}
+                                  {v.tipo && <span className="vacpanel-tag">{v.tipo}</span>}
+                                </div>
+                              </div>
+                              <button
+                                className="vacpanel-card-btn"
+                                onClick={() => {
+                                  setVacancyCards(null);
+                                  setViewMode('chat');
+                                  setTimeout(() => sendMessage(null, `Quiero postularme a la vacante de ${v.titulo}`, false), 100);
+                                }}
+                              >
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                Postularme
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      <a
+                        href={`/${currentLangCode}/vacantes#vacantes`}
+                        className="vacpanel-more"
+                        onClick={() => { handleCloseChat(); }}
+                      >
+                        Ver todas las vacantes
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                      </a>
+                    </div>
+                  ) : (
+                    <div className="voice-caps-grid">
+                      {(t.tooltipItems || []).map((item, i) => {
+                        const Icon = getIconForItem(item);
+                        const isVacantes = /vacante/i.test(item.bold || '');
+                        return (
+                          <button
+                            key={i}
+                            className="voice-cap-card"
+                            style={{ animationDelay: `${i * 0.07}s` }}
+                            onClick={() => {
+                              if (isVacantes) {
+                                // Mostrar panel de vacantes en lugar de ir al chat
+                                if (vacListRef.current.length > 0) {
+                                  setVacancyCards(vacListRef.current.slice(0, 4));
+                                } else {
+                                  setVacancyCards([]);
+                                  fetch('/api/vacantes')
+                                    .then(r => r.json())
+                                    .then(data => {
+                                      if (data.ok) {
+                                        const activas = (data.vacantes || []).filter(v => v.activa);
+                                        vacListRef.current = activas;
+                                        setVacancyCards(activas.slice(0, 4));
+                                      } else { setVacancyCards(null); }
+                                    })
+                                    .catch(() => setVacancyCards(null));
+                                }
+                              } else {
+                                const query = `${item.text} ${item.bold}`;
+                                setInput(query);
+                                setViewMode('chat');
+                                setTimeout(() => sendMessage(null, query, false), 100);
+                              }
+                            }}
+                          >
+                            <span className="voice-cap-icon"><Icon /></span>
+                            <span className="voice-cap-text">{item.text} <strong>{item.bold}</strong></span>
+                          </button>
+                        );
+                      })}
+                      {isMobile && !pwaInstalled && (
                         <button
-                          key={i}
-                          className="voice-cap-card"
-                          style={{ animationDelay: `${i * 0.07}s` }}
-                          onClick={() => {
-                            const query = `${item.text} ${item.bold}`;
-                            setInput(query);
-                            setViewMode('chat');
-                            setTimeout(() => sendMessage(null, query, false), 100);
-                          }}
+                          className="voice-cap-card voice-cap-card--install"
+                          style={{ animationDelay: `${(t.tooltipItems || []).length * 0.07}s` }}
+                          onClick={handleInstallPWA}
                         >
-                          <span className="voice-cap-icon"><Icon /></span>
-                          <span className="voice-cap-text">{item.text} <strong>{item.bold}</strong></span>
+                          <span className="voice-cap-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M12 2v13M7 11l5 5 5-5"/><path d="M3 18v2a1 1 0 001 1h16a1 1 0 001-1v-2"/>
+                            </svg>
+                          </span>
+                          <span className="voice-cap-text">Instala la <strong>App GO</strong></span>
                         </button>
-                      );
-                    })}
-                  </div>
+                      )}
+                    </div>
+                  )}
                 </>
               )}
             </div>
@@ -1234,7 +1683,7 @@ export default function BotGO({ language = 'es' }) {
               </button>
               <button className="voice-control-btn secondary" onClick={handleCloseChat} aria-label="Cerrar"><CloseIcon /></button>
             </div>
-            <MicToast message={micToast} onDismiss={() => setMicToast('')} />
+            <MicToast message={micToast} onDismiss={dismissMicToast} />
           </div>
         )}
 
@@ -1247,6 +1696,7 @@ export default function BotGO({ language = 'es' }) {
             </div>
             {enFlujoReclutamiento && <RecruitmentProgress messages={messages} />}
             <div className="botgo-messages" ref={messagesContainerRef}>
+
               {messages.map((msg, idx) => (
                 <div key={idx} className={`msg-row ${msg.role}`}>
                   {msg.role === 'assistant' && (
@@ -1263,9 +1713,10 @@ export default function BotGO({ language = 'es' }) {
                         <span className="msg-cv-badge-size">{formatFileSize(msg.cvAdjunto.tamaño)}</span>
                       </div>
                     )}
-                    {msg.role === 'assistant' && (msg.waLink || msg.pdfData) && (
-                      <MessageActions waLink={msg.waLink} pdfData={msg.pdfData} t={t} />
+                    {msg.role === 'assistant' && (msg.waLink || msg.pdfData || msg.distLink) && (
+                      <MessageActions waLink={msg.waLink} pdfData={msg.pdfData} distLink={msg.distLink} t={t} />
                     )}
+                    {msg.role === 'assistant' && msg.isDuplicate && <DuplicateNotice />}
                     {msg.role === 'assistant' && msg.quickReplies && (
                       <QuickReplies
                         options={msg.quickReplies.options}
@@ -1342,13 +1793,13 @@ export default function BotGO({ language = 'es' }) {
                 </button>
               </form>
             </div>
-            <MicToast message={micToast} onDismiss={() => setMicToast('')} />
+            <MicToast message={micToast} onDismiss={dismissMicToast} />
           </div>
         )}
       </div>
 
- {!isOpen && (
-  <div className={`botgo-launcher ${mounted ? 'launcher-ready' : 'launcher-prerender'}`}>
+      {!isOpen && (
+        <div className={`botgo-launcher ${mounted ? 'launcher-ready' : 'launcher-prerender'}`}>
           {isMobile && isHomePage  && <MobilePill onOpen={handleOpenChat} t={t} />}
           {isMobile && !isHomePage && (
             <button className="botgo-button" onClick={handleOpenChat} aria-label="Abrir asistente virtual BotGO">

@@ -6,6 +6,9 @@ import {
   updateRecruitmentStatus,
   deleteRecruitmentLead,
   resetRecruitmentLeads,
+  addRecruiterNote,
+  getRecruiterNotes,
+  deleteRecruiterNote,
 } from '../../lib/analytics-db.js';
 
 export const prerender = false;
@@ -74,18 +77,19 @@ export async function POST({ request }) {
     // ── save: guardar candidato completo ──────────────────────────────────
     if (action === 'save') {
       const {
-        nombre    = '',
-        email     = '',
-        telefono  = '',
-        puesto    = '',
-        edad      = '',
-        estado    = '',
-        colonia   = '',
-        cvNombre  = '',
-        cvBase64  = '',   // ✅ NUEVO
-        cvTipo    = '',   // ✅ NUEVO
-        mensaje   = '',
-        sessionId = '',
+        nombre      = '',
+        email       = '',
+        telefono    = '',
+        puesto      = '',
+        edad        = '',
+        estado      = '',
+        colonia     = '',
+        cvNombre    = '',
+        cvBase64    = '',
+        cvTipo      = '',
+        mensaje     = '',
+        comentarios = '',
+        sessionId   = '',
       } = body;
 
       if (!nombre && !email && !telefono) {
@@ -98,11 +102,23 @@ export async function POST({ request }) {
         estado_rep: estado,
         colonia,
         cvNombre,
-        cvBase64,   // ✅ NUEVO
-        cvTipo,     // ✅ NUEVO
+        cvBase64,
+        cvTipo,
         mensaje,
+        comentarios,
         sessionId,
       });
+
+      // ── Duplicado detectado: no re-registrar ni notificar ─────────────────
+      if (saved?.duplicate) {
+        console.log(`🔁 Solicitud duplicada ignorada — candidato existente #${saved.id}: ${saved.existingNombre}`);
+        return json({
+          ok:        true,
+          duplicate: true,
+          id:        saved.id,
+          message:   'Ya existe un registro con este correo o teléfono. Tu solicitud fue recibida anteriormente.',
+        });
+      }
 
       const candidatoId = saved?.id || null;
       console.log(`✅ Candidato #${candidatoId} guardado: ${nombre} → ${puesto} | CV: ${cvNombre || 'sin CV'}`);
@@ -110,7 +126,7 @@ export async function POST({ request }) {
       try {
         await notifyNewVacante({
           nombre, puesto, edad, estado, colonia,
-          whatsapp: telefono, email, cvNombre, mensaje,
+          whatsapp: telefono, email, cvNombre, mensaje: comentarios || mensaje,
         });
         console.log('✅ Notificación RH enviada');
       } catch (err) {
@@ -152,6 +168,31 @@ export async function POST({ request }) {
     // ── reset ─────────────────────────────────────────────────────────────
     if (action === 'reset') {
       await resetRecruitmentLeads();
+      return json({ ok: true });
+    }
+
+    // ── addNote ───────────────────────────────────────────────────────────
+    if (action === 'addNote') {
+      const { candidateId, nota } = body;
+      if (!candidateId) return json({ ok: false, error: 'candidateId requerido' }, 400);
+      if (!nota?.trim()) return json({ ok: false, error: 'Nota vacía' }, 400);
+      const result = await addRecruiterNote({ candidateId, nota });
+      return json({ ok: true, id: result.id });
+    }
+
+    // ── getNotes ──────────────────────────────────────────────────────────
+    if (action === 'getNotes') {
+      const { candidateId } = body;
+      if (!candidateId) return json({ ok: false, error: 'candidateId requerido' }, 400);
+      const notes = await getRecruiterNotes(candidateId);
+      return json({ ok: true, notes });
+    }
+
+    // ── deleteNote ────────────────────────────────────────────────────────
+    if (action === 'deleteNote') {
+      const { noteId } = body;
+      if (!noteId) return json({ ok: false, error: 'noteId requerido' }, 400);
+      await deleteRecruiterNote(noteId);
       return json({ ok: true });
     }
 

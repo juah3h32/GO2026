@@ -509,6 +509,7 @@ const placeholderImg =
         whatsapp : newForm.querySelector('[name="whatsapp"]').value,
         email    : newForm.querySelector('[name="email"]').value,
         productos: checked,
+        comentarios: (newForm.querySelector('[name="comentarios"]') ? newForm.querySelector('[name="comentarios"]').value : ''),
       };
 
       var btn = newForm.querySelector(".submit-btn");

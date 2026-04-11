@@ -19,6 +19,16 @@
     body, * {
         cursor: none !important; /* Fuerza ocultar el cursor nativo incluso en botones */
     }
+    /* Restaurar cursor en campos de texto — sin esto el I-beam desaparece en inputs */
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="color"]),
+    textarea {
+        cursor: text !important;
+    }
+    select,
+    input[type="checkbox"],
+    input[type="radio"] {
+        cursor: pointer !important;
+    }
 }
 
 .custom-cursor {
@@ -32,7 +42,7 @@
   justify-content: center;
   align-items: center;
   transform: translate(-50%, -50%);
-    z-index: 999999999; /* ← un dígito más que el admin overlay */
+  z-index: 2147483647; /* máximo CSS — siempre encima de cualquier modal */
 }
 
 /* 2. Lógica de ocultación para móviles/tablets */
@@ -103,6 +113,8 @@ const cursor = document.querySelector('.custom-cursor');
 if (isTouch) {
     if(cursor) cursor.remove();
 } else {
+    // Mover al final del body para que siempre quede encima de cualquier portal/modal
+    if (cursor) document.body.appendChild(cursor);
     const cursorDot = document.querySelector('.cursor-dot');
     let mouseX = 0, mouseY = 0;
     let posX = 0, posY = 0;

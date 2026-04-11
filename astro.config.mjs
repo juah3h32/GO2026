@@ -17,7 +17,8 @@ export default defineConfig({
 
   server: {
     host: true,
-    port: 4321
+    port: 4321,
+    allowedHosts: 'all',
   },
 
   integrations: [
@@ -26,8 +27,12 @@ export default defineConfig({
     sitemap(),
     AstroPWA({
       registerType: 'autoUpdate',
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.js',
       devOptions: {
-        enabled: false
+        enabled: true,
+        type: 'module',
       },
       manifest: {
         name: 'GO - Grupo Ortiz',
@@ -45,34 +50,26 @@ export default defineConfig({
           { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
         ]
       },
-      workbox: {
+      injectManifest: {
         maximumFileSizeToCacheInBytes: 45000000,
         globPatterns: ['**/*.{js,css,html,ico,png,svg,webp}'],
-        navigateFallback: null,
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/grupo-ortiz\.com\/.*/i,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'pages-cache',
-              expiration: { maxEntries: 50, maxAgeSeconds: 86400 }
-            }
-          }
-        ]
       }
     })
   ],
 
 vite: {
-  envPrefix: ['TURSO_', 'JWT_', 'OPENAI_', 'NOTIFY_'],
+  envPrefix: ['TURSO_', 'JWT_', 'OPENAI_', 'NOTIFY_', 'VAPID_'],
   ssr: {
-    noExternal: ['three', 'cesium']
+    noExternal: ['three', 'cesium'],
+    // puppeteer-core, chromium y pdf-parse deben quedar externos en SSR (binarios/Node nativos)
+    external: ['puppeteer-core', '@sparticuz/chromium', 'pdf-parse', 'web-push'],
   },
     define: {
       CESIUM_BASE_URL: JSON.stringify('/cesium')
     },
     // Permite que Vite no bloquee recursos externos en build
     server: {
+      allowedHosts: true,
       headers: {
         'Content-Security-Policy': [
           "default-src 'self'",

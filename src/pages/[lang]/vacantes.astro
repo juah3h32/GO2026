@@ -1,0 +1,258 @@
+---
+// src/pages/[lang]/vacantes.astro
+import "../../styles/vacantes.css";
+export const prerender = true;
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Footer from "../../components/Footer.astro";
+import VacantesPage from "../../components/VacantesPage.jsx";
+import VacantesNotifPrompt from "../../components/VacantesNotifPrompt.jsx";
+import { CldVideoPlayer } from 'astro-cloudinary';
+import { languages, translations } from "../../i18n";
+
+export function getStaticPaths() {
+  return Object.keys(languages).map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params;
+const currentLang = (lang && lang in translations) ? lang : "es";
+
+// ── Cloudinary ────────────────────────────────────────────────────────────────
+// Cambia este ID por el video de Cloudinary que quieres usar para el hero.
+// Solo pon el public_id sin extensión, igual que en el home.
+const CLOUD      = import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME;
+const VIDEO_ID   = "fed1_yuf3ck";
+const posterUrl  = `https://res.cloudinary.com/${CLOUD}/video/upload/f_jpg,q_auto,so_0/Quie%CC%81n_es_grupo_ortiz_1_e4zilg.jpg`;
+
+const benefits = [
+  {
+    title: "Prestaciones de ley",
+    desc:  "IMSS, vacaciones, aguinaldo y todo lo que te corresponde desde el primer día.",
+    svg: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
+  },
+  {
+    title: "Empresa consolidada",
+    desc:  "Más de 65 años de trayectoria. Estabilidad laboral real en una empresa líder de México.",
+    svg: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>`,
+  },
+  {
+    title: "Crecimiento interno",
+    desc:  "Promovemos el talento de nuestro equipo. Muchos líderes empezaron en piso de planta.",
+    svg: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`,
+  },
+  {
+    title: "Ambiente de trabajo",
+    desc:  "Instalaciones modernas en Morelia. Equipo comprometido y cultura de respeto.",
+    svg: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+  },
+];
+
+const steps = [
+  { num:"01", title:"Abre el asistente", desc:"Haz clic aquí para abrir el asistente. Te guiará paso a paso.", openBot: true },
+  { num:"02", title:"Completa tu perfil", desc:"Comparte tu nombre, edad, puesto de interés y adjunta tu CV si lo tienes." },
+  { num:"03", title:"Recibe confirmación", desc:"Tu solicitud llega directamente al área de Recursos Humanos." },
+  { num:"04", title:"Espera contacto",    desc:"RH revisará tu perfil y se comunicará contigo a la brevedad posible." },
+];
+---
+
+<BaseLayout
+  title="Vacantes en Morelia | Empleos Grupo Ortiz"
+  description="Únete al equipo de Grupo Ortiz en Morelia, Michoacán. Vacantes disponibles en producción, almacén, logística, ventas y más. Regístrate con nuestro asistente virtual."
+  currentLang={currentLang}
+>
+
+  <!-- Schema.org JobPosting SEO -->
+  <script type="application/ld+json" slot="head">{JSON.stringify({
+    "@context":"https://schema.org",
+    "@type":"Organization",
+    "name":"Grupo Ortiz",
+    "url":"https://grupo-ortiz.com",
+    "logo":"https://grupo-ortiz.com/images/logoN.png",
+    "address":{"@type":"PostalAddress","addressLocality":"Morelia","addressRegion":"Michoacán","addressCountry":"MX"},
+    "contactPoint":{"@type":"ContactPoint","telephone":"+52-443-207-2593","contactType":"Human Resources"}
+  })}</script>
+
+  <!-- Función global que abre el bot -->
+  <script is:inline>
+    function openBot(detail) {
+      window.dispatchEvent(new CustomEvent('botgo:open-vacancy', { detail: detail || {} }));
+    }
+    window.addEventListener('vacantes:loaded', (e) => {
+      const el = document.getElementById('vac-count');
+      if (el && e.detail?.total != null) {
+        el.innerHTML = e.detail.total > 0 ? `<em>+</em>${e.detail.total}` : '—';
+      }
+    });
+    window.addEventListener('vacantes:expand', () => {
+      const header = document.getElementById('vacantes-header');
+      if (header) header.classList.add('is-sticky');
+    });
+  </script>
+
+  <div class="vac-page">
+
+    <!-- ════════════════════════════════
+         HERO — video full-screen
+    ═════════════════════════════════ -->
+    <section class="vac-hero">
+
+      <!-- Video Cloudinary — envuelto en div absoluto para que no afecte el flex layout -->
+      <div class="vac-hero__video-wrap">
+        <CldVideoPlayer
+  src={VIDEO_ID}
+  width="1920"
+  height="1080"
+  class="hero__video hero__video--fill" 
+  autoplay
+  muted
+  loop
+  playsinline
+  controls={false}
+  poster={posterUrl}
+/>
+      </div>
+
+      <!-- Overlay -->
+      <div class="vac-hero__veil"></div>
+
+      <!-- Contenido -->
+      <div class="vac-hero__content is-visible">
+
+        <div class="vac-hero__eyebrow">
+          <span class="vac-hero__pulse"></span>
+          <span class="vac-hero__line"></span>
+          Morelia, Michoacán · Vacantes disponibles
+          <span class="vac-hero__line"></span>
+        </div>
+
+        <h1 class="vac-hero__title">
+          Trabaja con<br>
+          <em>Grupo Ortiz</em>
+        </h1>
+
+        <p class="vac-hero__sub">
+          Más de 65 años fabricando en México. Buscamos personas comprometidas
+          para crecer juntos desde Morelia.
+        </p>
+
+        <div class="vac-hero__ctas">
+          <a href="#como-aplicar" class="btn btn--solid">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 8V4H8"/><rect x="4" y="8" width="16" height="12" rx="2"/>
+              <path d="M2 14h2"/><path d="M20 14h2"/><path d="M9 13v2"/><path d="M15 13v2"/>
+            </svg>
+            Postularme ahora
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </a>
+          <a href="#vacantes" class="btn btn--ghost">
+            Ver vacantes disponibles
+          </a>
+        </div>
+
+        <div class="vac-hero__stats">
+          <div class="vac-hero__stat">
+            <span class="vac-hero__stat-num"><em>+</em>65</span>
+            <span class="vac-hero__stat-lbl">Años de trayectoria</span>
+          </div>
+          <div class="vac-hero__stat">
+            <span class="vac-hero__stat-num"><em>+</em>3,000</span>
+            <span class="vac-hero__stat-lbl">Colaboradores activos</span>
+          </div>
+          <div class="vac-hero__stat">
+            <span class="vac-hero__stat-num" id="vac-count">—</span>
+            <span class="vac-hero__stat-lbl">Vacantes abiertas</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════
+         POR QUÉ GRUPO ORTIZ
+    ═════════════════════════════════ -->
+    <section class="vac-section">
+      <div class="vac-section-inner">
+
+        <div class="vac-section__header">
+          <p class="section-tag">Por qué elegirnos</p>
+          <h2 class="section-heading">Un lugar donde <em>crecer</em></h2>
+        </div>
+
+        <div class="vac-benefits-grid">
+          {benefits.map(b => (
+            <div class="vac-benefit-card">
+              <div class="vac-benefit-icon">
+                <Fragment set:html={b.svg} />
+              </div>
+              <div class="vac-benefit-title">{b.title}</div>
+              <div class="vac-benefit-desc">{b.desc}</div>
+            </div>
+          ))}
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════
+         VACANTES DINÁMICAS
+    ═════════════════════════════════ -->
+    <section class="vac-section vac-section--alt" id="vacantes">
+      <div class="vac-section-inner">
+
+        <div id="vacantes-header" class="vac-section__header">
+          <p class="section-tag">Oportunidades abiertas</p>
+          <h2 class="section-heading">Vacantes en <em>Morelia</em></h2>
+        </div>
+
+        <VacantesPage client:load />
+
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════
+         CÓMO REGISTRARTE
+    ═════════════════════════════════ -->
+    <section class="vac-section" id="como-aplicar">
+      <div class="vac-section-inner">
+
+        <div class="vac-section__header">
+          <p class="section-tag">Proceso de registro</p>
+          <h2 class="section-heading">Aplica en <em>minutos</em></h2>
+        </div>
+
+        <div class="vac-steps-grid">
+          {steps.map(s => (
+            s.openBot ? (
+              <button class="vac-step vac-step--bot" onclick="openBot()">
+                <div class="vac-step-num">{s.num}</div>
+                <div>
+                  <div class="vac-step-title">
+                    {s.title}
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-left:6px;vertical-align:middle;opacity:0.7"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                  </div>
+                  <div class="vac-step-desc">{s.desc}</div>
+                </div>
+              </button>
+            ) : (
+              <div class="vac-step">
+                <div class="vac-step-num">{s.num}</div>
+                <div>
+                  <div class="vac-step-title">{s.title}</div>
+                  <div class="vac-step-desc">{s.desc}</div>
+                </div>
+              </div>
+            )
+          ))}
+        </div>
+
+      </div>
+    </section>
+
+    <Footer currentLang={currentLang} />
+
+  </div>
+
+  <VacantesNotifPrompt client:load />
+
+</BaseLayout>

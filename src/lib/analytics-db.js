@@ -1,3 +1,4 @@
+// src/lib/analytics-db.js
 import { createClient } from '@libsql/client';
 
 const url       = process.env.TURSO_DATABASE_URL || import.meta.env.TURSO_DATABASE_URL;
@@ -24,10 +25,10 @@ async function ensureInit() {
 
     CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, ts TEXT NOT NULL DEFAULT (datetime('now')), user_msg TEXT NOT NULL DEFAULT '', bot_reply TEXT, lang TEXT NOT NULL DEFAULT 'es', intent TEXT NOT NULL DEFAULT 'otro', product TEXT);
 
-    CREATE INDEX IF NOT EXISTS idx_messages_ts    ON messages(ts DESC);
-    CREATE INDEX IF NOT EXISTS idx_daily_date     ON daily(date DESC);
-    CREATE INDEX IF NOT EXISTS idx_products_count ON products(count DESC);
-    CREATE INDEX IF NOT EXISTS idx_keywords_count ON keywords(count DESC);
+    CREATE INDEX IF NOT EXISTS idx_messages_ts  ON messages(ts DESC);
+    CREATE INDEX IF NOT EXISTS idx_daily_date   ON daily(date DESC);
+    CREATE INDEX IF NOT EXISTS idx_products_count   ON products(count DESC);
+    CREATE INDEX IF NOT EXISTS idx_keywords_count   ON keywords(count DESC);
   `);
 
   const hourInitQueries = [];
@@ -37,6 +38,10 @@ async function ensureInit() {
   await db.batch(hourInitQueries, 'write');
 
   isInitialized = true;
+
+  // Safe migration: add session_id to existing messages table if missing
+  try { await db.execute(`ALTER TABLE messages ADD COLUMN session_id TEXT NOT NULL DEFAULT ''`); } catch {}
+  try { await db.execute(`CREATE INDEX IF NOT EXISTS idx_messages_session ON messages(session_id)`); } catch {}
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -83,6 +88,7 @@ export async function logInteraction({
   accionPDF    = null,
   isNewSession = false,
   language     = 'es',
+  sessionId    = '',
 }) {
   await ensureInit();
 
@@ -118,8 +124,8 @@ export async function logInteraction({
   }
   stmts.push({ sql: 'UPDATE intents SET count = count + 1 WHERE intent = ?', args: [intent] });
   stmts.push({
-    sql:  "INSERT INTO messages (ts,user_msg,bot_reply,lang,intent,product) VALUES (datetime('now'),?,?,?,?,?)",
-    args: [userMessage.substring(0,120), botReply?.substring(0,300) || null, language, intent, product],
+    sql:  "INSERT INTO messages (ts,user_msg,bot_reply,lang,intent,product,session_id) VALUES (datetime('now'),?,?,?,?,?,?)",
+    args: [userMessage.substring(0,400), botReply?.substring(0,600) || null, language, intent, product, sessionId||''],
   });
 
   await db.batch(stmts, 'write');
@@ -179,6 +185,49 @@ export async function readAllData() {
   };
 }
 
+export async function readConversations({ limit = 50, offset = 0, search = '' } = {}) {
+  await ensureInit();
+
+  // Get unique sessions with their stats
+  const sessionsRes = await db.execute({
+    sql: `
+      SELECT
+        session_id,
+        MIN(ts) as started_at,
+        MAX(ts) as last_ts,
+        COUNT(*) as msg_count,
+        GROUP_CONCAT(DISTINCT intent) as intents,
+        GROUP_CONCAT(DISTINCT product) as products
+      FROM messages
+      WHERE session_id != ''
+      GROUP BY session_id
+      ORDER BY last_ts DESC
+      LIMIT ? OFFSET ?
+    `,
+    args: [limit, offset],
+  });
+
+  const sessions = sessionsRes.rows.map(r => ({
+    session_id: r.session_id,
+    started_at: r.started_at,
+    last_ts:    r.last_ts,
+    msg_count:  r.msg_count,
+    intents:    r.intents ? r.intents.split(',').filter(Boolean) : [],
+    products:   r.products ? r.products.split(',').filter(Boolean) : [],
+  }));
+
+  return { sessions };
+}
+
+export async function readSessionMessages(sessionId) {
+  await ensureInit();
+  const res = await db.execute({
+    sql: `SELECT id, ts, user_msg, bot_reply, intent, product FROM messages WHERE session_id = ? ORDER BY id ASC`,
+    args: [sessionId],
+  });
+  return res.rows;
+}
+
 // ─── DISTRIBUIDOR LEADS ───────────────────────────────────────────────────────
 async function ensureLeadsTable() {
   await db.execute(`
@@ -187,19 +236,20 @@ async function ensureLeadsTable() {
       ts TEXT NOT NULL DEFAULT (datetime('now')),
       nombre TEXT NOT NULL DEFAULT '', empresa TEXT NOT NULL DEFAULT '',
       whatsapp TEXT NOT NULL DEFAULT '', email TEXT NOT NULL DEFAULT '',
-      productos TEXT NOT NULL DEFAULT ''
+      productos TEXT NOT NULL DEFAULT '', comentarios TEXT NOT NULL DEFAULT ''
     )
   `);
+  try { await db.execute(`ALTER TABLE distribuidor_leads ADD COLUMN comentarios TEXT NOT NULL DEFAULT ''`); } catch {}
   await db.execute(`CREATE INDEX IF NOT EXISTS idx_leads_ts ON distribuidor_leads(ts DESC)`);
 }
 
-export async function saveLead({ nombre, empresa, whatsapp, email, productos }) {
+export async function saveLead({ nombre, empresa, whatsapp, email, productos, comentarios = '' }) {
   await ensureInit(); await ensureLeadsTable();
-  await db.execute({ sql: `INSERT INTO distribuidor_leads (nombre, empresa, whatsapp, email, productos) VALUES (?, ?, ?, ?, ?)`, args: [nombre||'', empresa||'', whatsapp||'', email||'', productos||''] });
+  await db.execute({ sql: `INSERT INTO distribuidor_leads (nombre, empresa, whatsapp, email, productos, comentarios) VALUES (?, ?, ?, ?, ?, ?)`, args: [nombre||'', empresa||'', whatsapp||'', email||'', productos||'', comentarios||''] });
 }
 export async function readLeads() {
   await ensureInit(); await ensureLeadsTable();
-  const res = await db.execute(`SELECT id, ts, nombre, empresa, whatsapp, email, productos FROM distribuidor_leads ORDER BY id DESC LIMIT 500`);
+  const res = await db.execute(`SELECT id, ts, nombre, empresa, whatsapp, email, productos, comentarios FROM distribuidor_leads ORDER BY id DESC LIMIT 500`);
   return res.rows;
 }
 export async function resetLeads() {
@@ -239,6 +289,9 @@ async function ensureRecruitmentTable() {
     `ALTER TABLE recruitment_leads ADD COLUMN cv_tipo     TEXT    DEFAULT ''`,  // ✅ NUEVO
     `ALTER TABLE recruitment_leads ADD COLUMN status      TEXT    DEFAULT 'nuevo'`,
     `ALTER TABLE recruitment_leads ADD COLUMN created_at  TEXT    DEFAULT (datetime('now'))`,
+    `ALTER TABLE recruitment_leads ADD COLUMN comentarios       TEXT    DEFAULT ''`,
+    `ALTER TABLE recruitment_leads ADD COLUMN en_lista_espera   INTEGER DEFAULT 0`,
+    `ALTER TABLE recruitment_leads ADD COLUMN notificado_vacante INTEGER DEFAULT 0`,
   ];
   for (const sql of migraciones) {
     try { await db.execute(sql); } catch { /* columna ya existe */ }
@@ -251,21 +304,57 @@ async function ensureRecruitmentTable() {
 
 // ── Guardar candidato ─────────────────────────────────────────────────────────
 export async function saveRecruitmentLead({
-  nombre     = '',
-  email      = '',
-  telefono   = '',
-  puesto     = '',
-  edad       = '',
-  estado_rep = '',
-  colonia    = '',
-  cvNombre   = '',
-  cvBase64   = '',   // ✅ NUEVO
-  cvTipo     = '',   // ✅ NUEVO
-  mensaje    = '',
-  sessionId  = '',
+  nombre          = '',
+  email           = '',
+  telefono        = '',
+  puesto          = '',
+  edad            = '',
+  estado_rep      = '',
+  colonia         = '',
+  cvNombre        = '',
+  cvBase64        = '',
+  cvTipo          = '',
+  mensaje         = '',
+  comentarios     = '',
+  sessionId       = '',
+  en_lista_espera = 0,
 }) {
   await ensureInit();
   await ensureRecruitmentTable();
+
+  // ── Anti-duplicados ───────────────────────────────────────────────────────
+  // Solo bloquea si misma persona (email o teléfono) Y mismo puesto.
+  // Permite que la misma persona se registre para vacantes distintas.
+  try {
+    const contactConditions = [];
+    const contactArgs       = [];
+
+    if (email && email.trim()) {
+      contactConditions.push(`(LOWER(TRIM(email)) = LOWER(TRIM(?)))`);
+      contactArgs.push(email.trim());
+    }
+    if (telefono && telefono.trim()) {
+      const tel = telefono.replace(/[\s\-()]/g, '');
+      contactConditions.push(`(REPLACE(REPLACE(REPLACE(telefono,' ',''),'-',''),'(','') LIKE ?)`);
+      contactArgs.push(`%${tel}%`);
+    }
+
+    if (contactConditions.length > 0) {
+      // Requiere que coincida el contacto Y el puesto para considerar duplicado
+      const puestoNorm = (puesto || '').trim().toLowerCase();
+      const { rows } = await db.execute({
+        sql:  `SELECT id, nombre, email, telefono, puesto FROM recruitment_leads WHERE (${contactConditions.join(' OR ')}) AND LOWER(TRIM(COALESCE(puesto,''))) = ? LIMIT 1`,
+        args: [...contactArgs, puestoNorm],
+      });
+      if (rows.length > 0) {
+        const existing = rows[0];
+        console.log(`⚠️ Duplicado: #${existing.id} — ${existing.nombre} ya registrado para "${existing.puesto}"`);
+        return { id: Number(existing.id), duplicate: true, existingNombre: existing.nombre, existingPuesto: existing.puesto };
+      }
+    }
+  } catch (dupErr) {
+    console.warn('⚠️ Verificación de duplicado falló, continuando:', dupErr.message);
+  }
 
   let result;
 
@@ -275,11 +364,11 @@ export async function saveRecruitmentLead({
       sql: `
         INSERT INTO recruitment_leads
           (nombre, email, telefono, puesto, edad, estado_rep, colonia,
-           cv_nombre, cv_base64, cv_tipo, mensaje, sessionId)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+           cv_nombre, cv_base64, cv_tipo, mensaje, comentarios, sessionId, en_lista_espera)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
       args: [nombre, email, telefono, puesto, edad, estado_rep, colonia,
-             cvNombre, cvBase64, cvTipo, mensaje, sessionId],
+             cvNombre, cvBase64, cvTipo, mensaje, comentarios, sessionId, en_lista_espera ? 1 : 0],
     });
   } catch (err1) {
     console.warn('⚠️ INSERT completo falló, intentando sin CV base64:', err1.message);
@@ -349,11 +438,49 @@ export async function readRecruitmentLeads() {
     cv_nombre:  r.cv_nombre  ?? '',
     cv_base64:  r.cv_base64  ?? '',   // ✅ NUEVO
     cv_tipo:    r.cv_tipo    ?? '',   // ✅ NUEVO
-    mensaje:    r.mensaje    ?? '',
-    session_id: r.sessionId  ?? r.session_id ?? '',
-    status:     r.status     ?? r.estado ?? 'nuevo',
-    estado:     r.estado     ?? r.status ?? 'nuevo',
+    mensaje:     r.mensaje     ?? '',
+    comentarios: r.comentarios ?? '',
+    session_id:  r.sessionId   ?? r.session_id ?? '',
+    status:              r.status              ?? r.estado ?? 'nuevo',
+    estado:              r.estado              ?? r.status ?? 'nuevo',
+    en_lista_espera:     r.en_lista_espera     ? 1 : 0,
+    notificado_vacante:  r.notificado_vacante  ? 1 : 0,
   }));
+}
+
+// ── Lista de espera: candidatos sin vacante activa al momento de registrarse ──
+export async function getListaEspera(puestoFilter = null) {
+  await ensureInit();
+  await ensureRecruitmentTable();
+  let sql  = `SELECT id, nombre, telefono, email, puesto, ts, created_at, notificado_vacante
+              FROM recruitment_leads WHERE en_lista_espera = 1`;
+  const args = [];
+  if (puestoFilter && puestoFilter.trim()) {
+    sql += ` AND LOWER(TRIM(puesto)) LIKE ?`;
+    args.push(`%${puestoFilter.trim().toLowerCase()}%`);
+  }
+  sql += ` ORDER BY id DESC LIMIT 300`;
+  const { rows } = await db.execute({ sql, args });
+  return rows.map(r => ({
+    id:                 Number(r.id),
+    nombre:             r.nombre             ?? '',
+    telefono:           r.telefono           ?? '',
+    email:              r.email              ?? '',
+    puesto:             r.puesto             ?? '',
+    ts:                 r.ts                 ?? r.created_at ?? '',
+    notificado_vacante: r.notificado_vacante ? 1 : 0,
+  }));
+}
+
+// ── Marcar candidatos de lista de espera como notificados ─────────────────────
+export async function markNotificadosVacante(ids) {
+  await ensureInit();
+  await ensureRecruitmentTable();
+  if (!ids || ids.length === 0) return;
+  const placeholders = ids.map(() => '?').join(',');
+  try {
+    await db.execute({ sql: `UPDATE recruitment_leads SET notificado_vacante = 1 WHERE id IN (${placeholders})`, args: ids });
+  } catch (e) { console.warn('markNotificadosVacante error:', e.message); }
 }
 
 // ── Actualizar estado ─────────────────────────────────────────────────────────
@@ -377,6 +504,52 @@ export async function deleteRecruitmentLead(id) {
   await db.execute({ sql: 'DELETE FROM recruitment_leads WHERE id = ?', args: [id] });
 }
 
+// ════════════════════════════════════════════════════════════════════════════
+//  RECRUITER NOTES — notas internas de seguimiento por candidato
+// ════════════════════════════════════════════════════════════════════════════
+
+let notesReady = false;
+
+async function ensureNotesTable() {
+  if (notesReady) return;
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS recruiter_notes (
+      id           INTEGER PRIMARY KEY AUTOINCREMENT,
+      candidate_id INTEGER NOT NULL,
+      nota         TEXT    NOT NULL DEFAULT '',
+      created_at   TEXT    NOT NULL DEFAULT (datetime('now'))
+    )
+  `);
+  try { await db.execute(`CREATE INDEX IF NOT EXISTS idx_notes_candidate ON recruiter_notes(candidate_id, created_at DESC)`); } catch {}
+  notesReady = true;
+}
+
+export async function addRecruiterNote({ candidateId, nota }) {
+  await ensureInit();
+  await ensureNotesTable();
+  const result = await db.execute({
+    sql:  `INSERT INTO recruiter_notes (candidate_id, nota) VALUES (?, ?)`,
+    args: [candidateId, (nota || '').trim()],
+  });
+  return { id: Number(result.lastInsertRowid) };
+}
+
+export async function getRecruiterNotes(candidateId) {
+  await ensureInit();
+  await ensureNotesTable();
+  const res = await db.execute({
+    sql:  `SELECT id, nota, created_at FROM recruiter_notes WHERE candidate_id = ? ORDER BY created_at DESC`,
+    args: [candidateId],
+  });
+  return res.rows.map(r => ({ id: r.id, nota: r.nota, created_at: r.created_at }));
+}
+
+export async function deleteRecruiterNote(noteId) {
+  await ensureInit();
+  await ensureNotesTable();
+  await db.execute({ sql: `DELETE FROM recruiter_notes WHERE id = ?`, args: [noteId] });
+}
+
 // ── Reset total ───────────────────────────────────────────────────────────────
 export async function resetRecruitmentLeads() {
   await ensureInit();
@@ -384,4 +557,199 @@ export async function resetRecruitmentLeads() {
   recruitmentReady = false;
   await db.execute({ sql: 'DELETE FROM recruitment_leads', args: [] });
   recruitmentReady = true;
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  CANDIDATE NOTIFICATIONS — configuración de alertas de nuevo candidato
+// ════════════════════════════════════════════════════════════════════════════
+
+let candidateNotifReady = false;
+
+async function ensureCandidateNotifTable() {
+  if (candidateNotifReady) return;
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS candidate_notifications (
+      id               INTEGER PRIMARY KEY AUTOINCREMENT,
+      name             TEXT    NOT NULL DEFAULT '',
+      phones           TEXT    NOT NULL DEFAULT '[]',
+      caption_template TEXT    NOT NULL DEFAULT '',
+      active           INTEGER NOT NULL DEFAULT 1,
+      last_sent        TEXT,
+      created_at       TEXT    NOT NULL DEFAULT (datetime('now'))
+    )
+  `);
+  // Migración segura para tablas existentes
+  try { await db.execute(`ALTER TABLE candidate_notifications ADD COLUMN caption_template TEXT NOT NULL DEFAULT ''`); } catch {}
+  candidateNotifReady = true;
+}
+
+export async function saveCandidateNotification({ name, phones = [], caption_template = '', active = true }) {
+  await ensureInit();
+  await ensureCandidateNotifTable();
+  const result = await db.execute({
+    sql:  `INSERT INTO candidate_notifications (name, phones, caption_template, active) VALUES (?, ?, ?, ?)`,
+    args: [name, JSON.stringify(phones), caption_template, active ? 1 : 0],
+  });
+  return { id: Number(result.lastInsertRowid) };
+}
+
+export async function readCandidateNotifications() {
+  await ensureInit();
+  await ensureCandidateNotifTable();
+  const res = await db.execute(
+    `SELECT id, name, phones, caption_template, active, last_sent, created_at FROM candidate_notifications ORDER BY id ASC`
+  );
+  return res.rows.map(r => ({
+    id:               r.id,
+    name:             r.name,
+    phones:           (() => { try { return JSON.parse(r.phones); } catch { return []; } })(),
+    caption_template: r.caption_template || '',
+    active:           !!r.active,
+    last_sent:        r.last_sent,
+    created_at:       r.created_at,
+  }));
+}
+
+export async function updateCandidateNotification({ id, name, phones, caption_template = '', active }) {
+  await ensureInit();
+  await ensureCandidateNotifTable();
+  await db.execute({
+    sql:  `UPDATE candidate_notifications SET name=?, phones=?, caption_template=?, active=? WHERE id=?`,
+    args: [name, JSON.stringify(phones), caption_template, active ? 1 : 0, id],
+  });
+}
+
+export async function deleteCandidateNotification(id) {
+  await ensureInit();
+  await ensureCandidateNotifTable();
+  await db.execute({ sql: `DELETE FROM candidate_notifications WHERE id=?`, args: [id] });
+}
+
+export async function touchCandidateNotifLastSent(id) {
+  await ensureInit();
+  await ensureCandidateNotifTable();
+  await db.execute({
+    sql:  `UPDATE candidate_notifications SET last_sent=? WHERE id=?`,
+    args: [new Date().toISOString(), id],
+  });
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  GLOBAL CONFIG — clave/valor para ajustes del sistema (ej: beneficios)
+// ════════════════════════════════════════════════════════════════════════════
+
+let configReady = false;
+async function ensureConfigTable() {
+  if (configReady) return;
+  await db.execute(`CREATE TABLE IF NOT EXISTS global_config (key TEXT PRIMARY KEY, value TEXT NOT NULL DEFAULT '')`);
+  configReady = true;
+}
+
+export async function getConfig(key) {
+  await ensureInit();
+  await ensureConfigTable();
+  const r = await db.execute({ sql: `SELECT value FROM global_config WHERE key=?`, args: [key] });
+  return r.rows[0]?.value ?? null;
+}
+
+export async function setConfig(key, value) {
+  await ensureInit();
+  await ensureConfigTable();
+  await db.execute({ sql: `INSERT INTO global_config (key, value) VALUES (?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value`, args: [key, value] });
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  VACANTES — gestión de vacantes publicadas en la página pública
+// ════════════════════════════════════════════════════════════════════════════
+
+let vacantesReady = false;
+
+async function ensureVacantesTable() {
+  if (vacantesReady) return;
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS vacantes (
+      id         INTEGER PRIMARY KEY AUTOINCREMENT,
+      titulo     TEXT    NOT NULL DEFAULT '',
+      area       TEXT    NOT NULL DEFAULT '',
+      ubicacion  TEXT    NOT NULL DEFAULT 'Morelia, Mich.',
+      tags       TEXT    NOT NULL DEFAULT '[]',
+      activa     INTEGER NOT NULL DEFAULT 1,
+      orden      INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT    NOT NULL DEFAULT (datetime('now'))
+    )
+  `);
+
+  // Migraciones: Agregamos SALARIO, TIPO, HORARIO, DESCRIPCION y REQUISITOS
+  const migraciones = [
+    `ALTER TABLE vacantes ADD COLUMN tipo TEXT DEFAULT ''`,
+    `ALTER TABLE vacantes ADD COLUMN horario TEXT DEFAULT ''`,
+    `ALTER TABLE vacantes ADD COLUMN salario TEXT DEFAULT ''`,
+    `ALTER TABLE vacantes ADD COLUMN descripcion TEXT DEFAULT ''`,
+    `ALTER TABLE vacantes ADD COLUMN requisitos TEXT DEFAULT ''`,
+    `ALTER TABLE vacantes ADD COLUMN multiples INTEGER NOT NULL DEFAULT 0`,
+    `ALTER TABLE vacantes ADD COLUMN empresa TEXT NOT NULL DEFAULT ''`,
+  ];
+  
+  for (const sql of migraciones) {
+    try { await db.execute(sql); } catch { /* La columna ya existe, ignoramos el error */ }
+  }
+  
+  vacantesReady = true;
+}
+
+export async function saveVacante({ titulo, area, tipo = '', ubicacion = 'Morelia, Mich.', horario = '', salario = '', descripcion = '', requisitos = '', activa = true, orden = 0, multiples = false, empresa = '' }) {
+  await ensureInit();
+  await ensureVacantesTable();
+  const result = await db.execute({
+    sql:  `INSERT INTO vacantes (titulo, area, tipo, ubicacion, horario, salario, descripcion, requisitos, activa, orden, multiples, empresa) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    args: [titulo, area, tipo, ubicacion, horario, salario, descripcion, requisitos, activa ? 1 : 0, orden, multiples ? 1 : 0, empresa || ''],
+  });
+  return { id: Number(result.lastInsertRowid) };
+}
+
+export async function readVacantes(onlyActive = false) {
+  await ensureInit(); 
+  await ensureVacantesTable();
+  
+  const sql = onlyActive 
+    ? `SELECT * FROM vacantes WHERE activa = 1 ORDER BY orden ASC, id ASC` 
+    : `SELECT * FROM vacantes ORDER BY orden ASC, id ASC`;
+    
+  const res = await db.execute(sql);
+  
+  return res.rows.map(r => ({
+    id:          r.id,
+    titulo:      r.titulo,
+    area:        r.area,
+    tipo:        r.tipo || '',
+    ubicacion:   r.ubicacion || 'Morelia, Mich.',
+    horario:     r.horario || '',
+    salario:     r.salario || '',
+    descripcion: r.descripcion || '',
+    requisitos:  r.requisitos || '',
+    activa:      !!r.activa,
+    multiples:   !!r.multiples,
+    empresa:     r.empresa || '',
+  }));
+}
+
+export async function updateVacante({ id, titulo, area, tipo, ubicacion, horario, salario, descripcion, requisitos, activa, orden, multiples = false, empresa = '' }) {
+  await ensureInit();
+  await ensureVacantesTable();
+  await db.execute({
+    sql:  `UPDATE vacantes SET titulo=?, area=?, tipo=?, ubicacion=?, horario=?, salario=?, descripcion=?, requisitos=?, activa=?, orden=?, multiples=?, empresa=? WHERE id=?`,
+    args: [titulo, area, tipo || '', ubicacion || 'Morelia, Mich.', horario || '', salario || '', descripcion || '', requisitos || '', activa ? 1 : 0, orden || 0, multiples ? 1 : 0, empresa || '', id],
+  });
+}
+
+export async function deleteVacante(id) {
+  await ensureInit(); 
+  await ensureVacantesTable();
+  await db.execute({ sql: `DELETE FROM vacantes WHERE id=?`, args: [id] });
+}
+
+export async function toggleVacante(id, activa) {
+  await ensureInit(); 
+  await ensureVacantesTable();
+  await db.execute({ sql: `UPDATE vacantes SET activa=? WHERE id=?`, args: [activa ? 1 : 0, id] });
 }

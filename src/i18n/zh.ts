@@ -12,6 +12,7 @@ export const zh = {
     company: '公司介绍',
     social: '社会影响',
     distributor: '经销商',
+    careers: '招聘',
     contact: '联系我们'
   },
 

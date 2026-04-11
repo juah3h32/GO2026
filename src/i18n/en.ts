@@ -12,6 +12,7 @@ export const en = {
     company: 'The Company',
     social: 'Social Impact',
     distributor: 'Distributor',
+    careers: 'Careers',
     contact: 'Contact'
   },
 

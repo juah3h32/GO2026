@@ -1,10 +1,10 @@
 // src/pages/api/chat.js
-// ─── FIX v9: puesto extraído correctamente del historial ─────────────────────
+// ─── FIX: Salto inteligente de puesto al nombre si ya viene preseleccionado ───
 import { MsEdgeTTS, OUTPUT_FORMAT } from "msedge-tts";
 import * as googleTTS from 'google-tts-api';
 import { Buffer } from 'node:buffer';
-import { logInteraction, saveRecruitmentLead } from '../../lib/analytics-db.js';
-import { notifyNewVacante } from '../../lib/notify';
+import { logInteraction, saveRecruitmentLead, readVacantes, markNotificadosVacante } from '../../lib/analytics-db.js';
+import { notifyNewVacante, notifyEsperaVacante } from '../../lib/notify';
 
 export const prerender = false;
 
@@ -45,15 +45,20 @@ function detectarProducto(texto) {
   return null;
 }
 
-function esIntencionCotizar(texto) {
+const EMPLEO_REGEX = /postular|vacante|empleo|trabajo|solicitud.*empleo|quiero trabajar|aplicar.*puesto|puesto de/i;
+
+function esIntencionCotizar(texto, historial = []) {
   if (!texto) return false;
+  // Si el mensaje o el historial reciente es sobre empleo → nunca es cotización
+  if (EMPLEO_REGEX.test(texto)) return false;
+  const histReciente = historial.slice(-6).map(m => m.content || '').join(' ');
+  if (EMPLEO_REGEX.test(histReciente)) return false;
   const norm = texto.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   return [
     'precio','precios','costo','costos','cuanto cuesta','cuanto vale',
-    'cotiza','cotizar','cotizacion','comprar','compra','pedido','pedir',
-    'adquirir','ordenar','tarifa','presupuesto','quiero comprar','me interesa',
-    'cuanto cobran','cuanto me sale','valor','valores','cuánto','cuanto',
-    'quanto','how much','prix','prezo',
+    'cotiza','cotizar','cotizacion','comprar','pedido','pedir',
+    'adquirir','ordenar','tarifa','presupuesto','quiero comprar',
+    'cuanto cobran','cuanto me sale','cuanto','how much','prix','prezo',
   ].some(k => norm.includes(k));
 }
 
@@ -85,17 +90,13 @@ function analizarHistorial(messages) {
 
 function detectarFlujoReclutamiento(messages) {
   return messages.some(m =>
-    m.role === 'assistant' &&
+    (m.role === 'assistant' || m.role === 'user') &&
     /vacante|empleo|puesto|curriculum|currículum|cv|candidato|reclutamiento|datos personales|nombre completo|correo electrónico|teléfono|edad|estado.*república|colonia/i.test(m.content || '')
   );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// FIX CRÍTICO BUG #1 (backend): extraerDatosDeHistorial con regex ampliado
-// para capturar el puesto cuando la pregunta dice "¿A qué puesto te gustaría
-// aplicar?" — antes el regex /puesto|posición|aplicar a/ no coincidía con
-// "¿A qué puesto..." en algunas variantes del prompt.
-// También corrige nombre (no guardar si es número) y edad (guardar tal cual).
+// Extrae los datos que el usuario va diciendo a lo largo del chat
 // ─────────────────────────────────────────────────────────────────────────────
 function extraerDatosDeHistorial(messages) {
   const data = {
@@ -103,6 +104,14 @@ function extraerDatosDeHistorial(messages) {
     puesto: '', edad: '', estado: '', colonia: '',
     cvNombre: '', mensaje: '',
   };
+
+  // NUEVO: Captura el puesto si viene preseleccionado desde la tarjeta
+  for (const m of messages) {
+    if (m.role === 'user') {
+      const match = (m.content || '').match(/postularme a (?:la )?vacante de (.*)/i);
+      if (match) data.puesto = match[1].trim();
+    }
+  }
 
   for (let i = 0; i < messages.length - 1; i++) {
     const bot  = messages[i];
@@ -113,26 +122,19 @@ function extraerDatosDeHistorial(messages) {
     const respuesta = (user.content || '').trim();
     if (!respuesta || respuesta.length < 1) continue;
 
-    // FIX: regex ampliado — captura "¿A qué puesto te gustaría aplicar?"
     if (/puesto|posici[oó]n|posicion|[aá]rea|area|trabajo.*interesa|tipo de puesto|aplicar a|qu[eé].*puesto|a qu[eé].*puesto/i.test(pregunta) && !data.puesto) {
       data.puesto = respuesta;
-
     } else if (/nombre completo|c[oó]mo te llamas|como te llamas|tu nombre|cu[aá]l es tu nombre/i.test(pregunta) && !data.nombre) {
       if (!/^\d+$/.test(respuesta)) data.nombre = respuesta;
-
     } else if (/cu[aá]ntos a[nñ]os|cuantos anos|a[nñ]os tienes|edad/i.test(pregunta) && !data.edad) {
       data.edad = respuesta;
-
     } else if (/estado.*rep[uú]blica|estado.*vives|qu[eé] estado|que estado|en qu[eé] estado/i.test(pregunta) && !data.estado) {
       data.estado = respuesta;
-
     } else if (/colonia|municipio|localidad/i.test(pregunta) && !data.colonia) {
       data.colonia = respuesta;
-
     } else if (/correo|email|e-mail|mail/i.test(pregunta) && !data.email) {
       const emailMatch = respuesta.match(/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/);
       data.email = emailMatch ? emailMatch[0] : respuesta;
-
     } else if (/whatsapp|tel[eé]fono|telefono|n[uú]mero|numero|celular/i.test(pregunta) && !data.telefono) {
       const telMatch = respuesta.match(/[\d\s\+\-\(\)]{7,}/);
       data.telefono = telMatch ? telMatch[0].trim() : respuesta;
@@ -149,8 +151,71 @@ function datosSuficientes(data) {
   return tiene(data.nombre) && (tiene(data.telefono) || tiene(data.email)) && tiene(data.puesto);
 }
 
-// ─── System Prompt ────────────────────────────────────────────────────────────
-function buildSystemPrompt(targetLang) {
+// ─── Coincidencia fuzzy de puestos ───────────────────────────────────────────
+function normPuesto(s) {
+  return (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
+}
+function matchVacanteSimilar(puestoUsuario, vacantes) {
+  const pu = normPuesto(puestoUsuario);
+  if (!pu) return null;
+  // Palabras clave del puesto del usuario (min 3 letras)
+  const palabras = pu.split(' ').filter(w => w.length >= 3);
+  for (const v of vacantes) {
+    const tv = normPuesto(v.titulo);
+    // Coincidencia directa
+    if (tv.includes(pu) || pu.includes(tv)) return v;
+    // Coincidencia por palabras clave
+    if (palabras.length > 0 && palabras.some(p => tv.includes(p))) return v;
+  }
+  return null;
+}
+
+// ─── System Prompt Dinámico ───────────────────────────────────────────────────
+function buildSystemPrompt(targetLang, puestoPreseleccionado = null, vacantesActivas = []) {
+  
+  // Si el usuario le dio clic a una vacante, saltamos el Paso 1
+  let paso1_y_2 = `
+PASO 1 → "¡Con gusto te ayudo! ¿A qué puesto te gustaría aplicar?"
+         Termina con: [ACCION:QUICK_REPLY:puesto]
+PASO 2 → "¡Excelente elección! Para comenzar, ¿cuál es tu nombre completo?"
+  `.trim();
+
+  if (puestoPreseleccionado) {
+    paso1_y_2 = `
+⚠️ EL USUARIO YA SELECCIONÓ EL PUESTO: "${puestoPreseleccionado}".
+OMITE EL PASO 1 (no le preguntes a qué puesto quiere aplicar).
+PASO 2 → INICIA LA CONVERSACIÓN DICIENDO: "¡Excelente elección para la vacante de ${puestoPreseleccionado}! Para comenzar tu registro, ¿cuál es tu nombre completo?"
+    `.trim();
+  }
+
+  // Bloque de vacantes activas para inyectar en el prompt
+  let bloqueVacantes = '';
+  if (vacantesActivas && vacantesActivas.length > 0) {
+    const lista = vacantesActivas.map(v => `- ${v.titulo}${v.descripcion ? ': ' + String(v.descripcion).slice(0, 80) : ''}`).join('\n');
+    bloqueVacantes = `
+══════════════════════════════════════════
+  VACANTES ACTIVAS AHORA MISMO
+══════════════════════════════════════════
+${lista}
+
+⚠️ REGLA VACANTE SIMILAR:
+Cuando el usuario diga el puesto que busca (PASO 1 o en cualquier momento):
+1. Revisa si alguna vacante activa coincide o es similar/relacionada con lo que dice.
+2. Si hay coincidencia: menciónalas ANTES de continuar el registro.
+   Ejemplo: "¡Qué bueno! Actualmente tenemos abierta la vacante de [TITULO]. ¿Te interesa aplicar a esa? Si no, con gusto te registro en lista de espera para tu perfil."
+3. Si el usuario acepta → trátalo como si hubiera seleccionado esa vacante (puestoPreseleccionado).
+4. Si no hay ninguna vacante similar → continúa el flujo normal de lista de espera.
+`.trim();
+  } else {
+    bloqueVacantes = `
+══════════════════════════════════════════
+  VACANTES ACTIVAS
+══════════════════════════════════════════
+En este momento NO hay vacantes abiertas.
+Registra al candidato en lista de espera y dile que le avisarás cuando se abra una.
+`.trim();
+  }
+
   return `
 Eres BOTGO, asesor comercial de Grupo Ortiz con 8 años en la empresa.
 Hablas en ${targetLang} — tono cálido, directo y profesional, como una persona real.
@@ -209,15 +274,21 @@ Termina con: [ACCION:PDF:nombre]
 Valores: rafia | stretch | cuerdas | sacos | arpillas | esquineros | flexible | general
 
 ══════════════════════════════════════════
+  MÓDULO DISTRIBUIDOR
+══════════════════════════════════════════
+Si el usuario pregunta sobre ser distribuidor, distribuir productos, revender, ser mayorista, o solicitar ser distribuidor:
+- Explica en 2-3 líneas las ventajas: precios directos de fábrica, stock amplio, envíos 24h, soporte dedicado.
+- Invítalo a registrarse en el formulario.
+- Termina SIEMPRE con: [ACCION:DISTRIBUIDOR]
+
+══════════════════════════════════════════
   MÓDULO DE RECLUTAMIENTO — FLUJO CONVERSACIONAL
 ══════════════════════════════════════════
 Si el usuario menciona vacante, empleo, trabajo, CV, postularse, busco trabajo:
 
 Recopila UN DATO POR MENSAJE en este orden exacto:
 
-PASO 1 → "¡Con gusto te ayudo! ¿A qué puesto te gustaría aplicar?"
-         Termina con: [ACCION:QUICK_REPLY:puesto]
-PASO 2 → "¿Cuál es tu nombre completo?"
+${paso1_y_2}
 PASO 3 → "¿Cuántos años tienes?"
 PASO 4 → "¿En qué estado de la República vives?"
          Termina con: [ACCION:QUICK_REPLY:estado]
@@ -226,16 +297,23 @@ PASO 6 → "¿Cuál es tu correo electrónico?"
 PASO 7 → "¿Y tu número de WhatsApp?"
 PASO 8 → "¡Casi listo! ¿Tienes un CV para adjuntar?"
          Termina con: [ACCION:QUICK_REPLY:cv]
-PASO 9 → Cuando tienes todos los datos:
-         "¡Listo, [nombre]! Registré tu solicitud para [puesto]. Nuestro equipo de RH te contactará pronto. ¡Mucho éxito! 🌟"
-         Termina con: [RECLUTAMIENTO:nombre=X|puesto=X|edad=X|estado=X|colonia=X|email=X|telefono=X]
+PASO 9 → "¿Hay algo que quieras agregar sobre tu experiencia o perfil? (si no tienes nada, responde 'no')"
+PASO 10 → Cuando tienes todos los datos:
+         - Si el usuario se registró porque NO hay vacantes actualmente (lista de espera):
+           "¡Listo, [nombre]! Quedas en nuestra lista de espera para [puesto]. En cuanto se abra una vacante, nuestro equipo de RH será de los primeros en contactarte. ¡Mucho éxito! 🌟"
+         - Si hay vacante activa:
+           "¡Listo, [nombre]! Registré tu solicitud para [puesto]. Nuestro equipo de RH te contactará pronto. ¡Mucho éxito! 🌟"
+         Termina con: [RECLUTAMIENTO:nombre=X|puesto=X|edad=X|estado=X|colonia=X|email=X|telefono=X|comentarios=X]
 
 REGLAS:
 - Nunca saltes pasos ni pidas dos datos en el mismo mensaje.
 - Si el usuario dice que no tiene CV, continúa al PASO 9.
 - Si el usuario dice que sí tiene CV, termina con [ACCION:SOLICITAR_CV] para que pueda adjuntarlo.
+- En PASO 9: si responde 'no', 'nada', 'ninguno' o similar, usa comentarios= (vacío) en el tag.
 - Tono cálido y motivador durante todo el flujo.
-- SIEMPRE incluye [RECLUTAMIENTO:...] en el PASO 9, es obligatorio.
+- SIEMPRE incluye [RECLUTAMIENTO:...] en el PASO 10, es obligatorio.
+
+${bloqueVacantes}
 
 ══════════════════════════════════════════
   REGLAS FINALES
@@ -314,7 +392,8 @@ function esMensajeCierre(text) {
 }
 
 function extractAcciones(text) {
-  const accionWA    = /\[ACCION\s*:\s*WHATSAPP\s*\]/i.test(text);
+  const accionWA           = /\[ACCION\s*:\s*WHATSAPP\s*\]/i.test(text);
+  const accionDistribuidor = /\[ACCION\s*:\s*DISTRIBUIDOR\s*\]/i.test(text);
   const matchPDF    = text.match(/\[ACCION\s*:\s*PDF\s*:\s*([\w-]+)\s*\]/i);
   const accionPDF   = matchPDF ? matchPDF[1].trim().toLowerCase() : null;
   const accionCV    = detectarSolicitudCV(text);
@@ -328,7 +407,7 @@ function extractAcciones(text) {
     .replace(/[ \t]{2,}/g, ' ')
     .trim();
 
-  return { cleanText, accionWA, accionPDF, accionCV, recruitData, quickReplies };
+  return { cleanText, accionWA, accionPDF, accionCV, accionDistribuidor, recruitData, quickReplies };
 }
 
 // ─── Audio ────────────────────────────────────────────────────────────────────
@@ -439,6 +518,7 @@ export async function POST({ request }) {
       isVoice   = false,
       sessionId = '',
       cvAdjunto = null,
+      noLog     = false,
     } = body;
 
     if (!Array.isArray(messages) || messages.length === 0) {
@@ -468,15 +548,29 @@ export async function POST({ request }) {
     const lastUserMsg  = [...cleanMessages].reverse().find(m => m.role === 'user')?.content || '';
     const userMsgCount = cleanMessages.filter(m => m.role === 'user').length;
 
+    // Detectar si el usuario le dio clic a un botón de vacante
+    let puestoPreseleccionado = null;
+    for (const m of cleanMessages) {
+      if (m.role === 'user') {
+        const match = (m.content || '').match(/postularme a (?:la )?vacante de (.*)/i);
+        if (match) puestoPreseleccionado = match[1].trim();
+      }
+    }
+
     const { pdfEnviados }        = analizarHistorial(cleanMessages);
-    const intentoCotizar         = esIntencionCotizar(lastUserMsg);
-    const enFlujoReclutamiento   = detectarFlujoReclutamiento(cleanMessages);
+    const enFlujoReclutamiento   = detectarFlujoReclutamiento(cleanMessages) || !!puestoPreseleccionado;
+    const intentoCotizar         = esIntencionCotizar(lastUserMsg, cleanMessages);
+
+    // ── Cargar vacantes activas para el system prompt ──────────────────────
+    let vacantesActivas = [];
+    try { vacantesActivas = (await readVacantes(true)) || []; } catch { /* ignorar */ }
 
     // ── Generar respuesta ──────────────────────────────────────────────────
     const dataES = await fetchOpenAI(apiKey, {
       model: 'gpt-4o-mini',
       messages: [
-        { role: 'system', content: buildSystemPrompt('Spanish') },
+        // Pasamos el puesto detectado para que la IA altere su System Prompt y se salte el Paso 1
+        { role: 'system', content: buildSystemPrompt('Spanish', puestoPreseleccionado, vacantesActivas) },
         ...cleanMessages,
       ],
       temperature: 0.65,
@@ -484,9 +578,11 @@ export async function POST({ request }) {
     });
 
     const rawReplyES = dataES.choices?.[0]?.message?.content || '¿En qué más puedo ayudarte?';
-    let { cleanText: textoESLimpio, accionWA, accionPDF, accionCV, recruitData, quickReplies } = extractAcciones(rawReplyES);
+    let { cleanText: textoESLimpio, accionWA, accionPDF, accionCV, accionDistribuidor, recruitData, quickReplies } = extractAcciones(rawReplyES);
 
-    if (!accionWA && intentoCotizar) accionWA = true;
+    // En flujo de reclutamiento nunca mostrar botones de compra/PDF
+    if (enFlujoReclutamiento) { accionWA = false; accionPDF = null; }
+    if (!accionWA && intentoCotizar && !enFlujoReclutamiento) accionWA = true;
     if (accionPDF && pdfEnviados.has(accionPDF)) accionPDF = null;
 
     if (cvAdjunto?.nombre) {
@@ -549,7 +645,7 @@ export async function POST({ request }) {
     }
 
     // ── Analytics ──────────────────────────────────────────────────────────
-    try {
+    if (!noLog) try {
       await logInteraction({
         userMessage:  lastUserMsg,
         botReply:     replyText,
@@ -557,6 +653,7 @@ export async function POST({ request }) {
         accionPDF,
         language:     langCode,
         isNewSession: userMsgCount <= 1,
+        sessionId:    sessionId || '',
       });
     } catch (e) {
       console.warn('⚠️ analytics log error:', e.message);
@@ -564,41 +661,90 @@ export async function POST({ request }) {
 
     // ── Guardar candidato ──────────────────────────────────────────────────
     let candidatoId = null;
+    let isDuplicate = false;
     if (accionReclutamiento && recruitData) {
       try {
-        const saved = await saveRecruitmentLead({
-          nombre:     recruitData.nombre    || '',
-          email:      recruitData.email     || '',
-          telefono:   recruitData.telefono  || '',
-          puesto:     recruitData.puesto    || '',
-          edad:       recruitData.edad      || '',
-          estado_rep: recruitData.estado    || '',
-          colonia:    recruitData.colonia   || '',
-          cvNombre:   recruitData.cvNombre  || cvAdjunto?.nombre || '',
-          cvBase64:   cvAdjunto?.base64     || '',
-          cvTipo:     cvAdjunto?.tipo       || '',
-          mensaje:    lastUserMsg,
-          sessionId:  sessionId || '',
-        });
-        candidatoId = saved?.id || null;
-        console.log(`✅ Candidato #${candidatoId} guardado: ${recruitData.nombre} → ${recruitData.puesto}`);
-
-        try {
-          await notifyNewVacante({
-            nombre:   recruitData.nombre   || '',
-            puesto:   recruitData.puesto   || '',
-            edad:     recruitData.edad     || '',
-            estado:   recruitData.estado   || '',
-            colonia:  recruitData.colonia  || '',
-            whatsapp: recruitData.telefono || '',
-            email:    recruitData.email    || '',
-            cvNombre: recruitData.cvNombre || '',
-            mensaje:  lastUserMsg,
-          });
-        } catch (notifyErr) {
-          console.warn('⚠️ notifyNewVacante error:', notifyErr.message);
+        // Detectar lista de espera: el usuario abrió el bot sin vacantes activas
+        // Su primer mensaje contiene la frase de lista de espera, o no hay vacantes activas
+        const historialTextos = (messages || []).filter(m => m.role === 'user').map(m => m.content || '').join(' ');
+        const esListaEspera = historialTextos.includes('No hay vacantes abiertas') ||
+          historialTextos.includes('no hay vacantes abiertas') ||
+          historialTextos.includes('No encontré vacante para mi perfil en la lista actual') ||
+          historialTextos.includes('Quiero registrarme en lista de espera');
+        // Fallback: verificar si hay vacantes activas en la BD (usamos las ya cargadas)
+        let en_lista_espera = esListaEspera ? 1 : 0;
+        if (!esListaEspera) {
+          if (!vacantesActivas || vacantesActivas.length === 0) en_lista_espera = 1;
+          // Si hay vacantes activas pero ninguna coincide con el puesto del candidato → lista de espera
+          else if (recruitData.puesto && !matchVacanteSimilar(recruitData.puesto, vacantesActivas)) {
+            en_lista_espera = 1;
+          }
         }
 
+        const saved = await saveRecruitmentLead({
+          nombre:          recruitData.nombre    || '',
+          email:           recruitData.email     || '',
+          telefono:        recruitData.telefono  || '',
+          puesto:          recruitData.puesto    || '',
+          edad:            recruitData.edad      || '',
+          estado_rep:      recruitData.estado    || '',
+          colonia:         recruitData.colonia   || '',
+          cvNombre:        recruitData.cvNombre    || cvAdjunto?.nombre || '',
+          cvBase64:        cvAdjunto?.base64      || '',
+          cvTipo:          cvAdjunto?.tipo        || '',
+          mensaje:         lastUserMsg,
+          comentarios:     recruitData.comentarios || '',
+          sessionId:       sessionId || '',
+          en_lista_espera,
+        });
+
+        if (saved?.duplicate) {
+          isDuplicate = true;
+          candidatoId = null;
+          const puestoExist = saved.existingPuesto ? ` para el puesto de ${saved.existingPuesto}` : '';
+          replyText = `Ya tenemos tu solicitud registrada${puestoExist}. Nuestro equipo de RH ya tiene tus datos y te contactará muy pronto. Si deseas postularte a una vacante diferente, con gusto te registro. ¡Gracias por tu interés en Grupo Ortiz!`;
+          console.log(`⚠️ Candidato duplicado detectado, no re-registrado.`);
+        } else {
+          candidatoId = saved?.id || null;
+          console.log(`✅ Candidato #${candidatoId} guardado: ${recruitData.nombre} → ${recruitData.puesto}`);
+          try {
+            await notifyNewVacante({
+              nombre:   recruitData.nombre   || '',
+              puesto:   recruitData.puesto   || '',
+              edad:     recruitData.edad     || '',
+              estado:   recruitData.estado   || '',
+              colonia:  recruitData.colonia  || '',
+              whatsapp: recruitData.telefono || '',
+              email:    recruitData.email    || '',
+              cvNombre: recruitData.cvNombre || '',
+              mensaje:  lastUserMsg,
+            });
+          } catch (notifyErr) {
+            console.warn('⚠️ notifyNewVacante error:', notifyErr.message);
+          }
+
+          // ── Auto-notificar si hay vacante activa que coincide con el puesto solicitado ──
+          if (en_lista_espera === 1 && candidatoId && recruitData.puesto) {
+            try {
+              const match = matchVacanteSimilar(recruitData.puesto, vacantesActivas);
+              if (match) {
+                const candidato = {
+                  id:       candidatoId,
+                  nombre:   recruitData.nombre   || '',
+                  telefono: recruitData.telefono || '',
+                  puesto:   recruitData.puesto   || '',
+                };
+                const results = await notifyEsperaVacante({ candidatos: [candidato], vacante: match, urlVacantes: '' });
+                if (results[0]?.ok) {
+                  await markNotificadosVacante([candidatoId]);
+                  console.log(`🔔 Candidato #${candidatoId} notificado automáticamente → vacante: ${match.titulo}`);
+                }
+              }
+            } catch (autoNotifyErr) {
+              console.warn('⚠️ auto-notificar espera error:', autoNotifyErr.message);
+            }
+          }
+        }
       } catch (saveErr) {
         console.error('❌ recruitment save error:', saveErr.message);
       }
@@ -614,9 +760,11 @@ export async function POST({ request }) {
         accionWA,
         accionPDF,
         accionCV,
-        accionReclutamiento,
+        accionDistribuidor,
+        accionReclutamiento: accionReclutamiento && !isDuplicate,
         enFlujoReclutamiento,
         candidatoId,
+        isDuplicate,
         quickReplies,
       }),
       { status: 200, headers: { 'Content-Type': 'application/json' } }
@@ -632,6 +780,8 @@ export async function POST({ request }) {
         accionWA:            false,
         accionPDF:           null,
         accionCV:            false,
+        accionDistribuidor:  false,
+        isDuplicate:         false,
         accionReclutamiento: false,
         enFlujoReclutamiento:false,
         candidatoId:         null,

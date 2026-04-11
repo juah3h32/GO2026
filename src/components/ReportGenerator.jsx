@@ -131,25 +131,38 @@ function buildLineSVG(daily14) {
 function buildLeadsLineSVG(byDay) {
   const entries = Object.entries(byDay).sort(([a],[b]) => a.localeCompare(b)).slice(-14);
   const W=680, H=130, PL=40, PR=16, PT=20, PB=28, CW=W-PL-PR, CH=H-PT-PB;
-  if (entries.length < 2)
+  if (entries.length < 1)
     return `<text x="${W/2}" y="${H/2}" text-anchor="middle" font-family="'Barlow',Helvetica" font-size="10" fill="${GRAY_LIGHT}">Sin datos suficientes</text>`;
-  const vals=entries.map(([,v])=>v), maxV=Math.max(...vals,1), minV=Math.min(...vals), n=entries.length;
-  const px=i=>PL+(i/(n-1))*CW, py=v=>PT+(1-(v-minV)/Math.max(maxV-minV,1))*CH;
+  const vals=entries.map(([,v])=>v), maxV=Math.max(...vals,1), n=entries.length;
+  // Normaliza desde 0 para que los picos sean siempre visibles
+  const px=i=>PL+(n===1?CW/2:(i/(n-1))*CW);
+  const py=v=>PT+(1-(v/maxV))*CH;
+  const baseY=PT+CH;
   let out=`<defs><linearGradient id="lgG" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0%" stop-color="${ORANGE}" stop-opacity="0.20"/>
+    <stop offset="0%" stop-color="${ORANGE}" stop-opacity="0.22"/>
     <stop offset="100%" stop-color="${ORANGE}" stop-opacity="0"/>
   </linearGradient></defs>`;
-  [0,0.5,1].forEach(p=>{const y=py(minV+p*(maxV-minV)),val=Math.round(minV+p*(maxV-minV));
+  // Gridlines: 0, 50%, 100%
+  [0,0.5,1].forEach(p=>{const y=py(p*maxV), val=Math.round(p*maxV);
     out+=`<line x1="${PL}" y1="${y.toFixed(1)}" x2="${W-PR}" y2="${y.toFixed(1)}" stroke="#EDECD9" stroke-width="1" stroke-dasharray="${p===0?'none':'3,3'}"/>
     <text x="${(PL-6).toFixed(1)}" y="${(y+3).toFixed(1)}" text-anchor="end" font-family="'Barlow',Helvetica" font-size="8" font-weight="600" fill="${GRAY_LIGHT}">${val}</text>`;});
-  const pathD=entries.map(([,v],i)=>`${i===0?'M':'L'}${px(i).toFixed(1)},${py(v).toFixed(1)}`).join(' ');
-  out+=`<path d="${pathD} L${px(n-1).toFixed(1)},${(PT+CH).toFixed(1)} L${px(0).toFixed(1)},${(PT+CH).toFixed(1)} Z" fill="url(#lgG)"/>
-  <path d="${pathD}" fill="none" stroke="${ORANGE}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
-  entries.forEach(([date,v],i)=>{
-    out+=`<circle cx="${px(i).toFixed(1)}" cy="${py(v).toFixed(1)}" r="4" fill="${CREAM}" stroke="${ORANGE}" stroke-width="2.5"/>`;
-    if(i%2===0||i===n-1)
-      out+=`<text x="${px(i).toFixed(1)}" y="${H-6}" text-anchor="middle" font-family="'Barlow',Helvetica" font-size="7.5" font-weight="600" fill="${GRAY_LIGHT}">${date.slice(5).replace('-','/')}</text>`;
-  });
+  if(n === 1) {
+    // Solo un punto: barra vertical
+    const bx=px(0), bh=Math.max((vals[0]/maxV)*CH, 6);
+    out+=`<rect x="${(bx-16).toFixed(1)}" y="${(baseY-bh).toFixed(1)}" width="32" height="${bh.toFixed(1)}" fill="${ORANGE}" opacity="0.70" rx="4"/>`;
+    out+=`<circle cx="${bx.toFixed(1)}" cy="${(baseY-bh).toFixed(1)}" r="4" fill="${CREAM}" stroke="${ORANGE}" stroke-width="2.5"/>`;
+    out+=`<text x="${bx.toFixed(1)}" y="${H-6}" text-anchor="middle" font-family="'Barlow',Helvetica" font-size="7.5" font-weight="600" fill="${GRAY_LIGHT}">${entries[0][0].slice(5).replace('-','/')}</text>`;
+  } else {
+    const pathD=entries.map(([,v],i)=>`${i===0?'M':'L'}${px(i).toFixed(1)},${py(v).toFixed(1)}`).join(' ');
+    out+=`<path d="${pathD} L${px(n-1).toFixed(1)},${baseY.toFixed(1)} L${px(0).toFixed(1)},${baseY.toFixed(1)} Z" fill="url(#lgG)"/>
+    <path d="${pathD}" fill="none" stroke="${ORANGE}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+    entries.forEach(([date,v],i)=>{
+      out+=`<circle cx="${px(i).toFixed(1)}" cy="${py(v).toFixed(1)}" r="4" fill="${CREAM}" stroke="${ORANGE}" stroke-width="2.5"/>`;
+      out+=`<text x="${px(i).toFixed(1)}" y="${(py(v)-8).toFixed(1)}" text-anchor="middle" font-family="'Barlow Condensed',Helvetica" font-size="9" font-weight="700" fill="${ORANGE}">${v}</text>`;
+      if(i%2===0||i===n-1)
+        out+=`<text x="${px(i).toFixed(1)}" y="${H-6}" text-anchor="middle" font-family="'Barlow',Helvetica" font-size="7.5" font-weight="600" fill="${GRAY_LIGHT}">${date.slice(5).replace('-','/')}</text>`;
+    });
+  }
   return out;
 }
 
@@ -157,25 +170,36 @@ function buildLeadsLineSVG(byDay) {
 function buildCandidatesLineSVG(byDay) {
   const entries = Object.entries(byDay).sort(([a],[b]) => a.localeCompare(b)).slice(-14);
   const W=680, H=130, PL=40, PR=16, PT=20, PB=28, CW=W-PL-PR, CH=H-PT-PB;
-  if (entries.length < 2)
+  if (entries.length < 1)
     return `<text x="${W/2}" y="${H/2}" text-anchor="middle" font-family="'Barlow',Helvetica" font-size="10" fill="${GRAY_LIGHT}">Sin datos suficientes</text>`;
-  const vals=entries.map(([,v])=>v), maxV=Math.max(...vals,1), minV=Math.min(...vals), n=entries.length;
-  const px=i=>PL+(i/(n-1))*CW, py=v=>PT+(1-(v-minV)/Math.max(maxV-minV,1))*CH;
+  const vals=entries.map(([,v])=>v), maxV=Math.max(...vals,1), n=entries.length;
+  // Normaliza desde 0 para que los picos sean siempre visibles
+  const px=i=>PL+(n===1?CW/2:(i/(n-1))*CW);
+  const py=v=>PT+(1-(v/maxV))*CH;
+  const baseY=PT+CH;
   let out=`<defs><linearGradient id="lgP" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0%" stop-color="${GRAY_D}" stop-opacity="0.18"/>
+    <stop offset="0%" stop-color="${GRAY_D}" stop-opacity="0.20"/>
     <stop offset="100%" stop-color="${GRAY_D}" stop-opacity="0"/>
   </linearGradient></defs>`;
-  [0,0.5,1].forEach(p=>{const y=py(minV+p*(maxV-minV)),val=Math.round(minV+p*(maxV-minV));
+  [0,0.5,1].forEach(p=>{const y=py(p*maxV), val=Math.round(p*maxV);
     out+=`<line x1="${PL}" y1="${y.toFixed(1)}" x2="${W-PR}" y2="${y.toFixed(1)}" stroke="#EDECD9" stroke-width="1" stroke-dasharray="${p===0?'none':'3,3'}"/>
     <text x="${(PL-6).toFixed(1)}" y="${(y+3).toFixed(1)}" text-anchor="end" font-family="'Barlow',Helvetica" font-size="8" font-weight="600" fill="${GRAY_LIGHT}">${val}</text>`;});
-  const pathD=entries.map(([,v],i)=>`${i===0?'M':'L'}${px(i).toFixed(1)},${py(v).toFixed(1)}`).join(' ');
-  out+=`<path d="${pathD} L${px(n-1).toFixed(1)},${(PT+CH).toFixed(1)} L${px(0).toFixed(1)},${(PT+CH).toFixed(1)} Z" fill="url(#lgP)"/>
-  <path d="${pathD}" fill="none" stroke="${GRAY_D}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
-  entries.forEach(([date,v],i)=>{
-    out+=`<circle cx="${px(i).toFixed(1)}" cy="${py(v).toFixed(1)}" r="4" fill="${CREAM}" stroke="${GRAY_D}" stroke-width="2.5"/>`;
-    if(i%2===0||i===n-1)
-      out+=`<text x="${px(i).toFixed(1)}" y="${H-6}" text-anchor="middle" font-family="'Barlow',Helvetica" font-size="7.5" font-weight="600" fill="${GRAY_LIGHT}">${date.slice(5).replace('-','/')}</text>`;
-  });
+  if(n === 1) {
+    const bx=px(0), bh=Math.max((vals[0]/maxV)*CH, 6);
+    out+=`<rect x="${(bx-16).toFixed(1)}" y="${(baseY-bh).toFixed(1)}" width="32" height="${bh.toFixed(1)}" fill="${GRAY_D}" opacity="0.70" rx="4"/>`;
+    out+=`<circle cx="${bx.toFixed(1)}" cy="${(baseY-bh).toFixed(1)}" r="4" fill="${CREAM}" stroke="${GRAY_D}" stroke-width="2.5"/>`;
+    out+=`<text x="${bx.toFixed(1)}" y="${H-6}" text-anchor="middle" font-family="'Barlow',Helvetica" font-size="7.5" font-weight="600" fill="${GRAY_LIGHT}">${entries[0][0].slice(5).replace('-','/')}</text>`;
+  } else {
+    const pathD=entries.map(([,v],i)=>`${i===0?'M':'L'}${px(i).toFixed(1)},${py(v).toFixed(1)}`).join(' ');
+    out+=`<path d="${pathD} L${px(n-1).toFixed(1)},${baseY.toFixed(1)} L${px(0).toFixed(1)},${baseY.toFixed(1)} Z" fill="url(#lgP)"/>
+    <path d="${pathD}" fill="none" stroke="${GRAY_D}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+    entries.forEach(([date,v],i)=>{
+      out+=`<circle cx="${px(i).toFixed(1)}" cy="${py(v).toFixed(1)}" r="4" fill="${CREAM}" stroke="${GRAY_D}" stroke-width="2.5"/>`;
+      out+=`<text x="${px(i).toFixed(1)}" y="${(py(v)-8).toFixed(1)}" text-anchor="middle" font-family="'Barlow Condensed',Helvetica" font-size="9" font-weight="700" fill="${GRAY_D}">${v}</text>`;
+      if(i%2===0||i===n-1)
+        out+=`<text x="${px(i).toFixed(1)}" y="${H-6}" text-anchor="middle" font-family="'Barlow',Helvetica" font-size="7.5" font-weight="600" fill="${GRAY_LIGHT}">${date.slice(5).replace('-','/')}</text>`;
+    });
+  }
   return out;
 }
 
@@ -283,7 +307,11 @@ function buildDistribuidoresSection(leads) {
   const maxProd  = topProds[0]?.[1] || 1;
 
   const byDay = {};
-  leads.forEach(l => { const d=(l.ts||'').split('T')[0]||(l.ts||'').split(' ')[0]; if(d) byDay[d]=(byDay[d]||0)+1; });
+  leads.forEach(l => {
+    const parsed = parseTursoDate(l.ts);
+    const d = parsed ? parsed.toLocaleString('en-CA',{timeZone:'America/Mexico_City'}).split(',')[0] : null;
+    if(d) byDay[d]=(byDay[d]||0)+1;
+  });
 
   const prodBars = topProds.length ? topProds.map(([label,val],i) => {
     const pct=Math.round(val/maxProd*100), isTop=i===0;
@@ -328,7 +356,7 @@ function buildDistribuidoresSection(leads) {
     </div>`).join('');
 
   return `<!-- PÁGINA 3 · DISTRIBUIDORES -->
-<div class="page"><div class="dashboard">
+<div class="page page-flow"><div class="dashboard flow">
   <div style="background:${ORANGE};padding:clamp(20px,3vw,30px) clamp(20px,3vw,36px);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;position:relative;overflow:hidden;">
     <div style="position:absolute;bottom:-60px;right:-60px;width:200px;height:200px;border-radius:50%;border:40px solid rgba(236,235,224,0.06);pointer-events:none;"></div>
     <div style="position:absolute;top:-40px;left:40%;width:140px;height:140px;border-radius:50%;border:28px solid rgba(236,235,224,0.04);pointer-events:none;"></div>
@@ -341,9 +369,11 @@ function buildDistribuidoresSection(leads) {
   </div>
 
   <div style="display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:10px;padding:12px 13px 10px;">
-    <div style="background:${WHITE};border-radius:14px;border:1px solid ${CREAM_DARK};padding:18px 20px;box-shadow:0 1px 4px rgba(38,38,38,0.04);">
-      <div style="font-family:'Barlow',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.28em;text-transform:uppercase;color:${GRAY_LIGHT};margin-bottom:12px;">Tendencia — últimos 14 días</div>
-      <svg viewBox="0 0 680 130" style="width:100%;height:auto;display:block;overflow:visible;">${buildLeadsLineSVG(byDay)}</svg>
+    <div style="background:${WHITE};border-radius:14px;border:1px solid ${CREAM_DARK};padding:18px 20px;box-shadow:0 1px 4px rgba(38,38,38,0.04);display:flex;flex-direction:column;">
+      <div style="font-family:'Barlow',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.28em;text-transform:uppercase;color:${GRAY_LIGHT};margin-bottom:12px;flex-shrink:0;">Tendencia — últimos 14 días</div>
+      <div style="flex:1;display:flex;align-items:center;">
+        <svg viewBox="0 0 680 130" style="width:100%;height:auto;display:block;overflow:visible;">${buildLeadsLineSVG(byDay)}</svg>
+      </div>
     </div>
     <div style="background:${WHITE};border-radius:14px;border:1px solid ${CREAM_DARK};padding:18px 20px;box-shadow:0 1px 4px rgba(38,38,38,0.04);">
       <div style="font-family:'Barlow',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.28em;text-transform:uppercase;color:${GRAY_LIGHT};margin-bottom:14px;">Productos de interés</div>
@@ -359,7 +389,7 @@ function buildDistribuidoresSection(leads) {
       </div>
       <div style="overflow-x:auto;">
         <table style="width:100%;border-collapse:collapse;">
-          <thead><tr style="background:${BG};">
+          <thead><tr style="background:#F5F5F5;">
             ${['Fecha','Nombre','Empresa','WhatsApp','Email','Productos'].map(h =>
               `<th style="padding:8px 10px;text-align:left;font-family:'Barlow',sans-serif;font-size:7.5px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:${GRAY_LIGHT};border-bottom:1px solid ${CREAM_DARK};white-space:nowrap;">${h}</th>`
             ).join('')}
@@ -367,7 +397,7 @@ function buildDistribuidoresSection(leads) {
           <tbody>${filas}</tbody>
         </table>
       </div>
-      ${leads.length > 10 ? `<div style="padding:9px 20px;background:${BG};border-top:1px solid ${CREAM};font-family:'Barlow',sans-serif;font-size:8.5px;font-weight:600;color:${GRAY_LIGHT};text-align:center;">+ ${leads.length-10} solicitudes adicionales registradas en el sistema</div>` : ''}
+      ${leads.length > 10 ? `<div style="padding:9px 20px;background:#F5F5F5;border-top:1px solid ${CREAM};font-family:'Barlow',sans-serif;font-size:8.5px;font-weight:600;color:${GRAY_LIGHT};text-align:center;">+ ${leads.length-10} solicitudes adicionales registradas en el sistema</div>` : ''}
     </div>
   </div>
 
@@ -483,7 +513,7 @@ function buildReclutamientoSection(candidates) {
     const cvBadge = c.cv_nombre
       ? `<span style="display:inline-block;padding:1px 6px;background:rgba(251,103,11,0.07);border:1px solid rgba(251,103,11,0.22);border-radius:4px;font-size:7.5px;font-weight:700;color:${ORANGE};">📎 CV</span>`
       : `<span style="color:${GRAY_LIGHT};font-size:9px;">—</span>`;
-    const bg = i%2===0 ? WHITE : BG;
+    const bg = i%2===0 ? '#FFFFFF' : '#F5F5F5';
     return `
     <tr style="border-bottom:1px solid ${CREAM};background:${bg};">
       <td style="padding:6px 9px;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;color:${ORANGE};">#${String(c.id||0).padStart(5,'0')}</td>
@@ -501,7 +531,7 @@ function buildReclutamientoSection(candidates) {
   }).join('');
 
   return `<!-- PÁGINA 4 · RECLUTAMIENTO -->
-<div class="page"><div class="dashboard">
+<div class="page page-flow"><div class="dashboard flow">
   <!-- Header oscuro con acento naranja -->
   <div style="background:linear-gradient(135deg,${BLACK} 0%,${GRAY_D} 60%,${BLACK} 100%);padding:clamp(20px,3vw,28px) clamp(20px,3vw,36px);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;position:relative;overflow:hidden;">
     <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,${ORANGE},transparent);"></div>
@@ -516,9 +546,11 @@ function buildReclutamientoSection(candidates) {
   </div>
 
   <div style="display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr);gap:10px;padding:12px 13px 10px;">
-    <div style="background:${WHITE};border-radius:14px;border:1px solid ${CREAM_DARK};padding:16px 18px;box-shadow:0 1px 4px rgba(38,38,38,0.04);">
-      <div style="font-family:'Barlow',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.28em;text-transform:uppercase;color:${GRAY_LIGHT};margin-bottom:10px;">Tendencia de registro — últimos 14 días</div>
-      <svg viewBox="0 0 680 130" style="width:100%;height:auto;display:block;overflow:visible;">${buildCandidatesLineSVG(byDay)}</svg>
+    <div style="background:${WHITE};border-radius:14px;border:1px solid ${CREAM_DARK};padding:16px 18px;box-shadow:0 1px 4px rgba(38,38,38,0.04);display:flex;flex-direction:column;">
+      <div style="font-family:'Barlow',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.28em;text-transform:uppercase;color:${GRAY_LIGHT};margin-bottom:10px;flex-shrink:0;">Tendencia de registro — últimos 14 días</div>
+      <div style="flex:1;display:flex;align-items:center;">
+        <svg viewBox="0 0 680 130" style="width:100%;height:auto;display:block;overflow:visible;">${buildCandidatesLineSVG(byDay)}</svg>
+      </div>
     </div>
     <div style="background:${WHITE};border-radius:14px;border:1px solid ${CREAM_DARK};padding:16px 18px;box-shadow:0 1px 4px rgba(38,38,38,0.04);">
       <div style="font-family:'Barlow',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.28em;text-transform:uppercase;color:${GRAY_LIGHT};margin-bottom:14px;">Pipeline de candidatos</div>
@@ -545,7 +577,7 @@ function buildReclutamientoSection(candidates) {
       </div>
       <div style="overflow-x:auto;">
         <table style="width:100%;border-collapse:collapse;">
-          <thead><tr style="background:${BG};">
+          <thead><tr style="background:#F5F5F5;">
             ${['Folio','Nombre','Puesto','Estado','Email','WhatsApp','CV','Estatus','Registro'].map(h =>
               `<th style="padding:7px 9px;text-align:left;font-family:'Barlow',sans-serif;font-size:7.5px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:${GRAY_LIGHT};border-bottom:1px solid ${CREAM_DARK};white-space:nowrap;">${h}</th>`
             ).join('')}
@@ -554,7 +586,7 @@ function buildReclutamientoSection(candidates) {
         </table>
       </div>
       ${candidates.length > 12 ? `
-      <div style="padding:9px 18px;background:${BG};border-top:1px solid ${CREAM};font-family:'Barlow',sans-serif;font-size:8.5px;font-weight:600;color:${GRAY_LIGHT};text-align:center;">
+      <div style="padding:9px 18px;background:#F5F5F5;border-top:1px solid ${CREAM};font-family:'Barlow',sans-serif;font-size:8.5px;font-weight:600;color:${GRAY_LIGHT};text-align:center;">
         + ${candidates.length - 12} candidatos adicionales registrados en el sistema
       </div>` : ''}
     </div>
@@ -567,8 +599,88 @@ function buildReclutamientoSection(candidates) {
 </div></div>`;
 }
 
+// ── Portada Distribuidor ───────────────────────────────────────────────────────
+function buildDistribuidorCover(leads, periodo, logoBase64, todayFmt) {
+  const now = Date.now();
+  const today = new Date().toISOString().split('T')[0];
+  const hoy    = leads.filter(l => (l.ts||'').startsWith(today)).length;
+  const semana = leads.filter(l => (now - new Date(l.ts||0)) < 7*24*60*60*1000).length;
+  const mes    = leads.filter(l => (now - new Date(l.ts||0)) < 30*24*60*60*1000).length;
+  const logoImg = logoBase64
+    ? `<img src="${logoBase64}" alt="Grupo Ortiz" style="width:clamp(120px,16vw,180px);height:auto;object-fit:contain;filter:brightness(0) invert(1);display:block;margin:0 auto;"/>`
+    : `<span style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:24px;color:#fff;">GRUPO ORTIZ</span>`;
+  const stats = [{val:leads.length,lbl:'Total'},{val:mes,lbl:'30 días'},{val:semana,lbl:'7 días'},{val:hoy,lbl:'Hoy'}];
+  const statsHTML = stats.map(s=>`
+    <div class="cover-card">
+      <div class="cover-val">${s.val}</div>
+      <div class="cover-lbl">${s.lbl}</div>
+    </div>`).join('');
+  return `<!-- PORTADA DISTRIBUIDOR -->
+<div class="page"><div class="cover" style="background:linear-gradient(135deg,${BLACK} 0%,#2a2a2a 55%,${BLACK} 100%);">
+  <div class="cover-left">
+    <div class="cover-badge"><div style="width:24px;height:3px;background:${ORANGE};border-radius:2px;flex-shrink:0;"></div><span>Reporte · BotGO Analytics · Distribuidores</span></div>
+    <div class="cover-hero">
+      <div class="cover-title">DISTRI<span>BUIDOR</span>ES</div>
+      <div class="cover-sub">RED DE DISTRIBUCIÓN</div>
+      <div class="cover-divider"></div>
+      <div class="cover-period-lbl">Período analizado</div>
+      <div class="cover-period-val">${periodo}</div>
+    </div>
+    <div class="cover-footer">
+      <div><div class="cover-client-lbl">Generado para</div><div class="cover-client-name">Grupo Ortiz</div><div class="cover-client-sub">Est. 1959 · 65 años de confianza</div></div>
+      <div><div class="cover-date-lbl">Fecha</div><div class="cover-date-val">${todayFmt}</div></div>
+    </div>
+  </div>
+  <div class="cover-right">
+    <div class="cover-logo">${logoImg}</div>
+    <div class="cover-metrics-lbl">Solicitudes del período</div>
+    <div class="cover-grid">${statsHTML}</div>
+  </div>
+</div></div>`;
+}
+
+// ── Portada Reclutamiento ──────────────────────────────────────────────────────
+function buildReclutamientoCover(candidates, periodo, logoBase64, todayFmt) {
+  const now = Date.now();
+  const conCv   = candidates.filter(c=>c.cv_nombre).length;
+  const semana  = candidates.filter(c=>{const d=parseTursoDate(c.created_at||c.ts);return d&&(now-d.getTime())<7*24*60*60*1000;}).length;
+  const mes     = candidates.filter(c=>{const d=parseTursoDate(c.created_at||c.ts);return d&&(now-d.getTime())<30*24*60*60*1000;}).length;
+  const logoImg = logoBase64
+    ? `<img src="${logoBase64}" alt="Grupo Ortiz" style="width:clamp(120px,16vw,180px);height:auto;object-fit:contain;filter:brightness(0) invert(1);display:block;margin:0 auto;"/>`
+    : `<span style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:24px;color:#fff;">GRUPO ORTIZ</span>`;
+  const stats = [{val:candidates.length,lbl:'Total'},{val:mes,lbl:'30 días'},{val:semana,lbl:'7 días'},{val:conCv,lbl:'Con CV'}];
+  const statsHTML = stats.map(s=>`
+    <div class="cover-card">
+      <div class="cover-val">${s.val}</div>
+      <div class="cover-lbl">${s.lbl}</div>
+    </div>`).join('');
+  return `<!-- PORTADA RECLUTAMIENTO -->
+<div class="page"><div class="cover" style="background:linear-gradient(135deg,${BLACK} 0%,#2a2a2a 55%,${BLACK} 100%);">
+  <div class="cover-left">
+    <div class="cover-badge"><div style="width:24px;height:3px;background:${ORANGE};border-radius:2px;flex-shrink:0;"></div><span>Reporte · BotGO Analytics · Reclutamiento</span></div>
+    <div class="cover-hero">
+      <div class="cover-title">RECLUTA<span>MIENTO</span></div>
+      <div class="cover-sub">TALENTO HUMANO</div>
+      <div class="cover-divider"></div>
+      <div class="cover-period-lbl">Período analizado</div>
+      <div class="cover-period-val">${periodo}</div>
+    </div>
+    <div class="cover-footer">
+      <div><div class="cover-client-lbl">Generado para</div><div class="cover-client-name">Grupo Ortiz</div><div class="cover-client-sub">Est. 1959 · 65 años de confianza</div></div>
+      <div><div class="cover-date-lbl">Fecha</div><div class="cover-date-val">${todayFmt}</div></div>
+    </div>
+  </div>
+  <div class="cover-right">
+    <div class="cover-logo">${logoImg}</div>
+    <div class="cover-metrics-lbl">Candidatos del período</div>
+    <div class="cover-grid">${statsHTML}</div>
+  </div>
+</div></div>`;
+}
+
 // ── HTML principal ─────────────────────────────────────────────────────────────
-function buildReportHTML(data, periodMeta=null, analysis=null, logoBase64=null, leads=[], candidates=[]) {
+// reportType: 'general' | 'distribuidor' | 'reclutamiento'
+export function buildReportHTML(data, periodMeta=null, analysis=null, logoBase64=null, leads=[], candidates=[], reportType='general') {
   const now=new Date(), today=now.toISOString().split('T')[0];
   const todayFmt=now.toLocaleDateString('es-MX',{timeZone:'America/Mexico_City',day:'2-digit',month:'short',year:'2-digit'});
   const yest=new Date(now); yest.setDate(yest.getDate()-1);
@@ -595,6 +707,7 @@ function buildReportHTML(data, periodMeta=null, analysis=null, logoBase64=null, 
     if(meta.preset==='7d')return'7 días · '+fmt(meta.from)+' — '+fmt(meta.to);
     if(meta.preset==='30d')return'30 días · '+fmt(meta.from)+' — '+fmt(meta.to);
     if(meta.preset==='month'){const d=new Date(meta.from+'T00:00:00');return'Mes de '+d.toLocaleDateString('es-MX',{month:'long',year:'numeric'});}
+    if(meta.preset==='custom'&&meta.from&&meta.to)return fmt(meta.from)+' — '+fmt(meta.to);
     if(meta.preset==='all'&&allDates.length>=2)return'Todo · '+allDates[0].slice(5).replace('-','/')+' — '+allDates[allDates.length-1].slice(5).replace('-','/');
     if(meta.from&&meta.to)return fmt(meta.from)+' — '+fmt(meta.to);
     return todayFmt;
@@ -603,7 +716,7 @@ function buildReportHTML(data, periodMeta=null, analysis=null, logoBase64=null, 
 
   // Paleta para donut/intenciones — solo variaciones de la paleta oficial
   const iColors = [ORANGE, BLACK, GRAY_D, GRAY_MID, GRAY_LIGHT, CREAM_DARK];
-  const iLabels = {compra:'Compra', pdf:'PDF', info:'Info', reclutamiento:'Empleo', otro:'Otro'};
+  const iLabels = {compra:'Compra', pdf:'PDF', info:'Info', reclutamiento:'Empleo', otro:'Consulta General'};
 
   const ico = {
     chat:    `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
@@ -703,9 +816,268 @@ function buildReportHTML(data, periodMeta=null, analysis=null, logoBase64=null, 
     <div class="card-body">${content}</div>
   </div>`;
 
-  const analysisBlock       = buildAnalysisBlock(analysis);
-  const distribSection      = buildDistribuidoresSection(leads);
-  const reclutamientoSection = buildReclutamientoSection(candidates);
+  const analysisBlock        = buildAnalysisBlock(analysis);
+  const distribSection       = (reportType==='general'||reportType==='distribuidor') ? buildDistribuidoresSection(leads) : '';
+  const reclutamientoSection = (reportType==='general'||reportType==='reclutamiento') ? buildReclutamientoSection(candidates) : '';
+
+  // ── RESUMEN EJECUTIVO — 1 página, CEO-level ───────────────────────────────────
+  if (reportType === 'resumen') {
+    const now_ms = Date.now();
+    // Distribuidores stats
+    const distTotal  = leads.length;
+    const distSemana = leads.filter(l=>{const d=parseTursoDate(l.ts);return d&&(now_ms-d.getTime())<7*24*60*60*1000;}).length;
+    const distMes    = leads.filter(l=>{const d=parseTursoDate(l.ts);return d&&(now_ms-d.getTime())<30*24*60*60*1000;}).length;
+    const distHoy    = leads.filter(l=>{const d=parseTursoDate(l.ts);return d&&(now_ms-d.getTime())<24*60*60*1000;}).length;
+    // Top estados distribuidores
+    const distEstados = {};
+    leads.forEach(l=>{if(l.estado)distEstados[l.estado]=(distEstados[l.estado]||0)+1;});
+    const topDistEst = Object.entries(distEstados).sort(([,a],[,b])=>b-a).slice(0,4);
+
+    // Reclutamiento stats
+    const rhTotal  = candidates.length;
+    const rhConCv  = candidates.filter(c=>c.cv_nombre).length;
+    const rhSemana = candidates.filter(c=>{const d=parseTursoDate(c.created_at||c.ts);return d&&(now_ms-d.getTime())<7*24*60*60*1000;}).length;
+    const rhMes    = candidates.filter(c=>{const d=parseTursoDate(c.created_at||c.ts);return d&&(now_ms-d.getTime())<30*24*60*60*1000;}).length;
+    // Top puestos
+    const rhPuestos = {};
+    candidates.forEach(c=>{if(c.puesto)rhPuestos[c.puesto]=(rhPuestos[c.puesto]||0)+1;});
+    const topRhPuestos = Object.entries(rhPuestos).sort(([,a],[,b])=>b-a).slice(0,4);
+
+    // Mini bar chart — últimos 7 días
+    const last7 = Array.from({length:7},(_,i)=>{const d=new Date(now_ms);d.setDate(d.getDate()-(6-i));return d.toISOString().slice(0,10);});
+    const distByDay={};
+    leads.forEach(l=>{const d=parseTursoDate(l.ts);if(d){const k=d.toISOString().slice(0,10);distByDay[k]=(distByDay[k]||0)+1;}});
+    const rhByDay={};
+    candidates.forEach(c=>{const d=parseTursoDate(c.created_at||c.ts);if(d){const k=d.toISOString().slice(0,10);rhByDay[k]=(rhByDay[k]||0)+1;}});
+    const buildMiniBar=(valsByDay,color)=>{
+      const vals=last7.map(day=>valsByDay[day]||0);
+      const maxV=Math.max(...vals,1);
+      const W=200,H=58,PB=14,PT=6,PL=4,PR=4,CW=W-PL-PR,CH=H-PT-PB;
+      const bw=Math.floor(CW/7)-2;
+      const DOW=['D','L','M','X','J','V','S'];
+      let bars='';
+      last7.forEach((day,i)=>{
+        const val=vals[i];
+        const h=Math.max((val/maxV)*CH,val>0?2:0);
+        const x=PL+i*(CW/7)+1;
+        const y=PT+CH-h;
+        const dow=new Date(day+'T12:00:00Z').getUTCDay();
+        bars+=`<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw}" height="${h.toFixed(1)}" rx="2" fill="${color}" opacity="${i===6?'1':'0.45'}"/>`;
+        bars+=`<text x="${(x+bw/2).toFixed(1)}" y="${H-2}" text-anchor="middle" font-family="'Barlow',Helvetica" font-size="7" fill="${GRAY_LIGHT}">${DOW[dow]}</text>`;
+        if(val>0)bars+=`<text x="${(x+bw/2).toFixed(1)}" y="${(y-2).toFixed(1)}" text-anchor="middle" font-family="'Barlow Condensed',Helvetica" font-size="9" font-weight="700" fill="${color}">${val}</text>`;
+      });
+      return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:${H}px;display:block;">${bars}</svg>`;
+    };
+
+    // ── Análisis IA — 4 bullets separados ────────────────────────────────────
+    const aiBullets = analysis
+      ? analysis.split('\n').filter(l=>l.trim().startsWith('- ')).map(l=>l.trim().slice(2).trim())
+      : [];
+    while (aiBullets.length < 4) aiBullets.push('');
+    const AI_LABELS = ['Comportamiento','Producto estrella','Oportunidades','Recomendación'];
+    const AI_COLORS = [ORANGE, ORANGE_DARK, '#0088DD', '#22C55E'];
+
+    // Texto IA unificado
+    const aiText = aiBullets.filter(Boolean).join(' ');
+
+    // helpers compactos
+    const S = (t,c,b)=>`<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;padding-bottom:6px;border-bottom:1.5px solid ${c}18;">
+      <div style="width:2.5px;height:13px;background:${c};border-radius:2px;flex-shrink:0;"></div>
+      <span style="font-family:'Barlow',sans-serif;font-size:6.5px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:${GRAY_LIGHT};flex:1;">${t}</span>
+      ${b?`<span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:${c};">${b}</span>`:''}
+    </div>`;
+    const C = (content)=>`<div style="background:${WHITE};border-radius:9px;border:1px solid ${CREAM_DARK};padding:10px 11px;display:flex;flex-direction:column;">${content}</div>`;
+    const kv = (l,v,c)=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid ${CREAM};">
+      <span style="font-family:'Barlow',sans-serif;font-size:7px;font-weight:600;color:${GRAY_D};">${l}</span>
+      <span style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;color:${c};">${v}</span>
+    </div>`;
+    const mini3 = (items)=>items.map(([l,v,c])=>`
+      <div style="flex:1;background:${BG};border-radius:6px;padding:6px 4px;text-align:center;border:1px solid ${CREAM_DARK};">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:800;color:${c};line-height:1;">${v}</div>
+        <div style="font-family:'Barlow',sans-serif;font-size:5.5px;font-weight:700;letter-spacing:0.10em;text-transform:uppercase;color:${GRAY_LIGHT};margin-top:2px;">${l}</div>
+      </div>`).join('');
+
+    const C_BLUE='#0088DD', C_GREEN='#22C55E';
+
+    return `<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="UTF-8">
+<title>BotGO · Resumen Ejecutivo · ${today}</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700;800&family=Barlow+Condensed:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html,body{width:100%;height:100%;}
+  body{background:${BG};font-family:'Barlow',Helvetica,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  @media print{@page{size:A4 landscape;margin:0;} html,body{height:100%;}}
+</style>
+</head><body>
+<div style="width:100%;height:100vh;display:flex;flex-direction:column;background:${BG};">
+
+  <!-- HEADER -->
+  <div style="background:${BLACK};display:flex;align-items:stretch;flex-shrink:0;position:relative;">
+    <div style="position:absolute;top:0;left:0;right:0;height:2.5px;background:linear-gradient(90deg,${ORANGE},${ORANGE_DARK},${C_BLUE},${C_GREEN});"></div>
+    <div style="padding:8px 14px;display:flex;align-items:center;gap:9px;border-right:1px solid rgba(255,255,255,0.08);flex-shrink:0;">
+      ${logoBase64?`<img src="${logoBase64}" style="height:24px;width:auto;filter:brightness(0) invert(1);display:block;"/>`:`<div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:#fff;">GO</div>`}
+      <div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;color:#fff;letter-spacing:0.04em;text-transform:uppercase;line-height:1;">Grupo Ortiz</div>
+        <div style="font-family:'Barlow',sans-serif;font-size:5.5px;font-weight:700;letter-spacing:0.22em;color:rgba(255,255,255,0.30);text-transform:uppercase;">Resumen Ejecutivo · BotGO</div>
+      </div>
+    </div>
+    ${[
+      [totalMsg.toLocaleString('es-MX'),'Mensajes',ORANGE],
+      [totalSess.toLocaleString('es-MX'),'Sesiones','rgba(255,255,255,0.75)'],
+      [totalWA.toLocaleString('es-MX'),'WhatsApp',ORANGE_DARK],
+      [convRate+'%','Conversión',ORANGE],
+      [totalPDF.toLocaleString('es-MX'),'PDFs',GRAY_MID],
+      [distTotal.toLocaleString('es-MX'),'Distribuid.',C_BLUE],
+      [rhTotal.toLocaleString('es-MX'),'Candidatos',C_GREEN],
+      [mps,'Msgs/Ses','rgba(255,255,255,0.50)'],
+    ].map(([v,l,c],i,a)=>`
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 4px;text-align:center;border-right:${i<a.length-1?'1px solid rgba(255,255,255,0.07)':'none'};position:relative;">
+        <div style="position:absolute;bottom:0;left:20%;right:20%;height:1.5px;background:${c};opacity:0.5;border-radius:1px;"></div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:19px;font-weight:800;color:${c};line-height:1;">${v}</div>
+        <div style="font-family:'Barlow',sans-serif;font-size:5.5px;font-weight:700;letter-spacing:0.13em;text-transform:uppercase;color:rgba(255,255,255,0.28);margin-top:1px;">${l}</div>
+      </div>`).join('')}
+    <div style="padding:6px 14px;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;border-left:1px solid rgba(255,255,255,0.08);flex-shrink:0;gap:1px;min-width:120px;">
+      <div style="font-family:'Barlow',sans-serif;font-size:5.5px;font-weight:700;letter-spacing:0.20em;text-transform:uppercase;color:rgba(255,255,255,0.25);">Período</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;color:rgba(255,255,255,0.88);text-align:right;line-height:1.2;text-transform:uppercase;">${periodo}</div>
+      <div style="font-family:'Barlow',sans-serif;font-size:5.5px;font-weight:600;color:rgba(255,255,255,0.20);">${todayFmt}</div>
+    </div>
+  </div>
+
+  <!-- IA STRIP -->
+  ${aiText?`
+  <div style="flex-shrink:0;background:${WHITE};border-bottom:1px solid ${CREAM_DARK};padding:9px 14px;display:flex;align-items:center;gap:12px;">
+    <div style="flex-shrink:0;background:${ORANGE};border-radius:5px;padding:4px 9px;">
+      <span style="font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:800;color:#fff;letter-spacing:0.07em;text-transform:uppercase;">IA</span>
+    </div>
+    <div style="width:1px;height:28px;background:${CREAM_DARK};flex-shrink:0;"></div>
+    <div style="flex:1;min-width:0;">
+      <div style="font-family:'Barlow',sans-serif;font-size:5.5px;font-weight:700;letter-spacing:0.20em;text-transform:uppercase;color:${GRAY_LIGHT};margin-bottom:3px;">Análisis ejecutivo del período</div>
+      <div style="font-family:'Barlow',sans-serif;font-size:8px;font-weight:500;color:${GRAY_D};line-height:1.55;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">${aiText}</div>
+    </div>
+  </div>`:''}
+
+  <!-- CUERPO — 2 filas que llenan el espacio restante -->
+  <div style="flex:1;display:flex;flex-direction:column;padding:7px 8px;gap:7px;min-height:0;">
+
+    <!-- FILA 1 -->
+    <div style="flex:1;display:grid;grid-template-columns:2.2fr 1fr 1fr;gap:7px;min-height:0;">
+
+      ${C(`
+        ${S('Actividad 14 días — Mensajes · WhatsApp · Sesiones',ORANGE,'')}
+        <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:4px;min-height:0;">
+          <svg viewBox="0 0 780 140" style="width:100%;height:auto;max-height:130px;display:block;overflow:visible;">${buildLineSVG(daily14)}</svg>
+          <div style="display:flex;gap:14px;justify-content:center;">
+            ${[{c:ORANGE,l:'Mensajes'},{c:GRAY_D,l:'WhatsApp'},{c:GRAY_LIGHT,l:'Sesiones'}].map(s=>`<div style="display:flex;align-items:center;gap:3px;"><div style="width:6px;height:6px;border-radius:50%;background:${s.c};"></div><span style="font-family:'Barlow',sans-serif;font-size:6.5px;font-weight:600;color:${GRAY_LIGHT};">${s.l}</span></div>`).join('')}
+          </div>
+        </div>
+      `)}
+
+      ${C(`
+        ${S('Intenciones',ORANGE,'')}
+        <div style="flex:1;display:flex;flex-direction:column;justify-content:center;">
+          ${intentPairs.slice(0,5).map(([key,val],i)=>{const p=Math.round(val/totalIntents*100),clr=iColors[i%iColors.length];return `
+            <div style="display:flex;align-items:center;gap:5px;margin-bottom:6px;">
+              <div style="width:5px;height:5px;border-radius:50%;background:${clr};flex-shrink:0;"></div>
+              <span style="font-family:'Barlow',sans-serif;font-size:7.5px;font-weight:600;color:${GRAY_D};flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${iLabels[key]||key}</span>
+              <div style="width:44px;height:4px;background:${CREAM};border-radius:2px;overflow:hidden;flex-shrink:0;"><div style="width:${p}%;height:100%;background:${clr};border-radius:2px;"></div></div>
+              <span style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:800;color:${BLACK};min-width:20px;text-align:right;">${val}</span>
+            </div>`}).join('')||`<div style="color:${GRAY_LIGHT};font-size:9px;text-align:center;">Sin datos</div>`}
+        </div>
+      `)}
+
+      ${C(`
+        ${S('Top Productos',ORANGE_DARK,'')}
+        <div style="flex:1;display:flex;flex-direction:column;justify-content:center;">
+          ${topProds.slice(0,5).map(([label,val],i)=>{const pct=Math.round(val/(topProds[0]?.[1]||1)*100),isTop=i===0;return`
+            <div style="margin-bottom:6px;">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:1px;">
+                <span style="font-family:'Barlow',sans-serif;font-size:7.5px;font-weight:600;color:${isTop?BLACK:GRAY_D};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:105px;">${label}</span>
+                <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;color:${isTop?ORANGE:GRAY_LIGHT};flex-shrink:0;margin-left:4px;">${val}</span>
+              </div>
+              <div style="height:3px;background:${CREAM};border-radius:2px;overflow:hidden;"><div style="width:${pct}%;height:100%;background:${isTop?`linear-gradient(90deg,${ORANGE},${ORANGE_DARK})`:CREAM_DARK};border-radius:2px;"></div></div>
+            </div>`}).join('')||`<div style="color:${GRAY_LIGHT};font-size:9px;text-align:center;">Sin datos</div>`}
+        </div>
+      `)}
+
+    </div>
+
+    <!-- FILA 2 -->
+    <div style="flex:1;display:grid;grid-template-columns:1fr 1.15fr 1.15fr;gap:7px;min-height:0;">
+
+      ${C(`
+        ${S('Distribución intenciones',GRAY_MID,'')}
+        <div style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;">
+          <svg viewBox="0 0 140 140" width="82" height="82" style="flex-shrink:0;">${buildDonutSVG(intentPairs,iColors)}</svg>
+          <div style="flex:1;min-width:0;">
+            ${intentPairs.slice(0,5).map(([key,val],i)=>{const p=Math.round(val/totalIntents*100);return`
+              <div style="display:flex;align-items:center;gap:4px;margin-bottom:5px;">
+                <div style="width:5px;height:5px;border-radius:50%;background:${iColors[i%iColors.length]};flex-shrink:0;"></div>
+                <span style="font-family:'Barlow',sans-serif;font-size:7px;color:${GRAY_D};flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${iLabels[key]||key}</span>
+                <span style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:800;color:${BLACK};">${p}%</span>
+              </div>`}).join('')}
+          </div>
+        </div>
+      `)}
+
+      ${C(`
+        ${S('Distribuidores',C_BLUE,distTotal.toLocaleString('es-MX'))}
+        <div style="flex:1;display:flex;flex-direction:column;justify-content:space-between;gap:6px;">
+          <div style="display:flex;gap:5px;">${mini3([['Semana',distSemana,C_BLUE],['Mes',distMes,C_BLUE],['Hoy',distHoy,distHoy>0?C_BLUE:GRAY_LIGHT]])}</div>
+          <div style="flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0;">
+            <div style="font-family:'Barlow',sans-serif;font-size:5.5px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:${GRAY_LIGHT};margin-bottom:2px;">Tendencia últimos 14 días</div>
+            <svg viewBox="0 0 680 110" style="width:100%;height:auto;max-height:90px;display:block;overflow:visible;">${buildLeadsLineSVG(distByDay)}</svg>
+          </div>
+          ${topDistEst.slice(0,3).map(([e,v],i)=>`
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid ${CREAM};">
+              <span style="font-family:'Barlow',sans-serif;font-size:7px;color:${i===0?BLACK:GRAY_D};font-weight:${i===0?700:600};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:120px;">${e}</span>
+              <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;color:${i===0?C_BLUE:GRAY_LIGHT};">${v}</span>
+            </div>`).join('')||`<div style="font-family:'Barlow',sans-serif;font-size:7px;color:${GRAY_LIGHT};text-align:center;padding:4px 0;">Sin datos de estados</div>`}
+        </div>
+      `)}
+
+      ${C(`
+        ${S('Reclutamiento RH',C_GREEN,rhTotal.toLocaleString('es-MX'))}
+        <div style="flex:1;display:flex;flex-direction:column;justify-content:space-between;gap:6px;">
+          <div style="display:flex;gap:5px;">${mini3([['Semana',rhSemana,C_GREEN],['Mes',rhMes,C_GREEN],['Con CV',rhConCv,rhConCv>0?C_GREEN:GRAY_LIGHT]])}</div>
+          <div style="flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0;">
+            <div style="font-family:'Barlow',sans-serif;font-size:5.5px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:${GRAY_LIGHT};margin-bottom:2px;">Tendencia últimos 14 días</div>
+            <svg viewBox="0 0 680 110" style="width:100%;height:auto;max-height:90px;display:block;overflow:visible;">${buildCandidatesLineSVG(rhByDay)}</svg>
+          </div>
+          ${topRhPuestos.slice(0,3).map(([p,v],i)=>`
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid ${CREAM};">
+              <span style="font-family:'Barlow',sans-serif;font-size:7px;color:${i===0?BLACK:GRAY_D};font-weight:${i===0?700:600};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:120px;">${p}</span>
+              <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;color:${i===0?C_GREEN:GRAY_LIGHT};">${v}</span>
+            </div>`).join('')||`<div style="font-family:'Barlow',sans-serif;font-size:7px;color:${GRAY_LIGHT};text-align:center;padding:4px 0;">Sin datos de puestos</div>`}
+        </div>
+      `)}
+
+    </div>
+
+  </div><!-- /cuerpo -->
+
+  <!-- FOOTER -->
+  <div style="padding:4px 12px;background:${BLACK};display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+    <span style="font-family:'Barlow',sans-serif;font-size:6px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.22);">Grupo Ortiz · BotGO Analytics · Confidencial</span>
+    <div style="display:flex;align-items:center;gap:5px;">
+      <div style="width:12px;height:1.5px;background:${ORANGE};border-radius:1px;"></div>
+      <span style="font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;color:rgba(255,255,255,0.40);letter-spacing:0.05em;">RESUMEN EJECUTIVO</span>
+      <div style="width:12px;height:1.5px;background:${ORANGE};border-radius:1px;"></div>
+    </div>
+    <span style="font-family:'Barlow',sans-serif;font-size:6px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.22);">${todayFmt}</span>
+  </div>
+
+</div>
+</body></html>`;
+  }
+
+  // Portada según tipo
+  const coverPage = reportType==='distribuidor'
+    ? buildDistribuidorCover(leads, periodo, logoBase64, todayFmt)
+    : reportType==='reclutamiento'
+    ? buildReclutamientoCover(candidates, periodo, logoBase64, todayFmt)
+    : null; // general usa portada inline abajo
 
   return `<!DOCTYPE html>
 <html lang="es">
@@ -728,7 +1100,7 @@ function buildReportHTML(data, periodMeta=null, analysis=null, logoBase64=null, 
     --gray-l:      ${GRAY_LIGHT};
     --cream:       ${CREAM};
     --cream-dark:  ${CREAM_DARK};
-    --bg:          ${BG};
+    --bg:          #FFFFFF;
     --white:       ${WHITE};
   }
   *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
@@ -790,37 +1162,38 @@ function buildReportHTML(data, periodMeta=null, analysis=null, logoBase64=null, 
     width:clamp(260px,36%,420px);
     background:linear-gradient(160deg,${ORANGE} 0%,${ORANGE_DARK} 100%);
     display:flex; flex-direction:column; flex-shrink:0;
-    padding:clamp(28px,4vw,44px) clamp(20px,3vw,32px);
-    position:relative; overflow:hidden; justify-content:center;
-    gap:clamp(16px,2.5vw,24px);
+    padding:clamp(24px,3.5vw,36px) clamp(18px,2.5vw,28px) clamp(32px,5vw,52px);
+    position:relative; overflow:hidden; justify-content:flex-start;
+    gap:clamp(10px,1.5vw,16px);
   }
   .cover-right::before {
-    content:''; position:absolute; bottom:-90px; right:-90px;
+    content:''; position:absolute; bottom:-90px; right:-90px; z-index:0;
     width:280px; height:280px; border-radius:50%; border:55px solid rgba(236,235,224,0.08);
   }
   .cover-right::after {
-    content:''; position:absolute; top:-70px; left:-70px;
+    content:''; position:absolute; top:-70px; left:-70px; z-index:0;
     width:220px; height:220px; border-radius:50%; border:40px solid rgba(236,235,224,0.06);
   }
-  .cover-logo { position:relative; z-index:1; display:flex; align-items:center; justify-content:center; width:100%; padding:clamp(16px,2.5vw,28px) 0; }
+  .cover-logo { position:relative; z-index:2; display:flex; align-items:center; justify-content:center; width:100%; padding:clamp(8px,1.2vw,16px) 0 clamp(4px,0.8vw,10px); }
   .cover-metrics-lbl {
     font-family:'Barlow',sans-serif; font-size:11px; font-weight:700;
-    letter-spacing:0.20em; text-transform:uppercase; color:rgba(236,235,224,0.75);
-    position:relative; z-index:1; text-align:center; margin-bottom:4px;
+    letter-spacing:0.20em; text-transform:uppercase; color:rgba(255,255,255,0.85);
+    position:relative; z-index:2; text-align:center; margin-bottom:4px;
   }
-  .cover-grid { display:grid; grid-template-columns:1fr 1fr; gap:clamp(6px,1vw,10px); position:relative; z-index:1; }
+  .cover-grid { display:grid; grid-template-columns:1fr 1fr; gap:clamp(7px,1vw,11px); position:relative; z-index:2; }
   .cover-card {
-    background:rgba(236,235,224,0.09); border:1px solid rgba(236,235,224,0.14);
-    border-radius:14px; padding:clamp(14px,2vw,20px) clamp(10px,1.5vw,14px);
-    display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:8px;
+    background:rgba(255,255,255,0.20); border:2px solid rgba(255,255,255,0.38);
+    border-radius:14px; padding:clamp(12px,1.6vw,18px) clamp(8px,1.1vw,12px);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:5px;
+    position:relative; z-index:2;
   }
   .cover-icon {
-    width:clamp(34px,4vw,44px); height:clamp(34px,4vw,44px); border-radius:11px;
-    background:rgba(236,235,224,0.14); border:1.5px solid rgba(236,235,224,0.22);
-    display:flex; align-items:center; justify-content:center;
+    width:clamp(28px,3.2vw,38px); height:clamp(28px,3.2vw,38px); border-radius:9px;
+    background:rgba(255,255,255,0.22); border:1.5px solid rgba(255,255,255,0.35);
+    display:flex; align-items:center; justify-content:center; color:#fff;
   }
-  .cover-val  { font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:clamp(28px,3.5vw,38px); letter-spacing:-0.02em; color:#fff; line-height:1; }
-  .cover-lbl  { font-family:'Barlow',sans-serif; font-size:clamp(7px,1vw,9px); font-weight:700; letter-spacing:0.16em; text-transform:uppercase; color:rgba(236,235,224,0.42); }
+  .cover-val  { font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:clamp(26px,3.2vw,38px); letter-spacing:-0.02em; color:#fff; line-height:1; }
+  .cover-lbl  { font-family:'Barlow',sans-serif; font-size:clamp(7px,0.95vw,9px); font-weight:700; letter-spacing:0.16em; text-transform:uppercase; color:rgba(255,255,255,0.65); }
 
   /* ── Dashboard ───────────────────────────────────────────────────────── */
   .dashboard { background:var(--bg); }
@@ -894,14 +1267,26 @@ function buildReportHTML(data, periodMeta=null, analysis=null, logoBase64=null, 
     .cards-grid  { grid-template-columns:1fr; padding:8px; }
     .cards-row   { grid-template-columns:1fr; }
   }
-  @page { size:A4 landscape; margin:10mm; }
+  /* margin:0 para que la portada (y todas las páginas) lleguen al borde físico del papel */
+  @page { size:A4 landscape; margin:0; }
   @media print {
-    body { background:#fff !important; }
-    .page { max-width:100%; margin:0; page-break-after:always; }
-    .cover { min-height:170mm; flex-direction:row !important; }
-    .cover-right { width:35%; }
+    html,body { background:#FFFFFF !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    /* A4 landscape completo: 297mm × 210mm */
+    .page {
+      width:297mm; height:210mm; overflow:hidden;
+      margin:0; page-break-after:always; break-after:page; position:relative;
+    }
+    .page.page-flow {
+      height:auto !important; min-height:210mm; overflow:visible !important;
+      page-break-inside:auto; break-inside:auto;
+    }
+    /* Portada: ocupa todo el papel, sin márgenes */
+    .cover { height:210mm; flex-direction:row !important; overflow:hidden; }
+    .cover-right { width:35%; height:100%; overflow:hidden; }
     .cover-grid  { grid-template-columns:repeat(2,1fr) !important; }
-    .dashboard   { min-height:170mm; }
+    /* Dashboard: ocupa todo el papel; el padding interno hace de margen */
+    .dashboard   { height:210mm; overflow:hidden; }
+    .dashboard.flow { height:auto !important; min-height:210mm; overflow:visible !important; }
     .cards-grid  { grid-template-columns:2.3fr 1fr !important; }
     .cards-row   { grid-template-columns:1fr 1fr !important; }
     .kpi-strip   { display:flex !important; }
@@ -911,7 +1296,7 @@ function buildReportHTML(data, periodMeta=null, analysis=null, logoBase64=null, 
 </head>
 <body>
 
-<!-- PÁGINA 1 · PORTADA ────────────────────────────────────────────────── -->
+${coverPage ?? `<!-- PÁGINA 1 · PORTADA GENERAL ──────────────────────────────────────── -->
 <div class="page"><div class="cover">
   <div class="cover-left">
     <div class="cover-badge">
@@ -943,9 +1328,9 @@ function buildReportHTML(data, periodMeta=null, analysis=null, logoBase64=null, 
     <div class="cover-metrics-lbl">Métricas del período</div>
     <div class="cover-grid">${coverCards}</div>
   </div>
-</div></div>
+</div></div>`}
 
-<!-- PÁGINA 2 · DASHBOARD ──────────────────────────────────────────────── -->
+${reportType!=='general' ? '' : `<!-- PÁGINA 2 · DASHBOARD ──────────────────────────────────────────── -->
 <div class="page"><div class="dashboard">
   <div class="dash-header">
     <div class="dash-brand">
@@ -1001,9 +1386,9 @@ function buildReportHTML(data, periodMeta=null, analysis=null, logoBase64=null, 
       ${[{c:ORANGE,l:'Mensajes'},{c:GRAY_D,l:'WhatsApp'},{c:GRAY_LIGHT,l:'Sesiones'},{c:ORANGE_DARK,l:'PDFs'},{c:BLACK,l:'Distribuid.'},{c:GRAY_MID,l:'Candidatos'}]
         .map(s => `<div class="legend-item"><div class="legend-dot" style="background:${s.c};"></div><span class="legend-lbl">${s.l}</span></div>`).join('')}
     </div>
-    <span class="footer-txt">reporte-botgo-${today}.html</span>
+    <span class="footer-txt">reporte-botgo-${today}.pdf</span>
   </div>
-</div></div>
+</div></div>`}
 
 ${distribSection}
 ${reclutamientoSection}
@@ -1032,7 +1417,7 @@ INSTRUCCIONES:
 - Usa números concretos de los datos
 - NO uses asteriscos, negritas ni markdown
 - Empieza DIRECTAMENTE con el primer bullet, sin título ni introducción`;
-    const res  = await fetch('/api/chat', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'user',content:prompt}],language:'es',isVoice:false})});
+    const res  = await fetch('/api/chat', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'user',content:prompt}],language:'es',isVoice:false,noLog:true})});
     if (!res.ok) return null;
     const json = await res.json();
     return (json.reply||'').trim() || null;
@@ -1040,7 +1425,8 @@ INSTRUCCIONES:
 }
 
 // ── Botón de descarga ─────────────────────────────────────────────────────────
-export function DownloadReportButton({ data, periodMeta = null, style = {} }) {
+// reportType: 'general' | 'distribuidor' | 'reclutamiento'
+export function DownloadReportButton({ data, periodMeta = null, style = {}, reportType = 'general' }) {
   const [busy, setBusy]     = useState(false);
   const [status, setStatus] = useState('idle');
 
@@ -1078,7 +1464,7 @@ export function DownloadReportButton({ data, periodMeta = null, style = {} }) {
       const candidates = candidatesRes?.ok ? (candidatesRes.candidates || []) : [];
 
       setStatus('building');
-      const html = buildReportHTML(data, periodMeta, analysis, logoBase64, leads, candidates);
+      const html = buildReportHTML(data, periodMeta, analysis, logoBase64, leads, candidates, reportType);
 
       const slug = periodMeta?.preset==='today' ? 'hoy'
                  : periodMeta?.preset==='7d'    ? '7dias'
@@ -1088,11 +1474,26 @@ export function DownloadReportButton({ data, periodMeta = null, style = {} }) {
                  : periodMeta?.from && periodMeta?.to ? `${periodMeta.from}_${periodMeta.to}`
                  : new Date().toISOString().split('T')[0];
 
-      const blob = new Blob([html], {type:'text/html;charset=utf-8'});
-      const url  = URL.createObjectURL(blob);
-      const a    = document.createElement('a');
-      a.href     = url;
-      a.download = `reporte-botgo-${slug}.html`;
+      const prefix   = reportType==='distribuidor' ? 'distribuidores' : reportType==='reclutamiento' ? 'reclutamiento' : reportType==='resumen' ? 'resumen' : 'botgo';
+      const filename = `reporte-${prefix}-${slug}.pdf`;
+
+      setStatus('exporting');
+      const res = await fetch('/api/export-pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ html, filename }),
+      });
+
+      if (!res.ok) {
+        const { error } = await res.json().catch(() => ({ error: 'Error desconocido' }));
+        throw new Error(error);
+      }
+
+      const pdfBlob = await res.blob();
+      const url     = URL.createObjectURL(pdfBlob);
+      const a       = document.createElement('a');
+      a.href        = url;
+      a.download    = filename;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -1104,7 +1505,8 @@ export function DownloadReportButton({ data, periodMeta = null, style = {} }) {
     setTimeout(() => setStatus('idle'), 2000);
   };
 
-  const labels = { idle:'↓ Reporte', analyzing:'Analizando…', building:'Generando…', done:'✓ Listo' };
+  const TYPE_IDLE = { general:'↓ General', distribuidor:'↓ Distribuidores', reclutamiento:'↓ Reclutamiento', resumen:'↓ Resumen' };
+  const labels = { idle: TYPE_IDLE[reportType] || '↓ PDF', analyzing:'Analizando…', building:'Generando…', exporting:'Exportando…', done:'✓ Listo' };
 
   return (
     <button
@@ -1145,5 +1547,4 @@ export function DownloadReportButton({ data, periodMeta = null, style = {} }) {
   );
 }
 
-export { buildReportHTML };
 export default DownloadReportButton;

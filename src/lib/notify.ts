@@ -52,27 +52,42 @@ async function notifyNtfyDistribuidor(token: string, topic: string) {
   }
 }
 
-async function notifyCallMeBotDistribuidor(
+async function sendEvolutionMessage(phone: string, text: string): Promise<void> {
+  const baseUrl  = import.meta.env.EVOLUTION_API_URL;
+  const apiKey   = import.meta.env.EVOLUTION_API_KEY;
+  const instance = import.meta.env.EVOLUTION_INSTANCE;
+
+  if (!baseUrl || !apiKey || !instance) {
+    console.warn('⚠️ Evolution API no configurada (EVOLUTION_API_URL / EVOLUTION_API_KEY / EVOLUTION_INSTANCE)');
+    return;
+  }
+
+  const cleanPhone = phone.replace(/\D/g, '');
+  const res = await fetch(`${baseUrl}/message/sendText/${instance}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'apikey': apiKey },
+    body: JSON.stringify({ number: cleanPhone, text }),
+  });
+
+  if (!res.ok) {
+    console.error(`❌ Evolution API error: HTTP ${res.status} — ${await res.text()}`);
+  } else {
+    console.log(`✅ Evolution API enviado a ${phone}`);
+  }
+}
+
+async function notifyEvolutionDistribuidor(
   phone: string,
-  apiKey: string,
   lead: { nombre: string; empresa: string; whatsapp: string; productos: string }
 ) {
-  const mensaje = `🤝 *Nuevo Distribuidor*
-👤 ${lead.nombre}
-🏢 ${lead.empresa || 'Sin empresa'}
-📲 ${lead.whatsapp}
-📦 ${lead.productos || 'Sin productos'}
-🕐 ${new Date().toLocaleString('es-MX')}`;
+  const mensaje = `*Nuevo Distribuidor — BotGO*
+Nombre: ${lead.nombre}
+Empresa: ${lead.empresa || 'Sin empresa'}
+WhatsApp: ${lead.whatsapp}
+Productos: ${lead.productos || 'Sin productos'}
+${new Date().toLocaleString('es-MX', { timeZone: 'America/Mexico_City' })}`;
 
-  const url = `https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${encodeURIComponent(mensaje)}&apikey=${apiKey}`;
-
-  console.log('📲 CallMeBot Distribuidor URL:', url);
-
-  const res  = await fetch(url);
-  const body = await res.text();
-
-  console.log(`📲 CallMeBot Distribuidor status: ${res.status}`);
-  console.log(`📲 CallMeBot Distribuidor body: ${body}`);
+  await sendEvolutionMessage(phone, mensaje);
 }
 
 export async function notifyNewDistribuidor(lead: {
@@ -81,10 +96,9 @@ export async function notifyNewDistribuidor(lead: {
   whatsapp: string;
   productos: string;
 }) {
-  const topic  = import.meta.env.NOTIFY_NTFY_TOPIC;
-  const token  = import.meta.env.NOTIFY_NTFY_TOKEN;
-  const phone  = import.meta.env.CALLMEBOT_PHONE;
-  const apiKey = import.meta.env.CALLMEBOT_APIKEY;
+  const topic = import.meta.env.NOTIFY_NTFY_TOPIC;
+  const token = import.meta.env.NOTIFY_NTFY_TOKEN;
+  const phone = import.meta.env.EVOLUTION_PHONE_DIST;
 
   const tasks: Promise<void>[] = [];
 
@@ -94,10 +108,10 @@ export async function notifyNewDistribuidor(lead: {
     console.warn('⚠️ ntfy Distribuidor no configurado, saltando...');
   }
 
-  if (phone && apiKey) {
-    tasks.push(notifyCallMeBotDistribuidor(phone, apiKey, lead));
+  if (phone) {
+    tasks.push(notifyEvolutionDistribuidor(phone, lead));
   } else {
-    console.warn('⚠️ CallMeBot Distribuidor no configurado, saltando...');
+    console.warn('⚠️ EVOLUTION_PHONE_DIST no configurado, saltando notificación WhatsApp...');
   }
 
   await Promise.allSettled(tasks);
@@ -128,28 +142,19 @@ async function notifyNtfyVacante(token: string, topic: string) {
   }
 }
 
-async function notifyCallMeBotVacante(
+async function notifyEvolutionVacante(
   phone: string,
-  apiKey: string,
   lead: { nombre: string; puesto: string; whatsapp: string; email: string; mensaje: string }
 ) {
-  const texto = `💼 *Nueva Solicitud de Vacante*
-👤 ${lead.nombre}
-📋 ${lead.puesto   || 'Sin puesto especificado'}
-📲 ${lead.whatsapp}
-📧 ${lead.email    || 'Sin email'}
-💬 ${lead.mensaje  || 'Sin mensaje'}
-🕐 ${new Date().toLocaleString('es-MX')}`;
+  const texto = `*Nueva Solicitud de Vacante — BotGO*
+Nombre: ${lead.nombre}
+Puesto: ${lead.puesto || 'Sin especificar'}
+WhatsApp: ${lead.whatsapp}
+Email: ${lead.email || 'Sin email'}
+Mensaje: ${lead.mensaje || 'Sin mensaje'}
+${new Date().toLocaleString('es-MX', { timeZone: 'America/Mexico_City' })}`;
 
-  const url = `https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${encodeURIComponent(texto)}&apikey=${apiKey}`;
-
-  console.log('📲 CallMeBot Vacante URL:', url);
-
-  const res  = await fetch(url);
-  const body = await res.text();
-
-  console.log(`📲 CallMeBot Vacante status: ${res.status}`);
-  console.log(`📲 CallMeBot Vacante body: ${body}`);
+  await sendEvolutionMessage(phone, texto);
 }
 
 export async function notifyNewVacante(lead: {
@@ -159,18 +164,9 @@ export async function notifyNewVacante(lead: {
   email:    string;
   mensaje:  string;
 }) {
-  const topic  = import.meta.env.NOTIFY_NTFY_TOPIC_RH;
-  const token  = import.meta.env.NOTIFY_NTFY_TOKEN_RH;
-  const phone  = import.meta.env.CALLMEBOT_PHONE_RH;
-  const apiKey = import.meta.env.CALLMEBOT_APIKEY_RH;
-
-  // ← LOG TEMPORAL
-  console.log('🔍 RH ENV CHECK:', {
-    topic:  topic  ? `✅ ${topic}`  : '❌ undefined',
-    token:  token  ? '✅ existe'    : '❌ undefined',
-    phone:  phone  ? `✅ ${phone}`  : '❌ undefined',
-    apiKey: apiKey ? '✅ existe'    : '❌ undefined',
-  });
+  const topic = import.meta.env.NOTIFY_NTFY_TOPIC_RH;
+  const token = import.meta.env.NOTIFY_NTFY_TOKEN_RH;
+  const phone = import.meta.env.EVOLUTION_PHONE_RH;
 
   const tasks: Promise<void>[] = [];
 
@@ -180,10 +176,10 @@ export async function notifyNewVacante(lead: {
     console.warn('⚠️ ntfy RH no configurado, saltando...');
   }
 
-  if (phone && apiKey) {
-    tasks.push(notifyCallMeBotVacante(phone, apiKey, lead));
+  if (phone) {
+    tasks.push(notifyEvolutionVacante(phone, lead));
   } else {
-    console.warn('⚠️ CallMeBot RH no configurado, saltando...');
+    console.warn('⚠️ EVOLUTION_PHONE_RH no configurado, saltando notificación WhatsApp...');
   }
 
   await Promise.allSettled(tasks);

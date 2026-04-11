@@ -12,6 +12,7 @@ export const ar = {
     company: 'الشركة',
     social: 'الأثر الاجتماعي',
     distributor: 'موزّع',
+    careers: 'وظائف',
     contact: 'اتصل بنا'
   },
 

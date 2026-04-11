@@ -106,19 +106,39 @@ export const POST: APIRoute = async ({ request }) => {
       return new Response(JSON.stringify({ ok: false, error: 'Contraseña incorrecta' }), { status: 401 });
     }
 
-    const row  = result.rows[0];
+const row      = result.rows[0];
+    const roleName = row.name as string;
+ 
+    // Parsea tabs de Turso e inyecta 'vacantes' para Admin y RH
+    const parsedTabs: string[] = JSON.parse(row.tabs as string);
+    if ((roleName === 'Admin' || roleName === 'RH') && !parsedTabs.includes('vacantes')) {
+      const recIdx = parsedTabs.indexOf('recruitment');
+      if (recIdx !== -1) {
+        parsedTabs.splice(recIdx + 1, 0, 'vacantes');
+      } else {
+        parsedTabs.push('vacantes');
+      }
+    }
+ 
+    // roleType: identificador estable basado en can_download y tabs (no cambia si renombran el usuario)
+    // Admin → canDownload=true | RH → canDownload=false, tiene recruitment
+    const isAdminRole = Boolean(row.can_download);
+    const isRHRole    = !isAdminRole && parsedTabs.includes('recruitment');
 
-    // ✅ canDelete: solo el usuario Admin puede borrar datos
     const role = {
-      name:        row.name        as string,
-      color:       row.color       as string,
-      tabs:        JSON.parse(row.tabs as string),
-      canDownload: Boolean(row.can_download),
-      canDelete:   (row.name as string) === 'Admin',  // ← RH y Distribuidor = false
+      name:           roleName,
+      color:          row.color as string,
+      tabs:           parsedTabs,
+      canDownload:    isAdminRole,
+      canDelete:      isAdminRole || isRHRole,   // Admin y RH pueden eliminar candidatos
+      isAdminRole,                                // true solo para Admin (acceso completo)
     };
+   
+    
 
     console.log(`✅ Login exitoso — rol: ${role.name} | canDelete: ${role.canDelete}`);
 
+    
     const token = await new SignJWT({ role })
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt()

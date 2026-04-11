@@ -1,10 +1,12 @@
 // src/components/AdminPanel.jsx
-// BotGO · Panel Admin v13 · Paleta oficial: #262626 · #535353 · #ECEBE0 · #FB670B
+// BotGO · Panel Admin v14 · Visual Redesign · Paleta: #262626 · #535353 · #ECEBE0 · #FB670B
 // Ctrl + 9 → abre el panel
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, createContext, useContext } from 'react';
 import { DownloadReportButton } from './ReportGenerator';
 import RecruitmentTab from './RecruitmentTab';
+import ReportScheduler from './ReportScheduler';
+import VacantesTab from './VacantesTab';
 
 // ── FIX HORA TURSO ────────────────────────────────────────────────────────────
 function parseTursoDate(ts) {
@@ -31,34 +33,79 @@ function fmtFechaHora(ts) {
   return d.toLocaleString('es-MX', { timeZone:'America/Mexico_City', day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
 }
 
-// ── PALETA OFICIAL ─────────────────────────────────────────────────────────────
-const P = {
+// ── PALETAS OFICIAL (DARK / LIGHT) ────────────────────────────────────────────
+const DARK_P = {
   black:       '#262626',
   gray:        '#535353',
   cream:       '#ECEBE0',
   orange:      '#FB670B',
-  // Derivados
   orangeDark:  '#D4530A',
   orangeWarm:  '#FD8A40',
+  orangeSoft:  '#FE9B5E',
   grayMid:     '#8A8A7A',
   grayLight:   '#C4C3B5',
   creamDark:   '#D8D6C5',
-  bg:          '#1A1917',      // casi negro cálido
-  surface:     '#222220',
-  surface2:    '#2A2926',
-  border:      'rgba(236,235,224,0.07)',
-  border2:     'rgba(236,235,224,0.04)',
-  text:        'rgba(236,235,224,0.92)',
-  textSub:     'rgba(236,235,224,0.48)',
-  textDim:     'rgba(236,235,224,0.22)',
-  // Semáforo dentro de paleta
-  ok:          '#FB670B',   // naranja = positivo
-  okDim:       'rgba(251,103,11,0.10)',
-  warn:        '#C4C3B5',   // gris claro = neutral/alerta
-  warnDim:     'rgba(196,195,181,0.08)',
-  err:         '#535353',   // gris oscuro = negativo/error
-  errDim:      'rgba(83,83,83,0.15)',
+  bg:          '#0F0E0C',
+  surface:     '#181714',
+  surface2:    '#201F1C',
+  surface3:    '#2A2926',
+  surfaceGlass:'rgba(24,23,20,0.85)',
+  border:      'rgba(236,235,224,0.11)',
+  border2:     'rgba(236,235,224,0.06)',
+  borderHover: 'rgba(251,103,11,0.28)',
+  borderActive:'rgba(251,103,11,0.45)',
+  text:        'rgba(236,235,224,0.97)',
+  textSub:     'rgba(236,235,224,0.58)',
+  textDim:     'rgba(236,235,224,0.30)',
+  textMuted:   'rgba(236,235,224,0.16)',
+  ok:          '#FB670B',
+  okDim:       'rgba(251,103,11,0.13)',
+  okGlow:      'rgba(251,103,11,0.22)',
+  warn:        '#C4C3B5',
+  warnDim:     'rgba(196,195,181,0.10)',
+  err:         '#535353',
+  errDim:      'rgba(83,83,83,0.18)',
 };
+
+const LIGHT_P = {
+  black:       '#111827',
+  gray:        '#6B7280',
+  cream:       '#F8F9FB',
+  orange:      '#FB670B',
+  orangeDark:  '#D4530A',
+  orangeWarm:  '#FD8A40',
+  orangeSoft:  '#FE9B5E',
+  grayMid:     '#9CA3AF',
+  grayLight:   '#D1D5DB',
+  creamDark:   '#E5E7EB',
+  bg:          '#F8F9FB',
+  surface:     '#FFFFFF',
+  surface2:    '#F8F9FB',
+  surface3:    '#F3F4F6',
+  surfaceGlass:'rgba(255,255,255,0.98)',
+  border:      '#E5E7EB',
+  border2:     '#F3F4F6',
+  borderHover: 'rgba(251,103,11,0.28)',
+  borderActive:'rgba(251,103,11,0.45)',
+  text:        '#111827',
+  textSub:     '#6B7280',
+  textDim:     '#9CA3AF',
+  textMuted:   '#D1D5DB',
+  ok:          '#FB670B',
+  okDim:       'rgba(251,103,11,0.08)',
+  okGlow:      'rgba(251,103,11,0.15)',
+  warn:        '#9CA3AF',
+  warnDim:     'rgba(156,163,175,0.10)',
+  err:         '#DC2626',
+  errDim:      'rgba(220,38,38,0.08)',
+};
+
+// Contexto de paleta — permite que todos los sub-componentes lean el tema activo
+const PCtx = createContext(DARK_P);
+const useP  = () => useContext(PCtx);
+
+// Alias module-level para default params (valor estático, no cambia)
+const P = DARK_P;
 
 const T = { sans:"'DM Sans',system-ui,sans-serif", mono:"'DM Mono','Fira Mono',monospace" };
 
@@ -66,134 +113,236 @@ const GLOBAL_CSS = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300&family=DM+Mono:wght@400;500&display=swap');
   *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
 
+  /* ── OVERLAY ── */
   .admin-overlay {
-      position:fixed; inset:0; z-index:99999999;
-    background:rgba(10,9,8,0.88);
-    backdrop-filter:blur(28px) saturate(110%);
-    -webkit-backdrop-filter:blur(28px) saturate(110%);
+    position:fixed; inset:0; z-index:99999999;
+    background:rgba(6,5,4,0.82);
+    backdrop-filter:blur(32px) saturate(120%);
+    -webkit-backdrop-filter:blur(32px) saturate(120%);
     display:flex; align-items:center; justify-content:center;
-    padding:8px; opacity:0; transition:opacity 0.28s ease;
+    padding:8px; opacity:0; transition:opacity 0.30s ease;
   }
-    
   .admin-overlay.visible { opacity:1; }
 
+  /* ── DOT GRID BACKGROUND ── */
+  .admin-bg-dots {
+    position:relative;
+  }
+  .admin-bg-dots::before {
+    content:'';
+    position:absolute; inset:0;
+    background-image: radial-gradient(circle, rgba(236,235,224,0.055) 1px, transparent 1px);
+    background-size: 24px 24px;
+    pointer-events:none; z-index:0;
+    border-radius:inherit;
+  }
+
+  /* ── FONTS ── */
   .aroot, .aroot * { font-family:'DM Sans',system-ui,sans-serif !important; }
   .aroot .mono, .aroot code, .aroot pre { font-family:'DM Mono','Fira Mono',monospace !important; }
   .aroot .stat-num { font-family:'DM Mono','Fira Mono',monospace !important; }
 
-  /* SCROLLBAR */
-  .adash { scrollbar-width:thin; scrollbar-color:rgba(236,235,224,0.06) transparent; }
+  /* ── SCROLLBAR ── */
+  .adash { scrollbar-width:thin; scrollbar-color:rgba(251,103,11,0.18) transparent; }
   .adash::-webkit-scrollbar { width:3px; }
-  .adash::-webkit-scrollbar-thumb { background:rgba(236,235,224,0.06); border-radius:2px; }
+  .adash::-webkit-scrollbar-thumb { background:rgba(251,103,11,0.18); border-radius:2px; }
+  .adash::-webkit-scrollbar-track { background:transparent; }
 
-  /* ANIMATIONS */
-  @keyframes spin    { to { transform:rotate(360deg); } }
-  @keyframes pulse   { 0%,100%{opacity:1} 50%{opacity:.35} }
-  @keyframes fadeUp  { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
-  @keyframes fadeIn  { from{opacity:0} to{opacity:1} }
-  @keyframes slideIn { from{opacity:0;transform:translateX(-8px)} to{opacity:1;transform:translateX(0)} }
-  @keyframes barGrow { from{width:0} }
-  @keyframes scanline {
-    0%   { top:-8%; }
-    100% { top:108%; }
-  }
-  @keyframes counterUp { from{transform:translateY(6px);opacity:0} to{transform:translateY(0);opacity:1} }
-  @keyframes orangePulse { 0%,100%{box-shadow:0 0 0 0 rgba(251,103,11,0)} 50%{box-shadow:0 0 0 4px rgba(251,103,11,0.15)} }
-  @keyframes shimmer {
-    0%   { background-position: -400px 0; }
-    100% { background-position: 400px 0; }
-  }
+  /* ── KEYFRAMES ── */
+  @keyframes spin       { to { transform:rotate(360deg); } }
+  @keyframes pulse      { 0%,100%{opacity:1} 50%{opacity:.3} }
+  @keyframes fadeUp     { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes fadeIn     { from{opacity:0} to{opacity:1} }
+  @keyframes slideIn    { from{opacity:0;transform:translateX(-10px)} to{opacity:1;transform:translateX(0)} }
+  @keyframes barGrow    { from{width:0} }
+  @keyframes scanline   { 0%{top:-8%;} 100%{top:108%;} }
+  @keyframes counterUp  { from{transform:translateY(8px);opacity:0} to{transform:translateY(0);opacity:1} }
+  @keyframes glow       { 0%,100%{box-shadow:0 0 0 0 rgba(251,103,11,0)} 50%{box-shadow:0 0 20px 2px rgba(251,103,11,0.18)} }
+  @keyframes shimmer    { 0%{background-position:-400px 0} 100%{background-position:400px 0} }
+  @keyframes borderGlow { 0%,100%{border-color:rgba(251,103,11,0.20)} 50%{border-color:rgba(251,103,11,0.45)} }
+  @keyframes float      { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
+  @keyframes ripple     { 0%{transform:scale(0);opacity:0.5} 100%{transform:scale(3);opacity:0} }
+  @keyframes gradShift  { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
 
-  /* PANEL ENTER */
-  .panel-enter { animation:fadeUp 0.34s cubic-bezier(0.16,1,0.3,1) both; }
-  .card-enter  { animation:fadeUp 0.26s cubic-bezier(0.16,1,0.3,1) both; }
+  /* ── PANEL ENTER ── */
+  .panel-enter { animation:fadeUp 0.36s cubic-bezier(0.16,1,0.3,1) both; }
+  .card-enter  { animation:fadeUp 0.28s cubic-bezier(0.16,1,0.3,1) both; }
   .card-enter:nth-child(1) { animation-delay:0.04s; }
   .card-enter:nth-child(2) { animation-delay:0.08s; }
   .card-enter:nth-child(3) { animation-delay:0.12s; }
   .card-enter:nth-child(4) { animation-delay:0.16s; }
-  .bar-fill   { animation:barGrow 0.65s cubic-bezier(0.16,1,0.3,1) both; }
-  .tab-content { animation:fadeUp 0.20s ease both; }
-  .slide-in    { animation:slideIn 0.22s ease both; }
+  .bar-fill    { animation:barGrow 0.70s cubic-bezier(0.16,1,0.3,1) both; }
+  .tab-content { animation:fadeUp 0.22s ease both; }
+  .slide-in    { animation:slideIn 0.24s ease both; }
 
-  /* HOVER / INTERACTIONS */
-  .card-hover { transition:background 0.14s ease, border-color 0.14s ease, transform 0.14s ease; }
+  /* ── CARD HOVER ── */
+  .card-hover {
+    transition:border-color 0.16s ease, transform 0.16s ease, box-shadow 0.16s ease;
+    cursor:default;
+  }
   .card-hover:hover {
-    background:rgba(236,235,224,0.025) !important;
-    border-color:rgba(236,235,224,0.10) !important;
+    border-color:rgba(251,103,11,0.20) !important;
     transform:translateY(-1px);
+    box-shadow:0 4px 16px rgba(0,0,0,0.22), 0 0 0 1px rgba(251,103,11,0.06) !important;
   }
 
-  .tab-btn { position:relative; transition:color 0.13s ease,background 0.13s ease; border-radius:6px; }
-  .tab-btn:hover { background:rgba(236,235,224,0.04); }
-  .tab-btn.active { background:rgba(236,235,224,0.06); }
-  .tab-btn.active::after {
-    content:''; position:absolute; bottom:-1px; left:12px; right:12px;
-    height:1.5px; background:${P.orange}; border-radius:2px;
+  /* ── TABS ── */
+  .tab-btn {
+    position:relative;
+    transition:color 0.14s ease, border-color 0.14s ease;
+    border-radius:0;
+    display:flex; align-items:center; gap:6px;
+    border-bottom:2px solid transparent;
+    margin-bottom:-1px;
   }
+  .tab-btn:hover { background:transparent; color:rgba(236,235,224,0.85) !important; }
+  .tab-btn.active {
+    background:transparent;
+    color:${P.orange} !important;
+    border-bottom-color:${P.orange};
+  }
+  .tab-btn.active::after { display:none; }
 
-  .btn-base { transition:opacity 0.13s ease,background 0.13s ease,transform 0.10s ease; cursor:pointer; }
-  .btn-base:hover:not(:disabled)  { opacity:0.84; }
-  .btn-base:active:not(:disabled) { transform:scale(0.96); }
+  /* ── BUTTONS ── */
+  .btn-base {
+    transition:opacity 0.13s ease, background 0.13s ease,
+               transform 0.10s ease, box-shadow 0.13s ease;
+    cursor:pointer;
+  }
+  .btn-base:hover:not(:disabled)  { opacity:0.88; }
+  .btn-base:active:not(:disabled) { transform:scale(0.95); }
 
-  .row-hover { transition:background 0.08s ease; }
-  .row-hover:hover { background:rgba(236,235,224,0.028) !important; }
+  .btn-primary {
+    background:${P.orange};
+    color:#fff;
+    border:none;
+    box-shadow:0 2px 12px ${P.orange}35;
+    transition:all 0.14s ease;
+  }
+  .btn-primary:hover { background:${P.orangeDark}; box-shadow:0 4px 20px ${P.orange}50; }
 
-  /* PERIOD PILLS */
+  /* ── ROW HOVER ── */
+  .row-hover { transition:background 0.09s ease; }
+  .row-hover:hover { background:rgba(251,103,11,0.04) !important; }
+
+  /* ── PERIOD PILLS ── */
   .period-btn {
-    padding:4px 10px; border-radius:6px; font-size:11px; font-weight:500;
-    cursor:pointer; transition:all 0.12s ease; white-space:nowrap;
+    padding:4px 11px; border-radius:7px; font-size:11px; font-weight:500;
+    cursor:pointer; transition:all 0.13s ease; white-space:nowrap;
     border:1px solid transparent; background:transparent;
-    color:rgba(236,235,224,0.32); letter-spacing:0.01em;
+    color:rgba(236,235,224,0.35); letter-spacing:0.01em;
   }
-  .period-btn:hover  { color:rgba(236,235,224,0.70); background:rgba(236,235,224,0.04); }
+  .period-btn:hover  { color:rgba(236,235,224,0.75); background:rgba(236,235,224,0.05); }
   .period-btn.active {
-    background:rgba(251,103,11,0.10); border-color:rgba(251,103,11,0.22);
+    background:rgba(251,103,11,0.12);
+    border-color:rgba(251,103,11,0.28);
     color:${P.orange};
+    box-shadow:0 0 12px rgba(251,103,11,0.15);
   }
 
   .period-date-input {
-    background:rgba(236,235,224,0.04); border:1px solid rgba(236,235,224,0.08);
-    border-radius:6px; padding:4px 8px; color:rgba(236,235,224,0.80);
+    background:rgba(236,235,224,0.05); border:1px solid rgba(236,235,224,0.10);
+    border-radius:7px; padding:4px 9px; color:rgba(236,235,224,0.85);
     font-size:11px; outline:none; cursor:pointer;
-    transition:border-color 0.12s ease; color-scheme:dark;
+    transition:border-color 0.13s ease, box-shadow 0.13s ease; color-scheme:dark;
   }
-  .period-date-input:focus { border-color:rgba(251,103,11,0.35); }
+  .period-date-input:focus {
+    border-color:rgba(251,103,11,0.40);
+    box-shadow:0 0 0 3px rgba(251,103,11,0.08);
+  }
 
   .period-apply {
-    padding:4px 12px; border-radius:6px; font-size:11px; font-weight:600;
+    padding:4px 13px; border-radius:7px; font-size:11px; font-weight:600;
     cursor:pointer; background:${P.orange}; color:#fff; border:none;
-    transition:all 0.12s ease;
+    box-shadow:0 2px 8px ${P.orange}35;
+    transition:all 0.13s ease;
   }
-  .period-apply:disabled { background:rgba(236,235,224,0.06); color:rgba(236,235,224,0.18); cursor:not-allowed; }
-  .period-apply:hover:not(:disabled) { background:${P.orangeDark}; }
+  .period-apply:disabled { background:rgba(236,235,224,0.07); color:rgba(236,235,224,0.20); cursor:not-allowed; box-shadow:none; }
+  .period-apply:hover:not(:disabled) { background:${P.orangeDark}; transform:translateY(-1px); }
 
+  /* ── INPUT AUTOFILL ── */
   input:-webkit-autofill {
     -webkit-box-shadow:0 0 0 100px ${P.bg} inset !important;
     -webkit-text-fill-color:rgba(236,235,224,0.9) !important;
   }
 
-  /* SCANLINE EFFECT on login */
+  /* ── SCANLINE (login) ── */
   .scanline-wrap { position:relative; overflow:hidden; }
   .scanline-wrap::after {
     content:''; position:absolute; left:0; right:0; height:8%;
-    background:linear-gradient(transparent,rgba(251,103,11,0.03),transparent);
-    animation:scanline 4s linear infinite; pointer-events:none;
+    background:linear-gradient(transparent,rgba(251,103,11,0.04),transparent);
+    animation:scanline 5s linear infinite; pointer-events:none;
   }
 
-  /* SKELETON SHIMMER */
+  /* ── SKELETON ── */
   .skel {
-    background:linear-gradient(90deg,rgba(236,235,224,0.04) 25%,rgba(236,235,224,0.08) 50%,rgba(236,235,224,0.04) 75%);
+    background:linear-gradient(90deg,rgba(236,235,224,0.04) 25%,rgba(236,235,224,0.09) 50%,rgba(236,235,224,0.04) 75%);
     background-size:400px 100%;
-    animation:shimmer 1.4s ease infinite;
-    border-radius:5px;
+    animation:shimmer 1.5s ease infinite;
+    border-radius:6px;
   }
 
-  /* KPI GLOW on hover */
-  .kpi-glow:hover { animation:orangePulse 1.4s ease infinite; }
+  /* ── KPI GLOW ── */
+  .kpi-glow:hover { box-shadow:0 0 0 1px rgba(251,103,11,0.15), 0 8px 32px rgba(0,0,0,0.5) !important; }
 
-  /* STAT NUM counter */
-  .stat-num-anim { animation:counterUp 0.4s cubic-bezier(0.16,1,0.3,1) both; }
+  /* ── STAT NUM ── */
+  .stat-num-anim { animation:counterUp 0.45s cubic-bezier(0.16,1,0.3,1) both; }
 
+  /* ── GRADIENT BORDER CARD ── */
+  .grad-border {
+    position:relative;
+    background:${P.surface};
+    border-radius:12px;
+  }
+  .grad-border::before {
+    content:''; position:absolute; inset:-1px;
+    border-radius:13px;
+    background:linear-gradient(135deg, rgba(251,103,11,0.22), rgba(236,235,224,0.06) 50%, rgba(251,103,11,0.08));
+    z-index:-1;
+    transition:opacity 0.2s ease;
+    opacity:0;
+  }
+  .grad-border:hover::before { opacity:1; }
+
+  /* ── ORANGE BADGE ── */
+  .badge-glow {
+    box-shadow:0 0 12px rgba(251,103,11,0.35);
+    animation:glow 3s ease infinite;
+  }
+
+  /* ── INPUT FOCUS ── */
+  .input-field {
+    width:100%;
+    background:${P.surface2};
+    border:1px solid ${P.border};
+    border-radius:9px;
+    padding:11px 42px 11px 14px;
+    color:${P.text};
+    font-size:12px;
+    outline:none;
+    box-sizing:border-box;
+    transition:border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .input-field:focus {
+    border-color:rgba(251,103,11,0.40);
+    box-shadow:0 0 0 3px rgba(251,103,11,0.08);
+  }
+
+  /* ── STAT CARD GRADIENT ── */
+  .stat-card-inner {
+    position:relative;
+    overflow:hidden;
+  }
+  .stat-card-inner::after {
+    content:''; position:absolute;
+    top:-30px; right:-30px;
+    width:100px; height:100px;
+    border-radius:50%;
+    background:radial-gradient(circle, var(--accent-color, rgba(251,103,11,0.10)) 0%, transparent 70%);
+    pointer-events:none;
+  }
+
+  /* ── RESPONSIVE ── */
   @media(max-width:640px) {
     .resp-hide-sm  { display:none !important; }
     .resp-stack    { flex-direction:column !important; }
@@ -204,6 +353,129 @@ const GLOBAL_CSS = `
   @media(max-width:480px) {
     .resp-hide-xs  { display:none !important; }
     .stat-num      { font-size:24px !important; }
+  }
+
+  /* ── LIGHT THEME: Executive B2B SaaS style ─────────────────────────── */
+  [data-theme="light"] .admin-overlay {
+    background: rgba(0,0,0,0.40);
+    backdrop-filter: blur(16px) saturate(120%);
+    -webkit-backdrop-filter: blur(16px) saturate(120%);
+  }
+  /* No dot grid in light mode — cleaner */
+  [data-theme="light"] .admin-bg-dots::before {
+    display: none;
+  }
+  /* Panel: clean white, minimal shadow */
+  [data-theme="light"] .adash {
+    box-shadow: 0 8px 40px rgba(0,0,0,0.12), 0 0 0 1px #E5E7EB !important;
+    scrollbar-color: rgba(251,103,11,0.22) transparent;
+  }
+  /* Header: solid white, clean border */
+  [data-theme="light"] .dash-header {
+    background: #FFFFFF !important;
+    border-bottom: 1px solid #E5E7EB !important;
+    box-shadow: none !important;
+  }
+  /* Remove orange accent bar in header for light mode */
+  [data-theme="light"] .dash-header > div:first-child {
+    display: none !important;
+  }
+  /* Tabs row: white bg, underline style */
+  [data-theme="light"] .tabs-row {
+    background: #FFFFFF !important;
+    border-bottom: 1px solid #E5E7EB !important;
+    padding: 0 22px !important;
+    gap: 0 !important;
+  }
+  [data-theme="light"] .tab-btn {
+    border-radius: 0 !important;
+    padding: 13px 16px !important;
+    font-weight: 500 !important;
+    color: #6B7280 !important;
+    border: none !important;
+    border-bottom: 2px solid transparent !important;
+    margin-bottom: -1px !important;
+    background: transparent !important;
+  }
+  [data-theme="light"] .tab-btn:hover:not(.active) {
+    background: transparent !important;
+    color: #111827 !important;
+  }
+  [data-theme="light"] .tab-btn.active {
+    background: transparent !important;
+    color: #111827 !important;
+    border-bottom: 2px solid #FB670B !important;
+    font-weight: 600 !important;
+    box-shadow: none !important;
+  }
+  [data-theme="light"] .tab-btn.active::after { display: none !important; }
+  /* Content: flat off-white background */
+  [data-theme="light"] .dash-content {
+    background: #F8F9FB !important;
+  }
+  /* Cards: white, 1px border, minimal shadow */
+  [data-theme="light"] .card-hover {
+    background: #FFFFFF !important;
+    border-color: #E5E7EB !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
+  }
+  [data-theme="light"] .card-hover:hover {
+    border-color: rgba(251,103,11,0.20) !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08) !important;
+    transform: translateY(-1px);
+  }
+  /* Stat cards: clean white */
+  [data-theme="light"] .stat-card-inner {
+    background: #FFFFFF !important;
+    border-color: #E5E7EB !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
+  }
+  [data-theme="light"] .stat-num {
+    font-size: 38px !important;
+    letter-spacing: -0.03em !important;
+  }
+  /* Bar chart: clean tracks */
+  [data-theme="light"] .bar-track {
+    border-radius: 4px !important;
+    background: #F3F4F6 !important;
+  }
+  [data-theme="light"] .bar-fill { border-radius: 3px !important; }
+  /* Skeleton shimmer */
+  [data-theme="light"] .skel {
+    background: linear-gradient(90deg, #F3F4F6 25%, #E9EAEC 50%, #F3F4F6 75%);
+    background-size: 400px 100%;
+    animation: shimmer 1.5s ease infinite;
+  }
+  /* Period selector */
+  [data-theme="light"] .period-btn { color: #9CA3AF; }
+  [data-theme="light"] .period-btn:hover { color: #374151; background: #F3F4F6; }
+  [data-theme="light"] .period-btn.active {
+    background: rgba(251,103,11,0.08); border-color: rgba(251,103,11,0.25);
+    color: #FB670B; box-shadow: none;
+  }
+  [data-theme="light"] .period-date-input {
+    background: #F8F9FB; border-color: #E5E7EB;
+    color: #374151; color-scheme: light;
+  }
+  [data-theme="light"] .period-date-input:focus {
+    border-color: rgba(251,103,11,0.40); box-shadow: 0 0 0 3px rgba(251,103,11,0.08);
+  }
+  /* Table rows */
+  [data-theme="light"] .row-hover:hover { background: #F9FAFB !important; }
+  /* Inputs */
+  [data-theme="light"] .input-field {
+    background: #FFFFFF; border-color: #E5E7EB; color: #111827;
+  }
+  [data-theme="light"] .input-field:focus {
+    border-color: rgba(251,103,11,0.40); box-shadow: 0 0 0 3px rgba(251,103,11,0.08);
+  }
+  [data-theme="light"] .grad-border { background: #FFFFFF; }
+  [data-theme="light"] .kpi-glow:hover {
+    box-shadow: 0 0 0 1px rgba(251,103,11,0.15), 0 4px 16px rgba(0,0,0,0.08) !important;
+  }
+  [data-theme="light"] input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 100px #FFFFFF inset !important;
+    -webkit-text-fill-color: #111827 !important;
   }
 `;
 
@@ -229,71 +501,102 @@ const PERIOD_PRESETS = [
   { id:'custom', label:'↔',    getRange:()=>null },
 ];
 
+// ── ICONS (modernos, limpios) ─────────────────────────────────────────────────
+const Icons = {
+  lock:     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>,
+  edit:     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>,
+  eye:      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>,
+  eyeOff:   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>,
+  check:    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>,
+  alert:    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>,
+  sync:     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>,
+  close:    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
+  chevron:  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>,
+  download: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>,
+  users:    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+  bar:      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>,
+  sparkle:  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>,
+  file:     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>,
+  truck:    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 6v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>,
+  recruit:  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>,
+  pause:    <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>,
+  play:     <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>,
+  trash:    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>,
+};
+
 // ── MICRO COMPONENTS ──────────────────────────────────────────────────────────
-const Dot = ({ active, color=P.orange }) => (
-  <span style={{ width:5,height:5,borderRadius:'50%',background:active?color:P.textDim,display:'inline-block',flexShrink:0,
-    boxShadow:active?`0 0 6px ${color}90`:'none', animation:active?'pulse 2.2s infinite':'none' }}/>
-);
+const Dot = ({ active, color: _color }) => {
+  const P = useP(); const color = _color || P.orange;
+  return <span style={{ width:6, height:6, borderRadius:'50%', background:active ? color : P.textMuted,
+    display:'inline-block', flexShrink:0, boxShadow:active ? `0 0 8px ${color}` : 'none',
+    animation:active ? 'pulse 2.2s infinite' : 'none' }}/>;
+};
 
-const Tag = ({ children, color=P.orange, size=10 }) => (
-  <span style={{ display:'inline-flex',alignItems:'center',padding:'2px 7px',borderRadius:4,fontSize:size,
-    fontWeight:500,letterSpacing:'0.04em',background:color+'14',color,
-    border:`1px solid ${color}25`, lineHeight:1.5 }}>{children}</span>
-);
+const Tag = ({ children, color: _color, size=10 }) => {
+  const P = useP(); const color = _color || P.orange;
+  return <span style={{ display:'inline-flex', alignItems:'center', padding:'2px 8px', borderRadius:5,
+    fontSize:size, fontWeight:600, letterSpacing:'0.03em', background:`${color}16`, color,
+    border:`1px solid ${color}28`, lineHeight:1.5, whiteSpace:'nowrap' }}>{children}</span>;
+};
 
-const OrangeBar = ({ width='100%', height=1, opacity=0.35 }) => (
-  <div style={{ width, height, background:`linear-gradient(90deg,${P.orange},transparent)`, opacity, flexShrink:0 }}/>
-);
+const OrangeBar = ({ width='100%', height=1, opacity=0.40 }) => {
+  const P = useP();
+  return <div style={{ width, height, background:`linear-gradient(90deg,${P.orange},${P.orangeWarm},transparent)`, opacity, flexShrink:0, borderRadius:1 }}/>;
+};
 
 // ── SPINNER ───────────────────────────────────────────────────────────────────
 function Spinner() {
+  const P = useP();
   return (
-    <div style={{ display:'flex',justifyContent:'center',alignItems:'center',padding:'80px 0',flexDirection:'column',gap:14 }}>
-      <div style={{ position:'relative',width:32,height:32 }}>
-        <div style={{ position:'absolute',inset:0,borderRadius:'50%',border:`1.5px solid rgba(236,235,224,0.06)` }}/>
-        <div style={{ position:'absolute',inset:0,borderRadius:'50%',border:`1.5px solid transparent`,
-          borderTop:`1.5px solid ${P.orange}`, animation:'spin 0.65s linear infinite' }}/>
+    <div style={{ display:'flex', justifyContent:'center', alignItems:'center', padding:'80px 0', flexDirection:'column', gap:16 }}>
+      <div style={{ position:'relative', width:36, height:36 }}>
+        <div style={{ position:'absolute', inset:0, borderRadius:'50%', border:`2px solid ${P.border}` }}/>
+        <div style={{ position:'absolute', inset:0, borderRadius:'50%', border:`2px solid transparent`,
+          borderTop:`2px solid ${P.orange}`, animation:'spin 0.70s linear infinite',
+          boxShadow:`0 0 10px ${P.orange}40` }}/>
       </div>
-      <span style={{ color:P.textDim,fontSize:11,letterSpacing:'0.08em',textTransform:'uppercase' }}>Cargando</span>
+      <span style={{ color:P.textDim, fontSize:11, letterSpacing:'0.10em', textTransform:'uppercase', fontWeight:500 }}>Cargando</span>
     </div>
   );
 }
 
 // ── SKELETON CARDS ────────────────────────────────────────────────────────────
 function SkeletonCard() {
+  const P = useP();
   return (
-    <div style={{ background:P.surface,border:`1px solid ${P.border}`,borderRadius:10,padding:'16px 18px' }}>
-      <div className="skel" style={{ height:10,width:'45%',marginBottom:14 }}/>
-      <div className="skel" style={{ height:32,width:'60%',marginBottom:8 }}/>
-      <div className="skel" style={{ height:9,width:'35%' }}/>
+    <div style={{ background:P.surface, border:`1px solid ${P.border}`, borderRadius:12, padding:'18px 20px' }}>
+      <div className="skel" style={{ height:10, width:'40%', marginBottom:16 }}/>
+      <div className="skel" style={{ height:36, width:'55%', marginBottom:10 }}/>
+      <div className="skel" style={{ height:9, width:'32%' }}/>
     </div>
   );
 }
 
 // ── BAR CHART ─────────────────────────────────────────────────────────────────
-function BarChart({ data=[], color=P.orange, max=8 }) {
+function BarChart({ data=[], color: _color, max=8 }) {
+  const P = useP(); const color = _color || P.orange;
   const sorted = [...data].sort((a,b)=>b.value-a.value).slice(0,max);
   const mv     = sorted[0]?.value || 1;
   if (!sorted.length)
-    return <div style={{ textAlign:'center',padding:'40px 0',color:P.textDim,fontSize:11 }}>Sin datos disponibles</div>;
+    return <div style={{ textAlign:'center', padding:'44px 0', color:P.textDim, fontSize:11 }}>Sin datos disponibles</div>;
   return (
-    <div style={{ display:'flex',flexDirection:'column',gap:2 }}>
+    <div style={{ display:'flex', flexDirection:'column', gap:3 }}>
       {sorted.map((item,i) => {
         const pct=Math.round((item.value/mv)*100), isTop=i===0;
         return (
-          <div key={i} style={{ display:'flex',alignItems:'center',gap:8,padding:'5px 0',
-            borderRadius:6,transition:'background 0.1s ease',cursor:'default' }}
-            onMouseEnter={e=>e.currentTarget.style.background='rgba(236,235,224,0.02)'}
+          <div key={i} style={{ display:'flex', alignItems:'center', gap:9, padding:'6px 8px',
+            borderRadius:7, transition:'background 0.1s ease', cursor:'default' }}
+            onMouseEnter={e=>e.currentTarget.style.background=`${P.orange}06`}
             onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
-            <span className="mono" style={{ color:P.textDim,fontSize:10,width:14,textAlign:'right',flexShrink:0 }}>{i+1}</span>
-            <span style={{ color:P.textSub,fontSize:11,width:92,textAlign:'right',flexShrink:0,
-              overflow:'hidden',whiteSpace:'nowrap',textOverflow:'ellipsis' }}>{item.label}</span>
-            <div style={{ flex:1,position:'relative',height:isTop?6:4,background:'rgba(236,235,224,0.04)',borderRadius:3,overflow:'hidden' }}>
-              <div className="bar-fill" style={{ width:`${pct}%`,height:'100%',borderRadius:3,
-                background:isTop?`linear-gradient(90deg,${P.orange},${P.orangeWarm})`:`${color}55`,
-                animationDelay:`${i*0.04}s` }}/>
+            <span className="mono" style={{ color:isTop?P.orange:P.textDim, fontSize:10, width:16, textAlign:'right', flexShrink:0, fontWeight:isTop?600:400 }}>{i+1}</span>
+            <span style={{ color:P.textSub, fontSize:11, width:96, textAlign:'right', flexShrink:0, overflow:'hidden', whiteSpace:'nowrap', textOverflow:'ellipsis' }}>{item.label}</span>
+            <div className="bar-track" style={{ flex:1, position:'relative', height:isTop?8:6, background:P.border2, borderRadius:4, overflow:'hidden' }}>
+              <div className="bar-fill" style={{ width:`${pct}%`, height:'100%', borderRadius:4,
+                background:isTop ? `linear-gradient(90deg,${P.orange},${P.orangeWarm})` : `${color}60`,
+                animationDelay:`${i*0.04}s`,
+                boxShadow:isTop?`0 0 8px ${P.orange}50`:'none' }}/>
             </div>
-            <span className="mono" style={{ color:isTop?P.orange:P.text,fontSize:11,fontWeight:500,width:28,textAlign:'right',flexShrink:0 }}>{item.value}</span>
+            <span className="mono" style={{ color:isTop?P.orange:P.text, fontSize:11, fontWeight:isTop?600:500, width:30, textAlign:'right', flexShrink:0 }}>{item.value}</span>
           </div>
         );
       })}
@@ -303,11 +606,12 @@ function BarChart({ data=[], color=P.orange, max=8 }) {
 
 // ── LINE CHART ────────────────────────────────────────────────────────────────
 function LineChart({ daily }) {
+  const P = useP();
   const entries = Object.entries(daily||{}).sort(([a],[b])=>a.localeCompare(b)).slice(-14);
   if (entries.length < 2)
-    return <div style={{ textAlign:'center',padding:'40px 0',color:P.textDim,fontSize:11 }}>Se necesitan al menos 2 días de datos</div>;
-  const vals  = entries.map(([,v])=>v.messages||0);
-  const waVals= entries.map(([,v])=>v.wa||0);
+    return <div style={{ textAlign:'center', padding:'44px 0', color:P.textDim, fontSize:11 }}>Se necesitan al menos 2 días de datos</div>;
+  const vals   = entries.map(([,v])=>v.messages||0);
+  const waVals = entries.map(([,v])=>v.wa||0);
   const mv=Math.max(...vals,...waVals,1), mn=0;
   const W=440, H=80, step=W/(vals.length-1);
   const py = v => H - ((v-mn)/Math.max(mv-mn,1))*(H-16) - 8;
@@ -317,30 +621,30 @@ function LineChart({ daily }) {
   const waPath = waPts.map((p,i)=>`${i===0?'M':'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
   const areaD  = `${pathD} L${W},${H+4} L0,${H+4} Z`;
   return (
-    <svg width="100%" viewBox={`-4 -4 ${W+8} ${H+52}`} style={{ display:'block',overflow:'visible' }}>
+    <svg width="100%" viewBox={`-4 -4 ${W+8} ${H+58}`} style={{ display:'block', overflow:'visible' }}>
       <defs>
         <linearGradient id="ag1" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={P.orange} stopOpacity="0.18"/>
+          <stop offset="0%" stopColor={P.orange} stopOpacity="0.22"/>
           <stop offset="100%" stopColor={P.orange} stopOpacity="0"/>
         </linearGradient>
-        <filter id="lglow"><feGaussianBlur stdDeviation="1.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="lglow"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
       </defs>
-      {[0.25,0.5,0.75,1].map(p=><line key={p} x1={0} y1={H-p*(H-16)-8} x2={W} y2={H-p*(H-16)-8} stroke="rgba(236,235,224,0.04)" strokeWidth="1"/>)}
+      {[0.25,0.5,0.75,1].map(p=><line key={p} x1={0} y1={H-p*(H-16)-8} x2={W} y2={H-p*(H-16)-8} stroke={P.border} strokeWidth="1"/>)}
       <path d={areaD} fill="url(#ag1)"/>
-      <path d={pathD} fill="none" stroke={P.orange} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" filter="url(#lglow)"/>
-      <path d={waPath} fill="none" stroke={P.gray} strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" strokeDasharray="3,3"/>
+      <path d={pathD} fill="none" stroke={P.orange} strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" filter="url(#lglow)"/>
+      <path d={waPath} fill="none" stroke={P.grayMid} strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" strokeDasharray="4,3"/>
       {pts.map((p,i)=>(
         <g key={i}>
-          <circle cx={p.x} cy={p.y} r="2.5" fill={P.bg} stroke={P.orange} strokeWidth="1.5"/>
-          <text x={p.x} y={H+34} textAnchor="middle" fill="rgba(236,235,224,0.22)" fontSize="9" fontFamily="DM Sans,system-ui">{entries[i][0].slice(5)}</text>
+          <circle cx={p.x} cy={p.y} r="3.5" fill={P.bg} stroke={P.orange} strokeWidth="2"/>
+          <circle cx={p.x} cy={p.y} r="1.5" fill={P.orange}/>
+          <text x={p.x} y={H+36} textAnchor="middle" fill={P.textDim} fontSize="9" fontFamily="DM Sans,system-ui">{entries[i][0].slice(5)}</text>
         </g>
       ))}
-      {/* Legend */}
       <g>
-        <circle cx={10} cy={H+50} r="3" fill={P.orange}/>
-        <text x={16} y={H+53.5} fill="rgba(236,235,224,0.35)" fontSize="8.5" fontFamily="DM Sans,system-ui">Mensajes</text>
-        <line x1={80} y1={H+50} x2={92} y2={H+50} stroke={P.gray} strokeWidth="1.5" strokeDasharray="2,2"/>
-        <text x={96} y={H+53.5} fill="rgba(236,235,224,0.35)" fontSize="8.5" fontFamily="DM Sans,system-ui">WhatsApp</text>
+        <circle cx={10} cy={H+52} r="3.5" fill={P.orange}/>
+        <text x={18} y={H+55.5} fill={P.textSub} fontSize="9" fontFamily="DM Sans,system-ui">Mensajes</text>
+        <line x1={82} y1={H+52} x2={96} y2={H+52} stroke={P.grayMid} strokeWidth="1.5" strokeDasharray="3,2"/>
+        <text x={100} y={H+55.5} fill={P.textSub} fontSize="9" fontFamily="DM Sans,system-ui">WhatsApp</text>
       </g>
     </svg>
   );
@@ -348,8 +652,9 @@ function LineChart({ daily }) {
 
 // ── DONUT CHART ───────────────────────────────────────────────────────────────
 function DonutChart({ intents }) {
-  const COLORS = [P.orange, P.gray, P.grayMid, P.grayLight, P.creamDark];
-  const LABELS = { compra:'Compra', pdf:'PDF', info:'Info', reclutamiento:'Empleo', otro:'Otro' };
+  const P = useP();
+  const COLORS = [P.orange, P.grayLight, P.grayMid, P.gray, P.creamDark];
+  const LABELS = { compra:'Compra', pdf:'PDF', info:'Info', reclutamiento:'Empleo', otro:'Consulta General' };
   const ents   = Object.entries(intents||{}).filter(([,v])=>v>0);
   const total  = ents.reduce((s,[,v])=>s+v,0)||1;
   let cumul=0;
@@ -357,101 +662,178 @@ function DonutChart({ intents }) {
   const polar = pct => { const a=pct*2*Math.PI-Math.PI/2; return [CX+R*Math.cos(a), CY+R*Math.sin(a)]; };
   const slices = ents.map(([key,val])=>{ const pct=val/total, start=cumul; cumul+=pct; return {key,val,pct,start}; });
   return (
-    <div style={{ display:'flex',alignItems:'center',gap:20,flexWrap:'wrap' }}>
+    <div style={{ display:'flex', alignItems:'center', gap:24, flexWrap:'wrap' }}>
       <svg width={108} height={108} viewBox="0 0 108 108" style={{ flexShrink:0 }}>
         {slices.length===0
-          ? <circle cx={CX} cy={CY} r={R} fill="rgba(236,235,224,0.04)" stroke="rgba(236,235,224,0.06)" strokeWidth="1"/>
+          ? <circle cx={CX} cy={CY} r={R} fill={P.border2} stroke={P.border} strokeWidth="1.5"/>
           : slices.map(({key,pct,start},i) => {
               const [x1,y1]=polar(start+0.004), [x2,y2]=polar(start+pct-0.004);
               return <path key={key} d={`M${CX},${CY} L${x1},${y1} A${R},${R} 0 ${pct>.5?1:0},1 ${x2},${y2} Z`}
-                fill={COLORS[i%COLORS.length]} opacity="0.88"/>;
+                fill={COLORS[i%COLORS.length]} opacity="0.90"/>;
             })}
         <circle cx={CX} cy={CY} r={30} fill={P.bg}/>
-        <circle cx={CX} cy={CY} r={30} fill="none" stroke="rgba(236,235,224,0.05)" strokeWidth="1"/>
-        <text x={CX} y={CY-7} textAnchor="middle" fill="rgba(236,235,224,0.25)" fontSize="7.5" fontFamily="DM Sans,system-ui" letterSpacing="0.1em">TOTAL</text>
-        <text x={CX} y={CY+12} textAnchor="middle" fill={P.text} fontSize="22" fontFamily="DM Mono,monospace" fontWeight="500">{total}</text>
+        <circle cx={CX} cy={CY} r={30} fill="none" stroke={P.border} strokeWidth="1.5"/>
+        <text x={CX} y={CY-8} textAnchor="middle" fill={P.textDim} fontSize="7.5" fontFamily="DM Sans,system-ui" letterSpacing="0.1em">TOTAL</text>
+        <text x={CX} y={CY+13} textAnchor="middle" fill={P.text} fontSize="22" fontFamily="DM Mono,monospace" fontWeight="500">{total}</text>
       </svg>
-      <div style={{ display:'flex',flexDirection:'column',gap:7,flex:1,minWidth:120 }}>
+      <div style={{ display:'flex', flexDirection:'column', gap:8, flex:1, minWidth:130 }}>
         {ents.map(([key,val],i)=>{ const color=COLORS[i%COLORS.length], pct=Math.round((val/total)*100); return (
-          <div key={key} style={{ display:'flex',alignItems:'center',gap:9 }}>
-            <div style={{ width:3,height:3,borderRadius:'50%',background:color,flexShrink:0 }}/>
-            <span style={{ color:P.textSub,fontSize:11,flex:1 }}>{LABELS[key]||key}</span>
-            <span className="mono" style={{ color:P.text,fontSize:11,fontWeight:500 }}>{val}</span>
-            <span className="mono" style={{ color:P.textDim,fontSize:10,width:30,textAlign:'right' }}>{pct}%</span>
+          <div key={key} style={{ display:'flex', alignItems:'center', gap:10 }}>
+            <div style={{ width:3, height:14, borderRadius:2, background:color, flexShrink:0, opacity:0.9 }}/>
+            <span style={{ color:P.textSub, fontSize:11, flex:1 }}>{LABELS[key]||key}</span>
+            <span className="mono" style={{ color:P.text, fontSize:11, fontWeight:600 }}>{val}</span>
+            <span className="mono" style={{ color:P.textDim, fontSize:10, width:32, textAlign:'right' }}>{pct}%</span>
           </div>
         ); })}
-        {!ents.length&&<span style={{ color:P.textDim,fontSize:11 }}>Sin datos</span>}
+        {!ents.length&&<span style={{ color:P.textDim, fontSize:11 }}>Sin datos</span>}
       </div>
     </div>
   );
 }
 
-// ── LEADS MINI CHART ──────────────────────────────────────────────────────────
+// ── LEADS LINE + BAR CHART ────────────────────────────────────────────────────
 function LeadsLineChart({ leads }) {
+  const P = useP();
   if (!leads.length) return null;
+
+  // Parseo correcto de fechas (igual que parseTursoDate)
   const byDay = {};
-  leads.forEach(l=>{ const d=(l.ts||'').split('T')[0]||(l.ts||'').split(' ')[0]; if(d)byDay[d]=(byDay[d]||0)+1; });
-  const entries=Object.entries(byDay).sort(([a],[b])=>a.localeCompare(b)).slice(-14);
-  if (entries.length<2) return null;
-  const vals=entries.map(([,v])=>v), mv=Math.max(...vals,1), mn=Math.min(...vals);
-  const W=440, H=60, step=W/(vals.length-1);
-  const pts=vals.map((v,i)=>({x:i*step, y:H-((v-mn)/Math.max(mv-mn,1))*(H-12)-6}));
-  const pathD=pts.map((p,i)=>`${i===0?'M':'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+  leads.forEach(l => {
+    if (!l.ts) return;
+    const iso = String(l.ts).trim().replace(' ', 'T') + (String(l.ts).includes('Z') ? '' : 'Z');
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return;
+    const key = d.toLocaleString('en-CA', { timeZone: 'America/Mexico_City' }).split(',')[0];
+    if (key) byDay[key] = (byDay[key] || 0) + 1;
+  });
+
+  const entries = Object.entries(byDay).sort(([a],[b]) => a.localeCompare(b)).slice(-14);
+  if (!entries.length) return <div style={{ textAlign:'center', padding:'32px 0', color:P.textDim, fontSize:11 }}>Sin datos de registros</div>;
+
+  const vals = entries.map(([,v]) => v);
+  const mv   = Math.max(...vals, 1);
+  const n    = entries.length;
+  const W=440, H=80, PT=10, PB=30, GAP=4;
+  const barW = n === 1 ? 40 : Math.max((W - GAP*(n-1)) / n, 8);
+  const step = n === 1 ? W/2 : (W - barW) / Math.max(n-1, 1);
+  const bx   = i => n === 1 ? (W - barW) / 2 : i * step;
+  const bh   = v  => Math.max((v / mv) * (H - PT), 4);
+  const cy   = v  => H - bh(v) + PT;  // top of bar
+  // line path through bar centers
+  const pts  = vals.map((v, i) => ({ x: bx(i) + barW/2, y: cy(v) }));
+  const pathD = pts.map((p,i) => `${i===0?'M':'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+  const maxIdx = vals.indexOf(Math.max(...vals));
+
   return (
-    <svg width="100%" viewBox={`-4 -4 ${W+8} ${H+40}`} style={{ display:'block',overflow:'visible' }}>
-      <defs><linearGradient id="lg2" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stopColor={P.orange} stopOpacity="0.15"/>
-        <stop offset="100%" stopColor={P.orange} stopOpacity="0"/>
-      </linearGradient></defs>
-      <path d={`${pathD} L${W},${H+4} L0,${H+4} Z`} fill="url(#lg2)"/>
-      <path d={pathD} fill="none" stroke={P.orange} strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round"/>
-      {pts.map((p,i)=>(
-        <g key={i}>
-          <circle cx={p.x} cy={p.y} r="2.5" fill={P.bg} stroke={P.orange} strokeWidth="1.5"/>
-          <text x={p.x} y={H+28} textAnchor="middle" fill="rgba(236,235,224,0.20)" fontSize="9" fontFamily="DM Sans,system-ui">{entries[i][0].slice(5)}</text>
-        </g>
+    <svg width="100%" viewBox={`-6 -6 ${W+12} ${H+PB+16}`} style={{ display:'block', overflow:'visible' }}>
+      <defs>
+        <linearGradient id="lg2a" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={P.orange} stopOpacity="0.80"/>
+          <stop offset="100%" stopColor={P.orange} stopOpacity="0.35"/>
+        </linearGradient>
+        <linearGradient id="lg2b" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={P.orange} stopOpacity="0.22"/>
+          <stop offset="100%" stopColor={P.orange} stopOpacity="0"/>
+        </linearGradient>
+        <filter id="barGlow2"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      </defs>
+
+      {/* Grid lines */}
+      {[0.25,0.5,0.75,1].map(p=>(
+        <line key={p} x1={0} y1={(H - (H-PT)*p + PT).toFixed(1)} x2={W} y2={(H - (H-PT)*p + PT).toFixed(1)}
+          stroke={P.border} strokeWidth="1" strokeDasharray={p===1?'none':'3,3'}/>
       ))}
+
+      {/* Bars */}
+      {entries.map(([,v],i)=>{
+        const x=bx(i), h=bh(v), y=H-h+PT, isMax=i===maxIdx;
+        return (
+          <g key={i}>
+            {isMax && <rect x={(x-2).toFixed(1)} y={(y-4).toFixed(1)} width={(barW+4).toFixed(1)} height={(h+4).toFixed(1)}
+              fill={P.orange} fillOpacity="0.08" rx="6"/>}
+            <rect x={x.toFixed(1)} y={y.toFixed(1)} width={barW.toFixed(1)} height={h.toFixed(1)}
+              fill={isMax ? 'url(#lg2a)' : P.border2} rx="5"
+              filter={isMax ? 'url(#barGlow2)' : 'none'}/>
+          </g>
+        );
+      })}
+
+      {/* Area + line */}
+      {n > 1 && <>
+        <path d={`${pathD} L${pts[n-1].x.toFixed(1)},${H+PT} L${pts[0].x.toFixed(1)},${H+PT} Z`} fill="url(#lg2b)"/>
+        <path d={pathD} fill="none" stroke={P.orange} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round"/>
+      </>}
+
+      {/* Dots + values */}
+      {pts.map((p,i)=>{
+        const isMax=i===maxIdx;
+        return (
+          <g key={i}>
+            <circle cx={p.x} cy={p.y} r={isMax?4.5:3} fill={P.bg} stroke={P.orange} strokeWidth="2"/>
+            <circle cx={p.x} cy={p.y} r={isMax?2:1.2} fill={P.orange}/>
+            {isMax && <text x={p.x} y={(p.y-8).toFixed(1)} textAnchor="middle"
+              fill={P.orange} fontSize="10" fontWeight="700" fontFamily="DM Mono,monospace">{vals[i]}</text>}
+          </g>
+        );
+      })}
+
+      {/* Date labels — mostrar cada 2 para no saturar */}
+      {entries.map(([date],i)=>{
+        if(n > 7 && i % 2 !== 0 && i !== n-1) return null;
+        return <text key={i} x={(bx(i)+barW/2).toFixed(1)} y={H+PT+18} textAnchor="middle"
+          fill={P.textDim} fontSize="8.5" fontFamily="DM Sans,system-ui">{date.slice(5)}</text>;
+      })}
+
+      {/* Y-axis: max label */}
+      <text x={-4} y={(PT+4).toFixed(1)} textAnchor="end" fill={P.textDim} fontSize="8" fontFamily="DM Sans,system-ui">{mv}</text>
+      <text x={-4} y={(H+PT).toFixed(1)} textAnchor="end" fill={P.textDim} fontSize="8" fontFamily="DM Sans,system-ui">0</text>
     </svg>
   );
 }
 
 // ── STAT CARD ─────────────────────────────────────────────────────────────────
-function StatCard({ label, value, sub, color=P.orange, icon, trend }) {
+function StatCard({ label, value, sub, color: _color, icon, trend }) {
+  const P = useP(); const color = _color || P.orange;
   const [disp, setDisp] = useState(0);
   const [key, setKey]   = useState(0);
   const target = typeof value==='number' ? value : 0;
   useEffect(()=>{
     setKey(k=>k+1);
     if (!target) { setDisp(0); return; }
-    const dur=700, t0=Date.now();
+    const dur=750, t0=Date.now();
     const tick=()=>{ const p=Math.min((Date.now()-t0)/dur,1), e=1-Math.pow(1-p,3); setDisp(Math.round(target*e)); if(p<1)requestAnimationFrame(tick); };
     requestAnimationFrame(tick);
   },[target]);
-  const trendPos = trend>0, trendNeg = trend<0;
+  const trendPos=trend>0, trendNeg=trend<0;
   return (
-    <div className="card-enter card-hover kpi-glow" style={{ background:P.surface,border:`1px solid ${P.border}`,
-      borderRadius:10,padding:'16px 18px',position:'relative',overflow:'hidden',cursor:'default' }}>
+    <div className="card-enter card-hover kpi-glow stat-card-inner"
+      style={{ '--accent-color':`${color}18`,
+        background: P.surface,
+        border:`1px solid ${P.border}`,
+        borderRadius:12, padding:'20px 22px',
+        position:'relative', overflow:'hidden', cursor:'default',
+        boxShadow:`0 1px 3px rgba(0,0,0,0.06)` }}>
       {/* Top accent bar */}
-      <div style={{ position:'absolute',top:0,left:0,right:0,height:'2px',
-        background:`linear-gradient(90deg,${color},transparent)`,opacity:0.45 }}/>
-      {/* Subtle corner glow */}
-      <div style={{ position:'absolute',top:-20,left:-20,width:80,height:80,borderRadius:'50%',
-        background:color,opacity:0.03,pointerEvents:'none' }}/>
-      <div style={{ display:'flex',alignItems:'flex-start',justifyContent:'space-between',marginBottom:10 }}>
-        <span style={{ color:P.textDim,fontSize:10,fontWeight:500,textTransform:'uppercase',letterSpacing:'0.09em' }}>{label}</span>
-        {icon && <span style={{ fontSize:13,opacity:0.16 }}>{icon}</span>}
+      <div style={{ position:'absolute', top:0, left:0, right:0, height:'2.5px',
+        background:color, opacity:0.6 }}/>
+      {/* Corner radial glow — subtle */}
+      <div style={{ position:'absolute', top:-20, right:-20, width:80, height:80, borderRadius:'50%',
+        background:`radial-gradient(circle, ${color}10 0%, transparent 70%)`, pointerEvents:'none' }}/>
+      <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', marginBottom:12 }}>
+        <span style={{ color:P.textDim, fontSize:10, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.10em' }}>{label}</span>
+        {icon && <span style={{ fontSize:15, opacity:0.22 }}>{icon}</span>}
       </div>
-      <p key={key} className="stat-num stat-num-anim" style={{ color:P.text,fontSize:34,marginBottom:6,
-        fontFamily:"'DM Mono',monospace" }}>
+      <p key={key} className="stat-num stat-num-anim"
+        style={{ color:P.text, fontSize:36, marginBottom:8, fontFamily:"'DM Mono',monospace", fontWeight:500, letterSpacing:'-0.02em' }}>
         {typeof value==='number' ? disp.toLocaleString('es-MX') : (value??'—')}
       </p>
-      <div style={{ display:'flex',alignItems:'center',gap:8 }}>
-        {sub && <span style={{ color:P.textDim,fontSize:11 }}>{sub}</span>}
+      <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+        {sub && <span style={{ color:P.textDim, fontSize:11 }}>{sub}</span>}
         {trend!==undefined && trend!==0 && (
-          <span className="mono" style={{ fontSize:10,fontWeight:500,padding:'1px 6px',borderRadius:4,
+          <span className="mono" style={{ fontSize:10, fontWeight:600, padding:'2px 7px', borderRadius:5,
             background:trendPos?P.okDim:trendNeg?P.errDim:P.warnDim,
             color:trendPos?P.orange:trendNeg?P.grayMid:P.textDim,
-            border:`1px solid ${trendPos?P.orange+'22':P.border}` }}>
+            border:`1px solid ${trendPos?P.orange+'25':P.border}` }}>
             {trend>0?'+':''}{trend}
           </span>
         )}
@@ -462,37 +844,209 @@ function StatCard({ label, value, sub, color=P.orange, icon, trend }) {
 
 // ── SECTION LABEL ─────────────────────────────────────────────────────────────
 function SectionLabel({ children }) {
+  const P = useP();
   return (
-    <div style={{ display:'flex',alignItems:'center',gap:10,marginBottom:14 }}>
-      <span style={{ color:P.textSub,fontSize:10,fontWeight:600,textTransform:'uppercase',letterSpacing:'0.1em',flexShrink:0 }}>{children}</span>
-      <div style={{ flex:1,height:1,background:`linear-gradient(90deg,${P.border},transparent)` }}/>
+    <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:16 }}>
+      <span style={{ color:P.textSub, fontSize:10, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.10em', flexShrink:0 }}>{children}</span>
+      <div style={{ flex:1, height:1, background:P.border }}/>
     </div>
   );
 }
 
 // ── EYE ICON ──────────────────────────────────────────────────────────────────
-function EyeIcon({ open }) {
-  return open
-    ? <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-    : <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>;
+function EyeIcon({ open }) { return open ? Icons.eye : Icons.eyeOff; }
+
+// ── NOTIFY CONFIG SECTION ─────────────────────────────────────────────────────
+function NotifyConfigSection({ theme, P }) {
+  const [configs,   setConfigs]   = useState([]);
+  const [loading,   setLoading]   = useState(true);
+  const [saving,    setSaving]    = useState(false);
+  const [newName,   setNewName]   = useState('');
+  const [newPhone,  setNewPhone]  = useState('');
+  const [testingId, setTestingId] = useState(null);
+  const [toast,     setToast]     = useState(null);
+
+  const showToast = (msg, ok = true) => {
+    setToast({ msg, ok });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  const load = async () => {
+    try {
+      const r = await fetch('/api/reports/notify-config');
+      const j = await r.json();
+      if (j.ok) setConfigs(j.configs || []);
+    } catch {}
+    setLoading(false);
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const handleAdd = async () => {
+    const name  = newName.trim();
+    const phone = newPhone.trim().replace(/\D/g, '');
+    if (!name || !phone) return;
+    setSaving(true);
+    try {
+      const r = await fetch('/api/reports/notify-config', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'create', name, phones: [{ phone, name }], active: true }),
+      });
+      const j = await r.json();
+      if (j.ok) { setNewName(''); setNewPhone(''); await load(); showToast('Notificación configurada'); }
+      else showToast(j.error || 'Error al guardar', false);
+    } catch (e) { showToast(e.message, false); }
+    setSaving(false);
+  };
+
+  const handleDelete = async (id) => {
+    await fetch('/api/reports/notify-config', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'delete', id }),
+    });
+    await load();
+  };
+
+  const handleToggle = async (cfg) => {
+    await fetch('/api/reports/notify-config', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'update', id: cfg.id, name: cfg.name, phones: cfg.phones, active: !cfg.active }),
+    });
+    await load();
+  };
+
+  const handleTest = async (cfg) => {
+    setTestingId(cfg.id);
+    try {
+      const r = await fetch('/api/reports/notify-config', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'test', id: cfg.id, phones: cfg.phones }),
+      });
+      const j = await r.json();
+      showToast(j.ok ? 'Prueba enviada' : (j.error || 'Error en prueba'), j.ok);
+    } catch (e) { showToast(e.message, false); }
+    setTestingId(null);
+  };
+
+  const inp = {
+    background: P.surface2, border: `1px solid ${P.border}`, borderRadius: 8,
+    color: P.text, fontSize: 12, padding: '7px 10px', outline: 'none',
+    fontFamily: "'DM Sans', sans-serif", transition: 'border-color 0.13s ease',
+  };
+
+  return (
+    <div style={{ background: P.surface, border: `1px solid ${P.border}`, borderRadius: 12,
+      padding: '18px 20px', position: 'relative', overflow: 'hidden',
+      boxShadow: `0 2px 16px rgba(0,0,0,0.35)` }}>
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2.5,
+        background: 'linear-gradient(90deg,#22C55E,#16A34A,transparent)', opacity: 0.7 }}/>
+      {toast && (
+        <div style={{ position: 'absolute', top: 14, right: 14, zIndex: 10, padding: '7px 14px',
+          borderRadius: 8, background: toast.ok ? '#16A34A' : '#DC2626', color: '#fff',
+          fontSize: 11, fontWeight: 600, boxShadow: '0 4px 16px rgba(0,0,0,0.4)' }}>
+          {toast.msg}
+        </div>
+      )}
+
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+        <div style={{ width: 28, height: 28, borderRadius: 7, background: 'rgba(34,197,94,0.1)',
+          border: '1px solid rgba(34,197,94,0.25)', display: 'flex', alignItems: 'center',
+          justifyContent: 'center', flexShrink: 0, color: '#22C55E' }}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+        </div>
+        <div>
+          <div style={{ fontWeight: 700, fontSize: 13, color: P.text, letterSpacing: '-0.01em' }}>
+            Notificaciones de Nuevos Candidatos
+          </div>
+          <div style={{ fontSize: 10, color: P.textDim, marginTop: 1 }}>
+            WhatsApp con PDF del perfil al registrarse un nuevo candidato
+          </div>
+        </div>
+      </div>
+
+      {/* Lista */}
+      {loading ? (
+        <div style={{ color: P.textDim, fontSize: 11, padding: '8px 0' }}>Cargando…</div>
+      ) : configs.length === 0 ? (
+        <div style={{ color: P.textDim, fontSize: 11, padding: '8px 0 12px', opacity: 0.6 }}>
+          Sin receptores configurados. Agrega uno abajo.
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 14 }}>
+          {configs.map(cfg => (
+            <div key={cfg.id} style={{ display: 'flex', alignItems: 'center', gap: 8,
+              background: P.surface2, borderRadius: 9, padding: '9px 12px',
+              border: `1px solid ${cfg.active ? P.border : P.border2}`, opacity: cfg.active ? 1 : 0.55 }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: P.text, whiteSpace: 'nowrap',
+                  overflow: 'hidden', textOverflow: 'ellipsis' }}>{cfg.name}</div>
+                <div style={{ fontSize: 10, color: P.textDim, marginTop: 1 }}>
+                  {(cfg.phones || []).map(p => (typeof p === 'string' ? p : p?.phone) || '').join(', ')}
+                </div>
+              </div>
+              <button onClick={() => handleTest(cfg)} disabled={testingId === cfg.id}
+                style={{ padding: '4px 9px', borderRadius: 6, border: `1px solid ${P.border}`,
+                  background: 'transparent', color: P.textDim, fontSize: 10, cursor: 'pointer' }}>
+                {testingId === cfg.id ? '…' : 'Probar'}
+              </button>
+              <button onClick={() => handleToggle(cfg)}
+                style={{ padding: '4px 9px', borderRadius: 6, border: `1px solid ${cfg.active ? '#22C55E40' : P.border}`,
+                  background: cfg.active ? 'rgba(34,197,94,0.08)' : 'transparent',
+                  color: cfg.active ? '#22C55E' : P.textDim, fontSize: 10, cursor: 'pointer' }}>
+                {cfg.active ? 'Activo' : 'Inactivo'}
+              </button>
+              <button onClick={() => handleDelete(cfg.id)}
+                style={{ width: 24, height: 24, borderRadius: 6, border: `1px solid rgba(239,68,68,0.25)`,
+                  background: 'rgba(239,68,68,0.07)', color: '#EF4444', cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Agregar nuevo */}
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+        <input placeholder="Nombre (ej: Sandra RH)" value={newName}
+          onChange={e => setNewName(e.target.value)} style={{ ...inp, flex: '1 1 140px', minWidth: 120 }}
+          onFocus={e => e.target.style.borderColor = P.orange}
+          onBlur={e  => e.target.style.borderColor = P.border}/>
+        <input placeholder="Teléfono (10 dígitos)" value={newPhone}
+          onChange={e => setNewPhone(e.target.value)} style={{ ...inp, flex: '1 1 140px', minWidth: 120 }}
+          onFocus={e => e.target.style.borderColor = P.orange}
+          onBlur={e  => e.target.style.borderColor = P.border}/>
+        <button onClick={handleAdd} disabled={saving || !newName.trim() || !newPhone.trim()}
+          style={{ padding: '7px 16px', borderRadius: 8, border: 'none',
+            background: saving ? P.surface3 : P.orange, color: '#fff',
+            fontSize: 11, fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer' }}>
+          {saving ? 'Guardando…' : '+ Agregar'}
+        </button>
+      </div>
+    </div>
+  );
 }
 
 // ── PERIOD SELECTOR ───────────────────────────────────────────────────────────
 function PeriodSelector({ activeId, onSelect, customFrom, customTo, setCustomFrom, setCustomTo, onApplyCustom }) {
+  const P = useP();
   return (
-    <div style={{ display:'flex',alignItems:'center',gap:2,flexWrap:'wrap',rowGap:6 }}>
-      <span style={{ color:P.textDim,fontSize:10,marginRight:6,letterSpacing:'0.07em',textTransform:'uppercase',fontWeight:500 }}>Período</span>
+    <div style={{ display:'flex', alignItems:'center', gap:3, flexWrap:'wrap', rowGap:6 }}>
+      <span style={{ color:P.textDim, fontSize:10, marginRight:6, letterSpacing:'0.08em', textTransform:'uppercase', fontWeight:600 }}>Período</span>
       {PERIOD_PRESETS.filter(p=>p.id!=='custom').map(p=>(
         <button key={p.id} className={`period-btn ${activeId===p.id?'active':''}`} onClick={()=>onSelect(p)}>{p.label}</button>
       ))}
-      <div style={{ width:1,height:14,background:P.border,margin:'0 2px' }}/>
+      <div style={{ width:1, height:14, background:P.border, margin:'0 3px' }}/>
       <button className={`period-btn ${activeId==='custom'?'active':''}`} onClick={()=>onSelect(PERIOD_PRESETS.find(p=>p.id==='custom'))}>
         Rango ↔
       </button>
       {activeId==='custom'&&(
-        <div style={{ display:'flex',alignItems:'center',gap:6,animation:'fadeIn 0.16s ease',flexWrap:'wrap',rowGap:4 }}>
+        <div style={{ display:'flex', alignItems:'center', gap:6, animation:'fadeIn 0.16s ease', flexWrap:'wrap', rowGap:4 }}>
           <input type="date" className="period-date-input" value={customFrom} max={customTo||toYMD(new Date())} onChange={e=>setCustomFrom(e.target.value)}/>
-          <span style={{ color:P.textDim,fontSize:10 }}>–</span>
+          <span style={{ color:P.textDim, fontSize:10 }}>–</span>
           <input type="date" className="period-date-input" value={customTo} min={customFrom} max={toYMD(new Date())} onChange={e=>setCustomTo(e.target.value)}/>
           <button className="period-apply" disabled={!customFrom||!customTo} onClick={onApplyCustom}>OK</button>
         </div>
@@ -522,6 +1076,7 @@ const SYSTEM_USERS = [
 ];
 
 function UserCard({ user }) {
+  const P = useP();
   const [open,setOpen]=useState(false), [activeTab,setActiveTab]=useState('password');
   const [pw,setPw]=useState(''), [confirm,setConfirm]=useState('');
   const [showPw,setShowPw]=useState(false), [showCf,setShowCf]=useState(false);
@@ -541,92 +1096,128 @@ function UserCard({ user }) {
   const handleSavePassword=async()=>{ if(!canSavePw)return; setLoading(true); setStatus(null); try{ const res=await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'changePassword',userId:user.id,newPassword:pw})}); const data=await res.json(); if(data.ok){setStatus('ok');setMsg('Contraseña actualizada');setTimeout(()=>{setOpen(false);setPw('');setConfirm('');setStatus(null);},2000);}else{setStatus('error');setMsg(data.error||'Error al actualizar');} }catch{setStatus('error');setMsg('Error de conexión.');} setLoading(false); };
   const handleSaveName=async()=>{ if(!canSaveName)return; setLoading(true); setStatus(null); try{ const res=await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'changeName',userId:user.id,newName:newName.trim()})}); const data=await res.json(); if(data.ok){setDispLabel(newName.trim());setStatus('ok');setMsg('Nombre actualizado');setTimeout(()=>{setOpen(false);setNewName('');setStatus(null);},2000);}else{setStatus('error');setMsg(data.error||'Error al actualizar');} }catch{setStatus('error');setMsg('Error de conexión.');} setLoading(false); };
 
-  const fieldStyle={width:'100%',background:P.surface2,border:`1px solid ${P.border}`,borderRadius:8,padding:'10px 40px 10px 14px',color:P.text,fontSize:12,outline:'none',boxSizing:'border-box',transition:'border-color 0.14s ease'};
+  const fieldStyle={
+    width:'100%', background:P.surface2, border:`1px solid ${P.border}`, borderRadius:9,
+    padding:'11px 42px 11px 14px', color:P.text, fontSize:12, outline:'none',
+    boxSizing:'border-box', transition:'border-color 0.15s ease, box-shadow 0.15s ease'
+  };
 
   return (
-    <div style={{ background:P.surface,border:`1px solid ${open?user.color+'40':P.border}`,
-      borderRadius:12,overflow:'hidden',transition:'border-color 0.2s ease,box-shadow 0.2s ease',
-      boxShadow:open?`0 0 0 1px ${user.color}20,0 4px 20px rgba(0,0,0,0.3)`:'none' }}>
-      <div style={{ height:2,background:`linear-gradient(90deg,${user.color},transparent)` }}/>
-      <div style={{ display:'flex',alignItems:'center',gap:14,padding:'18px 20px',flexWrap:'wrap' }}>
-        <div style={{ width:44,height:44,borderRadius:10,background:user.colorDim,
-          border:`1px solid ${user.color}25`,display:'flex',alignItems:'center',justifyContent:'center',
-          fontSize:18,flexShrink:0,fontWeight:700,color:user.color,letterSpacing:'-0.02em' }}>
+    <div style={{ background:P.surface, border:`1px solid ${open?user.color+'50':P.border}`,
+      borderRadius:14, overflow:'hidden',
+      transition:'border-color 0.20s ease, box-shadow 0.20s ease',
+      boxShadow:open?`0 0 0 1px ${user.color}22, 0 6px 32px rgba(0,0,0,0.45)`:`0 2px 12px rgba(0,0,0,0.30)` }}>
+      <div style={{ height:2.5, background:`linear-gradient(90deg,${user.color},${user.color}60,transparent)` }}/>
+      <div style={{ display:'flex', alignItems:'center', gap:16, padding:'18px 22px', flexWrap:'wrap' }}>
+        {/* Avatar */}
+        <div style={{ width:46, height:46, borderRadius:11, background:user.colorDim,
+          border:`1.5px solid ${user.color}30`, display:'flex', alignItems:'center', justifyContent:'center',
+          fontSize:17, flexShrink:0, fontWeight:700, color:user.color, letterSpacing:'-0.02em',
+          boxShadow:`0 0 16px ${user.color}20` }}>
           {dispLabel.slice(0,2).toUpperCase()}
         </div>
-        <div style={{ flex:1,minWidth:120 }}>
-          <div style={{ display:'flex',alignItems:'center',gap:8,marginBottom:3,flexWrap:'wrap' }}>
-            <span style={{ fontWeight:600,fontSize:14,color:P.text,letterSpacing:'-0.01em' }}>{dispLabel}</span>
+        <div style={{ flex:1, minWidth:130 }}>
+          <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:4, flexWrap:'wrap' }}>
+            <span style={{ fontWeight:700, fontSize:14, color:P.text, letterSpacing:'-0.01em' }}>{dispLabel}</span>
             <Tag color={user.color}>{user.role}</Tag>
           </div>
-          <p style={{ color:P.textDim,fontSize:11,lineHeight:1.5,margin:0 }}>{user.desc}</p>
+          <p style={{ color:P.textDim, fontSize:11, lineHeight:1.55, margin:0 }}>{user.desc}</p>
         </div>
         {!open&&(
-          <div style={{ display:'flex',gap:6,flexShrink:0,flexWrap:'wrap' }}>
+          <div style={{ display:'flex', gap:7, flexShrink:0, flexWrap:'wrap' }}>
             {[
-              { label:'Contraseña', tab:'password', icon:<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> },
-              { label:'Nombre',     tab:'name',     icon:<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> },
+              { label:'Contraseña', tab:'password', icon:Icons.lock },
+              { label:'Nombre',     tab:'name',     icon:Icons.edit },
             ].map(btn=>(
-              <button key={btn.tab} onClick={()=>handleOpen(btn.tab)} style={{ padding:'7px 12px',borderRadius:8,border:`1px solid ${P.border}`,background:'rgba(236,235,224,0.03)',color:P.textSub,fontSize:11,fontWeight:500,cursor:'pointer',transition:'all 0.13s ease',display:'flex',alignItems:'center',gap:5 }}
-                onMouseEnter={e=>{e.currentTarget.style.borderColor=user.color+'50';e.currentTarget.style.color=user.color;}}
-                onMouseLeave={e=>{e.currentTarget.style.borderColor=P.border;e.currentTarget.style.color=P.textSub;}}>
-                {btn.icon}{btn.label}
+              <button key={btn.tab} onClick={()=>handleOpen(btn.tab)}
+                style={{ padding:'7px 13px', borderRadius:8, border:`1px solid ${P.border}`,
+                  background:P.border2, color:P.textSub, fontSize:11, fontWeight:500,
+                  cursor:'pointer', transition:'all 0.14s ease', display:'flex', alignItems:'center', gap:6 }}
+                onMouseEnter={e=>{e.currentTarget.style.borderColor=user.color+'55';e.currentTarget.style.color=user.color;e.currentTarget.style.background=`${user.color}0C`;}}
+                onMouseLeave={e=>{e.currentTarget.style.borderColor=P.border;e.currentTarget.style.color=P.textSub;e.currentTarget.style.background=P.border2;}}>
+                <span style={{ color:'currentColor' }}>{btn.icon}</span>{btn.label}
               </button>
             ))}
           </div>
         )}
       </div>
       {open&&(
-        <div style={{ padding:'0 20px 20px',animation:'fadeUp 0.20s cubic-bezier(0.16,1,0.3,1) both' }}>
+        <div style={{ padding:'0 22px 22px', animation:'fadeUp 0.22s cubic-bezier(0.16,1,0.3,1) both' }}>
           <OrangeBar/>
-          <div style={{ height:12 }}/>
+          <div style={{ height:14 }}/>
           {/* Tab switcher */}
-          <div style={{ display:'flex',gap:3,padding:'3px',background:P.surface2,borderRadius:8,marginBottom:16,border:`1px solid ${P.border}` }}>
-            {[{id:'password',label:'🔒 Contraseña'},{id:'name',label:'✏️ Nombre'}].map(t=>(
-              <button key={t.id} onClick={()=>switchTab(t.id)} style={{ flex:1,padding:'7px 0',borderRadius:6,border:'none',cursor:'pointer',fontSize:11,fontWeight:500,transition:'all 0.14s ease',background:activeTab===t.id?'rgba(236,235,224,0.07)':'transparent',color:activeTab===t.id?P.text:P.textDim }}>{t.label}</button>
+          <div style={{ display:'flex', gap:3, padding:'3px', background:P.surface2, borderRadius:9, marginBottom:16, border:`1px solid ${P.border}` }}>
+            {[{id:'password',label:'🔒  Contraseña'},{id:'name',label:'✏️  Nombre'}].map(t=>(
+              <button key={t.id} onClick={()=>switchTab(t.id)}
+                style={{ flex:1, padding:'8px 0', borderRadius:7, border:'none', cursor:'pointer', fontSize:11,
+                  fontWeight:t.id===activeTab?600:400, transition:'all 0.14s ease',
+                  background:t.id===activeTab?P.surface3:'transparent',
+                  color:t.id===activeTab?P.text:P.textDim,
+                  boxShadow:t.id===activeTab?`0 1px 4px rgba(0,0,0,0.3)`:'none' }}>{t.label}</button>
             ))}
           </div>
-          <div style={{ display:'flex',flexDirection:'column',gap:9 }}>
+          <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
             {activeTab==='password'&&(<>
               <div style={{ position:'relative' }}>
-                <input ref={pwRef} type={showPw?'text':'password'} placeholder="Nueva contraseña (mín. 6 caracteres)" value={pw} onChange={e=>{setPw(e.target.value);setStatus(null);}} style={fieldStyle} onFocus={e=>e.target.style.borderColor='rgba(251,103,11,0.35)'} onBlur={e=>e.target.style.borderColor=P.border}/>
+                <input ref={pwRef} type={showPw?'text':'password'} placeholder="Nueva contraseña (mín. 6 caracteres)" value={pw} onChange={e=>{setPw(e.target.value);setStatus(null);}} style={fieldStyle}
+                  onFocus={e=>{e.target.style.borderColor='rgba(251,103,11,0.45)';e.target.style.boxShadow='0 0 0 3px rgba(251,103,11,0.08)';}}
+                  onBlur={e=>{e.target.style.borderColor=P.border;e.target.style.boxShadow='none';}}/>
                 <button onClick={()=>setShowPw(s=>!s)} style={{ position:'absolute',right:12,top:'50%',transform:'translateY(-50%)',background:'none',border:'none',cursor:'pointer',color:P.textDim,padding:2 }}><EyeIcon open={showPw}/></button>
               </div>
-              {pw&&(<div style={{ display:'flex',alignItems:'center',gap:8 }}><div style={{ flex:1,height:3,background:'rgba(236,235,224,0.05)',borderRadius:2,overflow:'hidden' }}><div style={{ height:'100%',width:`${(strength.score/5)*100}%`,background:strength.color,borderRadius:2,transition:'width 0.3s ease,background 0.3s ease' }}/></div><span style={{ color:strength.color,fontSize:10,fontWeight:500,minWidth:62,textAlign:'right' }}>{strength.label}</span></div>)}
+              {pw&&(<div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                <div style={{ flex:1, height:3, background:P.border, borderRadius:2, overflow:'hidden' }}>
+                  <div style={{ height:'100%', width:`${(strength.score/5)*100}%`, background:strength.color, borderRadius:2, transition:'width 0.32s ease,background 0.32s ease', boxShadow:strength.score>=4?`0 0 6px ${P.orange}60`:'none' }}/>
+                </div>
+                <span style={{ color:strength.color, fontSize:10, fontWeight:600, minWidth:66, textAlign:'right' }}>{strength.label}</span>
+              </div>)}
               <div style={{ position:'relative' }}>
-                <input type={showCf?'text':'password'} placeholder="Confirmar contraseña" value={confirm} onChange={e=>{setConfirm(e.target.value);setStatus(null);}} style={{ ...fieldStyle,borderColor:mismatch?P.gray+'80':match?P.orange+'50':P.border }}/>
+                <input type={showCf?'text':'password'} placeholder="Confirmar contraseña" value={confirm} onChange={e=>{setConfirm(e.target.value);setStatus(null);}} style={{ ...fieldStyle, borderColor:mismatch?P.gray+'90':match?P.orange+'60':P.border }}/>
                 <button onClick={()=>setShowCf(s=>!s)} style={{ position:'absolute',right:12,top:'50%',transform:'translateY(-50%)',background:'none',border:'none',cursor:'pointer',color:P.textDim,padding:2 }}><EyeIcon open={showCf}/></button>
-                {match&&<div style={{ position:'absolute',right:36,top:'50%',transform:'translateY(-50%)' }}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={P.orange} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>}
+                {match&&<div style={{ position:'absolute',right:38,top:'50%',transform:'translateY(-50%)',color:P.orange }}>{Icons.check}</div>}
               </div>
-              {mismatch&&<p style={{ color:P.grayMid,fontSize:11,margin:0 }}>Las contraseñas no coinciden</p>}
-              {pw.length>0&&pw.length<6&&<p style={{ color:P.grayLight,fontSize:11,margin:0 }}>Mínimo 6 caracteres</p>}
+              {mismatch&&<p style={{ color:P.grayMid, fontSize:11, margin:0 }}>Las contraseñas no coinciden</p>}
+              {pw.length>0&&pw.length<6&&<p style={{ color:P.grayLight, fontSize:11, margin:0 }}>Mínimo 6 caracteres</p>}
             </>)}
             {activeTab==='name'&&(<>
-              <input ref={nameRef} type="text" placeholder={`Nombre actual: ${dispLabel}`} value={newName} onChange={e=>{setNewName(e.target.value);setStatus(null);}} maxLength={40} style={{ ...fieldStyle,paddingRight:14 }} onFocus={e=>e.target.style.borderColor='rgba(251,103,11,0.35)'} onBlur={e=>e.target.style.borderColor=P.border}/>
-              {newName.trim().length>0&&newName.trim().length<2&&<p style={{ color:P.grayLight,fontSize:11,margin:0 }}>Mínimo 2 caracteres</p>}
-              <p style={{ color:P.textDim,fontSize:10,margin:0,lineHeight:1.5 }}>Cambia el nombre visible en el badge. No afecta contraseña ni rol.</p>
+              <input ref={nameRef} type="text" placeholder={`Nombre actual: ${dispLabel}`} value={newName} onChange={e=>{setNewName(e.target.value);setStatus(null);}} maxLength={40}
+                style={{ ...fieldStyle, paddingRight:14 }}
+                onFocus={e=>{e.target.style.borderColor='rgba(251,103,11,0.45)';e.target.style.boxShadow='0 0 0 3px rgba(251,103,11,0.08)';}}
+                onBlur={e=>{e.target.style.borderColor=P.border;e.target.style.boxShadow='none';}}/>
+              {newName.trim().length>0&&newName.trim().length<2&&<p style={{ color:P.grayLight, fontSize:11, margin:0 }}>Mínimo 2 caracteres</p>}
+              <p style={{ color:P.textDim, fontSize:10, margin:0, lineHeight:1.6 }}>Cambia el nombre visible en el badge. No afecta contraseña ni rol.</p>
             </>)}
             {status&&(
-              <div style={{ padding:'10px 14px',borderRadius:8,fontSize:11,
+              <div style={{ padding:'10px 14px', borderRadius:9, fontSize:11,
                 background:status==='ok'?P.okDim:P.errDim,
-                border:`1px solid ${status==='ok'?P.orange+'30':P.gray+'30'}`,
+                border:`1px solid ${status==='ok'?P.orange+'35':P.gray+'35'}`,
                 color:status==='ok'?P.orange:P.grayMid,
-                display:'flex',alignItems:'center',gap:8 }}>
-                {status==='ok'
-                  ? <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                  : <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>}
+                display:'flex', alignItems:'center', gap:8 }}>
+                {status==='ok' ? Icons.check : Icons.alert}
                 {msg}
               </div>
             )}
-            <div style={{ display:'flex',gap:8,marginTop:2 }}>
-              <button onClick={activeTab==='password'?handleSavePassword:handleSaveName} disabled={activeTab==='password'?!canSavePw:!canSaveName}
-                style={{ flex:1,padding:'10px 0',borderRadius:8,border:'none',cursor:(activeTab==='password'?canSavePw:canSaveName)?'pointer':'not-allowed',
-                  background:(activeTab==='password'?canSavePw:canSaveName)?P.orange:'rgba(236,235,224,0.04)',
+            <div style={{ display:'flex', gap:8, marginTop:4 }}>
+              <button onClick={activeTab==='password'?handleSavePassword:handleSaveName}
+                disabled={activeTab==='password'?!canSavePw:!canSaveName}
+                style={{ flex:1, padding:'11px 0', borderRadius:9, border:'none',
+                  cursor:(activeTab==='password'?canSavePw:canSaveName)?'pointer':'not-allowed',
+                  background:(activeTab==='password'?canSavePw:canSaveName)?P.orange:P.surface2,
                   color:(activeTab==='password'?canSavePw:canSaveName)?'#fff':P.textDim,
-                  fontSize:12,fontWeight:600,transition:'all 0.14s ease',display:'flex',alignItems:'center',justifyContent:'center',gap:8 }}>
-                {loading?<><div style={{ width:12,height:12,borderRadius:'50%',border:'1.5px solid rgba(255,255,255,0.2)',borderTop:'1.5px solid #fff',animation:'spin 0.65s linear infinite' }}/>Guardando...</>:activeTab==='password'?'Guardar contraseña':'Guardar nombre'}
+                  fontSize:12, fontWeight:600, transition:'all 0.15s ease',
+                  display:'flex', alignItems:'center', justifyContent:'center', gap:8,
+                  boxShadow:(activeTab==='password'?canSavePw:canSaveName)?`0 4px 14px ${P.orange}35`:'none' }}>
+                {loading
+                  ? <><div style={{ width:13,height:13,borderRadius:'50%',border:'2px solid rgba(255,255,255,0.2)',borderTop:'2px solid #fff',animation:'spin 0.65s linear infinite' }}/>Guardando...</>
+                  : activeTab==='password'?'Guardar contraseña':'Guardar nombre'}
               </button>
-              <button onClick={handleCancel} style={{ padding:'10px 16px',borderRadius:8,border:`1px solid ${P.border}`,background:'transparent',color:P.textSub,fontSize:12,fontWeight:500,cursor:'pointer',transition:'all 0.14s ease' }} onMouseEnter={e=>e.currentTarget.style.color=P.text} onMouseLeave={e=>e.currentTarget.style.color=P.textSub}>Cancelar</button>
+              <button onClick={handleCancel}
+                style={{ padding:'11px 16px', borderRadius:9, border:`1px solid ${P.border}`,
+                  background:'transparent', color:P.textSub, fontSize:12, fontWeight:500,
+                  cursor:'pointer', transition:'all 0.14s ease' }}
+                onMouseEnter={e=>{e.currentTarget.style.color=P.text;e.currentTarget.style.borderColor=P.border2;}}
+                onMouseLeave={e=>{e.currentTarget.style.color=P.textSub;e.currentTarget.style.borderColor=P.border;}}>
+                Cancelar
+              </button>
             </div>
           </div>
         </div>
@@ -636,18 +1227,25 @@ function UserCard({ user }) {
 }
 
 function UsersTab() {
+  const P = useP();
   return (
     <div style={{ animation:'fadeUp 0.22s ease both' }}>
-      <div style={{ marginBottom:16,padding:'14px 18px',background:P.surface,border:`1px solid ${P.border}`,borderRadius:10,display:'flex',alignItems:'center',gap:14 }}>
-        <div style={{ width:36,height:36,borderRadius:8,background:P.okDim,border:`1px solid ${P.orange}20`,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0 }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={P.orange} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <div style={{ marginBottom:16, padding:'14px 18px',
+        background:P.surface,
+        border:`1px solid ${P.border}`, borderRadius:12,
+        boxShadow:`0 1px 3px rgba(0,0,0,0.06)`,
+        display:'flex', alignItems:'center', gap:14 }}>
+        <div style={{ width:38, height:38, borderRadius:9, background:P.okDim, border:`1px solid ${P.orange}25`,
+          display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0,
+          boxShadow:`0 0 16px ${P.orange}20` }}>
+          <span style={{ color:P.orange }}>{Icons.lock}</span>
         </div>
         <div>
-          <p style={{ fontWeight:600,fontSize:13,color:P.text,margin:'0 0 3px',letterSpacing:'-0.01em' }}>Gestión de accesos</p>
-          <p style={{ fontSize:11,color:P.textDim,margin:0,lineHeight:1.5 }}>Modifica contraseña o nombre de cada usuario. Cambios aplicados inmediatamente en Turso.</p>
+          <p style={{ fontWeight:700, fontSize:13, color:P.text, margin:'0 0 3px', letterSpacing:'-0.01em' }}>Gestión de accesos</p>
+          <p style={{ fontSize:11, color:P.textDim, margin:0, lineHeight:1.55 }}>Modifica contraseña o nombre de cada usuario. Cambios aplicados inmediatamente en Turso.</p>
         </div>
       </div>
-      <div style={{ display:'flex',flexDirection:'column',gap:10 }}>
+      <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
         {SYSTEM_USERS.map(u=><UserCard key={u.id} user={u}/>)}
       </div>
     </div>
@@ -655,8 +1253,9 @@ function UsersTab() {
 }
 
 // ── LOGIN ─────────────────────────────────────────────────────────────────────
-const RobotIcon = ({ size=36 }) => (
-  <svg width={size} height={size} viewBox="0 0 100 100" fill="none">
+const RobotIcon = ({ size=36 }) => {
+  const P = useP();
+  return <svg width={size} height={size} viewBox="0 0 100 100" fill="none">
     <defs>
       <linearGradient id="rg" x1="0%" y1="0%" x2="0%" y2="100%">
         <stop offset="0%" stopColor={P.orange}/>
@@ -673,51 +1272,81 @@ const RobotIcon = ({ size=36 }) => (
     <circle cx="38" cy="56" r="5" fill={P.cream}/>
     <circle cx="62" cy="56" r="5" fill={P.cream}/>
     <ellipse cx="50" cy="78" rx="6" ry="2" fill={P.orangeDark} opacity="0.8"/>
-  </svg>
-);
+  </svg>;
+};
 
 function Login({ onLogin }) {
+  const P = useP();
   const [pw,setPw]=useState(''), [err,setErr]=useState(false), [loading,setLoading]=useState(false);
   const [focused,setFocused]=useState(false), [showPw,setShowPw]=useState(false);
   const inputRef=useRef(null), cardRef=useRef(null);
-  useEffect(()=>{ setTimeout(()=>inputRef.current?.focus(),260); },[]);
+  useEffect(()=>{ setTimeout(()=>inputRef.current?.focus(),280); },[]);
   const shake=()=>{ const el=cardRef.current; if(!el)return; [-7,7,-4,4,-2,2,0].forEach((x,i)=>setTimeout(()=>{el.style.transform=`translateX(${x}px)`;},i*50)); };
   const go=async(e)=>{ e.preventDefault(); setLoading(true); try{ const res=await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw})}); const data=await res.json(); if(data.ok){onLogin(data.role);}else{setErr(true);shake();setTimeout(()=>setErr(false),2500);} }catch{setErr(true);shake();setTimeout(()=>setErr(false),2500);} setLoading(false); };
   return (
-    <div ref={cardRef} className="scanline-wrap" style={{ padding:'44px 36px 38px',transition:'transform 0.05s ease' }}>
-      {/* Decorative orange lines */}
-      <div style={{ position:'absolute',top:0,left:0,right:0,height:2,background:`linear-gradient(90deg,transparent,${P.orange},transparent)`,opacity:0.6 }}/>
-      <div style={{ position:'absolute',bottom:0,left:0,right:0,height:1,background:`linear-gradient(90deg,transparent,${P.border},transparent)` }}/>
-      <div style={{ textAlign:'center',marginBottom:30 }}>
-        <div style={{ display:'inline-flex',alignItems:'center',justifyContent:'center',
-          width:68,height:68,borderRadius:16,background:P.surface2,
-          border:`1px solid ${P.border}`,marginBottom:20,position:'relative' }}>
-          <RobotIcon size={46}/>
-          <div style={{ position:'absolute',bottom:-4,right:-4,width:14,height:14,borderRadius:'50%',
-            background:P.orange,border:`2px solid ${P.surface}`,animation:'pulse 2s infinite' }}/>
+    <div ref={cardRef} className="scanline-wrap" style={{ padding:'48px 40px 40px', transition:'transform 0.05s ease' }}>
+      {/* Top gradient */}
+      <div style={{ position:'absolute', top:0, left:0, right:0, height:3,
+        background:`linear-gradient(90deg,transparent,${P.orange},${P.orangeWarm},transparent)`, opacity:0.7 }}/>
+      {/* Subtle corner bg light */}
+      <div style={{ position:'absolute', top:-60, right:-60, width:180, height:180, borderRadius:'50%',
+        background:`radial-gradient(circle, ${P.orange}12 0%, transparent 70%)`, pointerEvents:'none' }}/>
+      <div style={{ position:'absolute', bottom:-40, left:-40, width:140, height:140, borderRadius:'50%',
+        background:`radial-gradient(circle, ${P.orange}08 0%, transparent 70%)`, pointerEvents:'none' }}/>
+
+      <div style={{ textAlign:'center', marginBottom:32, position:'relative' }}>
+        <div style={{ display:'inline-flex', alignItems:'center', justifyContent:'center',
+          width:72, height:72, borderRadius:18, background:P.surface2,
+          border:`1px solid ${P.border}`, marginBottom:22,
+          boxShadow:`0 0 32px ${P.orange}25, 0 8px 24px rgba(0,0,0,0.5)`,
+          position:'relative', animation:'float 4s ease infinite' }}>
+          <RobotIcon size={48}/>
+          <div style={{ position:'absolute', bottom:-5, right:-5, width:16, height:16, borderRadius:'50%',
+            background:P.orange, border:`2.5px solid ${P.surface}`, animation:'pulse 2s infinite',
+            boxShadow:`0 0 8px ${P.orange}` }}/>
         </div>
-        <h2 style={{ fontWeight:700,fontSize:20,color:P.text,letterSpacing:'-0.02em',marginBottom:4 }}>Panel Admin</h2>
-        <div style={{ display:'flex',alignItems:'center',justifyContent:'center',gap:6 }}>
-          <span style={{ display:'inline-block',width:20,height:1,background:`linear-gradient(90deg,transparent,${P.orange})` }}/>
-          <span style={{ color:P.textDim,fontSize:11,letterSpacing:'0.06em',textTransform:'uppercase',fontWeight:500 }}>BotGO · Grupo Ortiz</span>
-          <span style={{ display:'inline-block',width:20,height:1,background:`linear-gradient(90deg,${P.orange},transparent)` }}/>
+        <h2 style={{ fontWeight:700, fontSize:22, color:P.text, letterSpacing:'-0.03em', marginBottom:6 }}>Panel Admin</h2>
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
+          <span style={{ display:'inline-block', width:24, height:1, background:`linear-gradient(90deg,transparent,${P.orange})`, opacity:0.7 }}/>
+          <span style={{ color:P.textDim, fontSize:11, letterSpacing:'0.07em', textTransform:'uppercase', fontWeight:500 }}>BotGO · Grupo Ortiz</span>
+          <span style={{ display:'inline-block', width:24, height:1, background:`linear-gradient(90deg,${P.orange},transparent)`, opacity:0.7 }}/>
         </div>
       </div>
-      <form onSubmit={go} style={{ display:'flex',flexDirection:'column',gap:10 }}>
+
+      <form onSubmit={go} style={{ display:'flex', flexDirection:'column', gap:11, position:'relative' }}>
         <div style={{ position:'relative' }}>
-          <input ref={inputRef} type={showPw?'text':'password'} value={pw} onChange={e=>setPw(e.target.value)} onFocus={()=>setFocused(true)} onBlur={()=>setFocused(false)} placeholder="Contraseña"
-            style={{ width:'100%',background:P.surface2,border:`1px solid ${err?P.gray+'70':focused?P.orange+'50':P.border}`,borderRadius:9,padding:'12px 42px 12px 16px',color:P.text,fontSize:13,outline:'none',boxSizing:'border-box',transition:'border-color 0.15s ease',letterSpacing:showPw?'normal':'0.06em' }}/>
-          <button type="button" onClick={()=>setShowPw(s=>!s)} style={{ position:'absolute',right:12,top:'50%',transform:'translateY(-50%)',background:'none',border:'none',cursor:'pointer',color:P.textDim,padding:2 }}><EyeIcon open={showPw}/></button>
+          <input ref={inputRef} type={showPw?'text':'password'} value={pw} onChange={e=>setPw(e.target.value)}
+            onFocus={()=>setFocused(true)} onBlur={()=>setFocused(false)}
+            placeholder="Contraseña"
+            style={{ width:'100%', background:P.surface2,
+              border:`1px solid ${err?P.gray+'80':focused?P.orange+'55':P.border}`,
+              borderRadius:10, padding:'13px 44px 13px 16px', color:P.text, fontSize:13, outline:'none',
+              boxSizing:'border-box', transition:'border-color 0.15s ease, box-shadow 0.15s ease',
+              letterSpacing:showPw?'normal':'0.07em',
+              boxShadow:focused?`0 0 0 3px ${P.orange}10`:'none' }}/>
+          <button type="button" onClick={()=>setShowPw(s=>!s)}
+            style={{ position:'absolute', right:13, top:'50%', transform:'translateY(-50%)',
+              background:'none', border:'none', cursor:'pointer', color:P.textDim, padding:2 }}>
+            <EyeIcon open={showPw}/>
+          </button>
         </div>
-        {err&&<div style={{ background:P.errDim,border:`1px solid ${P.gray}30`,borderRadius:7,padding:'8px 12px',color:P.grayLight,fontSize:11 }}>Contraseña incorrecta</div>}
+        {err&&(
+          <div style={{ background:P.errDim, border:`1px solid ${P.gray}38`, borderRadius:8,
+            padding:'9px 13px', color:P.grayLight, fontSize:11, display:'flex', alignItems:'center', gap:7 }}>
+            <span style={{ color:P.grayMid }}>{Icons.alert}</span> Contraseña incorrecta
+          </div>
+        )}
         <button type="submit" disabled={loading||!pw} className="btn-base"
-          style={{ background:loading||!pw?'rgba(236,235,224,0.05)':P.orange,
-            color:loading||!pw?P.textDim:'#fff',border:'none',borderRadius:9,padding:'12px 0',
-            fontSize:13,fontWeight:600,cursor:loading||!pw?'not-allowed':'pointer',transition:'all 0.15s ease',
-            boxShadow:!loading&&pw?`0 4px 16px ${P.orange}30`:'none' }}>
+          style={{ background:loading||!pw?P.surface3:P.orange,
+            color:loading||!pw?P.textDim:'#fff', border:'none', borderRadius:10,
+            padding:'13px 0', fontSize:13, fontWeight:600,
+            cursor:loading||!pw?'not-allowed':'pointer', transition:'all 0.16s ease',
+            boxShadow:!loading&&pw?`0 4px 20px ${P.orange}40`:'none',
+            letterSpacing:'-0.01em' }}>
           {loading
-            ? <span style={{ display:'flex',alignItems:'center',justifyContent:'center',gap:8 }}>
-                <div style={{ width:12,height:12,borderRadius:'50%',border:'1.5px solid rgba(255,255,255,0.2)',borderTop:'1.5px solid #fff',animation:'spin 0.65s linear infinite' }}/>Verificando
+            ? <span style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
+                <div style={{ width:13,height:13,borderRadius:'50%',border:'2px solid rgba(255,255,255,0.2)',borderTop:'2px solid #fff',animation:'spin 0.65s linear infinite' }}/>
+                Verificando
               </span>
             : 'Continuar →'}
         </button>
@@ -727,7 +1356,8 @@ function Login({ onLogin }) {
 }
 
 // ── DASH ──────────────────────────────────────────────────────────────────────
-function Dash({ onClose, role }) {
+function Dash({ onClose, role, theme='dark', toggleTheme }) {
+  const P = useP();
   const w=useWindowWidth(), isMobile=w<640, isTablet=w<900;
   const [data,setData]=useState(null), [loading,setLoading]=useState(true);
   const [summary,setSummary]=useState(''), [genAI,setGenAI]=useState(false);
@@ -738,10 +1368,19 @@ function Dash({ onClose, role }) {
   const [activePeriod,setActivePeriod]=useState(()=>PERIOD_PRESETS.find(p=>p.id==='30d').getRange());
   const [customFrom,setCustomFrom]=useState(''), [customTo,setCustomTo]=useState('');
   const [leads,setLeads]=useState([]), [leadsLoad,setLeadsLoad]=useState(false), [leadSearch,setLeadSearch]=useState('');
+  const [convSessions,setConvSessions]=useState([]), [convLoading,setConvLoading]=useState(false);
+  const [selectedConv,setSelectedConv]=useState(null), [convMessages,setConvMessages]=useState([]), [convMsgLoad,setConvMsgLoad]=useState(false);
 
-  const isAdmin    = role.canDownload;                          // puede ver stats / descargar
-  const isOnlyAdmin = role.canDelete ?? (role.name === 'Admin'); // SOLO Admin puede borrar
-  const canSee     = id => role.tabs.includes(id);
+const isAdmin     = role.canDownload;
+  const isOnlyAdmin = role.canDelete ?? (role.name === 'Admin' || role.name === 'Super Admin');
+
+const isRH = role.name === 'RH' || role.role === 'Recursos Humanos';
+
+  // 1. Reglas para las pestañas generales
+  const canSee = id => {
+    if (isRH) return id === 'recruitment' || id === 'vacantes';
+    return role.tabs.includes(id) || (id === 'vacantes' && (isAdmin || isOnlyAdmin));
+  };
 
   const load=useCallback(async(silent=false,from=null,to=null)=>{
     if(!silent)setLoading(true);
@@ -758,6 +1397,24 @@ function Dash({ onClose, role }) {
     setLeadsLoad(false);
   },[]);
 
+  const loadConversations=useCallback(async()=>{
+    setConvLoading(true);
+    try{
+      const r=await fetch('/api/conversations',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'list',limit:80})});
+      const j=await r.json(); if(j.ok)setConvSessions(j.sessions||[]);
+    }catch(e){console.error(e);}
+    setConvLoading(false);
+  },[]);
+
+  const loadConvMessages=useCallback(async(sessionId)=>{
+    setConvMsgLoad(true); setConvMessages([]);
+    try{
+      const r=await fetch('/api/conversations',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'messages',session_id:sessionId})});
+      const j=await r.json(); if(j.ok)setConvMessages(j.messages||[]);
+    }catch(e){console.error(e);}
+    setConvMsgLoad(false);
+  },[]);
+
   useEffect(()=>{
     if(canSee('overview')||canSee('activity')||canSee('products')||canSee('keywords')||canSee('messages')||canSee('ai')){
       const p=PERIOD_PRESETS.find(p=>p.id==='30d'), range=p.getRange();
@@ -766,6 +1423,7 @@ function Dash({ onClose, role }) {
   },[]);
 
   useEffect(()=>{ if(tab==='distribuidores')loadLeads(); },[tab]);
+  useEffect(()=>{ if(tab==='conversations'){setSelectedConv(null);setConvMessages([]);loadConversations();} },[tab]);
   useEffect(()=>{
     clearInterval(itvRef.current);
     if(auto) itvRef.current=setInterval(()=>load(true,activePeriod?.from,activePeriod?.to),10000);
@@ -786,7 +1444,7 @@ function Dash({ onClose, role }) {
   },[customFrom,customTo,load]);
 
   const reset=async()=>{
-    if(!isOnlyAdmin) return;
+    if(!isOnlyAdmin)return;
     if(!confirm('¿Borrar TODAS las estadísticas? Esta acción no se puede deshacer.'))return;
     await fetch('/api/analytics',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'reset'})});
     load(false,activePeriod?.from,activePeriod?.to); setSummary('');
@@ -800,7 +1458,7 @@ function Dash({ onClose, role }) {
       const msgs=(data.lastMessages||[]).slice(-20).map(m=>m.user).join(' | ');
       const pl=activePeriod?.from?`${activePeriod.from} → ${activePeriod.to}`:'Todo el historial';
       const prompt=`Eres analista de ventas Grupo Ortiz. Analiza datos del chatbot, resumen ejecutivo en español (máx 180 palabras).\nPeríodo: ${pl}\nSesiones:${data.totalSessions}|Mensajes:${data.totalMessages}|WhatsApp:${data.totalWhatsApp}|PDFs:${data.totalPDFs}\nProductos:${tp||'sin datos'}|Keywords:${tk||'sin datos'}\nIntenciones:Compra=${data.intents?.compra||0},Info=${data.intents?.info||0},PDF=${data.intents?.pdf||0},Empleo=${data.intents?.reclutamiento||0}\nConsultas:${msgs.substring(0,400)||'sin datos'}\nIncluye:comportamiento general,producto estrella,oportunidades,recomendación comercial.`;
-      const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'user',content:prompt}],language:'es',isVoice:false})});
+      const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'user',content:prompt}],language:'es',isVoice:false,noLog:true})});
       const j=await r.json(); setSummary(j.reply||'No se pudo generar.');
     }catch{setSummary('Error al generar el resumen.');} setGenAI(false);
   };
@@ -821,86 +1479,154 @@ function Dash({ onClose, role }) {
     if(activePresetId==='custom'&&activePeriod?.from)return`${activePeriod.from} – ${activePeriod.to}`;
     return PERIOD_PRESETS.find(p=>p.id===activePresetId)?.label||'';
   })();
-
-  const ALL_TABS=[
-    {id:'overview',label:'Resumen'},{id:'activity',label:'Actividad'},{id:'products',label:'Productos'},
-    {id:'keywords',label:'Búsquedas'},{id:'messages',label:'Mensajes'},{id:'distribuidores',label:'Distribuidores'},
-    {id:'recruitment',label:'Reclutamiento'},{id:'ai',label:'IA'},{id:'users',label:'Usuarios'},
+const ALL_TABS=[
+    {id:'overview',label:'Resumen',        icon:'◉'},
+    {id:'activity',label:'Actividad',      icon:'◈'},
+    {id:'products',label:'Productos',      icon:'◆'},
+    {id:'keywords',label:'Búsquedas',      icon:'◎'},
+    {id:'messages',label:'Mensajes',       icon:'◐'},
+    {id:'conversations',label:'Conversaciones',icon:'◧'},
+    {id:'distribuidores',label:'Distribuidores',icon:'◑'},
+    {id:'recruitment',label:'Reclutamiento',icon:'◒'},
+    {id:'vacantes', label:'Vacantes', icon:'◓'},
+    {id:'ai',label:'Análisis IA',          icon:'✦'},
+    {id:'reportes',label:'Reportes',       icon:'◫'},
+    {id:'users',label:'Usuarios',          icon:'◴'},
   ];
-  const TABS=ALL_TABS.filter(t=>canSee(t.id));
-
-  const CARD={ background:P.surface,border:`1px solid ${P.border}`,borderRadius:10,padding:isMobile?'14px':'20px 22px',marginBottom:10,position:'relative',overflow:'hidden' };
-  const ST={ fontWeight:600,fontSize:13,color:P.text,letterSpacing:'-0.01em',marginBottom:16 };
+  
+  // ✅ CORRECCIÓN FINAL: Permitimos nombres de Admin y banderas de Admin, PERO bloqueamos a RH explícitamente.
+  const canSeeReportes = !isRH && (role.name === 'Admin' || role.name === 'Super Admin' || role.role === 'Administrador' || isAdmin || isOnlyAdmin);
+  
+  const TABS=ALL_TABS.filter(t => t.id==='reportes' ? canSeeReportes : canSee(t.id));
+  // Shared card style
+  const CARD={
+    background:P.surface,
+    border:`1px solid ${P.border}`,
+    borderRadius:12,
+    padding:isMobile?'16px':'20px 22px',
+    marginBottom:10,
+    position:'relative',
+    overflow:'hidden',
+    boxShadow:`0 1px 3px rgba(0,0,0,0.06)`
+  };
+  const ST={ fontWeight:700, fontSize:13, color:P.text, letterSpacing:'-0.02em', marginBottom:18 };
 
   const roleBadgeColor=role.color||P.orange;
   const currentTabLabel=TABS.find(t=>t.id===tab)?.label||'';
 
-  // Helper: accent top bar on cards
-  const CardTopBar = ({color=P.orange}) => <div style={{ position:'absolute',top:0,left:0,right:0,height:'2px',background:`linear-gradient(90deg,${color},transparent)`,opacity:0.3 }}/>;
+  const CardTopBar = ({color=P.orange}) => (
+    <div style={{ position:'absolute', top:0, left:0, right:0, height:'2.5px',
+      background:color, opacity:0.50 }}/>
+  );
 
   return (
-    <div className="adash aroot panel-enter"
-      style={{ background:P.bg,border:`1px solid ${P.border}`,borderRadius:isMobile?10:14,
-        width:'100%',maxWidth:isMobile?'100%':isTablet?'98vw':1160,
-        height:isMobile?'100dvh':'90vh',maxHeight:isMobile?'100dvh':'90vh',
-        display:'flex',flexDirection:'column',overflowY:'hidden',
-        boxShadow:`0 40px 100px rgba(0,0,0,0.95), 0 0 0 1px rgba(251,103,11,0.08)` }}>
+    <div className="adash aroot panel-enter admin-bg-dots"
+      style={{ background:P.bg, border:`1px solid ${P.border}`, borderRadius:isMobile?10:16,
+        width:'100%', maxWidth:isMobile?'100%':isTablet?'98vw':1200,
+        height:isMobile?'100dvh':'90vh', maxHeight:isMobile?'100dvh':'90vh',
+        display:'flex', flexDirection:'column', overflowY:'hidden',
+        boxShadow:`0 24px 80px rgba(0,0,0,0.60), 0 0 0 1px ${P.border}`,
+        position:'relative' }}>
       <style>{GLOBAL_CSS}</style>
 
       {/* ── HEADER ── */}
-      <div style={{ padding:isMobile?'10px 12px':'14px 20px',borderBottom:`1px solid ${P.border}`,
-        background:P.surface,flexShrink:0,position:'relative' }}>
-        <div style={{ position:'absolute',top:0,left:0,right:0,height:2,
-          background:`linear-gradient(90deg,${P.orange},${P.orangeWarm},transparent)`,opacity:0.5 }}/>
+      <div className="dash-header" style={{ padding:isMobile?'10px 14px':'14px 22px', borderBottom:`1px solid ${P.border}`,
+        background:P.surfaceGlass,
+        flexShrink:0, position:'relative', zIndex:10 }}>
+        {/* Header accent — only visible in dark mode */}
+        <div style={{ position:'absolute', top:0, left:0, right:0, height:2.5,
+          background:`linear-gradient(90deg,${P.orange},${P.orangeWarm},${P.orangeSoft},transparent)`, opacity:0.65 }}/>
 
-        <div style={{ display:'flex',alignItems:'center',justifyContent:'space-between',gap:8,marginBottom:isAdmin&&!isMobile?12:isAdmin?8:0 }}>
-          <div style={{ display:'flex',alignItems:'center',gap:12,minWidth:0 }}>
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:8, marginBottom:isAdmin&&!isMobile?12:isAdmin?8:0 }}>
+          <div style={{ display:'flex', alignItems:'center', gap:13, minWidth:0 }}>
             {/* Logo badge */}
-            <div style={{ width:34,height:34,borderRadius:9,background:P.okDim,border:`1px solid ${P.orange}30`,
-              display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0 }}>
-              <RobotIcon size={24}/>
+            <div style={{ width:36, height:36, borderRadius:10,
+              background:`linear-gradient(135deg,${P.okDim},rgba(251,103,11,0.08))`,
+              border:`1px solid ${P.orange}35`,
+              display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0,
+              boxShadow:`0 0 20px ${P.orange}25` }}>
+              <RobotIcon size={26}/>
             </div>
             <div style={{ minWidth:0 }}>
-              <div style={{ display:'flex',alignItems:'center',gap:7,marginBottom:2,flexWrap:'wrap' }}>
-                <span style={{ fontWeight:700,fontSize:isMobile?13:14,color:P.text,letterSpacing:'-0.02em' }}>BotGO Admin</span>
-                {!isMobile&&<><Tag color={P.orange} size={9}>Grupo Ortiz</Tag></>}
+              <div style={{ display:'flex', alignItems:'center', gap:7, marginBottom:3, flexWrap:'wrap' }}>
+                <span style={{ fontWeight:700, fontSize:isMobile?13:15, color:P.text, letterSpacing:'-0.025em' }}>BotGO Admin</span>
+                {!isMobile&&<Tag color={P.orange} size={9}>Grupo Ortiz</Tag>}
                 <Tag color={roleBadgeColor} size={9}>{role.name}</Tag>
               </div>
               {isAdmin&&!isMobile&&(
-                <div style={{ display:'flex',alignItems:'center',gap:6 }}>
+                <div style={{ display:'flex', alignItems:'center', gap:7 }}>
                   <Dot active={auto}/>
-                  <span style={{ color:P.textDim,fontSize:10 }}>
+                  <span style={{ color:P.textDim, fontSize:10 }}>
                     {auto?'Live · 10s':'Pausado'}
                     {last&&` · ${last.toLocaleTimeString('es-MX',{timeZone:'America/Mexico_City'})}`}
                   </span>
-                  {periodLabel&&<span style={{ padding:'1px 7px',borderRadius:4,background:'rgba(236,235,224,0.04)',border:`1px solid ${P.border}`,color:P.textSub,fontSize:10 }}>{periodLabel}</span>}
+                  {periodLabel&&(
+                    <span style={{ padding:'2px 8px', borderRadius:5,
+                      background:P.okDim, border:`1px solid ${P.orange}25`,
+                      color:P.orange, fontSize:10, fontWeight:600 }}>{periodLabel}</span>
+                  )}
                 </div>
               )}
             </div>
           </div>
 
           {/* Action buttons */}
-          <div style={{ display:'flex',gap:5,alignItems:'center',flexShrink:0 }}>
+          <div style={{ display:'flex', gap:5, alignItems:'center', flexShrink:0 }}>
             {isAdmin&&!isMobile&&[
-              { label:auto?'Pausar':'Live', onClick:()=>setAuto(s=>!s), style:{background:auto?P.okDim:'rgba(236,235,224,0.03)',border:`1px solid ${auto?P.orange+'35':P.border}`,color:auto?P.orange:P.textSub} },
-              { label:'↻ Sync',            onClick:()=>load(false,activePeriod?.from,activePeriod?.to), style:{background:'rgba(236,235,224,0.03)',border:`1px solid ${P.border}`,color:P.textSub} },
-              ...(isOnlyAdmin ? [{ label:'Reset', onClick:reset, style:{background:'rgba(83,83,83,0.12)',border:`1px solid ${P.gray}25`,color:P.grayLight} }] : []),
+              { label:'', icon: auto ? Icons.pause : Icons.play,
+                tooltip: auto?'Pausar':'Live',
+                onClick:()=>setAuto(s=>!s),
+                style:{background:auto?P.okDim:P.border2,border:`1px solid ${auto?P.orange+'40':P.border}`,color:auto?P.orange:P.textSub} },
+              { label:'', icon:Icons.sync, tooltip:'Sincronizar',
+                onClick:()=>load(false,activePeriod?.from,activePeriod?.to),
+                style:{background:P.border2,border:`1px solid ${P.border}`,color:P.textSub} },
+              ...(isOnlyAdmin ? [{ label:'Reset', icon:Icons.trash, tooltip:'Borrar estadísticas',
+                onClick:reset,
+                style:{background:P.errDim,border:`1px solid ${P.gray}30`,color:P.grayLight} }] : []),
             ].map(b=>(
-              <button key={b.label} onClick={b.onClick} className="btn-base"
-                style={{ padding:'5px 11px',borderRadius:7,fontSize:11,fontWeight:500,cursor:'pointer',...b.style }}>{b.label}</button>
+              <button key={b.tooltip} onClick={b.onClick} className="btn-base" title={b.tooltip}
+                style={{ padding:'7px 10px', borderRadius:8, fontSize:11, fontWeight:500,
+                  cursor:'pointer', display:'flex', alignItems:'center', gap:5, ...b.style }}>
+                {b.icon}{b.label}
+              </button>
             ))}
             {isMobile&&isAdmin&&(
               <button onClick={()=>load(false,activePeriod?.from,activePeriod?.to)} className="btn-base"
-                style={{ padding:'6px 10px',borderRadius:7,border:`1px solid ${P.border}`,background:'rgba(236,235,224,0.03)',color:P.textSub,cursor:'pointer',fontSize:12 }}>↻</button>
+                style={{ padding:'7px 10px', borderRadius:8, border:`1px solid ${P.border}`,
+                  background:P.border2, color:P.textSub, cursor:'pointer' }}>
+                {Icons.sync}
+              </button>
             )}
             {isAdmin&&!isMobile&&<DownloadReportButton data={data} periodMeta={{preset:activePresetId,from:activePeriod?.from,to:activePeriod?.to}}/>}
-            <button onClick={onClose} style={{ padding:'6px 11px',borderRadius:7,border:`1px solid ${P.border}`,background:'transparent',color:P.textDim,cursor:'pointer',fontSize:13,transition:'color 0.12s ease' }} onMouseEnter={e=>e.currentTarget.style.color=P.text} onMouseLeave={e=>e.currentTarget.style.color=P.textDim}>✕</button>
+            {/* Botón tema global */}
+            {toggleTheme&&(
+              <button onClick={toggleTheme} title={theme==='dark'?'Tema claro':'Tema oscuro'}
+                style={{ padding:'7px 10px', borderRadius:8, border:`1px solid ${P.border}`,
+                  background:P.border2, color:P.textSub, cursor:'pointer',
+                  transition:'all 0.14s ease', display:'flex', alignItems:'center', justifyContent:'center' }}
+                onMouseEnter={e=>{e.currentTarget.style.color=P.text;e.currentTarget.style.borderColor=P.border2;e.currentTarget.style.background=P.surface3;}}
+                onMouseLeave={e=>{e.currentTarget.style.color=P.textSub;e.currentTarget.style.borderColor=P.border;e.currentTarget.style.background=P.border2;}}>
+                {theme==='dark'
+                  ? <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                  : <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                }
+              </button>
+            )}
+            <button onClick={onClose}
+              style={{ padding:'7px 10px', borderRadius:8, border:`1px solid ${P.border}`,
+                background:'transparent', color:P.textDim, cursor:'pointer',
+                transition:'all 0.12s ease', display:'flex', alignItems:'center', justifyContent:'center' }}
+              onMouseEnter={e=>{e.currentTarget.style.color=P.text;e.currentTarget.style.borderColor=P.border2;e.currentTarget.style.background=P.surface3;}}
+              onMouseLeave={e=>{e.currentTarget.style.color=P.textDim;e.currentTarget.style.borderColor=P.border;e.currentTarget.style.background='transparent';}}>
+              {Icons.close}
+            </button>
           </div>
         </div>
 
         {/* Period selector */}
         {isAdmin&&!isMobile&&(
-          <div style={{ display:'flex',alignItems:'center',padding:'6px 10px',background:P.surface2,borderRadius:8,border:`1px solid ${P.border}` }}>
+          <div style={{ display:'flex', alignItems:'center', padding:'6px 10px',
+            background:P.surface2, borderRadius:9, border:`1px solid ${P.border}` }}>
             <PeriodSelector activeId={activePresetId} onSelect={handlePresetSelect} customFrom={customFrom} customTo={customTo} setCustomFrom={setCustomFrom} setCustomTo={setCustomTo} onApplyCustom={handleApplyCustom}/>
           </div>
         )}
@@ -913,27 +1639,53 @@ function Dash({ onClose, role }) {
 
       {/* ── TABS ── */}
       {!isMobile ? (
-        <div style={{ padding:'0 20px',borderBottom:`1px solid ${P.border}`,display:'flex',gap:2,overflowX:'auto',background:P.surface,flexShrink:0 }}>
+        <div className="tabs-row" style={{ padding:'0 22px', borderBottom:`1px solid ${P.border}`,
+          display:'flex', gap:0, overflowX:'auto',
+          background:P.surface, flexShrink:0 }}>
           {TABS.map(t=>(
-            <button key={t.id} onClick={()=>setTab(t.id)} className={`tab-btn ${tab===t.id?'active':''}`}
-              style={{ background:'transparent',color:tab===t.id?P.text:P.textDim,border:'none',padding:'10px 13px',cursor:'pointer',fontSize:12,fontWeight:tab===t.id?600:400,whiteSpace:'nowrap' }}>
+            <button key={t.id} onClick={()=>setTab(t.id)}
+              className={`tab-btn ${tab===t.id?'active':''}`}
+              style={{ background:'transparent',
+                color:tab===t.id?P.orange:P.textDim,
+                border:'none', padding:'12px 16px',
+                cursor:'pointer', fontSize:12,
+                fontWeight:tab===t.id?600:400,
+                whiteSpace:'nowrap',
+                letterSpacing: '-0.01em' }}>
               {t.label}
-              {t.id==='distribuidores'&&leads.length>0&&<span style={{ marginLeft:5,background:P.okDim,color:P.orange,borderRadius:10,padding:'1px 6px',fontSize:9 }}>{leads.length}</span>}
+              {t.id==='distribuidores'&&leads.length>0&&(
+                <span style={{ marginLeft:5, background:P.okDim, color:P.orange,
+                  borderRadius:10, padding:'1px 7px', fontSize:9, fontWeight:700 }}>{leads.length}</span>
+              )}
             </button>
           ))}
         </div>
       ) : (
-        <div style={{ padding:'8px 12px',borderBottom:`1px solid ${P.border}`,background:P.surface,flexShrink:0,position:'relative' }}>
-          <button onClick={()=>setMenuOpen(s=>!s)} style={{ width:'100%',display:'flex',alignItems:'center',justifyContent:'space-between',padding:'8px 12px',background:P.surface2,border:`1px solid ${P.border}`,borderRadius:8,color:P.text,fontSize:12,fontWeight:500,cursor:'pointer' }}>
+        <div style={{ padding:'8px 14px', borderBottom:`1px solid ${P.border}`,
+          background:P.surface, flexShrink:0, position:'relative' }}>
+          <button onClick={()=>setMenuOpen(s=>!s)}
+            style={{ width:'100%', display:'flex', alignItems:'center', justifyContent:'space-between',
+              padding:'9px 13px', background:P.surface2, border:`1px solid ${P.border}`,
+              borderRadius:9, color:P.text, fontSize:12, fontWeight:500, cursor:'pointer' }}>
             <span>{currentTabLabel}</span>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ transform:menuOpen?'rotate(180deg)':'rotate(0)',transition:'transform 0.2s' }}><polyline points="6 9 12 15 18 9"/></svg>
+            <span style={{ transform:menuOpen?'rotate(180deg)':'rotate(0)', transition:'transform 0.2s', color:P.textDim }}>{Icons.chevron}</span>
           </button>
           {menuOpen&&(
-            <div style={{ position:'absolute',top:'calc(100% + 2px)',left:12,right:12,background:P.surface,border:`1px solid ${P.border}`,borderRadius:8,zIndex:100,overflow:'hidden',boxShadow:`0 8px 30px rgba(0,0,0,0.7)`,animation:'fadeUp 0.14s ease' }}>
+            <div style={{ position:'absolute', top:'calc(100% + 2px)', left:14, right:14,
+              background:P.surface, border:`1px solid ${P.border}`, borderRadius:10,
+              zIndex:100, overflow:'hidden', boxShadow:`0 12px 40px rgba(0,0,0,0.8)`,
+              animation:'fadeUp 0.15s ease' }}>
               {TABS.map(t=>(
-                <button key={t.id} onClick={()=>{setTab(t.id);setMenuOpen(false);}} style={{ width:'100%',display:'flex',alignItems:'center',justifyContent:'space-between',padding:'11px 14px',background:tab===t.id?'rgba(236,235,224,0.05)':'transparent',border:'none',borderBottom:`1px solid ${P.border2}`,color:tab===t.id?P.text:P.textSub,fontSize:12,fontWeight:tab===t.id?500:400,cursor:'pointer',textAlign:'left' }}>
+                <button key={t.id} onClick={()=>{setTab(t.id);setMenuOpen(false);}}
+                  style={{ width:'100%', display:'flex', alignItems:'center', justifyContent:'space-between',
+                    padding:'12px 15px', background:tab===t.id?P.okDim:'transparent',
+                    border:'none', borderBottom:`1px solid ${P.border2}`,
+                    color:tab===t.id?P.orange:P.textSub, fontSize:12,
+                    fontWeight:tab===t.id?600:400, cursor:'pointer', textAlign:'left' }}>
                   {t.label}
-                  {t.id==='distribuidores'&&leads.length>0&&<span style={{ background:P.okDim,color:P.orange,borderRadius:10,padding:'1px 6px',fontSize:9 }}>{leads.length}</span>}
+                  {t.id==='distribuidores'&&leads.length>0&&(
+                    <span style={{ background:P.okDim, color:P.orange, borderRadius:10, padding:'1px 7px', fontSize:9 }}>{leads.length}</span>
+                  )}
                 </button>
               ))}
             </div>
@@ -942,68 +1694,75 @@ function Dash({ onClose, role }) {
       )}
 
       {/* ── CONTENT ── */}
-      <div style={{ flex:1,overflowY:'auto',padding:isMobile?'12px 12px 32px':'18px 20px 32px',background:P.bg }}
+      <div style={{ flex:1, overflowY:'auto', padding:isMobile?'14px 14px 36px':'20px 24px 36px', background:P.bg }}
         onClick={()=>menuOpen&&setMenuOpen(false)}>
 
         {loading&&tab!=='distribuidores'&&tab!=='recruitment'&&tab!=='users'&&<Spinner/>}
 
-        {/* OVERVIEW */}
+        {/* ── OVERVIEW ── */}
         {!loading&&data&&tab==='overview'&&canSee('overview')&&(
           <div className="tab-content" key="ov">
             <SectionLabel>Acumulado · {periodLabel}</SectionLabel>
-            <div style={{ display:'grid',gridTemplateColumns:isMobile?'1fr 1fr':'repeat(auto-fit,minmax(190px,1fr))',gap:8,marginBottom:14 }}>
+            <div style={{ display:'grid', gridTemplateColumns:isMobile?'1fr 1fr':'repeat(auto-fit,minmax(195px,1fr))', gap:10, marginBottom:16 }}>
               {loading
                 ? [0,1,2,3].map(i=><SkeletonCard key={i}/>)
                 : <>
                   <StatCard label="Sesiones"  value={data.totalSessions} sub="conversaciones"      color={P.orange}    icon="💬"/>
-                  <StatCard label="Mensajes"  value={data.totalMessages} sub="preguntas recibidas" color={P.gray}      icon="📩"/>
-                  <StatCard label="WhatsApp"  value={data.totalWhatsApp} sub="leads generados"     color={P.grayLight} icon="🛒"/>
+                  <StatCard label="Mensajes"  value={data.totalMessages} sub="preguntas recibidas" color={P.grayLight} icon="📩"/>
+                  <StatCard label="WhatsApp"  value={data.totalWhatsApp} sub="leads generados"     color={P.orangeWarm} icon="🛒"/>
                   <StatCard label="PDFs"      value={data.totalPDFs}     sub="catálogos enviados"  color={P.grayMid}   icon="📄"/>
                 </>}
             </div>
-            <div style={{ height:1,background:P.border,margin:'14px 0' }}/>
+            <div style={{ height:1, background:`linear-gradient(90deg,${P.border},transparent)`, margin:'16px 0' }}/>
             <SectionLabel>Hoy · {new Date().toLocaleDateString('es-MX',{timeZone:'America/Mexico_City',weekday:'long',day:'numeric',month:'long'})}</SectionLabel>
-            <div style={{ display:'grid',gridTemplateColumns:isMobile?'1fr 1fr':'repeat(auto-fit,minmax(190px,1fr))',gap:8,marginBottom:14 }}>
-              <StatCard label="Mensajes hoy"  value={td.messages}  sub={`ayer: ${yd.messages}`}  color={P.orange}    icon="📆" trend={td.messages-yd.messages}/>
-              <StatCard label="Sesiones hoy"  value={td.sessions}  sub={`ayer: ${yd.sessions}`}  color={P.gray}      icon="👤" trend={td.sessions-yd.sessions}/>
-              <StatCard label="WhatsApp hoy"  value={td.wa||0}     sub={`ayer: ${yd.wa||0}`}     color={P.grayLight} icon="📲" trend={(td.wa||0)-(yd.wa||0)}/>
-              <StatCard label="PDFs hoy"      value={td.pdf||0}    sub={`ayer: ${yd.pdf||0}`}    color={P.grayMid}   icon="📋" trend={(td.pdf||0)-(yd.pdf||0)}/>
+            <div style={{ display:'grid', gridTemplateColumns:isMobile?'1fr 1fr':'repeat(auto-fit,minmax(195px,1fr))', gap:10, marginBottom:16 }}>
+              <StatCard label="Mensajes hoy"  value={td.messages}  sub={`ayer: ${yd.messages}`}  color={P.orange}     icon="📆" trend={td.messages-yd.messages}/>
+              <StatCard label="Sesiones hoy"  value={td.sessions}  sub={`ayer: ${yd.sessions}`}  color={P.grayLight}  icon="👤" trend={td.sessions-yd.sessions}/>
+              <StatCard label="WhatsApp hoy"  value={td.wa||0}     sub={`ayer: ${yd.wa||0}`}     color={P.orangeWarm} icon="📲" trend={(td.wa||0)-(yd.wa||0)}/>
+              <StatCard label="PDFs hoy"      value={td.pdf||0}    sub={`ayer: ${yd.pdf||0}`}    color={P.grayMid}    icon="📋" trend={(td.pdf||0)-(yd.pdf||0)}/>
             </div>
-            <div style={{ display:'grid',gridTemplateColumns:isMobile||isTablet?'1fr':'1fr 1fr',gap:10 }}>
+            <div style={{ display:'grid', gridTemplateColumns:isMobile||isTablet?'1fr':'1fr 1fr', gap:12 }}>
               <div className="card-hover" style={CARD}><CardTopBar/><p style={ST}>Distribución de intenciones</p><DonutChart intents={data.intents}/></div>
               <div className="card-hover" style={CARD}><CardTopBar/><p style={ST}>Actividad — últimos 14 días</p><LineChart daily={data.daily}/></div>
             </div>
           </div>
         )}
 
-        {/* ACTIVITY */}
+        {/* ── ACTIVITY ── */}
         {!loading&&data&&tab==='activity'&&canSee('activity')&&(
           <div className="tab-content" key="ac">
             <div className="card-hover" style={CARD}>
               <CardTopBar/>
               <p style={ST}>Historial diario</p>
-              <div style={{ overflowX:'auto',WebkitOverflowScrolling:'touch' }}>
-                <table style={{ width:'100%',borderCollapse:'collapse',fontSize:12,minWidth:isMobile?480:'auto' }}>
+              <div style={{ overflowX:'auto', WebkitOverflowScrolling:'touch' }}>
+                <table style={{ width:'100%', borderCollapse:'collapse', fontSize:12, minWidth:isMobile?480:'auto' }}>
                   <thead><tr>{['Fecha','Sesiones','Mensajes','WhatsApp','PDFs','Conv.%'].map(h=>(
-                    <th key={h} style={{ color:P.textDim,fontWeight:500,padding:'8px 10px',textAlign:'left',borderBottom:`1px solid ${P.border}`,fontSize:10,textTransform:'uppercase',letterSpacing:'0.07em',background:P.surface2,whiteSpace:'nowrap' }}>{h}</th>
+                    <th key={h} style={{ color:P.textDim, fontWeight:600, padding:'9px 11px', textAlign:'left',
+                      borderBottom:`1px solid ${P.border}`, fontSize:10, textTransform:'uppercase',
+                      letterSpacing:'0.08em', background:P.surface2, whiteSpace:'nowrap' }}>{h}</th>
                   ))}</tr></thead>
                   <tbody>
                     {Object.entries(data.daily||{}).sort(([a],[b])=>b.localeCompare(a)).map(([date,v])=>{
                       const conv=v.messages?Math.round(((v.wa||0)/v.messages)*100):0, isToday=date===today;
                       return (
-                        <tr key={date} className="row-hover" style={{ background:isToday?`${P.orange}06`:'transparent',borderBottom:`1px solid ${P.border2}` }}>
-                          <td style={{ padding:'8px 10px',color:P.text,fontFamily:T.mono,fontSize:11,whiteSpace:'nowrap' }}>{isToday&&<Tag color={P.orange} size={9}>hoy</Tag>} {date}</td>
-                          <td className="mono" style={{ padding:'8px 10px',color:P.textSub }}>{v.sessions||0}</td>
-                          <td className="mono" style={{ padding:'8px 10px',color:P.text,fontWeight:500 }}>{v.messages||0}</td>
-                          <td className="mono" style={{ padding:'8px 10px',color:P.orange }}>{v.wa||0}</td>
-                          <td className="mono" style={{ padding:'8px 10px',color:P.grayMid }}>{v.pdf||0}</td>
-                          <td style={{ padding:'8px 10px' }}>
-                            <span style={{ padding:'2px 6px',borderRadius:4,background:conv>10?P.okDim:conv>0?P.warnDim:'transparent',color:conv>10?P.orange:conv>0?P.grayLight:P.textDim,fontSize:10,fontFamily:T.mono,fontWeight:500 }}>{conv}%</span>
+                        <tr key={date} className="row-hover" style={{ background:isToday?`${P.orange}07`:'transparent', borderBottom:`1px solid ${P.border2}` }}>
+                          <td style={{ padding:'9px 11px', color:P.text, fontFamily:T.mono, fontSize:11, whiteSpace:'nowrap' }}>
+                            {isToday&&<Tag color={P.orange} size={9}>hoy</Tag>} {date}
+                          </td>
+                          <td className="mono" style={{ padding:'9px 11px', color:P.textSub }}>{v.sessions||0}</td>
+                          <td className="mono" style={{ padding:'9px 11px', color:P.text, fontWeight:600 }}>{v.messages||0}</td>
+                          <td className="mono" style={{ padding:'9px 11px', color:P.orange, fontWeight:600 }}>{v.wa||0}</td>
+                          <td className="mono" style={{ padding:'9px 11px', color:P.grayMid }}>{v.pdf||0}</td>
+                          <td style={{ padding:'9px 11px' }}>
+                            <span style={{ padding:'2px 7px', borderRadius:5,
+                              background:conv>10?P.okDim:conv>0?P.warnDim:'transparent',
+                              color:conv>10?P.orange:conv>0?P.grayLight:P.textDim,
+                              fontSize:10, fontFamily:T.mono, fontWeight:600 }}>{conv}%</span>
                           </td>
                         </tr>
                       );
                     })}
-                    {!Object.keys(data.daily||{}).length&&<tr><td colSpan={6} style={{ color:P.textDim,textAlign:'center',padding:40,fontSize:11 }}>Sin datos</td></tr>}
+                    {!Object.keys(data.daily||{}).length&&<tr><td colSpan={6} style={{ color:P.textDim, textAlign:'center', padding:44, fontSize:11 }}>Sin datos</td></tr>}
                   </tbody>
                 </table>
               </div>
@@ -1016,7 +1775,7 @@ function Dash({ onClose, role }) {
           </div>
         )}
 
-        {/* PRODUCTS */}
+        {/* ── PRODUCTS ── */}
         {!loading&&data&&tab==='products'&&canSee('products')&&(
           <div className="tab-content" key="pr">
             <div className="card-hover" style={CARD}>
@@ -1024,71 +1783,187 @@ function Dash({ onClose, role }) {
               <p style={ST}>Productos más consultados</p>
               <BarChart data={prodD} color={P.orange} max={10}/>
               {prodD.length>0&&(()=>{ const top=[...prodD].sort((a,b)=>b.value-a.value)[0]; return (
-                <div style={{ marginTop:18,padding:'12px 14px',background:P.surface2,borderRadius:8,border:`1px solid ${P.border}`,borderLeft:`2px solid ${P.orange}`,display:'flex',alignItems:'center',gap:12 }}>
-                  <div><span style={{ color:P.textDim,fontSize:10,fontWeight:500,textTransform:'uppercase',letterSpacing:'0.07em' }}>Producto estrella</span>
-                  <p style={{ margin:'4px 0 0',fontWeight:600,fontSize:15,color:P.text }}>{top?.label}<span className="mono" style={{ color:P.orange,marginLeft:8,fontWeight:400,fontSize:13 }}>×{top?.value}</span></p></div>
+                <div style={{ marginTop:20, padding:'14px 16px',
+                  background:`linear-gradient(135deg,${P.surface2},${P.surface3})`,
+                  borderRadius:10, border:`1px solid ${P.orange}28`,
+                  borderLeft:`3px solid ${P.orange}`,
+                  display:'flex', alignItems:'center', gap:14,
+                  boxShadow:`0 0 20px ${P.orange}10` }}>
+                  <div>
+                    <span style={{ color:P.textDim, fontSize:10, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.08em' }}>⭐ Producto estrella</span>
+                    <p style={{ margin:'5px 0 0', fontWeight:700, fontSize:16, color:P.text, letterSpacing:'-0.01em' }}>
+                      {top?.label}
+                      <span className="mono" style={{ color:P.orange, marginLeft:10, fontWeight:500, fontSize:14 }}>×{top?.value}</span>
+                    </p>
+                  </div>
                 </div>
               ); })()}
             </div>
           </div>
         )}
 
-        {/* KEYWORDS */}
+        {/* ── KEYWORDS ── */}
         {!loading&&data&&tab==='keywords'&&canSee('keywords')&&(
-          <div className="tab-content" key="kw" style={{ display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:10 }}>
+          <div className="tab-content" key="kw" style={{ display:'grid', gridTemplateColumns:isMobile?'1fr':'1fr 1fr', gap:12 }}>
             <div className="card-hover" style={CARD}><CardTopBar/><p style={ST}>Palabras clave</p><BarChart data={kwD} color={P.orange} max={12}/></div>
-            <div className="card-hover" style={CARD}><CardTopBar/><p style={ST}>Productos mencionados</p><BarChart data={prodD} color={P.gray} max={8}/></div>
+            <div className="card-hover" style={CARD}><CardTopBar color={P.grayLight}/><p style={ST}>Productos mencionados</p><BarChart data={prodD} color={P.grayLight} max={8}/></div>
           </div>
         )}
 
-        {/* MESSAGES */}
+        {/* ── MESSAGES ── */}
         {!loading&&data&&tab==='messages'&&canSee('messages')&&(
           <div className="tab-content" key="ms">
             <div className="card-hover" style={CARD}>
               <CardTopBar/>
-              <div style={{ display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:14,flexWrap:'wrap',gap:8 }}>
-                <p style={{ ...ST,marginBottom:0 }}>Consultas en tiempo real</p>
+              <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:16, flexWrap:'wrap', gap:8 }}>
+                <p style={{ ...ST, marginBottom:0 }}>Consultas en tiempo real</p>
                 <Tag color={P.orange}>{data.lastMessages?.length||0} registros</Tag>
               </div>
-              <div style={{ display:'flex',flexDirection:'column',gap:3 }}>
+              <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
                 {(data.lastMessages||[]).slice().reverse().map((m,i)=>{
-                  const iColor={compra:P.orange,pdf:P.grayLight,reclutamiento:P.gray}, color=iColor[m.intent]||P.border;
+                  const iColor={compra:P.orange,pdf:P.grayLight,reclutamiento:P.grayMid}, color=iColor[m.intent]||P.border;
                   return (
-                    <div key={i} className="row-hover" style={{ padding:'8px 10px',background:P.surface2,borderRadius:7,border:`1px solid ${P.border}`,display:'flex',gap:8,alignItems:'center' }}>
-                      <div style={{ width:2,height:28,borderRadius:1,background:color,flexShrink:0 }}/>
-                      <div style={{ flexShrink:0,minWidth:46 }}>
-                        <div className="mono" style={{ color:P.textSub,fontSize:10 }}>{fmtHora(m.ts)}</div>
-                        <div className="mono" style={{ color:P.textDim,fontSize:9 }}>{fmtFecha(m.ts)}</div>
+                    <div key={i} className="row-hover"
+                      style={{ padding:'9px 12px', background:P.surface2, borderRadius:8,
+                        border:`1px solid ${P.border}`, display:'flex', gap:10, alignItems:'center' }}>
+                      <div style={{ width:2.5, height:30, borderRadius:2, background:color, flexShrink:0, boxShadow:`0 0 6px ${color}60` }}/>
+                      <div style={{ flexShrink:0, minWidth:48 }}>
+                        <div className="mono" style={{ color:P.textSub, fontSize:10 }}>{fmtHora(m.ts)}</div>
+                        <div className="mono" style={{ color:P.textDim, fontSize:9 }}>{fmtFecha(m.ts)}</div>
                       </div>
-                      <span style={{ color:P.text,fontSize:12,flex:1,lineHeight:1.5,wordBreak:'break-word',minWidth:0 }}>{m.user}</span>
+                      <span style={{ color:P.text, fontSize:12, flex:1, lineHeight:1.55, wordBreak:'break-word', minWidth:0 }}>{m.user}</span>
                       {m.prod&&!isMobile&&<Tag color={P.grayMid}>{m.prod}</Tag>}
                       <Tag color={color} size={9}>{m.intent||'otro'}</Tag>
                     </div>
                   );
                 })}
-                {!(data.lastMessages||[]).length&&<div style={{ textAlign:'center',padding:'44px 0',color:P.textDim,fontSize:12 }}>Sin mensajes registrados</div>}
+                {!(data.lastMessages||[]).length&&<div style={{ textAlign:'center', padding:'48px 0', color:P.textDim, fontSize:12 }}>Sin mensajes registrados</div>}
               </div>
             </div>
           </div>
         )}
 
-        {/* DISTRIBUIDORES */}
+        {/* ── CONVERSACIONES ── */}
+        {tab==='conversations'&&canSee('conversations')&&(
+          <div className="tab-content" key="conv">
+            <div style={{ display:'flex', gap:12, alignItems:'flex-start', flexWrap:isMobile?'wrap':'nowrap' }}>
+
+              {/* ── Lista de sesiones ── */}
+              <div className="card-hover" style={{ ...CARD, flex:'0 0 auto', width:isMobile?'100%':300, minWidth:0 }}>
+                <CardTopBar/>
+                <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:12, gap:8 }}>
+                  <p style={{ ...ST, marginBottom:0 }}>Sesiones</p>
+                  <div style={{ display:'flex', gap:6, alignItems:'center' }}>
+                    {convSessions.length>0&&<Tag color={P.orange}>{convSessions.length}</Tag>}
+                    <button onClick={loadConversations} className="btn-base"
+                      style={{ padding:'5px 10px', borderRadius:7, fontSize:11, background:P.border2, border:`1px solid ${P.border}`, color:P.textSub, cursor:'pointer', display:'flex', alignItems:'center' }}>
+                      {Icons.sync}
+                    </button>
+                  </div>
+                </div>
+                {convLoading&&<div style={{ textAlign:'center', padding:'36px 0', color:P.textDim, fontSize:12 }}>Cargando...</div>}
+                {!convLoading&&convSessions.length===0&&<div style={{ textAlign:'center', padding:'36px 0', color:P.textDim, fontSize:12 }}>Sin conversaciones registradas</div>}
+                <div style={{ display:'flex', flexDirection:'column', gap:5, maxHeight:560, overflowY:'auto' }}>
+                  {convSessions.map(s=>{
+                    const isSelected=selectedConv===s.session_id;
+                    const intents=(Array.isArray(s.intents)?s.intents:(s.intents||'').split(',').filter(Boolean)).slice(0,3);
+                    const iColor={compra:P.orange,pdf:P.grayLight,reclutamiento:P.grayMid};
+                    return (
+                      <button key={s.session_id} onClick={()=>{ setSelectedConv(s.session_id); loadConvMessages(s.session_id); }}
+                        className="row-hover btn-base"
+                        style={{ textAlign:'left', padding:'9px 10px', borderRadius:8, cursor:'pointer',
+                          background:isSelected?P.border2:P.surface2,
+                          border:`1px solid ${isSelected?P.orange:P.border}`,
+                          display:'flex', flexDirection:'column', gap:3 }}>
+                        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:6 }}>
+                          <span className="mono" style={{ fontSize:9, color:P.textDim }}>{fmtFecha(s.started_at)}</span>
+                          <Tag color={P.grayMid} size={9}>{s.msg_count} msgs</Tag>
+                        </div>
+                        <div style={{ display:'flex', gap:4, flexWrap:'wrap' }}>
+                          {intents.map(it=><Tag key={it} color={iColor[it.trim()]||P.border} size={8}>{it.trim()}</Tag>)}
+                        </div>
+                        {s.products&&s.products.length>0&&<span style={{ fontSize:9, color:P.textDim, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', maxWidth:'100%' }}>{(Array.isArray(s.products)?s.products:s.products.split(',').filter(Boolean)).slice(0,2).join(', ')}</span>}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* ── Hilo de mensajes ── */}
+              <div className="card-hover" style={{ ...CARD, flex:1, minWidth:0 }}>
+                <CardTopBar/>
+                {!selectedConv&&(
+                  <div style={{ textAlign:'center', padding:'64px 0', color:P.textDim, fontSize:12 }}>
+                    Selecciona una sesión para ver la conversación
+                  </div>
+                )}
+                {selectedConv&&(
+                  <>
+                    <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:14, gap:8 }}>
+                      <p style={{ ...ST, marginBottom:0 }}>Conversación</p>
+                      <span className="mono" style={{ fontSize:9, color:P.textDim, overflow:'hidden', textOverflow:'ellipsis', maxWidth:200, display:'inline-block' }}>{selectedConv}</span>
+                    </div>
+                    {convMsgLoad&&<div style={{ textAlign:'center', padding:'36px 0', color:P.textDim, fontSize:12 }}>Cargando mensajes...</div>}
+                    <div style={{ display:'flex', flexDirection:'column', gap:10, maxHeight:560, overflowY:'auto' }}>
+                      {convMessages.map((m,i)=>(
+                        <div key={m.id||i} style={{ display:'flex', flexDirection:'column', gap:4 }}>
+                          {/* Usuario */}
+                          <div style={{ display:'flex', justifyContent:'flex-end' }}>
+                            <div style={{ background:P.orange+'22', border:`1px solid ${P.orange}44`, borderRadius:'12px 12px 3px 12px',
+                              padding:'7px 11px', maxWidth:'80%' }}>
+                              <div style={{ fontSize:11, color:P.text, lineHeight:1.5, wordBreak:'break-word' }}>{m.user_msg}</div>
+                              <div className="mono" style={{ fontSize:8, color:P.textDim, marginTop:3, textAlign:'right' }}>{fmtHora(m.ts)}</div>
+                            </div>
+                          </div>
+                          {/* Bot */}
+                          <div style={{ display:'flex', justifyContent:'flex-start' }}>
+                            <div style={{ background:P.surface2, border:`1px solid ${P.border}`, borderRadius:'12px 12px 12px 3px',
+                              padding:'7px 11px', maxWidth:'80%' }}>
+                              <div style={{ fontSize:11, color:P.textSub, lineHeight:1.5, wordBreak:'break-word' }}>{m.bot_reply}</div>
+                              {(m.intent||m.product)&&(
+                                <div style={{ display:'flex', gap:4, marginTop:5, flexWrap:'wrap' }}>
+                                  {m.intent&&<Tag color={P.grayMid} size={8}>{m.intent}</Tag>}
+                                  {m.product&&<Tag color={P.grayLight} size={8}>{m.product}</Tag>}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                      {!convMsgLoad&&convMessages.length===0&&<div style={{ textAlign:'center', padding:'36px 0', color:P.textDim, fontSize:12 }}>Sin mensajes</div>}
+                    </div>
+                  </>
+                )}
+              </div>
+
+            </div>
+          </div>
+        )}
+
+        {/* ── DISTRIBUIDORES ── */}
         {tab==='distribuidores'&&canSee('distribuidores')&&(
           <div className="tab-content" key="dist">
-            <div style={{ display:'grid',gridTemplateColumns:isMobile?'1fr 1fr':'repeat(auto-fit,minmax(170px,1fr))',gap:8,marginBottom:14 }}>
-              <StatCard label="Total"        value={leads.length}  sub="solicitudes acumuladas" color={P.orange}    icon="🤝"/>
-              <StatCard label="Esta semana"  value={leadsSemana}   sub="últimos 7 días"          color={P.gray}      icon="📅"/>
-              <StatCard label="Hoy"          value={leadsHoy}      sub="nuevas hoy"              color={P.grayLight} icon="⚡"/>
+            <div style={{ display:'grid', gridTemplateColumns:isMobile?'1fr 1fr':'repeat(auto-fit,minmax(175px,1fr))', gap:10, marginBottom:16 }}>
+              <StatCard label="Total"        value={leads.length}  sub="solicitudes acumuladas" color={P.orange}     icon="🤝"/>
+              <StatCard label="Esta semana"  value={leadsSemana}   sub="últimos 7 días"          color={P.grayLight}  icon="📅"/>
+              <StatCard label="Hoy"          value={leadsHoy}      sub="nuevas hoy"              color={P.orangeWarm} icon="⚡"/>
             </div>
-            {leads.length>=2&&(
-              <div className="card-hover" style={{ ...CARD,marginBottom:10 }}>
-                <CardTopBar/>
-                <p style={ST}>Tendencia — últimos 14 días</p>
-                <LeadsLineChart leads={leads}/>
-              </div>
-            )}
+            {leads.length>=1&&(()=>{
+              const _bd={}; leads.forEach(l=>{ if(!l.ts)return; const iso=String(l.ts).trim().replace(' ','T')+(String(l.ts).includes('Z')?'':'Z'); const d=new Date(iso); if(isNaN(d.getTime()))return; const k=d.toLocaleString('en-CA',{timeZone:'America/Mexico_City'}).split(',')[0]; if(k)_bd[k]=(_bd[k]||0)+1; });
+              const _peak=Object.values(_bd).length ? Math.max(...Object.values(_bd)) : 0;
+              return (
+                <div className="card-hover" style={{ ...CARD, marginBottom:12 }}>
+                  <CardTopBar/>
+                  <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:16, flexWrap:'wrap', gap:6 }}>
+                    <p style={{ ...ST, marginBottom:0 }}>Registros diarios — últimos 14 días</p>
+                    {_peak>0&&<Tag color={P.orange} size={9}>pico: {_peak} en un día</Tag>}
+                  </div>
+                  <LeadsLineChart leads={leads}/>
+                </div>
+              );
+            })()}
             {leadsProdData.length>0&&(
-              <div className="card-hover" style={{ ...CARD,marginBottom:10 }}>
+              <div className="card-hover" style={{ ...CARD, marginBottom:12 }}>
                 <CardTopBar/>
                 <p style={ST}>Productos de interés</p>
                 <BarChart data={leadsProdData} color={P.orange} max={8}/>
@@ -1096,35 +1971,70 @@ function Dash({ onClose, role }) {
             )}
             <div className="card-hover" style={CARD}>
               <CardTopBar/>
-              <div style={{ display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:14,flexWrap:'wrap',gap:8 }}>
-                <p style={{ ...ST,marginBottom:0 }}>Registro de solicitudes</p>
-                <div style={{ display:'flex',gap:6,alignItems:'center',flexWrap:'wrap' }}>
+              <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:16, flexWrap:'wrap', gap:8 }}>
+                <p style={{ ...ST, marginBottom:0 }}>Registro de solicitudes</p>
+                <div style={{ display:'flex', gap:6, alignItems:'center', flexWrap:'wrap' }}>
                   <Tag color={P.orange}>{leads.length} registros</Tag>
-                  <button onClick={loadLeads} className="btn-base" style={{ padding:'5px 10px',borderRadius:7,fontSize:11,fontWeight:500,background:'rgba(236,235,224,0.03)',border:`1px solid ${P.border}`,color:P.textSub,cursor:'pointer' }}>↻</button>
-                  {isOnlyAdmin&&<button onClick={async()=>{ if(!confirm('¿Borrar todos los leads?'))return; await fetch('/api/analytics',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'resetLeads'})}); setLeads([]); }} className="btn-base" style={{ padding:'5px 10px',borderRadius:7,fontSize:11,fontWeight:500,background:P.errDim,border:`1px solid ${P.gray}25`,color:P.grayLight,cursor:'pointer' }}>Borrar</button>}
+                  <button onClick={loadLeads} className="btn-base"
+                    style={{ padding:'5px 10px', borderRadius:7, fontSize:11, fontWeight:500,
+                      background:P.border2, border:`1px solid ${P.border}`,
+                      color:P.textSub, cursor:'pointer', display:'flex', alignItems:'center', gap:4 }}>
+                    {Icons.sync}
+                  </button>
+                  {isOnlyAdmin&&<button onClick={async()=>{ if(!confirm('¿Borrar todos los leads?'))return; await fetch('/api/analytics',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'resetLeads'})}); setLeads([]); }} className="btn-base"
+                    style={{ padding:'5px 10px', borderRadius:7, fontSize:11, fontWeight:500,
+                      background:P.errDim, border:`1px solid ${P.gray}28`, color:P.grayLight,
+                      cursor:'pointer', display:'flex', alignItems:'center', gap:5 }}>
+                    {Icons.trash} Borrar
+                  </button>}
                 </div>
               </div>
-              <input type="text" placeholder="Buscar por nombre, empresa, WhatsApp o email..." value={leadSearch} onChange={e=>setLeadSearch(e.target.value)}
-                style={{ width:'100%',marginBottom:12,background:P.surface2,border:`1px solid ${P.border}`,borderRadius:8,padding:'9px 14px',color:P.text,fontSize:12,outline:'none' }}
-                onFocus={e=>e.target.style.borderColor=P.orange+'45'} onBlur={e=>e.target.style.borderColor=P.border}/>
+              <input type="text" placeholder="Buscar por nombre, empresa, WhatsApp o email..."
+                value={leadSearch} onChange={e=>setLeadSearch(e.target.value)}
+                style={{ width:'100%', marginBottom:14, background:P.surface2,
+                  border:`1px solid ${P.border}`, borderRadius:9, padding:'10px 15px',
+                  color:P.text, fontSize:12, outline:'none', transition:'border-color 0.15s ease' }}
+                onFocus={e=>e.target.style.borderColor=P.orange+'48'}
+                onBlur={e=>e.target.style.borderColor=P.border}/>
               {leadsLoad?<Spinner/>:(
-                <div style={{ overflowX:'auto',WebkitOverflowScrolling:'touch' }}>
-                  <table style={{ width:'100%',borderCollapse:'collapse',fontSize:12,minWidth:isMobile?560:'auto' }}>
-                    <thead><tr>{['Fecha','Nombre','Empresa','WhatsApp','Email','Productos'].map(h=>(
-                      <th key={h} style={{ color:P.textDim,fontWeight:500,padding:'8px 10px',textAlign:'left',borderBottom:`1px solid ${P.border}`,fontSize:10,textTransform:'uppercase',letterSpacing:'0.07em',background:P.surface2,whiteSpace:'nowrap' }}>{h}</th>
+                <div style={{ overflowX:'auto', WebkitOverflowScrolling:'touch' }}>
+                  <table style={{ width:'100%', borderCollapse:'collapse', fontSize:12, minWidth:isMobile?560:'auto' }}>
+                    <thead><tr>{['Fecha','Nombre','Empresa','WhatsApp','Email','Productos','Nota'].map(h=>(
+                      <th key={h} style={{ color:P.textDim, fontWeight:600, padding:'9px 11px', textAlign:'left',
+                        borderBottom:`1px solid ${P.border}`, fontSize:10, textTransform:'uppercase',
+                        letterSpacing:'0.08em', background:P.surface2, whiteSpace:'nowrap' }}>{h}</th>
                     ))}</tr></thead>
                     <tbody>
                       {leads.filter(l=>{ const q=leadSearch.toLowerCase(); return !q||(l.nombre||'').toLowerCase().includes(q)||(l.empresa||'').toLowerCase().includes(q)||(l.email||'').toLowerCase().includes(q)||(l.whatsapp||'').includes(q); }).map((l,i)=>(
                         <tr key={i} className="row-hover" style={{ borderBottom:`1px solid ${P.border2}` }}>
-                          <td className="mono" style={{ padding:'8px 10px',color:P.textDim,fontSize:10,whiteSpace:'nowrap' }}>{fmtFechaHora(l.ts)}</td>
-                          <td style={{ padding:'8px 10px',color:P.text,fontWeight:500,whiteSpace:'nowrap' }}>{l.nombre}</td>
-                          <td style={{ padding:'8px 10px',color:P.textSub,whiteSpace:'nowrap' }}>{l.empresa}</td>
-                          <td style={{ padding:'8px 10px' }}><a href={`https://wa.me/52${(l.whatsapp||'').replace(/\D/g,'')}`} target="_blank" style={{ color:P.orange,fontFamily:T.mono,fontSize:11,textDecoration:'none',display:'flex',alignItems:'center',gap:4,whiteSpace:'nowrap' }}>📲 {l.whatsapp}</a></td>
-                          <td className="mono" style={{ padding:'8px 10px',color:P.textSub,fontSize:11,whiteSpace:'nowrap' }}>{l.email}</td>
-                          <td style={{ padding:'8px 10px' }}>{(l.productos||'').split(',').filter(Boolean).map((pr,j)=><Tag key={j} color={P.orange} size={9}>{pr.trim()}</Tag>)}{!(l.productos||'').trim()&&<span style={{ color:P.textDim,fontSize:10 }}>—</span>}</td>
+                          <td className="mono" style={{ padding:'9px 11px', color:P.textDim, fontSize:10, whiteSpace:'nowrap' }}>{fmtFechaHora(l.ts)}</td>
+                          <td style={{ padding:'9px 11px', color:P.text, fontWeight:600, whiteSpace:'nowrap' }}>{l.nombre}</td>
+                          <td style={{ padding:'9px 11px', color:P.textSub, whiteSpace:'nowrap' }}>{l.empresa}</td>
+                          <td style={{ padding:'9px 11px' }}>
+                            <a href={`https://wa.me/52${(l.whatsapp||'').replace(/\D/g,'')}`} target="_blank"
+                              style={{ color:P.orange, fontFamily:T.mono, fontSize:11, textDecoration:'none',
+                                display:'flex', alignItems:'center', gap:5, whiteSpace:'nowrap',
+                                fontWeight:600 }}>
+                              📲 {l.whatsapp}
+                            </a>
+                          </td>
+                          <td className="mono" style={{ padding:'9px 11px', color:P.textSub, fontSize:11, whiteSpace:'nowrap' }}>{l.email}</td>
+                          <td style={{ padding:'9px 11px' }}>
+                            {(l.productos||'').split(',').filter(Boolean).map((pr,j)=><Tag key={j} color={P.orange} size={9}>{pr.trim()}</Tag>)}
+                            {!(l.productos||'').trim()&&<span style={{ color:P.textDim, fontSize:10 }}>—</span>}
+                          </td>
+                          <td style={{ padding:'9px 11px' }}>
+                            {l.comentarios
+                              ? <div title={l.comentarios} style={{ display:'inline-flex', alignItems:'center', gap:4, background:'rgba(251,103,11,0.1)', border:'1px solid rgba(251,103,11,0.3)', borderRadius:6, padding:'3px 7px', cursor:'default' }}>
+                                  <span style={{ fontSize:10 }}>💬</span>
+                                  <span style={{ fontSize:9, color:'#FB670B', fontWeight:600, maxWidth:100, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', display:'inline-block' }}>{l.comentarios.slice(0,40)}{l.comentarios.length>40?'…':''}</span>
+                                </div>
+                              : <span style={{ color:'rgba(236,235,224,0.20)', fontSize:10 }}>—</span>
+                            }
+                          </td>
                         </tr>
                       ))}
-                      {!leads.length&&!leadsLoad&&<tr><td colSpan={6} style={{ color:P.textDim,textAlign:'center',padding:40,fontSize:12 }}>Sin solicitudes registradas</td></tr>}
+                      {!leads.length&&!leadsLoad&&<tr><td colSpan={7} style={{ color:P.textDim, textAlign:'center', padding:44, fontSize:12 }}>Sin solicitudes registradas</td></tr>}
                     </tbody>
                   </table>
                 </div>
@@ -1133,38 +2043,60 @@ function Dash({ onClose, role }) {
           </div>
         )}
 
-        {/* RECRUITMENT */}
-        {tab==='recruitment'&&canSee('recruitment')&&<div className="tab-content" key="rc"><RecruitmentTab canDelete={isOnlyAdmin}/></div>}
+        {/* ── RECRUITMENT ── */}
+        {tab==='recruitment'&&canSee('recruitment')&&(
+          <div className="tab-content" key="rc"><RecruitmentTab canDelete={isOnlyAdmin || role.name === 'RH'} theme={theme}/></div>
+        )}
 
-        {/* AI */}
+        {/* ── AI ── */}
         {!loading&&data&&tab==='ai'&&canSee('ai')&&(
           <div className="tab-content" key="ai">
             <div className="card-hover" style={CARD}>
               <CardTopBar/>
-              <p style={ST}>Análisis Inteligente · BotGO</p>
-              <p style={{ color:P.textDim,fontSize:12,marginBottom:16,lineHeight:1.7,maxWidth:520 }}>Genera un resumen ejecutivo con patrones de comportamiento, productos destacados y recomendaciones comerciales.</p>
+              <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:16 }}>
+                <div style={{ width:38, height:38, borderRadius:10, background:P.okDim,
+                  border:`1px solid ${P.orange}28`, display:'flex', alignItems:'center', justifyContent:'center',
+                  boxShadow:`0 0 16px ${P.orange}20` }}>
+                  <span style={{ color:P.orange, fontSize:16 }}>✦</span>
+                </div>
+                <div>
+                  <p style={{ ...ST, marginBottom:2 }}>Análisis Inteligente · BotGO</p>
+                  <p style={{ color:P.textDim, fontSize:11, margin:0, lineHeight:1.5 }}>Resumen ejecutivo con patrones de comportamiento y recomendaciones comerciales.</p>
+                </div>
+              </div>
               <button onClick={doAI} disabled={genAI} className="btn-base"
-                style={{ background:genAI?'rgba(236,235,224,0.04)':P.orange,color:genAI?P.textDim:'#fff',border:'none',borderRadius:8,padding:'10px 22px',fontSize:12,fontWeight:600,cursor:genAI?'not-allowed':'pointer',display:'flex',alignItems:'center',gap:8,boxShadow:!genAI?`0 4px 14px ${P.orange}30`:'none' }}>
-                {genAI?<><div style={{ width:12,height:12,borderRadius:'50%',border:'1.5px solid rgba(255,255,255,0.2)',borderTop:'1.5px solid #fff',animation:'spin 0.65s linear infinite' }}/>Analizando...</>:<>✦ Generar análisis</>}
+                style={{ background:genAI?P.surface3:P.orange,
+                  color:genAI?P.textDim:'#fff', border:'none', borderRadius:9,
+                  padding:'11px 24px', fontSize:12, fontWeight:600,
+                  cursor:genAI?'not-allowed':'pointer',
+                  display:'flex', alignItems:'center', gap:8,
+                  boxShadow:!genAI?`0 4px 18px ${P.orange}38`:'none' }}>
+                {genAI
+                  ? <><div style={{ width:12,height:12,borderRadius:'50%',border:'2px solid rgba(255,255,255,0.2)',borderTop:'2px solid #fff',animation:'spin 0.65s linear infinite' }}/>Analizando...</>
+                  : <>✦ Generar análisis</>}
               </button>
               {summary&&(
-                <div style={{ marginTop:16,padding:'16px 18px',background:P.surface2,border:`1px solid ${P.border}`,borderLeft:`2px solid ${P.orange}`,borderRadius:8 }}>
-                  <div style={{ display:'flex',alignItems:'center',gap:8,marginBottom:10 }}>
+                <div style={{ marginTop:18, padding:'18px 20px',
+                  background:`linear-gradient(135deg,${P.surface2},${P.surface3})`,
+                  border:`1px solid ${P.orange}30`, borderLeft:`3px solid ${P.orange}`,
+                  borderRadius:10, boxShadow:`0 4px 24px rgba(0,0,0,0.4), 0 0 32px ${P.orange}08` }}>
+                  <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:12 }}>
                     <Dot active color={P.orange}/>
-                    <span style={{ color:P.textDim,fontSize:10,fontWeight:500,textTransform:'uppercase',letterSpacing:'0.07em' }}>Resumen ejecutivo · {periodLabel}</span>
+                    <span style={{ color:P.textDim, fontSize:10, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.08em' }}>Resumen ejecutivo · {periodLabel}</span>
                   </div>
-                  <p style={{ color:P.text,fontSize:13,lineHeight:1.75,whiteSpace:'pre-wrap' }}>{summary}</p>
+                  <p style={{ color:P.text, fontSize:13, lineHeight:1.80, whiteSpace:'pre-wrap' }}>{summary}</p>
                 </div>
               )}
-              <div style={{ height:1,background:P.border,margin:'18px 0' }}/>
-              <p style={{ ...ST,marginBottom:10 }}>Últimas 20 consultas</p>
-              <div style={{ display:'flex',flexDirection:'column',gap:4 }}>
+              <div style={{ height:1, background:`linear-gradient(90deg,${P.border},transparent)`, margin:'20px 0' }}/>
+              <p style={{ ...ST, marginBottom:12 }}>Últimas 20 consultas</p>
+              <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
                 {(data.lastMessages||[]).slice(-20).reverse().map((m,i)=>{
                   const iColor={compra:P.orange,pdf:P.grayLight}, color=iColor[m.intent]||P.border;
                   return (
-                    <div key={i} style={{ padding:'8px 10px',background:P.surface2,borderRadius:6,border:`1px solid ${P.border}`,display:'flex',gap:8,alignItems:'center' }}>
-                      <span className="mono" style={{ color:P.textDim,fontSize:9,flexShrink:0 }}>{fmtFecha(m.ts)}</span>
-                      <span style={{ color:P.text,fontSize:12,flex:1,wordBreak:'break-word',minWidth:0 }}>{m.user}</span>
+                    <div key={i} style={{ padding:'9px 12px', background:P.surface2, borderRadius:7,
+                      border:`1px solid ${P.border}`, display:'flex', gap:9, alignItems:'center' }}>
+                      <span className="mono" style={{ color:P.textDim, fontSize:9, flexShrink:0 }}>{fmtFecha(m.ts)}</span>
+                      <span style={{ color:P.text, fontSize:12, flex:1, wordBreak:'break-word', minWidth:0 }}>{m.user}</span>
                       <Tag color={color} size={9}>{m.intent||'otro'}</Tag>
                     </div>
                   );
@@ -1174,16 +2106,160 @@ function Dash({ onClose, role }) {
           </div>
         )}
 
-        {/* USERS */}
-        {tab==='users'&&canSee('users')&&<div className="tab-content" key="us"><UsersTab/></div>}
+        {/* ── REPORTES ── */}
+        {tab==='reportes'&&canSeeReportes&&(
+          <div className="tab-content" key="rep" style={{ display:'flex', flexDirection:'column', gap:16 }}>
+            {/* Header con selector de período incrustado */}
+            <div style={{ background:P.surface, border:`1px solid ${P.border}`,
+              borderRadius:12, borderLeft:`3px solid ${P.orange}`,
+              boxShadow:`0 2px 16px rgba(0,0,0,0.35)`, overflow:'hidden' }}>
+              <div style={{ display:'flex', alignItems:'center', gap:13, padding:'16px 20px' }}>
+                <div style={{ width:36, height:36, borderRadius:9, background:P.okDim,
+                  border:`1px solid ${P.orange}28`, display:'flex', alignItems:'center', justifyContent:'center',
+                  flexShrink:0, boxShadow:`0 0 14px ${P.orange}20` }}>
+                  <span style={{ color:P.orange }}>{Icons.file}</span>
+                </div>
+                <div>
+                  <div style={{ fontWeight:700, fontSize:14, color:P.text, letterSpacing:'-0.02em' }}>Reportes PDF</div>
+                  <div style={{ fontSize:11, color:P.textDim, marginTop:2 }}>
+                    Período activo: <span style={{ color:P.orange, fontWeight:700 }}>{periodLabel}</span>
+                  </div>
+                </div>
+              </div>
+              {/* Selector de período directo en reportes */}
+              <div style={{ padding:'0 20px 16px', borderTop:`1px solid ${P.border2}`, paddingTop:12 }}>
+                <div style={{ fontSize:10, color:P.textDim, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:8 }}>Seleccionar período para los reportes</div>
+                <PeriodSelector activeId={activePresetId} onSelect={handlePresetSelect} customFrom={customFrom} customTo={customTo} setCustomFrom={setCustomFrom} setCustomTo={setCustomTo} onApplyCustom={handleApplyCustom}/>
+              </div>
+            </div>
+
+            {/* Report cards — 4 en una sola fila */}
+            <div style={{ display:'grid', gridTemplateColumns:isMobile?'1fr 1fr':'repeat(4,1fr)', gap:10 }}>
+              {[
+                { type:'resumen',       label:'Resumen',        desc:'Vista ejecutiva · 1 página completa', icon:Icons.bar,     accent:'#A855F7' },
+                { type:'general',       label:'General',        desc:'Analytics · Distrib. · RH',           icon:Icons.bar,     accent:P.orange },
+                { type:'distribuidor',  label:'Distribuidores', desc:'Red de distribución · solicitudes',   icon:Icons.truck,   accent:'#0077CC' },
+                { type:'reclutamiento', label:'Reclutamiento',  desc:'Candidatos · pipeline de talento',    icon:Icons.recruit, accent:'#22C55E' },
+              ].map(rt=>(
+                <div key={rt.type}
+                  style={{ background:P.surface, border:`1px solid ${P.border}`,
+                    borderRadius:12, padding:'14px 14px 16px',
+                    display:'flex', flexDirection:'column', gap:10,
+                    position:'relative', overflow:'hidden',
+                    boxShadow:`0 2px 12px rgba(0,0,0,0.35)`,
+                    transition:'transform 0.14s ease, box-shadow 0.14s ease' }}
+                  onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-2px)';e.currentTarget.style.boxShadow=`0 8px 28px rgba(0,0,0,0.50), 0 0 0 1px ${rt.accent}30`;}}
+                  onMouseLeave={e=>{e.currentTarget.style.transform='none';e.currentTarget.style.boxShadow='0 2px 12px rgba(0,0,0,0.35)';}}>
+                  <div style={{ position:'absolute', top:0, left:0, right:0, height:2.5,
+                    background:`linear-gradient(90deg,${rt.accent},${rt.accent}50,transparent)` }}/>
+                  <div style={{ display:'flex', alignItems:'center', gap:9 }}>
+                    <div style={{ width:30, height:30, borderRadius:7, background:`${rt.accent}14`,
+                      border:`1px solid ${rt.accent}25`, display:'flex', alignItems:'center', justifyContent:'center',
+                      flexShrink:0, color:rt.accent }}>
+                      {rt.icon}
+                    </div>
+                    <div style={{ minWidth:0 }}>
+                      <div style={{ fontWeight:700, fontSize:12.5, color:P.text, letterSpacing:'-0.01em', whiteSpace:'nowrap' }}>{rt.label}</div>
+                      <div style={{ fontSize:9.5, color:P.textDim, lineHeight:1.4, marginTop:1, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{rt.desc}</div>
+                    </div>
+                  </div>
+                  <DownloadReportButton
+                    data={data}
+                    periodMeta={{ preset:activePresetId, from:activePeriod?.from, to:activePeriod?.to }}
+                    reportType={rt.type}
+                    style={{ fontSize:10.5, padding:'8px 12px', width:'100%', justifyContent:'center' }}
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Notificaciones de nuevos candidatos */}
+            <NotifyConfigSection theme={theme} P={P}/>
+
+            {/* Scheduler */}
+            <div style={{ background:P.surface, border:`1px solid ${P.border}`,
+              borderRadius:12, padding:'18px 20px', position:'relative', overflow:'hidden',
+              boxShadow:`0 2px 16px rgba(0,0,0,0.35)` }}>
+              <div style={{ position:'absolute', top:0, left:0, right:0, height:2.5,
+                background:`linear-gradient(90deg,${P.orange},${P.orangeWarm},transparent)`, opacity:0.55 }}/>
+              <ReportScheduler theme={theme}/>
+            </div>
+          </div>
+        )}
+
+        {/* ── USERS ── */}
+        {tab==='users'&&canSee('users')&&(
+          <div className="tab-content" key="us"><UsersTab/></div>
+        )}
+              {/* ── VACANTES ── */}
+        {tab==='vacantes'&&canSee('vacantes')&&(
+          <div className="tab-content" key="vac">
+            <VacantesTab theme={theme}/>
+          </div>
+        )}
       </div>
+     
     </div>
   );
 }
 
 // ── MAIN EXPORT ───────────────────────────────────────────────────────────────
 export default function AdminPanel() {
-const [visible,setVisible]=useState(false), [role,setRole]=useState(null);
+  
+  const [visible,setVisible]=useState(false), [role,setRole]=useState(null);
+
+  // Lee el tema del sistema del sitio (mismo key que el navbar: 'theme')
+  const [theme, setTheme] = useState(() => {
+    try {
+      const stored = localStorage.getItem('theme');
+      if (stored === 'dark' || stored === 'light') return stored;
+      return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+    } catch { return 'dark'; }
+  });
+
+  const palette = theme === 'dark' ? DARK_P : LIGHT_P;
+
+  // Aplica el tema al <html> y sincroniza con el navbar del sitio
+  const applyTheme = useCallback((next) => {
+    try {
+      localStorage.setItem('theme', next);
+      if (next === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+      document.documentElement.setAttribute('data-theme', next);
+      // Sincroniza los checkboxes del navbar visualmente
+      document.querySelectorAll('.js-theme-toggle').forEach(el => {
+        if (el instanceof HTMLInputElement) el.checked = next === 'dark';
+      });
+    } catch {}
+  }, []);
+
+  const toggleTheme = useCallback(() => {
+    setTheme(t => {
+      const next = t === 'dark' ? 'light' : 'dark';
+      applyTheme(next);
+      return next;
+    });
+  }, [applyTheme]);
+
+  // Escucha cambios del navbar (MutationObserver en html.classList)
+  useEffect(() => {
+    const obs = new MutationObserver(() => {
+      const isDark = document.documentElement.classList.contains('dark');
+      const next = isDark ? 'dark' : 'light';
+      setTheme(next);
+      document.documentElement.setAttribute('data-theme', next);
+    });
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => obs.disconnect();
+  }, []);
+
+  // Aplica data-theme inicial
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
 
   useEffect(()=>{
     const fn=e=>{
@@ -1195,20 +2271,24 @@ const [visible,setVisible]=useState(false), [role,setRole]=useState(null);
   },[]);
 
   return (
-    <div className="aroot">
-      <style>{GLOBAL_CSS}</style>
-      {visible&&(
-        <div className="admin-overlay visible" onClick={e=>{ if(e.target===e.currentTarget){setVisible(false);setRole(null);} }}>
-          {!role
-            ? <div style={{ background:P.surface,border:`1px solid ${P.border}`,borderRadius:16,width:'94vw',maxWidth:390,
-                boxShadow:`0 40px 100px rgba(0,0,0,0.95), 0 0 0 1px ${P.orange}12`,
-                position:'relative',overflow:'hidden' }}>
-                <Login onLogin={r=>setRole(r)}/>
-              </div>
-            : <Dash onClose={()=>{setVisible(false);setRole(null);}} role={role}/>
-          }
-        </div>
-      )}
-    </div>
+    <PCtx.Provider value={palette}>
+      <div className="aroot" data-theme={theme}>
+        <style>{GLOBAL_CSS}</style>
+        {visible&&(
+          <div className="admin-overlay visible"
+            onClick={e=>{ if(e.target===e.currentTarget){setVisible(false);setRole(null);} }}>
+            {!role
+              ? <div style={{ background:palette.surface, border:`1px solid ${palette.border}`,
+                  borderRadius:18, width:'94vw', maxWidth:400,
+                  boxShadow:`0 48px 120px rgba(0,0,0,0.80), 0 0 0 1px ${palette.orange}18`,
+                  position:'relative', overflow:'hidden' }}>
+                  <Login onLogin={r=>setRole(r)}/>
+                </div>
+              : <Dash onClose={()=>{setVisible(false);setRole(null);}} role={role} theme={theme} toggleTheme={toggleTheme}/>
+            }
+          </div>
+        )}
+      </div>
+    </PCtx.Provider>
   );
 }
