@@ -3,6 +3,7 @@ import { cleanupOutdatedCaches, precacheAndRoute } from 'workbox-precaching';
 import { registerRoute } from 'workbox-routing';
 import { NetworkFirst } from 'workbox-strategies';
 
+// Activar inmediatamente sin esperar que se cierren otras pestañas
 self.skipWaiting();
 self.addEventListener('activate', e => e.waitUntil(clients.claim()));
 
@@ -17,7 +18,7 @@ registerRoute(
   })
 );
 
-// ── Push: mostrar notificación ─────────────────────────────────────────────
+// ── Push: mostrar notificación ────────────────────────────────────────────────
 self.addEventListener('push', (event) => {
   if (!event.data) return;
 
@@ -26,12 +27,12 @@ self.addEventListener('push', (event) => {
 
   event.waitUntil(
     self.registration.showNotification(data.title || 'Grupo Ortiz', {
-      body:     data.body  || 'Nueva vacante disponible — ¡Aplica ahora!',
-      icon:     '/pwa-192x192.png',      // cajón de notificaciones (con color)
-      badge:    '/pwa-monochrome.png',   // ✅ barra superior (blanco/transparente)
-      tag:      'vacante-go',
-      renotify: true,
-      data:     { url: data.url || '/es/vacantes' },
+      body:      data.body  || 'Nueva vacante disponible — ¡Aplica ahora!',
+      icon:      '/pwa-192x192.png',
+      badge:     '/badge-monocromo.png',
+      tag:       'vacante-go',
+      renotify:  true,
+      data:      { url: data.url || '/es/vacantes' },
       actions: [
         { action: 'ver',    title: 'Ver vacantes' },
         { action: 'cerrar', title: 'Cerrar'       },
@@ -40,7 +41,7 @@ self.addEventListener('push', (event) => {
   );
 });
 
-// ── Clic en notificación: abrir la página ──────────────────────────────────
+// ── Clic en notificación: abrir la página ─────────────────────────────────────
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   if (event.action === 'cerrar') return;
@@ -49,9 +50,10 @@ self.addEventListener('notificationclick', (event) => {
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((wins) => {
-      const match = wins.find(w => w.url.includes(url));
-      if (match && 'focus' in match) return match.focus(); // ya estaba abierta
-      return clients.openWindow(url);                      // abrir nueva pestaña
+      for (const w of wins) {
+        if ('focus' in w) return w.focus();
+      }
+      return clients.openWindow(url);
     })
   );
 });
