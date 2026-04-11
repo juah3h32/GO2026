@@ -20,15 +20,13 @@
 }
 
 /* =========================================================================
-   HERO — patrón IDÉNTICO al home.css (.hero--static)
+   HERO — mismo patrón que home.css
    ========================================================================= */
-
-/* 1. El contenedor del hero — igual que .hero--static en home.css */
 .vac-hero {
   position       : relative;
   width          : 100%;
-  height         : 100vh;
-  height         : 100svh;   /* svh gana — estable al hacer scroll */
+  height         : 100svh;        /* ← svh estable, no cambia al hacer scroll */
+  min-height     : 100svh;        /* ← reserva el espacio antes de que cargue el video */
   overflow       : hidden;
   display        : flex;
   flex-direction : column;
@@ -36,17 +34,17 @@
   background     : #0d0d0d;
 }
 
-/* 2. Wrapper del video — igual que .hero__video-wrap en home.css
-      SIN contain, SIN will-change — el home no los usa y funciona */
+/* Wrapper absoluto para el video — aísla el CldVideoPlayer del flex layout */
 .vac-hero__video-wrap {
   position      : absolute;
   inset         : 0;
   z-index       : 0;
   overflow      : hidden;
   pointer-events: none;
+  contain       : strict;    /* ← aísla el video del layout exterior */
 }
-
-/* 3. Todos los wrappers intermedios de Cloudinary — igual que home.css */
+/* Fuerza todos los wrappers intermedios (astro-cloudinary + video.js + cld-video-player)
+   a ocupar el 100% del contenedor sin restricción de aspect-ratio */
 .vac-hero__video-wrap *:not(video):not(source) {
   position    : absolute !important;
   inset       : 0 !important;
@@ -56,8 +54,7 @@
   max-width   : none !important;
   max-height  : none !important;
 }
-
-/* 4. El video nativo — igual que .hero__video--fill en home.css */
+/* El video nativo — object-fit:cover para que llene sin distorsionar */
 .vac-hero__video-wrap video {
   position       : absolute !important;
   inset          : 0 !important;
@@ -67,27 +64,22 @@
   object-position: center;
   pointer-events : none;
   border         : none;
-  background     : transparent;
-  opacity        : 1;
-  transition     : opacity 0.6s ease;
 }
 
-/* 5. Overlay degradado — igual que .hero__gradient-overlay en home.css */
+/* Overlay degradado */
 .vac-hero__veil {
-  position      : absolute;
-  inset         : 0;
-  z-index       : 1;
-  background    :
+  position  : absolute;
+  inset     : 0;
+  z-index   : 1;
+  background:
     radial-gradient(ellipse at center 60%, rgba(0,0,0,0.20) 0%, rgba(0,0,0,0.72) 80%),
     linear-gradient(to bottom, rgba(0,0,0,0.52) 0%, rgba(0,0,0,0.38) 50%, rgba(0,0,0,0.76) 100%);
   pointer-events: none;
 }
 
-/* 6. Contenido — igual que .hero--static .hero__content en home.css
-      SIN transition, SIN will-change, SIN contain — esa es la clave */
+/* Contenido sobre el vídeo — estático, sin animación */
 .vac-hero__content {
-  position      : absolute;
-  inset         : 0;
+  position      : relative;
   z-index       : 2;
   width         : 100%;
   max-width     : var(--vac-max);
@@ -95,12 +87,10 @@
   padding       : clamp(40px,5vh,70px) var(--vac-pad) clamp(40px,5vh,70px);
   display       : flex;
   flex-direction: column;
-  justify-content: center;
   opacity       : 1;
   transform     : none;
-  transition    : none;        /* ← igual que home--static: sin transición */
-  will-change   : auto;        /* ← igual que home--static: sin GPU layer forzado */
-  pointer-events: auto;
+  will-change   : transform;        /* ← compositor layer propio, no se mueve */
+  contain       : layout style;     /* ← evita que cambios externos lo afecten */
 }
 
 /* Eyebrow — punto pulsante + texto */
@@ -138,7 +128,7 @@
   background: var(--clr-accent);
 }
 
-/* Título hero */
+/* Título hero — usa la variable tipográfica display */
 .vac-hero__title {
   font-family   : var(--font-display);
   font-weight   : 800;
@@ -189,7 +179,6 @@
   background  : rgba(255,255,255,0.05);
   border      : 1px solid rgba(255,255,255,0.10);
   backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
   text-align  : center;
   transition  : background 0.3s ease, border-color 0.3s ease;
 }
@@ -225,10 +214,14 @@
 /* =========================================================================
    SECCIÓN GENÉRICA
    ========================================================================= */
+
+/* Offset para que los anclas no queden tapados por el navbar fijo */
 #vacantes,
 #como-aplicar {
   scroll-margin-top: calc(var(--header-height, 80px) + 20px);
 }
+
+/* El CTA final ya tiene su propio padding — la sección no necesita espacio extra abajo */
 #vacantes {
   padding-bottom: 0;
 }
@@ -255,18 +248,21 @@
   margin-bottom : clamp(40px, 6vw, 72px);
 }
 
-/* ── Sticky vacantes header ── */
+/* ── Sticky vacantes header (activado al expandir) ── */
 #vacantes-header.is-sticky {
   position      : sticky;
   top           : var(--header-height, 80px);
   z-index       : 500;
   background    : var(--clr-surface);
+  /* Stretch full-width dentro del section */
   margin-left   : calc(-1 * var(--vac-pad));
   margin-right  : calc(-1 * var(--vac-pad));
   padding       : 22px var(--vac-pad) 20px;
   margin-bottom : 0;
+  /* Línea inferior sutil */
   border-bottom : 1px solid var(--clr-border);
 }
+/* Gradiente "cortina" que se come las cards al subir */
 #vacantes-header.is-sticky::after {
   content     : '';
   position    : absolute;
@@ -276,7 +272,7 @@
   height      : 56px;
   background  : linear-gradient(to bottom, var(--clr-surface) 0%, transparent 100%);
   pointer-events: none;
-  z-index     : 1;
+  z-index     : 1;          /* encima de las cards */
 }
 
 /* =========================================================================
@@ -295,6 +291,7 @@
   padding      : 28px 24px;
   transition   : box-shadow 0.2s ease, transform 0.2s ease;
 }
+/* Solo en dispositivos con ratón real — evita que el press en móvil haga escalar la card */
 @media (hover: hover) and (pointer: fine) {
   .vac-benefit-card:hover {
     box-shadow: 0 8px 30px rgba(0,0,0,0.08);
@@ -338,6 +335,7 @@
   gap                  : 18px;
 }
 
+/* ── Tarjeta ── */
 .vac-position-card {
   background    : var(--clr-surface, #fff);
   border        : 1px solid var(--clr-border);
@@ -352,6 +350,7 @@
   transition    : border-color 0.22s ease, box-shadow 0.22s ease, transform 0.22s ease;
   box-shadow    : 0 1px 4px rgba(0,0,0,0.06);
 }
+/* Franja de acento superior — se ilumina al hover */
 .vac-position-card::before {
   content   : '';
   position  : absolute;
@@ -372,6 +371,7 @@
   .vac-position-card:hover .vac-position-cta-arrow { transform: translateX(4px); }
 }
 
+/* ── Cuerpo ── */
 .vac-position-body {
   padding       : 24px 24px 16px;
   flex          : 1;
@@ -380,6 +380,7 @@
   gap           : 0;
 }
 
+/* ── Fila superior: área + badge activa ── */
 .vac-position-top {
   display        : flex;
   align-items    : center;
@@ -388,6 +389,7 @@
   margin-bottom  : 14px;
 }
 
+/* ÁREA — pill naranja subtle */
 .vac-position-area {
   font-family   : var(--font-body);
   font-size     : 10px;
@@ -401,6 +403,7 @@
   border-radius : 100px;
 }
 
+/* TÍTULO */
 .vac-position-title {
   font-family  : var(--font-body);
   font-size    : clamp(1.05rem, 2.2vw, 1.28rem);
@@ -413,6 +416,7 @@
   margin-bottom: 7px;
 }
 
+/* Empresa + ubicación */
 .vac-position-meta {
   display      : flex;
   align-items  : center;
@@ -431,6 +435,7 @@
   flex-shrink: 0;
 }
 
+/* Badge ACTIVA */
 .vac-position-badge {
   flex-shrink   : 0;
   display       : inline-flex;
@@ -466,6 +471,7 @@ html.dark .vac-position-badge::before { background: #22c55e; }
   50%     { opacity:0.45; }
 }
 
+/* ── Salario destacado ── */
 .vac-position-salary {
   display      : inline-flex;
   align-items  : center;
@@ -481,6 +487,7 @@ html.dark .vac-position-badge::before { background: #22c55e; }
 }
 html.dark .vac-position-salary { background: rgba(34,197,94,0.08); color: #22c55e; border-color: rgba(34,197,94,0.18); }
 
+/* Tags de detalle */
 .vac-position-tags {
   display  : flex;
   flex-wrap: wrap;
@@ -503,8 +510,10 @@ html.dark .vac-position-salary { background: rgba(34,197,94,0.08); color: #22c55
 }
 html.dark .vac-tag { background: rgba(255,255,255,0.04); }
 
+/* ── Espaciador entre body y CTA ── */
 .vac-position-spacer { flex: 1; min-height: 8px; }
 
+/* ── CTA — borde superior fino, texto + flecha ── */
 .vac-position-cta {
   display        : flex;
   align-items    : center;
@@ -583,6 +592,7 @@ html.dark .vac-tag { background: rgba(255,255,255,0.04); }
   background  : rgba(251,103,11,0.06);
 }
 
+/* Paso 01 — botón que abre el chatbot */
 .vac-step--bot {
   background  : none;
   border      : none;
@@ -645,7 +655,7 @@ html.dark .vac-tag { background: rgba(255,255,255,0.04); }
 }
 
 /* =========================================================================
-   SCROLL BOX
+   SCROLL BOX (desktop: caja con máscara que "se come" las cards)
    ========================================================================= */
 .vac-scroll-box {
   overflow-y      : auto;
@@ -668,13 +678,8 @@ html.dark .vac-tag { background: rgba(255,255,255,0.04); }
    ========================================================================= */
 @media (max-width: 768px) {
 
-  /* Hero — centrar contenido, igual que home en móvil */
-  .vac-hero {
-    height    : 100vh;
-    height    : 100svh;
-    min-height: 100svh;
-  }
-  .vac-hero__content  { align-items: center; text-align: center; justify-content: flex-end; padding-bottom: clamp(24px,4vh,48px); }
+  /* ── Hero: centrar contenido ── */
+  .vac-hero__content  { align-items: center; text-align: center; }
   .vac-hero__eyebrow  { justify-content: center; }
   .vac-hero__sub      { text-align: center; margin-left: auto; margin-right: auto; }
   .vac-hero__ctas     { justify-content: center; flex-direction: column; width: 100%; }
@@ -694,7 +699,7 @@ html.dark .vac-tag { background: rgba(255,255,255,0.04); }
   .vac-hero__stat-num { font-size: clamp(1.4rem, 5.5vw, 2rem); }
   .vac-hero__stat-lbl { font-size: 8px; }
 
-  /* Beneficios: carrusel horizontal */
+  /* ── Beneficios: carrusel horizontal ── */
   .vac-benefits-grid {
     display                  : flex;
     flex-wrap                : nowrap;
@@ -702,12 +707,14 @@ html.dark .vac-tag { background: rgba(255,255,255,0.04); }
     -webkit-overflow-scrolling: touch;
     scroll-snap-type         : x mandatory;
     gap                      : 14px;
+    /* La sección ya tiene --vac-pad de espacio lateral — no se necesitan márgenes negativos */
     padding-bottom: 12px;
-    padding-right : 20px;
+    padding-right : 20px;        /* espacio al final del carrusel */
     scrollbar-width: none;
   }
   .vac-benefits-grid::-webkit-scrollbar { display: none; }
   .vac-benefit-card {
+    /* 100vw - 2×padding(20px) - gap(14px) - peek(52px) ≈ 74vw */
     flex           : 0 0 74vw;
     max-width      : 290px;
     scroll-snap-align: start;
@@ -718,7 +725,7 @@ html.dark .vac-tag { background: rgba(255,255,255,0.04); }
     margin-right: auto;
   }
 
-  /* Vacantes: carrusel horizontal en móvil */
+  /* ── Vacantes: carrusel horizontal en móvil ── */
   .vac-positions-grid {
     display                  : flex;
     flex-wrap                : nowrap;
@@ -737,7 +744,7 @@ html.dark .vac-tag { background: rgba(255,255,255,0.04); }
     scroll-snap-align: start;
   }
 
-  /* Cancelar el scroll box vertical en móvil */
+  /* Cancelar el scroll box vertical en móvil — overflow-x visible para no recortar el carrusel */
   .vac-scroll-box {
     overflow       : visible;
     max-height     : none;
@@ -748,6 +755,7 @@ html.dark .vac-tag { background: rgba(255,255,255,0.04); }
     padding-bottom : 0;
   }
 
+  /* Ocultar botón "Ver más" en móvil */
   .vac-ver-mas-btn { display: none !important; }
 
   /* Steps */
@@ -755,4 +763,19 @@ html.dark .vac-tag { background: rgba(255,255,255,0.04); }
   .vac-steps-grid         { grid-template-columns: 1fr; gap: 28px; }
   .vac-step               { flex-direction: row; text-align: left; gap: 16px; }
   .vac-step-num           { flex-shrink: 0; margin-bottom: 0; }
+}
+/* Replica exacta del patrón que funciona en home.css */
+.vac-hero .hero__video--fill,
+.vac-hero .hero__video--fill video {
+  position      : absolute !important;
+  inset         : 0;
+  width         : 100% !important;
+  height        : 100% !important;
+  object-fit    : cover !important;
+  object-position: center;
+  z-index       : 0;
+  pointer-events: none;
+  border        : none;
+  background    : transparent;
+  opacity       : 1;
 }
