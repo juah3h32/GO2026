@@ -125,8 +125,11 @@ if (!isMobile) return;
     if (alreadySaw) {
       setState('icon');
     } else {
-      setState('notification');
-      startAutoDismiss();
+      // El bot (MobilePill) termina de desaparecer a los 4300ms — esperamos 5s para no chocar
+      timeoutRef.current = setTimeout(() => {
+        setState('notification');
+        startAutoDismiss();
+      }, 5000);
     }
 
     if (isDev) return;

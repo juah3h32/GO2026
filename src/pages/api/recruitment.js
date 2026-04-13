@@ -9,6 +9,7 @@ import {
   addRecruiterNote,
   getRecruiterNotes,
   deleteRecruiterNote,
+  readVacantes,
 } from '../../lib/analytics-db.js';
 
 export const prerender = false;
@@ -194,6 +195,12 @@ export async function POST({ request }) {
       if (!noteId) return json({ ok: false, error: 'noteId requerido' }, 400);
       await deleteRecruiterNote(noteId);
       return json({ ok: true });
+    }
+
+    // ── list-vacantes ─────────────────────────────────────────────────────
+    if (action === 'list-vacantes') {
+      const vacantes = await readVacantes(true); // solo activas
+      return json({ ok: true, vacantes });
     }
 
     return json({ ok: false, error: 'Acción desconocida.' }, 400);

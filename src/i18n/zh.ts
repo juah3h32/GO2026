@@ -993,19 +993,35 @@ export const zh = {
     }
   },
 
-  // =================================================
-  // 页脚
-  // =================================================
-  footer: {
-    about_us:         "关于我们",
-    about:            "关于",
-    social_impact:    "社会影响",
-    customer_service: "客户服务",
-    be_distributor:   "成为经销商",
-    catalog:          "目录",
-    cta_button:       "我想成为经销商",
-    rights:           "保留所有权利。"
-  },
+// =================================================
+// FOOTER
+// =================================================
+footer: {
+  about_us:         "關於我們",
+  about:            "公司簡介",
+  social_impact:    "社會影響",
+  customer_service: "客戶服務",
+  be_distributor:   "成為經銷商",
+  catalog:          "產品目錄",
+  cta_button:       "我想成為經銷商",
+  rights:           "版權所有。",
+
+  // 聯絡資訊 — 墨西哥
+  region_mexico:    "墨西哥",
+  email:            "atencionacliente@grupo-ortiz.com",
+  phone_mx:         "+52 (443) 207-2593",
+
+  // 聯絡資訊 — 美國
+  region_usa:       "美國",
+  phone_us:         "+1 (210) 429-3789",
+
+  // 美國地址
+  label_warehouse:  "倉庫",
+  address_warehouse: "20915 Wilderness Oak, San Antonio TX 78258",
+
+  label_office:     "辦公室",
+  address_office:   "San Antonio, TX 78258",
+},
 
   // =================================================
   // 页面：社会影响

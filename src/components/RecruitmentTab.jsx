@@ -343,7 +343,8 @@ function CandidateCard({ candidate, onStatusChange, onDelete, expanded, onToggle
   const recent  = isNew || isRecent(candidate?.created_at || candidate?.ts);
   const sm      = getStatusMap(C)[currentStatus] || getStatusMap(C).nuevo;
 
-  const esEspera = candidate?.en_lista_espera === 1 || candidate?.en_lista_espera === true;
+  const esEspera   = candidate?.en_lista_espera === 1 || candidate?.en_lista_espera === true;
+  const esPrioridad = candidate?.prioridad === 1 || candidate?.prioridad === true;
 
   if (!candidate) return null; // Si por alguna razón no hay objeto, no renderizamos nada
 
@@ -378,6 +379,11 @@ function CandidateCard({ candidate, onStatusChange, onDelete, expanded, onToggle
               {esEspera && (
                 <span style={{ display:'inline-flex', alignItems:'center', gap:4, padding:'1px 7px', borderRadius:10, fontSize:9, fontWeight:700, background:C.orangeDim, color:C.orange, border:`1px solid ${C.orange}28`, fontFamily:T.sans }}>
                   EN ESPERA
+                </span>
+              )}
+              {esPrioridad && (
+                <span style={{ display:'inline-flex', alignItems:'center', gap:3, padding:'2px 8px', borderRadius:10, fontSize:9, fontWeight:800, background:'rgba(234,179,8,0.15)', color:'#B45309', border:'1px solid rgba(234,179,8,0.4)', fontFamily:T.sans, letterSpacing:'0.05em' }}>
+                  ★ PRIORIDAD
                 </span>
               )}
             </div>
@@ -518,17 +524,24 @@ export default function RecruitmentTab({ canDelete = false, theme = 'dark' }) {
   const [lastUpdate, setLastUpdate] = useState(null);
   const [newIds,     setNewIds]     = useState(new Set());
   const [exporting,  setExporting]  = useState(null);
-  const [iaReporting,   setIaReporting]   = useState(false);
-  const [iaReportPuesto, setIaReportPuesto] = useState('');
+  const [iaReporting,    setIaReporting]   = useState(false);
+  const [iaReportPuesto, setIaReportPuesto] = useState(''); // legacy, no se usa
+  const [iaVacanteId,    setIaVacanteId]   = useState(''); // '' = todos, 'otro' = sin vacante, número = vacante específica
+  const [vacantes,       setVacantes]      = useState([]);
   const prevIdsRef  = useRef(new Set());
   const intervalRef = useRef(null);
 
   const load = useCallback(async (silent = false) => {
     if (silent) setRefreshing(true); else setLoading(true);
     try {
-      const r = await fetch('/api/recruitment', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'list' }) });
+      const [r, rv] = await Promise.all([
+        fetch('/api/recruitment', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'list' }) }),
+        fetch('/api/recruitment', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'list-vacantes' }) }),
+      ]);
       const j = await r.json();
       if (!j.ok) { console.error(j); return; }
+      const jv = await rv.json().catch(() => ({ ok: false }));
+      if (jv.ok && Array.isArray(jv.vacantes)) setVacantes(jv.vacantes);
       const incoming = j.candidates;
       if (silent && prevIdsRef.current.size > 0) {
         const fresh = incoming.filter(c => !prevIdsRef.current.has(c.id)).map(c => c.id);
@@ -556,13 +569,33 @@ export default function RecruitmentTab({ canDelete = false, theme = 'dark' }) {
   const STATUS_MAP = getStatusMap(C);
   const counts = Object.fromEntries(Object.keys(STATUS_MAP).map(k => [k, candidates.filter(c => getStatus(c) === k).length]));
 
+  // Coincidencia candidato ↔ vacante (igual que backend)
+  const matchVacante = (c, vac) => {
+    const p = (c.puesto || '').toLowerCase().trim();
+    const t = (vac.titulo || '').toLowerCase().trim();
+    const words = t.split(/\s+/).filter(w => w.length > 3);
+    return p && (t.includes(p) || p.includes(t) || words.some(w => p.includes(w)));
+  };
+
   const filtered = candidates.filter(c => {
     const esEsp = c.en_lista_espera === 1 || c.en_lista_espera === true;
+
+    // ── Filtro por vacante / lista de espera ──
+    if (iaVacanteId === 'otro') {
+      if (!esEsp) return false; // solo lista de espera
+    } else if (iaVacanteId) {
+      const vac = vacantes.find(v => String(v.id) === String(iaVacanteId));
+      if (!vac || !matchVacante(c, vac)) return false;
+    }
+
+    // ── Filtro por estatus ──
     const mf = filter === 'todos'
-      ? !esEsp                    // "Todos" no muestra a los de espera
+      ? !esEsp
       : filter === 'espera'
         ? esEsp
         : getStatus(c) === filter && !esEsp;
+
+    // ── Búsqueda de texto ──
     const q  = search.toLowerCase();
     const ms = !q || [c.nombre, c.email, c.telefono, c.puesto, c.edad, c.estado_rep, c.colonia, c.cv_nombre].some(v => (v||'').toLowerCase().includes(q));
     return mf && ms;
@@ -587,14 +620,22 @@ export default function RecruitmentTab({ canDelete = false, theme = 'dark' }) {
   const doReporteIA = async () => {
     setIaReporting(true);
     try {
+      // Construir label para nombre del archivo
+      let slug = '';
+      if (iaVacanteId === 'otro') {
+        slug = '_Sin_Vacante';
+      } else if (iaVacanteId) {
+        const vac = vacantes.find(v => String(v.id) === String(iaVacanteId));
+        if (vac) slug = `_${vac.titulo.replace(/\s+/g, '_')}`;
+      }
+
       const r = await fetch('/api/reports/recruitment-ia', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ format: 'pdf', puesto: iaReportPuesto }),
+        body:    JSON.stringify({ format: 'pdf', vacanteId: iaVacanteId || '' }),
       });
       if (!r.ok) {
         const txt = await r.text().catch(() => '');
-        // Si la respuesta es JSON con error, extraer mensaje
         try { const j = JSON.parse(txt); throw new Error(j.error || `HTTP ${r.status}`); } catch(pe) { if (pe.message !== txt) throw pe; }
         throw new Error(txt.replace(/<[^>]+>/g, '').slice(0, 200) || `HTTP ${r.status}`);
       }
@@ -602,8 +643,7 @@ export default function RecruitmentTab({ canDelete = false, theme = 'dark' }) {
       const url  = URL.createObjectURL(blob);
       const a    = document.createElement('a');
       a.href     = url;
-      const puestoSlug = iaReportPuesto ? `_${iaReportPuesto.replace(/\s+/g,'_')}` : '';
-      a.download = `Reporte_IA_Reclutamiento${puestoSlug}_${new Date().toISOString().split('T')[0]}.pdf`;
+      a.download = `Reporte_IA_Reclutamiento${slug}_${new Date().toISOString().split('T')[0]}.pdf`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -706,7 +746,14 @@ export default function RecruitmentTab({ canDelete = false, theme = 'dark' }) {
                   <div style={{ width:18, height:18, borderRadius:'50%', border:`2px solid ${C.purple}30`, borderTop:`2px solid ${C.purple}`, animation:'spin 0.8s linear infinite' }}/>
                   <span style={{ color:C.purple, fontSize:13, fontWeight:700, fontFamily:T.sans }}>Generando Reporte IA…</span>
                 </div>
-                <span style={{ color:C.textDim, fontSize:10.5, fontFamily:T.sans }}>{iaReportPuesto ? `Puesto: ${iaReportPuesto}` : 'Analizando todos los candidatos'} · leyendo CVs y calculando ranking</span>
+                <span style={{ color:C.textDim, fontSize:10.5, fontFamily:T.sans }}>
+                  {iaVacanteId === 'otro'
+                    ? 'Lista de espera'
+                    : iaVacanteId
+                      ? `Vacante: ${vacantes.find(v => String(v.id) === String(iaVacanteId))?.titulo || iaVacanteId}`
+                      : 'Todos los candidatos'
+                  } · leyendo CVs y calculando ranking
+                </span>
               </div>
               {/* Skeleton cards */}
               <div style={{ width:'100%', maxWidth:560, display:'flex', flexDirection:'column', gap:9, padding:'0 8px' }}>
@@ -730,8 +777,14 @@ export default function RecruitmentTab({ canDelete = false, theme = 'dark' }) {
           <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:14, flexWrap:'wrap', gap:10 }}>
             <div style={{ display:'flex', alignItems:'center', gap:10 }}>
               <span style={{ color:C.text, fontSize:13, fontWeight:600, fontFamily:T.sans, letterSpacing:'-0.02em' }}>
-                Candidatos
-                {filtered.length !== candidates.length && <span style={{ color:C.textDim, fontWeight:400, fontSize:11, marginLeft:6 }}>({filtered.length} de {candidates.length})</span>}
+                {iaVacanteId === 'otro'
+                  ? 'Lista de espera'
+                  : iaVacanteId
+                    ? (vacantes.find(v => String(v.id) === String(iaVacanteId))?.titulo || 'Candidatos')
+                    : 'Candidatos'}
+                <span style={{ color:C.textDim, fontWeight:400, fontSize:11, marginLeft:6 }}>
+                  ({filtered.length}{iaVacanteId ? '' : ` de ${candidates.length}`})
+                </span>
               </span>
               {refreshing && (
                 <div style={{ display:'flex', alignItems:'center', gap:5, color:C.textDim, fontSize:10, fontFamily:T.sans }}>
@@ -745,16 +798,21 @@ export default function RecruitmentTab({ canDelete = false, theme = 'dark' }) {
               {candidates.length > 0 && (<>
                 <IconBtn onClick={() => doExport('csv')} icon={Ic.csv} label={exporting==='csv' ? 'Exportando…' : 'CSV'} bg={C.greenDim} bgHover="rgba(34,197,94,0.16)" color={C.green} border={`1px solid ${C.green}28`} disabled={exporting==='csv'} />
                 <IconBtn onClick={() => doExport('excel')} icon={Ic.csv} label={exporting==='excel' ? 'Generando…' : 'Excel'} bg={C.blueDim} bgHover="rgba(59,130,246,0.16)" color={C.blue} border={`1px solid ${C.blue}28`} disabled={exporting==='excel'} />
-                {/* Dropdown de puesto para filtrar el reporte IA */}
+                {/* Dropdown de vacantes para filtrar el reporte IA */}
                 <select
-                  value={iaReportPuesto}
-                  onChange={e => setIaReportPuesto(e.target.value)}
+                  value={iaVacanteId}
+                  onChange={e => setIaVacanteId(e.target.value)}
                   disabled={iaReporting}
-                  style={{ height:28, padding:'0 8px', borderRadius:6, border:`1px solid ${C.purple}40`, background:C.purpleDim, color:C.purple, fontSize:10.5, fontFamily:T.sans, fontWeight:600, cursor:'pointer', outline:'none', maxWidth:130 }}
-                  title="Filtrar reporte IA por puesto"
+                  style={{ height:28, padding:'0 8px', borderRadius:6, border:`1px solid ${C.purple}40`, background:C.purpleDim, color:C.purple, fontSize:10.5, fontFamily:T.sans, fontWeight:600, cursor:'pointer', outline:'none', maxWidth:160 }}
+                  title="Filtrar reporte IA por vacante"
                 >
-                  <option value="">Todos los puestos</option>
-                  {puestosUnicos.map(p => <option key={p} value={p}>{p}</option>)}
+                  <option value="">General (todos)</option>
+                  {vacantes.map(v => (
+                    <option key={v.id} value={String(v.id)}>
+                      {v.titulo}{v.area ? ` · ${v.area}` : ''}
+                    </option>
+                  ))}
+                  <option value="otro">Lista de espera</option>
                 </select>
                 <IconBtn
                   onClick={doReporteIA}

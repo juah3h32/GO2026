@@ -1,5 +1,5 @@
 // src/pages/api/vacantes.js
-import { saveVacante, readVacantes, updateVacante, deleteVacante, toggleVacante, getConfig, setConfig, getListaEspera, markNotificadosVacante } from '../../lib/analytics-db.js';
+import { saveVacante, readVacantes, updateVacante, deleteVacante, toggleVacante, getConfig, setConfig, getListaEspera, markNotificadosVacante, asignarEsperaAVacante } from '../../lib/analytics-db.js';
 import { notifyEsperaVacante } from '../../lib/notify.js';
 import { sendPushToAll } from '../../lib/push.js';
 
@@ -39,13 +39,14 @@ export async function POST({ request }) {
       if (!titulo?.trim()) return json({ ok: false, error: 'El título es obligatorio.' }, 400);
       const result = await saveVacante({ titulo, area, tipo, ubicacion, horario, salario, descripcion, requisitos, activa, orden, multiples, empresa });
 
-      // Notificación push si la vacante se publica activa
+      // Notificación push + asignar candidatos en espera si se publica activa
       if (activa) {
         sendPushToAll({
           title: `Nueva vacante: ${titulo}`,
           body:  `Grupo Ortiz tiene una nueva oportunidad en ${area || 'Morelia'}. ¡Aplica ahora!`,
           url:   '/es/vacantes',
         }).catch(e => console.error('[push create]', e));
+        asignarEsperaAVacante(titulo).catch(e => console.error('[asignar espera create]', e));
       }
 
       return json({ ok: true, id: result.id });
@@ -58,13 +59,14 @@ export async function POST({ request }) {
       const prevList = await readVacantes(false);
       const prev = prevList.find(v => v.id === id);
       await updateVacante({ id, titulo, area, tipo, ubicacion, horario, salario, descripcion, requisitos, activa, orden, multiples, empresa });
-      // Enviar push solo si se está activando (antes estaba inactiva)
+      // Enviar push + asignar espera solo si se está activando (antes estaba inactiva)
       if (activa && prev && !prev.activa) {
         sendPushToAll({
           title: `Nueva vacante: ${titulo}`,
           body:  `Grupo Ortiz tiene una nueva oportunidad en ${area || 'Morelia'}. ¡Aplica ahora!`,
           url:   '/es/vacantes',
         }).catch(e => console.error('[push update]', e));
+        asignarEsperaAVacante(titulo).catch(e => console.error('[asignar espera update]', e));
       }
       return json({ ok: true });
     }
@@ -77,7 +79,7 @@ export async function POST({ request }) {
     if (action === 'toggle') {
       const { id, activa } = body;
       await toggleVacante(id, activa);
-      // Enviar push al activar una vacante existente
+      // Enviar push + asignar espera al activar una vacante existente
       if (activa) {
         const vacantes = await readVacantes(false);
         const v = vacantes.find(x => x.id === id);
@@ -87,6 +89,7 @@ export async function POST({ request }) {
             body:  `Grupo Ortiz tiene una nueva oportunidad en ${v.area || 'Morelia'}. ¡Aplica ahora!`,
             url:   '/es/vacantes',
           }).catch(e => console.error('[push toggle]', e));
+          asignarEsperaAVacante(v.titulo).catch(e => console.error('[asignar espera toggle]', e));
         }
       }
       return json({ ok: true });

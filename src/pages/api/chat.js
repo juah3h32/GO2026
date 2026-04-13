@@ -3,7 +3,7 @@
 import { MsEdgeTTS, OUTPUT_FORMAT } from "msedge-tts";
 import * as googleTTS from 'google-tts-api';
 import { Buffer } from 'node:buffer';
-import { logInteraction, saveRecruitmentLead, readVacantes, markNotificadosVacante } from '../../lib/analytics-db.js';
+import { logInteraction, saveRecruitmentLead, readVacantes, markNotificadosVacante, checkDuplicateByPhone, checkDuplicateByName, checkDuplicateByEmail } from '../../lib/analytics-db.js';
 import { notifyNewVacante, notifyEsperaVacante } from '../../lib/notify';
 
 export const prerender = false;
@@ -171,21 +171,22 @@ function matchVacanteSimilar(puestoUsuario, vacantes) {
 }
 
 // ─── System Prompt Dinámico ───────────────────────────────────────────────────
-function buildSystemPrompt(targetLang, puestoPreseleccionado = null, vacantesActivas = []) {
-  
-  // Si el usuario le dio clic a una vacante, saltamos el Paso 1
-  let paso1_y_2 = `
-PASO 1 → "¡Con gusto te ayudo! ¿A qué puesto te gustaría aplicar?"
-         Termina con: [ACCION:QUICK_REPLY:puesto]
-PASO 2 → "¡Excelente elección! Para comenzar, ¿cuál es tu nombre completo?"
-  `.trim();
+function buildSystemPrompt(targetLang, puestoPreseleccionado = null, vacantesActivas = [], nombreDetectado = null) {
 
+  // PASO 1: puesto — omitir si ya fue preseleccionado
+  let paso1 = `PASO 1 → "¡Con gusto te ayudo! ¿A qué puesto te gustaría aplicar?"
+         Termina con: [ACCION:QUICK_REPLY:puesto]`;
   if (puestoPreseleccionado) {
-    paso1_y_2 = `
-⚠️ EL USUARIO YA SELECCIONÓ EL PUESTO: "${puestoPreseleccionado}".
-OMITE EL PASO 1 (no le preguntes a qué puesto quiere aplicar).
-PASO 2 → INICIA LA CONVERSACIÓN DICIENDO: "¡Excelente elección para la vacante de ${puestoPreseleccionado}! Para comenzar tu registro, ¿cuál es tu nombre completo?"
-    `.trim();
+    paso1 = `⚠️ EL USUARIO YA SELECCIONÓ EL PUESTO: "${puestoPreseleccionado}". OMITE EL PASO 1 completamente.`;
+  }
+
+  // PASO 2: nombre — omitir si ya se detectó en la conversación
+  let paso2 = `PASO 2 → "¡Excelente! Para continuar tu registro, ¿cuál es tu nombre completo?"`;
+  if (puestoPreseleccionado && !nombreDetectado) {
+    paso2 = `PASO 2 → INICIA CON: "¡Excelente elección para la vacante de ${puestoPreseleccionado}! Para comenzar tu registro, ¿cuál es tu nombre completo?"`;
+  }
+  if (nombreDetectado) {
+    paso2 = `⚠️ EL USUARIO YA INDICÓ SU NOMBRE: "${nombreDetectado}". OMITE EL PASO 2 (ya conoces su nombre, úsalo directamente).`;
   }
 
   // Bloque de vacantes activas para inyectar en el prompt
@@ -288,13 +289,13 @@ Si el usuario menciona vacante, empleo, trabajo, CV, postularse, busco trabajo:
 
 Recopila UN DATO POR MENSAJE en este orden exacto:
 
-${paso1_y_2}
+${paso1}
+${paso2}
 PASO 3 → "¿Cuántos años tienes?"
 PASO 4 → "¿En qué estado de la República vives?"
-         Termina con: [ACCION:QUICK_REPLY:estado]
 PASO 5 → "¿Y tu colonia o municipio?"
 PASO 6 → "¿Cuál es tu correo electrónico?"
-PASO 7 → "¿Y tu número de WhatsApp?"
+PASO 7 → "¿Cuál es tu número de WhatsApp para que te contactemos?"
 PASO 8 → "¡Casi listo! ¿Tienes un CV para adjuntar?"
          Termina con: [ACCION:QUICK_REPLY:cv]
 PASO 9 → "¿Hay algo que quieras agregar sobre tu experiencia o perfil? (si no tienes nada, responde 'no')"
@@ -561,6 +562,67 @@ export async function POST({ request }) {
     const enFlujoReclutamiento   = detectarFlujoReclutamiento(cleanMessages) || !!puestoPreseleccionado;
     const intentoCotizar         = esIntencionCotizar(lastUserMsg, cleanMessages);
 
+    // ── Detectar nombre ya mencionado en la conversación ──────────────────
+    const datosHistorialPrevio = extraerDatosDeHistorial(cleanMessages);
+    const nombreDetectado = datosHistorialPrevio.nombre || null;
+
+     if (enFlujoReclutamiento) {
+      const mensajesBotRecientes = [...cleanMessages].reverse()
+        .filter(m => m.role === 'assistant').slice(0, 2);
+ 
+      const botPidioNombre = mensajesBotRecientes.some(m =>
+        /nombre completo|c[oó]mo te llamas|como te llamas|tu nombre|cu[aá]l es tu nombre/i.test(m.content || '')
+      );
+      const botPidioTelefono = mensajesBotRecientes.some(m =>
+        /whatsapp|tel[eé]fono|telefono|n[uú]mero|numero|celular/i.test(m.content || '')
+      );
+      const botPidioEmail = mensajesBotRecientes.some(m =>
+        /correo|email|e-mail|mail/i.test(m.content || '')
+      );
+ 
+      let existente = null;
+ 
+      // Verificar por NOMBRE (paso 2 — detección temprana)
+      if (!existente && botPidioNombre) {
+        const nombreRespuesta = lastUserMsg.trim();
+        if (nombreRespuesta.length >= 3 && !/^\d+$/.test(nombreRespuesta)) {
+          existente = await checkDuplicateByName(nombreRespuesta).catch(() => null);
+        }
+      }
+ 
+      // Verificar por EMAIL (paso 7)
+      if (!existente && botPidioEmail) {
+        const emailMatch = lastUserMsg.match(/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/);
+        if (emailMatch) {
+          existente = await checkDuplicateByEmail(emailMatch[0]).catch(() => null);
+        }
+      }
+ 
+      // Verificar por TELÉFONO (paso 3 — original)
+      if (!existente && botPidioTelefono) {
+        const telMatch = lastUserMsg.match(/[\d\s\+\-\(\)]{7,}/);
+        if (telMatch) {
+          const phone = telMatch[0].replace(/\D/g, '');
+          if (phone.length >= 7) {
+            existente = await checkDuplicateByPhone(phone).catch(() => null);
+          }
+        }
+      }
+ 
+      if (existente) {
+        const puestoExist = existente.puesto ? ` para el puesto de ${existente.puesto}` : '';
+        const msg = `Ya tenemos tu solicitud registrada${puestoExist}. Nuestro equipo de RH ya tiene tus datos y te contactará muy pronto. ¡Gracias por tu interés en Grupo Ortiz! 🌟`;
+        const audioUrl = isVoice ? await generarAudio(msg, langCode) : null;
+        return new Response(JSON.stringify({
+          reply: msg, audio: audioUrl,
+          accionWA: false, accionPDF: null, accionCV: false,
+          accionDistribuidor: false, accionReclutamiento: false,
+          enFlujoReclutamiento: true, candidatoId: null,
+          isDuplicate: true, quickReplies: null,
+        }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+      }
+    }
+
     // ── Cargar vacantes activas para el system prompt ──────────────────────
     let vacantesActivas = [];
     try { vacantesActivas = (await readVacantes(true)) || []; } catch { /* ignorar */ }
@@ -569,8 +631,7 @@ export async function POST({ request }) {
     const dataES = await fetchOpenAI(apiKey, {
       model: 'gpt-4o-mini',
       messages: [
-        // Pasamos el puesto detectado para que la IA altere su System Prompt y se salte el Paso 1
-        { role: 'system', content: buildSystemPrompt('Spanish', puestoPreseleccionado, vacantesActivas) },
+        { role: 'system', content: buildSystemPrompt('Spanish', puestoPreseleccionado, vacantesActivas, nombreDetectado) },
         ...cleanMessages,
       ],
       temperature: 0.65,

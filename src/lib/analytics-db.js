@@ -292,6 +292,7 @@ async function ensureRecruitmentTable() {
     `ALTER TABLE recruitment_leads ADD COLUMN comentarios       TEXT    DEFAULT ''`,
     `ALTER TABLE recruitment_leads ADD COLUMN en_lista_espera   INTEGER DEFAULT 0`,
     `ALTER TABLE recruitment_leads ADD COLUMN notificado_vacante INTEGER DEFAULT 0`,
+    `ALTER TABLE recruitment_leads ADD COLUMN prioridad          INTEGER DEFAULT 0`,
   ];
   for (const sql of migraciones) {
     try { await db.execute(sql); } catch { /* columna ya existe */ }
@@ -415,6 +416,49 @@ export async function saveRecruitmentLead({
   return { id };
 }
 
+// ── Verificación anticipada de duplicado por teléfono ────────────────────────
+export async function checkDuplicateByPhone(telefono) {
+  if (!telefono) return null;
+  const clean = String(telefono).replace(/\D/g, '');
+  if (clean.length < 7) return null;
+  const suffix = clean.slice(-10);
+  await ensureInit();
+  await ensureRecruitmentTable();
+  const { rows } = await db.execute({
+    sql: `SELECT id, nombre, puesto FROM recruitment_leads
+          WHERE REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(telefono,' ',''),'-',''),'(',''),')',''),'+','')
+          LIKE ? LIMIT 1`,
+    args: [`%${suffix}%`],
+  });
+  return rows.length > 0 ? rows[0] : null;
+}
+export async function checkDuplicateByName(nombre) {
+  if (!nombre || nombre.trim().length < 3) return null;
+  const clean = nombre.trim().toLowerCase();
+  await ensureInit();
+  await ensureRecruitmentTable();
+  const { rows } = await db.execute({
+    sql: `SELECT id, nombre, puesto FROM recruitment_leads
+          WHERE LOWER(TRIM(nombre)) = ? LIMIT 1`,
+    args: [clean],
+  });
+  return rows.length > 0 ? rows[0] : null;
+}
+ 
+// ── Verificación anticipada de duplicado por email ────────────────────────────
+export async function checkDuplicateByEmail(email) {
+  if (!email || !email.includes('@')) return null;
+  const clean = email.trim().toLowerCase();
+  await ensureInit();
+  await ensureRecruitmentTable();
+  const { rows } = await db.execute({
+    sql: `SELECT id, nombre, puesto FROM recruitment_leads
+          WHERE LOWER(TRIM(email)) = ? LIMIT 1`,
+    args: [clean],
+  });
+  return rows.length > 0 ? rows[0] : null;
+}
+
 // ── Leer candidatos — incluye cv_base64 y cv_tipo ────────────────────────────
 export async function readRecruitmentLeads() {
   await ensureInit();
@@ -445,6 +489,7 @@ export async function readRecruitmentLeads() {
     estado:              r.estado              ?? r.status ?? 'nuevo',
     en_lista_espera:     r.en_lista_espera     ? 1 : 0,
     notificado_vacante:  r.notificado_vacante  ? 1 : 0,
+    prioridad:           r.prioridad           ? 1 : 0,
   }));
 }
 
@@ -470,6 +515,43 @@ export async function getListaEspera(puestoFilter = null) {
     ts:                 r.ts                 ?? r.created_at ?? '',
     notificado_vacante: r.notificado_vacante ? 1 : 0,
   }));
+}
+
+// ── Asignar candidatos de espera a una vacante recién abierta ────────────────
+// Busca candidatos con en_lista_espera=1 cuyo puesto coincida con el título
+// de la vacante. Los saca de espera y les pone prioridad=1.
+// Devuelve la cantidad de candidatos promovidos.
+export async function asignarEsperaAVacante(vacanteTitle) {
+  await ensureInit();
+  await ensureRecruitmentTable();
+  try {
+    const { rows } = await db.execute({
+      sql:  `SELECT id, puesto FROM recruitment_leads WHERE en_lista_espera = 1`,
+      args: [],
+    });
+    const titulo = (vacanteTitle || '').toLowerCase().trim();
+    const words  = titulo.split(/\s+/).filter(w => w.length > 3);
+
+    const matching = rows.filter(r => {
+      const p = (r.puesto || '').toLowerCase().trim();
+      if (!p) return false;
+      return titulo.includes(p) || p.includes(titulo) || words.some(w => p.includes(w));
+    });
+
+    if (!matching.length) return 0;
+
+    const ids = matching.map(r => r.id);
+    const placeholders = ids.map(() => '?').join(',');
+    await db.execute({
+      sql:  `UPDATE recruitment_leads SET en_lista_espera = 0, prioridad = 1 WHERE id IN (${placeholders})`,
+      args: ids,
+    });
+    console.log(`[asignarEsperaAVacante] ${ids.length} candidato(s) promovidos a prioridad para "${vacanteTitle}"`);
+    return ids.length;
+  } catch (e) {
+    console.warn('[asignarEsperaAVacante] error:', e.message);
+    return 0;
+  }
 }
 
 // ── Marcar candidatos de lista de espera como notificados ─────────────────────

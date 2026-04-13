@@ -994,20 +994,35 @@ gallery: [
     }
   },
 
-  // =================================================
-  // FOOTER
-  // =================================================
-  footer: {
-    about_us:         "Quiénes somos",
-    about:            "Acerca de",
-    social_impact:    "Impacto Social",
-    customer_service: "Atención Cliente",
-    be_distributor:   "Ser distribuidor",
-    catalog:          "Catálogo",
-    cta_button:       "Quiero ser Distribuidor",
-    rights:           "Todos los derechos reservados."
-  },
+ // =================================================
+// FOOTER
+// =================================================
+footer: {
+  about_us:         "Quiénes somos",
+  about:            "Acerca de",
+  social_impact:    "Impacto Social",
+  customer_service: "Atención Cliente",
+  be_distributor:   "Ser distribuidor",
+  catalog:          "Catálogo",
+  cta_button:       "Quiero ser Distribuidor",
+  rights:           "Todos los derechos reservados.",
 
+  // Contacto México
+  region_mexico:    "México",
+  email:            "atencionacliente@grupo-ortiz.com",
+  phone_mx:         "+52 (443) 207-2593",
+
+  // Contacto Estados Unidos
+  region_usa:       "Estados Unidos",
+  phone_us:         "+1 (210) 429-3789",
+
+  // Direcciones USA
+  label_warehouse:  "Bodega · Warehouse",
+  address_warehouse: "20915 Wilderness Oak, San Antonio TX 78258",
+
+  label_office:     "Oficina · Office",
+  address_office:   "San Antonio, TX 78258",
+},
   // =================================================
   // PÁGINA: IMPACTO SOCIAL
   // =================================================

@@ -992,19 +992,35 @@ export const pt = {
     }
   },
 
-  // =================================================
-  // RODAPÉ
-  // =================================================
-  footer: {
-    about_us:         "Quem somos",
-    about:            "Sobre",
-    social_impact:    "Impacto Social",
-    customer_service: "Atendimento ao Cliente",
-    be_distributor:   "Ser distribuidor",
-    catalog:          "Catálogo",
-    cta_button:       "Quero ser Distribuidor",
-    rights:           "Todos os direitos reservados."
-  },
+// =================================================
+// FOOTER
+// =================================================
+footer: {
+  about_us:         "Quem Somos",
+  about:            "Sobre Nós",
+  social_impact:    "Impacto Social",
+  customer_service: "Atendimento ao Cliente",
+  be_distributor:   "Seja um Distribuidor",
+  catalog:          "Catálogo",
+  cta_button:       "Quero ser Distribuidor",
+  rights:           "Todos os direitos reservados.",
+
+  // Contato — México
+  region_mexico:    "México",
+  email:            "atencionacliente@grupo-ortiz.com",
+  phone_mx:         "+52 (443) 207-2593",
+
+  // Contato — Estados Unidos
+  region_usa:       "Estados Unidos",
+  phone_us:         "+1 (210) 429-3789",
+
+  // Endereços EUA
+  label_warehouse:  "Armazém",
+  address_warehouse: "20915 Wilderness Oak, San Antonio TX 78258",
+
+  label_office:     "Escritório",
+  address_office:   "San Antonio, TX 78258",
+},
 
   // =================================================
   // PÁGINA: IMPACTO SOCIAL

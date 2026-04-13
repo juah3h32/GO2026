@@ -750,6 +750,7 @@ export default function BotGO({ language = 'es' }) {
   const [micToast,   setMicToast]   = useState('');
   const [deferredInstallPrompt, setDeferredInstallPrompt] = useState(null);
   const [pwaInstalled,          setPwaInstalled]          = useState(false);
+  const installPromptRef = useRef(null); // ref para evitar clausuras desactualizadas
 
   const chatWindowRef        = useRef(null);
   const inputRef             = useRef(null);
@@ -810,18 +811,21 @@ export default function BotGO({ language = 'es' }) {
     // El evento beforeinstallprompt puede dispararse antes de que React monte.
     // Lo capturamos en un script is:inline en <head> y lo leemos aquí.
     if (window.__pwaInstallPrompt) {
+      installPromptRef.current = window.__pwaInstallPrompt;
       setDeferredInstallPrompt(window.__pwaInstallPrompt);
     }
 
     const handler = (e) => {
       e.preventDefault();
       window.__pwaInstallPrompt = e;
+      installPromptRef.current = e;
       setDeferredInstallPrompt(e);
     };
     window.addEventListener('beforeinstallprompt', handler);
 
     const installedHandler = () => {
       setPwaInstalled(true);
+      installPromptRef.current = null;
       setDeferredInstallPrompt(null);
       window.__pwaInstallPrompt = null;
       try { localStorage.setItem('pwa-installed', 'true'); } catch {}
@@ -967,7 +971,6 @@ export default function BotGO({ language = 'es' }) {
     const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
     if (isIOS) {
-      // iOS: show instructions in chat
       setViewMode('chat');
       setTimeout(() => {
         setMessages(prev => [...prev, {
@@ -980,29 +983,40 @@ export default function BotGO({ language = 'es' }) {
       return;
     }
 
-    if (deferredInstallPrompt) {
-      // Android: native install prompt available
-      deferredInstallPrompt.prompt();
-      const { outcome } = await deferredInstallPrompt.userChoice;
-      if (outcome === 'accepted') {
-        setPwaInstalled(true);
+    // Leer siempre el ref (valor más reciente, nunca una clausura antigua)
+    const prompt = installPromptRef.current || window.__pwaInstallPrompt || null;
+
+    if (prompt) {
+      try {
+        await prompt.prompt();
+        const { outcome } = await prompt.userChoice;
+        if (outcome === 'accepted') {
+          setPwaInstalled(true);
+          installPromptRef.current = null;
+          setDeferredInstallPrompt(null);
+          window.__pwaInstallPrompt = null;
+          try { localStorage.setItem('pwa-installed', 'true'); } catch {}
+        }
+      } catch {
+        // El prompt ya fue usado; limpiar
+        installPromptRef.current = null;
         setDeferredInstallPrompt(null);
-        try { localStorage.setItem('pwa-installed', 'true'); } catch {}
+        window.__pwaInstallPrompt = null;
       }
       return;
     }
 
-    // Android but no prompt (HTTP local dev or already dismissed) — send to production
+    // Sin prompt disponible (ya rechazado por Chrome o navegador no compatible)
     setViewMode('chat');
     setTimeout(() => {
       setMessages(prev => [...prev, {
         role: 'assistant',
-        content: 'Para instalar la app:\n\n1. Abre **grupo-ortiz.com** en Chrome\n2. Toca los **3 puntos** (⋮) arriba a la derecha\n3. Selecciona **"Instalar app"** o **"Agregar a pantalla de inicio"**\n\nEn red local la instalación requiere conexión segura (HTTPS).',
+        content: 'Para instalar la app GO en tu celular:\n\n1. Toca los **3 puntos** (⋮) arriba a la derecha en Chrome\n2. Selecciona **"Instalar app"** o **"Agregar a pantalla de inicio"**\n3. Confirma tocando **Instalar**\n\nSi ya la instalaste antes, búscala en tu pantalla de inicio.',
         waLink: null, pdfData: null, distLink: null, isDuplicate: false,
         showCVUpload: false, quickReplies: null, quickRepliesUsed: false,
       }]);
     }, 100);
-  }, [deferredInstallPrompt]);
+  }, []); // sin dependencias — usa ref, siempre tiene el valor actual
 
   const handleOpenChat = useCallback(() => {
     setShowTooltip(false);
@@ -1145,12 +1159,27 @@ export default function BotGO({ language = 'es' }) {
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
       'image/jpeg', 'image/png',
     ];
+    const MAX_CV_BYTES = 3 * 1024 * 1024; // 3 MB — límite que permite lectura IA
+    const MB = (n) => (n / (1024 * 1024)).toFixed(1);
+
     if (!allowedTypes.includes(file.type)) {
-      setMicToast('Tipo de archivo no permitido. Usa PDF, DOC, DOCX, JPG o PNG.');
+      setViewMode('chat');
+      setTimeout(() => setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: `El archivo **${file.name}** no es un formato compatible.\n\nFormatos aceptados: **PDF, JPG, PNG**.\n\n_Los archivos DOC/DOCX no se pueden leer automáticamente — conviértelo a PDF antes de enviarlo._`,
+        waLink: null, pdfData: null, distLink: null, isDuplicate: false,
+        showCVUpload: false, quickReplies: null, quickRepliesUsed: false,
+      }]), 100);
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      setMicToast('El archivo es demasiado grande. Máximo 5MB.');
+    if (file.size > MAX_CV_BYTES) {
+      setViewMode('chat');
+      setTimeout(() => setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: `El archivo **${file.name}** pesa **${MB(file.size)} MB** y supera el límite permitido de **3 MB**.\n\nPor favor comprime o reduce el archivo:\n• En iPhone: comparte la foto en tamaño "Mediano"\n• En Android: usa una app de compresión de PDF/imagen\n• En computadora: guarda el PDF con compresión o exporta la imagen en menor resolución`,
+        waLink: null, pdfData: null, distLink: null, isDuplicate: false,
+        showCVUpload: false, quickReplies: null, quickRepliesUsed: false,
+      }]), 100);
       return;
     }
     setCvUploading(true);

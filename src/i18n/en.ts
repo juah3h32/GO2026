@@ -991,19 +991,35 @@ arpillas: {
     }
   },
 
-  // =================================================
-  // FOOTER
-  // =================================================
-  footer: {
-    about_us:         "About Us",
-    about:            "About",
-    social_impact:    "Social Impact",
-    customer_service: "Customer Service",
-    be_distributor:   "Become a Distributor",
-    catalog:          "Catalog",
-    cta_button:       "I Want to be a Distributor",
-    rights:           "All rights reserved."
-  },
+// =================================================
+// FOOTER
+// =================================================
+footer: {
+  about_us:         "About Us",
+  about:            "About",
+  social_impact:    "Social Impact",
+  customer_service: "Customer Service",
+  be_distributor:   "Become a Distributor",
+  catalog:          "Catalog",
+  cta_button:       "I Want to Be a Distributor",
+  rights:           "All rights reserved.",
+
+  // Mexico contact
+  region_mexico:    "Mexico",
+  email:            "atencionacliente@grupo-ortiz.com",
+  phone_mx:         "+52 (443) 207-2593",
+
+  // United States contact
+  region_usa:       "United States",
+  phone_us:         "+1 (210) 429-3789",
+
+  // USA addresses
+  label_warehouse:  "Warehouse",
+  address_warehouse: "20915 Wilderness Oak, San Antonio TX 78258",
+
+  label_office:     "Office",
+  address_office:   "San Antonio, TX 78258",
+},
 
   // =================================================
   // PAGE: SOCIAL IMPACT

@@ -1,12 +1,24 @@
 // src/pages/api/reports/recruitment-ia.js
 // Reporte IA de Reclutamiento — analiza y rankea candidatos por vacante usando Claude
 import { readRecruitmentLeads, readVacantes } from '../../../lib/analytics-db.js';
-import { existsSync, readFileSync } from 'fs';
+import { existsSync, readFileSync, writeFileSync, unlinkSync } from 'fs';
 import { join } from 'path';
+import { tmpdir } from 'os';
 import puppeteer from 'puppeteer-core';
+import * as _pdfParseModule from 'pdf-parse';
 
 export const prerender = false;
 
+// ── Normaliza export CJS/ESM de pdf-parse ─────────────────────────────────────
+const pdfParse = (() => {
+  const m = _pdfParseModule;
+  if (typeof m?.default?.default === 'function') return m.default.default; // doble-wrap Vite
+  if (typeof m?.default === 'function')           return m.default;         // ESM normal
+  if (typeof m === 'function')                    return m;                 // CJS directo
+  return null;
+})();
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
 }
@@ -30,6 +42,7 @@ const LOCAL_CHROME = [
   '/usr/bin/chromium-browser',
   'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
 ];
+
 async function getBrowserConfig() {
   const isServerless = !!(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
   if (isServerless) {
@@ -65,53 +78,162 @@ async function makePDF(html) {
 
 // ── Extracción de contenido de CV ─────────────────────────────────────────────
 
-// Extrae texto de un PDF en base64 usando pdf-parse
-async function extractPDFText(base64) {
+const CV_VISION_PROMPT = `Extrae TODA la información de este CV. Devuelve el siguiente formato:
+NOMBRE: [nombre completo]
+EXPERIENCIA: [cada empresa, puesto y duración — incluye fechas o años si aparecen]
+EDUCACIÓN: [nivel, institución, carrera]
+PROGRAMAS/SOFTWARE: [TODOS los que mencione: Excel, SAP, Word, AutoCAD, CONTPAQi, etc.]
+HABILIDADES: [habilidades técnicas y blandas]
+AÑOS_EXPERIENCIA: [total estimado de años laborales]
+Sé exhaustivo. No omitas ningún programa, herramienta ni habilidad mencionada.`;
+
+// ── Redimensiona imagen con sharp ─────────────────────────────────────────────
+async function comprimirImagen(base64, mimeType) {
   try {
-    const { default: pdfParse } = await import('pdf-parse');
-    const buf  = Buffer.from(base64, 'base64');
-    const data = await pdfParse(buf, { max: 3 }); // máx 3 páginas
-    const text = (data.text || '').replace(/\s+/g, ' ').trim();
-    return text.slice(0, 2500) || null;
-  } catch (e) {
-    console.warn('[recruitment-ia] pdf-parse:', e.message);
-    return null;
+    const { default: sharp } = await import('sharp');
+    const buf     = Buffer.from(base64, 'base64');
+    const resized = await sharp(buf)
+      .resize(1600, 2200, { fit: 'inside', withoutEnlargement: true })
+      .jpeg({ quality: 82 })
+      .toBuffer();
+    return { base64: resized.toString('base64'), mimeType: 'image/jpeg' };
+  } catch {
+    return { base64, mimeType };
   }
 }
 
-// Lee un CV imagen con GPT-4o vision
-async function readImageCV(base64, mimeType, apiKey) {
+// ── Convierte primera página de PDF a imagen JPEG usando Puppeteer ────────────
+async function pdfPageToImage(base64, nombre = '') {
+  const tmpPath = join(tmpdir(), `cv_${Date.now()}_${Math.random().toString(36).slice(2)}.pdf`);
+  let browser;
   try {
-    const res = await fetch('https://api.openai.com/v1/chat/completions', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        max_tokens: 400,
-        messages: [{
-          role: 'user',
-          content: [
-            { type: 'text', text: 'Este es un CV. Extrae en máximo 250 palabras (lista con guiones): nombre completo, experiencia laboral (empresas y puestos), educación, habilidades técnicas, años de experiencia estimados. Solo datos clave, sin comentarios.' },
-            { type: 'image_url', image_url: { url: `data:${mimeType};base64,${base64}`, detail: 'low' } },
-          ],
-        }],
-      }),
-    });
-    const j = await res.json();
-    return j.choices?.[0]?.message?.content?.trim() || null;
+    writeFileSync(tmpPath, Buffer.from(base64, 'base64'));
+
+    const { executablePath, args } = await getBrowserConfig();
+    browser = await puppeteer.launch({ executablePath, args, headless: true });
+
+    const page = await browser.newPage();
+    // Tamaño A4 a 96dpi * 1.5 escala
+    await page.setViewport({ width: 1240, height: 1754, deviceScaleFactor: 1.5 });
+    await page.goto(`file://${tmpPath}`, { waitUntil: 'load', timeout: 30_000 });
+    // Esperar que el visor de PDF de Chrome renderice
+    await new Promise(r => setTimeout(r, 2000));
+
+    // Screenshot sin clip — evita errores si Chrome redimensiona internamente
+    const shot = await page.screenshot({ type: 'jpeg', quality: 85 });
+    console.log(`[pdf→img] "${nombre}" capturado con Puppeteer`);
+    return Buffer.from(shot).toString('base64');
   } catch (e) {
-    console.warn('[recruitment-ia] vision:', e.message);
+    console.warn(`[pdf→img] Error convirtiendo "${nombre}":`, e.message);
     return null;
+  } finally {
+    await browser?.close();
+    try { unlinkSync(tmpPath); } catch {}
   }
 }
 
-// Extrae el contenido útil del CV de un candidato (PDF o imagen)
+// ── Vision extract — envía imagen a GPT-4o-mini con reintentos ────────────────
+async function visionExtract(base64, mimeType, apiKey, nombre = '') {
+  const { base64: b64, mimeType: mime } = await comprimirImagen(base64, mimeType);
+
+  for (let intento = 1; intento <= 3; intento++) {
+    try {
+      const res = await fetch('https://api.openai.com/v1/chat/completions', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+        body: JSON.stringify({
+          model:      'gpt-4o-mini',
+          max_tokens: 700,
+          messages: [{
+            role: 'user',
+            content: [
+              { type: 'text', text: CV_VISION_PROMPT },
+              { type: 'image_url', image_url: { url: `data:${mime};base64,${b64}`, detail: 'high' } },
+            ],
+          }],
+        }),
+      });
+
+      if (res.status === 429) {
+        const wait = intento * 2000;
+        console.warn(`[cv-vision] Rate limit "${nombre}", reintento ${intento} en ${wait}ms`);
+        await new Promise(r => setTimeout(r, wait));
+        continue;
+      }
+
+      const j = await res.json();
+      if (j.error) {
+        console.warn(`[cv-vision] API error "${nombre}":`, j.error.message);
+        return null;
+      }
+      const text = j.choices?.[0]?.message?.content?.trim() || null;
+      if (text) console.log(`[cv-vision] OK "${nombre}" — ${text.length} chars`);
+      return text;
+    } catch (e) {
+      console.warn(`[cv-vision] Excepción "${nombre}" intento ${intento}:`, e.message);
+      if (intento < 3) await new Promise(r => setTimeout(r, 1500));
+    }
+  }
+  return null;
+}
+
+// ── Extrae texto de PDF: texto nativo primero, luego imagen+vision ────────────
+async function extractPDFText(base64, apiKey, nombre = '') {
+  // 1. Texto nativo con pdf-parse
+  if (typeof pdfParse === 'function') {
+    try {
+      const buf  = Buffer.from(base64, 'base64');
+      const data = await pdfParse(buf);
+      const raw  = data.text.replace(/\s+/g, ' ').trim();
+      if (raw.length >= 80) {
+        console.log(`[pdf-parse] OK "${nombre}" — ${raw.length} chars`);
+        return raw.slice(0, 4500);
+      }
+      console.warn(`[pdf-parse] Texto insuficiente "${nombre}" (${raw.length} chars) — PDF escaneado`);
+    } catch (e) {
+      console.warn(`[pdf-parse] Error en "${nombre}":`, e.message);
+    }
+  } else {
+    console.warn('[pdf-parse] Módulo no cargado correctamente — saltando a imagen');
+  }
+
+  // 2. PDF escaneado → imagen → vision
+  console.log(`[pdf→vision] Convirtiendo "${nombre}" a imagen para GPT vision...`);
+  const imgBase64 = await pdfPageToImage(base64, nombre);
+  if (imgBase64) return visionExtract(imgBase64, 'image/jpeg', apiKey, nombre);
+
+  console.warn(`[pdf→vision] No se pudo convertir "${nombre}" a imagen`);
+  return null;
+}
+
+// ── Extrae contenido del CV según tipo (PDF o imagen) ─────────────────────────
 async function extractCVContent(c, apiKey) {
   if (!c.cv_base64) return null;
-  const tipo = (c.cv_tipo || '').toLowerCase();
-  if (tipo.includes('pdf')) return extractPDFText(c.cv_base64);
-  if (tipo.match(/image|jpg|jpeg|png|webp|gif/)) return readImageCV(c.cv_base64, c.cv_tipo || 'image/jpeg', apiKey);
-  return null;
+  const tipo   = (c.cv_tipo || '').toLowerCase();
+  const nombre = c.cv_nombre || String(c.id);
+
+  if (tipo.includes('pdf') || tipo === 'application/pdf') {
+    return extractPDFText(c.cv_base64, apiKey, nombre);
+  }
+
+  if (tipo.match(/image|jpg|jpeg|png|webp|gif|bmp|tiff|heic/)) {
+    return visionExtract(c.cv_base64, c.cv_tipo || 'image/jpeg', apiKey, nombre);
+  }
+
+  // Tipo desconocido — intentar como imagen, luego como PDF
+  console.warn(`[cv] Tipo desconocido "${tipo}" para "${nombre}" — probando imagen`);
+  const porImagen = await visionExtract(c.cv_base64, 'image/jpeg', apiKey, nombre);
+  if (porImagen) return porImagen;
+  return extractPDFText(c.cv_base64, apiKey, nombre);
+}
+
+// ── Caché de análisis ─────────────────────────────────────────────────────────
+const _analysisCache = new Map();
+
+function _hashCandidates(candidates) {
+  return candidates
+    .map(c => `${c.id}:${c.cv_nombre ? '1' : '0'}:${c.created_at || c.ts || ''}`)
+    .join('|');
 }
 
 // ── AI analysis ───────────────────────────────────────────────────────────────
@@ -121,81 +243,150 @@ async function analyzeWithAI(candidates, vacantes) {
 
   const limited = candidates.slice(0, 60);
 
-  // 1. Extraer texto de CVs en paralelo (máx 20 CVs para no saturar)
-  const cvResults = await Promise.all(
-    limited.map(c => c.cv_base64 ? extractCVContent(c, apiKey) : Promise.resolve(null))
-  );
+  const cacheKey = _hashCandidates(limited);
+  const cached   = _analysisCache.get(cacheKey);
+  if (cached) {
+    console.log('[recruitment-ia] Usando análisis cacheado');
+    return cached.scores;
+  }
+
+  // Extraer CVs en lotes de 3
+  const conCV = limited.filter(c => c.cv_base64);
+  const sinCV = limited.filter(c => !c.cv_base64);
   const cvMap = {};
-  limited.forEach((c, i) => { if (cvResults[i]) cvMap[String(c.id)] = cvResults[i]; });
-  const cvLeidos = Object.keys(cvMap).length;
-  console.log(`[recruitment-ia] CVs leídos: ${cvLeidos}/${limited.filter(c => c.cv_base64).length}`);
+  const LOTE  = 3;
+  const PAUSA = 800;
+
+  for (let i = 0; i < conCV.length; i += LOTE) {
+    const lote       = conCV.slice(i, i + LOTE);
+    const resultados = await Promise.all(lote.map(c => extractCVContent(c, apiKey)));
+    lote.forEach((c, idx) => { if (resultados[idx]) cvMap[String(c.id)] = resultados[idx]; });
+    if (i + LOTE < conCV.length) await new Promise(r => setTimeout(r, PAUSA));
+  }
+
+  console.log(`[recruitment-ia] CVs leídos: ${Object.keys(cvMap).length}/${conCV.length} (${sinCV.length} sin CV)`);
 
   const vacList = vacantes.length
-    ? vacantes.map(v =>
-        `- ${v.titulo}${v.area ? ` | Área: ${v.area}` : ''}${v.tipo ? ` | Tipo: ${v.tipo}` : ''}${v.salario ? ` | Salario: ${v.salario}` : ''}`
-      ).join('\n')
+    ? vacantes.map(v => {
+        let entry = `• VACANTE "${v.titulo}"`;
+        if (v.area)        entry += ` | Área: ${v.area}`;
+        if (v.tipo)        entry += ` | Tipo: ${v.tipo}`;
+        if (v.salario)     entry += ` | Salario: ${v.salario}`;
+        if (v.descripcion) entry += `\n  Descripción: ${v.descripcion.slice(0, 300)}`;
+        if (v.requisitos)  entry += `\n  Requisitos: ${v.requisitos.slice(0, 500)}`;
+        return entry;
+      }).join('\n\n')
     : '(sin vacantes activas actualmente)';
 
-  // 2. Construir lista de candidatos incluyendo extracto del CV si fue leído
   const candList = limited.map(c => {
-    const cvText  = cvMap[String(c.id)];
-    const cvLabel = c.cv_nombre ? (cvText ? `CV_LEÍDO` : `CV:${c.cv_nombre}`) : 'sinCV';
-    const msg     = (c.mensaje || '').trim().slice(0, 80);
+    const cvText   = cvMap[String(c.id)];
     const esEspera = c.en_lista_espera === 1 || c.en_lista_espera === true;
-    let line = `#${c.id}|${c.nombre || 'Sin nombre'}|${c.puesto || '-'}|edad:${c.edad || '-'}|${c.estado_rep || '-'}|${cvLabel}${esEspera ? '|LISTA_ESPERA' : ''}`;
-    if (msg)    line += `|msg:"${msg}"`;
-    if (cvText) line += `\n  CV_CONTENIDO: ${cvText.slice(0, 600)}`;
-    return line;
-  }).join('\n');
+    const msg      = (c.mensaje || '').trim().slice(0, 200);
 
-  const prompt = `Eres experto en selección de personal para Grupo Ortiz (fabricante de empaques, Morelia México).
+    let line = `ID:${c.id} | ${c.nombre || 'Sin nombre'} | Puesto solicitado: "${c.puesto || '-'}"`;
+    line += ` | Edad: ${c.edad || 'no indicada'} | Estado: ${c.estado_rep || 'no indicado'}`;
+    if (esEspera) line += ' | [LISTA_ESPERA]';
+
+    if (cvText) {
+      line += `\n  [CV LEÍDO]: ${cvText.slice(0, 1800)}`;
+    } else if (c.cv_nombre) {
+      line += `\n  [CV ADJUNTO no legible: ${c.cv_nombre}]`;
+    } else {
+      line += `\n  [SIN CV]`;
+    }
+
+    if (msg) line += `\n  [MENSAJE]: "${msg}"`;
+    return line;
+  }).join('\n\n');
+
+  const prompt = `Eres Director de Recursos Humanos con 20 años de experiencia en la industria manufacturera mexicana. Trabajas para Grupo Ortiz (fabricante de empaques industriales, Morelia, Michoacán).
 
 VACANTES ACTIVAS:
 ${vacList}
 
+---
+INSTRUCCIÓN ESPECIAL — REQUISITOS DE CADA PUESTO:
+Para cada vacante, ADEMÁS de los requisitos indicados arriba, aplica tu conocimiento experto del mercado laboral mexicano para determinar qué habilidades técnicas, software y experiencia son estándar e indispensables para ese tipo de puesto en la industria manufacturera. Por ejemplo:
+- Contador/Contabilidad: SAP, CONTPAQi, XML, SAT/IMSS, Excel avanzado, cierre contable
+- Almacenista/Logística: WMS, manejo de montacargas, inventarios FIFO, Excel básico
+- Mantenimiento: PLC, neumática, hidráulica, lectura de planos, herramienta especializada
+- Ventas: CRM, negociación, prospección, manejo de cartera, métricas de venta
+- Producción/Operativo: 5S, seguridad industrial, tolerancias, control de calidad
+Adapta estos criterios según el puesto exacto de cada vacante.
+
+---
 CANDIDATOS (${limited.length}):
 ${candList}
 
-NOTA IMPORTANTE: Los candidatos marcados con LISTA_ESPERA registraron interés pero AÚN NO existe vacante activa para su perfil. No los penalices por falta de vacante — evalúa su perfil de forma independiente y señala en tu análisis que están en espera de que se abra su puesto.
+---
+REGLAS DE EVALUACIÓN:
 
-TAREA: Evalúa CADA candidato. Considera:
-1. COINCIDENCIA del puesto solicitado con las vacantes activas — factor principal (para candidatos LISTA_ESPERA, evalúa el potencial del perfil aunque no haya vacante hoy)
-2. CONTENIDO DEL CV si está disponible (CV_CONTENIDO): experiencia, habilidades, empresas anteriores. Es el factor más valioso cuando está presente.
-3. CV ADJUNTO sin leer también suma positivo respecto a candidatos sin CV
-4. UBICACIÓN: preferible Morelia / Michoacán / zona cercana
-5. MENSAJE PERSONAL: tono, motivación, claridad
-6. EDAD con sentido común según el puesto:
-   - Operativo/físico (producción, almacén, carga): >65 años sería limitante real
-   - Ventas/admin/supervisión: experiencia madura es ventaja, no penalizar por edad
-   - Sin edad registrada: no penalizar
+CANDIDATOS CON CV:
+- Extrae y valora TODA la experiencia, empresas, años trabajados y programas/software que mencione el CV
+- Compara directamente contra los requisitos del puesto y los estándares del mercado
+- Si el CV menciona programas específicos requeridos (SAP, Excel, AutoCAD, etc.) suma puntos
+- Si tiene experiencia en empresas del giro manufacturero/industrial, es ventaja importante
 
-Para CADA candidato devuelve:
-- puntuacion: 1-5 (5=ideal, 4=muy bueno, 3=aceptable, 2=débil, 1=no aplica)
+CANDIDATOS SIN CV:
+- Analiza su MENSAJE para extraer menciones de experiencia, años, empresas, habilidades
+- Evalúa su edad en relación con los años de experiencia esperados para el puesto:
+  • Puesto operativo básico: 18-25 años sin CV es aceptable si el mensaje muestra interés
+  • Supervisión/técnico: esperar ≥3 años de experiencia mencionada o inferible por edad
+  • Especialista/admin: penalizar ausencia de CV pero no descartar si el mensaje es sólido
+- Edad como indicador de experiencia potencial (si no hay CV ni mensaje descriptivo):
+  • 18-24 años sin CV en puesto operativo: puntuación 2-3 (perfil junior, válido)
+  • 25-35 años sin CV: puntuación 2 (se espera más respaldo)
+  • >35 años sin CV: penalizar más, un profesional experimentado debe tener CV
+
+CANDIDATOS EN LISTA_ESPERA:
+- No los penalices por no haber vacante activa hoy
+- Evalúa su perfil con la misma rigurosidad; indica en comentario que están en espera
+
+PUNTUACIÓN:
+- 5 = Perfil ideal: cumple todos los requisitos técnicos, experiencia verificada, excelente fit
+- 4 = Muy bueno: cumple la mayoría de requisitos, experiencia relevante, recomendar entrevistar
+- 3 = Aceptable: cumple requisitos básicos, algunas dudas o le falta algo importante
+- 2 = Débil: perfil incompleto o experiencia insuficiente para el puesto
+- 1 = No aplica: puesto completamente diferente o perfil incompatible
+
+---
+Para CADA candidato devuelve exactamente:
+- id: número del ID
+- puntuacion: 1-5 (determinista — no cambies si se re-genera con los mismos datos)
 - recomendacion: exactamente "Entrevistar" | "En espera" | "Descartar"
-- nota: 1 frase corta (máx 80 chars) con razón principal
-- comentario: 2-3 frases analizando el perfil (menciona experiencia del CV si fue leído, fortalezas, posibles dudas o lo que destaca del candidato)
-- top: true solo si es el MEJOR candidato para su vacante (máximo 1 por vacante, nunca si puntuacion <= 2)
+- nota: 1 frase (máx 90 chars) con la razón principal de la puntuación
+- comentario: 2-3 frases detalladas: menciona experiencia/programas específicos del CV si fue leído, indica qué cumple y qué falta, fortalezas concretas
+- top: true SOLO si es el MEJOR candidato para su vacante (máx 1 por vacante, nunca si puntuacion <= 2)
 
-Devuelve ÚNICAMENTE el array JSON sin texto adicional, sin markdown:
-[{"id":1,"puntuacion":4,"recomendacion":"Entrevistar","nota":"CV con experiencia relevante, perfil alineado","comentario":"Candidato con 5 años en almacén según su CV. Vive en Morelia y tiene disponibilidad inmediata. Su perfil coincide bien con la vacante de Almacenista.","top":false}]`;
+Devuelve ÚNICAMENTE el array JSON, sin texto adicional, sin markdown, sin explicaciones:
+[{"id":1,"puntuacion":4,"recomendacion":"Entrevistar","nota":"5 años en almacén, manejo de inventarios y Excel confirmados en CV","comentario":"Su CV muestra 5 años como Almacenista en empresa manufacturera. Domina Excel y manejo de inventarios FIFO. Vive en Morelia con disponibilidad inmediata — perfil sólido para la vacante.","top":false}]`;
 
   try {
     const res = await fetch('https://api.openai.com/v1/chat/completions', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        max_tokens: 3500,
-        temperature: 0.3,
-        messages: [{ role: 'user', content: prompt }],
+        model:       'gpt-4o',
+        max_tokens:  4000,
+        temperature: 0,
+        seed:        42,
+        messages:    [{ role: 'user', content: prompt }],
       }),
     });
     if (!res.ok) { console.error('[recruitment-ia] OpenAI HTTP', res.status); return null; }
-    const j   = await res.json();
-    const raw = (j.choices?.[0]?.message?.content || '').trim();
+    const j     = await res.json();
+    const raw   = (j.choices?.[0]?.message?.content || '').trim();
     const match = raw.match(/\[[\s\S]*\]/);
     if (!match) { console.error('[recruitment-ia] JSON no encontrado en respuesta'); return null; }
-    return JSON.parse(match[0]);
+    const scores = JSON.parse(match[0]);
+
+    _analysisCache.set(cacheKey, { scores, ts: Date.now() });
+    if (_analysisCache.size > 10) {
+      const oldest = [..._analysisCache.keys()][0];
+      _analysisCache.delete(oldest);
+    }
+
+    return scores;
   } catch (e) {
     console.error('[recruitment-ia] AI error:', e);
     return null;
@@ -210,18 +401,16 @@ export function buildRecruitmentIAHTML(candidates, vacantes, aiScores, logoBase6
     hour: '2-digit', minute: '2-digit',
   });
 
-  // Normalize IDs to string to avoid BigInt / number type mismatch from Turso
   const scoreMap = {};
   if (Array.isArray(aiScores)) for (const s of aiScores) if (s?.id != null) scoreMap[String(s.id)] = s;
-  const sc = id => scoreMap[String(id)];
+  const sc   = id => scoreMap[String(id)];
   const aiOk = Object.keys(scoreMap).length > 0;
 
-  // Group candidates: first try to match to an active vacancy, else group by puesto text
-  const vacGroups   = {};
+  const vacGroups    = {};
   const puestoGroups = {};
 
   for (const c of candidates) {
-    const puesto = (c.puesto || '').trim().toLowerCase();
+    const puesto  = (c.puesto || '').trim().toLowerCase();
     const matched = vacantes.find(v => {
       const vt    = v.titulo.toLowerCase();
       const words = vt.split(/\s+/).filter(w => w.length > 3);
@@ -258,14 +447,14 @@ export function buildRecruitmentIAHTML(candidates, vacantes, aiScores, logoBase6
     </thead>`;
 
   const row = (c, i) => {
-    const s_        = sc(c.id);
-    const s         = s_?.puntuacion;
-    const rec       = s_?.recomendacion;
-    const nota      = s_?.nota;
+    const s_         = sc(c.id);
+    const s          = s_?.puntuacion;
+    const rec        = s_?.recomendacion;
+    const nota       = s_?.nota;
     const comentario = s_?.comentario;
-    const isTop     = !!s_?.top;
-    const cvLeido   = !!(s_ && c.cv_base64); // AI leyó el CV
-    const rowBg     = isTop ? '#FFFBEB' : (i % 2 === 0 ? '#FAFAFA' : '#FFF');
+    const isTop      = !!s_?.top;
+    const cvLeido    = !!(s_ && c.cv_base64);
+    const rowBg      = isTop ? '#FFFBEB' : (i % 2 === 0 ? '#FAFAFA' : '#FFF');
     return `
       <tr style="background:${rowBg};border-bottom:1px solid ${isTop ? '#FDE68A' : '#F0F0F0'};">
         <td style="padding:9px 11px;font-size:10.5px;color:#9CA3AF;">${i + 1}</td>
@@ -361,10 +550,10 @@ export function buildRecruitmentIAHTML(candidates, vacantes, aiScores, logoBase6
 <!-- KPIs -->
 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:16px;">
   ${[
-    { l: 'Total candidatos', v: candidates.length, c: '#FB670B' },
-    { l: 'Vacantes activas', v: vacantes.length,   c: '#2563EB' },
-    { l: 'A entrevistar',    v: topCount,           c: '#16A34A' },
-    { l: `CVs leídos / ${conCv} adjuntos`, v: cvsLeidos, c: '#7C3AED' },
+    { l: 'Total candidatos',               v: candidates.length, c: '#FB670B' },
+    { l: 'Vacantes activas',               v: vacantes.length,   c: '#2563EB' },
+    { l: 'A entrevistar',                  v: topCount,          c: '#16A34A' },
+    { l: `CVs leídos / ${conCv} adjuntos`, v: cvsLeidos,         c: '#7C3AED' },
   ].map(k => `
     <div style="background:#FAFAFA;border:1px solid #E5E7EB;border-top:3px solid ${k.c};border-radius:7px;padding:12px 14px;">
       <div style="font-size:8.5px;color:#AAA;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:5px;">${k.l}</div>
@@ -388,9 +577,9 @@ ${(() => {
     .sort((a, b) => (sc(b.id)?.puntuacion ?? 0) - (sc(a.id)?.puntuacion ?? 0));
   if (!lista.length) return '';
   const rows = lista.map((c, i) => {
-    const s_        = sc(c.id);
-    const isTop     = !!s_?.top;
-    const cvLeido   = !!(s_ && c.cv_base64);
+    const s_         = sc(c.id);
+    const isTop      = !!s_?.top;
+    const cvLeido    = !!(s_ && c.cv_base64);
     const comentario = s_?.comentario;
     return `
       <tr style="background:${isTop ? '#FFFBEB' : (i % 2 === 0 ? '#F0FDF4' : '#FFF')};border-bottom:1px solid #D1FAE5;">
@@ -450,17 +639,17 @@ ${(() => {
     </div>`;
 })()}
 
-<!-- MEJORES CANDIDATOS — Resumen ejecutivo -->
+<!-- MEJORES CANDIDATOS -->
 ${(() => {
   const tops = candidates
     .filter(c => sc(c.id)?.top)
     .sort((a, b) => (sc(b.id)?.puntuacion ?? 0) - (sc(a.id)?.puntuacion ?? 0));
   if (!tops.length) return '';
   const cards = tops.map(c => {
-    const s_ = sc(c.id);
-    const puesto = (c.puesto || '').trim().toLowerCase();
+    const s_      = sc(c.id);
+    const puesto  = (c.puesto || '').trim().toLowerCase();
     const matched = vacantes.find(v => {
-      const vt = v.titulo.toLowerCase();
+      const vt    = v.titulo.toLowerCase();
       const words = vt.split(/\s+/).filter(w => w.length > 3);
       return puesto && (vt.includes(puesto) || puesto.includes(vt) || words.some(w => puesto.includes(w)));
     });
@@ -502,10 +691,10 @@ ${(() => {
     </div>`;
 })()}
 
-<!-- SECTIONS BY VACANCY -->
+<!-- SECCIONES POR VACANTE -->
 ${Object.values(vacGroups).map(g => section(g.vacante.titulo, g.vacante.area || '', g.list, '#FB670B')).join('')}
 
-<!-- SECTIONS BY PUESTO (unmatched) -->
+<!-- SECCIONES SIN VACANTE ACTIVA -->
 ${Object.entries(puestoGroups).map(([k, l]) => section(k, 'Sin vacante activa relacionada', l, '#6B7280')).join('')}
 
 <!-- ANEXO: CVs adjuntos -->
@@ -519,7 +708,6 @@ ${(() => {
     const s_       = sc(c.id);
     return `
       <div style="page-break-before:always;padding-top:12px;">
-        <!-- Encabezado del CV -->
         <div style="background:#1A1A1A;color:#FFF;padding:10px 15px;border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:space-between;">
           <div>
             <div style="font-size:12px;font-weight:700;">CV · ${c.nombre || '—'}</div>
@@ -531,11 +719,9 @@ ${(() => {
             <a href="${dataUri}" download="${c.cv_nombre}" style="background:#2563EB;color:#FFF;text-decoration:none;border-radius:5px;padding:5px 11px;font-size:9px;font-weight:700;letter-spacing:0.04em;">⬇ Descargar CV</a>
           </div>
         </div>
-        <!-- Contenido -->
         <div style="border:1px solid #E5E7EB;border-top:none;border-radius:0 0 8px 8px;overflow:hidden;background:#FAFAFA;">
           ${isPdf
-            ? `<!-- PDF: se muestra botón de descarga (los PDF embebidos no se renderizan en Puppeteer) -->
-               <div style="padding:32px 24px;text-align:center;">
+            ? `<div style="padding:32px 24px;text-align:center;">
                  <div style="font-size:40px;margin-bottom:12px;">📄</div>
                  <div style="font-size:13px;font-weight:600;color:#374151;margin-bottom:6px;">${c.cv_nombre}</div>
                  <div style="font-size:10px;color:#9CA3AF;margin-bottom:18px;">Archivo PDF · haz clic para descargar y abrir</div>
@@ -568,36 +754,55 @@ ${(() => {
 </html>`;
 }
 
+// ── Match candidato ↔ vacante ─────────────────────────────────────────────────
+function candidatoMatchVacante(c, vacante) {
+  const puesto = (c.puesto || '').toLowerCase().trim();
+  const titulo = (vacante.titulo || '').toLowerCase().trim();
+  const words  = titulo.split(/\s+/).filter(w => w.length > 3);
+  return puesto && (titulo.includes(puesto) || puesto.includes(titulo) || words.some(w => puesto.includes(w)));
+}
+
 // ── POST ──────────────────────────────────────────────────────────────────────
 export async function POST({ request }) {
   try {
     const body   = await request.json().catch(() => ({}));
-    const { format = 'pdf', puesto: puestoFiltro = '' } = body;
-    const origin = new URL(request.url).origin;
+    const { format = 'pdf', vacanteId = '', puesto: puestoFiltro = '' } = body;
 
     let [allCandidates, vacantes] = await Promise.all([
       readRecruitmentLeads().catch(() => []),
       readVacantes(true).catch(() => []),
     ]);
 
-    // Filtrar por puesto si se especificó
-    const candidates = puestoFiltro
-      ? allCandidates.filter(c => (c.puesto || '').toLowerCase().includes(puestoFiltro.toLowerCase()))
-      : allCandidates;
+    let candidates;
+    let puestoLabel = '';
+
+    if (vacanteId === 'otro') {
+      candidates  = allCandidates.filter(c => c.en_lista_espera === 1 || c.en_lista_espera === true);
+      puestoLabel = 'Lista de espera';
+    } else if (vacanteId) {
+      const vacante = vacantes.find(v => String(v.id) === String(vacanteId));
+      if (!vacante) return json({ ok: false, error: `Vacante ID ${vacanteId} no encontrada.` }, 404);
+      candidates  = allCandidates.filter(c => candidatoMatchVacante(c, vacante));
+      puestoLabel = vacante.titulo;
+    } else if (puestoFiltro) {
+      candidates  = allCandidates.filter(c => (c.puesto || '').toLowerCase().includes(puestoFiltro.toLowerCase()));
+      puestoLabel = puestoFiltro;
+    } else {
+      candidates = allCandidates;
+    }
 
     if (!candidates.length) {
-      return json({ ok: false, error: puestoFiltro ? `Sin candidatos para el puesto "${puestoFiltro}".` : 'No hay candidatos registrados.' });
+      return json({ ok: false, error: puestoLabel ? `Sin candidatos para "${puestoLabel}".` : 'No hay candidatos registrados.' });
     }
 
     const logoBase64 = getLogoBase64();
     const aiScores   = await analyzeWithAI(candidates, vacantes);
-    const html       = buildRecruitmentIAHTML(candidates, vacantes, aiScores, logoBase64, puestoFiltro);
+    const html       = buildRecruitmentIAHTML(candidates, vacantes, aiScores, logoBase64, puestoLabel);
 
     if (format === 'html') {
       return json({ ok: true, html });
     }
 
-    // format === 'pdf'
     const pdfBuffer = await makePDF(html);
     const dateStr   = new Date().toISOString().split('T')[0];
     return new Response(pdfBuffer, {
