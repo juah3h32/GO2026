@@ -52,6 +52,7 @@ export default function VacantesPage() {
   const [beneficios,  setBeneficios]  = useState(DEFAULT_BENEFICIOS);
   const [loading,     setLoading]     = useState(true);
   const [selected,  setSelected]  = useState(null);
+  const savedScrollRef = useRef(0);
   const [showAll,   setShowAll]   = useState(false);
   const tapCountRef   = useRef(0);
   const tapTimerRef   = useRef(null);
@@ -152,6 +153,29 @@ export default function VacantesPage() {
       if (collapseTimerRef.current) clearTimeout(collapseTimerRef.current);
     };
   }, [showAll]);
+
+  // Bloquear scroll del body cuando el modal está abierto
+  useEffect(() => {
+    if (selected) {
+      savedScrollRef.current = window.scrollY;
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${savedScrollRef.current}px`;
+      document.body.style.width = '100%';
+    } else {
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      window.scrollTo(0, savedScrollRef.current);
+    }
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+    };
+  }, [selected]);
 
   useEffect(() => {
     fetch('/api/vacantes')

@@ -526,7 +526,7 @@ export async function asignarEsperaAVacante(vacanteTitle) {
   await ensureRecruitmentTable();
   try {
     const { rows } = await db.execute({
-      sql:  `SELECT id, puesto FROM recruitment_leads WHERE en_lista_espera = 1`,
+      sql:  `SELECT id, nombre, telefono, puesto FROM recruitment_leads WHERE en_lista_espera = 1`,
       args: [],
     });
     const titulo = (vacanteTitle || '').toLowerCase().trim();
@@ -538,7 +538,7 @@ export async function asignarEsperaAVacante(vacanteTitle) {
       return titulo.includes(p) || p.includes(titulo) || words.some(w => p.includes(w));
     });
 
-    if (!matching.length) return 0;
+    if (!matching.length) return [];
 
     const ids = matching.map(r => r.id);
     const placeholders = ids.map(() => '?').join(',');
@@ -547,10 +547,10 @@ export async function asignarEsperaAVacante(vacanteTitle) {
       args: ids,
     });
     console.log(`[asignarEsperaAVacante] ${ids.length} candidato(s) promovidos a prioridad para "${vacanteTitle}"`);
-    return ids.length;
+    return matching.map(r => ({ id: r.id, nombre: r.nombre ?? '', telefono: r.telefono ?? '', puesto: r.puesto ?? '' }));
   } catch (e) {
     console.warn('[asignarEsperaAVacante] error:', e.message);
-    return 0;
+    return [];
   }
 }
 

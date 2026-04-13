@@ -135,20 +135,28 @@ const steps = [
         </p>
 
         <div class="vac-hero__ctas">
-          <a href="#como-aplicar" class="btn btn--solid">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 8V4H8"/><rect x="4" y="8" width="16" height="12" rx="2"/>
-              <path d="M2 14h2"/><path d="M20 14h2"/><path d="M9 13v2"/><path d="M15 13v2"/>
-            </svg>
-            Postularme ahora
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <path d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
-          </a>
-          <a href="#vacantes" class="btn btn--ghost">
-            Ver vacantes disponibles
-          </a>
-        </div>
+  <a 
+    href="#como-aplicar" 
+    class="btn btn--solid"
+    onclick="event.preventDefault(); document.getElementById('como-aplicar')?.scrollIntoView({ behavior: 'smooth' }); window.history.pushState(null, '', '#como-aplicar');"
+  >
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 8V4H8"/><rect x="4" y="8" width="16" height="12" rx="2"/>
+      <path d="M2 14h2"/><path d="M20 14h2"/><path d="M9 13v2"/><path d="M15 13v2"/>
+    </svg>
+    Postularme ahora
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <path d="M5 12h14M12 5l7 7-7 7"/>
+    </svg>
+  </a>
+  <a 
+    href="#vacantes" 
+    class="btn btn--ghost"
+    onclick="event.preventDefault(); document.getElementById('vacantes')?.scrollIntoView({ behavior: 'smooth' }); window.history.pushState(null, '', '#vacantes');"
+  >
+    Ver vacantes disponibles
+  </a>
+</div>
 
         <div class="vac-hero__stats">
           <div class="vac-hero__stat">

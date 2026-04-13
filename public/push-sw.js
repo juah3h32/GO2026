@@ -31,9 +31,8 @@ self.addEventListener('notificationclick', (event) => {
   const url = event.notification.data?.url || '/es/vacantes';
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((wins) => {
-      for (const w of wins) {
-        if ('focus' in w) return w.focus();
-      }
+      const match = wins.find(w => w.url.includes(url));
+      if (match && 'focus' in match) return match.focus();
       return clients.openWindow(url);
     })
   );

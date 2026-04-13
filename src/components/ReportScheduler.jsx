@@ -2,6 +2,8 @@
 // BotGO · Programador de Reportes v3 · Modal fix + diseño premium
 import React, { useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
+import { DayPicker } from 'react-day-picker';
+import { es } from 'date-fns/locale';
 
 const C = {
   orange:    '#FB670B',
@@ -483,9 +485,238 @@ const STYLES = `
   html[data-theme="light"] .rsc-empty-state { background: rgba(26,35,50,0.015); border-color: rgba(26,35,50,0.12); }
   html[data-theme="light"] .rsc-cancel-btn { background: rgba(26,35,50,0.04); border-color: rgba(26,35,50,0.12); color: rgba(26,35,50,0.55); }
   html[data-theme="light"] .rsc-cancel-btn:hover { background: rgba(26,35,50,0.07); color: rgba(26,35,50,0.80); }
+
+  /* ── CALENDAR (react-day-picker) ─────────────────────────────────────────── */
+  .rsc-cal-root {
+    width: 100%;
+    font-family: 'DM Sans',system-ui,sans-serif;
+    position: relative;
+  }
+  .rsc-cal-months {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .rsc-cal-month {
+    flex: 1;
+    min-width: 220px;
+  }
+  .rsc-cal-caption {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 34px;
+    margin: 0 40px 8px;
+  }
+  .rsc-cal-caption-label {
+    font-family: 'DM Sans',system-ui,sans-serif;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: rgba(236,235,224,0.93);
+    letter-spacing: -0.01em;
+    text-transform: capitalize;
+  }
+  .rsc-cal-nav {
+    position: absolute;
+    top: 0;
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    z-index: 10;
+  }
+  .rsc-cal-nav-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 7px;
+    cursor: pointer;
+    border: 1px solid rgba(236,235,224,0.08);
+    background: rgba(236,235,224,0.03);
+    color: rgba(236,235,224,0.45);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.13s ease;
+    padding: 0;
+  }
+  .rsc-cal-nav-btn:hover { border-color: rgba(236,235,224,0.18); color: rgba(236,235,224,0.90); background: rgba(236,235,224,0.07); }
+  .rsc-cal-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    margin-bottom: 2px;
+  }
+  .rsc-cal-weekday {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 30px;
+    font-family: 'DM Sans',system-ui,sans-serif;
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(236,235,224,0.22);
+  }
+  .rsc-cal-weeks {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .rsc-cal-week {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0;
+  }
+  .rsc-cal-day {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1px 0;
+    position: relative;
+  }
+  .rsc-cal-day-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 7px;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    font-family: 'DM Sans',system-ui,sans-serif;
+    font-size: 12px;
+    color: rgba(236,235,224,0.90);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.13s ease, color 0.13s ease;
+    position: relative;
+    z-index: 1;
+    outline: none;
+  }
+  .rsc-cal-day-btn:hover:not(:disabled) {
+    background: rgba(236,235,224,0.08);
+  }
+  .rsc-cal-today .rsc-cal-day-btn {
+    color: #FB670B;
+    font-weight: 700;
+  }
+  /* Range start */
+  .rsc-cal-range-start .rsc-cal-day-btn {
+    background: #FB670B !important;
+    color: #fff !important;
+    border-radius: 7px 0 0 7px;
+  }
+  /* Range end */
+  .rsc-cal-range-end .rsc-cal-day-btn {
+    background: #FB670B !important;
+    color: #fff !important;
+    border-radius: 0 7px 7px 0;
+  }
+  /* Single selected (start == end) */
+  .rsc-cal-range-start.rsc-cal-range-end .rsc-cal-day-btn {
+    border-radius: 7px !important;
+  }
+  /* Range middle */
+  .rsc-cal-range-middle {
+    background: rgba(251,103,11,0.12);
+  }
+  .rsc-cal-range-middle .rsc-cal-day-btn {
+    background: transparent !important;
+    color: rgba(236,235,224,0.90) !important;
+    border-radius: 0;
+  }
+  .rsc-cal-range-middle .rsc-cal-day-btn:hover {
+    background: rgba(251,103,11,0.15) !important;
+  }
+  /* Outside (other month days) */
+  .rsc-cal-outside .rsc-cal-day-btn {
+    color: rgba(236,235,224,0.20) !important;
+  }
+  .rsc-cal-outside.rsc-cal-range-middle { background: transparent; }
+  /* Disabled (fechas futuras) */
+  .rsc-cal-disabled .rsc-cal-day-btn,
+  .rsc-cal-day-btn:disabled {
+    color: rgba(236,235,224,0.18) !important;
+    cursor: not-allowed;
+    background: transparent !important;
+  }
+  .rsc-cal-hidden { visibility: hidden; }
+
+  /* Light theme overrides */
+  html[data-theme="light"] .rsc-cal-caption-label { color: rgba(26,35,50,0.90); }
+  html[data-theme="light"] .rsc-cal-nav-btn { border-color: rgba(26,35,50,0.10); background: rgba(26,35,50,0.03); color: rgba(26,35,50,0.45); }
+  html[data-theme="light"] .rsc-cal-nav-btn:hover { border-color: rgba(26,35,50,0.20); color: rgba(26,35,50,0.80); background: rgba(26,35,50,0.06); }
+  html[data-theme="light"] .rsc-cal-weekday { color: rgba(26,35,50,0.28); }
+  html[data-theme="light"] .rsc-cal-day-btn { color: rgba(26,35,50,0.87); }
+  html[data-theme="light"] .rsc-cal-day-btn:hover:not(:disabled) { background: rgba(26,35,50,0.06); }
+  html[data-theme="light"] .rsc-cal-today .rsc-cal-day-btn { color: #FB670B; }
+  html[data-theme="light"] .rsc-cal-range-middle { background: rgba(251,103,11,0.10); }
+  html[data-theme="light"] .rsc-cal-outside .rsc-cal-day-btn { color: rgba(26,35,50,0.22) !important; }
+  html[data-theme="light"] .rsc-cal-disabled .rsc-cal-day-btn,
+  html[data-theme="light"] .rsc-cal-day-btn:disabled { color: rgba(26,35,50,0.18) !important; }
 `;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
+
+// Formatea Date → "YYYY-MM-DD"
+function fmtDate(d) {
+  if (!d) return '';
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+// Calendario de rango de fechas (usa react-day-picker v9)
+function DateRangePicker({ from, to, onChange }) {
+  const [month, setMonth] = useState(() =>
+    from ? new Date(from + 'T00:00:00') : new Date()
+  );
+
+  const selected = {
+    from: from ? new Date(from + 'T00:00:00') : undefined,
+    to:   to   ? new Date(to   + 'T00:00:00') : undefined,
+  };
+
+  const handleSelect = (range) => {
+    onChange(fmtDate(range?.from), fmtDate(range?.to));
+  };
+
+  const calClassNames = {
+    root:           'rsc-cal-root',
+    months:         'rsc-cal-months',
+    month:          'rsc-cal-month',
+    month_caption:  'rsc-cal-caption',
+    caption_label:  'rsc-cal-caption-label',
+    nav:            'rsc-cal-nav',
+    button_previous:'rsc-cal-nav-btn',
+    button_next:    'rsc-cal-nav-btn',
+    weekdays:       'rsc-cal-weekdays',
+    weekday:        'rsc-cal-weekday',
+    weeks:          'rsc-cal-weeks',
+    week:           'rsc-cal-week',
+    day:            'rsc-cal-day',
+    day_button:     'rsc-cal-day-btn',
+    range_start:    'rsc-cal-range-start',
+    range_end:      'rsc-cal-range-end',
+    range_middle:   'rsc-cal-range-middle',
+    today:          'rsc-cal-today',
+    outside:        'rsc-cal-outside',
+    disabled:       'rsc-cal-disabled',
+    hidden:         'rsc-cal-hidden',
+  };
+
+  return (
+    <DayPicker
+      mode="range"
+      selected={selected}
+      onSelect={handleSelect}
+      numberOfMonths={2}
+      month={month}
+      onMonthChange={setMonth}
+      disabled={{ after: new Date() }}
+      classNames={calClassNames}
+      locale={es}
+    />
+  );
+}
+
 const lbl = {
   fontSize: 9.5,
   fontWeight: 700,
@@ -588,16 +819,11 @@ const ScheduleModal = React.memo(function ScheduleModal({ form, setForm, editId,
             </div>
             {/* Siempre en DOM, visible/oculto con CSS — evita perder foco al montar/desmontar */}
             <div style={{ display: form.period === 'custom' ? 'block' : 'none', padding: '14px 16px', background: 'rgba(251,103,11,0.05)', border: `1px solid rgba(251,103,11,0.22)`, borderRadius: 11, marginTop: 6 }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                <div>
-                  <label style={{ ...lbl, color: 'rgba(251,103,11,0.65)' }}>Desde</label>
-                  <input type="date" className="rsc-date-input" value={form.period_from} onChange={e => set('period_from', e.target.value)} />
-                </div>
-                <div>
-                  <label style={{ ...lbl, color: 'rgba(251,103,11,0.65)' }}>Hasta</label>
-                  <input type="date" className="rsc-date-input" value={form.period_to} min={form.period_from} onChange={e => set('period_to', e.target.value)} />
-                </div>
-              </div>
+              <DateRangePicker
+                from={form.period_from}
+                to={form.period_to}
+                onChange={(from, to) => { set('period_from', from || ''); set('period_to', to || ''); }}
+              />
               {form.period_from && form.period_to && (
                 <div style={{ marginTop: 10, fontSize: 10.5, color: CM.textSub, display: 'flex', alignItems: 'center', gap: 5, fontFamily: "'DM Sans',system-ui,sans-serif" }}>
                   {Ic.cal}

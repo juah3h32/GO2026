@@ -377,7 +377,22 @@ const MessageActions = ({ waLink, pdfData, distLink, t }) => {
     <div className="msg-actions">
       {waLink    && <a href={waLink}      target="_blank" rel="noopener noreferrer" className="msg-action-btn msg-action-wa"><WhatsAppIcon /><span>{t?.salesBtn || 'Cotizar por WhatsApp'}</span></a>}
       {pdfData   && <a href={pdfData.url} target="_blank" rel="noopener noreferrer" className="msg-action-btn msg-action-pdf"><PdfIcon /><span>{t?.pdfBtn || 'Ver catálogo PDF'}</span></a>}
-      {distLink  && <a href={distLink}    target="_blank" rel="noopener noreferrer" className="msg-action-btn msg-action-dist"><StoreIcon /><span>Registrarme como Distribuidor</span></a>}
+   {distLink && (
+  <a 
+    href={distLink} 
+    className="msg-action-btn msg-action-dist"
+    data-astro-reload="true"
+    onClick={(e) => {
+      // Opcional: si ya estás en la ruta de distribuidor, haz scroll suave
+      if (window.location.pathname.includes('/distribuidor')) {
+        e.preventDefault();
+        document.getElementById('formulario')?.scrollIntoView({ behavior: 'smooth' });
+      }
+    }}
+  >
+    <StoreIcon /><span>Registrarme como Distribuidor</span>
+  </a>
+)}
     </div>
   );
 };
@@ -1632,13 +1647,21 @@ export default function BotGO({ language = 'es' }) {
                         </div>
                       )}
                       <a
-                        href={`/${currentLangCode}/vacantes#vacantes`}
-                        className="vacpanel-more"
-                        onClick={() => { handleCloseChat(); }}
-                      >
-                        Ver todas las vacantes
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                      </a>
+href={`/${currentLangCode}/vacantes#vacantes`}
+  className="vacpanel-more"
+  onClick={() => {
+    setIsOpen(false);
+    setVacancyCards(null);
+    setTimeout(() => {
+      window.location.href = `/${currentLangCode}/vacantes#vacantes`;
+    }, 50);
+  }}
+>
+  Ver todas las vacantes
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M5 12h14M12 5l7 7-7 7"/>
+  </svg>
+</a>
                     </div>
                   ) : (
                     <div className="voice-caps-grid">

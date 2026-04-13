@@ -46,7 +46,14 @@ export async function POST({ request }) {
           body:  `Grupo Ortiz tiene una nueva oportunidad en ${area || 'Morelia'}. ¡Aplica ahora!`,
           url:   '/es/vacantes',
         }).catch(e => console.error('[push create]', e));
-        asignarEsperaAVacante(titulo).catch(e => console.error('[asignar espera create]', e));
+        asignarEsperaAVacante(titulo).then(async (candidatos) => {
+          if (!candidatos.length) return;
+          const vacante = { titulo, area, empresa };
+          const results = await notifyEsperaVacante({ candidatos, vacante, urlVacantes: 'https://grupo-ortiz.com/es/vacantes' });
+          const enviados = results.filter(r => r.ok).map(r => r.id);
+          if (enviados.length) await markNotificadosVacante(enviados);
+          console.log(`[espera create] Notificados por WA: ${enviados.length}/${candidatos.length}`);
+        }).catch(e => console.error('[asignar espera create]', e));
       }
 
       return json({ ok: true, id: result.id });
@@ -66,7 +73,14 @@ export async function POST({ request }) {
           body:  `Grupo Ortiz tiene una nueva oportunidad en ${area || 'Morelia'}. ¡Aplica ahora!`,
           url:   '/es/vacantes',
         }).catch(e => console.error('[push update]', e));
-        asignarEsperaAVacante(titulo).catch(e => console.error('[asignar espera update]', e));
+        asignarEsperaAVacante(titulo).then(async (candidatos) => {
+          if (!candidatos.length) return;
+          const vacante = { titulo, area, empresa };
+          const results = await notifyEsperaVacante({ candidatos, vacante, urlVacantes: 'https://grupo-ortiz.com/es/vacantes' });
+          const enviados = results.filter(r => r.ok).map(r => r.id);
+          if (enviados.length) await markNotificadosVacante(enviados);
+          console.log(`[espera update] Notificados por WA: ${enviados.length}/${candidatos.length}`);
+        }).catch(e => console.error('[asignar espera update]', e));
       }
       return json({ ok: true });
     }
@@ -89,7 +103,13 @@ export async function POST({ request }) {
             body:  `Grupo Ortiz tiene una nueva oportunidad en ${v.area || 'Morelia'}. ¡Aplica ahora!`,
             url:   '/es/vacantes',
           }).catch(e => console.error('[push toggle]', e));
-          asignarEsperaAVacante(v.titulo).catch(e => console.error('[asignar espera toggle]', e));
+          asignarEsperaAVacante(v.titulo).then(async (candidatos) => {
+            if (!candidatos.length) return;
+            const results = await notifyEsperaVacante({ candidatos, vacante: v, urlVacantes: 'https://grupo-ortiz.com/es/vacantes' });
+            const enviados = results.filter(r => r.ok).map(r => r.id);
+            if (enviados.length) await markNotificadosVacante(enviados);
+            console.log(`[espera toggle] Notificados por WA: ${enviados.length}/${candidatos.length}`);
+          }).catch(e => console.error('[asignar espera toggle]', e));
         }
       }
       return json({ ok: true });

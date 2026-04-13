@@ -2044,9 +2044,11 @@ const ALL_TABS=[
         )}
 
         {/* ── RECRUITMENT ── */}
+        
         {tab==='recruitment'&&canSee('recruitment')&&(
           <div className="tab-content" key="rc"><RecruitmentTab canDelete={isOnlyAdmin || role.name === 'RH'} theme={theme}/></div>
         )}
+        
 
         {/* ── AI ── */}
         {!loading&&data&&tab==='ai'&&canSee('ai')&&(

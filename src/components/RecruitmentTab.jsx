@@ -1,5 +1,6 @@
 // src/components/RecruitmentTab.jsx
 import React, { useState, useEffect, useCallback, useRef, createContext, useContext } from 'react';
+import { createPortal } from 'react-dom';
 import { descargarPerfilPDF, exportarTodoCSV, exportarTodoExcel } from '../lib/recruitmentExport.js';
 
 // ── PALETAS ───────────────────────────────────────────────────────────────────
@@ -90,6 +91,160 @@ function getInitials(nombre) {
   return parts.length >= 2
     ? (parts[0][0] + parts[1][0]).toUpperCase()
     : nombre.slice(0, 2).toUpperCase();
+}
+
+// ── Detección de género por nombre en español ─────────────────────────────────
+const _NF = new Set(['maria','ana','rosa','laura','elena','sofia','isabella','valentina','lucia',
+  'andrea','paula','diana','patricia','monica','claudia','sandra','jessica','gabriela','alejandra',
+  'fernanda','daniela','carolina','mariana','natalia','veronica','adriana','lorena','beatriz',
+  'silvia','irene','isabel','teresa','carmen','pilar','yolanda','rebeca','sara','nadia','miriam',
+  'raquel','alicia','leticia','gloria','norma','esperanza','graciela','estela','marisol','rocio',
+  'magdalena','guadalupe','luz','angelica','susana','martha','cecilia','liliana','blanca','edith',
+  'julia','ruth','nancy','wendy','karla','karina','brenda','yaneth','anabel','xilonen','poolet',
+  'lizbeth','fabiola','viviana','esmeralda','paola','minerva','ximena','montserrat','perla',
+]);
+const _NM = new Set(['jose','juan','carlos','luis','miguel','jesus','pedro','antonio','roberto',
+  'francisco','manuel','rafael','jorge','alejandro','fernando','david','daniel','ricardo','sergio',
+  'mario','eduardo','alberto','nicolas','enrique','arturo','hugo','javier','hector','pablo',
+  'cesar','raul','omar','felipe','gerardo','marco','andres','diego','ivan','gabriel','ernesto',
+  'oscar','alfredo','armando','ignacio','salvador','ruben','benjamin','samuel','abel','martin',
+  'victor','gustavo','rogelio','jaime','gilberto','jonathan','emilio','carlos','bautista',
+]);
+
+function detectGender(nombre) {
+  if (!nombre) return 'neutral';
+  const first = nombre.trim().split(/\s+/)[0].toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  if (_NF.has(first)) return 'female';
+  if (_NM.has(first)) return 'male';
+  if (/ina$|ela$|ana$|ita$|ica$|ida$|isa$|iza$|ua$/.test(first)) return 'female';
+  if (/(?<!m|b|c|g|p|z)a$/.test(first)) return 'female';
+  if (/os$|el$|er$|on$|or$|uel$|iel$|o$/.test(first)) return 'male';
+  return 'neutral';
+}
+
+// ── CSS avatar corporativo ────────────────────────────────────────────────────
+const AVATAR_CSS = `
+  @keyframes avIn {
+    from { opacity:0; transform:scale(0.78); }
+    to   { opacity:1; transform:scale(1);    }
+  }
+  .av-corp {
+    animation: avIn 0.22s cubic-bezier(0.16,1,0.3,1) both;
+    transition: box-shadow 0.18s ease, transform 0.18s ease;
+    flex-shrink: 0;
+  }
+  .av-corp:hover { transform: translateY(-1px); }
+`;
+
+// ── Siluetas profesionales SVG (sin API externa) ──────────────────────────────
+// Estilo: flat design corporativo, igual al de HR enterprise (Workday, SAP, BambooHR)
+
+function AvatarMaleSVG({ size }) {
+  const r = size / 2;
+  return (
+    <svg width={size} height={size} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="mgA" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#1e3a5f"/>
+          <stop offset="100%" stopColor="#2563eb"/>
+        </linearGradient>
+        <linearGradient id="mgB" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="rgba(255,255,255,0.22)"/>
+          <stop offset="100%" stopColor="rgba(255,255,255,0.06)"/>
+        </linearGradient>
+        <clipPath id="mc"><rect width="40" height="40" rx={Math.round(r * 0.52)}/></clipPath>
+      </defs>
+      <rect width="40" height="40" rx={Math.round(r * 0.52)} fill="url(#mgA)"/>
+      <rect width="40" height="40" rx={Math.round(r * 0.52)} fill="url(#mgB)"/>
+      {/* Cabeza */}
+      <circle cx="20" cy="15" r="7" fill="rgba(255,255,255,0.92)"/>
+      {/* Cuello */}
+      <rect x="17.5" y="21" width="5" height="4" rx="1.5" fill="rgba(255,255,255,0.80)"/>
+      {/* Hombros / traje — forma masculina más ancha */}
+      <path d="M6 42 C6 31 34 31 34 42 Z" fill="rgba(255,255,255,0.92)"/>
+      {/* Solapa de traje */}
+      <path d="M17 25 L14 29 L20 28 L26 29 L23 25 L20 27 Z" fill="rgba(30,58,95,0.55)"/>
+    </svg>
+  );
+}
+
+function AvatarFemaleSVG({ size }) {
+  const r = size / 2;
+  return (
+    <svg width={size} height={size} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="fgA" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#3b1f6b"/>
+          <stop offset="100%" stopColor="#7c3aed"/>
+        </linearGradient>
+        <linearGradient id="fgB" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="rgba(255,255,255,0.20)"/>
+          <stop offset="100%" stopColor="rgba(255,255,255,0.05)"/>
+        </linearGradient>
+        <clipPath id="fc"><rect width="40" height="40" rx={Math.round(r * 0.52)}/></clipPath>
+      </defs>
+      <rect width="40" height="40" rx={Math.round(r * 0.52)} fill="url(#fgA)"/>
+      <rect width="40" height="40" rx={Math.round(r * 0.52)} fill="url(#fgB)"/>
+      {/* Cabello — más largo a los lados */}
+      <ellipse cx="20" cy="14" rx="9" ry="8" fill="rgba(255,255,255,0.30)"/>
+      <rect x="10" y="13" width="3" height="9" rx="1.5" fill="rgba(255,255,255,0.25)"/>
+      <rect x="27" y="13" width="3" height="9" rx="1.5" fill="rgba(255,255,255,0.25)"/>
+      {/* Cabeza */}
+      <circle cx="20" cy="15" r="6.5" fill="rgba(255,255,255,0.92)"/>
+      {/* Cuello */}
+      <rect x="18" y="20.5" width="4" height="4" rx="1.5" fill="rgba(255,255,255,0.80)"/>
+      {/* Hombros / blusa — forma más estrecha y redondeada */}
+      <path d="M9 42 C9 32 31 32 31 42 Z" fill="rgba(255,255,255,0.92)"/>
+    </svg>
+  );
+}
+
+function AvatarNeutralSVG({ size }) {
+  const r = size / 2;
+  return (
+    <svg width={size} height={size} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="ngA" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#1f2937"/>
+          <stop offset="100%" stopColor="#374151"/>
+        </linearGradient>
+      </defs>
+      <rect width="40" height="40" rx={Math.round(r * 0.52)} fill="url(#ngA)"/>
+      <circle cx="20" cy="15" r="7" fill="rgba(255,255,255,0.85)"/>
+      <path d="M7 42 C7 31 33 31 33 42 Z" fill="rgba(255,255,255,0.85)"/>
+    </svg>
+  );
+}
+
+// ── Componente principal ──────────────────────────────────────────────────────
+function AvatarIcon({ nombre, size = 36, statusColor }) {
+  const gender = detectGender(nombre);
+
+  const border = gender === 'female'
+    ? 'rgba(124,58,237,0.40)'
+    : gender === 'male'
+    ? 'rgba(37,99,235,0.40)'
+    : 'rgba(100,100,100,0.25)';
+
+  const shadow = gender === 'female'
+    ? '0 2px 8px rgba(124,58,237,0.20)'
+    : gender === 'male'
+    ? '0 2px 8px rgba(37,99,235,0.20)'
+    : '0 1px 4px rgba(0,0,0,0.15)';
+
+  const br = size > 30 ? 10 : 7;
+
+  return (
+    <>
+      <style>{AVATAR_CSS}</style>
+      <div className="av-corp" style={{ width:size, height:size, borderRadius:br, overflow:'hidden', border:`1.5px solid ${border}`, boxShadow:shadow }}>
+        {gender === 'female'  && <AvatarFemaleSVG  size={size}/>}
+        {gender === 'male'    && <AvatarMaleSVG    size={size}/>}
+        {gender === 'neutral' && <AvatarNeutralSVG size={size}/>}
+      </div>
+    </>
+  );
 }
 
 function formatFecha(ts) {
@@ -239,7 +394,7 @@ function TrackingPanel({ candidateId }) {
   };
 
   return (
-    <div style={{ marginTop:14, borderTop:`1px solid ${C.border}`, paddingTop:16 }}>
+    <div>
       {/* Header */}
       <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:14 }}>
         <div style={{ width:26, height:26, borderRadius:7, background:C.amberDim, border:`1px solid ${C.amber}30`, display:'flex', alignItems:'center', justifyContent:'center', color:C.amber, flexShrink:0 }}>{Ic.notes}</div>
@@ -307,7 +462,7 @@ function TrackingPanel({ candidateId }) {
   );
 }
 
-function CandidateCard({ candidate, onStatusChange, onDelete, expanded, onToggle, isNew, canDelete }) {
+function CandidateCard({ candidate, onStatusChange, onDelete, onRequestDelete, expanded, onToggle, isNew, canDelete }) {
   const C = useC();
   const [updating,  setUpdating]  = useState(false);
   const [sendOpen,  setSendOpen]  = useState(false);
@@ -327,14 +482,10 @@ function CandidateCard({ candidate, onStatusChange, onDelete, expanded, onToggle
     setUpdating(false);
   };
 
-  const handleDelete = async () => {
-    if (!canDelete || !candidate) return;
-    if (!confirm(`¿Eliminar al candidato "${candidate?.nombre || 'este candidato'}"?`)) return;
-    try {
-      await fetch('/api/recruitment', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'delete', id:candidate.id }) });
-      onDelete(candidate.id);
-    } catch(e) { console.error(e); }
-  };
+const handleDelete = () => {
+  if (!canDelete || !candidate) return;
+  onRequestDelete({ id: candidate.id, nombre: candidate.nombre, puesto: candidate.puesto });
+};
 
   // PROTECCIÓN: Valores por defecto para evitar errores de renderizado
   const folio   = candidate?.id ? `#${String(candidate.id).padStart(5,'0')}` : '—';
@@ -360,9 +511,7 @@ function CandidateCard({ candidate, onStatusChange, onDelete, expanded, onToggle
         <div onClick={onToggle} style={{ padding:'10px 14px', display:'flex', alignItems:'center', gap:12, cursor:'pointer', background: expanded ? `${C.orange}04` : 'transparent', transition:'background 0.12s ease', flexWrap:'wrap', rowGap:6, minHeight:48 }}>
 
           {/* Avatar */}
-          <div style={{ width:36, height:36, borderRadius:9, background:`${sm.color}14`, border:`1px solid ${sm.color}28`, display:'flex', alignItems:'center', justifyContent:'center', color:sm.color, fontFamily:T.sans, fontWeight:700, fontSize:13, flexShrink:0, letterSpacing:'-0.02em' }}>
-            {getInitials(candidate?.nombre || '?')}
-          </div>
+          <AvatarIcon nombre={candidate?.nombre} size={36} statusColor={sm.color}/>
 
           {/* Info central */}
           <div style={{ flex:1, minWidth:0 }}>
@@ -417,89 +566,108 @@ function CandidateCard({ candidate, onStatusChange, onDelete, expanded, onToggle
         
         {/* Panel expandido */}
         {expanded && candidate && (
-          <div style={{ borderTop:`1px solid ${C.border}`, background: C.surface2 }}>
+          <div style={{ borderTop:`1px solid ${C.border}`, background: C.surface2 }} onClick={e => e.stopPropagation()}>
 
-            {/* Cambio de estatus */}
-            <div style={{ padding:'14px 16px', borderBottom:`1px solid ${C.border}` }}>
-              <div style={{ fontSize:10, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.08em', color:C.textDim, fontFamily:T.sans, marginBottom:10 }}>
-                Cambiar estatus
-              </div>
-              <div style={{ display:'flex', gap:6, flexWrap:'wrap' }} onClick={e => e.stopPropagation()}>
-                {Object.entries(getStatusMap(C)).map(([key, sm]) => (
-                  <button key={key} disabled={updating} onClick={() => changeStatus(key)}
-                    style={{ display:'inline-flex', alignItems:'center', gap:5, padding:'6px 13px', borderRadius:20,
-                      fontSize:11.5, fontWeight:currentStatus===key ? 700 : 500, fontFamily:T.sans, cursor:'pointer',
-                      border:`1.5px solid ${currentStatus===key ? sm.color : C.border}`,
-                      background: currentStatus===key ? sm.color : 'transparent',
-                      color: currentStatus===key ? '#fff' : C.textSub,
-                      transition:'all 0.12s ease', opacity: updating ? 0.6 : 1 }}>
-                    {currentStatus===key && <span style={{ width:6, height:6, borderRadius:'50%', background:'rgba(255,255,255,0.7)', display:'inline-block' }}/>}
-                    {sm.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Datos del candidato */}
-            <div style={{ padding:'14px 16px', borderBottom:`1px solid ${C.border}` }}>
-              <div style={{ fontSize:10, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.08em', color:C.textDim, fontFamily:T.sans, marginBottom:10 }}>
-                Datos del candidato
-              </div>
-              <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))', gap:'8px 16px' }}>
-                {[
-                  { label:'Email',     value:candidate.email,     href:`mailto:${candidate.email}` },
-                  { label:'Teléfono',  value:candidate.telefono,  href:`https://wa.me/${(candidate.telefono||'').replace(/\D/g,'')}` },
-                  { label:'Edad',      value:candidate.edad       },
-                  { label:'Estado',    value:candidate.estado_rep },
-                  { label:'Colonia',   value:candidate.colonia    },
-                  { label:'Registrado',value:tsLabel              },
-                ].filter(f => f.value).map(f => (
-                  <div key={f.label}>
-                    <div style={{ fontSize:9.5, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.06em', color:C.textDim, fontFamily:T.sans, marginBottom:2 }}>{f.label}</div>
-                    {f.href
-                      ? <a href={f.href} target="_blank" rel="noopener noreferrer" style={{ fontSize:12, color:C.orange, fontFamily:T.sans, textDecoration:'none', fontWeight:500 }}>{f.value}</a>
-                      : <div style={{ fontSize:12, color:C.text, fontFamily:T.sans }}>{f.value}</div>
-                    }
-                  </div>
-                ))}
-              </div>
-
-              {/* CV + mensaje */}
-              <div style={{ display:'flex', gap:8, marginTop:12, flexWrap:'wrap' }} onClick={e=>e.stopPropagation()}>
-                {tieneCv && (
-                  <button onClick={() => abrirCV(candidate)}
-                    style={{ display:'inline-flex', alignItems:'center', gap:5, padding:'6px 13px', borderRadius:7,
-                      fontSize:11, fontWeight:600, fontFamily:T.sans, cursor:'pointer',
-                      background:C.surface, border:`1.5px solid ${C.border}`, color:C.teal }}>
-                    {Ic.clip} Ver CV — {candidate.cv_nombre}
-                  </button>
-                )}
-                {canDelete && (
-                  <button onClick={handleDelete}
-                    style={{ display:'inline-flex', alignItems:'center', gap:5, padding:'6px 13px', borderRadius:7,
-                      fontSize:11, fontWeight:600, fontFamily:T.sans, cursor:'pointer', marginLeft:'auto',
-                      background:'transparent', border:`1.5px solid ${C.red}40`, color:C.red }}>
-                    {Ic.trash} Eliminar candidato
-                  </button>
-                )}
-              </div>
-
-              {candidate.mensaje && (
-                <div style={{ marginTop:12 }}>
-                  <div style={{ fontSize:9.5, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.06em', color:C.textDim, fontFamily:T.sans, marginBottom:5 }}>Mensaje del candidato</div>
-                  <div style={{ fontSize:12, color:C.textSub, fontFamily:T.sans, lineHeight:1.65, whiteSpace:'pre-wrap',
-                    background:C.surface, border:`1px solid ${C.border}`, borderRadius:8, padding:'10px 12px' }}>
-                    {candidate.mensaje}
-                  </div>
-                </div>
+            {/* ── Fila de estatus ── */}
+            <div style={{ padding:'12px 16px', borderBottom:`1px solid ${C.border}`, display:'flex', alignItems:'center', gap:6, flexWrap:'wrap' }}>
+              {Object.entries(getStatusMap(C)).map(([key, sm]) => (
+                <button key={key} disabled={updating} onClick={() => changeStatus(key)}
+                  style={{ display:'inline-flex', alignItems:'center', gap:5, padding:'5px 13px', borderRadius:20,
+                    fontSize:11, fontWeight: currentStatus===key ? 700 : 500, fontFamily:T.sans, cursor:'pointer',
+                    border:`1.5px solid ${currentStatus===key ? sm.color : C.border}`,
+                    background: currentStatus===key ? sm.color : 'transparent',
+                    color: currentStatus===key ? '#fff' : C.textSub,
+                    transition:'all 0.12s ease', opacity: updating ? 0.6 : 1 }}>
+                  {currentStatus===key && <span style={{ width:5, height:5, borderRadius:'50%', background:'rgba(255,255,255,0.75)', display:'inline-block' }}/>}
+                  {sm.label}
+                </button>
+              ))}
+              {canDelete && (
+                <button onClick={handleDelete}
+                  style={{ marginLeft:'auto', display:'inline-flex', alignItems:'center', gap:5, padding:'5px 12px', borderRadius:20,
+                    fontSize:11, fontWeight:600, fontFamily:T.sans, cursor:'pointer',
+                    background:'transparent', border:`1.5px solid ${C.red}35`, color:C.red, transition:'all 0.12s ease' }}>
+                  {Ic.trash} Eliminar
+                </button>
               )}
             </div>
 
-            {/* Notas de seguimiento */}
-            <div style={{ padding:'14px 16px' }} onClick={e => e.stopPropagation()}>
-              <TrackingPanel candidateId={candidate.id}/>
-            </div>
+            {/* ── Dos columnas: info izq | notas der ── */}
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:0 }}>
 
+              {/* Columna izquierda — datos + CV + mensaje */}
+              <div style={{ padding:'16px', borderRight:`1px solid ${C.border}` }}>
+
+                {/* Datos de contacto */}
+                <div style={{ display:'flex', flexDirection:'column', gap:9 }}>
+                  {candidate.email && (
+                    <div style={{ display:'flex', alignItems:'center', gap:9 }}>
+                      <span style={{ width:28, height:28, borderRadius:8, background:`${C.orange}12`, border:`1px solid ${C.orange}20`, display:'flex', alignItems:'center', justifyContent:'center', color:C.orange, flexShrink:0 }}>{Ic.email}</span>
+                      <div>
+                        <div style={{ fontSize:9, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.07em', color:C.textDim, fontFamily:T.sans, marginBottom:1 }}>Email</div>
+                        <a href={`mailto:${candidate.email}`} style={{ fontSize:12, color:C.orange, fontFamily:T.sans, textDecoration:'none', fontWeight:500 }}>{candidate.email}</a>
+                      </div>
+                    </div>
+                  )}
+                  {candidate.telefono && (
+                    <div style={{ display:'flex', alignItems:'center', gap:9 }}>
+                      <span style={{ width:28, height:28, borderRadius:8, background:`${C.teal}12`, border:`1px solid ${C.teal}20`, display:'flex', alignItems:'center', justifyContent:'center', color:C.teal, flexShrink:0 }}>{Ic.phone}</span>
+                      <div>
+                        <div style={{ fontSize:9, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.07em', color:C.textDim, fontFamily:T.sans, marginBottom:1 }}>Teléfono</div>
+                        <a href={`https://wa.me/${(candidate.telefono||'').replace(/\D/g,'')}`} target="_blank" rel="noopener noreferrer" style={{ fontSize:12, color:C.teal, fontFamily:T.sans, textDecoration:'none', fontWeight:500 }}>{candidate.telefono}</a>
+                      </div>
+                    </div>
+                  )}
+                  <div style={{ display:'flex', gap:16, flexWrap:'wrap' }}>
+                    {candidate.edad && (
+                      <div>
+                        <div style={{ fontSize:9, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.07em', color:C.textDim, fontFamily:T.sans, marginBottom:1 }}>Edad</div>
+                        <div style={{ fontSize:12, color:C.text, fontFamily:T.sans, fontWeight:500 }}>{candidate.edad} años</div>
+                      </div>
+                    )}
+                    {candidate.estado_rep && (
+                      <div>
+                        <div style={{ fontSize:9, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.07em', color:C.textDim, fontFamily:T.sans, marginBottom:1 }}>Ubicación</div>
+                        <div style={{ fontSize:12, color:C.text, fontFamily:T.sans, fontWeight:500 }}>{candidate.colonia ? `${candidate.colonia}, ` : ''}{candidate.estado_rep}</div>
+                      </div>
+                    )}
+                    {tsLabel && (
+                      <div>
+                        <div style={{ fontSize:9, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.07em', color:C.textDim, fontFamily:T.sans, marginBottom:1 }}>Registrado</div>
+                        <div style={{ fontSize:11, color:C.textSub, fontFamily:T.sans }}>{tsLabel}</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* CV */}
+                {tieneCv && (
+                  <button onClick={() => abrirCV(candidate)}
+                    style={{ marginTop:14, display:'inline-flex', alignItems:'center', gap:6, padding:'7px 13px', borderRadius:8,
+                      fontSize:11, fontWeight:600, fontFamily:T.sans, cursor:'pointer', width:'100%',
+                      background:C.surface, border:`1px solid ${C.border}`, color:C.teal, justifyContent:'center' }}>
+                    {Ic.clip} Ver CV — {candidate.cv_nombre}
+                  </button>
+                )}
+
+                {/* Mensaje */}
+                {candidate.mensaje && (
+                  <div style={{ marginTop:14 }}>
+                    <div style={{ fontSize:9, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.07em', color:C.textDim, fontFamily:T.sans, marginBottom:6 }}>Mensaje del candidato</div>
+                    <div style={{ fontSize:11.5, color:C.textSub, fontFamily:T.sans, lineHeight:1.65, whiteSpace:'pre-wrap',
+                      background:C.surface, border:`1px solid ${C.border}`, borderRadius:8, padding:'9px 11px' }}>
+                      {candidate.mensaje}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Columna derecha — seguimiento */}
+              <div style={{ padding:'16px' }}>
+                <TrackingPanel candidateId={candidate.id}/>
+              </div>
+
+            </div>
           </div>
         )}
 
@@ -526,6 +694,9 @@ export default function RecruitmentTab({ canDelete = false, theme = 'dark' }) {
   const [exporting,  setExporting]  = useState(null);
   const [iaReporting,    setIaReporting]   = useState(false);
   const [iaReportPuesto, setIaReportPuesto] = useState(''); // legacy, no se usa
+ const [deleteTarget, setDeleteTarget] = useState(null); // { id, nombre, puesto }
+const [deleting,     setDeleting]     = useState(false);
+ 
   const [iaVacanteId,    setIaVacanteId]   = useState(''); // '' = todos, 'otro' = sin vacante, número = vacante específica
   const [vacantes,       setVacantes]      = useState([]);
   const prevIdsRef  = useRef(new Set());
@@ -654,7 +825,16 @@ export default function RecruitmentTab({ canDelete = false, theme = 'dark' }) {
       setIaReporting(false);
     }
   };
-
+const confirmDelete = async () => {
+  if (!deleteTarget) return;
+  setDeleting(true);
+  try {
+    await fetch('/api/recruitment', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'delete', id: deleteTarget.id }) });
+    handleDelete(deleteTarget.id);
+  } catch(e) { console.error(e); }
+  setDeleting(false);
+  setDeleteTarget(null);
+};
   if (loading) return (
     <CCtx.Provider value={palette}>
       <div style={{ display:'flex', justifyContent:'center', alignItems:'center', padding:'80px 0', flexDirection:'column', gap:12 }}>
@@ -875,16 +1055,86 @@ export default function RecruitmentTab({ canDelete = false, theme = 'dark' }) {
           ) : (
             <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
               {filtered.map(c => (
-                <CandidateCard key={c.id} candidate={c}
-                  onStatusChange={handleStatusChange} onDelete={handleDelete}
-                  expanded={expanded === c.id} onToggle={() => setExpanded(expanded === c.id ? null : c.id)}
-                  isNew={newIds.has(c.id)} canDelete={canDelete}
-                />
+              <CandidateCard key={c.id} candidate={c}
+  onStatusChange={handleStatusChange} onDelete={handleDelete}
+  onRequestDelete={setDeleteTarget}
+  expanded={expanded === c.id} onToggle={() => setExpanded(expanded === c.id ? null : c.id)}
+  isNew={newIds.has(c.id)} canDelete={canDelete}
+/>
               ))}
             </div>
           )}
         </div>
+{/* ── MODAL ELIMINAR CANDIDATO ── */}
+{deleteTarget && createPortal(
+  <div style={{
+    position:'fixed', inset:0, zIndex:99999999,
+    background:'rgba(6,5,4,0.75)',
+    backdropFilter:'blur(16px)',
+    display:'flex', alignItems:'center', justifyContent:'center',
+    padding:16, animation:'fadeIn 0.18s ease',
+  }}>
+    <div style={{
+      background: theme==='dark' ? C.surface2 : '#FFFFFF',
+      border:`1px solid ${theme==='dark' ? C.border : '#E5E7EB'}`,
+      borderRadius:14, width:'100%', maxWidth:400,
+      overflow:'hidden', position:'relative',
+      boxShadow: theme==='dark' ? '0 24px 64px rgba(0,0,0,0.70)' : '0 8px 40px rgba(0,0,0,0.10)',
+      animation:'newCardIn 0.22s cubic-bezier(0.16,1,0.3,1) both',
+    }}>
+      {/* Barra roja top */}
+      <div style={{ position:'absolute', top:0, left:0, right:0, height:2.5, background:'linear-gradient(90deg,#DC2626,#EF4444,transparent)' }}/>
 
+      {/* Header */}
+      <div style={{ padding:'24px 24px 16px', display:'flex', alignItems:'center', gap:12 }}>
+        <div style={{ width:40, height:40, borderRadius:10, background: theme==='dark' ? 'rgba(220,38,38,0.12)' : 'rgba(220,38,38,0.07)', border:`1px solid ${theme==='dark' ? 'rgba(220,38,38,0.25)' : 'rgba(220,38,38,0.20)'}`, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+          {Ic.trash}
+        </div>
+        <div>
+          <p style={{ fontWeight:700, fontSize:15, margin:'0 0 3px', color: theme==='dark' ? C.text : '#111827', letterSpacing:'-0.02em' }}>Eliminar candidato</p>
+          <p style={{ fontSize:11, margin:0, color: theme==='dark' ? C.textDim : '#9CA3AF' }}>Esta acción no se puede deshacer</p>
+        </div>
+      </div>
+
+      {/* Chip candidato */}
+      <div style={{ padding:'0 24px 16px' }}>
+        <div style={{ display:'inline-flex', alignItems:'center', gap:8, padding:'8px 12px', borderRadius:9, background: theme==='dark' ? C.surface3 : '#F8F9FB', border:`1px solid ${theme==='dark' ? C.border : '#E5E7EB'}` }}>
+          <AvatarIcon nombre={deleteTarget.nombre} size={28} statusColor={C.orange}/>
+          <div>
+            <div style={{ fontSize:12, fontWeight:600, color: theme==='dark' ? C.text : '#374151', fontFamily:T.sans }}>{deleteTarget.nombre}</div>
+            <div style={{ fontSize:10, color: theme==='dark' ? C.textDim : '#9CA3AF', marginTop:1, fontFamily:T.sans }}>{deleteTarget.puesto || 'Candidato · Reclutamiento'}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Divider */}
+      <div style={{ height:1, background: theme==='dark' ? C.border2 : '#F3F4F6', margin:'0 24px' }}/>
+
+      {/* Descripción */}
+      <div style={{ padding:'14px 24px' }}>
+        <p style={{ fontSize:13, lineHeight:1.65, margin:0, color: theme==='dark' ? C.textSub : '#6B7280', fontFamily:T.sans }}>
+          Se eliminará permanentemente el perfil, historial y documentos.
+          Esta operación <strong style={{ color: theme==='dark' ? C.text : '#374151' }}>no puede revertirse</strong>.
+        </p>
+      </div>
+
+      {/* Botones */}
+      <div style={{ padding:'12px 24px 20px', display:'flex', gap:8 }}>
+        <button onClick={() => setDeleteTarget(null)} disabled={deleting}
+          style={{ flex:1, padding:'10px 0', borderRadius:9, fontSize:12, fontWeight:500, cursor:'pointer', fontFamily:T.sans, background:'transparent', border:`1px solid ${theme==='dark' ? C.border : '#E5E7EB'}`, color: theme==='dark' ? C.textSub : '#6B7280', transition:'all 0.13s ease' }}>
+          Cancelar
+        </button>
+        <button onClick={confirmDelete} disabled={deleting}
+          style={{ flex:1, padding:'10px 0', borderRadius:9, fontSize:12, fontWeight:700, cursor: deleting ? 'not-allowed' : 'pointer', fontFamily:T.sans, border:'none', color:'#fff', background: deleting ? '#9CA3AF' : '#DC2626', boxShadow: deleting ? 'none' : '0 4px 14px rgba(220,38,38,0.30)', display:'flex', alignItems:'center', justifyContent:'center', gap:7, transition:'all 0.13s ease' }}>
+          {deleting
+            ? <><div style={{ width:12,height:12,borderRadius:'50%',border:'2px solid rgba(255,255,255,0.3)',borderTop:'2px solid #fff',animation:'spin 0.65s linear infinite' }}/>Eliminando…</>
+            : <>{Ic.trash} Eliminar</>}
+        </button>
+      </div>
+    </div>
+  </div>,
+  document.body
+)}
         {/* Footer info */}
         <div style={{ padding:'10px 14px', borderRadius:9, background:C.surface2, border:`1px solid ${C.border}`, display:'flex', alignItems:'center', gap:8 }}>
           <span style={{ color:C.textDim, display:'flex', flexShrink:0 }}>{Ic.info}</span>
@@ -893,6 +1143,7 @@ export default function RecruitmentTab({ canDelete = false, theme = 'dark' }) {
             {candidates.length > 0 && <> · <strong style={{ color:C.textSub }}>Perfil</strong> = PDF individual · <strong style={{ color:C.textSub }}>Excel/CSV</strong> = exportar todo</>}
           </span>
         </div>
+        
       </div>
     </CCtx.Provider>
   );
