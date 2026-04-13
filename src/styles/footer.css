@@ -282,3 +282,10 @@ footer {
     max-width: 250px;
   }
 }
+a.contact-address:hover {
+  color: var(--color-primary);
+}
+
+a.contact-address:hover svg {
+  stroke: var(--color-primary);
+}
