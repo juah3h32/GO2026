@@ -60,32 +60,104 @@ const steps = [
   currentLang={currentLang}
 >
 
-  <!-- Schema.org JobPosting SEO -->
-  <script type="application/ld+json" slot="head">{JSON.stringify({
-    "@context":"https://schema.org",
-    "@type":"Organization",
-    "name":"Grupo Ortiz",
-    "url":"https://grupo-ortiz.com",
-    "logo":"https://grupo-ortiz.com/images/logoN.png",
-    "address":{"@type":"PostalAddress","addressLocality":"Morelia","addressRegion":"Michoacán","addressCountry":"MX"},
-    "contactPoint":{"@type":"ContactPoint","telephone":"+52-443-207-2593","contactType":"Human Resources"}
-  })}</script>
+  <Fragment slot="head">
+    <script type="application/ld+json">{JSON.stringify({
+      "@context":"https://schema.org",
+      "@type":"Organization",
+      "name":"Grupo Ortiz",
+      "url":"https://grupo-ortiz.com",
+      "logo":"https://grupo-ortiz.com/images/logoN.png",
+      "address":{"@type":"PostalAddress","addressLocality":"Morelia","addressRegion":"Michoacán","addressCountry":"MX"},
+      "contactPoint":{"@type":"ContactPoint","telephone":"+52-443-207-2593","contactType":"Human Resources"}
+    })}</script>
+
+    <style is:inline>
+      html.ocultar-salto { 
+        opacity: 0 !important; 
+        pointer-events: none !important;
+      }
+    </style>
+
+    <script is:inline>
+      if (window.location.hash === '#vacantes') {
+        document.documentElement.classList.add('ocultar-salto');
+      }
+    </script>
+  </Fragment>
 
   <!-- Función global que abre el bot -->
+<style is:inline>
+    /* Hace la página transparente temporalmente si viene con un salto */
+    html.ocultar-salto {
+      opacity: 0 !important;
+      transition: opacity 0.15s ease-in; /* Aparece suavemente una vez acomodada */
+    }
+  </style>
+
   <script is:inline>
+    // 1. Acción Inmediata: Si hay un hash, ocultamos el HTML ANTES de que el navegador lo dibuje
+    if (window.location.hash) {
+      document.documentElement.classList.add('ocultar-salto');
+    }
+
     function openBot(detail) {
       window.dispatchEvent(new CustomEvent('botgo:open-vacancy', { detail: detail || {} }));
     }
+
     window.addEventListener('vacantes:loaded', (e) => {
       const el = document.getElementById('vac-count');
       if (el && e.detail?.total != null) {
         el.innerHTML = e.detail.total > 0 ? `<em>+</em>${e.detail.total}` : '—';
       }
     });
+
     window.addEventListener('vacantes:expand', () => {
       const header = document.getElementById('vacantes-header');
       if (header) header.classList.add('is-sticky');
     });
+
+    function forcePinToHash() {
+      const hash = window.location.hash;
+      
+      // Si no hay hash, nos aseguramos de que la página sea visible y terminamos
+      if (!hash) {
+        document.documentElement.classList.remove('ocultar-salto');
+        return;
+      }
+
+      if ('scrollRestoration' in history) {
+        history.scrollRestoration = 'manual';
+      }
+
+      let attempts = 0;
+      
+      const pinScroll = setInterval(() => {
+        const target = document.querySelector(hash);
+        
+        if (target && target.getBoundingClientRect().height > 10) {
+          const offsetPosition = target.getBoundingClientRect().top + window.scrollY - 80;
+          window.scrollTo({ top: offsetPosition, behavior: 'instant' });
+          
+          // 2. ¡La magia! Hacemos visible la página EXACTAMENTE cuando ya forzamos el salto
+          document.documentElement.classList.remove('ocultar-salto');
+        }
+        
+        attempts++;
+        if (attempts > 40) {
+          clearInterval(pinScroll);
+          // Seguro anti-fallos: Si pasan 800ms, mostramos la página de todos modos
+          document.documentElement.classList.remove('ocultar-salto'); 
+        }
+      }, 20); 
+    }
+
+    document.addEventListener('astro:page-load', forcePinToHash);
+    
+    if (document.readyState === 'complete') {
+      forcePinToHash();
+    } else {
+      window.addEventListener('load', forcePinToHash);
+    }
   </script>
 
   <div class="vac-page">

@@ -1646,15 +1646,39 @@ export default function BotGO({ language = 'es' }) {
                           ))}
                         </div>
                       )}
-                      <a
-href={`/${currentLangCode}/vacantes#vacantes`}
+<a
+  href={`/${currentLangCode}/vacantes#vacantes`}
   className="vacpanel-more"
-  onClick={() => {
+  data-astro-reload="true" // <- FUERZA A ASTRO A RESPETAR EL HASH AL CAMBIAR DE PÁGINA
+  onClick={(e) => {
+    // Cerramos el bot visualmente
     setIsOpen(false);
     setVacancyCards(null);
-    setTimeout(() => {
-      window.location.href = `/${currentLangCode}/vacantes#vacantes`;
-    }, 50);
+
+    // ¿Ya estamos en la página de vacantes?
+    if (window.location.pathname.includes('/vacantes')) {
+      e.preventDefault(); // Solo cancelamos la navegación si ya estamos ahí
+      
+      // Damos 300ms para que la animación del bot termine de cerrarse
+      // y la pantalla vuelva a su altura normal antes de calcular el scroll
+      setTimeout(() => {
+        const seccion = document.getElementById('vacantes');
+        if (seccion) {
+          // Calculamos la posición exacta ignorando animaciones
+          const elementPosition = seccion.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.scrollY; // Puedes restar unos 80px si tienes un header fijo
+  
+          window.scrollTo({
+  top: offsetPosition,
+  behavior: 'instant' // <-- Cámbialo aquí también
+});
+          
+          window.history.pushState(null, '', '#vacantes');
+        }
+      }, 300); 
+    }
+    // Si no estamos en la página de vacantes, dejamos que el <a href="...">
+    // actúe con normalidad. El data-astro-reload forzará la caída en la sección.
   }}
 >
   Ver todas las vacantes
