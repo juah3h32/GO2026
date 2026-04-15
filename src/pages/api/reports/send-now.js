@@ -9,8 +9,9 @@ import { join }                                              from 'path';
 
 export const prerender = false;
 
+
 // ── Filtrar datos por rango (igual que analytics.js) ─────────────────────────
-function filterByDateRange(data, from, to) {
+function filterByDateRange(data, from, to, leads = []) {
   if (!from && !to) return data;
   const fromTs = from ? new Date(from).setHours(0,  0,  0,   0) : null;
   const toTs   = to   ? new Date(to  ).setHours(23, 59, 59, 999) : null;
@@ -29,13 +30,11 @@ function filterByDateRange(data, from, to) {
   const filteredDaily = filterDaily(data.daily || {});
   const days = Object.values(filteredDaily);
 
-  // Recalcular totales desde los días filtrados
   const totalMessages = days.reduce((s, d) => s + (d.messages || 0), 0);
   const totalSessions = days.reduce((s, d) => s + (d.sessions || 0), 0);
   const totalWhatsApp = days.reduce((s, d) => s + (d.wa       || 0), 0);
   const totalPDFs     = days.reduce((s, d) => s + (d.pdf      || 0), 0);
 
-  // Filtrar interacciones para recalcular intents y products
   const rawFiltered = (data.lastMessages || []).filter(item => {
     const ts = new Date((item.ts || item.timestamp || 0)).getTime();
     if (fromTs && ts < fromTs) return false;
@@ -44,14 +43,34 @@ function filterByDateRange(data, from, to) {
   });
 
   const intents  = {};
-  const products = {};
+  const productsFromMsgs = {};
   rawFiltered.forEach(item => {
-    if (item.intent)  intents[item.intent]   = (intents[item.intent]   || 0) + 1;
+    if (item.intent)  intents[item.intent] = (intents[item.intent] || 0) + 1;
     if (item.product || item.prod) {
       const p = item.product || item.prod;
-      products[p] = (products[p] || 0) + 1;
+      productsFromMsgs[p] = (productsFromMsgs[p] || 0) + 1;
     }
   });
+
+  // 🔥 SOLUCIÓN: Contar productos reales desde los leads (historial completo)
+  const productsFromLeads = {};
+  leads.forEach(l => {
+    const ts = new Date(l.ts || 0).getTime();
+    // Respetar el rango de fechas
+    if (fromTs && ts < fromTs) return;
+    if (toTs   && ts > toTs)   return;
+    
+    // Contar los productos separados por coma
+    (l.productos || '').split(',').forEach(p => {
+      const t = p.trim();
+      if (t) productsFromLeads[t] = (productsFromLeads[t] || 0) + 1;
+    });
+  });
+
+  // Si encontró productos en los leads usa esos, sino hace un fallback
+  const finalProducts = Object.keys(productsFromLeads).length > 0 
+    ? productsFromLeads 
+    : (Object.keys(productsFromMsgs).length ? productsFromMsgs : data.products);
 
   return {
     ...data,
@@ -61,7 +80,7 @@ function filterByDateRange(data, from, to) {
     totalWhatsApp,
     totalPDFs,
     intents:  Object.keys(intents).length  ? intents  : data.intents,
-    products: Object.keys(products).length ? products : data.products,
+    products: finalProducts, // <--- Aquí se inyectan los productos correctos
   };
 }
 
@@ -241,18 +260,77 @@ export async function POST({ request }) {
       const iaJson = await iaRes.json();
       if (!iaJson.ok) throw new Error(iaJson.error || 'Error generando reporte IA');
       html = iaJson.html;
-    } else {
+   } else {
       // Reportes estándar: leer datos y construir HTML
+      const origin = new URL(request.url).origin; // Necesario para hacer fetch a tus propias APIs
       const [rawData, leads, candidates, logoBase64] = await Promise.all([
         readAllData().catch(() => ({})),
         readLeads().catch(() => []),
         readRecruitmentLeads().catch(() => []),
         Promise.resolve(getLogoBase64()),
       ]);
-      const data = filterByDateRange(rawData, from, to);
-      html = buildReportHTML(data, periodMeta, null, logoBase64, leads, candidates, report_type);
-    }
+      const data = filterByDateRange(rawData, from, to, leads);
 
+      // Variables exclusivas para el reporte "resumen"
+      let analysis = null;
+      let scData = null;
+
+      if (report_type === 'resumen') {
+        // 1. Obtener datos de Google Search Console
+        try {
+          const today = new Date().toISOString().slice(0, 10);
+          const daysAgo = n => { const d = new Date(); d.setDate(d.getDate() - n); return d.toISOString().slice(0, 10); };
+          const scStartDate = from || daysAgo(30);
+          const scEndDate = to || today;
+
+          const scRes = await fetch(`${origin}/api/search-console`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ startDate: scStartDate, endDate: scEndDate })
+          });
+          scData = await scRes.json();
+        } catch (e) {
+          console.error('[send-now] Error Search Console:', e);
+          scData = { ok: false };
+        }
+
+        // 2. Generar Análisis IA
+        try {
+          const tp = Object.entries(data?.products || {}).sort(([, a], [, b]) => b - a).slice(0, 5).map(([k, v]) => `${k}:${v}`).join(', ');
+          const tk = Object.entries(data?.keywords || {}).sort(([, a], [, b]) => b - a).slice(0, 8).map(([k, v]) => `${k}:${v}`).join(', ');
+          const msgs = (data?.lastMessages || []).slice(-20).map(m => m.user).join(' | ');
+          
+          const prompt = `Eres analista ejecutivo de ventas de Grupo Ortiz (empaques industriales, México).
+Analiza los datos del chatbot BotGO del período "${periodMeta.preset}" y genera un resumen ejecutivo en español (máximo 180 palabras).
+DATOS:
+Sesiones:${data.totalSessions || 0}|Mensajes:${data.totalMessages || 0}|WhatsApp:${data.totalWhatsApp || 0}|PDFs:${data.totalPDFs || 0}
+Productos top: ${tp || 'sin datos'}
+Keywords top: ${tk || 'sin datos'}
+Intenciones: Compra=${data.intents?.compra || 0}, Info=${data.intents?.info || 0}, PDF=${data.intents?.pdf || 0}, Empleo=${data.intents?.reclutamiento || 0}
+Consultas recientes: ${msgs.substring(0, 400) || 'sin datos'}
+INSTRUCCIONES:
+- Escribe exactamente 4 bullets con los hallazgos más importantes
+- Cada bullet empieza con "- " (guión espacio)
+- Incluye: comportamiento general, producto estrella, oportunidades, recomendación comercial
+- Usa números concretos de los datos
+- NO uses asteriscos, negritas ni markdown
+- Empieza DIRECTAMENTE con el primer bullet, sin título ni introducción`;
+
+          const aiRes = await fetch(`${origin}/api/chat`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ messages: [{ role: 'user', content: prompt }], language: 'es', isVoice: false, noLog: true })
+          });
+          const aiJson = await aiRes.json();
+          analysis = (aiJson.reply || '').trim() || null;
+        } catch (e) {
+          console.error('[send-now] Error IA Análisis:', e);
+        }
+      }
+
+      // 3. Pasamos analysis y scData al generador (el scData es el 8vo parámetro)
+      html = buildReportHTML(data, periodMeta, analysis, logoBase64, leads, candidates, report_type, scData);
+    }
     const filename = buildFilename(report_type, period, period_from, period_to);
 
     // 3. Generar PDF

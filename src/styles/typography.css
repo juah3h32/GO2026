@@ -23,7 +23,7 @@
                 url('/fonts/MorganitePro-BoldOblique.ttf')   format('truetype');
   font-weight : 700;
   font-style  : oblique;
-  font-display: swap;          /* ✅ CORREGIDO: block → swap */
+  font-display: block;          /* block: espera la fuente antes de renderizar, elimina swap y layout shift */
 }
 
 @font-face {
@@ -42,7 +42,7 @@
                 url('/fonts/Morganite-ExtraBold.ttf')   format('truetype');
   font-weight : 800;
   font-style  : normal;
-  font-display: swap;
+  font-display: block;          /* block: sin swap, sin layout shift */
 }
 
 @font-face {

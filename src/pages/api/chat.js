@@ -720,96 +720,24 @@ export async function POST({ request }) {
       console.warn('⚠️ analytics log error:', e.message);
     }
 
-    // ── Guardar candidato ──────────────────────────────────────────────────
-    let candidatoId = null;
+    // ── Preparar datos para revisión en frontend (NO se guarda aún en DB) ───
+    // El guardado real ocurre cuando el usuario confirma en PreRegistroReview.
     let isDuplicate = false;
+    let esListaEspera = false;
+
     if (accionReclutamiento && recruitData) {
-      try {
-        // Detectar lista de espera: el usuario abrió el bot sin vacantes activas
-        // Su primer mensaje contiene la frase de lista de espera, o no hay vacantes activas
-        const historialTextos = (messages || []).filter(m => m.role === 'user').map(m => m.content || '').join(' ');
-        const esListaEspera = historialTextos.includes('No hay vacantes abiertas') ||
-          historialTextos.includes('no hay vacantes abiertas') ||
-          historialTextos.includes('No encontré vacante para mi perfil en la lista actual') ||
-          historialTextos.includes('Quiero registrarme en lista de espera');
-        // Fallback: verificar si hay vacantes activas en la BD (usamos las ya cargadas)
-        let en_lista_espera = esListaEspera ? 1 : 0;
-        if (!esListaEspera) {
-          if (!vacantesActivas || vacantesActivas.length === 0) en_lista_espera = 1;
-          // Si hay vacantes activas pero ninguna coincide con el puesto del candidato → lista de espera
-          else if (recruitData.puesto && !matchVacanteSimilar(recruitData.puesto, vacantesActivas)) {
-            en_lista_espera = 1;
-          }
-        }
-
-        const saved = await saveRecruitmentLead({
-          nombre:          recruitData.nombre    || '',
-          email:           recruitData.email     || '',
-          telefono:        recruitData.telefono  || '',
-          puesto:          recruitData.puesto    || '',
-          edad:            recruitData.edad      || '',
-          estado_rep:      recruitData.estado    || '',
-          colonia:         recruitData.colonia   || '',
-          cvNombre:        recruitData.cvNombre    || cvAdjunto?.nombre || '',
-          cvBase64:        cvAdjunto?.base64      || '',
-          cvTipo:          cvAdjunto?.tipo        || '',
-          mensaje:         lastUserMsg,
-          comentarios:     recruitData.comentarios || '',
-          sessionId:       sessionId || '',
-          en_lista_espera,
-        });
-
-        if (saved?.duplicate) {
-          isDuplicate = true;
-          candidatoId = null;
-          const puestoExist = saved.existingPuesto ? ` para el puesto de ${saved.existingPuesto}` : '';
-          replyText = `Ya tenemos tu solicitud registrada${puestoExist}. Nuestro equipo de RH ya tiene tus datos y te contactará muy pronto. Si deseas postularte a una vacante diferente, con gusto te registro. ¡Gracias por tu interés en Grupo Ortiz!`;
-          console.log(`⚠️ Candidato duplicado detectado, no re-registrado.`);
-        } else {
-          candidatoId = saved?.id || null;
-          console.log(`✅ Candidato #${candidatoId} guardado: ${recruitData.nombre} → ${recruitData.puesto}`);
-          try {
-            await notifyNewVacante({
-              nombre:   recruitData.nombre   || '',
-              puesto:   recruitData.puesto   || '',
-              edad:     recruitData.edad     || '',
-              estado:   recruitData.estado   || '',
-              colonia:  recruitData.colonia  || '',
-              whatsapp: recruitData.telefono || '',
-              email:    recruitData.email    || '',
-              cvNombre: recruitData.cvNombre || '',
-              mensaje:  lastUserMsg,
-            });
-          } catch (notifyErr) {
-            console.warn('⚠️ notifyNewVacante error:', notifyErr.message);
-          }
-
-          // ── Auto-notificar si hay vacante activa que coincide con el puesto solicitado ──
-          if (en_lista_espera === 1 && candidatoId && recruitData.puesto) {
-            try {
-              const match = matchVacanteSimilar(recruitData.puesto, vacantesActivas);
-              if (match) {
-                const candidato = {
-                  id:       candidatoId,
-                  nombre:   recruitData.nombre   || '',
-                  telefono: recruitData.telefono || '',
-                  puesto:   recruitData.puesto   || '',
-                };
-                const results = await notifyEsperaVacante({ candidatos: [candidato], vacante: match, urlVacantes: '' });
-                if (results[0]?.ok) {
-                  await markNotificadosVacante([candidatoId]);
-                  console.log(`🔔 Candidato #${candidatoId} notificado automáticamente → vacante: ${match.titulo}`);
-                }
-              }
-            } catch (autoNotifyErr) {
-              console.warn('⚠️ auto-notificar espera error:', autoNotifyErr.message);
-            }
-          }
-        }
-      } catch (saveErr) {
-        console.error('❌ recruitment save error:', saveErr.message);
+      const historialTextos = (messages || []).filter(m => m.role === 'user').map(m => m.content || '').join(' ');
+      const textoIndicaEspera = historialTextos.includes('No hay vacantes abiertas') ||
+        historialTextos.includes('no hay vacantes abiertas') ||
+        historialTextos.includes('No encontré vacante para mi perfil en la lista actual') ||
+        historialTextos.includes('Quiero registrarme en lista de espera');
+      if (textoIndicaEspera || !vacantesActivas || vacantesActivas.length === 0) {
+        esListaEspera = true;
+      } else if (recruitData.puesto && !matchVacanteSimilar(recruitData.puesto, vacantesActivas)) {
+        esListaEspera = true;
       }
     }
+
 
     // ── Audio ──────────────────────────────────────────────────────────────
     const audioUrl = isVoice ? await generarAudio(replyText, langCode) : null;
@@ -824,8 +752,10 @@ export async function POST({ request }) {
         accionDistribuidor,
         accionReclutamiento: accionReclutamiento && !isDuplicate,
         enFlujoReclutamiento,
-        candidatoId,
+        candidatoId:         null,          // siempre null; el save ocurre al confirmar en el frontend
         isDuplicate,
+        esListaEspera,
+        recruitData:         accionReclutamiento ? recruitData : null,
         quickReplies,
       }),
       { status: 200, headers: { 'Content-Type': 'application/json' } }

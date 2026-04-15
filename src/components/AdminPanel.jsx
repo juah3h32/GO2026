@@ -650,6 +650,42 @@ function LineChart({ daily }) {
   );
 }
 
+// ── SC LINE CHART (Google Search Console) ────────────────────────────────────
+function SCLineChart({ dailyClicks }) {
+  const P = useP();
+  const C_SC='#4285F4';
+  const entries=(dailyClicks||[]).slice(-14);
+  if(entries.length<2)return<div style={{textAlign:'center',padding:'44px 0',color:P.textDim,fontSize:11}}>Sin datos de Search Console</div>;
+  const clicks=entries.map(d=>d.clicks||0);
+  const mv=Math.max(...clicks,1);
+  const W=440,H=80,step=entries.length>1?W/(entries.length-1):W;
+  const py=v=>H-((v/mv)*(H-16))-8;
+  const pts=clicks.map((v,i)=>({x:i*step,y:py(v)}));
+  const pathD=pts.map((p,i)=>`${i===0?'M':'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+  const areaD=`${pathD} L${W},${H+4} L0,${H+4} Z`;
+  return(
+    <svg width="100%" viewBox={`-4 -4 ${W+8} ${H+38}`} style={{display:'block',overflow:'visible'}}>
+      <defs>
+        <linearGradient id="ag_sc" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={C_SC} stopOpacity="0.20"/>
+          <stop offset="100%" stopColor={C_SC} stopOpacity="0"/>
+        </linearGradient>
+        <filter id="scglow"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      </defs>
+      {[0.25,0.5,0.75,1].map(p=><line key={p} x1={0} y1={H-p*(H-16)-8} x2={W} y2={H-p*(H-16)-8} stroke={P.border} strokeWidth="1"/>)}
+      <path d={areaD} fill="url(#ag_sc)"/>
+      <path d={pathD} fill="none" stroke={C_SC} strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" filter="url(#scglow)"/>
+      {pts.map((p,i)=>(
+        <g key={i}>
+          <circle cx={p.x} cy={p.y} r="3.5" fill={P.bg} stroke={C_SC} strokeWidth="2"/>
+          <circle cx={p.x} cy={p.y} r="1.5" fill={C_SC}/>
+          <text x={p.x} y={H+34} textAnchor="middle" fill={P.textDim} fontSize="9" fontFamily="DM Sans,system-ui">{entries[i].date.slice(5)}</text>
+        </g>
+      ))}
+    </svg>
+  );
+}
+
 // ── DONUT CHART ───────────────────────────────────────────────────────────────
 function DonutChart({ intents }) {
   const P = useP();
@@ -1370,6 +1406,7 @@ function Dash({ onClose, role, theme='dark', toggleTheme }) {
   const [leads,setLeads]=useState([]), [leadsLoad,setLeadsLoad]=useState(false), [leadSearch,setLeadSearch]=useState('');
   const [convSessions,setConvSessions]=useState([]), [convLoading,setConvLoading]=useState(false);
   const [selectedConv,setSelectedConv]=useState(null), [convMessages,setConvMessages]=useState([]), [convMsgLoad,setConvMsgLoad]=useState(false);
+  const [scData,setScData]=useState(null), [scLoading,setScLoading]=useState(false);
 
 const isAdmin     = role.canDownload;
   const isOnlyAdmin = role.canDelete ?? (role.name === 'Admin' || role.name === 'Super Admin');
@@ -1406,6 +1443,28 @@ const isRH = role.name === 'RH' || role.role === 'Recursos Humanos';
     setConvLoading(false);
   },[]);
 
+  const loadSC=useCallback(async(from,to)=>{
+    setScLoading(true);
+    try{
+      const today=new Date().toISOString().slice(0,10);
+      const d30=new Date(); d30.setDate(d30.getDate()-29);
+      const startDate=from||d30.toISOString().slice(0,10);
+      const endDate=to||today;
+      const r=await fetch('/api/search-console',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({startDate,endDate})});
+      const j=await r.json();
+      console.log('[SC] respuesta completa:', j);
+      if(j.ok){
+        console.log(`[SC] ✅ Impresiones totales: ${j.totalImpressions} | Clics: ${j.totalClicks} | CTR: ${j.avgCtr}% | Pos: ${j.avgPos}`);
+        console.log('[SC] Top consultas:', j.topQueries);
+        console.log('[SC] Top países:', j.topCountries);
+        setScData(j);
+      } else {
+        console.warn('[SC] ❌ Error:', j.error);
+      }
+    }catch(e){console.error('[SC] excepción:', e);}
+    setScLoading(false);
+  },[]);
+
   const loadConvMessages=useCallback(async(sessionId)=>{
     setConvMsgLoad(true); setConvMessages([]);
     try{
@@ -1423,6 +1482,8 @@ const isRH = role.name === 'RH' || role.role === 'Recursos Humanos';
   },[]);
 
   useEffect(()=>{ if(tab==='distribuidores')loadLeads(); },[tab]);
+  // SC: carga al entrar al overview; las actualizaciones de período las maneja handlePresetSelect/handleApplyCustom
+  useEffect(()=>{ if(tab==='overview')loadSC(activePeriod?.from,activePeriod?.to); },[tab]);
   useEffect(()=>{ if(tab==='conversations'){setSelectedConv(null);setConvMessages([]);loadConversations();} },[tab]);
   useEffect(()=>{
     clearInterval(itvRef.current);
@@ -1435,13 +1496,17 @@ const isRH = role.name === 'RH' || role.role === 'Recursos Humanos';
     if(preset.id==='custom')return;
     const range=preset.getRange(); setActivePeriod(range); setCustomFrom(''); setCustomTo('');
     load(false,range?.from,range?.to);
-  },[load]);
+    // Actualizar SC si estamos en overview
+    setTab(t=>{ if(t==='overview') loadSC(range?.from,range?.to); return t; });
+  },[load,loadSC]);
 
   const handleApplyCustom=useCallback(()=>{
     if(!customFrom||!customTo)return;
     setActivePeriod({from:customFrom,to:customTo});
     load(false,customFrom,customTo);
-  },[customFrom,customTo,load]);
+    // Actualizar SC si estamos en overview
+    setTab(t=>{ if(t==='overview') loadSC(customFrom,customTo); return t; });
+  },[customFrom,customTo,load,loadSC]);
 
   const reset=async()=>{
     if(!isOnlyAdmin)return;
@@ -1597,7 +1662,7 @@ const ALL_TABS=[
                 {Icons.sync}
               </button>
             )}
-            {isAdmin&&!isMobile&&<DownloadReportButton data={data} periodMeta={{preset:activePresetId,from:activePeriod?.from,to:activePeriod?.to}}/>}
+            {isAdmin&&!isMobile&&<DownloadReportButton data={data} periodMeta={{preset:activePresetId,from:activePeriod?.from,to:activePeriod?.to}} reportType="resumen"/>}
             {/* Botón tema global */}
             {toggleTheme&&(
               <button onClick={toggleTheme} title={theme==='dark'?'Tema claro':'Tema oscuro'}
@@ -1724,6 +1789,68 @@ const ALL_TABS=[
             <div style={{ display:'grid', gridTemplateColumns:isMobile||isTablet?'1fr':'1fr 1fr', gap:12 }}>
               <div className="card-hover" style={CARD}><CardTopBar/><p style={ST}>Distribución de intenciones</p><DonutChart intents={data.intents}/></div>
               <div className="card-hover" style={CARD}><CardTopBar/><p style={ST}>Actividad — últimos 14 días</p><LineChart daily={data.daily}/></div>
+            </div>
+
+            {/* ── GOOGLE SEARCH CONSOLE ── */}
+            <div style={{ marginTop:20 }}>
+              <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:14 }}>
+                <svg width="18" height="18" viewBox="0 0 48 48" style={{flexShrink:0}}>
+                  <path fill="#4285F4" d="M43.6 24.5c0-1.5-.1-3-.4-4.5H24v8.5h11c-.5 2.5-1.9 4.6-3.9 6v5h6.3c3.7-3.4 5.9-8.4 5.9-15z"/>
+                  <path fill="#34A853" d="M24 44c5.5 0 10.1-1.8 13.4-4.9l-6.3-5c-1.8 1.2-4.2 1.9-7.1 1.9-5.5 0-10.1-3.7-11.7-8.7H5.8v5.2C9.1 39.7 16 44 24 44z"/>
+                  <path fill="#FBBC05" d="M12.3 27.3c-.4-1.2-.7-2.5-.7-3.8s.3-2.6.7-3.8V14.5H5.8C4.3 17.5 3.5 20.7 3.5 24s.8 6.5 2.3 9.5l6.5-6.2z"/>
+                  <path fill="#EA4335" d="M24 12.5c3.1 0 5.9 1.1 8.1 3.2l6-6C34.1 6.3 29.4 4.5 24 4.5c-7.9 0-14.8 4.3-18.2 10.8l6.5 5.2c1.6-5 6.2-8 11.7-8z"/>
+                </svg>
+                <span style={{ color:P.textDim, fontSize:10, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.12em' }}>Google Search Console · grupo-ortiz.com</span>
+                {scLoading&&<span style={{color:'#4285F4',fontSize:10,opacity:0.7}}>cargando…</span>}
+                {scData?.ok&&<span style={{color:P.textDim,fontSize:10,marginLeft:'auto'}}>México · {scData.startDate} – {scData.endDate}</span>}
+              </div>
+
+              {scLoading&&!scData&&(
+                <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr 1fr':'repeat(4,1fr)',gap:10,marginBottom:12}}>
+                  {[0,1,2,3].map(i=><SkeletonCard key={i}/>)}
+                </div>
+              )}
+
+              {scData?.ok&&(<>
+                <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr 1fr':'repeat(4,1fr)',gap:10,marginBottom:12}}>
+                  <StatCard label="Impresiones" value={scData.totalImpressions} sub="búsquedas en Google"  color="#FBBC04"/>
+                  <StatCard label="Clics"        value={scData.totalClicks}      sub="visitas al sitio"     color="#4285F4"/>
+                  <StatCard label="CTR"          value={scData.avgCtr+'%'}       sub="tasa de clic"        color="#34A853"/>
+                  <StatCard label="Posición"     value={scData.avgPos}           sub="posición promedio"   color="#EA4335"/>
+                </div>
+                <div style={{display:'grid',gridTemplateColumns:isMobile||isTablet?'1fr':'1.4fr 1fr',gap:12}}>
+                  <div className="card-hover" style={CARD}>
+                    <CardTopBar/>
+                    <p style={ST}>Clics orgánicos · últimos 14 días</p>
+                    <SCLineChart dailyClicks={scData.dailyClicks}/>
+                  </div>
+                  <div className="card-hover" style={CARD}>
+                    <CardTopBar/>
+                    <p style={ST}>Top consultas en Google</p>
+                    <div style={{display:'flex',flexDirection:'column',gap:4}}>
+                      {(scData.topQueries||[]).slice(0,5).map((q,i)=>{
+                        const maxC=scData.topQueries[0]?.clicks||1, pct=Math.round(q.clicks/maxC*100);
+                        return(
+                          <div key={i} style={{display:'flex',alignItems:'center',gap:8,padding:'5px 0',borderBottom:`1px solid ${P.border2}`}}>
+                            <span style={{color:i===0?P.text:P.textSub,fontSize:11,flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',fontWeight:i===0?600:400}}>{q.query}</span>
+                            <div style={{width:48,height:4,background:P.border2,borderRadius:2,overflow:'hidden',flexShrink:0}}>
+                              <div style={{width:`${pct}%`,height:'100%',background:'#4285F4',borderRadius:2}}/>
+                            </div>
+                            <span style={{fontFamily:"'DM Mono',monospace",fontSize:11,color:'#4285F4',minWidth:24,textAlign:'right',fontWeight:600}}>{q.clicks}</span>
+                            <span style={{fontSize:9,color:P.textDim,minWidth:32,textAlign:'right'}}>{q.ctr}%</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </>)}
+
+              {!scLoading&&!scData?.ok&&(
+                <div style={{background:P.surface,border:`1px solid ${P.border}`,borderRadius:12,padding:'22px 20px',color:P.textDim,fontSize:12,textAlign:'center'}}>
+                  Sin datos de Search Console para el período seleccionado
+                </div>
+              )}
             </div>
           </div>
         )}

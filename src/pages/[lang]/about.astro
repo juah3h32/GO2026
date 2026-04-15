@@ -474,7 +474,10 @@ function getValorIcon(title: string): string {
 
     if (description) description.style.transition = "opacity 0.3s ease";
     if (eventTitle)  eventTitle.style.transition  = "opacity 0.3s ease";
-    setTimeout(() => updateTL(0, false), 100);
+    // Inicializar estado sin scroll (las cards ya renderizan en posición correcta)
+    // fromDrag=true omite el scrollTo que forzaba un reflow y provocaba el salto visual
+    updateTL(0, true);
+    updateProgress(0);
 
     // ── Tap para revelar info en móvil ──
 if (window.innerWidth <= 767) {

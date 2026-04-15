@@ -58,7 +58,7 @@ async function fetchLogoBase64() {
 }
 
 // ── Gráfica de líneas (actividad) ─────────────────────────────────────────────
-function buildLineSVG(daily14) {
+function buildLineSVG(daily14, noLegend=false) {
   const W=780, H=200, PL=52, PR=20, PT=36, PB=36, CW=W-PL-PR, CH=H-PT-PB;
   if (daily14.length < 2)
     return `<text x="${W/2}" y="${H/2}" text-anchor="middle" font-family="'Barlow',Helvetica" font-size="11" fill="${GRAY_LIGHT}">Sin datos</text>`;
@@ -114,15 +114,17 @@ function buildLineSVG(daily14) {
     s.data.forEach((v,i) => out += `<circle cx="${px(i).toFixed(1)}" cy="${py(v).toFixed(1)}" r="4" fill="${CREAM}" stroke="${s.color}" stroke-width="2.5"/>`);
   });
 
-  // Leyenda
-  const series = [{color:ORANGE,label:'Mensajes'},{color:GRAY_D,label:'WhatsApp'},{color:GRAY_LIGHT,label:'Sesiones'}];
-  const lx0 = (W - series.length * 110) / 2;
-  series.forEach((s,i) => {
-    const lx = lx0 + i*110;
-    out += `<rect x="${(lx-2).toFixed(1)}" y="3" width="100" height="18" rx="9" fill="${s.color}" fill-opacity="0.07"/>
-    <circle cx="${(lx+10).toFixed(1)}" cy="12" r="4" fill="${s.color}"/>
-    <text x="${(lx+20).toFixed(1)}" y="16.5" font-family="'Barlow',Helvetica" font-size="9.5" font-weight="700" fill="${s.color}" fill-opacity="0.85">${s.label}</text>`;
-  });
+  // Leyenda (solo cuando no se pide ocultarla)
+  if (!noLegend) {
+    const series = [{color:ORANGE,label:'Mensajes'},{color:GRAY_D,label:'WhatsApp'},{color:GRAY_LIGHT,label:'Sesiones'}];
+    const lx0 = (W - series.length * 110) / 2;
+    series.forEach((s,i) => {
+      const lx = lx0 + i*110;
+      out += `<rect x="${(lx-2).toFixed(1)}" y="3" width="100" height="18" rx="9" fill="${s.color}" fill-opacity="0.07"/>
+      <circle cx="${(lx+10).toFixed(1)}" cy="12" r="4" fill="${s.color}"/>
+      <text x="${(lx+20).toFixed(1)}" y="16.5" font-family="'Barlow',Helvetica" font-size="9.5" font-weight="700" fill="${s.color}" fill-opacity="0.85">${s.label}</text>`;
+    });
+  }
 
   return out;
 }
@@ -161,6 +163,43 @@ function buildLeadsLineSVG(byDay) {
       out+=`<text x="${px(i).toFixed(1)}" y="${(py(v)-8).toFixed(1)}" text-anchor="middle" font-family="'Barlow Condensed',Helvetica" font-size="9" font-weight="700" fill="${ORANGE}">${v}</text>`;
       if(i%2===0||i===n-1)
         out+=`<text x="${px(i).toFixed(1)}" y="${H-6}" text-anchor="middle" font-family="'Barlow',Helvetica" font-size="7.5" font-weight="600" fill="${GRAY_LIGHT}">${date.slice(5).replace('-','/')}</text>`;
+    });
+  }
+  return out;
+}
+
+// ── Gráfica Search Console clics por día ────────────────────────────────────
+function buildSCLineSVG(dailyArr) {
+  // dailyArr = [{date:'2026-04-01', clicks:N}, ...]
+  const C_SC='#4285F4', C_RING='rgba(66,133,244,0.18)';
+  const entries = (dailyArr||[]).map(d=>[d.date, d.clicks]);
+  const W=680, H=130, PL=40, PR=16, PT=20, PB=28, CW=W-PL-PR, CH=H-PT-PB;
+  if (entries.length < 1)
+    return `<text x="${W/2}" y="${H/2}" text-anchor="middle" font-family="'Barlow',Helvetica" font-size="10" fill="rgba(255,255,255,0.30)">Sin datos</text>`;
+  const vals=entries.map(([,v])=>v), maxV=Math.max(...vals,1), n=entries.length;
+  const px=i=>PL+(n===1?CW/2:(i/(n-1))*CW);
+  const py=v=>PT+(1-(v/maxV))*CH;
+  const baseY=PT+CH;
+  let out=`<defs><linearGradient id="lgSC" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="${C_SC}" stop-opacity="0.28"/>
+    <stop offset="100%" stop-color="${C_SC}" stop-opacity="0"/>
+  </linearGradient></defs>`;
+  [0,0.5,1].forEach(p=>{const y=py(p*maxV), val=Math.round(p*maxV);
+    out+=`<line x1="${PL}" y1="${y.toFixed(1)}" x2="${W-PR}" y2="${y.toFixed(1)}" stroke="rgba(255,255,255,0.08)" stroke-width="1" stroke-dasharray="${p===0?'none':'3,3'}"/>
+    <text x="${(PL-6).toFixed(1)}" y="${(y+3).toFixed(1)}" text-anchor="end" font-family="'Barlow',Helvetica" font-size="8" font-weight="600" fill="rgba(255,255,255,0.30)">${val}</text>`;});
+  if(n===1){
+    const bx=px(0), bh=Math.max((vals[0]/maxV)*CH,6);
+    out+=`<rect x="${(bx-16).toFixed(1)}" y="${(baseY-bh).toFixed(1)}" width="32" height="${bh.toFixed(1)}" fill="${C_SC}" opacity="0.70" rx="4"/>`;
+    out+=`<circle cx="${bx.toFixed(1)}" cy="${(baseY-bh).toFixed(1)}" r="4" fill="#111111" stroke="${C_SC}" stroke-width="2.5"/>`;
+  } else {
+    const pathD=entries.map(([,v],i)=>`${i===0?'M':'L'}${px(i).toFixed(1)},${py(v).toFixed(1)}`).join(' ');
+    out+=`<path d="${pathD} L${px(n-1).toFixed(1)},${baseY.toFixed(1)} L${px(0).toFixed(1)},${baseY.toFixed(1)} Z" fill="url(#lgSC)"/>
+    <path d="${pathD}" fill="none" stroke="${C_SC}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+    entries.forEach(([date,v],i)=>{
+      out+=`<circle cx="${px(i).toFixed(1)}" cy="${py(v).toFixed(1)}" r="4" fill="#111111" stroke="${C_SC}" stroke-width="2.5"/>`;
+      out+=`<text x="${px(i).toFixed(1)}" y="${(py(v)-8).toFixed(1)}" text-anchor="middle" font-family="'Barlow Condensed',Helvetica" font-size="9" font-weight="700" fill="${C_SC}">${v}</text>`;
+      if(i%2===0||i===n-1)
+        out+=`<text x="${px(i).toFixed(1)}" y="${H-6}" text-anchor="middle" font-family="'Barlow',Helvetica" font-size="7.5" font-weight="600" fill="rgba(255,255,255,0.30)">${date.slice(5).replace('-','/')}</text>`;
     });
   }
   return out;
@@ -227,26 +266,29 @@ function buildBarSVG(pairs, color) {
 }
 
 // ── Donut ─────────────────────────────────────────────────────────────────────
-function buildDonutSVG(pairs, colors) {
+function buildDonutSVG(pairs, colors, dark=false) {
   const S=140, cx=S/2, cy=S/2, R=54, r=32;
+  const _tc  = dark ? '#FFFFFF'                : BLACK;
+  const _tcs = dark ? 'rgba(255,255,255,0.50)' : GRAY_MID;
+  const _ring = dark ? 'rgba(255,255,255,0.12)' : CREAM;
   if (!pairs || pairs.length < 1)
-    return `<text x="${cx}" y="${cy+4}" text-anchor="middle" font-family="'Barlow',Helvetica" font-size="10" fill="${GRAY_LIGHT}">—</text>`;
+    return `<text x="${cx}" y="${cy+4}" text-anchor="middle" font-family="'Barlow',Helvetica" font-size="10" fill="${_tcs}">—</text>`;
   const total=pairs.reduce((s,[,v])=>s+v,0)||1;
   let angle=-Math.PI/2;
-  let out=`<circle cx="${cx}" cy="${cy}" r="${R+3}" fill="none" stroke="${CREAM}" stroke-width="6"/>`;
+  let out=`<circle cx="${cx}" cy="${cy}" r="${R+3}" fill="none" stroke="${_ring}" stroke-width="6"/>`;
   pairs.forEach(([,val],i)=>{
     const sweep=(val/total)*Math.PI*2, x1=cx+R*Math.cos(angle), y1=cy+R*Math.sin(angle),
           x2=cx+R*Math.cos(angle+sweep), y2=cy+R*Math.sin(angle+sweep),
           large=sweep>Math.PI?1:0,
           xi1=cx+r*Math.cos(angle), yi1=cy+r*Math.sin(angle),
           xi2=cx+r*Math.cos(angle+sweep), yi2=cy+r*Math.sin(angle+sweep);
-    out+=`<path d="M${x1.toFixed(2)},${y1.toFixed(2)} A${R},${R} 0 ${large},1 ${x2.toFixed(2)},${y2.toFixed(2)} L${xi2.toFixed(2)},${yi2.toFixed(2)} A${r},${r} 0 ${large},0 ${xi1.toFixed(2)},${yi1.toFixed(2)} Z" fill="${colors[i%colors.length]}" stroke="${WHITE}" stroke-width="2"/>`;
+    const sep = dark ? 'rgba(0,0,0,0.60)' : WHITE;
+    out+=`<path d="M${x1.toFixed(2)},${y1.toFixed(2)} A${R},${R} 0 ${large},1 ${x2.toFixed(2)},${y2.toFixed(2)} L${xi2.toFixed(2)},${yi2.toFixed(2)} A${r},${r} 0 ${large},0 ${xi1.toFixed(2)},${yi1.toFixed(2)} Z" fill="${colors[i%colors.length]}" stroke="${sep}" stroke-width="2"/>`;
     angle+=sweep;
   });
   const top=pairs.reduce((m,[,v],i)=>v>pairs[m][1]?i:m,0);
   const topPct=Math.round(pairs[top][1]/total*100);
-  out+=`<text x="${cx}" y="${cy-5}" text-anchor="middle" font-family="'Barlow Condensed',sans-serif" font-size="22" font-weight="800" fill="${BLACK}">${topPct}%</text>
-  <text x="${cx}" y="${cy+10}" text-anchor="middle" font-family="'Barlow',Helvetica" font-size="7.5" font-weight="600" fill="${GRAY_MID}">${pairs[top][0].slice(0,8)}</text>`;
+  out+=`<text x="${cx}" y="${cy+9}" text-anchor="middle" dominant-baseline="middle" font-family="'Barlow Condensed',sans-serif" font-size="26" font-weight="800" fill="${_tc}">${topPct}%</text>`;
   return out;
 }
 
@@ -301,8 +343,12 @@ function buildDistribuidoresSection(leads) {
   const semana  = leads.filter(l => (now - new Date(l.ts||0)) < 7*24*60*60*1000).length;
   const mes     = leads.filter(l => (now - new Date(l.ts||0)) < 30*24*60*60*1000).length;
 
-  const prodCount = {};
-  leads.forEach(l => { (l.productos||'').split(',').forEach(p => { const t=p.trim(); if(t) prodCount[t]=(prodCount[t]||0)+1; }); });
+  const _prodRaw = {};
+  leads.forEach(l => { (l.productos||'').split(',').forEach(p => { const t=p.trim().toLowerCase(); if(t) _prodRaw[t]=(_prodRaw[t]||0)+1; }); });
+  // Unificar singular/plural (cuerda/cuerdas, rafia/rafias)
+  const prodCount = {}, _prodSkip = new Set();
+  Object.keys(_prodRaw).sort().forEach(k => { const pl=k+'s'; if(_prodRaw[pl]!==undefined){prodCount[k]=(_prodRaw[k]||0)+_prodRaw[pl];_prodSkip.add(pl);} });
+  Object.entries(_prodRaw).forEach(([k,v]) => { if(!_prodSkip.has(k) && prodCount[k]===undefined) prodCount[k]=v; });
   const topProds = Object.entries(prodCount).sort(([,a],[,b]) => b-a).slice(0,6);
   const maxProd  = topProds[0]?.[1] || 1;
 
@@ -680,7 +726,7 @@ function buildReclutamientoCover(candidates, periodo, logoBase64, todayFmt) {
 
 // ── HTML principal ─────────────────────────────────────────────────────────────
 // reportType: 'general' | 'distribuidor' | 'reclutamiento'
-export function buildReportHTML(data, periodMeta=null, analysis=null, logoBase64=null, leads=[], candidates=[], reportType='general') {
+export function buildReportHTML(data, periodMeta=null, analysis=null, logoBase64=null, leads=[], candidates=[], reportType='general', scData=null) {
   const now=new Date(), today=now.toISOString().split('T')[0];
   const todayFmt=now.toLocaleDateString('es-MX',{timeZone:'America/Mexico_City',day:'2-digit',month:'short',year:'2-digit'});
   const yest=new Date(now); yest.setDate(yest.getDate()-1);
@@ -688,7 +734,12 @@ export function buildReportHTML(data, periodMeta=null, analysis=null, logoBase64
   const totalMsg=data?.totalMessages||0, totalSess=data?.totalSessions||0, totalWA=data?.totalWhatsApp||0, totalPDF=data?.totalPDFs||0;
   const convRate=totalMsg?((totalWA/totalMsg)*100).toFixed(1):'0.0', mps=totalSess?(totalMsg/totalSess).toFixed(1):'0.0';
   const intents=data?.intents||{}, totalIntents=Math.max(Object.values(intents).reduce((a,b)=>a+b,0),1);
-  const topProds=Object.entries(data?.products||{}).sort(([,a],[,b])=>b-a).slice(0,6);
+  // Normalizar productos: unificar singular/plural (cuerda+cuerdas → cuerda, rafia+rafias → rafia)
+  const _rawProds = data?.products || {};
+  const _normProd = {}, _mergedInto = new Set();
+  Object.keys(_rawProds).sort().forEach(k => { const pl=k+'s'; if(_rawProds[pl]!==undefined){_normProd[k]=(_rawProds[k]||0)+_rawProds[pl];_mergedInto.add(pl);} });
+  Object.entries(_rawProds).forEach(([k,v]) => { if(!_mergedInto.has(k) && _normProd[k]===undefined) _normProd[k]=v; });
+  const topProds=Object.entries(_normProd).sort(([,a],[,b])=>b-a).slice(0,6);
   const daily14=Object.entries(data?.daily||{}).sort(([a],[b])=>a.localeCompare(b)).slice(-14);
   const allDates=Object.keys(data?.daily||{}).sort();
   const intentPairs=Object.entries(intents).filter(([,v])=>v>0);
@@ -828,10 +879,10 @@ export function buildReportHTML(data, periodMeta=null, analysis=null, logoBase64
     const distSemana = leads.filter(l=>{const d=parseTursoDate(l.ts);return d&&(now_ms-d.getTime())<7*24*60*60*1000;}).length;
     const distMes    = leads.filter(l=>{const d=parseTursoDate(l.ts);return d&&(now_ms-d.getTime())<30*24*60*60*1000;}).length;
     const distHoy    = leads.filter(l=>{const d=parseTursoDate(l.ts);return d&&(now_ms-d.getTime())<24*60*60*1000;}).length;
-    // Top estados distribuidores
-    const distEstados = {};
-    leads.forEach(l=>{if(l.estado)distEstados[l.estado]=(distEstados[l.estado]||0)+1;});
-    const topDistEst = Object.entries(distEstados).sort(([,a],[,b])=>b-a).slice(0,4);
+    // Top empresas distribuidoras (la tabla no tiene campo "estado", usa "empresa")
+    const distEmpresas = {};
+    leads.forEach(l=>{ const e=(l.empresa||'').trim(); if(e) distEmpresas[e]=(distEmpresas[e]||0)+1; });
+    const topDistEst = Object.entries(distEmpresas).sort(([,a],[,b])=>b-a).slice(0,4);
 
     // Reclutamiento stats
     const rhTotal  = candidates.length;
@@ -877,24 +928,32 @@ export function buildReportHTML(data, periodMeta=null, analysis=null, logoBase64
     const AI_LABELS = ['Comportamiento','Producto estrella','Oportunidades','Recomendación'];
     const AI_COLORS = [ORANGE, ORANGE_DARK, '#0088DD', '#22C55E'];
 
-    // Texto IA unificado
-    const aiText = aiBullets.filter(Boolean).join(' ');
+    // Texto IA unificado — máx 500 caracteres, corte en palabra completa
+    const _aiRaw = aiBullets.filter(Boolean).join(' ');
+    // Corte limpio: buscar el último punto dentro de los primeros 500 chars
+    const aiText = (() => {
+      if (_aiRaw.length <= 500) return _aiRaw.endsWith('.') ? _aiRaw : _aiRaw.replace(/[,\s]+$/, '') + '.';
+      const chunk = _aiRaw.slice(0, 500);
+      const lastDot = chunk.lastIndexOf('.');
+      if (lastDot > 200) return chunk.slice(0, lastDot + 1);
+      return chunk.replace(/\s+\S*$/, '').replace(/[,\s]+$/, '') + '.';
+    })();
 
-    // helpers compactos
-    const S = (t,c,b)=>`<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;padding-bottom:6px;border-bottom:1.5px solid ${c}18;">
-      <div style="width:2.5px;height:13px;background:${c};border-radius:2px;flex-shrink:0;"></div>
-      <span style="font-family:'Barlow',sans-serif;font-size:6.5px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:${GRAY_LIGHT};flex:1;">${t}</span>
-      ${b?`<span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:${c};">${b}</span>`:''}
+    // helpers compactos — dark theme resumen
+    const S = (t,c,b)=>`<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;padding-bottom:6px;border-bottom:1.5px solid ${c}30;">
+      <div style="width:3px;height:16px;background:${c};border-radius:2px;flex-shrink:0;"></div>
+      <span style="font-family:'Barlow',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.20em;text-transform:uppercase;color:rgba(255,255,255,0.55);flex:1;">${t}</span>
+      ${b?`<span style="font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:800;color:${c};">${b}</span>`:''}
     </div>`;
-    const C = (content)=>`<div style="background:${WHITE};border-radius:9px;border:1px solid ${CREAM_DARK};padding:10px 11px;display:flex;flex-direction:column;">${content}</div>`;
-    const kv = (l,v,c)=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid ${CREAM};">
-      <span style="font-family:'Barlow',sans-serif;font-size:7px;font-weight:600;color:${GRAY_D};">${l}</span>
-      <span style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;color:${c};">${v}</span>
+    const C = (content)=>`<div style="background:#111111;border-radius:8px;border:1px solid rgba(255,255,255,0.10);padding:9px 11px;display:flex;flex-direction:column;overflow:hidden;">${content}</div>`;
+    const kv = (l,v,c)=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.08);">
+      <span style="font-family:'Barlow',sans-serif;font-size:11px;font-weight:600;color:rgba(255,255,255,0.65);">${l}</span>
+      <span style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:${c};">${v}</span>
     </div>`;
     const mini3 = (items)=>items.map(([l,v,c])=>`
-      <div style="flex:1;background:${BG};border-radius:6px;padding:6px 4px;text-align:center;border:1px solid ${CREAM_DARK};">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:800;color:${c};line-height:1;">${v}</div>
-        <div style="font-family:'Barlow',sans-serif;font-size:5.5px;font-weight:700;letter-spacing:0.10em;text-transform:uppercase;color:${GRAY_LIGHT};margin-top:2px;">${l}</div>
+      <div style="flex:1;background:#1A1A1A;border-radius:6px;padding:7px 4px;text-align:center;border:1px solid rgba(255,255,255,0.10);">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:25px;font-weight:800;color:${c};line-height:1;">${v}</div>
+        <div style="font-family:'Barlow',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.10em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-top:3px;">${l}</div>
       </div>`).join('');
 
     const C_BLUE='#0088DD', C_GREEN='#22C55E';
@@ -907,11 +966,11 @@ export function buildReportHTML(data, periodMeta=null, analysis=null, logoBase64
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
   html,body{width:100%;height:100%;}
-  body{background:${BG};font-family:'Barlow',Helvetica,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  body{background:#000000;font-family:'Barlow',Helvetica,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   @media print{@page{size:A4 landscape;margin:0;} html,body{height:100%;}}
 </style>
 </head><body>
-<div style="width:100%;height:100vh;display:flex;flex-direction:column;background:${BG};">
+<div style="width:100%;height:100vh;display:flex;flex-direction:column;background:#000000;">
 
   <!-- HEADER -->
   <div style="background:${BLACK};display:flex;align-items:stretch;flex-shrink:0;position:relative;">
@@ -919,8 +978,8 @@ export function buildReportHTML(data, periodMeta=null, analysis=null, logoBase64
     <div style="padding:8px 14px;display:flex;align-items:center;gap:9px;border-right:1px solid rgba(255,255,255,0.08);flex-shrink:0;">
       ${logoBase64?`<img src="${logoBase64}" style="height:24px;width:auto;filter:brightness(0) invert(1);display:block;"/>`:`<div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:#fff;">GO</div>`}
       <div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;color:#fff;letter-spacing:0.04em;text-transform:uppercase;line-height:1;">Grupo Ortiz</div>
-        <div style="font-family:'Barlow',sans-serif;font-size:5.5px;font-weight:700;letter-spacing:0.22em;color:rgba(255,255,255,0.30);text-transform:uppercase;">Resumen Ejecutivo · BotGO</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:#fff;letter-spacing:0.04em;text-transform:uppercase;line-height:1;">Grupo Ortiz</div>
+        <div style="font-family:'Barlow',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.22em;color:rgba(255,255,255,0.45);text-transform:uppercase;">Resumen Ejecutivo · BotGO</div>
       </div>
     </div>
     ${[
@@ -935,55 +994,41 @@ export function buildReportHTML(data, periodMeta=null, analysis=null, logoBase64
     ].map(([v,l,c],i,a)=>`
       <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 4px;text-align:center;border-right:${i<a.length-1?'1px solid rgba(255,255,255,0.07)':'none'};position:relative;">
         <div style="position:absolute;bottom:0;left:20%;right:20%;height:1.5px;background:${c};opacity:0.5;border-radius:1px;"></div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:19px;font-weight:800;color:${c};line-height:1;">${v}</div>
-        <div style="font-family:'Barlow',sans-serif;font-size:5.5px;font-weight:700;letter-spacing:0.13em;text-transform:uppercase;color:rgba(255,255,255,0.28);margin-top:1px;">${l}</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:800;color:${c};line-height:1;">${v}</div>
+        <div style="font-family:'Barlow',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.13em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-top:2px;">${l}</div>
       </div>`).join('')}
     <div style="padding:6px 14px;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;border-left:1px solid rgba(255,255,255,0.08);flex-shrink:0;gap:1px;min-width:120px;">
-      <div style="font-family:'Barlow',sans-serif;font-size:5.5px;font-weight:700;letter-spacing:0.20em;text-transform:uppercase;color:rgba(255,255,255,0.25);">Período</div>
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;color:rgba(255,255,255,0.88);text-align:right;line-height:1.2;text-transform:uppercase;">${periodo}</div>
-      <div style="font-family:'Barlow',sans-serif;font-size:5.5px;font-weight:600;color:rgba(255,255,255,0.20);">${todayFmt}</div>
+      <div style="font-family:'Barlow',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.20em;text-transform:uppercase;color:rgba(255,255,255,0.40);">Período</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:rgba(255,255,255,0.92);text-align:right;line-height:1.2;text-transform:uppercase;">${periodo}</div>
+      <div style="font-family:'Barlow',sans-serif;font-size:10px;font-weight:600;color:rgba(255,255,255,0.35);">${todayFmt}</div>
     </div>
   </div>
 
   <!-- IA STRIP -->
   ${aiText?`
-  <div style="flex-shrink:0;background:${WHITE};border-bottom:1px solid ${CREAM_DARK};padding:9px 14px;display:flex;align-items:center;gap:12px;">
-    <div style="flex-shrink:0;background:${ORANGE};border-radius:5px;padding:4px 9px;">
-      <span style="font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:800;color:#fff;letter-spacing:0.07em;text-transform:uppercase;">IA</span>
+  <div style="flex-shrink:0;background:#0D0D0D;border-bottom:1px solid rgba(255,255,255,0.10);padding:9px 14px;display:flex;align-items:center;gap:12px;">
+    <div style="flex-shrink:0;background:${ORANGE};border-radius:5px;padding:4px 9px;display:flex;align-items:center;justify-content:center;min-width:32px;min-height:28px;">
+      <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;color:#fff;letter-spacing:0.07em;text-transform:uppercase;line-height:1;">IA</span>
     </div>
-    <div style="width:1px;height:28px;background:${CREAM_DARK};flex-shrink:0;"></div>
+    <div style="width:1px;height:30px;background:rgba(255,255,255,0.12);flex-shrink:0;"></div>
     <div style="flex:1;min-width:0;">
-      <div style="font-family:'Barlow',sans-serif;font-size:5.5px;font-weight:700;letter-spacing:0.20em;text-transform:uppercase;color:${GRAY_LIGHT};margin-bottom:3px;">Análisis ejecutivo del período</div>
-      <div style="font-family:'Barlow',sans-serif;font-size:8px;font-weight:500;color:${GRAY_D};line-height:1.55;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">${aiText}</div>
+      <div style="font-family:'Barlow',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.48);margin-bottom:4px;">Análisis ejecutivo del período</div>
+      <div style="font-family:'Barlow',sans-serif;font-size:13px;font-weight:500;color:rgba(255,255,255,0.85);line-height:1.55;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;">${aiText}</div>
     </div>
   </div>`:''}
 
   <!-- CUERPO — 2 filas que llenan el espacio restante -->
-  <div style="flex:1;display:flex;flex-direction:column;padding:7px 8px;gap:7px;min-height:0;">
+  <div style="flex:1;display:flex;flex-direction:column;padding:5px 8px 0;gap:5px;min-height:0;">
 
     <!-- FILA 1 -->
-    <div style="flex:1;display:grid;grid-template-columns:2.2fr 1fr 1fr;gap:7px;min-height:0;">
+    <div style="flex:1.15;display:grid;grid-template-columns:2.5fr 1fr;gap:6px;min-height:0;">
 
-      ${C(`
-        ${S('Actividad 14 días — Mensajes · WhatsApp · Sesiones',ORANGE,'')}
-        <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:4px;min-height:0;">
-          <svg viewBox="0 0 780 140" style="width:100%;height:auto;max-height:130px;display:block;overflow:visible;">${buildLineSVG(daily14)}</svg>
-          <div style="display:flex;gap:14px;justify-content:center;">
-            ${[{c:ORANGE,l:'Mensajes'},{c:GRAY_D,l:'WhatsApp'},{c:GRAY_LIGHT,l:'Sesiones'}].map(s=>`<div style="display:flex;align-items:center;gap:3px;"><div style="width:6px;height:6px;border-radius:50%;background:${s.c};"></div><span style="font-family:'Barlow',sans-serif;font-size:6.5px;font-weight:600;color:${GRAY_LIGHT};">${s.l}</span></div>`).join('')}
-          </div>
-        </div>
-      `)}
-
-      ${C(`
-        ${S('Intenciones',ORANGE,'')}
-        <div style="flex:1;display:flex;flex-direction:column;justify-content:center;">
-          ${intentPairs.slice(0,5).map(([key,val],i)=>{const p=Math.round(val/totalIntents*100),clr=iColors[i%iColors.length];return `
-            <div style="display:flex;align-items:center;gap:5px;margin-bottom:6px;">
-              <div style="width:5px;height:5px;border-radius:50%;background:${clr};flex-shrink:0;"></div>
-              <span style="font-family:'Barlow',sans-serif;font-size:7.5px;font-weight:600;color:${GRAY_D};flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${iLabels[key]||key}</span>
-              <div style="width:44px;height:4px;background:${CREAM};border-radius:2px;overflow:hidden;flex-shrink:0;"><div style="width:${p}%;height:100%;background:${clr};border-radius:2px;"></div></div>
-              <span style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:800;color:${BLACK};min-width:20px;text-align:right;">${val}</span>
-            </div>`}).join('')||`<div style="color:${GRAY_LIGHT};font-size:9px;text-align:center;">Sin datos</div>`}
+${C(`
+        ${S('Actividad · Últimos 14 días', ORANGE, '')}
+        <div style="flex:1; display:flex; flex-direction:column; justify-content:center; min-height:0; width:100%;">
+          <svg viewBox="0 0 780 200" style="width:100%; height:auto; display:block; overflow:visible;">
+            ${buildLineSVG(daily14, false)}
+          </svg>
         </div>
       `)}
 
@@ -993,10 +1038,10 @@ export function buildReportHTML(data, periodMeta=null, analysis=null, logoBase64
           ${topProds.slice(0,5).map(([label,val],i)=>{const pct=Math.round(val/(topProds[0]?.[1]||1)*100),isTop=i===0;return`
             <div style="margin-bottom:6px;">
               <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:1px;">
-                <span style="font-family:'Barlow',sans-serif;font-size:7.5px;font-weight:600;color:${isTop?BLACK:GRAY_D};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:105px;">${label}</span>
-                <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;color:${isTop?ORANGE:GRAY_LIGHT};flex-shrink:0;margin-left:4px;">${val}</span>
+                <span style="font-family:'Barlow',sans-serif;font-size:12px;font-weight:600;color:${isTop?'#FFFFFF':'rgba(255,255,255,0.72)'};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:110px;">${label}</span>
+                <span style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:${isTop?ORANGE:'rgba(255,255,255,0.40)'};flex-shrink:0;margin-left:4px;">${val}</span>
               </div>
-              <div style="height:3px;background:${CREAM};border-radius:2px;overflow:hidden;"><div style="width:${pct}%;height:100%;background:${isTop?`linear-gradient(90deg,${ORANGE},${ORANGE_DARK})`:CREAM_DARK};border-radius:2px;"></div></div>
+              <div style="height:3px;background:rgba(255,255,255,0.12);border-radius:2px;overflow:hidden;"><div style="width:${pct}%;height:100%;background:${isTop?`linear-gradient(90deg,${ORANGE},${ORANGE_DARK})`:'rgba(255,255,255,0.25)'};border-radius:2px;"></div></div>
             </div>`}).join('')||`<div style="color:${GRAY_LIGHT};font-size:9px;text-align:center;">Sin datos</div>`}
         </div>
       `)}
@@ -1004,52 +1049,62 @@ export function buildReportHTML(data, periodMeta=null, analysis=null, logoBase64
     </div>
 
     <!-- FILA 2 -->
-    <div style="flex:1;display:grid;grid-template-columns:1fr 1.15fr 1.15fr;gap:7px;min-height:0;">
+    <div style="flex:1;display:grid;grid-template-columns:1fr 1.15fr 1.15fr;gap:6px;min-height:0;">
 
       ${C(`
-        ${S('Distribución intenciones',GRAY_MID,'')}
+        ${S('Intenciones · dist.',GRAY_MID,'')}
         <div style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;">
-          <svg viewBox="0 0 140 140" width="82" height="82" style="flex-shrink:0;">${buildDonutSVG(intentPairs,iColors)}</svg>
+          <svg viewBox="0 0 140 140" width="82" height="82" style="flex-shrink:0;">${buildDonutSVG(intentPairs,iColors,true)}</svg>
           <div style="flex:1;min-width:0;">
             ${intentPairs.slice(0,5).map(([key,val],i)=>{const p=Math.round(val/totalIntents*100);return`
               <div style="display:flex;align-items:center;gap:4px;margin-bottom:5px;">
                 <div style="width:5px;height:5px;border-radius:50%;background:${iColors[i%iColors.length]};flex-shrink:0;"></div>
-                <span style="font-family:'Barlow',sans-serif;font-size:7px;color:${GRAY_D};flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${iLabels[key]||key}</span>
-                <span style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:800;color:${BLACK};">${p}%</span>
+                <span style="font-family:'Barlow',sans-serif;font-size:11px;color:rgba(255,255,255,0.82);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${iLabels[key]||key}</span>
+                <span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:#FFFFFF;">${p}%</span>
               </div>`}).join('')}
           </div>
         </div>
       `)}
 
-      ${C(`
-        ${S('Distribuidores',C_BLUE,distTotal.toLocaleString('es-MX'))}
-        <div style="flex:1;display:flex;flex-direction:column;justify-content:space-between;gap:6px;">
-          <div style="display:flex;gap:5px;">${mini3([['Semana',distSemana,C_BLUE],['Mes',distMes,C_BLUE],['Hoy',distHoy,distHoy>0?C_BLUE:GRAY_LIGHT]])}</div>
+      ${scData?.ok ? (()=>{
+        const C_SC='#4285F4', C_GRN='#34A853', C_YLW='#FBBC04';
+        return C(`
+          ${S('Google Search Console',C_SC,(scData.totalImpressions??0).toLocaleString('es-MX'))}
+          <div style="display:flex;gap:4px;margin-bottom:5px;">${mini3([
+            ['Impresiones', (scData.totalImpressions??0).toLocaleString('es-MX'), C_YLW],
+            ['Clicks',      (scData.totalClicks??0).toLocaleString('es-MX'),      C_SC],
+            ['CTR',         (scData.avgCtr??'0')+'%',                             C_GRN],
+          ])}</div>
           <div style="flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0;">
-            <div style="font-family:'Barlow',sans-serif;font-size:5.5px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:${GRAY_LIGHT};margin-bottom:2px;">Tendencia últimos 14 días</div>
-            <svg viewBox="0 0 680 110" style="width:100%;height:auto;max-height:90px;display:block;overflow:visible;">${buildLeadsLineSVG(distByDay)}</svg>
+            <div style="font-family:'Barlow',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.40);margin-bottom:2px;">Clics orgánicos · últimos 14 días</div>
+            <svg viewBox="0 0 680 130" style="width:100%;height:auto;max-height:105px;display:block;overflow:visible;">${buildSCLineSVG(scData.dailyClicks||[])}</svg>
           </div>
-          ${topDistEst.slice(0,3).map(([e,v],i)=>`
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid ${CREAM};">
-              <span style="font-family:'Barlow',sans-serif;font-size:7px;color:${i===0?BLACK:GRAY_D};font-weight:${i===0?700:600};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:120px;">${e}</span>
-              <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;color:${i===0?C_BLUE:GRAY_LIGHT};">${v}</span>
-            </div>`).join('')||`<div style="font-family:'Barlow',sans-serif;font-size:7px;color:${GRAY_LIGHT};text-align:center;padding:4px 0;">Sin datos de estados</div>`}
+        `);
+      })() : C(`
+        ${S('Distribuidores',C_BLUE,distTotal.toLocaleString('es-MX'))}
+        <div style="flex:1;display:flex;flex-direction:column;gap:5px;">
+          <div style="display:flex;gap:5px;">${mini3([['Semana',distSemana,C_BLUE],['Mes',distMes,C_BLUE],['Hoy',distHoy,distHoy>0?C_BLUE:'rgba(255,255,255,0.25)']])}</div>
+          <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;gap:0;">
+            ${topDistEst.slice(0,4).map(([e,v],i)=>`
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.07);">
+              <span style="font-family:'Barlow',sans-serif;font-size:11px;color:${i===0?'#FFFFFF':'rgba(255,255,255,0.65)'};font-weight:${i===0?700:500};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:130px;">${e}</span>
+              <span style="font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:800;color:${i===0?C_BLUE:'rgba(255,255,255,0.30)'};">${v}</span>
+            </div>`).join('')||`<div style="font-family:'Barlow',sans-serif;font-size:10px;color:rgba(255,255,255,0.30);text-align:center;padding:4px 0;">Sin empresas registradas</div>`}
+          </div>
         </div>
       `)}
 
       ${C(`
         ${S('Reclutamiento RH',C_GREEN,rhTotal.toLocaleString('es-MX'))}
-        <div style="flex:1;display:flex;flex-direction:column;justify-content:space-between;gap:6px;">
-          <div style="display:flex;gap:5px;">${mini3([['Semana',rhSemana,C_GREEN],['Mes',rhMes,C_GREEN],['Con CV',rhConCv,rhConCv>0?C_GREEN:GRAY_LIGHT]])}</div>
-          <div style="flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0;">
-            <div style="font-family:'Barlow',sans-serif;font-size:5.5px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:${GRAY_LIGHT};margin-bottom:2px;">Tendencia últimos 14 días</div>
-            <svg viewBox="0 0 680 110" style="width:100%;height:auto;max-height:90px;display:block;overflow:visible;">${buildCandidatesLineSVG(rhByDay)}</svg>
+        <div style="flex:1;display:flex;flex-direction:column;gap:5px;">
+          <div style="display:flex;gap:5px;">${mini3([['Semana',rhSemana,C_GREEN],['Mes',rhMes,C_GREEN],['Con CV',rhConCv,rhConCv>0?C_GREEN:'rgba(255,255,255,0.25)']])}</div>
+          <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;gap:0;">
+            ${topRhPuestos.slice(0,4).map(([p,v],i)=>`
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.07);">
+              <span style="font-family:'Barlow',sans-serif;font-size:11px;color:${i===0?'#FFFFFF':'rgba(255,255,255,0.65)'};font-weight:${i===0?700:500};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:120px;">${p}</span>
+              <span style="font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:800;color:${i===0?C_GREEN:'rgba(255,255,255,0.30)'};">${v}</span>
+            </div>`).join('')||`<div style="font-family:'Barlow',sans-serif;font-size:10px;color:rgba(255,255,255,0.30);text-align:center;padding:4px 0;">Sin datos</div>`}
           </div>
-          ${topRhPuestos.slice(0,3).map(([p,v],i)=>`
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid ${CREAM};">
-              <span style="font-family:'Barlow',sans-serif;font-size:7px;color:${i===0?BLACK:GRAY_D};font-weight:${i===0?700:600};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:120px;">${p}</span>
-              <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;color:${i===0?C_GREEN:GRAY_LIGHT};">${v}</span>
-            </div>`).join('')||`<div style="font-family:'Barlow',sans-serif;font-size:7px;color:${GRAY_LIGHT};text-align:center;padding:4px 0;">Sin datos de puestos</div>`}
         </div>
       `)}
 
@@ -1057,15 +1112,97 @@ export function buildReportHTML(data, periodMeta=null, analysis=null, logoBase64
 
   </div><!-- /cuerpo -->
 
+  <!-- DISTRIBUIDORES — franja compacta horizontal (abajo) -->
+  <div style="flex-shrink:0;margin:5px 8px 5px;background:#0D0D0D;border:1px solid rgba(0,136,221,0.22);border-radius:8px;display:flex;gap:0;overflow:hidden;">
+
+    <!-- Badge -->
+    <div style="flex-shrink:0;display:flex;align-items:center;gap:8px;padding:7px 12px;border-right:1px solid rgba(255,255,255,0.07);">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="${C_BLUE}" stroke-width="2" stroke-linecap="round"/><circle cx="9" cy="7" r="4" stroke="${C_BLUE}" stroke-width="2"/><path d="M23 21v-2a4 4 0 0 0-3-3.87" stroke="${C_BLUE}" stroke-width="2" stroke-linecap="round"/><path d="M16 3.13a4 4 0 0 1 0 7.75" stroke="${C_BLUE}" stroke-width="2" stroke-linecap="round"/></svg>
+      <div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;color:${C_BLUE};letter-spacing:0.08em;text-transform:uppercase;line-height:1;">Distribuid.</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:#FFFFFF;line-height:1;">${distTotal}</div>
+      </div>
+    </div>
+
+    <!-- KPIs -->
+    <div style="flex-shrink:0;display:flex;align-items:center;gap:1px;border-right:1px solid rgba(255,255,255,0.07);">
+      ${[['Semana',distSemana,C_BLUE],['Mes',distMes,C_BLUE],['Hoy',distHoy,distHoy>0?C_BLUE:'rgba(255,255,255,0.25)']].map(([l,v,c],idx)=>`
+        <div style="padding:7px 13px;text-align:center;border-right:${idx<2?'1px solid rgba(255,255,255,0.05)':'none'};">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:${c};line-height:1;">${v}</div>
+          <div style="font-family:'Barlow',sans-serif;font-size:8px;font-weight:700;letter-spacing:0.10em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-top:1px;">${l}</div>
+        </div>`).join('')}
+    </div>
+
+    <!-- Top Países (Google SC cuando hay datos, sino Top empresas) -->
+    ${scData?.ok && (scData.topCountries||[]).length > 0 ? (()=>{
+      const C_SC='#4285F4';
+      const PAIS_NOMBRES = {mex:'México',usa:'EE.UU.',col:'Colombia',esp:'España',arg:'Argentina',chl:'Chile',per:'Perú',bra:'Brasil',ecu:'Ecuador',ven:'Venezuela',ury:'Uruguay',bol:'Bolivia',pry:'Paraguay',cri:'Costa Rica',gtm:'Guatemala',pan:'Panamá',dom:'R. Dominicana',oth:'Otros'};
+      const maxImp = scData.topCountries[0]?.impressions||1;
+      return `<div style="flex:1;min-width:0;padding:7px 12px;border-right:1px solid rgba(255,255,255,0.07);">
+        <div style="font-family:'Barlow',sans-serif;font-size:8.5px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:4px;">Top Países</div>
+        <div style="display:flex;flex-direction:column;gap:2.5px;">
+          ${scData.topCountries.slice(0,4).map((c,i)=>{const pct=Math.round(c.impressions/maxImp*100);const nombre=PAIS_NOMBRES[c.country]||c.country.toUpperCase();return`
+          <div style="display:flex;align-items:center;gap:5px;">
+            <span style="font-family:'Barlow',sans-serif;font-size:11px;font-weight:${i===0?700:500};color:${i===0?'#FFFFFF':'rgba(255,255,255,0.65)'};flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${nombre}</span>
+            <div style="width:40px;height:3.5px;background:rgba(255,255,255,0.10);border-radius:2px;overflow:hidden;flex-shrink:0;"><div style="width:${pct}%;height:100%;background:${C_SC};border-radius:2px;"></div></div>
+            <span style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;color:${i===0?C_SC:'rgba(255,255,255,0.30)'};min-width:28px;text-align:right;">${c.impressions>=1000?(c.impressions/1000).toFixed(1)+'k':c.impressions}</span>
+          </div>`}).join('')}
+        </div>
+      </div>`;
+    })() : `<div style="flex:1;min-width:0;padding:7px 12px;border-right:1px solid rgba(255,255,255,0.07);">
+      <div style="font-family:'Barlow',sans-serif;font-size:8.5px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:4px;">Top empresas</div>
+      <div style="display:flex;flex-direction:column;gap:2.5px;">
+        ${topDistEst.slice(0,4).map(([e,v],i)=>{const maxV2=topDistEst[0]?.[1]||1;const pct=Math.round(v/maxV2*100);return`
+        <div style="display:flex;align-items:center;gap:5px;">
+          <span style="font-family:'Barlow',sans-serif;font-size:11px;font-weight:${i===0?700:500};color:${i===0?'#FFFFFF':'rgba(255,255,255,0.65)'};flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${e}</span>
+          <div style="width:40px;height:3.5px;background:rgba(255,255,255,0.10);border-radius:2px;overflow:hidden;flex-shrink:0;"><div style="width:${pct}%;height:100%;background:${C_BLUE};border-radius:2px;"></div></div>
+          <span style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;color:${i===0?C_BLUE:'rgba(255,255,255,0.30)'};min-width:18px;text-align:right;">${v}</span>
+        </div>`}).join('')||`<div style="font-family:'Barlow',sans-serif;font-size:10px;color:rgba(255,255,255,0.25);">Sin datos</div>`}
+      </div>
+    </div>`}
+
+    <!-- Top consultas SC (si hay datos) -->
+    ${scData?.ok ? (()=>{
+      const C_SC='#4285F4', maxQ=scData.topQueries?.[0]?.clicks||1;
+      return `<div style="flex:1.3;min-width:0;padding:7px 12px;border-right:1px solid rgba(255,255,255,0.07);">
+        <div style="font-family:'Barlow',sans-serif;font-size:8.5px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:4px;">Top consultas Google</div>
+        <div style="display:flex;flex-direction:column;gap:2.5px;">
+          ${(scData.topQueries||[]).slice(0,4).map((q,i)=>{const pct=Math.round(q.clicks/maxQ*100);return`
+          <div style="display:flex;align-items:center;gap:5px;">
+            <span style="font-family:'Barlow',sans-serif;font-size:11px;font-weight:${i===0?700:500};color:${i===0?'#FFFFFF':'rgba(255,255,255,0.65)'};flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${q.query}</span>
+            <div style="width:36px;height:3.5px;background:rgba(255,255,255,0.10);border-radius:2px;overflow:hidden;flex-shrink:0;"><div style="width:${pct}%;height:100%;background:${C_SC};border-radius:2px;"></div></div>
+            <span style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;color:${C_SC};min-width:22px;text-align:right;">${q.clicks}</span>
+            <span style="font-family:'Barlow',sans-serif;font-size:8px;color:rgba(255,255,255,0.28);min-width:26px;text-align:right;">${q.ctr}%</span>
+          </div>`}).join('')}
+        </div>
+      </div>`;
+    })() : ''}
+
+    <!-- Top páginas SC -->
+    ${scData?.ok ? (()=>{
+      const C_GRN='#34A853', maxP=scData.topPages?.[0]?.clicks||1;
+      return `<div style="flex:1;min-width:0;padding:7px 12px;">
+        <div style="font-family:'Barlow',sans-serif;font-size:8.5px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:4px;">Top páginas</div>
+        <div style="display:flex;flex-direction:column;gap:2.5px;">
+          ${(scData.topPages||[]).slice(0,4).map((p,i)=>{const pct=Math.round(p.clicks/maxP*100);return`
+          <div style="display:flex;align-items:center;gap:5px;">
+            <span style="font-family:'Barlow',sans-serif;font-size:11px;font-weight:${i===0?700:500};color:${i===0?'#FFFFFF':'rgba(255,255,255,0.65)'};flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.page||'/'}</span>
+            <div style="width:36px;height:3.5px;background:rgba(255,255,255,0.10);border-radius:2px;overflow:hidden;flex-shrink:0;"><div style="width:${pct}%;height:100%;background:${C_GRN};border-radius:2px;"></div></div>
+            <span style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;color:${i===0?C_GRN:'rgba(255,255,255,0.30)'};min-width:22px;text-align:right;">${p.clicks}</span>
+          </div>`}).join('')}
+        </div>
+      </div>`;
+    })() : ''}</div>
+
   <!-- FOOTER -->
   <div style="padding:4px 12px;background:${BLACK};display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
-    <span style="font-family:'Barlow',sans-serif;font-size:6px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.22);">Grupo Ortiz · BotGO Analytics · Confidencial</span>
+    <span style="font-family:'Barlow',sans-serif;font-size:10px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.35);">Grupo Ortiz · BotGO Analytics · Confidencial</span>
     <div style="display:flex;align-items:center;gap:5px;">
-      <div style="width:12px;height:1.5px;background:${ORANGE};border-radius:1px;"></div>
-      <span style="font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;color:rgba(255,255,255,0.40);letter-spacing:0.05em;">RESUMEN EJECUTIVO</span>
-      <div style="width:12px;height:1.5px;background:${ORANGE};border-radius:1px;"></div>
+      <div style="width:14px;height:1.5px;background:${ORANGE};border-radius:1px;"></div>
+      <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:rgba(255,255,255,0.60);letter-spacing:0.06em;">RESUMEN EJECUTIVO</span>
+      <div style="width:14px;height:1.5px;background:${ORANGE};border-radius:1px;"></div>
     </div>
-    <span style="font-family:'Barlow',sans-serif;font-size:6px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.22);">${todayFmt}</span>
+    <span style="font-family:'Barlow',sans-serif;font-size:10px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.35);">${todayFmt}</span>
   </div>
 
 </div>
@@ -1453,18 +1590,35 @@ export function DownloadReportButton({ data, periodMeta = null, style = {}, repo
 
       setStatus('analyzing');
 
-      const [analysis, logoBase64, leadsRes, candidatesRes] = await Promise.all([
+      // Calcular rango de fechas para Search Console
+      const scDateRange = (() => {
+        const today = new Date().toISOString().slice(0,10);
+        const daysAgo = n => { const d = new Date(); d.setDate(d.getDate()-n); return d.toISOString().slice(0,10); };
+        if (!periodMeta) return { startDate: daysAgo(30), endDate: today };
+        if (periodMeta.preset === 'today') return { startDate: today, endDate: today };
+        if (periodMeta.preset === '7d')    return { startDate: daysAgo(7), endDate: today };
+        if (periodMeta.preset === '30d')   return { startDate: daysAgo(30), endDate: today };
+        if (periodMeta.preset === 'month') return { startDate: periodMeta.from, endDate: periodMeta.to };
+        if (periodMeta.preset === 'all')   return { startDate: daysAgo(365), endDate: today };
+        if (periodMeta.from && periodMeta.to) return { startDate: periodMeta.from, endDate: periodMeta.to };
+        return { startDate: daysAgo(30), endDate: today };
+      })();
+
+      const [analysis, logoBase64, leadsRes, candidatesRes, scData] = await Promise.all([
         generateAnalysis(data, periodo),
         fetchLogoBase64(),
         fetch('/api/analytics',   {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'getLeads'})}).then(r=>r.json()).catch(()=>({ok:false,leads:[]})),
         fetch('/api/recruitment', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'list'})}).then(r=>r.json()).catch(()=>({ok:false,candidates:[]})),
+        reportType === 'resumen'
+          ? fetch('/api/search-console', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(scDateRange)}).then(r=>r.json()).catch(()=>({ok:false}))
+          : Promise.resolve(null),
       ]);
 
       const leads      = leadsRes?.ok      ? (leadsRes.leads          || []) : [];
       const candidates = candidatesRes?.ok ? (candidatesRes.candidates || []) : [];
 
       setStatus('building');
-      const html = buildReportHTML(data, periodMeta, analysis, logoBase64, leads, candidates, reportType);
+      const html = buildReportHTML(data, periodMeta, analysis, logoBase64, leads, candidates, reportType, scData);
 
       const slug = periodMeta?.preset==='today' ? 'hoy'
                  : periodMeta?.preset==='7d'    ? '7dias'

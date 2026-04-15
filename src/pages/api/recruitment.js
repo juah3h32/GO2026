@@ -1,15 +1,17 @@
 // src/pages/api/recruitment.js
-import { notifyNewVacante } from '../../lib/notify';
+import { notifyNewVacante, notifyEsperaVacante } from '../../lib/notify';
 import {
   saveRecruitmentLead,
   readRecruitmentLeads,
   updateRecruitmentStatus,
+  updateRecruitmentLead,
   deleteRecruitmentLead,
   resetRecruitmentLeads,
   addRecruiterNote,
   getRecruiterNotes,
   deleteRecruiterNote,
   readVacantes,
+  markNotificadosVacante,
 } from '../../lib/analytics-db.js';
 
 export const prerender = false;
@@ -78,23 +80,43 @@ export async function POST({ request }) {
     // ── save: guardar candidato completo ──────────────────────────────────
     if (action === 'save') {
       const {
-        nombre      = '',
-        email       = '',
-        telefono    = '',
-        puesto      = '',
-        edad        = '',
-        estado      = '',
-        colonia     = '',
-        cvNombre    = '',
-        cvBase64    = '',
-        cvTipo      = '',
-        mensaje     = '',
-        comentarios = '',
-        sessionId   = '',
+        nombre         = '',
+        email          = '',
+        telefono       = '',
+        puesto         = '',
+        edad           = '',
+        estado         = '',
+        colonia        = '',
+        cvNombre       = '',
+        cvBase64       = '',
+        cvTipo         = '',
+        mensaje        = '',
+        comentarios    = '',
+        sessionId      = '',
+        esListaEspera  = false,
       } = body;
 
       if (!nombre && !email && !telefono) {
         return json({ ok: false, error: 'Datos insuficientes para guardar candidato.' }, 400);
+      }
+
+      // Determinar lista de espera: puede venir del frontend o se detecta aquí
+      let en_lista_espera = esListaEspera ? 1 : 0;
+      if (!esListaEspera) {
+        try {
+          const vacantesActivas = (await readVacantes(true)) || [];
+          if (!vacantesActivas.length) {
+            en_lista_espera = 1;
+          } else if (puesto) {
+            // Comparación simple: si ninguna vacante activa contiene palabras del puesto → lista espera
+            const puestoLower = puesto.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            const hayMatch = vacantesActivas.some(v =>
+              (v.titulo || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes(puestoLower) ||
+              puestoLower.includes((v.titulo || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''))
+            );
+            if (!hayMatch) en_lista_espera = 1;
+          }
+        } catch { /* si falla la consulta, no forzamos lista espera */ }
       }
 
       const saved = await saveRecruitmentLead({
@@ -108,6 +130,7 @@ export async function POST({ request }) {
         mensaje,
         comentarios,
         sessionId,
+        en_lista_espera,
       });
 
       // ── Duplicado detectado: no re-registrar ni notificar ─────────────────
@@ -134,7 +157,7 @@ export async function POST({ request }) {
         console.error('⚠️ Notificación RH falló:', err.message);
       }
 
-      return json({ ok: true, id: candidatoId });
+      return json({ ok: true, id: candidatoId, en_lista_espera });
     }
 
     // ── list: listar candidatos ───────────────────────────────────────────
@@ -156,6 +179,21 @@ export async function POST({ request }) {
       }
       const ok = await updateRecruitmentStatus(id, nuevoEstado);
       if (!ok) return json({ ok: false, error: 'Candidato no encontrado.' }, 404);
+      return json({ ok: true });
+    }
+
+    // ── updateLead — corrección de campos por el candidato ───────────────
+    if (action === 'updateLead') {
+      const { id, campo, valor } = body;
+      if (!id) return json({ ok: false, error: 'ID requerido.' }, 400);
+      const CAMPO_MAP = {
+        nombre: 'nombre', puesto: 'puesto', edad: 'edad',
+        estado: 'estado_rep', colonia: 'colonia',
+        email: 'email', telefono: 'telefono',
+      };
+      const dbCampo = CAMPO_MAP[campo];
+      if (!dbCampo) return json({ ok: false, error: 'Campo no permitido.' }, 400);
+      await updateRecruitmentLead(id, { [dbCampo]: valor });
       return json({ ok: true });
     }
 

@@ -1,6 +1,5 @@
 // src/pages/api/cron/daily-reports.js
-// Vercel Cron Job — ejecuta CADA HORA para cubrir cualquier horario programado
-// En vercel.json: "schedule": "0 * * * *"  (minuto 0 de cada hora, UTC)
+// Vercel Cron Job — adaptado para funcionar con cron-job.org cada 15 minutos
 import { getTurso } from '../../../lib/turso';
 
 export const prerender = false;
@@ -22,7 +21,6 @@ function getMxDate(utcMs = Date.now()) {
 
 // ── Decide si hay que enviar ahora.
 // Lógica: "¿ya pasó la hora programada HOY y no se ha enviado hoy?"
-// Funciona sin importar la frecuencia del cron (diario, horario, etc.)
 // Devuelve null → enviar  |  string → motivo del salto
 function shouldSend(schedule) {
   if (!schedule.active) return 'inactivo';
@@ -55,7 +53,6 @@ function shouldSend(schedule) {
     const sentMx    = getMxDate(new Date(schedule.last_sent).getTime());
     const sentTotal = sentMx.hour * 60 + sentMx.min;
     // Solo bloquear si el envío fue hoy Y ocurrió a partir de la hora programada
-    // (si fue un envío manual antes de la hora, el automático igual debe correr)
     if (sentMx.dateStr === now.dateStr && sentTotal >= totalSched)
       return 'ya enviado hoy';
   }
@@ -99,10 +96,11 @@ async function runCron({ forceAll = false, baseUrl = 'https://grupo-ortiz.com' }
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             schedule_id:  row.id,
+            name:         row.name,           // ← fix: Necesario para nombrar el PDF
             report_type:  row.report_type,
             period:       row.period,
-            period_from:  row.period_from  || null,   // ← fix: faltaban estos
-            period_to:    row.period_to    || null,   // ← fix
+            period_from:  row.period_from  || null,
+            period_to:    row.period_to    || null,
             phones:       schedule.phones,
           }),
         });
@@ -130,18 +128,27 @@ async function runCron({ forceAll = false, baseUrl = 'https://grupo-ortiz.com' }
   }
 }
 
-// GET — llamado por Vercel Cron (requiere CRON_SECRET si está configurado)
+// GET — llamado por Vercel Cron o cron-job.org
 export async function GET({ request }) {
+  const url = new URL(request.url);
+  const token = url.searchParams.get('token');
+  
   const authHeader = request.headers.get('authorization');
   const cronSecret = import.meta.env.CRON_SECRET;
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-    return new Response('Unauthorized', { status: 401 });
+  
+  // Es válido si viene de Vercel (con su secreto) O del servicio externo (con el token en la URL)
+  const isValidVercel = cronSecret && authHeader === `Bearer ${cronSecret}`;
+  const isValidExternal = token === 'ortiz2026';
+
+  if (!isValidVercel && !isValidExternal) {
+    return new Response('No autorizado', { status: 401 });
   }
-  const baseUrl = new URL(request.url).origin;
+
+  const baseUrl = url.origin;
   return runCron({ baseUrl });
 }
 
-// POST — disparo manual desde el panel de admin (ignora ventana horaria, envía todas las activas)
+// POST — disparo manual desde el panel de admin
 export async function POST({ request }) {
   const baseUrl = new URL(request.url).origin;
   return runCron({ forceAll: true, baseUrl });

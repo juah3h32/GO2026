@@ -1,5 +1,5 @@
 // src/components/ReportScheduler.jsx
-// BotGO · Programador de Reportes v3 · Modal fix + diseño premium
+// BotGO · Programador de Reportes v3 · Modal fix + diseño premium + AM/PM
 import React, { useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { DayPicker } from 'react-day-picker';
@@ -50,7 +50,7 @@ const Ic = {
 const REPORT_TYPES = [
   { value:'resumen',       label:'Resumen',        icon:<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>, color:'#A855F7', desc:'Vista ejecutiva · 1 página completa' },
   { value:'general',       label:'General',        icon:Ic.chart,   color:C.orange,    desc:'Analytics, distribuidores y reclutamiento' },
-  { value:'distribuidor',  label:'Distribuidores', icon:Ic.truck,   color:'#0088DD',   desc:'Red de distribución y solicitudes' },
+  { value:'distribuidor',  label:'Distribuidores', icon:Ic.truck,   color:'#0088DD',   desc:'Red de distribution y solicitudes' },
   { value:'reclutamiento', label:'Reclutamiento',  icon:Ic.recruit, color:'#22C55E',   desc:'Pipeline de candidatos y talento' },
   { value:'candidatos_ia', label:'IA · Candidatos',icon:Ic.ai,      color:'#8B5CF6',   desc:'Ranking IA de candidatos por vacante y perfil' },
 ];
@@ -751,6 +751,24 @@ const ScheduleModal = React.memo(function ScheduleModal({ form, setForm, editId,
   const addPhone    = useCallback(() => setForm(f => ({ ...f, phones: [...f.phones, { phone: '' }] })), [setForm]);
   const removePhone = useCallback(i  => setForm(f => ({ ...f, phones: f.phones.filter((_, j) => j !== i) })), [setForm]);
 
+  // Lógica para manejar AM/PM visualmente, mientras guardamos 0-23 en el estado real
+  const displayHour = form.hour === 0 ? 12 : form.hour > 12 ? form.hour - 12 : form.hour;
+  const isPM = form.hour >= 12;
+
+  const toggleAMPM = () => {
+    let newHour = form.hour;
+    if (isPM) newHour -= 12;
+    else newHour += 12;
+    set('hour', newHour);
+  };
+
+  const handleHourChange = (val) => {
+    let h = Math.min(12, Math.max(1, Number(val) || 1));
+    if (isPM && h < 12) h += 12;
+    if (!isPM && h === 12) h = 0;
+    set('hour', h);
+  };
+
   return (
     <div className="rsc-modal-overlay" onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
       <div className="rsc-modal">
@@ -872,23 +890,34 @@ const ScheduleModal = React.memo(function ScheduleModal({ form, setForm, editId,
               <input type="number" min="1" max="28" className="rsc-input" value={form.day_of_month} onChange={e => set('day_of_month', Number(e.target.value))} />
             </div>
 
-            {/* Hora */}
+            {/* Hora (AM / PM Actualizado) */}
             <div>
-              <label style={lbl}>Hora de envío (hora México)</label>
+              <label style={lbl}>Hora de envío (Formato 12h · hora México)</label>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <input type="number" min="0" max="23" className="rsc-hour-input" value={form.hour}
-                  onChange={e => { const v = e.target.value; set('hour', v === '' ? '' : Math.min(23, Math.max(0, Number(v)))); }}
-                  onBlur={e => set('hour', Math.min(23, Math.max(0, Number(e.target.value) || 0)))} />
+                <input type="number" min="1" max="12" className="rsc-hour-input" value={displayHour}
+                  onChange={e => handleHourChange(e.target.value)}
+                  onBlur={e => handleHourChange(e.target.value || 12)} />
                 <span style={{ color: CM.textDim, fontSize: 22, fontWeight: 700, fontFamily: "'DM Mono',monospace", flexShrink: 0, lineHeight: 1 }}>:</span>
                 <input type="number" min="0" max="59" className="rsc-hour-input" value={form.minute ?? 0}
                   onChange={e => { const v = e.target.value; set('minute', v === '' ? '' : Math.min(59, Math.max(0, Number(v)))); }}
                   onBlur={e => set('minute', Math.min(59, Math.max(0, Number(e.target.value) || 0)))} />
+
+                {/* Selector AM/PM */}
+                <div style={{ display: 'flex', background: CM.surface3, borderRadius: 9, padding: 3, border: `1px solid ${CM.border}`, marginLeft: 4 }}>
+                  <button type="button" onClick={() => !isPM ? null : toggleAMPM()}
+                    style={{ padding: '7px 12px', borderRadius: 7, border: 'none', fontSize: 11.5, fontWeight: 700, fontFamily: "'DM Sans',system-ui,sans-serif",
+                      background: !isPM ? CM.orange : 'transparent', color: !isPM ? '#fff' : CM.textSub, cursor: 'pointer', transition: 'all 0.15s ease' }}>AM</button>
+                  <button type="button" onClick={() => isPM ? null : toggleAMPM()}
+                    style={{ padding: '7px 12px', borderRadius: 7, border: 'none', fontSize: 11.5, fontWeight: 700, fontFamily: "'DM Sans',system-ui,sans-serif",
+                      background: isPM ? CM.orange : 'transparent', color: isPM ? '#fff' : CM.textSub, cursor: 'pointer', transition: 'all 0.15s ease' }}>PM</button>
+                </div>
               </div>
               <div style={{ marginTop: 7, fontSize: 10.5, color: CM.textSub, display: 'flex', alignItems: 'center', gap: 5, fontFamily: "'DM Sans',system-ui,sans-serif" }}>
-                {Ic.clock} Envío a las{' '}
+                {Ic.clock} Se enviará a las{' '}
                 <strong style={{ color: CM.text, fontFamily: "'DM Mono',monospace" }}>
                   {String(form.hour || 0).padStart(2, '0')}:{String(form.minute ?? 0).padStart(2, '0')} hrs
                 </strong>
+                {' '}(24h)
               </div>
             </div>
           </div>
@@ -995,10 +1024,36 @@ export default function ReportScheduler({ theme = 'dark' }) {
     setShowForm(true);
   };
 
-  const save = async () => {
+const save = async () => {
     if (!form.name.trim()) { showToast('Agrega un nombre a la programación', false); return; }
     if (!form.phones.some(p => p.phone.trim())) { showToast('Agrega al menos un número de WhatsApp', false); return; }
     if (form.period === 'custom' && (!form.period_from || !form.period_to)) { showToast('Selecciona el rango de fechas completo', false); return; }
+    
+    // ── LÓGICA INTELIGENTE PARA ENVÍOS DE HOY ──
+    const ahora = new Date();
+    const hoySemana = ahora.getDay(); // 0 = Domingo, 5 = Viernes, etc.
+    const hoyMes = ahora.getDate();
+    const hActual = ahora.getHours();
+    const mActual = ahora.getMinutes();
+
+    let esParaHoy = false;
+    if (form.frequency === 'daily') esParaHoy = true;
+    if (form.frequency === 'weekly' && Number(form.day_of_week) === hoySemana) esParaHoy = true;
+    if (form.frequency === 'monthly' && Number(form.day_of_month) === hoyMes) esParaHoy = true;
+
+    if (esParaHoy) {
+      const hEnvio = Number(form.hour || 0);
+      const mEnvio = Number(form.minute || 0);
+      
+      // Si la hora ya pasó hoy...
+      if (hEnvio < hActual || (hEnvio === hActual && mEnvio <= mActual)) {
+        showToast('La hora ya pasó. El primer envío saldrá en el próximo ciclo.', true);
+      } else {
+        // AÚN NO ES LA HORA: Se enviará hoy mismo
+        showToast('¡Listo! El primer envío saldrá hoy mismo a la hora indicada.', true);
+      }
+    }
+
     setSaving(true);
     const payload = {
       action: editId ? 'update' : 'create',
@@ -1011,10 +1066,13 @@ export default function ReportScheduler({ theme = 'dark' }) {
     const r = await fetch('/api/reports/schedule', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     const j = await r.json();
     setSaving(false);
-    if (j.ok) { showToast(editId ? 'Programación actualizada' : 'Programación creada'); setShowForm(false); load(); }
+    if (j.ok) { 
+      if (!esParaHoy) showToast(editId ? 'Programación actualizada' : 'Programación creada'); 
+      setShowForm(false); 
+      load(); 
+    }
     else showToast('Error: ' + j.error, false);
   };
-
   const del = (id, name) => setConfirmDel({ id, name });
   const confirmDelete = async () => {
     if (!confirmDel) return;

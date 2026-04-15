@@ -579,6 +579,19 @@ export async function updateRecruitmentStatus(id, status) {
   return true;
 }
 
+// ── Actualizar campos de candidato ────────────────────────────────────────────
+export async function updateRecruitmentLead(id, campos) {
+  await ensureInit();
+  await ensureRecruitmentTable();
+  const ALLOWED = ['nombre', 'email', 'telefono', 'puesto', 'edad', 'estado_rep', 'colonia', 'comentarios'];
+  const entries = Object.entries(campos).filter(([k, v]) => ALLOWED.includes(k) && v != null);
+  if (!entries.length) return false;
+  const setClauses = entries.map(([k]) => `${k} = ?`).join(', ');
+  const args = [...entries.map(([, v]) => String(v)), id];
+  await db.execute({ sql: `UPDATE recruitment_leads SET ${setClauses} WHERE id = ?`, args });
+  return true;
+}
+
 // ── Eliminar candidato ────────────────────────────────────────────────────────
 export async function deleteRecruitmentLead(id) {
   await ensureInit();

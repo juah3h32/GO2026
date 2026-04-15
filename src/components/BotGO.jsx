@@ -120,6 +120,12 @@ const VacanteIcon = () => (
     <path d="M16 21v-2a4 4 0 00-8 0v2" /><circle cx="12" cy="7" r="4" />
   </svg>
 );
+const PencilIcon = ({ size = 14 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+  </svg>
+);
 const InfoIcon = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="10" />
@@ -552,17 +558,180 @@ const CVUploadButton = ({ onFileSelect, cvSubido, uploading, t }) => {
   );
 };
 
-// ─── RECRUITMENT CONFIRMATION ─────────────────────────────────────────────────
-const RecruitmentConfirmation = ({ candidato, t }) => {
+// ─── PRE-REGISTRO REVIEW (revisar antes de confirmar) ────────────────────────
+const PreRegistroReview = ({ candidato, t, onConfirmar }) => {
   const [visible, setVisible] = useState(false);
+  const [campos, setCampos] = useState({
+    nombre:   candidato?.nombre   || '',
+    puesto:   (candidato?.puesto  || '').replace(/^postúlate a nue.*$/i, '').trim() || (candidato?.puesto || ''),
+    edad:     candidato?.edad     || '',
+    estado:   candidato?.estado   || '',
+    colonia:  candidato?.colonia  || '',
+    email:    candidato?.email    || '',
+    telefono: candidato?.telefono || '',
+  });
+  const [editando,    setEditando]    = useState(null);
+  const [valorEdit,   setValorEdit]   = useState('');
+  const [savedKey,    setSavedKey]    = useState(null);
+  const [confirmando, setConfirmando] = useState(false);
+
   useEffect(() => {
     const timer = setTimeout(() => setVisible(true), 120);
     return () => clearTimeout(timer);
   }, []);
 
-  const puestoMostrar = candidato?.puesto
-    ? candidato.puesto.replace(/^postúlate a nue.*$/i, '').trim() || candidato.puesto
-    : '';
+  const LABELS = {
+    nombre: 'Nombre', puesto: 'Puesto', edad: 'Edad',
+    estado: 'Estado', colonia: 'Municipio',
+    email: 'Correo', telefono: 'WhatsApp / Tel.',
+  };
+
+  const handleEdit   = (key) => { setEditando(key); setValorEdit(campos[key]); };
+  const handleCancel = ()    => { setEditando(null); setValorEdit(''); };
+
+  // Solo actualiza estado local — el guardado en DB ocurre al confirmar
+  const handleSave = (key) => {
+    const nuevo = valorEdit.trim();
+    if (!nuevo || nuevo === campos[key]) { handleCancel(); return; }
+    setCampos(prev => ({ ...prev, [key]: nuevo }));
+    setSavedKey(key);
+    setTimeout(() => setSavedKey(null), 2000);
+    setEditando(null);
+    setValorEdit('');
+  };
+
+  const handleConfirmar = async () => {
+    setConfirmando(true);
+    await new Promise(r => setTimeout(r, 300));
+    onConfirmar({ ...candidato, ...campos });
+  };
+
+  const fieldOrder   = ['nombre', 'puesto', 'edad', 'estado', 'colonia', 'email', 'telefono'];
+  const fieldsToShow = fieldOrder.filter(k => campos[k]);
+
+  return (
+    <div className={`pre-registro-review ${visible ? 'pre-registro-visible' : ''}`} role="status" aria-live="polite">
+      <div className="pre-registro-header">
+        <div className="pre-registro-icon">
+          <PencilIcon size={18} />
+        </div>
+        <div className="pre-registro-titles">
+          <p className="pre-registro-title">Revisa tus datos antes de confirmar</p>
+          <p className="pre-registro-subtitle">Toca el lápiz para corregir cualquier campo.</p>
+        </div>
+      </div>
+
+      <div className="pre-registro-fields">
+        {fieldsToShow.map(key => {
+          const isEditing = editando === key;
+          const wasSaved  = savedKey  === key;
+          return (
+            <div key={key} className="pre-registro-row">
+              <span className="pre-registro-label">{LABELS[key]}</span>
+              {isEditing ? (
+                <div className="conf-edit-group">
+                  <input
+                    className="conf-edit-input pre-registro-input"
+                    value={valorEdit}
+                    onChange={e => setValorEdit(e.target.value)}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter')  handleSave(key);
+                      if (e.key === 'Escape') handleCancel();
+                    }}
+                    autoFocus
+                  />
+                  <button className="conf-edit-ok pre-registro-ok" onClick={() => handleSave(key)}>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  </button>
+                  <button className="conf-edit-x" onClick={handleCancel}>
+                    <CloseIcon size={11} />
+                  </button>
+                </div>
+              ) : (
+                <div className="conf-value-wrap">
+                  <span className={`pre-registro-value${wasSaved ? ' conf-saved-flash' : ''}`}>{campos[key]}</span>
+                  <button className="conf-pencil-btn pre-registro-pencil" onClick={() => handleEdit(key)} title={`Editar ${LABELS[key]}`}>
+                    <PencilIcon size={12} />
+                  </button>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <button
+        className={`pre-registro-confirm-btn${confirmando ? ' pre-registro-confirm-btn--loading' : ''}`}
+        onClick={handleConfirmar}
+        disabled={confirmando || !!editando}
+      >
+        {confirmando ? (
+          <><span className="pre-registro-spinner" />Enviando...</>
+        ) : (
+          <>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            Confirmar y enviar solicitud
+          </>
+        )}
+      </button>
+    </div>
+  );
+};
+
+// ─── RECRUITMENT CONFIRMATION ─────────────────────────────────────────────────
+const RecruitmentConfirmation = ({ candidato, t }) => {
+  const [visible, setVisible] = useState(false);
+  const [campos, setCampos] = useState({
+    nombre:   candidato?.nombre   || '',
+    puesto:   (candidato?.puesto  || '').replace(/^postúlate a nue.*$/i, '').trim() || (candidato?.puesto || ''),
+    edad:     candidato?.edad     || '',
+    estado:   candidato?.estado   || '',
+    colonia:  candidato?.colonia  || '',
+    email:    candidato?.email    || '',
+    telefono: candidato?.telefono || '',
+  });
+  const [editando,  setEditando]  = useState(null);
+  const [valorEdit, setValorEdit] = useState('');
+  const [saving,    setSaving]    = useState(false);
+  const [savedKey,  setSavedKey]  = useState(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setVisible(true), 120);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const LABELS = {
+    nombre: 'Nombre', puesto: 'Puesto', edad: 'Edad',
+    estado: 'Estado', colonia: 'Municipio',
+    email: 'Correo', telefono: 'WhatsApp / Tel.',
+  };
+
+  const handleEdit = (key) => { setEditando(key); setValorEdit(campos[key]); };
+  const handleCancel = () => { setEditando(null); setValorEdit(''); };
+
+  const handleSave = async (key) => {
+    const nuevo = valorEdit.trim();
+    if (!nuevo || nuevo === campos[key]) { handleCancel(); return; }
+    setSaving(true);
+    try {
+      await fetch('/api/recruitment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'updateLead', id: candidato.id, campo: key, valor: nuevo }),
+      });
+      setCampos(prev => ({ ...prev, [key]: nuevo }));
+      setSavedKey(key);
+      setTimeout(() => setSavedKey(null), 2000);
+    } catch { /* el dato se actualiza localmente de todas formas */ }
+    setSaving(false);
+    setEditando(null);
+    setValorEdit('');
+  };
+
+  const fieldOrder = ['nombre', 'puesto', 'edad', 'estado', 'colonia', 'email', 'telefono'];
+  const fieldsToShow = fieldOrder.filter(k => campos[k]);
 
   return (
     <div className={`recruitment-confirmation ${visible ? 'confirmation-visible' : ''}`} role="status" aria-live="polite">
@@ -573,28 +742,65 @@ const RecruitmentConfirmation = ({ candidato, t }) => {
       <div className="confirmation-body">
         <p className="confirmation-title">{t?.confirmTitle || '¡Solicitud registrada con éxito!'}</p>
         <p className="confirmation-subtitle">{t?.confirmSubtitle || 'Nuestro equipo de RH se pondrá en contacto contigo pronto.'}</p>
-        {candidato && (
-          <div className="confirmation-badge">
-            {candidato.nombre && (
-              <div className="confirmation-badge-row">
-                <span className="confirmation-badge-label">Nombre</span>
-                <span className="confirmation-badge-value">{candidato.nombre}</span>
+
+        <div className="confirmation-badge">
+          {candidato?.id && (
+            <div className="confirmation-badge-row">
+              <span className="confirmation-badge-label">Folio</span>
+              <span className="confirmation-badge-value confirmation-folio">#{String(candidato.id).padStart(5, '0')}</span>
+            </div>
+          )}
+
+          {fieldsToShow.length > 0 && (
+            <p className="conf-edit-hint">
+              ¿Algo está mal?&nbsp;Toca&nbsp;
+              <span className="conf-edit-hint-icon"><PencilIcon size={10} /></span>
+              &nbsp;para corregirlo.
+            </p>
+          )}
+
+          {fieldsToShow.map(key => {
+            const isEditing = editando === key;
+            const wasSaved  = savedKey  === key;
+            return (
+              <div key={key} className="confirmation-badge-row conf-editable-row">
+                <span className="confirmation-badge-label">{LABELS[key]}</span>
+                {isEditing ? (
+                  <div className="conf-edit-group">
+                    <input
+                      className="conf-edit-input"
+                      value={valorEdit}
+                      onChange={e => setValorEdit(e.target.value)}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter')  handleSave(key);
+                        if (e.key === 'Escape') handleCancel();
+                      }}
+                      autoFocus
+                    />
+                    <button className="conf-edit-ok" onClick={() => handleSave(key)} disabled={saving}>
+                      {saving
+                        ? <span style={{ fontSize: 11, lineHeight: 1 }}>…</span>
+                        : <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      }
+                    </button>
+                    <button className="conf-edit-x" onClick={handleCancel}>
+                      <CloseIcon size={11} />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="conf-value-wrap">
+                    <span className={`confirmation-badge-value${wasSaved ? ' conf-saved-flash' : ''}`}>
+                      {campos[key]}
+                    </span>
+                    <button className="conf-pencil-btn" onClick={() => handleEdit(key)} title={`Editar ${LABELS[key]}`}>
+                      <PencilIcon size={12} />
+                    </button>
+                  </div>
+                )}
               </div>
-            )}
-            {puestoMostrar && (
-              <div className="confirmation-badge-row">
-                <span className="confirmation-badge-label">Puesto</span>
-                <span className="confirmation-badge-value">{puestoMostrar}</span>
-              </div>
-            )}
-            {candidato.id && (
-              <div className="confirmation-badge-row">
-                <span className="confirmation-badge-label">Folio</span>
-                <span className="confirmation-badge-value confirmation-folio">#{String(candidato.id).padStart(5, '0')}</span>
-              </div>
-            )}
-          </div>
-        )}
+            );
+          })}
+        </div>
       </div>
     </div>
   );
@@ -617,6 +823,70 @@ const DuplicateNotice = () => {
         <div style={{ fontSize: 12, fontWeight: 600, color: '#FB670B', marginBottom: 2 }}>Solicitud ya registrada</div>
         <div style={{ fontSize: 11, color: 'rgba(236,235,224,0.65)', lineHeight: 1.5 }}>Ya tenemos tus datos en nuestro sistema. El equipo de RH te contactará pronto.</div>
       </div>
+    </div>
+  );
+};
+
+// ─── RECRUIT INFO NOTE ────────────────────────────────────────────────────────
+const RinInfoIcon = () => (
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#63B3ED" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+  </svg>
+);
+
+const RecruitInfoNote = () => {
+  // phase: 'idle' → 'entering' → 'leaving' → 'pill' → 'reopening' → 'leaving' → 'pill' …
+  const [phase, setPhase] = useState('idle');
+  const t1 = useRef(null); const t2 = useRef(null); const t3 = useRef(null);
+
+  const collapse = () => {
+    clearTimeout(t2.current); clearTimeout(t3.current);
+    setPhase('leaving');
+    t3.current = setTimeout(() => setPhase('pill'), 380);
+  };
+
+  const expand = () => {
+    setPhase('reopening');
+    t2.current = setTimeout(() => collapse(), 5000);
+  };
+
+  useEffect(() => {
+    t1.current = setTimeout(() => {
+      setPhase('entering');
+      t2.current = setTimeout(() => collapse(), 4500);
+    }, 500);
+    return () => { clearTimeout(t1.current); clearTimeout(t2.current); clearTimeout(t3.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  if (phase === 'idle') return null;
+
+  if (phase === 'pill') {
+    return (
+      <button className="rin-pill" onClick={expand} aria-label="Ver nota informativa">
+        <RinInfoIcon />
+        <span className="rin-pill-text">Podrás revisar tus datos al final</span>
+      </button>
+    );
+  }
+
+  const isLeaving = phase === 'leaving';
+  return (
+    <div className={`rin-note ${isLeaving ? 'rin-leaving' : 'rin-entering'}`}>
+      <div className="rin-note-header">
+        <span className="rin-note-label">
+          <RinInfoIcon />
+          Información
+        </span>
+        <button className="rin-note-close" onClick={collapse} aria-label="Cerrar">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <p className="rin-note-body">
+        Al terminar podrás <strong>revisar y corregir</strong> tus datos antes de confirmar el envío.
+      </p>
     </div>
   );
 };
@@ -757,8 +1027,9 @@ export default function BotGO({ language = 'es' }) {
   const [cvSubido,          setCvSubido]          = useState(null);
   const [cvUploading,       setCvUploading]       = useState(false);
   const [mostrarSubirCV,    setMostrarSubirCV]    = useState(false);
-  const [candidatoRegistrado, setCandidatoRegistrado] = useState(null);
-  const [vacancyCards,        setVacancyCards]        = useState(null);
+  const [candidatoRegistrado,  setCandidatoRegistrado]  = useState(null);
+  const [preRegistroPendiente, setPreRegistroPendiente] = useState(null);
+  const [vacancyCards,         setVacancyCards]         = useState(null);
   const [mounted,    setMounted]    = useState(false);
   const [isMobile,   setIsMobile]   = useState(false);
   const [isHomePage, setIsHomePage] = useState(false);
@@ -813,6 +1084,34 @@ export default function BotGO({ language = 'es' }) {
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  // ── Bloquear scroll del body en móvil cuando el bot está abierto ─────────────
+  useEffect(() => {
+    if (!isMobile) return;
+    if (isOpen) {
+      const scrollY = window.scrollY;
+      document.body.style.overflow   = 'hidden';
+      document.body.style.position   = 'fixed';
+      document.body.style.top        = `-${scrollY}px`;
+      document.body.style.width      = '100%';
+      document.body.dataset.scrollY  = scrollY;
+    } else {
+      const savedY = parseInt(document.body.dataset.scrollY || '0', 10);
+      document.body.style.overflow   = '';
+      document.body.style.position   = '';
+      document.body.style.top        = '';
+      document.body.style.width      = '';
+      delete document.body.dataset.scrollY;
+      window.scrollTo(0, savedY);
+    }
+    return () => {
+      // Limpieza al desmontar: restaurar siempre
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.top      = '';
+      document.body.style.width    = '';
+    };
+  }, [isOpen, isMobile]);
 
   // ── PWA install prompt handling ───────────────────────────────────────────────
   useEffect(() => {
@@ -881,6 +1180,7 @@ export default function BotGO({ language = 'es' }) {
           showCVUpload: false, quickReplies: null, quickRepliesUsed: false,
         }]);
         setCandidatoRegistrado(null);
+        setPreRegistroPendiente(null);
         setMostrarSubirCV(false);
         setCvSubido(null);
         setCvPendiente(null);
@@ -904,7 +1204,7 @@ export default function BotGO({ language = 'es' }) {
       } else {
         // Sin vacante específica: mostrar tarjetas en pantalla principal
         setViewMode('voice');
-        setVacancyCards([]); // estado de carga
+        setVacancyCards(false); // false = cargando; [] = sin resultados; [...] = con resultados
         fetch('/api/vacantes')
           .then(r => r.json())
           .then(data => {
@@ -960,6 +1260,7 @@ export default function BotGO({ language = 'es' }) {
     setCvPendiente(null);
     setMostrarSubirCV(false);
     setCandidatoRegistrado(null);
+    setPreRegistroPendiente(null);
     setVacancyCards(null);
     setLastVoiceResponse(t.greeting);
     productoCtxRef.current = null;
@@ -967,6 +1268,40 @@ export default function BotGO({ language = 'es' }) {
     try { window.focus(); } catch {}
     window.dispatchEvent(new Event('pwa:bot-close'));
   }, [t.greeting]);
+
+  // Confirmación del registro: guarda en DB y pasa a pantalla de éxito
+  const handleConfirmarRegistro = useCallback(async (datos) => {
+    const cvActual = cvSubido;
+    try {
+      const res = await fetch('/api/recruitment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action:        'save',
+          nombre:        datos.nombre        || '',
+          email:         datos.email         || '',
+          telefono:      datos.telefono      || '',
+          puesto:        datos.puesto        || '',
+          edad:          datos.edad          || '',
+          estado:        datos.estado        || '',
+          colonia:       datos.colonia       || '',
+          cvNombre:      cvActual?.nombre    || '',
+          cvBase64:      cvActual?.base64    || '',
+          cvTipo:        cvActual?.tipo      || '',
+          comentarios:   datos.comentarios   || '',
+          sessionId:     sessionIdRef.current,
+          esListaEspera: datos.esListaEspera || false,
+        }),
+      });
+      const result = await res.json();
+      setCandidatoRegistrado({ ...datos, id: result.id || null });
+    } catch {
+      // Mostrar éxito de todas formas para no bloquear al usuario
+      setCandidatoRegistrado({ ...datos, id: null });
+    }
+    setPreRegistroPendiente(null);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cvSubido]);
 
   // Solo ocultar — preserva toda la conversación y estado de registro
   const handleHideChat = useCallback(() => {
@@ -1404,6 +1739,7 @@ export default function BotGO({ language = 'es' }) {
       const menciona_otro_puesto = esNuevaVacante && !text.toLowerCase().includes(puestoAnterior);
       if (esNuevaVacante && (!puestoAnterior || menciona_otro_puesto)) {
         setCandidatoRegistrado(null);
+        setPreRegistroPendiente(null);
         setCvSubido(null);
         setCvPendiente(null);
         setMostrarSubirCV(false);
@@ -1448,9 +1784,10 @@ export default function BotGO({ language = 'es' }) {
       const accionPDF           = data.accionPDF          ?? null;
       const accionCV            = data.accionCV           || false;
       const accionReclutamiento = data.accionReclutamiento || false;
-      const candidatoId         = data.candidatoId        || null;
       const accionDistribuidor  = data.accionDistribuidor  || false;
       const isDuplicate         = data.isDuplicate         || false;
+      const recruitDataFromApi  = data.recruitData         || null;
+      const esListaEsperaFlag   = data.esListaEspera       || false;
       
       let quickReplies = data.quickReplies || null;
       if (!quickReplies && replyText) {
@@ -1515,14 +1852,21 @@ export default function BotGO({ language = 'es' }) {
         distLink = `/${currentLangCode}/distribuidor#formulario`;
       }
       
-      if (accionReclutamiento && candidatoId) {
-        // En lugar de `[...messages, userMsg]`, usamos `payloadMessages`
+      if (accionReclutamiento && recruitDataFromApi) {
+        // Combinar datos del API con datos del historial para máxima completitud
         const todosLosMsgs   = [...payloadMessages, { role: 'assistant', content: replyText }];
-        const datosExtraidos = extraerDatosDeHistorial(todosLosMsgs);
-        setCandidatoRegistrado({
-          id:     candidatoId,
-          nombre: datosExtraidos.nombre || '',
-          puesto: datosExtraidos.puesto || '',
+        const datosHistorial = extraerDatosDeHistorial(todosLosMsgs);
+        // Los datos del API tienen precedencia; el historial rellena huecos
+        setPreRegistroPendiente({
+          id:           null,  // aún no guardado en DB
+          esListaEspera: esListaEsperaFlag,
+          nombre:   recruitDataFromApi.nombre   || datosHistorial.nombre   || '',
+          puesto:   recruitDataFromApi.puesto   || datosHistorial.puesto   || '',
+          edad:     recruitDataFromApi.edad     || datosHistorial.edad     || '',
+          estado:   recruitDataFromApi.estado   || datosHistorial.estado   || '',
+          colonia:  recruitDataFromApi.colonia  || datosHistorial.colonia  || '',
+          email:    recruitDataFromApi.email    || datosHistorial.email    || '',
+          telefono: recruitDataFromApi.telefono || datosHistorial.telefono || '',
         });
       }
       
@@ -1614,10 +1958,16 @@ export default function BotGO({ language = 'es' }) {
                         </div>
                         <button className="vacpanel-close" onClick={() => setVacancyCards(null)}>×</button>
                       </div>
-                      {vacancyCards.length === 0 ? (
+                      {!Array.isArray(vacancyCards) ? (
                         <div className="vacpanel-loading">
                           <span className="vacpanel-spinner" />
                           Cargando vacantes…
+                        </div>
+                      ) : vacancyCards.length === 0 ? (
+                        <div className="vacpanel-loading">
+                          <span style={{ fontSize: 13, color: 'var(--clr-muted)', lineHeight: 1.5 }}>
+                            No hay vacantes abiertas por ahora.<br/>Puedes dejar tus datos y te avisamos.
+                          </span>
                         </div>
                       ) : (
                         <div className="vacpanel-list">
@@ -1703,7 +2053,7 @@ export default function BotGO({ language = 'es' }) {
                                 if (vacListRef.current.length > 0) {
                                   setVacancyCards(vacListRef.current.slice(0, 4));
                                 } else {
-                                  setVacancyCards([]);
+                                  setVacancyCards(false); // false = cargando
                                   fetch('/api/vacantes')
                                     .then(r => r.json())
                                     .then(data => {
@@ -1771,6 +2121,7 @@ export default function BotGO({ language = 'es' }) {
               <div className="header-avatar-container"><RobotIcon className="header-robot-icon" /></div>
             </div>
             {enFlujoReclutamiento && <RecruitmentProgress messages={messages} />}
+            {enFlujoReclutamiento && !preRegistroPendiente && !candidatoRegistrado && <RecruitInfoNote />}
             <div className="botgo-messages" ref={messagesContainerRef}>
 
               {messages.map((msg, idx) => (
@@ -1826,6 +2177,13 @@ export default function BotGO({ language = 'es' }) {
                     />
                   </div>
                 </div>
+              )}
+              {preRegistroPendiente && !candidatoRegistrado && (
+                <PreRegistroReview
+                  candidato={preRegistroPendiente}
+                  t={t}
+                  onConfirmar={handleConfirmarRegistro}
+                />
               )}
               {candidatoRegistrado && <RecruitmentConfirmation candidato={candidatoRegistrado} t={t} />}
               <div ref={messagesEndRef} />

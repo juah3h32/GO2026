@@ -427,8 +427,8 @@ export default function VacantesPage() {
         @keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
         .vp-modal-overlay { position:fixed; inset:0; z-index:1000002; display:flex; align-items:center; justify-content:center; padding:16px; }
         .vp-modal-backdrop { position:absolute; inset:0; background:rgba(0,0,0,0.58); backdrop-filter:blur(5px); }
-        .vp-modal-box { position:relative; background:var(--clr-surface); width:100%; max-width:580px; max-height:88vh; border-radius:18px; display:flex; flex-direction:column; box-shadow:0 25px 60px rgba(0,0,0,0.45); animation:fadeUp 0.2s ease-out; }
-        .vp-modal-scroll { overflow-y:auto; padding:32px 30px 24px; flex:1; }
+        .vp-modal-box { position:relative; background:var(--clr-surface); width:100%; max-width:580px; max-height:88vh; border-radius:18px; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 25px 60px rgba(0,0,0,0.45); animation:fadeUp 0.2s ease-out; }
+        .vp-modal-scroll { overflow-y:auto; padding:32px 30px 24px; flex:1; min-height:0; overscroll-behavior:contain; }
         .vp-double-tap-hint { display: none; }
         @media (max-width: 768px) {
           .vp-modal-overlay { align-items: flex-end; padding: 0; }
