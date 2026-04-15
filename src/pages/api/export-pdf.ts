@@ -2,14 +2,14 @@ import type { APIRoute } from 'astro';
 import puppeteer from 'puppeteer-core';
 import { existsSync } from 'fs';
 
-// Rutas locales de Chrome por SO (dev / servidores tradicionales)
+// Rutas locales de Chrome por SO
 const LOCAL_CHROME_PATHS = [
-  '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', // macOS
-  '/Applications/Chromium.app/Contents/MacOS/Chromium',           // macOS Chromium
-  '/usr/bin/google-chrome-stable',                                 // Linux
-  '/usr/bin/google-chrome',                                        // Linux
-  '/usr/bin/chromium',                                             // Linux
-  '/usr/bin/chromium-browser',                                     // Linux
+  '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+  '/Applications/Chromium.app/Contents/MacOS/Chromium',
+  '/usr/bin/google-chrome-stable',
+  '/usr/bin/google-chrome',
+  '/usr/bin/chromium',
+  '/usr/bin/chromium-browser',
   'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
   'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
 ];
@@ -18,7 +18,6 @@ async function getBrowserConfig(): Promise<{ executablePath: string; args: strin
   const isServerless = !!(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
 
   if (isServerless) {
-    // Producción serverless: usar @sparticuz/chromium (binario incluido en el bundle)
     const chromium = await import('@sparticuz/chromium');
     return {
       executablePath: await chromium.default.executablePath(),
@@ -26,7 +25,6 @@ async function getBrowserConfig(): Promise<{ executablePath: string; args: strin
     };
   }
 
-  // Local / servidor tradicional: variable de entorno o auto-detección
   const fromEnv = process.env.CHROME_PATH;
   if (fromEnv && existsSync(fromEnv)) {
     return { executablePath: fromEnv, args: ['--no-sandbox', '--disable-setuid-sandbox'] };
@@ -44,7 +42,8 @@ async function getBrowserConfig(): Promise<{ executablePath: string; args: strin
 }
 
 export const POST: APIRoute = async ({ request }) => {
-  let browser;
+  let browser: any = null; // Inicializado para evitar errores en el bloque 'finally'
+
   try {
     const { html, filename = 'reporte.pdf' } = await request.json();
 
@@ -58,32 +57,39 @@ export const POST: APIRoute = async ({ request }) => {
 
     const page = await browser.newPage();
 
-    // deviceScaleFactor: 2 → calidad retina (sin pixelado en gráficas SVG)
+    // Calidad retina para evitar pixelado
     await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 2 });
 
     await page.setContent(html, { waitUntil: 'networkidle0', timeout: 30_000 });
 
     const pdf = await page.pdf({
-      // preferCSSPageSize respeta el @page { size: A4 landscape } del HTML
       preferCSSPageSize: true,
       printBackground: true,
       margin: { top: 0, right: 0, bottom: 0, left: 0 },
     });
 
-    return new Response(pdf, {
+    // CORRECCIÓN: Envolvemos el Uint8Array en un Blob para que TypeScript 
+    // lo reconozca como un BodyInit válido para Response.
+    return new Response(new Blob([pdf], { type: 'application/pdf' }), {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `attachment; filename="${filename}"`,
       },
     });
+
   } catch (err) {
     console.error('[export-pdf]', err);
     return new Response(
       JSON.stringify({ error: String(err) }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
+      { 
+        status: 500, 
+        headers: { 'Content-Type': 'application/json' } 
+      }
     );
   } finally {
-    await browser?.close();
+    if (browser) {
+      await browser.close();
+    }
   }
 };
