@@ -76,7 +76,7 @@ export function descargarPerfilPDF(candidate) {
         <a class="cv-badge cv-clickable" href="${cvDataUrl}" download="${candidate.cv_nombre}" target="_blank">
           <div class="cv-icon-wrap">📎</div>
           <div class="cv-info">
-            <div class="cv-name">${escapeHtml(fmt(candidate.cv_nombre)}</div>
+            <div class="cv-name">${escapeHtml(fmt(candidate.cv_nombre))}</div>
             <div class="cv-hint">👆 Clic para abrir / descargar el CV adjunto</div>
           </div>
           <div class="cv-arrow">⬇</div>
@@ -85,7 +85,7 @@ export function descargarPerfilPDF(candidate) {
         <div class="cv-badge">
           <div class="cv-icon-wrap">📎</div>
           <div class="cv-info">
-            <div class="cv-name">${escapeHtml(fmt(candidate.cv_nombre)}</div>
+            <div class="cv-name">${escapeHtml(fmt(candidate.cv_nombre))}</div>
             <div class="cv-hint" style="color:#ef444488">Archivo no disponible en la base de datos</div>
           </div>
         </div>
@@ -104,7 +104,7 @@ export function descargarPerfilPDF(candidate) {
 <html lang="es">
 <head>
   <meta charset="UTF-8"/>
-  <title>Perfil ${folio} — ${escapeHtml(fmt(candidate.nombre)}</title>
+  <title>Perfil ${folio} — ${escapeHtml(fmt(candidate.nombre))}</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
     *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
