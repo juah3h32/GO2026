@@ -41,6 +41,17 @@ function pctChange(curr, prev) {
   const p = ((curr - prev) / prev * 100).toFixed(1);
   return (parseFloat(p) > 0 ? '+' : '') + p + '%';
 }
+function filterLeadsByPeriod(leads, from, to) {
+  if (!from && !to) return leads;
+  const fromTs = from ? new Date(from + 'T00:00:00').getTime() : null;
+  const toTs   = to   ? new Date(to   + 'T23:59:59').getTime() : null;
+  return leads.filter(l => {
+    const ts = new Date(l.ts || 0).getTime();
+    if (fromTs && ts < fromTs) return false;
+    if (toTs   && ts > toTs)   return false;
+    return true;
+  });
+}
 
 // ── Logo ──────────────────────────────────────────────────────────────────────
 async function fetchLogoBase64() {
@@ -755,8 +766,11 @@ export function buildReportHTML(data, periodMeta=null, analysis=null, logoBase64
     const fmt=ymd=>{if(!ymd)return'';const d=new Date(ymd+'T00:00:00');return d.toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'2-digit'});};
     if(!meta){if(allDates.length>=2)return allDates[0].slice(5).replace('-','/')+' — '+allDates[allDates.length-1].slice(5).replace('-','/');return todayFmt;}
     if(meta.preset==='today')return'Hoy · '+fmt(meta.from);
+    if(meta.preset==='24h')return'Últimas 24h · '+fmt(meta.from)+' — '+fmt(meta.to);
     if(meta.preset==='7d')return'7 días · '+fmt(meta.from)+' — '+fmt(meta.to);
+    if(meta.preset==='28d')return'28 días · '+fmt(meta.from)+' — '+fmt(meta.to);
     if(meta.preset==='30d')return'30 días · '+fmt(meta.from)+' — '+fmt(meta.to);
+    if(meta.preset==='3m')return'3 meses · '+fmt(meta.from)+' — '+fmt(meta.to);
     if(meta.preset==='month'){const d=new Date(meta.from+'T00:00:00');return'Mes de '+d.toLocaleDateString('es-MX',{month:'long',year:'numeric'});}
     if(meta.preset==='custom'&&meta.from&&meta.to)return fmt(meta.from)+' — '+fmt(meta.to);
     if(meta.preset==='all'&&allDates.length>=2)return'Todo · '+allDates[0].slice(5).replace('-','/')+' — '+allDates[allDates.length-1].slice(5).replace('-','/');
@@ -1579,8 +1593,11 @@ export function DownloadReportButton({ data, periodMeta = null, style = {}, repo
 
       if (periodMeta) {
         if      (periodMeta.preset==='today')                              periodo = 'Hoy · '+fmt(periodMeta.from);
+        else if (periodMeta.preset==='24h')                                periodo = 'Últimas 24h · '+fmt(periodMeta.from)+' — '+fmt(periodMeta.to);
         else if (periodMeta.preset==='7d')                                 periodo = '7 días · '+fmt(periodMeta.from)+' — '+fmt(periodMeta.to);
+        else if (periodMeta.preset==='28d')                                periodo = '28 días · '+fmt(periodMeta.from)+' — '+fmt(periodMeta.to);
         else if (periodMeta.preset==='30d')                                periodo = '30 días · '+fmt(periodMeta.from)+' — '+fmt(periodMeta.to);
+        else if (periodMeta.preset==='3m')                                 periodo = '3 meses · '+fmt(periodMeta.from)+' — '+fmt(periodMeta.to);
         else if (periodMeta.preset==='month') { const d=new Date(periodMeta.from+'T00:00:00'); periodo='Mes de '+d.toLocaleDateString('es-MX',{month:'long',year:'numeric'}); }
         else if (periodMeta.preset==='all' && allDates.length>=2)          periodo = 'Todo · '+allDates[0].slice(5).replace('-','/')+' — '+allDates[allDates.length-1].slice(5).replace('-','/');
         else if (periodMeta.from && periodMeta.to)                         periodo = fmt(periodMeta.from)+' — '+fmt(periodMeta.to);
@@ -1596,12 +1613,15 @@ export function DownloadReportButton({ data, periodMeta = null, style = {}, repo
         const daysAgo = n => { const d = new Date(); d.setDate(d.getDate()-n); return d.toISOString().slice(0,10); };
         if (!periodMeta) return { startDate: daysAgo(30), endDate: today };
         if (periodMeta.preset === 'today') return { startDate: today, endDate: today };
-        if (periodMeta.preset === '7d')    return { startDate: daysAgo(7), endDate: today };
-        if (periodMeta.preset === '30d')   return { startDate: daysAgo(30), endDate: today };
+        if (periodMeta.preset === '24h')   return { startDate: periodMeta.from || daysAgo(1),  endDate: periodMeta.to || today };
+        if (periodMeta.preset === '7d')    return { startDate: periodMeta.from || daysAgo(7),  endDate: today };
+        if (periodMeta.preset === '28d')   return { startDate: periodMeta.from || daysAgo(28), endDate: today };
+        if (periodMeta.preset === '30d')   return { startDate: periodMeta.from || daysAgo(30), endDate: today };
+        if (periodMeta.preset === '3m')    return { startDate: periodMeta.from || daysAgo(91), endDate: today };
         if (periodMeta.preset === 'month') return { startDate: periodMeta.from, endDate: periodMeta.to };
-        if (periodMeta.preset === 'all')   return { startDate: daysAgo(365), endDate: today };
+        if (periodMeta.preset === 'all')   return { startDate: daysAgo(487), endDate: today };
         if (periodMeta.from && periodMeta.to) return { startDate: periodMeta.from, endDate: periodMeta.to };
-        return { startDate: daysAgo(30), endDate: today };
+        return { startDate: daysAgo(487), endDate: today };
       })();
 
       const [analysis, logoBase64, leadsRes, candidatesRes, scData] = await Promise.all([
@@ -1614,7 +1634,8 @@ export function DownloadReportButton({ data, periodMeta = null, style = {}, repo
           : Promise.resolve(null),
       ]);
 
-      const leads      = leadsRes?.ok      ? (leadsRes.leads          || []) : [];
+      const allLeads   = leadsRes?.ok      ? (leadsRes.leads          || []) : [];
+      const leads      = filterLeadsByPeriod(allLeads, periodMeta?.from, periodMeta?.to);
       const candidates = candidatesRes?.ok ? (candidatesRes.candidates || []) : [];
 
       setStatus('building');

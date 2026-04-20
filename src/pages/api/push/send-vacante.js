@@ -3,9 +3,13 @@
 export const prerender = false;
 
 import { sendPushToAll } from '../../../lib/push.js';
+import { verifyAdminToken } from '../../../lib/verifyAdminToken.ts';
 
 export async function POST({ request }) {
   try {
+    const adminRole = await verifyAdminToken(request);
+    if (!adminRole) return new Response(JSON.stringify({ ok: false, error: 'No autorizado' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
+
     let payload = {};
     try { payload = await request.json(); } catch {}
 

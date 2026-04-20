@@ -138,7 +138,8 @@ export async function GET({ request }) {
   
   // Es válido si viene de Vercel (con su secreto) O del servicio externo (con el token en la URL)
   const isValidVercel = cronSecret && authHeader === `Bearer ${cronSecret}`;
-  const isValidExternal = token === 'ortiz2026';
+  const cronExternal = import.meta.env.CRON_SECRET_EXTERNAL || process.env.CRON_SECRET_EXTERNAL || 'ortiz2026';
+  const isValidExternal = token && token === cronExternal;
 
   if (!isValidVercel && !isValidExternal) {
     return new Response('No autorizado', { status: 401 });

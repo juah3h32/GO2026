@@ -59,30 +59,26 @@ async function scQuery(token, body) {
 
 export async function POST({ request }) {
   try {
-    const { startDate, endDate } = await request.json();
-
-    if (!startDate || !endDate) {
-      return new Response(JSON.stringify({ ok: false, error: 'Faltan startDate/endDate' }), { status: 400 });
-    }
+    const body = await request.json();
+    // Fechas nulas → últimos 16 meses (igual que GSC por defecto)
+    const today = new Date().toISOString().slice(0, 10);
+    const sd = body.startDate || new Date(Date.now() - 487 * 86400000).toISOString().slice(0, 10);
+    const ed = body.endDate   || today;
 
     const token = await getAccessToken();
-    // Filtro: solo tráfico de México
-    const mxFilter = {
-      dimensionFilterGroups: [{
-        filters: [{ dimension: 'country', operator: 'equals', expression: 'mex' }]
-      }]
-    };
-    const base = { startDate, endDate, ...mxFilter };
+    // Sin filtro de país — igual que la vista por defecto de GSC (tráfico global)
+    const base = { startDate: sd, endDate: ed };
 
-    // Todas las consultas en paralelo (countries sin filtro MX para ver todos los países)
-    const [queriesRes, pagesRes, dailyRes, countriesRes] = await Promise.all([
-      scQuery(token, { ...base, dimensions: ['query'],   rowLimit: 8 }),
-      scQuery(token, { ...base, dimensions: ['page'],    rowLimit: 5 }),
-      scQuery(token, { ...base, dimensions: ['date'],    rowLimit: 500 }),
-      scQuery(token, { startDate, endDate, dimensions: ['country'], rowLimit: 8 }),
+    // Todas las consultas en paralelo
+    const [queriesRes, pagesRes, dailyRes, countriesRes, devicesRes] = await Promise.all([
+      scQuery(token, { ...base, dimensions: ['query'],   rowLimit: 15 }),
+      scQuery(token, { ...base, dimensions: ['page'],    rowLimit: 10 }),
+      scQuery(token, { ...base, dimensions: ['date'],    rowLimit: 1000 }),
+      scQuery(token, { ...base, dimensions: ['country'], rowLimit: 10 }),
+      scQuery(token, { ...base, dimensions: ['device'],  rowLimit: 10 }),
     ]);
 
-    // Totales desde daily (más preciso)
+    // Totales desde daily (misma fuente que GSC)
     const dailyRows = dailyRes.rows || [];
     const totalClicks      = dailyRows.reduce((s, r) => s + r.clicks, 0);
     const totalImpressions = dailyRows.reduce((s, r) => s + r.impressions, 0);
@@ -91,19 +87,36 @@ export async function POST({ request }) {
       ? (dailyRows.reduce((s, r) => s + r.position, 0) / dailyRows.length).toFixed(1)
       : '—';
 
-    // Últimos 14 días para la gráfica
+    // dailyClicks: cubre TODO el período seleccionado (no solo los últimos 14 días)
     const dailyByDate = {};
-    dailyRows.forEach(r => { dailyByDate[r.keys[0]] = r.clicks; });
-    const now = new Date();
-    const last14 = Array.from({ length: 14 }, (_, i) => {
-      const d = new Date(now); d.setDate(d.getDate() - (13 - i));
-      return d.toISOString().slice(0, 10);
+    dailyRows.forEach(r => { dailyByDate[r.keys[0]] = { clicks: r.clicks, impressions: r.impressions, ctr: r.ctr * 100, position: r.position }; });
+    const startMs  = new Date(sd).getTime();
+    const endMs    = new Date(ed).getTime();
+    const diffDays = Math.round((endMs - startMs) / 86400000) + 1;
+    // Para períodos > 90 días agrupa por semana; ≤ 90 días muestra cada día
+    const useWeekly = diffDays > 90;
+    const step      = useWeekly ? 7 : 1;
+    const nPoints   = useWeekly ? Math.ceil(diffDays / 7) : diffDays;
+    const dailyClicks = Array.from({ length: Math.min(nPoints, 120) }, (_, i) => {
+      const offset = i * step;
+      const d      = new Date(startMs + offset * 86400000);
+      const date   = d.toISOString().slice(0, 10);
+      if (useWeekly) {
+        let sumC=0, sumI=0, sumCtr=0, sumPos=0, cnt=0;
+        for (let j = 0; j < 7; j++) {
+          const wd = new Date(startMs + (offset + j) * 86400000);
+          const pt = dailyByDate[wd.toISOString().slice(0, 10)];
+          if (pt) { sumC += pt.clicks; sumI += pt.impressions; sumCtr += pt.ctr; sumPos += pt.position; cnt++; }
+        }
+        return { date, clicks: sumC, impressions: sumI, ctr: cnt>0 ? +(sumCtr/cnt).toFixed(2) : 0, position: cnt>0 ? +(sumPos/cnt).toFixed(2) : 0 };
+      }
+      const pt = dailyByDate[date];
+      return { date, clicks: pt?.clicks||0, impressions: pt?.impressions||0, ctr: pt ? +(pt.ctr).toFixed(2) : 0, position: pt ? +(pt.position).toFixed(2) : 0 };
     });
-    const dailyClicks = last14.map(date => ({ date, clicks: dailyByDate[date] || 0 }));
 
     return new Response(JSON.stringify({
       ok: true,
-      startDate, endDate,
+      startDate: sd, endDate: ed,
       totalClicks,
       totalImpressions,
       avgCtr,
@@ -120,10 +133,16 @@ export async function POST({ request }) {
         clicks:      r.clicks,
         impressions: r.impressions,
       })),
-      topCountries: (countriesRes.rows || []).slice(0, 5).map(r => ({
+      topCountries: (countriesRes.rows || []).slice(0, 8).map(r => ({
         country:     r.keys[0],
         clicks:      r.clicks,
         impressions: r.impressions,
+      })),
+      topDevices: (devicesRes.rows || []).map(r => ({
+        device:      r.keys[0],
+        clicks:      r.clicks,
+        impressions: r.impressions,
+        ctr:         (r.ctr * 100).toFixed(1),
       })),
       dailyClicks,
     }), {

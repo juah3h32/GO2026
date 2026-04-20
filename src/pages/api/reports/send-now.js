@@ -84,6 +84,19 @@ function filterByDateRange(data, from, to, leads = []) {
   };
 }
 
+// ── Filtrar leads por rango de fechas ─────────────────────────────────────────
+function filterLeadsByPeriod(leads, from, to) {
+  if (!from && !to) return leads;
+  const fromTs = from ? new Date(from + 'T00:00:00').getTime() : null;
+  const toTs   = to   ? new Date(to   + 'T23:59:59').getTime() : null;
+  return leads.filter(l => {
+    const ts = new Date(l.ts || 0).getTime();
+    if (fromTs && ts < fromTs) return false;
+    if (toTs   && ts > toTs)   return false;
+    return true;
+  });
+}
+
 // ── Logo desde el sistema de archivos (más rápido que fetch HTTP) ─────────────
 function getLogoBase64() {
   try {
@@ -103,8 +116,11 @@ function getPeriodMeta(period, period_from, period_to) {
   }
   switch (period) {
     case 'today': return { preset: 'today', from: today, to: today };
+    case '24h':   { const f = new Date(now); f.setDate(f.getDate() - 1);  return { preset: '24h', from: toStr(f), to: today }; }
     case '7d':    { const f = new Date(now); f.setDate(f.getDate() - 7);  return { preset: '7d',  from: toStr(f), to: today }; }
+    case '28d':   { const f = new Date(now); f.setDate(f.getDate() - 28); return { preset: '28d', from: toStr(f), to: today }; }
     case '30d':   { const f = new Date(now); f.setDate(f.getDate() - 30); return { preset: '30d', from: toStr(f), to: today }; }
+    case '3m':    { const f = new Date(now); f.setDate(f.getDate() - 91); return { preset: '3m',  from: toStr(f), to: today }; }
     case 'month': {
       const f = new Date(now.getFullYear(), now.getMonth(), 1);
       const t = new Date(now.getFullYear(), now.getMonth() + 1, 0);
@@ -261,15 +277,19 @@ export async function POST({ request }) {
       if (!iaJson.ok) throw new Error(iaJson.error || 'Error generando reporte IA');
       html = iaJson.html;
    } else {
-      // Reportes estándar: leer datos y construir HTML
-      const origin = new URL(request.url).origin; // Necesario para hacer fetch a tus propias APIs
-      const [rawData, leads, candidates, logoBase64] = await Promise.all([
-        readAllData().catch(() => ({})),
+      // Reportes estándar: obtener datos filtrados desde analytics API (misma fuente que el panel)
+      const origin = new URL(request.url).origin;
+      const [analyticsRes, allLeads, candidates, logoBase64] = await Promise.all([
+        fetch(`${origin}/api/analytics`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'get', ...(from ? { from } : {}), ...(to ? { to } : {}) }),
+        }).then(r => r.json()).catch(() => ({ ok: false, data: {} })),
         readLeads().catch(() => []),
         readRecruitmentLeads().catch(() => []),
         Promise.resolve(getLogoBase64()),
       ]);
-      const data = filterByDateRange(rawData, from, to, leads);
+      const data  = analyticsRes?.data || {};
+      const leads = filterLeadsByPeriod(allLeads, from, to);
 
       // Variables exclusivas para el reporte "resumen"
       let analysis = null;

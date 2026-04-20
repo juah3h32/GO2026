@@ -1,5 +1,7 @@
 // src/pages/api/vacantes-ia.js
 // Endpoint para estructurar descripción y requisitos de una vacante con IA
+import { verifyAdminToken } from '../../lib/verifyAdminToken.ts';
+
 export const prerender = false;
 
 const LIMITS = { descripcion: 250, requisitos: 800 };
@@ -22,6 +24,9 @@ async function callOpenAI(apiKey, prompt, maxTokens = 400) {
 
 export async function POST({ request }) {
   try {
+    const adminRole = await verifyAdminToken(request);
+    if (!adminRole) return new Response(JSON.stringify({ ok: false, error: 'No autorizado' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
+
     const apiKey = import.meta.env.OPENAI_API_KEY;
     if (!apiKey) return new Response(JSON.stringify({ ok: false, error: 'API key no configurada.' }), { status: 500, headers: { 'Content-Type': 'application/json' } });
 

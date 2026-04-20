@@ -1,5 +1,6 @@
 // src/pages/api/vacantes.js
 import { saveVacante, readVacantes, updateVacante, deleteVacante, toggleVacante, getConfig, setConfig, getListaEspera, markNotificadosVacante, asignarEsperaAVacante } from '../../lib/analytics-db.js';
+import { verifyAdminToken } from '../../lib/verifyAdminToken.ts';
 import { notifyEsperaVacante } from '../../lib/notify.js';
 import { sendPushToAll } from '../../lib/push.js';
 
@@ -28,6 +29,9 @@ export async function POST({ request }) {
   try {
     const body = await request.json();
     const { action } = body;
+
+    const adminRole = await verifyAdminToken(request);
+    if (!adminRole) return json({ ok: false, error: 'No autorizado' }, 401);
 
     if (action === 'list') {
       const vacantes = await readVacantes(false);

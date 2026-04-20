@@ -1,5 +1,6 @@
 // src/pages/api/recruitment.js
 import { notifyNewVacante, notifyEsperaVacante } from '../../lib/notify';
+import { verifyAdminToken } from '../../lib/verifyAdminToken.ts';
 import {
   saveRecruitmentLead,
   readRecruitmentLeads,
@@ -76,6 +77,12 @@ export async function POST({ request }) {
     // ── Acciones JSON ─────────────────────────────────────────────────────
     const body       = await request.json();
     const { action } = body;
+
+    const ADMIN_ACTIONS = ['list', 'listPending', 'updateStatus', 'updateLead', 'delete', 'reset', 'addNote', 'getNotes', 'deleteNote', 'notificar-espera'];
+    if (ADMIN_ACTIONS.includes(action)) {
+      const adminRole = await verifyAdminToken(request);
+      if (!adminRole) return json({ ok: false, error: 'No autorizado' }, 401);
+    }
 
     // ── save: guardar candidato completo ──────────────────────────────────
     if (action === 'save') {

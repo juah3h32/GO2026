@@ -1,10 +1,14 @@
 // src/pages/api/conversations.js
 import { readConversations, readSessionMessages } from '../../lib/analytics-db.js';
+import { verifyAdminToken } from '../../lib/verifyAdminToken.ts';
 
 export const prerender = false;
 
 export async function POST({ request }) {
   try {
+    const adminRole = await verifyAdminToken(request);
+    if (!adminRole) return new Response(JSON.stringify({ ok: false, error: 'No autorizado' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
+
     const body = await request.json();
     if (body.action === 'list') {
       const result = await readConversations({ limit: body.limit || 50, offset: body.offset || 0 });

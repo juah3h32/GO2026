@@ -8,6 +8,23 @@ import RecruitmentTab from './RecruitmentTab';
 import ReportScheduler from './ReportScheduler';
 import VacantesTab from './VacantesTab';
 
+// ── COUNTRY CODES (GSC alpha-3) → nombre + bandera ───────────────────────────
+const COUNTRY_MAP = {
+  mex:{name:'México',          flag:'🇲🇽'}, usa:{name:'Estados Unidos', flag:'🇺🇸'},
+  col:{name:'Colombia',        flag:'🇨🇴'}, arg:{name:'Argentina',      flag:'🇦🇷'},
+  esp:{name:'España',          flag:'🇪🇸'}, chl:{name:'Chile',          flag:'🇨🇱'},
+  per:{name:'Perú',            flag:'🇵🇪'}, gtm:{name:'Guatemala',      flag:'🇬🇹'},
+  bra:{name:'Brasil',          flag:'🇧🇷'}, can:{name:'Canadá',         flag:'🇨🇦'},
+  gbr:{name:'Reino Unido',     flag:'🇬🇧'}, deu:{name:'Alemania',       flag:'🇩🇪'},
+  fra:{name:'Francia',         flag:'🇫🇷'}, ita:{name:'Italia',         flag:'🇮🇹'},
+  jpn:{name:'Japón',           flag:'🇯🇵'}, cri:{name:'Costa Rica',     flag:'🇨🇷'},
+  ven:{name:'Venezuela',       flag:'🇻🇪'}, ecu:{name:'Ecuador',        flag:'🇪🇨'},
+  bol:{name:'Bolivia',         flag:'🇧🇴'}, pry:{name:'Paraguay',       flag:'🇵🇾'},
+  ury:{name:'Uruguay',         flag:'🇺🇾'}, pan:{name:'Panamá',         flag:'🇵🇦'},
+  hnd:{name:'Honduras',        flag:'🇭🇳'}, slv:{name:'El Salvador',    flag:'🇸🇻'},
+  nic:{name:'Nicaragua',       flag:'🇳🇮'},
+};
+
 // ── FIX HORA TURSO ────────────────────────────────────────────────────────────
 function parseTursoDate(ts) {
   if (!ts) return null;
@@ -143,10 +160,14 @@ const GLOBAL_CSS = `
   .aroot .stat-num { font-family:'DM Mono','Fira Mono',monospace !important; }
 
   /* ── SCROLLBAR ── */
-  .adash { scrollbar-width:thin; scrollbar-color:rgba(251,103,11,0.18) transparent; }
-  .adash::-webkit-scrollbar { width:3px; }
-  .adash::-webkit-scrollbar-thumb { background:rgba(251,103,11,0.18); border-radius:2px; }
-  .adash::-webkit-scrollbar-track { background:transparent; }
+  /* Outer panel never scrolls — hide its scrollbar completely */
+  .adash { scrollbar-width:none; overflow:hidden; }
+  .adash::-webkit-scrollbar { display:none; }
+  /* Inner content area (other tabs that need scroll) */
+  .adash-scroll { scrollbar-width:thin; scrollbar-color:rgba(251,103,11,0.18) transparent; }
+  .adash-scroll::-webkit-scrollbar { width:3px; }
+  .adash-scroll::-webkit-scrollbar-thumb { background:rgba(251,103,11,0.18); border-radius:2px; }
+  .adash-scroll::-webkit-scrollbar-track { background:transparent; }
 
   /* ── KEYFRAMES ── */
   @keyframes spin       { to { transform:rotate(360deg); } }
@@ -493,12 +514,12 @@ function toYMD(d)    { return d.toISOString().split('T')[0]; }
 function addDays(d,n){ const r=new Date(d); r.setDate(r.getDate()+n); return r; }
 
 const PERIOD_PRESETS = [
-  { id:'today',  label:'Hoy',  getRange:()=>{ const t=toYMD(new Date()); return {from:t,to:t}; } },
-  { id:'7d',     label:'7D',   getRange:()=>({ from:toYMD(addDays(new Date(),-6)), to:toYMD(new Date()) }) },
-  { id:'30d',    label:'30D',  getRange:()=>({ from:toYMD(addDays(new Date(),-29)), to:toYMD(new Date()) }) },
-  { id:'month',  label:'Mes',  getRange:()=>({ from:toYMD(new Date(new Date().getFullYear(),new Date().getMonth(),1)), to:toYMD(new Date()) }) },
-  { id:'all',    label:'Todo', getRange:()=>({ from:null, to:null }) },
-  { id:'custom', label:'↔',    getRange:()=>null },
+  { id:'24h',   label:'24h',  getRange:()=>({ from:toYMD(addDays(new Date(),-1)),  to:toYMD(new Date()) }) },
+  { id:'7d',    label:'7D',   getRange:()=>({ from:toYMD(addDays(new Date(),-6)),  to:toYMD(new Date()) }) },
+  { id:'28d',   label:'28D',  getRange:()=>({ from:toYMD(addDays(new Date(),-27)), to:toYMD(new Date()) }) },
+  { id:'3m',    label:'3M',   getRange:()=>({ from:toYMD(addDays(new Date(),-89)), to:toYMD(new Date()) }) },
+  { id:'all',   label:'Todo', getRange:()=>({ from:toYMD(addDays(new Date(),-487)),to:toYMD(new Date()) }) },
+  { id:'custom',label:'↔',   getRange:()=>null },
 ];
 
 // ── ICONS (modernos, limpios) ─────────────────────────────────────────────────
@@ -621,7 +642,7 @@ function LineChart({ daily }) {
   const waPath = waPts.map((p,i)=>`${i===0?'M':'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
   const areaD  = `${pathD} L${W},${H+4} L0,${H+4} Z`;
   return (
-    <svg width="100%" viewBox={`-4 -4 ${W+8} ${H+58}`} style={{ display:'block', overflow:'visible' }}>
+    <svg width="100%" viewBox={`-4 -4 ${W+8} ${H+58}`} style={{ display:'block' }}>
       <defs>
         <linearGradient id="ag1" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={P.orange} stopOpacity="0.22"/>
@@ -650,39 +671,89 @@ function LineChart({ daily }) {
   );
 }
 
-// ── SC LINE CHART (Google Search Console) ────────────────────────────────────
-function SCLineChart({ dailyClicks }) {
+// ── SC LINE CHART (Google Search Console) — multi-métrica ────────────────────
+const SC_METRIC_CFG = {
+  clicks:      { color:'#4285F4', label:'Clics' },
+  impressions: { color:'#9333EA', label:'Impresiones' },
+  ctr:         { color:'#34A853', label:'CTR' },
+  position:    { color:'#FB670B', label:'Posición' },
+};
+
+function SCLineChart({ dailyClicks, fill, activeMetrics }) {
   const P = useP();
-  const C_SC='#4285F4';
-  const entries=(dailyClicks||[]).slice(-14);
-  if(entries.length<2)return<div style={{textAlign:'center',padding:'44px 0',color:P.textDim,fontSize:11}}>Sin datos de Search Console</div>;
-  const clicks=entries.map(d=>d.clicks||0);
-  const mv=Math.max(...clicks,1);
-  const W=440,H=80,step=entries.length>1?W/(entries.length-1):W;
-  const py=v=>H-((v/mv)*(H-16))-8;
-  const pts=clicks.map((v,i)=>({x:i*step,y:py(v)}));
-  const pathD=pts.map((p,i)=>`${i===0?'M':'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
-  const areaD=`${pathD} L${W},${H+4} L0,${H+4} Z`;
-  return(
-    <svg width="100%" viewBox={`-4 -4 ${W+8} ${H+38}`} style={{display:'block',overflow:'visible'}}>
-      <defs>
-        <linearGradient id="ag_sc" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={C_SC} stopOpacity="0.20"/>
-          <stop offset="100%" stopColor={C_SC} stopOpacity="0"/>
-        </linearGradient>
-        <filter id="scglow"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-      </defs>
-      {[0.25,0.5,0.75,1].map(p=><line key={p} x1={0} y1={H-p*(H-16)-8} x2={W} y2={H-p*(H-16)-8} stroke={P.border} strokeWidth="1"/>)}
-      <path d={areaD} fill="url(#ag_sc)"/>
-      <path d={pathD} fill="none" stroke={C_SC} strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" filter="url(#scglow)"/>
-      {pts.map((p,i)=>(
-        <g key={i}>
-          <circle cx={p.x} cy={p.y} r="3.5" fill={P.bg} stroke={C_SC} strokeWidth="2"/>
-          <circle cx={p.x} cy={p.y} r="1.5" fill={C_SC}/>
-          <text x={p.x} y={H+34} textAnchor="middle" fill={P.textDim} fontSize="9" fontFamily="DM Sans,system-ui">{entries[i].date.slice(5)}</text>
-        </g>
-      ))}
-    </svg>
+  const entries = dailyClicks || [];
+  if (entries.length < 2) return (
+    <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100%',color:P.textDim,fontSize:11}}>Sin datos de Search Console</div>
+  );
+  const metrics = (activeMetrics && activeMetrics.length > 0) ? activeMetrics : ['clicks'];
+  const n = entries.length;
+  const W = 440, H = 100;
+  const step = n > 1 ? W / (n-1) : W;
+  const showDots = n <= 28;
+  const labelEvery = n > 60 ? Math.ceil(n/6) : n > 28 ? 7 : 1;
+
+  const renderLine = (metricId) => {
+    const cfg = SC_METRIC_CFG[metricId] || { color:'#4285F4', label:metricId };
+    const vals = entries.map(d => d[metricId] || 0);
+    const mv = Math.max(...vals, 1);
+    const py = v => H - ((v/mv) * (H-16)) - 8;
+    const pts = vals.map((v,i) => ({ x: i*step, y: py(v) }));
+    const pathD = pts.map((p,i) => `${i===0?'M':'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+    const isSingle = metrics.length === 1;
+    const areaD = isSingle ? `${pathD} L${W},${H+2} L0,${H+2} Z` : null;
+    const sw = n > 60 ? 1.5 : 2;
+    return (
+      <g key={metricId}>
+        {isSingle && (
+          <defs>
+            <linearGradient id={`ag_${metricId}`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={cfg.color} stopOpacity="0.18"/>
+              <stop offset="100%" stopColor={cfg.color} stopOpacity="0"/>
+            </linearGradient>
+          </defs>
+        )}
+        {isSingle && areaD && <path d={areaD} fill={`url(#ag_${metricId})`}/>}
+        <path d={pathD} fill="none" stroke={cfg.color} strokeWidth={sw}
+          strokeLinejoin="round" strokeLinecap="round"/>
+        {showDots && pts.map((p,i) => (
+          <g key={i}>
+            <circle cx={p.x} cy={p.y} r="2.5" fill={P.bg} stroke={cfg.color} strokeWidth="1.5"/>
+            <circle cx={p.x} cy={p.y} r="1" fill={cfg.color}/>
+          </g>
+        ))}
+      </g>
+    );
+  };
+
+  // viewBox: just chart + date labels — legend lives ABOVE as HTML
+  return (
+    <div style={{ display:'flex', flexDirection:'column', width:'100%', height: fill ? '100%' : 'auto', minHeight:0, gap:6 }}>
+      {/* Legend at TOP — HTML so it never affects SVG sizing */}
+      <div style={{ display:'flex', gap:14, flexWrap:'wrap', flexShrink:0, paddingLeft:2 }}>
+        {metrics.map(m => {
+          const cfg = SC_METRIC_CFG[m] || { color:'#4285F4', label:m };
+          return (
+            <div key={m} style={{ display:'flex', alignItems:'center', gap:5 }}>
+              <div style={{ width:10, height:3, borderRadius:2, background:cfg.color, flexShrink:0 }}/>
+              <span style={{ color:P.textSub, fontSize:9, fontFamily:"'DM Sans',sans-serif" }}>{cfg.label}</span>
+            </div>
+          );
+        })}
+      </div>
+      {/* Chart SVG — fills remaining space, fixed viewBox ratio */}
+      <svg style={{ flex:1, minHeight:0, display:'block', width:'100%', overflow:'visible' }}
+        viewBox={`-8 -4 ${W+16} ${H+28}`}
+        preserveAspectRatio="xMidYMid meet">
+        {[0.25,0.5,0.75,1].map(p => (
+          <line key={p} x1={0} y1={H-p*(H-16)-8} x2={W} y2={H-p*(H-16)-8} stroke={P.border} strokeWidth="1"/>
+        ))}
+        {metrics.map(m => renderLine(m))}
+        {entries.map((e,i) => (
+          i % labelEvery === 0 &&
+          <text key={i} x={(i*step).toFixed(1)} y={H+20} textAnchor="middle" fill={P.textDim} fontSize="9" fontFamily="DM Sans,system-ui">{e.date.slice(5)}</text>
+        ))}
+      </svg>
+    </div>
   );
 }
 
@@ -828,7 +899,7 @@ function LeadsLineChart({ leads }) {
 }
 
 // ── STAT CARD ─────────────────────────────────────────────────────────────────
-function StatCard({ label, value, sub, color: _color, icon, trend }) {
+function StatCard({ label, value, sub, color: _color, icon, trend, small }) {
   const P = useP(); const color = _color || P.orange;
   const [disp, setDisp] = useState(0);
   const [key, setKey]   = useState(0);
@@ -846,27 +917,24 @@ function StatCard({ label, value, sub, color: _color, icon, trend }) {
       style={{ '--accent-color':`${color}18`,
         background: P.surface,
         border:`1px solid ${P.border}`,
-        borderRadius:12, padding:'20px 22px',
+        borderRadius: small?9:12, padding: small?'10px 13px':'20px 22px',
         position:'relative', overflow:'hidden', cursor:'default',
         boxShadow:`0 1px 3px rgba(0,0,0,0.06)` }}>
-      {/* Top accent bar */}
-      <div style={{ position:'absolute', top:0, left:0, right:0, height:'2.5px',
-        background:color, opacity:0.6 }}/>
-      {/* Corner radial glow — subtle */}
+      <div style={{ position:'absolute', top:0, left:0, right:0, height:'2.5px', background:color, opacity:0.6 }}/>
       <div style={{ position:'absolute', top:-20, right:-20, width:80, height:80, borderRadius:'50%',
         background:`radial-gradient(circle, ${color}10 0%, transparent 70%)`, pointerEvents:'none' }}/>
-      <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', marginBottom:12 }}>
-        <span style={{ color:P.textDim, fontSize:10, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.10em' }}>{label}</span>
-        {icon && <span style={{ fontSize:15, opacity:0.22 }}>{icon}</span>}
+      <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', marginBottom: small?5:12 }}>
+        <span style={{ color:P.textDim, fontSize: small?9:10, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.10em' }}>{label}</span>
+        {icon && <span style={{ fontSize: small?12:15, opacity:0.22 }}>{icon}</span>}
       </div>
       <p key={key} className="stat-num stat-num-anim"
-        style={{ color:P.text, fontSize:36, marginBottom:8, fontFamily:"'DM Mono',monospace", fontWeight:500, letterSpacing:'-0.02em' }}>
+        style={{ color:P.text, fontSize: small?24:36, marginBottom: small?4:8, fontFamily:"'DM Mono',monospace", fontWeight:500, letterSpacing:'-0.02em' }}>
         {typeof value==='number' ? disp.toLocaleString('es-MX') : (value??'—')}
       </p>
-      <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-        {sub && <span style={{ color:P.textDim, fontSize:11 }}>{sub}</span>}
+      <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+        {sub && <span style={{ color:P.textDim, fontSize: small?9:11 }}>{sub}</span>}
         {trend!==undefined && trend!==0 && (
-          <span className="mono" style={{ fontSize:10, fontWeight:600, padding:'2px 7px', borderRadius:5,
+          <span className="mono" style={{ fontSize:9, fontWeight:600, padding:'2px 6px', borderRadius:5,
             background:trendPos?P.okDim:trendNeg?P.errDim:P.warnDim,
             color:trendPos?P.orange:trendNeg?P.grayMid:P.textDim,
             border:`1px solid ${trendPos?P.orange+'25':P.border}` }}>
@@ -1391,6 +1459,14 @@ function Login({ onLogin }) {
   );
 }
 
+// ── SC METRIC DEFS (used in Dash + Console toggle cards) ─────────────────────
+const SC_METRICS = [
+  { id:'clicks',      label:'Clics totales',      color:'#4285F4', sub:'visitas al sitio',    getVal: d => d.totalClicks },
+  { id:'impressions', label:'Impresiones totales', color:'#9333EA', sub:'búsquedas en Google', getVal: d => d.totalImpressions },
+  { id:'ctr',         label:'CTR medio',           color:'#34A853', sub:'tasa de clic',        getVal: d => d.avgCtr+'%' },
+  { id:'position',    label:'Posición media',      color:'#FB670B', sub:'posición promedio',   getVal: d => d.avgPos },
+];
+
 // ── DASH ──────────────────────────────────────────────────────────────────────
 function Dash({ onClose, role, theme='dark', toggleTheme }) {
   const P = useP();
@@ -1400,18 +1476,21 @@ function Dash({ onClose, role, theme='dark', toggleTheme }) {
   const [tab,setTab]=useState(role.tabs[0]), [last,setLast]=useState(null);
   const [auto,setAuto]=useState(true), [menuOpen,setMenuOpen]=useState(false);
   const itvRef=useRef(null);
-  const [activePresetId,setActivePresetId]=useState('30d');
-  const [activePeriod,setActivePeriod]=useState(()=>PERIOD_PRESETS.find(p=>p.id==='30d').getRange());
+  const _defPreset = role.name==='Marketing' ? 'all' : '28d';
+  const [activePresetId,setActivePresetId]=useState(_defPreset);
+  const [activePeriod,setActivePeriod]=useState(()=>PERIOD_PRESETS.find(p=>p.id===_defPreset).getRange());
   const [customFrom,setCustomFrom]=useState(''), [customTo,setCustomTo]=useState('');
   const [leads,setLeads]=useState([]), [leadsLoad,setLeadsLoad]=useState(false), [leadSearch,setLeadSearch]=useState('');
   const [convSessions,setConvSessions]=useState([]), [convLoading,setConvLoading]=useState(false);
   const [selectedConv,setSelectedConv]=useState(null), [convMessages,setConvMessages]=useState([]), [convMsgLoad,setConvMsgLoad]=useState(false);
   const [scData,setScData]=useState(null), [scLoading,setScLoading]=useState(false);
+  const [activeMetrics,setActiveMetrics]=useState(['clicks','impressions']);
 
 const isAdmin     = role.canDownload;
   const isOnlyAdmin = role.canDelete ?? (role.name === 'Admin' || role.name === 'Super Admin');
 
-const isRH = role.name === 'RH' || role.role === 'Recursos Humanos';
+const isRH        = role.name === 'RH' || role.role === 'Recursos Humanos';
+const isMarketing = role.name === 'Marketing';
 
   // 1. Reglas para las pestañas generales
   const canSee = id => {
@@ -1476,14 +1555,13 @@ const isRH = role.name === 'RH' || role.role === 'Recursos Humanos';
 
   useEffect(()=>{
     if(canSee('overview')||canSee('activity')||canSee('products')||canSee('keywords')||canSee('messages')||canSee('ai')){
-      const p=PERIOD_PRESETS.find(p=>p.id==='30d'), range=p.getRange();
-      load(false,range.from,range.to);
+      const p=PERIOD_PRESETS.find(p=>p.id===_defPreset), range=p.getRange();
+      load(false,range?.from,range?.to);
     } else { setLoading(false); }
   },[]);
 
   useEffect(()=>{ if(tab==='distribuidores')loadLeads(); },[tab]);
-  // SC: carga al entrar al overview; las actualizaciones de período las maneja handlePresetSelect/handleApplyCustom
-  useEffect(()=>{ if(tab==='overview')loadSC(activePeriod?.from,activePeriod?.to); },[tab]);
+  useEffect(()=>{ if(tab==='overview'||tab==='console')loadSC(activePeriod?.from,activePeriod?.to); },[tab]);
   useEffect(()=>{ if(tab==='conversations'){setSelectedConv(null);setConvMessages([]);loadConversations();} },[tab]);
   useEffect(()=>{
     clearInterval(itvRef.current);
@@ -1496,16 +1574,14 @@ const isRH = role.name === 'RH' || role.role === 'Recursos Humanos';
     if(preset.id==='custom')return;
     const range=preset.getRange(); setActivePeriod(range); setCustomFrom(''); setCustomTo('');
     load(false,range?.from,range?.to);
-    // Actualizar SC si estamos en overview
-    setTab(t=>{ if(t==='overview') loadSC(range?.from,range?.to); return t; });
+    setTab(t=>{ if(t==='overview'||t==='console') loadSC(range?.from,range?.to); return t; });
   },[load,loadSC]);
 
   const handleApplyCustom=useCallback(()=>{
     if(!customFrom||!customTo)return;
     setActivePeriod({from:customFrom,to:customTo});
     load(false,customFrom,customTo);
-    // Actualizar SC si estamos en overview
-    setTab(t=>{ if(t==='overview') loadSC(customFrom,customTo); return t; });
+    setTab(t=>{ if(t==='overview'||t==='console') loadSC(customFrom,customTo); return t; });
   },[customFrom,customTo,load,loadSC]);
 
   const reset=async()=>{
@@ -1546,6 +1622,7 @@ const isRH = role.name === 'RH' || role.role === 'Recursos Humanos';
   })();
 const ALL_TABS=[
     {id:'overview',label:'Resumen',        icon:'◉'},
+    {id:'console', label:'Console',        icon:'◌'},
     {id:'activity',label:'Actividad',      icon:'◈'},
     {id:'products',label:'Productos',      icon:'◆'},
     {id:'keywords',label:'Búsquedas',      icon:'◎'},
@@ -1589,7 +1666,7 @@ const ALL_TABS=[
       style={{ background:P.bg, border:`1px solid ${P.border}`, borderRadius:isMobile?10:16,
         width:'100%', maxWidth:isMobile?'100%':isTablet?'98vw':1200,
         height:isMobile?'100dvh':'90vh', maxHeight:isMobile?'100dvh':'90vh',
-        display:'flex', flexDirection:'column', overflowY:'hidden',
+        display:'flex', flexDirection:'column', overflow:'hidden',
         boxShadow:`0 24px 80px rgba(0,0,0,0.60), 0 0 0 1px ${P.border}`,
         position:'relative' }}>
       <style>{GLOBAL_CSS}</style>
@@ -1689,13 +1766,13 @@ const ALL_TABS=[
         </div>
 
         {/* Period selector */}
-        {isAdmin&&!isMobile&&(
+        {(isAdmin||canSee('console')||canSee('overview'))&&!isMobile&&(
           <div style={{ display:'flex', alignItems:'center', padding:'6px 10px',
             background:P.surface2, borderRadius:9, border:`1px solid ${P.border}` }}>
             <PeriodSelector activeId={activePresetId} onSelect={handlePresetSelect} customFrom={customFrom} customTo={customTo} setCustomFrom={setCustomFrom} setCustomTo={setCustomTo} onApplyCustom={handleApplyCustom}/>
           </div>
         )}
-        {isAdmin&&isMobile&&(
+        {(isAdmin||canSee('console')||canSee('overview'))&&isMobile&&(
           <div style={{ marginTop:8 }}>
             <PeriodSelector activeId={activePresetId} onSelect={handlePresetSelect} customFrom={customFrom} customTo={customTo} setCustomFrom={setCustomFrom} setCustomTo={setCustomTo} onApplyCustom={handleApplyCustom}/>
           </div>
@@ -1759,99 +1836,261 @@ const ALL_TABS=[
       )}
 
       {/* ── CONTENT ── */}
-      <div style={{ flex:1, overflowY:'auto', padding:isMobile?'14px 14px 36px':'20px 24px 36px', background:P.bg }}
+      <div className="adash-scroll"
+        style={{
+          flex:1, minHeight:0,
+          overflowY:(tab==='overview'||tab==='console')?'hidden':'auto',
+          overflowX:'hidden',
+          padding: isMobile ? '12px 12px 16px' : (tab==='overview'||tab==='console') ? '14px 20px 14px' : '20px 24px 36px',
+          background:P.bg,
+          display:(tab==='overview'||tab==='console')?'flex':'block',
+          flexDirection:'column'
+        }}
         onClick={()=>menuOpen&&setMenuOpen(false)}>
 
         {loading&&tab!=='distribuidores'&&tab!=='recruitment'&&tab!=='users'&&<Spinner/>}
 
         {/* ── OVERVIEW ── */}
         {!loading&&data&&tab==='overview'&&canSee('overview')&&(
-          <div className="tab-content" key="ov">
-            <SectionLabel>Acumulado · {periodLabel}</SectionLabel>
-            <div style={{ display:'grid', gridTemplateColumns:isMobile?'1fr 1fr':'repeat(auto-fit,minmax(195px,1fr))', gap:10, marginBottom:16 }}>
-              {loading
-                ? [0,1,2,3].map(i=><SkeletonCard key={i}/>)
-                : <>
-                  <StatCard label="Sesiones"  value={data.totalSessions} sub="conversaciones"      color={P.orange}    icon="💬"/>
-                  <StatCard label="Mensajes"  value={data.totalMessages} sub="preguntas recibidas" color={P.grayLight} icon="📩"/>
-                  <StatCard label="WhatsApp"  value={data.totalWhatsApp} sub="leads generados"     color={P.orangeWarm} icon="🛒"/>
-                  <StatCard label="PDFs"      value={data.totalPDFs}     sub="catálogos enviados"  color={P.grayMid}   icon="📄"/>
-                </>}
-            </div>
-            <div style={{ height:1, background:`linear-gradient(90deg,${P.border},transparent)`, margin:'16px 0' }}/>
-            <SectionLabel>Hoy · {new Date().toLocaleDateString('es-MX',{timeZone:'America/Mexico_City',weekday:'long',day:'numeric',month:'long'})}</SectionLabel>
-            <div style={{ display:'grid', gridTemplateColumns:isMobile?'1fr 1fr':'repeat(auto-fit,minmax(195px,1fr))', gap:10, marginBottom:16 }}>
-              <StatCard label="Mensajes hoy"  value={td.messages}  sub={`ayer: ${yd.messages}`}  color={P.orange}     icon="📆" trend={td.messages-yd.messages}/>
-              <StatCard label="Sesiones hoy"  value={td.sessions}  sub={`ayer: ${yd.sessions}`}  color={P.grayLight}  icon="👤" trend={td.sessions-yd.sessions}/>
-              <StatCard label="WhatsApp hoy"  value={td.wa||0}     sub={`ayer: ${yd.wa||0}`}     color={P.orangeWarm} icon="📲" trend={(td.wa||0)-(yd.wa||0)}/>
-              <StatCard label="PDFs hoy"      value={td.pdf||0}    sub={`ayer: ${yd.pdf||0}`}    color={P.grayMid}    icon="📋" trend={(td.pdf||0)-(yd.pdf||0)}/>
-            </div>
-            <div style={{ display:'grid', gridTemplateColumns:isMobile||isTablet?'1fr':'1fr 1fr', gap:12 }}>
-              <div className="card-hover" style={CARD}><CardTopBar/><p style={ST}>Distribución de intenciones</p><DonutChart intents={data.intents}/></div>
-              <div className="card-hover" style={CARD}><CardTopBar/><p style={ST}>Actividad — últimos 14 días</p><LineChart daily={data.daily}/></div>
-            </div>
-
-            {/* ── GOOGLE SEARCH CONSOLE ── */}
-            <div style={{ marginTop:20 }}>
-              <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:14 }}>
-                <svg width="18" height="18" viewBox="0 0 48 48" style={{flexShrink:0}}>
-                  <path fill="#4285F4" d="M43.6 24.5c0-1.5-.1-3-.4-4.5H24v8.5h11c-.5 2.5-1.9 4.6-3.9 6v5h6.3c3.7-3.4 5.9-8.4 5.9-15z"/>
-                  <path fill="#34A853" d="M24 44c5.5 0 10.1-1.8 13.4-4.9l-6.3-5c-1.8 1.2-4.2 1.9-7.1 1.9-5.5 0-10.1-3.7-11.7-8.7H5.8v5.2C9.1 39.7 16 44 24 44z"/>
-                  <path fill="#FBBC05" d="M12.3 27.3c-.4-1.2-.7-2.5-.7-3.8s.3-2.6.7-3.8V14.5H5.8C4.3 17.5 3.5 20.7 3.5 24s.8 6.5 2.3 9.5l6.5-6.2z"/>
-                  <path fill="#EA4335" d="M24 12.5c3.1 0 5.9 1.1 8.1 3.2l6-6C34.1 6.3 29.4 4.5 24 4.5c-7.9 0-14.8 4.3-18.2 10.8l6.5 5.2c1.6-5 6.2-8 11.7-8z"/>
-                </svg>
-                <span style={{ color:P.textDim, fontSize:10, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.12em' }}>Google Search Console · grupo-ortiz.com</span>
-                {scLoading&&<span style={{color:'#4285F4',fontSize:10,opacity:0.7}}>cargando…</span>}
-                {scData?.ok&&<span style={{color:P.textDim,fontSize:10,marginLeft:'auto'}}>México · {scData.startDate} – {scData.endDate}</span>}
+          <div style={{display:'flex',flexDirection:'column',flex:1,minHeight:0,gap:6}}>
+            {/* Fila acumulado */}
+            <div style={{flexShrink:0}}>
+              <div style={{marginBottom:5}}>
+                <span style={{color:P.textDim,fontSize:9,fontWeight:600,textTransform:'uppercase',letterSpacing:'0.10em'}}>Acumulado · {periodLabel}</span>
               </div>
-
-              {scLoading&&!scData&&(
-                <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr 1fr':'repeat(4,1fr)',gap:10,marginBottom:12}}>
-                  {[0,1,2,3].map(i=><SkeletonCard key={i}/>)}
-                </div>
-              )}
-
-              {scData?.ok&&(<>
-                <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr 1fr':'repeat(4,1fr)',gap:10,marginBottom:12}}>
-                  <StatCard label="Impresiones" value={scData.totalImpressions} sub="búsquedas en Google"  color="#FBBC04"/>
-                  <StatCard label="Clics"        value={scData.totalClicks}      sub="visitas al sitio"     color="#4285F4"/>
-                  <StatCard label="CTR"          value={scData.avgCtr+'%'}       sub="tasa de clic"        color="#34A853"/>
-                  <StatCard label="Posición"     value={scData.avgPos}           sub="posición promedio"   color="#EA4335"/>
-                </div>
-                <div style={{display:'grid',gridTemplateColumns:isMobile||isTablet?'1fr':'1.4fr 1fr',gap:12}}>
-                  <div className="card-hover" style={CARD}>
-                    <CardTopBar/>
-                    <p style={ST}>Clics orgánicos · últimos 14 días</p>
-                    <SCLineChart dailyClicks={scData.dailyClicks}/>
-                  </div>
-                  <div className="card-hover" style={CARD}>
-                    <CardTopBar/>
-                    <p style={ST}>Top consultas en Google</p>
-                    <div style={{display:'flex',flexDirection:'column',gap:4}}>
-                      {(scData.topQueries||[]).slice(0,5).map((q,i)=>{
-                        const maxC=scData.topQueries[0]?.clicks||1, pct=Math.round(q.clicks/maxC*100);
-                        return(
-                          <div key={i} style={{display:'flex',alignItems:'center',gap:8,padding:'5px 0',borderBottom:`1px solid ${P.border2}`}}>
-                            <span style={{color:i===0?P.text:P.textSub,fontSize:11,flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',fontWeight:i===0?600:400}}>{q.query}</span>
-                            <div style={{width:48,height:4,background:P.border2,borderRadius:2,overflow:'hidden',flexShrink:0}}>
-                              <div style={{width:`${pct}%`,height:'100%',background:'#4285F4',borderRadius:2}}/>
-                            </div>
-                            <span style={{fontFamily:"'DM Mono',monospace",fontSize:11,color:'#4285F4',minWidth:24,textAlign:'right',fontWeight:600}}>{q.clicks}</span>
-                            <span style={{fontSize:9,color:P.textDim,minWidth:32,textAlign:'right'}}>{q.ctr}%</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-              </>)}
-
-              {!scLoading&&!scData?.ok&&(
-                <div style={{background:P.surface,border:`1px solid ${P.border}`,borderRadius:12,padding:'22px 20px',color:P.textDim,fontSize:12,textAlign:'center'}}>
-                  Sin datos de Search Console para el período seleccionado
-                </div>
-              )}
+              <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr 1fr':'repeat(4,1fr)',gap:6}}>
+                <StatCard small label="Sesiones"  value={data.totalSessions} sub="conversaciones"      color={P.orange}     icon="💬"/>
+                <StatCard small label="Mensajes"  value={data.totalMessages} sub="preguntas recibidas" color={P.grayLight}  icon="📩"/>
+                <StatCard small label="WhatsApp"  value={data.totalWhatsApp} sub="leads generados"     color={P.orangeWarm} icon="🛒"/>
+                <StatCard small label="PDFs"      value={data.totalPDFs}     sub="catálogos enviados"  color={P.grayMid}    icon="📄"/>
+              </div>
             </div>
+            {/* Fila hoy */}
+            <div style={{flexShrink:0}}>
+              <div style={{marginBottom:5}}>
+                <span style={{color:P.textDim,fontSize:9,fontWeight:600,textTransform:'uppercase',letterSpacing:'0.10em'}}>Hoy · {new Date().toLocaleDateString('es-MX',{timeZone:'America/Mexico_City',day:'numeric',month:'short'})}</span>
+              </div>
+              <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr 1fr':'repeat(4,1fr)',gap:6}}>
+                <StatCard small label="Mensajes"  value={td.messages} sub={`ayer: ${yd.messages}`}  color={P.orange}     icon="📆" trend={td.messages-yd.messages}/>
+                <StatCard small label="Sesiones"  value={td.sessions} sub={`ayer: ${yd.sessions}`}  color={P.grayLight}  icon="👤" trend={td.sessions-yd.sessions}/>
+                <StatCard small label="WhatsApp"  value={td.wa||0}    sub={`ayer: ${yd.wa||0}`}     color={P.orangeWarm} icon="📲" trend={(td.wa||0)-(yd.wa||0)}/>
+                <StatCard small label="PDFs"      value={td.pdf||0}   sub={`ayer: ${yd.pdf||0}`}    color={P.grayMid}    icon="📋" trend={(td.pdf||0)-(yd.pdf||0)}/>
+              </div>
+            </div>
+            {/* Gráficas — llenan el espacio restante, flex:1 con minHeight:0 garantiza sin overflow */}
+            <div style={{flex:1,minHeight:0,display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:7}}>
+              <div className="card-hover" style={{...CARD,padding:'10px 14px',display:'flex',flexDirection:'column',minHeight:0,marginBottom:0}}>
+                <CardTopBar/>
+                <p style={{...ST,marginBottom:6,fontSize:10}}>Distribución de intenciones</p>
+                <div style={{flex:1,minHeight:0,display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden'}}>
+                  <DonutChart intents={data.intents}/>
+                </div>
+              </div>
+              <div className="card-hover" style={{...CARD,padding:'10px 14px',display:'flex',flexDirection:'column',minHeight:0,marginBottom:0}}>
+                <CardTopBar/>
+                <p style={{...ST,marginBottom:6,fontSize:10}}>Actividad — últimos 14 días</p>
+                <div style={{flex:1,minHeight:0,display:'flex',alignItems:'center',overflow:'hidden'}}>
+                  <LineChart daily={data.daily}/>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── CONSOLE (Google Search Console) ── */}
+        {tab==='console'&&canSee('console')&&(
+          <div style={{display:'flex',flexDirection:'column',flex:1,minHeight:0,gap:8}}>
+            {/* Header */}
+            <div style={{display:'flex',alignItems:'center',gap:8,flexShrink:0}}>
+              <svg width="15" height="15" viewBox="0 0 48 48" style={{flexShrink:0}}>
+                <path fill="#4285F4" d="M43.6 24.5c0-1.5-.1-3-.4-4.5H24v8.5h11c-.5 2.5-1.9 4.6-3.9 6v5h6.3c3.7-3.4 5.9-8.4 5.9-15z"/>
+                <path fill="#34A853" d="M24 44c5.5 0 10.1-1.8 13.4-4.9l-6.3-5c-1.8 1.2-4.2 1.9-7.1 1.9-5.5 0-10.1-3.7-11.7-8.7H5.8v5.2C9.1 39.7 16 44 24 44z"/>
+                <path fill="#FBBC05" d="M12.3 27.3c-.4-1.2-.7-2.5-.7-3.8s.3-2.6.7-3.8V14.5H5.8C4.3 17.5 3.5 20.7 3.5 24s.8 6.5 2.3 9.5l6.5-6.2z"/>
+                <path fill="#EA4335" d="M24 12.5c3.1 0 5.9 1.1 8.1 3.2l6-6C34.1 6.3 29.4 4.5 24 4.5c-7.9 0-14.8 4.3-18.2 10.8l6.5 5.2c1.6-5 6.2-8 11.7-8z"/>
+              </svg>
+              <span style={{color:P.textDim,fontSize:9,fontWeight:600,textTransform:'uppercase',letterSpacing:'0.12em'}}>Google Search Console · grupo-ortiz.com</span>
+              {scLoading&&<span style={{color:'#4285F4',fontSize:9,opacity:0.7}}>cargando…</span>}
+              {scData?.ok&&<span style={{color:P.textDim,fontSize:9,marginLeft:'auto'}}>{scData.startDate} – {scData.endDate}</span>}
+            </div>
+
+            {/* 4 métricas interactivas — clic para mostrar/ocultar en la gráfica */}
+            <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr 1fr':'repeat(4,1fr)',gap:6,flexShrink:0}}>
+              {scLoading&&!scData
+                ? [0,1,2,3].map(i=><SkeletonCard key={i}/>)
+                : scData?.ok
+                  ? SC_METRICS.map(m => {
+                      const isActive = activeMetrics.includes(m.id);
+                      const rawVal = m.getVal(scData);
+                      const toggle = () => setActiveMetrics(cur =>
+                        cur.includes(m.id)
+                          ? cur.length > 1 ? cur.filter(x=>x!==m.id) : cur
+                          : [...cur, m.id]
+                      );
+                      return (
+                        <div key={m.id} onClick={toggle}
+                          style={{
+                            background: P.surface,
+                            border: `1.5px solid ${isActive ? m.color+'55' : P.border}`,
+                            borderRadius: 10, padding:'10px 13px',
+                            cursor:'pointer', position:'relative', overflow:'hidden',
+                            transition:'border-color 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease',
+                            boxShadow: isActive ? `0 0 0 1px ${m.color}20, 0 2px 10px ${m.color}12` : '0 1px 3px rgba(0,0,0,0.06)',
+                            opacity: isActive ? 1 : 0.50,
+                            minHeight: 78,
+                            boxSizing:'border-box',
+                          }}>
+                          <div style={{position:'absolute',top:0,left:0,right:0,height:'2.5px',background:m.color,transition:'opacity 0.15s ease',opacity:isActive?0.75:0.18}}/>
+                          <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',marginBottom:5}}>
+                            <span style={{color:P.textDim,fontSize:9,fontWeight:600,textTransform:'uppercase',letterSpacing:'0.10em',lineHeight:1.3}}>{m.label}</span>
+                            {/* Checkbox: always same size, checkmark fades in/out */}
+                            <div style={{width:14,height:14,borderRadius:3,border:`1.5px solid ${isActive?m.color:P.border}`,background:isActive?m.color:'transparent',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,transition:'all 0.15s ease'}}>
+                              <svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{opacity:isActive?1:0,transition:'opacity 0.15s ease'}}>
+                                <polyline points="2 6 5 9 10 3"/>
+                              </svg>
+                            </div>
+                          </div>
+                          <div style={{color:P.text,fontSize:22,fontFamily:"'DM Mono',monospace",fontWeight:500,letterSpacing:'-0.02em',lineHeight:1.1,marginBottom:3}}>{rawVal}</div>
+                          <div style={{color:P.textDim,fontSize:9}}>{m.sub}</div>
+                        </div>
+                      );
+                    })
+                  : [0,1,2,3].map(i=><SkeletonCard key={i}/>)
+              }
+            </div>
+
+            {/* Bento grid — llena espacio restante */}
+            {scData?.ok&&(
+              <div style={{
+                flex:1, minHeight:0,
+                display:'grid',
+                gridTemplateColumns: isMobile ? '1fr' : isTablet ? '1fr 1fr' : '1.6fr 1fr 1fr',
+                gridTemplateRows:    isMobile ? 'auto' : isTablet ? 'auto 1fr 1fr' : '1fr 1fr',
+                gap:7
+              }}>
+                {/* ── Gráfica de clics: span 2 filas (desktop) o 2 cols (tablet) ── */}
+                <div className="card-hover" style={{...CARD,padding:'12px 14px',display:'flex',flexDirection:'column',minHeight:0,marginBottom:0,
+                  gridRow:    (!isMobile&&!isTablet) ? '1 / 3' : undefined,
+                  gridColumn: isTablet ? '1 / 3' : undefined }}>
+                  <CardTopBar/>
+                  <p style={{...ST,marginBottom:6}}>Rendimiento · {periodLabel}</p>
+                  <div style={{flex:1,minHeight:0,overflow:'hidden'}}>
+                    <SCLineChart dailyClicks={scData.dailyClicks} fill activeMetrics={activeMetrics}/>
+                  </div>
+                </div>
+
+                {/* ── Consultas ── */}
+                <div className="card-hover" style={{...CARD,padding:'12px 14px',display:'flex',flexDirection:'column',minHeight:0,marginBottom:0,overflow:'hidden'}}>
+                  <CardTopBar/>
+                  <p style={{...ST,marginBottom:6}}>Top consultas</p>
+                  <div style={{flex:1,overflowY:'auto'}}>
+                    {(scData.topQueries||[]).slice(0,8).map((q,i)=>{
+                      const maxC=scData.topQueries[0]?.clicks||1,pct=Math.round(q.clicks/maxC*100);
+                      return(
+                        <div key={i} style={{display:'flex',alignItems:'center',gap:7,padding:'4px 0',borderBottom:`1px solid ${P.border2}`}}>
+                          <span style={{color:i===0?P.text:P.textSub,fontSize:10,flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',fontWeight:i===0?600:400}}>{q.query}</span>
+                          <div style={{width:32,height:3,background:P.border2,borderRadius:2,overflow:'hidden',flexShrink:0}}>
+                            <div style={{width:`${pct}%`,height:'100%',background:'#4285F4',borderRadius:2}}/>
+                          </div>
+                          <span style={{fontFamily:"'DM Mono',monospace",fontSize:10,color:'#4285F4',minWidth:20,textAlign:'right',fontWeight:600}}>{q.clicks}</span>
+                          <span style={{fontSize:9,color:P.textDim,minWidth:26,textAlign:'right'}}>{q.ctr}%</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* ── Países ── */}
+                <div className="card-hover" style={{...CARD,padding:'12px 14px',display:'flex',flexDirection:'column',minHeight:0,marginBottom:0,overflow:'hidden'}}>
+                  <CardTopBar/>
+                  <p style={{...ST,marginBottom:6}}>Por país</p>
+                  <div style={{flex:1,overflowY:'auto'}}>
+                    {(scData.topCountries||[]).slice(0,8).map((c,i)=>{
+                      const maxC=(scData.topCountries[0]?.clicks)||1,pct=Math.round(c.clicks/maxC*100);
+                      const entry=COUNTRY_MAP[c.country]||{name:c.country.toUpperCase(),flag:'🌐'};
+                      return(
+                        <div key={i} style={{display:'flex',alignItems:'center',gap:6,padding:'4px 0',borderBottom:`1px solid ${P.border2}`}}>
+                          <span style={{fontSize:12,flexShrink:0,lineHeight:1}}>{entry.flag}</span>
+                          <span style={{color:i===0?P.text:P.textSub,fontSize:10,flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',fontWeight:i===0?600:400}}>{entry.name}</span>
+                          <div style={{width:30,height:3,background:P.border2,borderRadius:2,overflow:'hidden',flexShrink:0}}>
+                            <div style={{width:`${pct}%`,height:'100%',background:'#34A853',borderRadius:2}}/>
+                          </div>
+                          <span style={{fontFamily:"'DM Mono',monospace",fontSize:10,color:'#34A853',minWidth:18,textAlign:'right',fontWeight:600}}>{c.clicks}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* ── Top páginas ── */}
+                <div className="card-hover" style={{...CARD,padding:'12px 14px',display:'flex',flexDirection:'column',minHeight:0,marginBottom:0,overflow:'hidden'}}>
+                  <CardTopBar/>
+                  <p style={{...ST,marginBottom:6}}>Top páginas</p>
+                  <div style={{flex:1,overflowY:'auto'}}>
+                    {(scData.topPages||[]).slice(0,6).map((pg,i)=>{
+                      const maxC=(scData.topPages[0]?.clicks)||1,pct=Math.round(pg.clicks/maxC*100);
+                      return(
+                        <div key={i} style={{display:'flex',alignItems:'center',gap:7,padding:'4px 0',borderBottom:`1px solid ${P.border2}`}}>
+                          <span style={{color:i===0?P.text:P.textSub,fontSize:10,flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',fontWeight:i===0?600:400}}>{pg.page||'/'}</span>
+                          <div style={{width:30,height:3,background:P.border2,borderRadius:2,overflow:'hidden',flexShrink:0}}>
+                            <div style={{width:`${pct}%`,height:'100%',background:'#FBBC04',borderRadius:2}}/>
+                          </div>
+                          <span style={{fontFamily:"'DM Mono',monospace",fontSize:10,color:'#FBBC04',minWidth:18,textAlign:'right',fontWeight:600}}>{pg.clicks}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* ── Dispositivos ── */}
+                <div className="card-hover" style={{...CARD,padding:'12px 14px',display:'flex',flexDirection:'column',minHeight:0,marginBottom:0,overflow:'hidden'}}>
+                  <CardTopBar/>
+                  <p style={{...ST,marginBottom:8}}>Dispositivos</p>
+                  {(()=>{
+                    const devs=scData.topDevices||[];
+                    const total=devs.reduce((s,d)=>s+d.clicks,0)||1;
+                    const CLR={DESKTOP:'#4285F4',MOBILE:'#34A853',TABLET:P.orange,SMARTTV:'#EA4335'};
+                    const LBL={DESKTOP:'Escritorio',MOBILE:'Móvil',TABLET:'Tablet',SMARTTV:'Smart TV'};
+                    const ICO={DESKTOP:'💻',MOBILE:'📱',TABLET:'⬜',SMARTTV:'📺'};
+                    return(<>
+                      {/* Barra de distribución */}
+                      <div style={{height:7,borderRadius:4,overflow:'hidden',display:'flex',gap:2,marginBottom:10,flexShrink:0}}>
+                        {devs.map((d,i)=>(
+                          <div key={i} style={{
+                            flex:d.clicks/total,
+                            background:CLR[d.device]||P.grayMid,
+                            borderRadius:3,minWidth:3
+                          }}/>
+                        ))}
+                      </div>
+                      {/* Lista */}
+                      <div style={{flex:1,overflowY:'auto'}}>
+                        {devs.map((d,i)=>{
+                          const pct=Math.round(d.clicks/total*100);
+                          const clr=CLR[d.device]||P.grayMid;
+                          return(
+                            <div key={i} style={{display:'flex',alignItems:'center',gap:7,padding:'5px 0',borderBottom:`1px solid ${P.border2}`}}>
+                              <span style={{fontSize:13,flexShrink:0}}>{ICO[d.device]||'📊'}</span>
+                              <span style={{color:i===0?P.text:P.textSub,fontSize:10,flex:1,fontWeight:i===0?600:400}}>{LBL[d.device]||d.device}</span>
+                              <span style={{fontSize:9,color:P.textDim,minWidth:26,textAlign:'right'}}>{pct}%</span>
+                              <div style={{width:30,height:3,background:P.border2,borderRadius:2,overflow:'hidden',flexShrink:0}}>
+                                <div style={{width:`${pct}%`,height:'100%',background:clr,borderRadius:2}}/>
+                              </div>
+                              <span style={{fontFamily:"'DM Mono',monospace",fontSize:10,color:clr,minWidth:18,textAlign:'right',fontWeight:600}}>{d.clicks}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </>);
+                  })()}
+                </div>
+              </div>
+            )}
+
+            {!scLoading&&!scData?.ok&&(
+              <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',background:P.surface,border:`1px solid ${P.border}`,borderRadius:12,color:P.textDim,fontSize:12}}>
+                Sin datos de Search Console para el período seleccionado
+              </div>
+            )}
           </div>
         )}
 
@@ -2398,6 +2637,35 @@ export default function AdminPanel() {
     window.addEventListener('keydown',fn);
     return()=>window.removeEventListener('keydown',fn);
   },[]);
+
+  useEffect(()=>{
+    if(visible){
+      const scrollY=window.scrollY;
+      document.documentElement.style.overflow='hidden';
+      document.body.style.overflow='hidden';
+      document.body.style.position='fixed';
+      document.body.style.top=`-${scrollY}px`;
+      document.body.style.width='100%';
+      document.body.dataset.scrollY=scrollY;
+    } else {
+      const scrollY=parseInt(document.body.dataset.scrollY||'0',10);
+      document.documentElement.style.overflow='';
+      document.body.style.overflow='';
+      document.body.style.position='';
+      document.body.style.top='';
+      document.body.style.width='';
+      window.scrollTo(0,scrollY);
+    }
+    return()=>{
+      const scrollY=parseInt(document.body.dataset.scrollY||'0',10);
+      document.documentElement.style.overflow='';
+      document.body.style.overflow='';
+      document.body.style.position='';
+      document.body.style.top='';
+      document.body.style.width='';
+      window.scrollTo(0,scrollY);
+    };
+  },[visible]);
 
   return (
     <PCtx.Provider value={palette}>

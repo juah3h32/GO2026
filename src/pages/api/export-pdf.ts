@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { verifyAdminToken } from '../../lib/verifyAdminToken.ts';
 import puppeteer from 'puppeteer-core';
 import { existsSync } from 'fs';
 
@@ -45,6 +46,9 @@ export const POST: APIRoute = async ({ request }) => {
   let browser: any = null; // Inicializado para evitar errores en el bloque 'finally'
 
   try {
+    const adminRole = await verifyAdminToken(request);
+    if (!adminRole) return new Response(JSON.stringify({ ok: false, error: 'No autorizado' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
+
     const { html, filename = 'reporte.pdf' } = await request.json();
 
     const { executablePath, args } = await getBrowserConfig();

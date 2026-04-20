@@ -1,10 +1,15 @@
 // src/pages/api/ai-analysis.js
 // Usa el mismo /api/chat que el AdminPanel — SIN necesitar API key extra
 
+import { verifyAdminToken } from '../../lib/verifyAdminToken.ts';
+
 export const prerender = false;
 
 export async function POST({ request }) {
   try {
+    const adminRole = await verifyAdminToken(request);
+    if (!adminRole) return json({ ok: false, error: 'No autorizado' }, 401);
+
     const { data, periodo } = await request.json();
     if (!data) return json({ ok: false, error: 'Sin datos' }, 400);
 

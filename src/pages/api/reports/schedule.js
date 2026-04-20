@@ -1,6 +1,7 @@
 // src/pages/api/reports/schedule.js
 // CRUD para programación de envíos automáticos de reportes vía WhatsApp
 import { getTurso } from '../../../lib/turso';
+import { verifyAdminToken } from '../../../lib/verifyAdminToken.ts';
 
 export const prerender = false;
 
@@ -27,8 +28,11 @@ async function ensureTable(db) {
   try { await db.execute(`ALTER TABLE report_schedules ADD COLUMN period_to   TEXT`);                 } catch {}
 }
 
-export async function GET() {
+export async function GET({ request }) {
   try {
+    const adminRole = await verifyAdminToken(request);
+    if (!adminRole) return new Response(JSON.stringify({ ok: false, error: 'No autorizado' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
+
     const db = getTurso();
     await ensureTable(db);
     const { rows } = await db.execute('SELECT * FROM report_schedules ORDER BY id DESC');
@@ -47,6 +51,9 @@ export async function GET() {
 
 export async function POST({ request }) {
   try {
+    const adminRole = await verifyAdminToken(request);
+    if (!adminRole) return new Response(JSON.stringify({ ok: false, error: 'No autorizado' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
+
     const body   = await request.json();
     const { action } = body;
     const db     = getTurso();

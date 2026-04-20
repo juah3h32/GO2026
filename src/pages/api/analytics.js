@@ -2,6 +2,7 @@
 import { logInteraction, readAllData, resetData, saveLead, readLeads, resetLeads, saveRecruitmentLead } from '../../lib/analytics-db';
 import { notifyNewDistribuidor } from '../../lib/notify.ts';
 import { notifyNewVacante } from '../../lib/notify.js';
+import { verifyAdminToken } from '../../lib/verifyAdminToken.ts';
 
 export const prerender = false;
 
@@ -72,6 +73,12 @@ export async function POST({ request }) {
   try {
     const body            = await request.json();
     const { action = '' } = body;
+
+    const ADMIN_ACTIONS = ['get', 'reset', 'getLeads', 'resetLeads'];
+    if (ADMIN_ACTIONS.includes(action)) {
+      const adminRole = await verifyAdminToken(request);
+      if (!adminRole) return json({ ok: false, error: 'No autorizado' }, 401);
+    }
 
     // ── GET analytics con filtro opcional ────────────────────────────────────
     if (action === 'get') {
@@ -179,8 +186,11 @@ export async function POST({ request }) {
 }
 
 // ── GET (acceso directo por URL) ──────────────────────────────────────────────
-export async function GET({ url }) {
+export async function GET({ request, url }) {
   try {
+    const adminRole = await verifyAdminToken(request);
+    if (!adminRole) return json({ ok: false, error: 'No autorizado' }, 401);
+
     const params = new URL(url).searchParams;
     const from   = params.get('from') || null;
     const to     = params.get('to')   || null;

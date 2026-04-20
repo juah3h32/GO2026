@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { SignJWT } from 'jose';
 import { getTurso } from '../../lib/turso';
+import { verifyAdminToken } from '../../lib/verifyAdminToken';
 
 export const POST: APIRoute = async ({ request }) => {
   try {
@@ -16,6 +17,11 @@ export const POST: APIRoute = async ({ request }) => {
 
     // ── Cambio de contraseña ──────────────────────────────────────────────
     if (body.action === 'changePassword') {
+      const adminRole = await verifyAdminToken(request);
+      if (!adminRole || !adminRole.canDownload) {
+        return new Response(JSON.stringify({ ok: false, error: 'No autorizado' }), { status: 401 });
+      }
+
       const { userId, newPassword } = body as { userId: string; newPassword: string };
 
       if (!userId || !newPassword) {
@@ -25,7 +31,7 @@ export const POST: APIRoute = async ({ request }) => {
         return new Response(JSON.stringify({ ok: false, error: 'Mínimo 6 caracteres' }), { status: 400 });
       }
 
-      const VALID_NAMES = ['Admin', 'RH', 'Distribuidor'];
+      const VALID_NAMES = ['Admin', 'RH', 'Distribuidor', 'Marketing'];
       if (!VALID_NAMES.includes(userId)) {
         return new Response(JSON.stringify({ ok: false, error: 'Usuario no válido' }), { status: 400 });
       }
@@ -53,6 +59,11 @@ export const POST: APIRoute = async ({ request }) => {
 
     // ── Cambio de nombre visible ──────────────────────────────────────────
     if (body.action === 'changeName') {
+      const adminRole = await verifyAdminToken(request);
+      if (!adminRole || !adminRole.canDownload) {
+        return new Response(JSON.stringify({ ok: false, error: 'No autorizado' }), { status: 401 });
+      }
+
       const { userId, newName } = body as { userId: string; newName: string };
 
       if (!userId || !newName) {
@@ -62,7 +73,7 @@ export const POST: APIRoute = async ({ request }) => {
         return new Response(JSON.stringify({ ok: false, error: 'Mínimo 2 caracteres' }), { status: 400 });
       }
 
-      const VALID_NAMES = ['Admin', 'RH', 'Distribuidor'];
+      const VALID_NAMES = ['Admin', 'RH', 'Distribuidor', 'Marketing'];
       if (!VALID_NAMES.includes(userId)) {
         return new Response(JSON.stringify({ ok: false, error: 'Usuario no válido' }), { status: 400 });
       }

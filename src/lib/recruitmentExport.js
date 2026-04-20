@@ -10,6 +10,16 @@ const STATUS_LABELS = {
 
 function fmt(v) { return v || '—'; }
 
+function escapeHtml(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 //  ✅ FIX HORA: Turso guarda datetime('now') en UTC sin "Z".
 //  Al parsear "2026-03-13 21:56:00" el navegador lo trata como hora LOCAL,
@@ -66,7 +76,7 @@ export function descargarPerfilPDF(candidate) {
         <a class="cv-badge cv-clickable" href="${cvDataUrl}" download="${candidate.cv_nombre}" target="_blank">
           <div class="cv-icon-wrap">📎</div>
           <div class="cv-info">
-            <div class="cv-name">${fmt(candidate.cv_nombre)}</div>
+            <div class="cv-name">${escapeHtml(fmt(candidate.cv_nombre)}</div>
             <div class="cv-hint">👆 Clic para abrir / descargar el CV adjunto</div>
           </div>
           <div class="cv-arrow">⬇</div>
@@ -75,7 +85,7 @@ export function descargarPerfilPDF(candidate) {
         <div class="cv-badge">
           <div class="cv-icon-wrap">📎</div>
           <div class="cv-info">
-            <div class="cv-name">${fmt(candidate.cv_nombre)}</div>
+            <div class="cv-name">${escapeHtml(fmt(candidate.cv_nombre)}</div>
             <div class="cv-hint" style="color:#ef444488">Archivo no disponible en la base de datos</div>
           </div>
         </div>
@@ -94,7 +104,7 @@ export function descargarPerfilPDF(candidate) {
 <html lang="es">
 <head>
   <meta charset="UTF-8"/>
-  <title>Perfil ${folio} — ${fmt(candidate.nombre)}</title>
+  <title>Perfil ${folio} — ${escapeHtml(fmt(candidate.nombre)}</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
     *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
@@ -200,8 +210,8 @@ export function descargarPerfilPDF(candidate) {
     <div class="candidate-hero">
       <div class="avatar">👤</div>
       <div>
-        <div class="candidate-name">${fmt(candidate.nombre)}</div>
-        <div class="candidate-puesto">${fmt(candidate.puesto)}</div>
+        <div class="candidate-name">${escapeHtml(fmt(candidate.nombre))}</div>
+        <div class="candidate-puesto">${escapeHtml(fmt(candidate.puesto))}</div>
         <span class="status-badge">${status}</span>
       </div>
     </div>
@@ -210,10 +220,10 @@ export function descargarPerfilPDF(candidate) {
     <div class="section">
       <div class="section-title">Datos personales</div>
       <div class="fields-grid">
-        <div class="field"><div class="field-label">Nombre completo</div><div class="field-value">${fmt(candidate.nombre)}</div></div>
-        <div class="field"><div class="field-label">Edad</div><div class="field-value">${candidate.edad ? candidate.edad + ' años' : '—'}</div></div>
-        <div class="field"><div class="field-label">Estado (República)</div><div class="field-value">${fmt(candidate.estado_rep)}</div></div>
-        <div class="field"><div class="field-label">Colonia / Municipio</div><div class="field-value">${fmt(candidate.colonia)}</div></div>
+        <div class="field"><div class="field-label">Nombre completo</div><div class="field-value">${escapeHtml(fmt(candidate.nombre))}</div></div>
+        <div class="field"><div class="field-label">Edad</div><div class="field-value">${candidate.edad ? escapeHtml(String(candidate.edad)) + ' años' : '—'}</div></div>
+        <div class="field"><div class="field-label">Estado (República)</div><div class="field-value">${escapeHtml(fmt(candidate.estado_rep))}</div></div>
+        <div class="field"><div class="field-label">Colonia / Municipio</div><div class="field-value">${escapeHtml(fmt(candidate.colonia))}</div></div>
       </div>
     </div>
 
@@ -221,8 +231,8 @@ export function descargarPerfilPDF(candidate) {
     <div class="section">
       <div class="section-title">Contacto</div>
       <div class="fields-grid">
-        <div class="field"><div class="field-label">Correo electrónico</div><div class="field-value blue">${fmt(candidate.email)}</div></div>
-        <div class="field"><div class="field-label">WhatsApp / Teléfono</div><div class="field-value green">${fmt(candidate.telefono)}</div></div>
+        <div class="field"><div class="field-label">Correo electrónico</div><div class="field-value blue">${escapeHtml(fmt(candidate.email))}</div></div>
+        <div class="field"><div class="field-label">WhatsApp / Teléfono</div><div class="field-value green">${escapeHtml(fmt(candidate.telefono))}</div></div>
       </div>
     </div>
 
@@ -230,7 +240,7 @@ export function descargarPerfilPDF(candidate) {
     <div class="section">
       <div class="section-title">Postulación</div>
       <div class="fields-grid">
-        <div class="field"><div class="field-label">Puesto solicitado</div><div class="field-value accent">${fmt(candidate.puesto)}</div></div>
+        <div class="field"><div class="field-label">Puesto solicitado</div><div class="field-value accent">${escapeHtml(fmt(candidate.puesto))}</div></div>
         <div class="field"><div class="field-label">Estado de solicitud</div><div class="field-value">${status}</div></div>
       </div>
     </div>
@@ -242,7 +252,7 @@ export function descargarPerfilPDF(candidate) {
     ${candidate.mensaje ? `
     <div class="section">
       <div class="section-title">Último mensaje del candidato</div>
-      <div class="mensaje-box">${candidate.mensaje}</div>
+      <div class="mensaje-box">${escapeHtml(candidate.mensaje)}</div>
     </div>` : ''}
 
     <!-- Footer -->

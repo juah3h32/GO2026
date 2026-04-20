@@ -7,6 +7,7 @@ import {
   deleteCandidateNotification,
 } from '../../../lib/analytics-db.js';
 import { sendTestNotification } from '../../../lib/notify.js';
+import { verifyAdminToken } from '../../../lib/verifyAdminToken.ts';
 
 export const prerender = false;
 
@@ -17,8 +18,11 @@ function json(data, status = 200) {
   });
 }
 
-export async function GET() {
+export async function GET({ request }) {
   try {
+    const adminRole = await verifyAdminToken(request);
+    if (!adminRole) return json({ ok: false, error: 'No autorizado' }, 401);
+
     const configs = await readCandidateNotifications();
     return json({ ok: true, configs });
   } catch (err) {
@@ -29,6 +33,9 @@ export async function GET() {
 
 export async function POST({ request }) {
   try {
+    const adminRole = await verifyAdminToken(request);
+    if (!adminRole) return json({ ok: false, error: 'No autorizado' }, 401);
+
     const body   = await request.json();
     const { action } = body;
 
