@@ -153,6 +153,7 @@ export async function POST({ request }) {
 
     return json({ ok: false, error: 'Acción desconocida.' }, 400);
   } catch (err) {
+    console.error('❌ [api/vacantes] Error:', err);
     return json({ ok: false, error: err.message }, 500);
   }
 }
