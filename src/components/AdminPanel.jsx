@@ -1993,13 +1993,13 @@ const ALL_TABS=[
 
         {/* Period selector */}
         {(isAdmin||canSee('console')||canSee('overview'))&&!isMobile&&(
-          <div style={{ display:'flex', alignItems:'center', padding:'6px 10px',
+          <div style={{ display:'flex', alignItems:'center', padding:'6px 10px', marginTop:10,
             background:P.surface2, borderRadius:9, border:`1px solid ${P.border}` }}>
             <PeriodSelector activeId={activePresetId} onSelect={handlePresetSelect} customFrom={customFrom} customTo={customTo} setCustomFrom={setCustomFrom} setCustomTo={setCustomTo} onApplyCustom={handleApplyCustom}/>
           </div>
         )}
         {(isAdmin||canSee('console')||canSee('overview'))&&isMobile&&(
-          <div style={{ marginTop:8 }}>
+          <div style={{ marginTop:10 }}>
             <PeriodSelector activeId={activePresetId} onSelect={handlePresetSelect} customFrom={customFrom} customTo={customTo} setCustomFrom={setCustomFrom} setCustomTo={setCustomTo} onApplyCustom={handleApplyCustom}/>
           </div>
         )}
