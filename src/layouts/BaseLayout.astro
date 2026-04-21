@@ -254,9 +254,25 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
 
     <script>
       if ('serviceWorker' in navigator) {
+        // Cuando el SW cambia de controlador (nueva versión activada), recarga la página.
+        // hadController evita recargar en la primera visita (instalación inicial).
+        let hadController = !!navigator.serviceWorker.controller;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (hadController) {
+            window.location.reload();
+          }
+          hadController = true;
+        });
+
         window.addEventListener('load', () => {
           import('virtual:pwa-register').then(({ registerSW }) => {
-            registerSW({ immediate: true });
+            registerSW({
+              immediate: true,
+              // Busca actualizaciones cada 30 segundos para detectar nuevos deploys rápido
+              onRegisteredSW(_swUrl, r) {
+                r && setInterval(() => { r.update(); }, 30_000);
+              },
+            });
           });
         });
       }

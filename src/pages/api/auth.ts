@@ -149,16 +149,8 @@ export const POST: APIRoute = async ({ request }) => {
 const row      = result.rows[0];
     const roleName = row.name as string;
  
-    // Parsea tabs de Turso e inyecta 'vacantes' para Admin y RH
+    // Parsea tabs de Turso — los permisos se gestionan explícitamente desde el panel de usuarios
     const parsedTabs: string[] = JSON.parse(row.tabs as string);
-    if ((roleName === 'Admin' || roleName === 'RH') && !parsedTabs.includes('vacantes')) {
-      const recIdx = parsedTabs.indexOf('recruitment');
-      if (recIdx !== -1) {
-        parsedTabs.splice(recIdx + 1, 0, 'vacantes');
-      } else {
-        parsedTabs.push('vacantes');
-      }
-    }
  
     // roleType: identificador estable basado en can_download y tabs (no cambia si renombran el usuario)
     // Admin → canDownload=true | RH → canDownload=false, tiene recruitment

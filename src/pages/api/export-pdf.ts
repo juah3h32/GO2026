@@ -61,10 +61,21 @@ export const POST: APIRoute = async ({ request }) => {
 
     const page = await browser.newPage();
 
+    // Bloquear fuentes externas para evitar cuelgues esperando Google Fonts
+    await page.setRequestInterception(true);
+    page.on('request', (req: any) => {
+      const url = req.url();
+      if (url.includes('fonts.googleapis.com') || url.includes('fonts.gstatic.com')) {
+        req.abort();
+      } else {
+        req.continue();
+      }
+    });
+
     // Calidad retina para evitar pixelado
     await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 2 });
 
-    await page.setContent(html, { waitUntil: 'networkidle0', timeout: 30_000 });
+    await page.setContent(html, { waitUntil: 'load', timeout: 60_000 });
 
     const pdf = await page.pdf({
       preferCSSPageSize: true,

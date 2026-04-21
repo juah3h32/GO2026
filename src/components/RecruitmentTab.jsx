@@ -77,7 +77,7 @@ const Ic = {
 // ── STATUS CONFIG ─────────────────────────────────────────────────────────────
 const getStatusMap = (C) => ({
   nuevo:      { label: 'Nuevo',      icon: Ic.plus,   color: C.orange,  bg: C.orangeDim },
-  visto:      { label: 'Revisado',   icon: Ic.eye,    color: C.amber,   bg: C.amberDim  },
+  visto:      { label: 'Revisado',   icon: Ic.eye,    color: C.purple,  bg: C.purpleDim },
   contactado: { label: 'Contactado', icon: Ic.phone,  color: C.blue,    bg: C.blueDim   },
   descartado: { label: 'No aplica',  icon: Ic.xmark,  color: C.textDim, bg: C.border2   },
   contratado: { label: 'Contratado', icon: Ic.star,   color: C.green,   bg: C.greenDim  },
@@ -500,10 +500,10 @@ const handleDelete = () => {
   if (!candidate) return null; // Si por alguna razón no hay objeto, no renderizamos nada
 
   return (
-    <div style={{ display:'flex', background:C.surface, border:`1px solid ${expanded ? C.orange+'50' : C.border}`, borderRadius:10, overflow:'hidden', transition:'border-color 0.15s ease, box-shadow 0.15s ease', boxShadow: expanded ? `0 2px 12px rgba(0,0,0,0.08)` : '0 1px 2px rgba(0,0,0,0.04)', animation: recent ? 'newCardIn 0.4s ease both' : 'none' }}>
+    <div style={{ display:'flex', background: expanded ? `${sm.color}18` : `${sm.color}0e`, border:`1px solid ${expanded ? sm.color+'70' : sm.color+'45'}`, borderRadius:10, overflow:'hidden', transition:'border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease', boxShadow: expanded ? `0 2px 14px ${sm.color}25` : `0 1px 3px ${sm.color}15`, animation: recent ? 'newCardIn 0.4s ease both' : 'none' }}>
 
       {/* Status side bar */}
-      <div style={{ width:3, flexShrink:0, background:sm.color, opacity:0.65 }}/>
+      <div style={{ width:6, flexShrink:0, background:sm.color }}/>
 
       <div style={{ flex:1, minWidth:0 }}>
 
@@ -1009,7 +1009,7 @@ const confirmDelete = async () => {
           {/* Filtros de estatus */}
           <div style={{ display:'flex', gap:4, marginBottom:12, flexWrap:'wrap', alignItems:'center' }}>
             <button onClick={() => setFilter('todos')}
-              style={{ display:'inline-flex', alignItems:'center', gap:5, padding:'5px 12px', borderRadius:20, fontSize:11, fontWeight: filter==='todos' ? 600 : 500, cursor:'pointer', fontFamily:T.sans, background: filter==='todos' ? C.text : 'transparent', color: filter==='todos' ? '#FFFFFF' : C.textDim, border:`1px solid ${filter==='todos' ? C.text : C.border}`, transition:'all 0.13s ease', letterSpacing:'-0.01em' }}>
+              style={{ display:'inline-flex', alignItems:'center', gap:5, padding:'5px 12px', borderRadius:20, fontSize:11, fontWeight: filter==='todos' ? 600 : 500, cursor:'pointer', fontFamily:T.sans, background: filter==='todos' ? C.text : 'transparent', color: filter==='todos' ? C.bg : C.textDim, border:`1px solid ${filter==='todos' ? C.text : C.border}`, transition:'all 0.13s ease', letterSpacing:'-0.01em' }}>
               Todos {candidates.length > 0 && `(${candidates.length})`}
             </button>
             {Object.entries(STATUS_MAP).map(([key,{label, color}]) => {
@@ -1054,7 +1054,12 @@ const confirmDelete = async () => {
             </div>
           ) : (
             <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
-              {filtered.map(c => (
+              {[...filtered].sort((a,b) => {
+                const order = {nuevo:0,visto:1,contactado:2,contratado:3,descartado:4};
+                const sa = order[getStatus(a)]??1, sb = order[getStatus(b)]??1;
+                if (sa!==sb) return sa-sb;
+                return (b.id||0)-(a.id||0);
+              }).map(c => (
               <CandidateCard key={c.id} candidate={c}
   onStatusChange={handleStatusChange} onDelete={handleDelete}
   onRequestDelete={setDeleteTarget}

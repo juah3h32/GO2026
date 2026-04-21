@@ -1,8 +1,9 @@
 // src/components/AdminPanel.jsx
 // BotGO · Panel Admin v14 · Visual Redesign · Paleta: #262626 · #535353 · #ECEBE0 · #FB670B
-// Ctrl + 9 → abre el panel
+// Ctrl + K → abre el panel
 
 import React, { useState, useEffect, useCallback, useRef, createContext, useContext } from 'react';
+import { createPortal } from 'react-dom';
 import { DownloadReportButton } from './ReportGenerator';
 import RecruitmentTab from './RecruitmentTab';
 import ReportScheduler from './ReportScheduler';
@@ -531,7 +532,7 @@ const Icons = {
   check:    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>,
   alert:    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>,
   sync:     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>,
-  close:    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
+  close:    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>,
   chevron:  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>,
   download: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>,
   users:    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
@@ -1175,18 +1176,48 @@ function getStrength(pw) {
 // ── SYSTEM USERS ──────────────────────────────────────────────────────────────
 // Tabs disponibles para asignar permisos
 const ALL_PERMS = [
-  {id:'overview',      label:'Resumen'},
-  {id:'console',       label:'Console'},
-  {id:'activity',      label:'Actividad'},
-  {id:'products',      label:'Productos'},
-  {id:'keywords',      label:'Búsquedas'},
-  {id:'messages',      label:'Mensajes'},
-  {id:'conversations', label:'Conversaciones'},
-  {id:'distribuidores',label:'Distribuidores'},
-  {id:'recruitment',   label:'Reclutamiento'},
-  {id:'vacantes',      label:'Vacantes'},
-  {id:'ai',            label:'Análisis IA'},
-  {id:'reportes',      label:'Reportes'},
+  {id:'overview'},{id:'console'},{id:'activity'},{id:'products'},{id:'keywords'},
+  {id:'messages'},{id:'conversations'},{id:'distribuidores'},
+  {id:'recruitment'},{id:'vacantes'},{id:'ai'},{id:'reportes'},
+];
+
+const PERM_GROUPS = [
+  {
+    label: 'Analítica y ventas',
+    color: '#FB670B',
+    items: [
+      {id:'overview',      label:'Resumen'},
+      {id:'console',       label:'Console'},
+      {id:'activity',      label:'Actividad'},
+      {id:'products',      label:'Productos'},
+      {id:'keywords',      label:'Búsquedas'},
+      {id:'messages',      label:'Mensajes'},
+      {id:'conversations', label:'Conversaciones'},
+      {id:'distribuidores',label:'Distribuidores'},
+    ],
+  },
+  {
+    label: 'Reclutamiento',
+    color: '#8B5CF6',
+    items: [
+      {id:'recruitment',   label:'Candidatos y pipeline'},
+    ],
+  },
+  {
+    label: 'Vacantes',
+    color: '#0EA5E9',
+    items: [
+      {id:'vacantes',      label:'Publicación de vacantes'},
+    ],
+  },
+  {
+    label: 'Administración',
+    color: '#14B8A6',
+    items: [
+      {id:'ai',            label:'Análisis IA'},
+      {id:'reportes',      label:'Reportes'},
+    ],
+  },
 ];
 
 function UserManageCard({ user, onUpdate }) {
@@ -1313,21 +1344,29 @@ function UserManageCard({ user, onUpdate }) {
           {/* ── PERMISOS ── */}
           {activeTab==='perms'&&(
             <div style={{ display:'flex',flexDirection:'column',gap:14 }}>
-              <div>
-                <div style={{ fontSize:9.5,fontWeight:700,letterSpacing:'0.12em',textTransform:'uppercase',color:P.textDim,marginBottom:8 }}>Secciones visibles</div>
-                <div style={{ display:'flex',flexWrap:'wrap',gap:6 }}>
-                  {ALL_PERMS.map(p=>{
-                    const on = selTabs.includes(p.id);
-                    return (
-                      <button key={p.id} onClick={()=>toggleTab(p.id)}
-                        style={{ padding:'6px 12px',borderRadius:20,border:`1px solid ${on?uc+'50':P.border}`,
-                          background:on?`${uc}14`:P.border2,color:on?uc:P.textSub,
-                          fontSize:11,fontWeight:on?600:400,cursor:'pointer',transition:'all 0.14s ease' }}>
-                        {on&&'✓ '}{p.label}
-                      </button>
-                    );
-                  })}
-                </div>
+              <div style={{ display:'flex',flexDirection:'column',gap:10 }}>
+                {PERM_GROUPS.map(g=>(
+                  <div key={g.label}>
+                    <div style={{ fontSize:9,fontWeight:700,letterSpacing:'0.1em',textTransform:'uppercase',
+                      color:g.color,marginBottom:6,display:'flex',alignItems:'center',gap:5 }}>
+                      <span style={{ display:'inline-block',width:6,height:6,borderRadius:'50%',background:g.color }}/>
+                      {g.label}
+                    </div>
+                    <div style={{ display:'flex',flexWrap:'wrap',gap:5 }}>
+                      {g.items.map(p=>{
+                        const on = selTabs.includes(p.id);
+                        return (
+                          <button key={p.id} onClick={()=>toggleTab(p.id)}
+                            style={{ padding:'5px 11px',borderRadius:20,border:`1px solid ${on?g.color+'55':P.border}`,
+                              background:on?`${g.color}14`:P.border2,color:on?g.color:P.textSub,
+                              fontSize:11,fontWeight:on?600:400,cursor:'pointer',transition:'all 0.14s ease' }}>
+                            {on&&'✓ '}{p.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
               </div>
               <div style={{ display:'flex',gap:10,flexWrap:'wrap' }}>
                 {[
@@ -1419,6 +1458,12 @@ function AddUserModal({ onClose, onCreated }) {
   const [loading,setLoading] = useState(false);
   const [err,setErr]         = useState('');
 
+  // Mantener el cursor personalizado encima del backdrop del portal
+  useEffect(() => {
+    const cursor = document.querySelector('.custom-cursor');
+    if (cursor) document.body.appendChild(cursor);
+  }, []);
+
   const match    = pw&&confirm&&pw===confirm;
   const mismatch = pw&&confirm&&pw!==confirm;
   const canSave  = name.trim().length>=2&&pw.length>=6&&match&&!loading;
@@ -1434,11 +1479,11 @@ function AddUserModal({ onClose, onCreated }) {
   };
 
   return (
-    <div style={{ position:'fixed',inset:0,zIndex:999999,background:'rgba(8,7,6,0.82)',backdropFilter:'blur(12px)',
-      display:'flex',alignItems:'center',justifyContent:'center',padding:20 }}
-      onClick={e=>{if(e.target===e.currentTarget)onClose();}}>
+    <div style={{ position:'fixed',inset:0,zIndex:2147483647,background:'rgba(8,7,6,0.82)',backdropFilter:'blur(12px)',
+      overflowY:'auto' }}>
+      <div style={{ display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100%',padding:20 }}>
       <div style={{ background:P.surface,border:`1px solid ${P.border2}`,borderRadius:18,width:'100%',maxWidth:520,
-        maxHeight:'calc(100dvh - 40px)',display:'flex',flexDirection:'column',
+        flexShrink:0,display:'flex',flexDirection:'column',
         boxShadow:'0 40px 120px rgba(0,0,0,0.85)',animation:'fadeUp 0.25s cubic-bezier(0.16,1,0.3,1)' }}>
         {/* Header */}
         <div style={{ padding:'20px 24px 16px',borderBottom:`1px solid ${P.border}`,flexShrink:0,position:'relative' }}>
@@ -1482,21 +1527,29 @@ function AddUserModal({ onClose, onCreated }) {
             </div>
           </div>
           {/* Secciones */}
-          <div>
-            <div style={{ fontSize:9.5,fontWeight:700,letterSpacing:'0.12em',textTransform:'uppercase',color:P.textDim,marginBottom:8 }}>Secciones visibles</div>
-            <div style={{ display:'flex',flexWrap:'wrap',gap:6 }}>
-              {ALL_PERMS.map(p=>{
-                const on = selTabs.includes(p.id);
-                return (
-                  <button key={p.id} onClick={()=>toggleTab(p.id)}
-                    style={{ padding:'6px 12px',borderRadius:20,border:`1px solid ${on?color+'50':P.border}`,
-                      background:on?`${color}14`:P.border2,color:on?color:P.textSub,
-                      fontSize:11,fontWeight:on?600:400,cursor:'pointer',transition:'all 0.14s ease' }}>
-                    {on&&'✓ '}{p.label}
-                  </button>
-                );
-              })}
-            </div>
+          <div style={{ display:'flex',flexDirection:'column',gap:10 }}>
+            {PERM_GROUPS.map(g=>(
+              <div key={g.label}>
+                <div style={{ fontSize:9,fontWeight:700,letterSpacing:'0.1em',textTransform:'uppercase',
+                  color:g.color,marginBottom:6,display:'flex',alignItems:'center',gap:5 }}>
+                  <span style={{ display:'inline-block',width:6,height:6,borderRadius:'50%',background:g.color }}/>
+                  {g.label}
+                </div>
+                <div style={{ display:'flex',flexWrap:'wrap',gap:5 }}>
+                  {g.items.map(p=>{
+                    const on = selTabs.includes(p.id);
+                    return (
+                      <button key={p.id} onClick={()=>toggleTab(p.id)}
+                        style={{ padding:'5px 11px',borderRadius:20,border:`1px solid ${on?g.color+'55':P.border}`,
+                          background:on?`${g.color}14`:P.border2,color:on?g.color:P.textSub,
+                          fontSize:11,fontWeight:on?600:400,cursor:'pointer',transition:'all 0.14s ease' }}>
+                        {on&&'✓ '}{p.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
           </div>
           {/* Can download */}
           <label style={{ display:'flex',alignItems:'center',gap:10,cursor:'pointer',padding:'11px 14px',borderRadius:10,
@@ -1521,6 +1574,7 @@ function AddUserModal({ onClose, onCreated }) {
             {loading?<><div style={{ width:12,height:12,borderRadius:'50%',border:'2px solid rgba(255,255,255,0.2)',borderTop:'2px solid #fff',animation:'spin 0.65s linear infinite' }}/>Creando...</>:'+ Crear usuario'}
           </button>
         </div>
+      </div>
       </div>
     </div>
   );
@@ -1577,7 +1631,10 @@ function UsersTab() {
         </div>
       )}
 
-      {showAdd && <AddUserModal onClose={() => setShowAdd(false)} onCreated={() => { setShowAdd(false); loadUsers(); }}/>}
+      {showAdd && createPortal(
+        <AddUserModal onClose={() => setShowAdd(false)} onCreated={() => { setShowAdd(false); loadUsers(); }}/>,
+        document.body
+      )}
     </div>
   );
 }
@@ -1719,10 +1776,7 @@ const isRH        = role.name === 'RH' || role.role === 'Recursos Humanos';
 const isMarketing = role.name === 'Marketing';
 
   // 1. Reglas para las pestañas generales
-  const canSee = id => {
-    if (isRH) return id === 'recruitment' || id === 'vacantes';
-    return role.tabs.includes(id) || (id === 'vacantes' && (isAdmin || isOnlyAdmin));
-  };
+  const canSee = id => role.tabs.includes(id);
 
   const load=useCallback(async(silent=false,from=null,to=null)=>{
     if(!silent)setLoading(true);
@@ -1980,12 +2034,13 @@ const ALL_TABS=[
                 }
               </button>
             )}
-            <button onClick={onClose}
-              style={{ padding:'7px 10px', borderRadius:8, border:`1px solid ${P.border}`,
-                background:'transparent', color:P.textDim, cursor:'pointer',
-                transition:'all 0.12s ease', display:'flex', alignItems:'center', justifyContent:'center' }}
-              onMouseEnter={e=>{e.currentTarget.style.color=P.text;e.currentTarget.style.borderColor=P.border2;e.currentTarget.style.background=P.surface3;}}
-              onMouseLeave={e=>{e.currentTarget.style.color=P.textDim;e.currentTarget.style.borderColor=P.border;e.currentTarget.style.background='transparent';}}>
+            <button onClick={onClose} title="Cerrar sesión"
+              style={{ display:'flex', alignItems:'center', gap:6, padding:'7px 13px', borderRadius:9,
+                border:'none', background:P.orange, color:'#fff', cursor:'pointer',
+                fontSize:12, fontWeight:600, letterSpacing:'-0.01em',
+                boxShadow:`0 3px 14px ${P.orange}45`, transition:'all 0.15s ease' }}
+              onMouseEnter={e=>{e.currentTarget.style.background=P.orangeDark;e.currentTarget.style.boxShadow=`0 4px 18px ${P.orange}55`;}}
+              onMouseLeave={e=>{e.currentTarget.style.background=P.orange;e.currentTarget.style.boxShadow=`0 3px 14px ${P.orange}45`;}}>
               {Icons.close}
             </button>
           </div>
@@ -2853,8 +2908,7 @@ export default function AdminPanel() {
 
   useEffect(()=>{
     const fn=e=>{
-      if((e.ctrlKey||e.metaKey)&&e.key==='9'){ e.preventDefault(); setVisible(s=>!s); }
-      if(e.key==='Escape'){ setVisible(false); setRole(null); }
+      if((e.ctrlKey||e.metaKey)&&e.key==='k'){ e.preventDefault(); setVisible(s=>!s); }
     };
     window.addEventListener('keydown',fn);
     return()=>window.removeEventListener('keydown',fn);
@@ -2894,8 +2948,7 @@ export default function AdminPanel() {
       <div className="aroot" data-theme={theme}>
         <style>{GLOBAL_CSS}</style>
         {visible&&(
-          <div className="admin-overlay visible"
-            onClick={e=>{ if(e.target===e.currentTarget){setVisible(false);setRole(null);} }}>
+          <div className="admin-overlay visible">
             {!role
               ? <div style={{ background:palette.surface, border:`1px solid ${palette.border}`,
                   borderRadius:18, width:'94vw', maxWidth:400,
