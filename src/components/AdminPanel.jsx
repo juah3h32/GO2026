@@ -977,7 +977,7 @@ function NotifyConfigSection({ theme, P }) {
 
   const load = async () => {
     try {
-      const r = await fetch('/api/reports/notify-config');
+      const r = await fetch('/api/reports/notify-config', { credentials:'include' });
       const j = await r.json();
       if (j.ok) setConfigs(j.configs || []);
     } catch {}
@@ -993,7 +993,7 @@ function NotifyConfigSection({ theme, P }) {
     setSaving(true);
     try {
       const r = await fetch('/api/reports/notify-config', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', credentials:'include', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'create', name, phones: [{ phone, name }], active: true }),
       });
       const j = await r.json();
@@ -1005,7 +1005,7 @@ function NotifyConfigSection({ theme, P }) {
 
   const handleDelete = async (id) => {
     await fetch('/api/reports/notify-config', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      method: 'POST', credentials:'include', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'delete', id }),
     });
     await load();
@@ -1013,7 +1013,7 @@ function NotifyConfigSection({ theme, P }) {
 
   const handleToggle = async (cfg) => {
     await fetch('/api/reports/notify-config', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      method: 'POST', credentials:'include', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'update', id: cfg.id, name: cfg.name, phones: cfg.phones, active: !cfg.active }),
     });
     await load();
@@ -1023,7 +1023,7 @@ function NotifyConfigSection({ theme, P }) {
     setTestingId(cfg.id);
     try {
       const r = await fetch('/api/reports/notify-config', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', credentials:'include', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'test', id: cfg.id, phones: cfg.phones }),
       });
       const j = await r.json();
@@ -1173,185 +1173,411 @@ function getStrength(pw) {
 }
 
 // ── SYSTEM USERS ──────────────────────────────────────────────────────────────
-const SYSTEM_USERS = [
-  { id:'Admin',        label:'GO',          role:'Administrador',      desc:'Acceso completo a todas las secciones y estadísticas', color:P.orange,    colorDim:P.okDim },
-  { id:'RH',           label:'RH',          role:'Recursos Humanos',   desc:'Acceso a reclutamiento y panel de candidatos',          color:P.grayLight, colorDim:P.warnDim },
-  { id:'Distribuidor', label:'Distribuidor',role:'Atención a Clientes', desc:'Acceso a solicitudes de distribuidores y leads',        color:P.gray,      colorDim:P.errDim },
+// Tabs disponibles para asignar permisos
+const ALL_PERMS = [
+  {id:'overview',      label:'Resumen'},
+  {id:'console',       label:'Console'},
+  {id:'activity',      label:'Actividad'},
+  {id:'products',      label:'Productos'},
+  {id:'keywords',      label:'Búsquedas'},
+  {id:'messages',      label:'Mensajes'},
+  {id:'conversations', label:'Conversaciones'},
+  {id:'distribuidores',label:'Distribuidores'},
+  {id:'recruitment',   label:'Reclutamiento'},
+  {id:'vacantes',      label:'Vacantes'},
+  {id:'ai',            label:'Análisis IA'},
+  {id:'reportes',      label:'Reportes'},
 ];
 
-function UserCard({ user }) {
+function UserManageCard({ user, onUpdate }) {
   const P = useP();
-  const [open,setOpen]=useState(false), [activeTab,setActiveTab]=useState('password');
-  const [pw,setPw]=useState(''), [confirm,setConfirm]=useState('');
-  const [showPw,setShowPw]=useState(false), [showCf,setShowCf]=useState(false);
-  const [newName,setNewName]=useState(''), [loading,setLoading]=useState(false);
-  const [status,setStatus]=useState(null), [msg,setMsg]=useState('');
-  const [dispLabel,setDispLabel]=useState(user.label);
-  const pwRef=useRef(null), nameRef=useRef(null);
+  const [open,setOpen]         = useState(false);
+  const [activeTab,setActiveTab] = useState('perms');
+  const [pw,setPw]             = useState(''), [confirm,setConfirm] = useState('');
+  const [showPw,setShowPw]     = useState(false), [showCf,setShowCf] = useState(false);
+  const [newName,setNewName]   = useState('');
+  const [selTabs,setSelTabs]   = useState(user.tabs||[]);
+  const [canDl,setCanDl]       = useState(user.canDownload);
+  const [isActive,setIsActive] = useState(user.active);
+  const [loading,setLoading]   = useState(false);
+  const [status,setStatus]     = useState(null), [msg,setMsg] = useState('');
+  const [dispName,setDispName] = useState(user.name);
+  const pwRef = useRef(null), nameRef = useRef(null);
 
-  const strength=getStrength(pw);
-  const match=pw&&confirm&&pw===confirm, mismatch=pw&&confirm&&pw!==confirm;
-  const canSavePw=pw.length>=6&&match&&!loading, canSaveName=newName.trim().length>=2&&newName.trim()!==dispLabel&&!loading;
+  const strength = getStrength(pw);
+  const match = pw&&confirm&&pw===confirm, mismatch = pw&&confirm&&pw!==confirm;
+  const canSavePw   = pw.length>=6&&match&&!loading;
+  const canSaveName = newName.trim().length>=2&&newName.trim()!==dispName&&!loading;
+  const uc = user.color||'#FB670B';
 
-  const handleOpen=(tab='password')=>{ setOpen(true); setActiveTab(tab); setPw(''); setConfirm(''); setNewName(''); setStatus(null); setMsg(''); setTimeout(()=>(tab==='name'?nameRef:pwRef).current?.focus(),120); };
-  const handleCancel=()=>{ setOpen(false); setPw(''); setConfirm(''); setNewName(''); setStatus(null); setMsg(''); };
-  const switchTab=(t)=>{ setActiveTab(t); setStatus(null); setMsg(''); setTimeout(()=>(t==='name'?nameRef:pwRef).current?.focus(),80); };
+  const handleOpen = (tab='perms') => {
+    setOpen(true); setActiveTab(tab);
+    setPw(''); setConfirm(''); setNewName('');
+    setSelTabs(user.tabs||[]); setCanDl(user.canDownload); setIsActive(user.active);
+    setStatus(null); setMsg('');
+    setTimeout(()=>(tab==='name'?nameRef:pwRef).current?.focus(), 120);
+  };
+  const handleCancel = () => { setOpen(false); setStatus(null); setMsg(''); };
+  const toggleTab = id => setSelTabs(s => s.includes(id) ? s.filter(x=>x!==id) : [...s,id]);
 
-  const handleSavePassword=async()=>{ if(!canSavePw)return; setLoading(true); setStatus(null); try{ const res=await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'changePassword',userId:user.id,newPassword:pw})}); const data=await res.json(); if(data.ok){setStatus('ok');setMsg('Contraseña actualizada');setTimeout(()=>{setOpen(false);setPw('');setConfirm('');setStatus(null);},2000);}else{setStatus('error');setMsg(data.error||'Error al actualizar');} }catch{setStatus('error');setMsg('Error de conexión.');} setLoading(false); };
-  const handleSaveName=async()=>{ if(!canSaveName)return; setLoading(true); setStatus(null); try{ const res=await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'changeName',userId:user.id,newName:newName.trim()})}); const data=await res.json(); if(data.ok){setDispLabel(newName.trim());setStatus('ok');setMsg('Nombre actualizado');setTimeout(()=>{setOpen(false);setNewName('');setStatus(null);},2000);}else{setStatus('error');setMsg(data.error||'Error al actualizar');} }catch{setStatus('error');setMsg('Error de conexión.');} setLoading(false); };
-
-  const fieldStyle={
-    width:'100%', background:P.surface2, border:`1px solid ${P.border}`, borderRadius:9,
-    padding:'11px 42px 11px 14px', color:P.text, fontSize:12, outline:'none',
-    boxSizing:'border-box', transition:'border-color 0.15s ease, box-shadow 0.15s ease'
+  const api = async body => {
+    const r = await fetch('/api/admin/users',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    return r.json();
   };
 
+  const handleSavePw = async () => {
+    if(!canSavePw) return; setLoading(true); setStatus(null);
+    const j = await api({action:'changePassword', id:user.id, newPassword:pw});
+    if(j.ok){setStatus('ok');setMsg('Contraseña actualizada');setTimeout(()=>{setOpen(false);setPw('');setConfirm('');setStatus(null);},2000);}
+    else{setStatus('error');setMsg(j.error||'Error');}
+    setLoading(false);
+  };
+  const handleSaveName = async () => {
+    if(!canSaveName) return; setLoading(true); setStatus(null);
+    const j = await api({action:'changeName', id:user.id, newName:newName.trim()});
+    if(j.ok){setDispName(newName.trim());setStatus('ok');setMsg('Nombre actualizado');onUpdate();setTimeout(()=>{setOpen(false);setNewName('');setStatus(null);},2000);}
+    else{setStatus('error');setMsg(j.error||'Error');}
+    setLoading(false);
+  };
+  const handleSavePerms = async () => {
+    setLoading(true); setStatus(null);
+    const j = await api({action:'updatePermissions', id:user.id, tabs:selTabs, canDownload:canDl, active:isActive});
+    if(j.ok){setStatus('ok');setMsg('Permisos guardados');onUpdate();setTimeout(()=>setStatus(null),2500);}
+    else{setStatus('error');setMsg(j.error||'Error');}
+    setLoading(false);
+  };
+
+  const fld = { width:'100%', background:P.surface2, border:`1px solid ${P.border}`, borderRadius:9,
+    padding:'11px 42px 11px 14px', color:P.text, fontSize:12, outline:'none',
+    boxSizing:'border-box', transition:'border-color 0.15s ease, box-shadow 0.15s ease' };
+  const spin = <div style={{ width:13,height:13,borderRadius:'50%',border:'2px solid rgba(255,255,255,0.2)',borderTop:'2px solid #fff',animation:'spin 0.65s linear infinite' }}/>;
+
   return (
-    <div style={{ background:P.surface, border:`1px solid ${open?user.color+'50':P.border}`,
-      borderRadius:14, overflow:'hidden',
-      transition:'border-color 0.20s ease, box-shadow 0.20s ease',
-      boxShadow:open?`0 0 0 1px ${user.color}22, 0 6px 32px rgba(0,0,0,0.45)`:`0 2px 12px rgba(0,0,0,0.30)` }}>
-      <div style={{ height:2.5, background:`linear-gradient(90deg,${user.color},${user.color}60,transparent)` }}/>
-      <div style={{ display:'flex', alignItems:'center', gap:16, padding:'18px 22px', flexWrap:'wrap' }}>
-        {/* Avatar */}
-        <div style={{ width:46, height:46, borderRadius:11, background:user.colorDim,
-          border:`1.5px solid ${user.color}30`, display:'flex', alignItems:'center', justifyContent:'center',
-          fontSize:17, flexShrink:0, fontWeight:700, color:user.color, letterSpacing:'-0.02em',
-          boxShadow:`0 0 16px ${user.color}20` }}>
-          {dispLabel.slice(0,2).toUpperCase()}
+    <div style={{ background:P.surface, border:`1px solid ${open?uc+'50':P.border}`, borderRadius:14, overflow:'hidden',
+      transition:'border-color 0.20s ease, box-shadow 0.20s ease', opacity:user.active?1:0.6,
+      boxShadow:open?`0 0 0 1px ${uc}22, 0 6px 32px rgba(0,0,0,0.45)`:`0 2px 12px rgba(0,0,0,0.30)` }}>
+      <div style={{ height:2.5, background:`linear-gradient(90deg,${uc},${uc}60,transparent)` }}/>
+      <div style={{ display:'flex', alignItems:'flex-start', gap:14, padding:'16px 20px', flexWrap:'wrap' }}>
+        <div style={{ width:44,height:44,borderRadius:11,background:`${uc}18`,border:`1.5px solid ${uc}30`,
+          display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,flexShrink:0,
+          fontWeight:700,color:uc,letterSpacing:'-0.02em',boxShadow:`0 0 14px ${uc}18`,marginTop:1 }}>
+          {dispName.slice(0,2).toUpperCase()}
         </div>
         <div style={{ flex:1, minWidth:130 }}>
-          <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:4, flexWrap:'wrap' }}>
-            <span style={{ fontWeight:700, fontSize:14, color:P.text, letterSpacing:'-0.01em' }}>{dispLabel}</span>
-            <Tag color={user.color}>{user.role}</Tag>
+          <div style={{ display:'flex', alignItems:'center', gap:7, marginBottom:6, flexWrap:'wrap' }}>
+            <span style={{ fontWeight:700, fontSize:13.5, color:P.text, letterSpacing:'-0.01em' }}>{dispName}</span>
+            {user.canDownload && <Tag color={P.orange}>Admin</Tag>}
+            {!user.active && <Tag color={P.gray}>Inactivo</Tag>}
           </div>
-          <p style={{ color:P.textDim, fontSize:11, lineHeight:1.55, margin:0 }}>{user.desc}</p>
+          <div style={{ display:'flex', flexWrap:'wrap', gap:4 }}>
+            {(user.tabs||[]).slice(0,6).map(t=>{
+              const p = ALL_PERMS.find(x=>x.id===t);
+              return p ? <span key={t} style={{ fontSize:9.5,fontWeight:600,padding:'2px 8px',borderRadius:20,
+                background:`${uc}10`,border:`1px solid ${uc}22`,color:uc }}>{p.label}</span> : null;
+            })}
+            {(user.tabs||[]).length>6 && <span style={{ fontSize:9.5,color:P.textDim,padding:'2px 5px' }}>+{user.tabs.length-6}</span>}
+            {(user.tabs||[]).length===0 && <span style={{ fontSize:10,color:P.textDim,fontStyle:'italic' }}>Sin acceso</span>}
+          </div>
         </div>
         {!open&&(
-          <div style={{ display:'flex', gap:7, flexShrink:0, flexWrap:'wrap' }}>
-            {[
-              { label:'Contraseña', tab:'password', icon:Icons.lock },
-              { label:'Nombre',     tab:'name',     icon:Icons.edit },
-            ].map(btn=>(
+          <div style={{ display:'flex', gap:6, flexShrink:0, flexWrap:'wrap', alignItems:'center' }}>
+            {[{label:'Permisos',tab:'perms'},{label:'Contraseña',tab:'password'},{label:'Nombre',tab:'name'}].map(btn=>(
               <button key={btn.tab} onClick={()=>handleOpen(btn.tab)}
-                style={{ padding:'7px 13px', borderRadius:8, border:`1px solid ${P.border}`,
-                  background:P.border2, color:P.textSub, fontSize:11, fontWeight:500,
-                  cursor:'pointer', transition:'all 0.14s ease', display:'flex', alignItems:'center', gap:6 }}
-                onMouseEnter={e=>{e.currentTarget.style.borderColor=user.color+'55';e.currentTarget.style.color=user.color;e.currentTarget.style.background=`${user.color}0C`;}}
+                style={{ padding:'7px 11px',borderRadius:8,border:`1px solid ${P.border}`,background:P.border2,
+                  color:P.textSub,fontSize:11,fontWeight:500,cursor:'pointer',transition:'all 0.14s ease',
+                  display:'flex',alignItems:'center',gap:5 }}
+                onMouseEnter={e=>{e.currentTarget.style.borderColor=uc+'55';e.currentTarget.style.color=uc;e.currentTarget.style.background=`${uc}0C`;}}
                 onMouseLeave={e=>{e.currentTarget.style.borderColor=P.border;e.currentTarget.style.color=P.textSub;e.currentTarget.style.background=P.border2;}}>
-                <span style={{ color:'currentColor' }}>{btn.icon}</span>{btn.label}
+                {btn.label}
               </button>
             ))}
           </div>
         )}
       </div>
+
       {open&&(
-        <div style={{ padding:'0 22px 22px', animation:'fadeUp 0.22s cubic-bezier(0.16,1,0.3,1) both' }}>
+        <div style={{ padding:'0 20px 20px', animation:'fadeUp 0.22s cubic-bezier(0.16,1,0.3,1) both' }}>
           <OrangeBar/>
-          <div style={{ height:14 }}/>
-          {/* Tab switcher */}
-          <div style={{ display:'flex', gap:3, padding:'3px', background:P.surface2, borderRadius:9, marginBottom:16, border:`1px solid ${P.border}` }}>
-            {[{id:'password',label:'🔒  Contraseña'},{id:'name',label:'✏️  Nombre'}].map(t=>(
-              <button key={t.id} onClick={()=>switchTab(t.id)}
-                style={{ flex:1, padding:'8px 0', borderRadius:7, border:'none', cursor:'pointer', fontSize:11,
-                  fontWeight:t.id===activeTab?600:400, transition:'all 0.14s ease',
+          <div style={{ height:12 }}/>
+          <div style={{ display:'flex',gap:3,padding:'3px',background:P.surface2,borderRadius:9,marginBottom:16,border:`1px solid ${P.border}` }}>
+            {[{id:'perms',label:'Permisos'},{id:'password',label:'Contraseña'},{id:'name',label:'Nombre'}].map(t=>(
+              <button key={t.id} onClick={()=>{setActiveTab(t.id);setStatus(null);}}
+                style={{ flex:1,padding:'8px 0',borderRadius:7,border:'none',cursor:'pointer',fontSize:11,
+                  fontWeight:t.id===activeTab?600:400,transition:'all 0.14s ease',
                   background:t.id===activeTab?P.surface3:'transparent',
                   color:t.id===activeTab?P.text:P.textDim,
-                  boxShadow:t.id===activeTab?`0 1px 4px rgba(0,0,0,0.3)`:'none' }}>{t.label}</button>
+                  boxShadow:t.id===activeTab?'0 1px 4px rgba(0,0,0,0.3)':'none' }}>{t.label}</button>
             ))}
           </div>
-          <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
-            {activeTab==='password'&&(<>
+
+          {/* ── PERMISOS ── */}
+          {activeTab==='perms'&&(
+            <div style={{ display:'flex',flexDirection:'column',gap:14 }}>
+              <div>
+                <div style={{ fontSize:9.5,fontWeight:700,letterSpacing:'0.12em',textTransform:'uppercase',color:P.textDim,marginBottom:8 }}>Secciones visibles</div>
+                <div style={{ display:'flex',flexWrap:'wrap',gap:6 }}>
+                  {ALL_PERMS.map(p=>{
+                    const on = selTabs.includes(p.id);
+                    return (
+                      <button key={p.id} onClick={()=>toggleTab(p.id)}
+                        style={{ padding:'6px 12px',borderRadius:20,border:`1px solid ${on?uc+'50':P.border}`,
+                          background:on?`${uc}14`:P.border2,color:on?uc:P.textSub,
+                          fontSize:11,fontWeight:on?600:400,cursor:'pointer',transition:'all 0.14s ease' }}>
+                        {on&&'✓ '}{p.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              <div style={{ display:'flex',gap:10,flexWrap:'wrap' }}>
+                {[
+                  {val:canDl,set:setCanDl,label:'Notificaciones y envíos automáticos',sub:'Notificaciones de candidatos + envíos programados',ac:P.orange,acDim:P.okDim},
+                  {val:isActive,set:setIsActive,label:'Usuario activo',sub:'Puede iniciar sesión',ac:'#22C55E',acDim:'rgba(34,197,94,0.08)'},
+                ].map((opt,i)=>(
+                  <label key={i} style={{ display:'flex',alignItems:'center',gap:10,cursor:'pointer',
+                    padding:'10px 14px',borderRadius:10,border:`1px solid ${opt.val?opt.ac+'40':P.border}`,
+                    background:opt.val?opt.acDim:P.border2,flex:1,minWidth:160 }}>
+                    <input type="checkbox" checked={opt.val} onChange={e=>opt.set(e.target.checked)}
+                      style={{ width:14,height:14,cursor:'pointer',accentColor:opt.ac }}/>
+                    <div>
+                      <div style={{ fontSize:11.5,fontWeight:600,color:P.text }}>{opt.label}</div>
+                      <div style={{ fontSize:10,color:P.textDim }}>{opt.sub}</div>
+                    </div>
+                  </label>
+                ))}
+              </div>
+              {status&&<div style={{ padding:'9px 13px',borderRadius:9,fontSize:11,background:status==='ok'?P.okDim:P.errDim,border:`1px solid ${status==='ok'?P.orange+'35':P.gray+'35'}`,color:status==='ok'?P.orange:P.grayMid,display:'flex',alignItems:'center',gap:8 }}>{status==='ok'?Icons.check:Icons.alert} {msg}</div>}
+              <div style={{ display:'flex',gap:8 }}>
+                <button onClick={handleSavePerms} disabled={loading}
+                  style={{ flex:1,padding:'11px 0',borderRadius:9,border:'none',cursor:loading?'not-allowed':'pointer',
+                    background:loading?P.surface2:P.orange,color:loading?P.textDim:'#fff',
+                    fontSize:12,fontWeight:600,transition:'all 0.15s ease',display:'flex',alignItems:'center',justifyContent:'center',gap:8,
+                    boxShadow:!loading?`0 4px 14px ${P.orange}35`:'none' }}>
+                  {loading?<>{spin}Guardando...</>:'Guardar permisos'}
+                </button>
+                <button onClick={handleCancel} style={{ padding:'11px 16px',borderRadius:9,border:`1px solid ${P.border}`,background:'transparent',color:P.textSub,fontSize:12,fontWeight:500,cursor:'pointer' }}>Cancelar</button>
+              </div>
+            </div>
+          )}
+
+          {/* ── CONTRASEÑA ── */}
+          {activeTab==='password'&&(
+            <div style={{ display:'flex',flexDirection:'column',gap:10 }}>
               <div style={{ position:'relative' }}>
-                <input ref={pwRef} type={showPw?'text':'password'} placeholder="Nueva contraseña (mín. 6 caracteres)" value={pw} onChange={e=>{setPw(e.target.value);setStatus(null);}} style={fieldStyle}
+                <input ref={pwRef} type={showPw?'text':'password'} placeholder="Nueva contraseña (mín. 6 caracteres)" value={pw} onChange={e=>{setPw(e.target.value);setStatus(null);}} style={fld}
                   onFocus={e=>{e.target.style.borderColor='rgba(251,103,11,0.45)';e.target.style.boxShadow='0 0 0 3px rgba(251,103,11,0.08)';}}
                   onBlur={e=>{e.target.style.borderColor=P.border;e.target.style.boxShadow='none';}}/>
                 <button onClick={()=>setShowPw(s=>!s)} style={{ position:'absolute',right:12,top:'50%',transform:'translateY(-50%)',background:'none',border:'none',cursor:'pointer',color:P.textDim,padding:2 }}><EyeIcon open={showPw}/></button>
               </div>
-              {pw&&(<div style={{ display:'flex', alignItems:'center', gap:8 }}>
-                <div style={{ flex:1, height:3, background:P.border, borderRadius:2, overflow:'hidden' }}>
-                  <div style={{ height:'100%', width:`${(strength.score/5)*100}%`, background:strength.color, borderRadius:2, transition:'width 0.32s ease,background 0.32s ease', boxShadow:strength.score>=4?`0 0 6px ${P.orange}60`:'none' }}/>
-                </div>
-                <span style={{ color:strength.color, fontSize:10, fontWeight:600, minWidth:66, textAlign:'right' }}>{strength.label}</span>
-              </div>)}
+              {pw&&<div style={{ display:'flex',alignItems:'center',gap:8 }}><div style={{ flex:1,height:3,background:P.border,borderRadius:2,overflow:'hidden' }}><div style={{ height:'100%',width:`${(strength.score/5)*100}%`,background:strength.color,borderRadius:2,transition:'width 0.32s ease' }}/></div><span style={{ color:strength.color,fontSize:10,fontWeight:600,minWidth:66,textAlign:'right' }}>{strength.label}</span></div>}
               <div style={{ position:'relative' }}>
-                <input type={showCf?'text':'password'} placeholder="Confirmar contraseña" value={confirm} onChange={e=>{setConfirm(e.target.value);setStatus(null);}} style={{ ...fieldStyle, borderColor:mismatch?P.gray+'90':match?P.orange+'60':P.border }}/>
+                <input type={showCf?'text':'password'} placeholder="Confirmar contraseña" value={confirm} onChange={e=>{setConfirm(e.target.value);setStatus(null);}} style={{ ...fld,borderColor:mismatch?P.gray+'90':match?P.orange+'60':P.border,paddingRight:42 }}/>
                 <button onClick={()=>setShowCf(s=>!s)} style={{ position:'absolute',right:12,top:'50%',transform:'translateY(-50%)',background:'none',border:'none',cursor:'pointer',color:P.textDim,padding:2 }}><EyeIcon open={showCf}/></button>
-                {match&&<div style={{ position:'absolute',right:38,top:'50%',transform:'translateY(-50%)',color:P.orange }}>{Icons.check}</div>}
               </div>
-              {mismatch&&<p style={{ color:P.grayMid, fontSize:11, margin:0 }}>Las contraseñas no coinciden</p>}
-              {pw.length>0&&pw.length<6&&<p style={{ color:P.grayLight, fontSize:11, margin:0 }}>Mínimo 6 caracteres</p>}
-            </>)}
-            {activeTab==='name'&&(<>
-              <input ref={nameRef} type="text" placeholder={`Nombre actual: ${dispLabel}`} value={newName} onChange={e=>{setNewName(e.target.value);setStatus(null);}} maxLength={40}
-                style={{ ...fieldStyle, paddingRight:14 }}
+              {mismatch&&<p style={{ color:P.grayMid,fontSize:11,margin:0 }}>Las contraseñas no coinciden</p>}
+              {status&&<div style={{ padding:'9px 13px',borderRadius:9,fontSize:11,background:status==='ok'?P.okDim:P.errDim,border:`1px solid ${status==='ok'?P.orange+'35':P.gray+'35'}`,color:status==='ok'?P.orange:P.grayMid,display:'flex',alignItems:'center',gap:8 }}>{status==='ok'?Icons.check:Icons.alert} {msg}</div>}
+              <div style={{ display:'flex',gap:8 }}>
+                <button onClick={handleSavePw} disabled={!canSavePw} style={{ flex:1,padding:'11px 0',borderRadius:9,border:'none',cursor:canSavePw?'pointer':'not-allowed',background:canSavePw?P.orange:P.surface2,color:canSavePw?'#fff':P.textDim,fontSize:12,fontWeight:600,transition:'all 0.15s ease',display:'flex',alignItems:'center',justifyContent:'center',gap:8,boxShadow:canSavePw?`0 4px 14px ${P.orange}35`:'none' }}>
+                  {loading?<>{spin}Guardando...</>:'Guardar contraseña'}
+                </button>
+                <button onClick={handleCancel} style={{ padding:'11px 16px',borderRadius:9,border:`1px solid ${P.border}`,background:'transparent',color:P.textSub,fontSize:12,fontWeight:500,cursor:'pointer' }}>Cancelar</button>
+              </div>
+            </div>
+          )}
+
+          {/* ── NOMBRE ── */}
+          {activeTab==='name'&&(
+            <div style={{ display:'flex',flexDirection:'column',gap:10 }}>
+              <input ref={nameRef} type="text" placeholder={`Nombre actual: ${dispName}`} value={newName} onChange={e=>{setNewName(e.target.value);setStatus(null);}} maxLength={40}
+                style={{ ...fld,paddingRight:14 }}
                 onFocus={e=>{e.target.style.borderColor='rgba(251,103,11,0.45)';e.target.style.boxShadow='0 0 0 3px rgba(251,103,11,0.08)';}}
                 onBlur={e=>{e.target.style.borderColor=P.border;e.target.style.boxShadow='none';}}/>
-              {newName.trim().length>0&&newName.trim().length<2&&<p style={{ color:P.grayLight, fontSize:11, margin:0 }}>Mínimo 2 caracteres</p>}
-              <p style={{ color:P.textDim, fontSize:10, margin:0, lineHeight:1.6 }}>Cambia el nombre visible en el badge. No afecta contraseña ni rol.</p>
-            </>)}
-            {status&&(
-              <div style={{ padding:'10px 14px', borderRadius:9, fontSize:11,
-                background:status==='ok'?P.okDim:P.errDim,
-                border:`1px solid ${status==='ok'?P.orange+'35':P.gray+'35'}`,
-                color:status==='ok'?P.orange:P.grayMid,
-                display:'flex', alignItems:'center', gap:8 }}>
-                {status==='ok' ? Icons.check : Icons.alert}
-                {msg}
+              <p style={{ color:P.textDim,fontSize:10,margin:0,lineHeight:1.6 }}>Cambia el nombre visible. No afecta contraseña ni rol.</p>
+              {status&&<div style={{ padding:'9px 13px',borderRadius:9,fontSize:11,background:status==='ok'?P.okDim:P.errDim,border:`1px solid ${status==='ok'?P.orange+'35':P.gray+'35'}`,color:status==='ok'?P.orange:P.grayMid,display:'flex',alignItems:'center',gap:8 }}>{status==='ok'?Icons.check:Icons.alert} {msg}</div>}
+              <div style={{ display:'flex',gap:8 }}>
+                <button onClick={handleSaveName} disabled={!canSaveName} style={{ flex:1,padding:'11px 0',borderRadius:9,border:'none',cursor:canSaveName?'pointer':'not-allowed',background:canSaveName?P.orange:P.surface2,color:canSaveName?'#fff':P.textDim,fontSize:12,fontWeight:600,transition:'all 0.15s ease',display:'flex',alignItems:'center',justifyContent:'center',gap:8,boxShadow:canSaveName?`0 4px 14px ${P.orange}35`:'none' }}>
+                  {loading?<>{spin}Guardando...</>:'Guardar nombre'}
+                </button>
+                <button onClick={handleCancel} style={{ padding:'11px 16px',borderRadius:9,border:`1px solid ${P.border}`,background:'transparent',color:P.textSub,fontSize:12,fontWeight:500,cursor:'pointer' }}>Cancelar</button>
               </div>
-            )}
-            <div style={{ display:'flex', gap:8, marginTop:4 }}>
-              <button onClick={activeTab==='password'?handleSavePassword:handleSaveName}
-                disabled={activeTab==='password'?!canSavePw:!canSaveName}
-                style={{ flex:1, padding:'11px 0', borderRadius:9, border:'none',
-                  cursor:(activeTab==='password'?canSavePw:canSaveName)?'pointer':'not-allowed',
-                  background:(activeTab==='password'?canSavePw:canSaveName)?P.orange:P.surface2,
-                  color:(activeTab==='password'?canSavePw:canSaveName)?'#fff':P.textDim,
-                  fontSize:12, fontWeight:600, transition:'all 0.15s ease',
-                  display:'flex', alignItems:'center', justifyContent:'center', gap:8,
-                  boxShadow:(activeTab==='password'?canSavePw:canSaveName)?`0 4px 14px ${P.orange}35`:'none' }}>
-                {loading
-                  ? <><div style={{ width:13,height:13,borderRadius:'50%',border:'2px solid rgba(255,255,255,0.2)',borderTop:'2px solid #fff',animation:'spin 0.65s linear infinite' }}/>Guardando...</>
-                  : activeTab==='password'?'Guardar contraseña':'Guardar nombre'}
-              </button>
-              <button onClick={handleCancel}
-                style={{ padding:'11px 16px', borderRadius:9, border:`1px solid ${P.border}`,
-                  background:'transparent', color:P.textSub, fontSize:12, fontWeight:500,
-                  cursor:'pointer', transition:'all 0.14s ease' }}
-                onMouseEnter={e=>{e.currentTarget.style.color=P.text;e.currentTarget.style.borderColor=P.border2;}}
-                onMouseLeave={e=>{e.currentTarget.style.color=P.textSub;e.currentTarget.style.borderColor=P.border;}}>
-                Cancelar
-              </button>
             </div>
-          </div>
+          )}
         </div>
       )}
     </div>
   );
 }
 
+function AddUserModal({ onClose, onCreated }) {
+  const P = useP();
+  const COLORS = ['#FB670B','#22C55E','#0077CC','#A855F7','#EC4899','#F59E0B','#8A8A7A','#64748B'];
+  const [name,setName]       = useState('');
+  const [pw,setPw]           = useState(''), [confirm,setConfirm] = useState('');
+  const [selTabs,setSelTabs] = useState([]);
+  const [canDl,setCanDl]     = useState(false);
+  const [color,setColor]     = useState('#8A8A7A');
+  const [loading,setLoading] = useState(false);
+  const [err,setErr]         = useState('');
+
+  const match    = pw&&confirm&&pw===confirm;
+  const mismatch = pw&&confirm&&pw!==confirm;
+  const canSave  = name.trim().length>=2&&pw.length>=6&&match&&!loading;
+  const toggleTab = id => setSelTabs(s=>s.includes(id)?s.filter(x=>x!==id):[...s,id]);
+
+  const handleSave = async () => {
+    if(!canSave) return; setLoading(true); setErr('');
+    const r = await fetch('/api/admin/users',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'addUser',name:name.trim(),password:pw,tabs:selTabs,canDownload:canDl,color})});
+    const j = await r.json();
+    if(j.ok){onCreated();onClose();}else{setErr(j.error||'Error al crear');}
+    setLoading(false);
+  };
+
+  return (
+    <div style={{ position:'fixed',inset:0,zIndex:999999,background:'rgba(8,7,6,0.82)',backdropFilter:'blur(12px)',
+      display:'flex',alignItems:'center',justifyContent:'center',padding:20 }}
+      onClick={e=>{if(e.target===e.currentTarget)onClose();}}>
+      <div style={{ background:P.surface,border:`1px solid ${P.border2}`,borderRadius:18,width:'100%',maxWidth:520,
+        maxHeight:'calc(100dvh - 40px)',display:'flex',flexDirection:'column',
+        boxShadow:'0 40px 120px rgba(0,0,0,0.85)',animation:'fadeUp 0.25s cubic-bezier(0.16,1,0.3,1)' }}>
+        {/* Header */}
+        <div style={{ padding:'20px 24px 16px',borderBottom:`1px solid ${P.border}`,flexShrink:0,position:'relative' }}>
+          <div style={{ position:'absolute',top:0,left:0,right:0,height:2.5,background:`linear-gradient(90deg,${P.orange},rgba(251,103,11,0.4),transparent)`,borderRadius:'18px 18px 0 0' }}/>
+          <div style={{ display:'flex',alignItems:'center',justifyContent:'space-between' }}>
+            <span style={{ fontWeight:700,fontSize:15,color:P.text,letterSpacing:'-0.025em' }}>Nuevo usuario</span>
+            <button onClick={onClose} style={{ width:28,height:28,borderRadius:7,border:`1px solid ${P.border}`,background:P.border2,color:P.textSub,cursor:'pointer',fontSize:15,display:'flex',alignItems:'center',justifyContent:'center' }}>✕</button>
+          </div>
+        </div>
+        {/* Body */}
+        <div style={{ overflow:'auto',flex:1,padding:'20px 24px',display:'flex',flexDirection:'column',gap:16 }}>
+          {/* Nombre */}
+          <div>
+            <div style={{ fontSize:9.5,fontWeight:700,letterSpacing:'0.12em',textTransform:'uppercase',color:P.textDim,marginBottom:6 }}>Nombre del usuario</div>
+            <input value={name} onChange={e=>setName(e.target.value)} placeholder="Ej: Marketing, Ventas…"
+              style={{ width:'100%',background:P.surface2,border:`1px solid ${P.border}`,borderRadius:9,padding:'10px 14px',color:P.text,fontSize:12.5,outline:'none',boxSizing:'border-box' }}
+              onFocus={e=>e.target.style.borderColor='rgba(251,103,11,0.45)'}
+              onBlur={e=>e.target.style.borderColor=P.border}/>
+          </div>
+          {/* Color */}
+          <div>
+            <div style={{ fontSize:9.5,fontWeight:700,letterSpacing:'0.12em',textTransform:'uppercase',color:P.textDim,marginBottom:7 }}>Color del badge</div>
+            <div style={{ display:'flex',gap:8 }}>
+              {COLORS.map(c=>(
+                <button key={c} onClick={()=>setColor(c)}
+                  style={{ width:28,height:28,borderRadius:7,background:c,cursor:'pointer',
+                    border:`2.5px solid ${color===c?P.text:'transparent'}`,boxSizing:'border-box',transition:'border 0.13s' }}/>
+              ))}
+            </div>
+          </div>
+          {/* Contraseña */}
+          <div>
+            <div style={{ fontSize:9.5,fontWeight:700,letterSpacing:'0.12em',textTransform:'uppercase',color:P.textDim,marginBottom:6 }}>Contraseña</div>
+            <div style={{ display:'flex',flexDirection:'column',gap:7 }}>
+              <input type="password" value={pw} onChange={e=>setPw(e.target.value)} placeholder="Mínimo 6 caracteres"
+                style={{ width:'100%',background:P.surface2,border:`1px solid ${P.border}`,borderRadius:9,padding:'10px 14px',color:P.text,fontSize:12.5,outline:'none',boxSizing:'border-box' }}
+                onFocus={e=>e.target.style.borderColor='rgba(251,103,11,0.45)'} onBlur={e=>e.target.style.borderColor=P.border}/>
+              <input type="password" value={confirm} onChange={e=>setConfirm(e.target.value)} placeholder="Confirmar contraseña"
+                style={{ width:'100%',background:P.surface2,border:`1px solid ${mismatch?'rgba(239,68,68,0.5)':match?'rgba(251,103,11,0.45)':P.border}`,borderRadius:9,padding:'10px 14px',color:P.text,fontSize:12.5,outline:'none',boxSizing:'border-box' }}
+                onFocus={e=>e.target.style.borderColor='rgba(251,103,11,0.45)'} onBlur={e=>e.target.style.borderColor=P.border}/>
+            </div>
+          </div>
+          {/* Secciones */}
+          <div>
+            <div style={{ fontSize:9.5,fontWeight:700,letterSpacing:'0.12em',textTransform:'uppercase',color:P.textDim,marginBottom:8 }}>Secciones visibles</div>
+            <div style={{ display:'flex',flexWrap:'wrap',gap:6 }}>
+              {ALL_PERMS.map(p=>{
+                const on = selTabs.includes(p.id);
+                return (
+                  <button key={p.id} onClick={()=>toggleTab(p.id)}
+                    style={{ padding:'6px 12px',borderRadius:20,border:`1px solid ${on?color+'50':P.border}`,
+                      background:on?`${color}14`:P.border2,color:on?color:P.textSub,
+                      fontSize:11,fontWeight:on?600:400,cursor:'pointer',transition:'all 0.14s ease' }}>
+                    {on&&'✓ '}{p.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          {/* Can download */}
+          <label style={{ display:'flex',alignItems:'center',gap:10,cursor:'pointer',padding:'11px 14px',borderRadius:10,
+            border:`1px solid ${canDl?P.orange+'40':P.border}`,background:canDl?P.okDim:P.border2 }}>
+            <input type="checkbox" checked={canDl} onChange={e=>setCanDl(e.target.checked)}
+              style={{ width:14,height:14,cursor:'pointer',accentColor:P.orange }}/>
+            <div>
+              <div style={{ fontSize:11.5,fontWeight:600,color:P.text }}>Notificaciones y envíos automáticos</div>
+              <div style={{ fontSize:10,color:P.textDim }}>Notificaciones de candidatos + envíos programados</div>
+            </div>
+          </label>
+          {err&&<div style={{ padding:'9px 13px',borderRadius:9,fontSize:11,background:P.errDim,border:`1px solid ${P.gray}35`,color:P.grayMid,display:'flex',alignItems:'center',gap:8 }}>{Icons.alert} {err}</div>}
+        </div>
+        {/* Footer */}
+        <div style={{ padding:'14px 24px',borderTop:`1px solid ${P.border}`,display:'flex',gap:8,justifyContent:'flex-end',flexShrink:0,background:P.surface2 }}>
+          <button onClick={onClose} style={{ padding:'10px 18px',borderRadius:9,border:`1px solid ${P.border}`,background:'transparent',color:P.textSub,fontSize:12,fontWeight:500,cursor:'pointer' }}>Cancelar</button>
+          <button onClick={handleSave} disabled={!canSave}
+            style={{ padding:'10px 22px',borderRadius:9,border:'none',cursor:canSave?'pointer':'not-allowed',
+              background:canSave?P.orange:P.surface2,color:canSave?'#fff':P.textDim,
+              fontSize:12.5,fontWeight:700,transition:'all 0.15s ease',display:'flex',alignItems:'center',gap:7,
+              boxShadow:canSave?`0 4px 16px ${P.orange}30`:'none' }}>
+            {loading?<><div style={{ width:12,height:12,borderRadius:'50%',border:'2px solid rgba(255,255,255,0.2)',borderTop:'2px solid #fff',animation:'spin 0.65s linear infinite' }}/>Creando...</>:'+ Crear usuario'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function UsersTab() {
   const P = useP();
+  const [users, setUsers]     = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showAdd, setShowAdd] = useState(false);
+
+  const loadUsers = useCallback(async () => {
+    setLoading(true);
+    try {
+      const r = await fetch('/api/admin/users', { credentials: 'include' });
+      const j = await r.json();
+      if (j.ok) setUsers(j.users || []);
+    } catch {}
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { loadUsers(); }, [loadUsers]);
+
   return (
     <div style={{ animation:'fadeUp 0.22s ease both' }}>
       <div style={{ marginBottom:16, padding:'14px 18px',
         background:P.surface,
         border:`1px solid ${P.border}`, borderRadius:12,
         boxShadow:`0 1px 3px rgba(0,0,0,0.06)`,
-        display:'flex', alignItems:'center', gap:14 }}>
-        <div style={{ width:38, height:38, borderRadius:9, background:P.okDim, border:`1px solid ${P.orange}25`,
-          display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0,
-          boxShadow:`0 0 16px ${P.orange}20` }}>
-          <span style={{ color:P.orange }}>{Icons.lock}</span>
+        display:'flex', alignItems:'center', justifyContent:'space-between', gap:14 }}>
+        <div style={{ display:'flex', alignItems:'center', gap:14 }}>
+          <div style={{ width:38, height:38, borderRadius:9, background:P.okDim, border:`1px solid ${P.orange}25`,
+            display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0,
+            boxShadow:`0 0 16px ${P.orange}20` }}>
+            <span style={{ color:P.orange }}>{Icons.lock}</span>
+          </div>
+          <div>
+            <p style={{ fontWeight:700, fontSize:13, color:P.text, margin:'0 0 3px', letterSpacing:'-0.01em' }}>Gestión de accesos</p>
+            <p style={{ fontSize:11, color:P.textDim, margin:0, lineHeight:1.55 }}>Permisos, contraseña y nombre de cada usuario. Cambios aplicados inmediatamente.</p>
+          </div>
         </div>
-        <div>
-          <p style={{ fontWeight:700, fontSize:13, color:P.text, margin:'0 0 3px', letterSpacing:'-0.01em' }}>Gestión de accesos</p>
-          <p style={{ fontSize:11, color:P.textDim, margin:0, lineHeight:1.55 }}>Modifica contraseña o nombre de cada usuario. Cambios aplicados inmediatamente en Turso.</p>
+        <button onClick={() => setShowAdd(true)} style={{
+          padding:'7px 14px', borderRadius:8, border:'none', cursor:'pointer',
+          background:P.orange, color:'#fff', fontSize:12, fontWeight:700,
+          whiteSpace:'nowrap', flexShrink:0,
+        }}>+ Nuevo usuario</button>
+      </div>
+
+      {loading ? (
+        <p style={{ color:P.textDim, fontSize:13, textAlign:'center', padding:24 }}>Cargando usuarios...</p>
+      ) : (
+        <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+          {users.map(u => <UserManageCard key={u.id} user={u} onUpdate={loadUsers}/>)}
         </div>
-      </div>
-      <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
-        {SYSTEM_USERS.map(u=><UserCard key={u.id} user={u}/>)}
-      </div>
+      )}
+
+      {showAdd && <AddUserModal onClose={() => setShowAdd(false)} onCreated={() => { setShowAdd(false); loadUsers(); }}/>}
     </div>
   );
 }
@@ -1501,7 +1727,7 @@ const isMarketing = role.name === 'Marketing';
   const load=useCallback(async(silent=false,from=null,to=null)=>{
     if(!silent)setLoading(true);
     try{ const body={action:'get'}; if(from)body.from=from; if(to)body.to=to;
-      const r=await fetch('/api/analytics',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+      const r=await fetch('/api/analytics',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
       const j=await r.json(); if(j.ok){setData(j.data);setLast(new Date());}
     }catch(e){console.error(e);}
     if(!silent)setLoading(false);
@@ -1509,14 +1735,14 @@ const isMarketing = role.name === 'Marketing';
 
   const loadLeads=useCallback(async()=>{
     setLeadsLoad(true);
-    try{ const r=await fetch('/api/analytics',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'getLeads'})}); const j=await r.json(); if(j.ok)setLeads(j.leads||[]); }catch(e){console.error(e);}
+    try{ const r=await fetch('/api/analytics',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'getLeads'})}); const j=await r.json(); if(j.ok)setLeads(j.leads||[]); }catch(e){console.error(e);}
     setLeadsLoad(false);
   },[]);
 
   const loadConversations=useCallback(async()=>{
     setConvLoading(true);
     try{
-      const r=await fetch('/api/conversations',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'list',limit:80})});
+      const r=await fetch('/api/conversations',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'list',limit:80})});
       const j=await r.json(); if(j.ok)setConvSessions(j.sessions||[]);
     }catch(e){console.error(e);}
     setConvLoading(false);
@@ -1529,7 +1755,7 @@ const isMarketing = role.name === 'Marketing';
       const d30=new Date(); d30.setDate(d30.getDate()-29);
       const startDate=from||d30.toISOString().slice(0,10);
       const endDate=to||today;
-      const r=await fetch('/api/search-console',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({startDate,endDate})});
+      const r=await fetch('/api/search-console',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({startDate,endDate})});
       const j=await r.json();
       console.log('[SC] respuesta completa:', j);
       if(j.ok){
@@ -1547,7 +1773,7 @@ const isMarketing = role.name === 'Marketing';
   const loadConvMessages=useCallback(async(sessionId)=>{
     setConvMsgLoad(true); setConvMessages([]);
     try{
-      const r=await fetch('/api/conversations',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'messages',session_id:sessionId})});
+      const r=await fetch('/api/conversations',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'messages',session_id:sessionId})});
       const j=await r.json(); if(j.ok)setConvMessages(j.messages||[]);
     }catch(e){console.error(e);}
     setConvMsgLoad(false);
@@ -1587,7 +1813,7 @@ const isMarketing = role.name === 'Marketing';
   const reset=async()=>{
     if(!isOnlyAdmin)return;
     if(!confirm('¿Borrar TODAS las estadísticas? Esta acción no se puede deshacer.'))return;
-    await fetch('/api/analytics',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'reset'})});
+    await fetch('/api/analytics',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'reset'})});
     load(false,activePeriod?.from,activePeriod?.to); setSummary('');
   };
 
@@ -1637,7 +1863,7 @@ const ALL_TABS=[
   ];
   
   // ✅ CORRECCIÓN FINAL: Permitimos nombres de Admin y banderas de Admin, PERO bloqueamos a RH explícitamente.
-  const canSeeReportes = !isRH && (role.name === 'Admin' || role.name === 'Super Admin' || role.role === 'Administrador' || isAdmin || isOnlyAdmin);
+  const canSeeReportes = !isRH && (role.name === 'Admin' || role.name === 'Super Admin' || role.role === 'Administrador' || isAdmin || isOnlyAdmin || role.tabs.includes('reportes'));
   
   const TABS=ALL_TABS.filter(t => t.id==='reportes' ? canSeeReportes : canSee(t.id));
   // Shared card style
@@ -2347,7 +2573,7 @@ const ALL_TABS=[
                       color:P.textSub, cursor:'pointer', display:'flex', alignItems:'center', gap:4 }}>
                     {Icons.sync}
                   </button>
-                  {isOnlyAdmin&&<button onClick={async()=>{ if(!confirm('¿Borrar todos los leads?'))return; await fetch('/api/analytics',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'resetLeads'})}); setLeads([]); }} className="btn-base"
+                  {isOnlyAdmin&&<button onClick={async()=>{ if(!confirm('¿Borrar todos los leads?'))return; await fetch('/api/analytics',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'resetLeads'})}); setLeads([]); }} className="btn-base"
                     style={{ padding:'5px 10px', borderRadius:7, fontSize:11, fontWeight:500,
                       background:P.errDim, border:`1px solid ${P.gray}28`, color:P.grayLight,
                       cursor:'pointer', display:'flex', alignItems:'center', gap:5 }}>
@@ -2494,11 +2720,6 @@ const ALL_TABS=[
                   </div>
                 </div>
               </div>
-              {/* Selector de período directo en reportes */}
-              <div style={{ padding:'0 20px 16px', borderTop:`1px solid ${P.border2}`, paddingTop:12 }}>
-                <div style={{ fontSize:10, color:P.textDim, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:8 }}>Seleccionar período para los reportes</div>
-                <PeriodSelector activeId={activePresetId} onSelect={handlePresetSelect} customFrom={customFrom} customTo={customTo} setCustomFrom={setCustomFrom} setCustomTo={setCustomTo} onApplyCustom={handleApplyCustom}/>
-              </div>
             </div>
 
             {/* Report cards — 4 en una sola fila */}
@@ -2541,17 +2762,18 @@ const ALL_TABS=[
               ))}
             </div>
 
-            {/* Notificaciones de nuevos candidatos */}
-            <NotifyConfigSection theme={theme} P={P}/>
+            {/* Notificaciones y envíos — solo con permiso canDownload */}
+            {isAdmin && <NotifyConfigSection theme={theme} P={P}/>}
 
-            {/* Scheduler */}
-            <div style={{ background:P.surface, border:`1px solid ${P.border}`,
-              borderRadius:12, padding:'18px 20px', position:'relative', overflow:'hidden',
-              boxShadow:`0 2px 16px rgba(0,0,0,0.35)` }}>
-              <div style={{ position:'absolute', top:0, left:0, right:0, height:2.5,
-                background:`linear-gradient(90deg,${P.orange},${P.orangeWarm},transparent)`, opacity:0.55 }}/>
-              <ReportScheduler theme={theme}/>
-            </div>
+            {isAdmin && (
+              <div style={{ background:P.surface, border:`1px solid ${P.border}`,
+                borderRadius:12, padding:'18px 20px', position:'relative', overflow:'hidden',
+                boxShadow:`0 2px 16px rgba(0,0,0,0.35)` }}>
+                <div style={{ position:'absolute', top:0, left:0, right:0, height:2.5,
+                  background:`linear-gradient(90deg,${P.orange},${P.orangeWarm},transparent)`, opacity:0.55 }}/>
+                <ReportScheduler theme={theme}/>
+              </div>
+            )}
           </div>
         )}
 

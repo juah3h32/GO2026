@@ -3,6 +3,7 @@
 import { getTurso }                                          from '../../../lib/turso';
 import { buildReportHTML }                                   from '../../../components/ReportGenerator.jsx';
 import { readAllData, readLeads, readRecruitmentLeads }      from '../../../lib/analytics-db.js';
+import { verifyAdminToken }                                  from '../../../lib/verifyAdminToken.ts';
 import puppeteer                                             from 'puppeteer-core';
 import { existsSync, readFileSync }                          from 'fs';
 import { join }                                              from 'path';
@@ -248,6 +249,16 @@ function buildFilename(report_type, period, period_from, period_to) {
 
 // ── POST ──────────────────────────────────────────────────────────────────────
 export async function POST({ request }) {
+  // Acepta auth de usuario (cookie JWT) O llamada interna del cron (header secreto)
+  const internalSecret = import.meta.env.CRON_SECRET_EXTERNAL || process.env.CRON_SECRET_EXTERNAL;
+  const cronHeader     = request.headers.get('x-cron-secret');
+  const isCronCall     = internalSecret && cronHeader === internalSecret;
+
+  if (!isCronCall) {
+    const role = await verifyAdminToken(request);
+    if (!role) return new Response(JSON.stringify({ error: 'No autorizado' }), { status: 401 });
+  }
+
   try {
     const body = await request.json();
     const {
@@ -270,25 +281,21 @@ export async function POST({ request }) {
       const origin = new URL(request.url).origin;
       const iaRes  = await fetch(`${origin}/api/reports/recruitment-ia`, {
         method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'x-cron-secret': internalSecret || '' },
         body:    JSON.stringify({ format: 'html' }),
       });
       const iaJson = await iaRes.json();
       if (!iaJson.ok) throw new Error(iaJson.error || 'Error generando reporte IA');
       html = iaJson.html;
    } else {
-      // Reportes estándar: obtener datos filtrados desde analytics API (misma fuente que el panel)
-      const origin = new URL(request.url).origin;
-      const [analyticsRes, allLeads, candidates, logoBase64] = await Promise.all([
-        fetch(`${origin}/api/analytics`, {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'get', ...(from ? { from } : {}), ...(to ? { to } : {}) }),
-        }).then(r => r.json()).catch(() => ({ ok: false, data: {} })),
+      // Reportes estándar: leer DB directamente (evita llamada HTTP interna con auth)
+      const [rawData, allLeads, candidates, logoBase64] = await Promise.all([
+        readAllData().catch(() => ({})),
         readLeads().catch(() => []),
         readRecruitmentLeads().catch(() => []),
         Promise.resolve(getLogoBase64()),
       ]);
-      const data  = analyticsRes?.data || {};
+      const data  = filterByDateRange(rawData, from, to);
       const leads = filterLeadsByPeriod(allLeads, from, to);
 
       // Variables exclusivas para el reporte "resumen"

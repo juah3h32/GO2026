@@ -13,11 +13,28 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# environment variables
+# environment variables — NUNCA subir al repo
 .env
 .env.local
 .env.production
+.env.development
+.env.staging
 .env*.local
+.env.*
+
+# claves / secretos sueltos
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+secrets.json
+secrets.yaml
+secrets.yml
+service-account*.json
+*-service-account.json
+credentials.json
 
 # macOS-specific files
 .DS_Store

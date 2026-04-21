@@ -31,6 +31,18 @@ export async function POST({ request }) {
       return new Response(JSON.stringify({ error: 'Suscripción inválida' }), { status: 400 });
     }
 
+    // Validación de formato y tamaño (previene memory exhaustion y endpoints falsos)
+    const endpointStr = String(subscription.endpoint);
+    const p256dh      = String(subscription.keys.p256dh);
+    const authKey     = String(subscription.keys.auth);
+
+    if (!endpointStr.startsWith('https://')) {
+      return new Response(JSON.stringify({ error: 'Endpoint inválido' }), { status: 400 });
+    }
+    if (endpointStr.length > 500 || p256dh.length > 200 || authKey.length > 50) {
+      return new Response(JSON.stringify({ error: 'Datos de suscripción inválidos' }), { status: 400 });
+    }
+
     const db = getDb();
     await ensureTable(db);
 

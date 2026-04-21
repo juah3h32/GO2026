@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { SignJWT } from 'jose';
+import bcrypt from 'bcryptjs';
 import { getTurso } from '../../lib/turso';
 import { verifyAdminToken } from '../../lib/verifyAdminToken';
 
@@ -45,9 +46,10 @@ export const POST: APIRoute = async ({ request }) => {
         return new Response(JSON.stringify({ ok: false, error: 'Usuario no encontrado' }), { status: 404 });
       }
 
+      const hashed = await bcrypt.hash(newPassword, 12);
       await turso.execute({
         sql:  'UPDATE users SET password = ? WHERE name = ?',
-        args: [newPassword, userId],
+        args: [hashed, userId],
       });
 
       console.log(`✅ Contraseña actualizada para: ${userId}`);
@@ -107,15 +109,42 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     const turso  = getTurso();
-    const result = await turso.execute({
-      sql:  'SELECT * FROM users WHERE password = ? AND active = 1',
-      args: [password],
+
+    // Buscar usuario por nombre no es posible sin él — buscamos todos activos y validamos hash
+    // Para login por contraseña: primero intentar match directo (legacy plaintext), luego bcrypt
+    const allUsers = await turso.execute({
+      sql:  'SELECT * FROM users WHERE active = 1',
+      args: [],
     });
 
-    if (!result.rows.length) {
+    let matchedRow: typeof allUsers.rows[0] | null = null;
+
+    for (const row of allUsers.rows) {
+      const stored = row.password as string;
+      if (stored.startsWith('$2b$') || stored.startsWith('$2a$')) {
+        // Contraseña ya hasheada
+        const ok = await bcrypt.compare(password, stored);
+        if (ok) { matchedRow = row; break; }
+      } else {
+        // Contraseña en texto plano (legacy) — migrar automáticamente al primer login
+        if (stored === password) {
+          const newHash = await bcrypt.hash(password, 12);
+          await turso.execute({
+            sql:  'UPDATE users SET password = ? WHERE id = ?',
+            args: [newHash, row.id],
+          });
+          matchedRow = row;
+          break;
+        }
+      }
+    }
+
+    if (!matchedRow) {
       await new Promise(r => setTimeout(r, 400));
       return new Response(JSON.stringify({ ok: false, error: 'Contraseña incorrecta' }), { status: 401 });
     }
+
+    const result = { rows: [matchedRow] };
 
 const row      = result.rows[0];
     const roleName = row.name as string;

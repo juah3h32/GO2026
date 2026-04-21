@@ -64,9 +64,19 @@ function esIntencionCompra(texto) {
     /comp[a-z]{0,4}r/,/coti[a-z]{0,6}/,/preci[a-z]{0,3}/,/cuant[a-z]{0,2}/,
     /cost[a-z]{0,3}/,/presup[a-z]{0,6}/,/adquir[a-z]{0,4}/,/dispon[a-z]{0,8}/,
     /pedid[a-z]{0,2}/,/orden[a-z]{0,2}/,
+    // Inglés
+    /buy/,/purchas[a-z]{0,3}/,/quot[a-z]{0,3}/,/pric[a-z]{0,3}/,/order[a-z]{0,2}/,
   ];
   if (regexTolerantes.some(r => r.test(u))) return true;
-  const frases = ['me interesa','me gustaria','quisiera','estoy interesad','hay stock','tienen stock','hay disponible','como compro','donde compro','voy a comprar','contactar','whatsapp','llamar'];
+  const frases = [
+    // Español
+    'me interesa','me gustaria','quisiera','estoy interesad','hay stock','tienen stock',
+    'hay disponible','como compro','donde compro','voy a comprar','contactar','whatsapp','llamar',
+    'atencion al cliente','hablar con','realizar pedido',
+    // Inglés
+    'contact','customer service','speak to','talk to','support','get help',
+    'i want to buy','place an order','how much','i need',
+  ];
   if (frases.some(k => u.includes(k))) return true;
   const tieneProducto = detectarProducto(texto) !== null;
   if ((u.includes('quiero') || u.includes('necesito')) && tieneProducto) return true;
@@ -248,7 +258,11 @@ const chatWindowRef        = useRef(null);
       let pdfData = null;
 
       if (mostrarWA) {
-        waLink = `https://wa.me/524432072593?text=${encodeURIComponent('Hola Grupo Ortiz, me interesa cotizar ' + prodFinal)}`;
+        const waNum  = currentLangCode === 'en' ? '12104293789' : '524432072593';
+        const waText = currentLangCode === 'en'
+          ? `Hello Grupo Ortiz, I'm interested in getting a quote for ${prodFinal}`
+          : `Hola Grupo Ortiz, me interesa cotizar ${prodFinal}`;
+        waLink = `https://wa.me/${waNum}?text=${encodeURIComponent(waText)}`;
       }
       if (mostrarPDF) {
         const clave = accionPDF || prodUser || prodReply || productoCtxRef.current || 'general';
@@ -319,26 +333,9 @@ const chatWindowRef        = useRef(null);
     <MessageRenderer content={msg.content} isAssistant={msg.role==='assistant'}/>
   </div>
 
-  {/* 🚨 PANEL DE DIAGNÓSTICO INVISIBLE A ERRORES DE CSS 🚨 */}
-  {msg.role === 'assistant' && (
-    <div style={{ background: '#222', color: '#00FF00', padding: '10px', marginTop: '10px', borderRadius: '8px', fontSize: '13px', width: '100%', fontFamily: 'monospace', zIndex: 999999 }}>
-      <strong>🕵️ DIAGNÓSTICO INTERNO:</strong><br/>
-      👉 ¿Llegó WhatsApp al chat?: {msg.waLink ? '✅ SÍ' : '❌ NO'}<br/>
-      👉 ¿Llegó PDF al chat?: {msg.pdfData ? '✅ SÍ' : '❌ NO'}
-      
-      {/* Botón a prueba de fallos */}
-      {msg.waLink && (
-         <a href={msg.waLink} target="_blank" rel="noopener noreferrer" style={{ display:'block', background:'#25D366', color:'white', padding:'10px', marginTop:'8px', textAlign:'center', borderRadius:'20px', textDecoration:'none', fontWeight:'bold' }}>
-           BOTÓN DE EMERGENCIA
-         </a>
-      )}
-    </div>
-  )}
-
-  {/* Tu código original de los botones (lo dejamos por si acaso) */}
-  {msg.role === 'assistant' && (msg.waLink || msg.pdfData) ? (
+  {msg.role === 'assistant' && (msg.waLink || msg.pdfData) && (
     <MessageActions waLink={msg.waLink} pdfData={msg.pdfData}/>
-  ) : null}
+  )}
 </div>
                 </div>
               ))}
@@ -352,6 +349,23 @@ const chatWindowRef        = useRef(null);
                   </div>
                 </div>
               )}
+            </div>
+
+            {/* Botón flotante de WhatsApp — siempre visible */}
+            <div style={{ padding:'6px 14px 0', display:'flex', justifyContent:'flex-end' }}>
+              <a href={`https://wa.me/${currentLangCode==='en'?'12104293789':'524432072593'}`}
+                target="_blank" rel="noopener noreferrer"
+                style={{ display:'inline-flex', alignItems:'center', gap:6,
+                  background:'#25D366', color:'#fff',
+                  padding:'6px 14px', borderRadius:20,
+                  fontSize:12, fontWeight:700, textDecoration:'none',
+                  boxShadow:'0 2px 10px rgba(37,211,102,0.35)',
+                  transition:'opacity 0.15s' }}
+                onMouseEnter={e=>e.currentTarget.style.opacity='0.85'}
+                onMouseLeave={e=>e.currentTarget.style.opacity='1'}>
+                <WhatsAppIcon/>
+                <span>{currentLangCode==='en'?'Chat on WhatsApp':'Hablar por WhatsApp'}</span>
+              </a>
             </div>
 
             <div className="botgo-footer-curve">

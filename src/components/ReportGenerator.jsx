@@ -1580,6 +1580,7 @@ INSTRUCCIONES:
 export function DownloadReportButton({ data, periodMeta = null, style = {}, reportType = 'general' }) {
   const [busy, setBusy]     = useState(false);
   const [status, setStatus] = useState('idle');
+  const [errMsg, setErrMsg] = useState(null);
 
   const download = async () => {
     if (!data) return;
@@ -1627,10 +1628,10 @@ export function DownloadReportButton({ data, periodMeta = null, style = {}, repo
       const [analysis, logoBase64, leadsRes, candidatesRes, scData] = await Promise.all([
         generateAnalysis(data, periodo),
         fetchLogoBase64(),
-        fetch('/api/analytics',   {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'getLeads'})}).then(r=>r.json()).catch(()=>({ok:false,leads:[]})),
-        fetch('/api/recruitment', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'list'})}).then(r=>r.json()).catch(()=>({ok:false,candidates:[]})),
+        fetch('/api/analytics',   {method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'getLeads'})}).then(r=>r.json()).catch(()=>({ok:false,leads:[]})),
+        fetch('/api/recruitment', {method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'list'})}).then(r=>r.json()).catch(()=>({ok:false,candidates:[]})),
         reportType === 'resumen'
-          ? fetch('/api/search-console', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(scDateRange)}).then(r=>r.json()).catch(()=>({ok:false}))
+          ? fetch('/api/search-console', {method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(scDateRange)}).then(r=>r.json()).catch(()=>({ok:false}))
           : Promise.resolve(null),
       ]);
 
@@ -1655,6 +1656,7 @@ export function DownloadReportButton({ data, periodMeta = null, style = {}, repo
       setStatus('exporting');
       const res = await fetch('/api/export-pdf', {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ html, filename }),
       });
@@ -1675,50 +1677,64 @@ export function DownloadReportButton({ data, periodMeta = null, style = {}, repo
       URL.revokeObjectURL(url);
 
       setStatus('done');
-    } catch(e) { console.error(e); }
+    } catch(e) {
+      console.error('[PDF]', e);
+      setErrMsg(String(e?.message || e).slice(0, 120));
+      setStatus('idle');
+    }
     setBusy(false);
-    setTimeout(() => setStatus('idle'), 2000);
+    setTimeout(() => { setStatus('idle'); setErrMsg(null); }, 4000);
   };
 
   const TYPE_IDLE = { general:'↓ General', distribuidor:'↓ Distribuidores', reclutamiento:'↓ Reclutamiento', resumen:'↓ Resumen' };
   const labels = { idle: TYPE_IDLE[reportType] || '↓ PDF', analyzing:'Analizando…', building:'Generando…', exporting:'Exportando…', done:'✓ Listo' };
 
   return (
-    <button
-      onClick={download}
-      disabled={!data || busy}
-      style={{
-        padding: '8px 16px',
-        borderRadius: 9,
-        fontSize: 11,
-        fontWeight: 700,
-        cursor: !data || busy ? 'not-allowed' : 'pointer',
-        fontFamily: "'Barlow',system-ui,sans-serif",
-        letterSpacing: '0.08em',
-        textTransform: 'uppercase',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 7,
-        border: `1px solid rgba(251,103,11,0.35)`,
-        background: busy ? 'rgba(38,38,38,0.15)' : 'rgba(251,103,11,0.09)',
-        color: busy ? GRAY_D : ORANGE,
-        transition: 'all 0.2s ease',
-        backdropFilter: 'blur(4px)',
-        ...style,
-      }}
-    >
-      {busy ? (
-        <>
-          <div style={{
-            width: 11, height: 11, borderRadius: '50%',
-            border: `2px solid rgba(251,103,11,0.20)`,
-            borderTop: `2px solid ${ORANGE}`,
-            animation: 'spin 0.75s linear infinite',
-          }}/>
-          {labels[status]}
-        </>
-      ) : labels[status]}
-    </button>
+    <div style={{ display:'flex', flexDirection:'column', gap:4, width:'100%' }}>
+      <button
+        onClick={download}
+        disabled={!data || busy}
+        style={{
+          padding: '8px 16px',
+          borderRadius: 9,
+          fontSize: 11,
+          fontWeight: 700,
+          cursor: !data || busy ? 'not-allowed' : 'pointer',
+          fontFamily: "'Barlow',system-ui,sans-serif",
+          letterSpacing: '0.08em',
+          textTransform: 'uppercase',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 7,
+          border: errMsg ? '1px solid rgba(239,68,68,0.45)' : `1px solid rgba(251,103,11,0.35)`,
+          background: errMsg ? 'rgba(239,68,68,0.09)' : busy ? 'rgba(38,38,38,0.15)' : 'rgba(251,103,11,0.09)',
+          color: errMsg ? '#f87171' : busy ? GRAY_D : ORANGE,
+          transition: 'all 0.2s ease',
+          backdropFilter: 'blur(4px)',
+          width: '100%',
+          justifyContent: 'center',
+          ...style,
+        }}
+      >
+        {busy ? (
+          <>
+            <div style={{
+              width: 11, height: 11, borderRadius: '50%',
+              border: `2px solid rgba(251,103,11,0.20)`,
+              borderTop: `2px solid ${ORANGE}`,
+              animation: 'spin 0.75s linear infinite',
+            }}/>
+            {labels[status]}
+          </>
+        ) : errMsg ? '✕ Error' : labels[status]}
+      </button>
+      {errMsg && (
+        <div style={{ fontSize:9.5, color:'rgba(248,113,113,0.85)', lineHeight:1.4,
+          fontFamily:"'Barlow',system-ui,sans-serif", padding:'3px 2px' }}>
+          {errMsg}
+        </div>
+      )}
+    </div>
   );
 }
 

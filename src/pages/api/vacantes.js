@@ -18,10 +18,12 @@ function json(data, status = 200) {
 export async function GET() {
   try {
     const [vacantes, raw] = await Promise.all([readVacantes(true), getConfig('beneficios')]);
-    const beneficios = raw ? JSON.parse(raw) : DEFAULT_BENEFICIOS;
+    let beneficios = DEFAULT_BENEFICIOS;
+    if (raw) { try { beneficios = JSON.parse(raw); } catch {} }
     return json({ ok: true, vacantes, beneficios });
   } catch (err) {
-    return json({ ok: false, error: err.message }, 500);
+    console.error('[vacantes GET]', err);
+    return json({ ok: false, error: 'Error interno del servidor' }, 500);
   }
 }
 

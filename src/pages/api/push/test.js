@@ -2,6 +2,8 @@
 export const prerender = false;
 
 export async function GET({ request }) {
+  if (!import.meta.env.DEV) return new Response('Not Found', { status: 404 });
+
   const url = new URL(request.url);
   const vapidPublic = import.meta.env.VAPID_PUBLIC_KEY || process.env.VAPID_PUBLIC_KEY || '';
 

@@ -91,9 +91,10 @@ async function runCron({ forceAll = false, baseUrl = 'https://grupo-ortiz.com' }
 
       // 3. Llamar al endpoint de envío
       try {
+        const cronSecret = import.meta.env.CRON_SECRET_EXTERNAL || process.env.CRON_SECRET_EXTERNAL || 'ortiz2026';
         const res = await fetch(`${baseUrl}/api/reports/send-now`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'x-cron-secret': cronSecret },
           body: JSON.stringify({
             schedule_id:  row.id,
             name:         row.name,           // ← fix: Necesario para nombrar el PDF

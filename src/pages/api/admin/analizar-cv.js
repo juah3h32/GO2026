@@ -2,6 +2,19 @@ import { IncomingForm } from 'formidable';
 import fs from 'fs';
 import path from 'path';
 import JSZip from 'jszip';
+import { jwtVerify } from 'jose';
+
+async function verifyAuth(req) {
+  const cookie = req.headers.cookie || '';
+  const match  = cookie.match(/admin_token=([^;]+)/);
+  if (!match) return null;
+  const rawSecret = process.env.JWT_SECRET || '';
+  if (!rawSecret) return null;
+  try {
+    const { payload } = await jwtVerify(match[1], new TextEncoder().encode(rawSecret));
+    return payload.role;
+  } catch { return null; }
+}
 
 export const config = { api: { bodyParser: false } };
 
@@ -67,6 +80,8 @@ ${textContent.substring(0, 4000)}`
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
+  const role = await verifyAuth(req);
+  if (!role) return res.status(401).json({ error: 'No autorizado' });
 
   const form = new IncomingForm({ maxFileSize: 50 * 1024 * 1024 });
 

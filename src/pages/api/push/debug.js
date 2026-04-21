@@ -4,6 +4,8 @@ export const prerender = false;
 import { createClient } from '@libsql/client';
 
 export async function GET() {
+  if (!import.meta.env.DEV) return new Response('Not Found', { status: 404 });
+
   const info = {
     vapid_public:  !!(import.meta.env.VAPID_PUBLIC_KEY  || process.env.VAPID_PUBLIC_KEY),
     vapid_private: !!(import.meta.env.VAPID_PRIVATE_KEY || process.env.VAPID_PRIVATE_KEY),

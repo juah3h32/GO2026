@@ -991,7 +991,7 @@ export default function ReportScheduler({ theme = 'dark' }) {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const r = await fetch('/api/reports/schedule');
+      const r = await fetch('/api/reports/schedule', { credentials: 'include' });
       const j = await r.json();
       setSchedules(j.schedules || []);
     } catch {}
@@ -1063,7 +1063,7 @@ const save = async () => {
       active: true,
       minute: form.minute ?? 0,
     };
-    const r = await fetch('/api/reports/schedule', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    const r = await fetch('/api/reports/schedule', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     const j = await r.json();
     setSaving(false);
     if (j.ok) { 
@@ -1076,18 +1076,18 @@ const save = async () => {
   const del = (id, name) => setConfirmDel({ id, name });
   const confirmDelete = async () => {
     if (!confirmDel) return;
-    await fetch('/api/reports/schedule', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'delete', id: confirmDel.id }) });
+    await fetch('/api/reports/schedule', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'delete', id: confirmDel.id }) });
     setConfirmDel(null);
     load();
   };
   const toggle = async s => {
-    await fetch('/api/reports/schedule', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'update', id: s.id, ...s, phones: s.phones, active: !s.active, minute: s.minute ?? 0 }) });
+    await fetch('/api/reports/schedule', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'update', id: s.id, ...s, phones: s.phones, active: !s.active, minute: s.minute ?? 0 }) });
     load();
   };
   const sendNow = async s => {
     setSending(s.id);
     try {
-      const r = await fetch('/api/reports/send-now', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ schedule_id: s.id, report_type: s.report_type, period: s.period, period_from: s.period_from || null, period_to: s.period_to || null, phones: s.phones, name: s.name }) });
+      const r = await fetch('/api/reports/send-now', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ schedule_id: s.id, report_type: s.report_type, period: s.period, period_from: s.period_from || null, period_to: s.period_to || null, phones: s.phones, name: s.name }) });
       const j = await r.json();
       if (j.results?.every(x => x.ok)) showToast(`PDF enviado a ${j.results.length} número(s)`, true);
       else { const e = j.results?.find(x => !x.ok)?.error || j.error || 'Error desconocido'; showToast(`Error: ${String(e).slice(0, 90)}`, false); }

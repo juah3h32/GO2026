@@ -4,7 +4,7 @@ import { MsEdgeTTS, OUTPUT_FORMAT } from "msedge-tts";
 import * as googleTTS from 'google-tts-api';
 import { Buffer } from 'node:buffer';
 import { logInteraction, saveRecruitmentLead, readVacantes, markNotificadosVacante, checkDuplicateByPhone, checkDuplicateByName, checkDuplicateByEmail } from '../../lib/analytics-db.js';
-import { notifyNewVacante, notifyEsperaVacante } from '../../lib/notify';
+import { notifyNewVacante, notifyEsperaVacante, notifyEnglishLead } from '../../lib/notify';
 
 export const prerender = false;
 
@@ -55,10 +55,15 @@ function esIntencionCotizar(texto, historial = []) {
   if (EMPLEO_REGEX.test(histReciente)) return false;
   const norm = texto.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   return [
+    // Español
     'precio','precios','costo','costos','cuanto cuesta','cuanto vale',
     'cotiza','cotizar','cotizacion','comprar','pedido','pedir',
     'adquirir','ordenar','tarifa','presupuesto','quiero comprar',
-    'cuanto cobran','cuanto me sale','cuanto','how much','prix','prezo',
+    'cuanto cobran','cuanto me sale','atencion al cliente','contactar','hablar con',
+    // Inglés
+    'how much','buy','purchase','order','place an order','quote','pricing',
+    'contact','customer service','speak to','talk to','support','get help',
+    'i want to buy','i need to order','can i buy','i would like to buy',
   ].some(k => norm.includes(k));
 }
 
@@ -171,7 +176,8 @@ function matchVacanteSimilar(puestoUsuario, vacantes) {
 }
 
 // ─── System Prompt Dinámico ───────────────────────────────────────────────────
-function buildSystemPrompt(targetLang, puestoPreseleccionado = null, vacantesActivas = [], nombreDetectado = null) {
+function buildSystemPrompt(targetLang, puestoPreseleccionado = null, vacantesActivas = [], nombreDetectado = null, langCode = 'es') {
+  const waPhone = langCode === 'en' ? '+1 210-429-3789' : '+52 443-207-2593';
 
   // PASO 1: puesto — omitir si ya fue preseleccionado
   let paso1 = `PASO 1 → "¡Con gusto te ayudo! ¿A qué puesto te gustaría aplicar?"
@@ -247,7 +253,7 @@ Más de 65 años de experiencia. Presencia en 5 continentes y más de 30 países
 3,000 colaboradores. 13 plantas de producción (12 en Morelia, 1 en Monterrey).
 Capacidad: 220,000 toneladas anuales.
 Certificaciones: FSSC 22000, ISO 9001:2015, AIB International, Kosher Pareve.
-Contacto: WhatsApp +52 443-207-2593 | contacto@grupoo.com.mx | Morelia, Michoacán.
+Contacto: WhatsApp ${waPhone} | contacto@grupoo.com.mx | Morelia, Michoacán.
 
 ══════════════════════════════════════════
   CATÁLOGO COMPLETO DE PRODUCTOS
@@ -261,10 +267,10 @@ Contacto: WhatsApp +52 443-207-2593 | contacto@grupoo.com.mx | Morelia, Michoac�
 7. Empaques flexibles — Alimentos, café, carnes, farmacéutica.
 
 ══════════════════════════════════════════
-  MÓDULO COTIZACIÓN
+  MÓDULO COTIZACIÓN / CONTACTO DIRECTO
 ══════════════════════════════════════════
-Si piden precio/cotización/compra:
-"¡Con gusto! Para una cotización exacta según tu volumen, escríbenos al WhatsApp +52 443-207-2593 😊"
+Si piden precio/cotización/compra/pedido O quieren hablar con un agente/asesor/atención al cliente/customer service/support:
+"¡Con gusto! Para una cotización exacta según tu volumen, escríbenos al WhatsApp ${waPhone} 😊"
 Termina con: [ACCION:WHATSAPP]
 
 ══════════════════════════════════════════
@@ -319,7 +325,7 @@ ${bloqueVacantes}
 ══════════════════════════════════════════
   REGLAS FINALES
 ══════════════════════════════════════════
-- Precio/stock/tiempos desconocidos → deriva al +52 443-207-2593
+- Precio/stock/tiempos desconocidos → deriva al ${waPhone}
 - Saludo cálido solo la PRIMERA vez.
 - Si el tema no es Grupo Ortiz → redirige al catálogo o asesor.
 `.trim();
@@ -529,10 +535,27 @@ export async function POST({ request }) {
       );
     }
 
+    // Límites de seguridad
+    if (messages.length > 60) {
+      return new Response(JSON.stringify({ reply: 'Conversación demasiado larga. Inicia una nueva.', waPhone: langCode === 'en' ? '12104293789' : '524432072593' }), { status: 200 });
+    }
+
     const targetLang = LANGUAGES_MAP[language] || 'Spanish';
     const langCode   = language || 'es';
 
-    let cleanMessages = messages.map(m => ({ role: m.role, content: m.content || '' }));
+    // Strip de prompt injection: elimina etiquetas internas antes de enviar a la IA
+    const stripInjection = (text) => String(text || '')
+      .replace(/\[RECLUTAMIENTO[^\]]*\]/gi, '')
+      .replace(/\[ACCION[^\]]*\]/gi, '')
+      .replace(/\[QUICK_REPLY[^\]]*\]/gi, '')
+      .replace(/\[DISTRIBUIDOR[^\]]*\]/gi, '')
+      .replace(/\[SYSTEM[^\]]*\]/gi, '')
+      .slice(0, 2000); // máximo 2000 chars por mensaje
+
+    let cleanMessages = messages.map(m => ({
+      role: m.role,
+      content: m.role === 'user' ? stripInjection(m.content) : (m.content || ''),
+    }));
 
     if (cvAdjunto?.nombre) {
       const lastUserIdx = cleanMessages.map((m, i) => ({ ...m, i }))
@@ -619,6 +642,7 @@ export async function POST({ request }) {
           accionDistribuidor: false, accionReclutamiento: false,
           enFlujoReclutamiento: true, candidatoId: null,
           isDuplicate: true, quickReplies: null,
+          waPhone: langCode === 'en' ? '12104293789' : '524432072593',
         }), { status: 200, headers: { 'Content-Type': 'application/json' } });
       }
     }
@@ -631,7 +655,7 @@ export async function POST({ request }) {
     const dataES = await fetchOpenAI(apiKey, {
       model: 'gpt-4o-mini',
       messages: [
-        { role: 'system', content: buildSystemPrompt('Spanish', puestoPreseleccionado, vacantesActivas, nombreDetectado) },
+        { role: 'system', content: buildSystemPrompt('Spanish', puestoPreseleccionado, vacantesActivas, nombreDetectado, langCode) },
         ...cleanMessages,
       ],
       temperature: 0.65,
@@ -720,6 +744,22 @@ export async function POST({ request }) {
       console.warn('⚠️ analytics log error:', e.message);
     }
 
+    // ── Notificar al número de EE.UU. cuando el usuario escribe en inglés ─
+    if (langCode === 'en' && (accionReclutamiento || accionDistribuidor || accionWA)) {
+      const interes = accionReclutamiento
+        ? (recruitData?.puesto ? `Job application — ${recruitData.puesto}` : 'Job application')
+        : accionDistribuidor
+        ? 'Distributor inquiry'
+        : 'Direct WhatsApp contact';
+      notifyEnglishLead({
+        nombre:   recruitData?.nombre   || '',
+        telefono: recruitData?.telefono || '',
+        email:    recruitData?.email    || '',
+        interes,
+        mensaje:  lastUserMsg,
+      });
+    }
+
     // ── Preparar datos para revisión en frontend (NO se guarda aún en DB) ───
     // El guardado real ocurre cuando el usuario confirma en PreRegistroReview.
     let isDuplicate = false;
@@ -752,11 +792,12 @@ export async function POST({ request }) {
         accionDistribuidor,
         accionReclutamiento: accionReclutamiento && !isDuplicate,
         enFlujoReclutamiento,
-        candidatoId:         null,          // siempre null; el save ocurre al confirmar en el frontend
+        candidatoId:         null,
         isDuplicate,
         esListaEspera,
         recruitData:         accionReclutamiento ? recruitData : null,
         quickReplies,
+        waPhone:             langCode === 'en' ? '12104293789' : '524432072593',
       }),
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
@@ -765,7 +806,9 @@ export async function POST({ request }) {
     console.error('❌ chat error:', error.message);
     return new Response(
       JSON.stringify({
-        reply:               'Disculpa, tuve un problema. Puedes contactarnos directo al +52 443-207-2593 por WhatsApp 😊',
+        reply:               langCode === 'en'
+          ? 'Sorry, I had an issue. You can reach us directly on WhatsApp at +1 210-429-3789 😊'
+          : 'Disculpa, tuve un problema. Puedes contactarnos directo al +52 443-207-2593 por WhatsApp 😊',
         detail:              error.message,
         audio:               null,
         accionWA:            false,

@@ -1,5 +1,6 @@
 // src/pages/api/reports/recruitment-ia.js
 // Reporte IA de Reclutamiento — analiza y rankea candidatos por vacante usando Claude
+import { verifyAdminToken } from '../../../lib/verifyAdminToken.ts';
 import { readRecruitmentLeads, readVacantes } from '../../../lib/analytics-db.js';
 import { existsSync, readFileSync, writeFileSync, unlinkSync } from 'fs';
 import { join } from 'path';
@@ -764,6 +765,14 @@ function candidatoMatchVacante(c, vacante) {
 
 // ── POST ──────────────────────────────────────────────────────────────────────
 export async function POST({ request }) {
+  const internalSecret = import.meta.env.CRON_SECRET_EXTERNAL || process.env.CRON_SECRET_EXTERNAL;
+  const isCronCall     = internalSecret && request.headers.get('x-cron-secret') === internalSecret;
+
+  if (!isCronCall) {
+    const role = await verifyAdminToken(request);
+    if (!role) return new Response(JSON.stringify({ error: 'No autorizado' }), { status: 401 });
+  }
+
   try {
     const body   = await request.json().catch(() => ({}));
     const { format = 'pdf', vacanteId = '', puesto: puestoFiltro = '' } = body;

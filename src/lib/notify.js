@@ -368,6 +368,26 @@ export async function sendTestNotification(phones, captionTemplate, configId) {
   return results;
 }
 
+// ── Notificar contacto en inglés al número de EE.UU. ─────────────────────────
+// Se dispara cuando alguien escribe en inglés y realiza alguna acción clave.
+export async function notifyEnglishLead({ nombre, telefono, email, interes, mensaje }) {
+  const phone = (import.meta.env.ENGLISH_LEAD_PHONE || '+12104293789').replace(/[\s\-]/g, '');
+  const lines = [
+    `🇺🇸 *New English Contact — Grupo Ortiz*`,
+    nombre   ? `👤 Name: ${nombre}`                          : null,
+    telefono ? `📱 Phone: ${telefono}`                       : null,
+    email    ? `📧 Email: ${email}`                          : null,
+    interes  ? `🎯 Interested in: ${interes}`                : null,
+    mensaje  ? `💬 Message: ${String(mensaje).slice(0, 300)}` : null,
+  ].filter(Boolean).join('\n');
+  try {
+    await sendWAText(phone, lines);
+    console.log('[notify-en] Alerta inglés enviada a', phone);
+  } catch (err) {
+    console.error('[notify-en] Error:', err.message);
+  }
+}
+
 // ── Notificar candidatos en lista de espera cuando se publica una vacante ─────
 // Envía WhatsApp directo al candidato (no al equipo RH)
 export async function notifyEsperaVacante({ candidatos, vacante, urlVacantes = '' }) {

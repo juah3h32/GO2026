@@ -129,6 +129,12 @@ export async function POST({ request }) {
       if (!nombre || !whatsapp) {
         return json({ ok: false, error: 'nombre y whatsapp son requeridos' }, 400);
       }
+      if (String(nombre).length > 120)   return json({ ok: false, error: 'Nombre muy largo' }, 400);
+      if (String(whatsapp).length > 25)  return json({ ok: false, error: 'Teléfono inválido' }, 400);
+      if (!/^[\d\s\+\-\(\)]{7,}$/.test(String(whatsapp))) return json({ ok: false, error: 'Formato de teléfono inválido' }, 400);
+      if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email))) return json({ ok: false, error: 'Email inválido' }, 400);
+      if (empresa    && String(empresa).length > 120)    return json({ ok: false, error: 'Empresa muy larga' }, 400);
+      if (comentarios && String(comentarios).length > 500) return json({ ok: false, error: 'Comentario muy largo' }, 400);
 
       await saveLead({ nombre, empresa, whatsapp, email, productos, comentarios });
 
@@ -146,6 +152,12 @@ export async function POST({ request }) {
       if (!nombre || !whatsapp) {
         return json({ ok: false, error: 'nombre y whatsapp son requeridos' }, 400);
       }
+      if (String(nombre).length > 120)  return json({ ok: false, error: 'Nombre muy largo' }, 400);
+      if (String(whatsapp).length > 25) return json({ ok: false, error: 'Teléfono inválido' }, 400);
+      if (!/^[\d\s\+\-\(\)]{7,}$/.test(String(whatsapp))) return json({ ok: false, error: 'Formato de teléfono inválido' }, 400);
+      if (email   && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email))) return json({ ok: false, error: 'Email inválido' }, 400);
+      if (puesto  && String(puesto).length > 100)   return json({ ok: false, error: 'Puesto muy largo' }, 400);
+      if (mensaje && String(mensaje).length > 1000) return json({ ok: false, error: 'Mensaje muy largo' }, 400);
 
       // ← Guardado en recruitment_leads en Turso (no en distribuidor_leads)
       await saveRecruitmentLead({
