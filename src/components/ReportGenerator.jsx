@@ -1654,27 +1654,29 @@ export function DownloadReportButton({ data, periodMeta = null, style = {}, repo
       const filename = `reporte-${prefix}-${slug}.pdf`;
 
       setStatus('exporting');
-      const res = await fetch('/api/export-pdf', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ html, filename }),
-      });
 
-      if (!res.ok) {
-        const { error } = await res.json().catch(() => ({ error: 'Error desconocido' }));
-        throw new Error(error);
+      const { default: html2pdf } = await import('html2pdf.js');
+
+      // Extraer body y estilos del HTML completo para inyectarlos en el DOM actual
+      const parsed  = new DOMParser().parseFromString(html, 'text/html');
+      const styles  = Array.from(parsed.querySelectorAll('style')).map(s => s.outerHTML).join('');
+      const wrapper = document.createElement('div');
+      wrapper.style.cssText = 'position:fixed;left:-99999px;top:0;width:1440px;background:#fff;z-index:-1;';
+      wrapper.innerHTML     = styles + parsed.body.innerHTML;
+      document.body.appendChild(wrapper);
+
+      try {
+        await html2pdf().set({
+          margin: 0,
+          filename,
+          image:      { type: 'jpeg', quality: 0.97 },
+          html2canvas: { scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#ffffff', windowWidth: 1440, scrollX: 0, scrollY: 0 },
+          jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' },
+          pagebreak:   { mode: ['avoid-all', 'css', 'legacy'] },
+        }).from(wrapper).save();
+      } finally {
+        document.body.removeChild(wrapper);
       }
-
-      const pdfBlob = await res.blob();
-      const url     = URL.createObjectURL(pdfBlob);
-      const a       = document.createElement('a');
-      a.href        = url;
-      a.download    = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
 
       setStatus('done');
     } catch(e) {
