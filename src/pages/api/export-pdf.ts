@@ -42,6 +42,10 @@ async function getBrowserConfig(): Promise<{ executablePath: string; args: strin
   );
 }
 
+export const config = {
+  maxDuration: 60,
+};
+
 export const POST: APIRoute = async ({ request }) => {
   let browser: any = null; // Inicializado para evitar errores en el bloque 'finally'
 

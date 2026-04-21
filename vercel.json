@@ -5,10 +5,6 @@
       "schedule": "0 0 * * *"
     }
   ],
-  "functions": {
-    "src/pages/api/export-pdf.ts": { "maxDuration": 60 },
-    "src/pages/api/reports/export-pdf.js": { "maxDuration": 60 }
-  },
   "headers": [
     {
       "source": "/(.*)",
