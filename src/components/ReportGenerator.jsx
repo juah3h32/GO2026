@@ -307,8 +307,12 @@ function buildDonutSVG(pairs, colors, dark=false) {
 function buildAnalysisBlock(analysis) {
   if (!analysis) return '';
   const lines   = analysis.split('\n').filter(l => l.trim());
-  const bullets = lines.filter(l => /^[-•]\s+/.test(l.trim())).map(l => l.trim().replace(/^[-•]\s+/,''));
-  const others  = lines.filter(l => !/^[-•]\s+/.test(l.trim()) && !/^\*\*/.test(l.trim()) && !/^###/.test(l.trim()) && l.trim().length > 0);
+  // Soporta: "- ", "* ", "• ", "1. ", "2. ", etc.
+  const bullets = lines
+    .filter(l => /^([-•*]|\d+\.)\s+/.test(l.trim()))
+    .map(l => l.trim().replace(/^([-•*]|\d+\.)\s+/, ''));
+
+  const others  = lines.filter(l => !/^([-•*]|\d+\.)\s+/.test(l.trim()) && !/^\*\*/.test(l.trim()) && !/^###/.test(l.trim()) && l.trim().length > 0);
 
   const icons = [
     `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="${ORANGE}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,
@@ -326,6 +330,13 @@ function buildAnalysisBlock(analysis) {
   const paragraphs = others.map(t =>
     `<p style="font-family:'Barlow',sans-serif;font-size:11px;font-weight:500;color:rgba(236,235,224,0.60);line-height:1.6;margin-bottom:6px;">${t}</p>`
   ).join('');
+
+  if (!bulletCards && !paragraphs && analysis.trim().length > 0) {
+    return `
+    <div style="margin-top:clamp(16px,2vw,24px);position:relative;z-index:1;background:rgba(251,103,11,0.06);padding:14px;border-radius:12px;border:1px solid rgba(251,103,11,0.15);">
+       <p style="font-family:'Barlow',sans-serif;font-size:12px;line-height:1.6;color:rgba(236,235,224,0.90);margin:0;">${analysis.trim().replace(/\n/g,'<br>')}</p>
+    </div>`;
+  }
 
   return `
   <div style="margin-top:clamp(16px,2vw,24px);position:relative;z-index:1;">
@@ -936,7 +947,9 @@ export function buildReportHTML(data, periodMeta=null, analysis=null, logoBase64
 
     // ── Análisis IA — 4 bullets separados ────────────────────────────────────
     const aiBullets = analysis
-      ? analysis.split('\n').filter(l=>l.trim().startsWith('- ')).map(l=>l.trim().slice(2).trim())
+      ? analysis.split('\n')
+          .filter(l => /^([-•*]|\d+\.)\s+/.test(l.trim()))
+          .map(l => l.trim().replace(/^([-•*]|\d+\.)\s+/, ''))
       : [];
     while (aiBullets.length < 4) aiBullets.push('');
     const AI_LABELS = ['Comportamiento','Producto estrella','Oportunidades','Recomendación'];
@@ -944,10 +957,14 @@ export function buildReportHTML(data, periodMeta=null, analysis=null, logoBase64
 
     // Texto IA unificado — máx 500 caracteres, corte en palabra completa
     const _aiRaw = aiBullets.filter(Boolean).join(' ');
+    // Si no hay bullets reales, intentamos usar todo el texto (si existe)
+    const _aiBase = _aiRaw.length > 10 ? _aiRaw : (analysis?.trim().length > 10 ? analysis.trim() : '');
+
     // Corte limpio: buscar el último punto dentro de los primeros 500 chars
     const aiText = (() => {
-      if (_aiRaw.length <= 500) return _aiRaw.endsWith('.') ? _aiRaw : _aiRaw.replace(/[,\s]+$/, '') + '.';
-      const chunk = _aiRaw.slice(0, 500);
+      if (!_aiBase) return '';
+      if (_aiBase.length <= 500) return _aiBase.endsWith('.') ? _aiBase : _aiBase.replace(/[,\s]+$/, '') + '.';
+      const chunk = _aiBase.slice(0, 500);
       const lastDot = chunk.lastIndexOf('.');
       if (lastDot > 200) return chunk.slice(0, lastDot + 1);
       return chunk.replace(/\s+\S*$/, '').replace(/[,\s]+$/, '') + '.';
@@ -1654,27 +1671,65 @@ export function DownloadReportButton({ data, periodMeta = null, style = {}, repo
       const filename = `reporte-${prefix}-${slug}.pdf`;
 
       setStatus('exporting');
-      const res = await fetch('/api/export-pdf', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ html, filename }),
-      });
 
-      if (!res.ok) {
-        const { error } = await res.json().catch(() => ({ error: 'Error desconocido' }));
-        throw new Error(error);
+      // ── NUEVO: Exportar vía /api/export-pdf (Puppeteer) ──────────────────
+      try {
+        const response = await fetch('/api/export-pdf', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ html, filename })
+        });
+
+        if (response.ok) {
+          const blob = await response.blob();
+          const url  = window.URL.createObjectURL(blob);
+          const a    = document.createElement('a');
+          a.href     = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+          setStatus('done');
+          setBusy(false);
+          setTimeout(() => { setStatus('idle'); setErrMsg(null); }, 4000);
+          return;
+        } else {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error || 'Error en el servidor de PDF');
+        }
+      } catch (apiErr) {
+        console.warn('[PDF API Fallback]', apiErr);
+        // Fallback al método original html2pdf.js si falla la API
+        const { default: html2pdf } = await import('html2pdf.js');
+        const parsed = new DOMParser().parseFromString(html, 'text/html');
+        const injectedStyles = Array.from(parsed.querySelectorAll('style')).map(s => {
+          const el = document.createElement('style');
+          el.textContent = s.textContent;
+          document.head.appendChild(el);
+          return el;
+        });
+
+        const wrapper = document.createElement('div');
+        wrapper.style.cssText = 'position:absolute;left:-9999px;top:0;width:1440px;background:#fff;';
+        wrapper.innerHTML = parsed.body.innerHTML;
+        document.body.appendChild(wrapper);
+        await new Promise(r => setTimeout(r, 600));
+
+        try {
+          await html2pdf().set({
+            margin: 0,
+            filename,
+            image:       { type: 'jpeg', quality: 0.97 },
+            html2canvas: { scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#ffffff', windowWidth: 1440, scrollX: 0, scrollY: 0 },
+            jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' },
+            pagebreak:   { mode: ['avoid-all', 'css', 'legacy'] },
+          }).from(wrapper).save();
+        } finally {
+          document.body.removeChild(wrapper);
+          injectedStyles.forEach(el => document.head.removeChild(el));
+        }
       }
-
-      const pdfBlob = await res.blob();
-      const url     = URL.createObjectURL(pdfBlob);
-      const a       = document.createElement('a');
-      a.href        = url;
-      a.download    = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
 
       setStatus('done');
     } catch(e) {

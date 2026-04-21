@@ -572,6 +572,9 @@ export async function POST({ request }) {
     const lastUserMsg  = [...cleanMessages].reverse().find(m => m.role === 'user')?.content || '';
     const userMsgCount = cleanMessages.filter(m => m.role === 'user').length;
 
+    // Detectar si es una solicitud de análisis/resumen (usualmente enviada con noLog:true)
+    const isAnalysis = noLog && (lastUserMsg.toLowerCase().includes('resumen ejecutivo') || lastUserMsg.toLowerCase().includes('analista ejecutivo'));
+
     // Detectar si el usuario le dio clic a un botón de vacante
     let puestoPreseleccionado = null;
     for (const m of cleanMessages) {
@@ -589,7 +592,7 @@ export async function POST({ request }) {
     const datosHistorialPrevio = extraerDatosDeHistorial(cleanMessages);
     const nombreDetectado = datosHistorialPrevio.nombre || null;
 
-     if (enFlujoReclutamiento) {
+     if (enFlujoReclutamiento && !isAnalysis) {
       const mensajesBotRecientes = [...cleanMessages].reverse()
         .filter(m => m.role === 'assistant').slice(0, 2);
  
@@ -652,18 +655,24 @@ export async function POST({ request }) {
     try { vacantesActivas = (await readVacantes(true)) || []; } catch { /* ignorar */ }
 
     // ── Generar respuesta ──────────────────────────────────────────────────
+    const systemPrompt = isAnalysis
+      ? "Eres un analista de datos experto. Genera un resumen ejecutivo claro y profesional basado en los datos proporcionados. Sigue las instrucciones del usuario al pie de la letra."
+      : buildSystemPrompt('Spanish', puestoPreseleccionado, vacantesActivas, nombreDetectado, langCode);
+
     const dataES = await fetchOpenAI(apiKey, {
       model: 'gpt-4o-mini',
       messages: [
-        { role: 'system', content: buildSystemPrompt('Spanish', puestoPreseleccionado, vacantesActivas, nombreDetectado, langCode) },
+        { role: 'system', content: systemPrompt },
         ...cleanMessages,
       ],
-      temperature: 0.65,
-      max_tokens:  400,
+      temperature: isAnalysis ? 0.3 : 0.65,
+      max_tokens:  isAnalysis ? 800 : 400,
     });
 
-    const rawReplyES = dataES.choices?.[0]?.message?.content || '¿En qué más puedo ayudarte?';
-    let { cleanText: textoESLimpio, accionWA, accionPDF, accionCV, accionDistribuidor, recruitData, quickReplies } = extractAcciones(rawReplyES);
+    const rawReplyES = dataES.choices?.[0]?.message?.content || (isAnalysis ? "" : '¿En qué más puedo ayudarte?');
+    let { cleanText: textoESLimpio, accionWA, accionPDF, accionCV, accionDistribuidor, recruitData, quickReplies } = isAnalysis
+      ? { cleanText: rawReplyES, accionWA: false, accionPDF: null, accionCV: false, accionDistribuidor: false, recruitData: null, quickReplies: null }
+      : extractAcciones(rawReplyES);
 
     // En flujo de reclutamiento nunca mostrar botones de compra/PDF
     if (enFlujoReclutamiento) { accionWA = false; accionPDF = null; }
