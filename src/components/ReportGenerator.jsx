@@ -1700,35 +1700,16 @@ export function DownloadReportButton({ data, periodMeta = null, style = {}, repo
         }
       } catch (apiErr) {
         console.warn('[PDF API Fallback]', apiErr);
-        // Fallback al método original html2pdf.js si falla la API
-        const { default: html2pdf } = await import('html2pdf.js');
-        const parsed = new DOMParser().parseFromString(html, 'text/html');
-        const injectedStyles = Array.from(parsed.querySelectorAll('style')).map(s => {
-          const el = document.createElement('style');
-          el.textContent = s.textContent;
-          document.head.appendChild(el);
-          return el;
-        });
-
-        const wrapper = document.createElement('div');
-        wrapper.style.cssText = 'position:absolute;left:-9999px;top:0;width:1440px;background:#fff;';
-        wrapper.innerHTML = parsed.body.innerHTML;
-        document.body.appendChild(wrapper);
-        await new Promise(r => setTimeout(r, 600));
-
-        try {
-          await html2pdf().set({
-            margin: 0,
-            filename,
-            image:       { type: 'jpeg', quality: 0.97 },
-            html2canvas: { scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#ffffff', windowWidth: 1440, scrollX: 0, scrollY: 0 },
-            jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' },
-            pagebreak:   { mode: ['avoid-all', 'css', 'legacy'] },
-          }).from(wrapper).save();
-        } finally {
-          document.body.removeChild(wrapper);
-          injectedStyles.forEach(el => document.head.removeChild(el));
-        }
+        // Si falla la API, descargamos el HTML como última opción (sin abrir ventanas que bloquea el CSP)
+        const blob    = new Blob([html], { type: 'text/html;charset=utf-8' });
+        const blobUrl = URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        a.href     = blobUrl;
+        a.download = filename.replace('.pdf', '.html');
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 5_000);
       }
 
       setStatus('done');
