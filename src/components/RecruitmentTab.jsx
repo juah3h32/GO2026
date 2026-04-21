@@ -1,7 +1,7 @@
 // src/components/RecruitmentTab.jsx
 import React, { useState, useEffect, useCallback, useRef, createContext, useContext } from 'react';
 import { createPortal } from 'react-dom';
-import { descargarPerfilPDF, exportarTodoCSV, exportarTodoExcel } from '../lib/recruitmentExport.js';
+import { descargarPerfilPDF, exportarTodoCSV, exportarTodoPDF } from '../lib/recruitmentExport.js';
 
 // ── PALETAS ───────────────────────────────────────────────────────────────────
 const DARK_C = {
@@ -650,6 +650,14 @@ const handleDelete = () => {
                   </button>
                 )}
 
+                {/* Perfil PDF */}
+                <button onClick={() => descargarPerfilPDF(candidate)}
+                  style={{ marginTop:8, display:'inline-flex', alignItems:'center', gap:6, padding:'7px 13px', borderRadius:8,
+                    fontSize:11, fontWeight:600, fontFamily:T.sans, cursor:'pointer', width:'100%',
+                    background:C.surface, border:`1px solid ${C.border}`, color:C.orange, justifyContent:'center' }}>
+                  {Ic.pdf} Descargar Perfil PDF
+                </button>
+
                 {/* Mensaje */}
                 {candidate.mensaje && (
                   <div style={{ marginTop:14 }}>
@@ -781,7 +789,10 @@ const [deleting,     setDeleting]     = useState(false);
   const doExport = (type) => {
     setExporting(type);
     const list = filtered.length && filtered.length < candidates.length ? filtered : candidates;
-    try { type === 'csv' ? exportarTodoCSV(list) : exportarTodoExcel(list); }
+    try { 
+      if (type === 'csv') exportarTodoCSV(list);
+      else exportarTodoPDF(list);
+    }
     finally { setTimeout(() => setExporting(null), 1400); }
   };
 
@@ -977,7 +988,7 @@ const confirmDelete = async () => {
               <IconBtn onClick={() => load(false)} icon={Ic.refresh} label="Actualizar" bg="transparent" bgHover={C.surface2} color={C.textSub} border={`1px solid ${C.border}`} />
               {candidates.length > 0 && (<>
                 <IconBtn onClick={() => doExport('csv')} icon={Ic.csv} label={exporting==='csv' ? 'Exportando…' : 'CSV'} bg={C.greenDim} bgHover="rgba(34,197,94,0.16)" color={C.green} border={`1px solid ${C.green}28`} disabled={exporting==='csv'} />
-                <IconBtn onClick={() => doExport('excel')} icon={Ic.csv} label={exporting==='excel' ? 'Generando…' : 'Excel'} bg={C.blueDim} bgHover="rgba(59,130,246,0.16)" color={C.blue} border={`1px solid ${C.blue}28`} disabled={exporting==='excel'} />
+                <IconBtn onClick={() => doExport('pdf')} icon={Ic.pdf} label={exporting==='pdf' ? 'Generando…' : 'PDF'} bg={C.blueDim} bgHover="rgba(59,130,246,0.16)" color={C.blue} border={`1px solid ${C.blue}28`} disabled={exporting==='pdf'} />
                 {/* Dropdown de vacantes para filtrar el reporte IA */}
                 <select
                   value={iaVacanteId}
