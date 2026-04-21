@@ -209,21 +209,36 @@ const GLOBAL_CSS = `
   }
 
   /* ── TABS ── */
+  .tabs-row {
+    padding: 6px 16px !important;
+    border-bottom: 1px solid ${P.border} !important;
+    gap: 2px !important;
+    align-items: center;
+  }
   .tab-btn {
-    position:relative;
-    transition:color 0.14s ease, border-color 0.14s ease;
-    border-radius:0;
-    display:flex; align-items:center; gap:6px;
-    border-bottom:2px solid transparent;
-    margin-bottom:-1px;
+    position: relative;
+    border: none;
+    border-radius: 8px;
+    display: flex; align-items: center; gap: 6px;
+    transition: background 0.18s cubic-bezier(0.4,0,0.2,1),
+                color 0.18s cubic-bezier(0.4,0,0.2,1),
+                box-shadow 0.18s cubic-bezier(0.4,0,0.2,1),
+                transform 0.14s cubic-bezier(0.4,0,0.2,1);
+    transform: translateY(0px);
   }
-  .tab-btn:hover { background:transparent; color:rgba(236,235,224,0.85) !important; }
+  .tab-btn:hover:not(.active) {
+    background: ${P.border2} !important;
+    color: ${P.text} !important;
+    transform: translateY(-1px);
+  }
   .tab-btn.active {
-    background:transparent;
-    color:${P.orange} !important;
-    border-bottom-color:${P.orange};
+    background: ${P.orange} !important;
+    color: #fff !important;
+    border-radius: 8px;
+    box-shadow: 0 3px 14px ${P.orange}50, 0 1px 4px ${P.orange}30;
+    transform: translateY(-1px);
   }
-  .tab-btn.active::after { display:none; }
+  .tab-btn.active::after { display: none; }
 
   /* ── BUTTONS ── */
   .btn-base {
@@ -419,16 +434,20 @@ const GLOBAL_CSS = `
     margin-bottom: -1px !important;
     background: transparent !important;
   }
+  [data-theme="light"] .tabs-row {
+    background: #FFFFFF !important;
+  }
   [data-theme="light"] .tab-btn:hover:not(.active) {
-    background: transparent !important;
+    background: #F3F4F6 !important;
     color: #111827 !important;
   }
   [data-theme="light"] .tab-btn.active {
-    background: transparent !important;
-    color: #111827 !important;
-    border-bottom: 2px solid #FB670B !important;
+    background: #FB670B !important;
+    color: #fff !important;
+    border-bottom: none !important;
+    border-radius: 8px !important;
     font-weight: 600 !important;
-    box-shadow: none !important;
+    box-shadow: 0 3px 14px rgba(251,103,11,0.40), 0 1px 4px rgba(251,103,11,0.25) !important;
   }
   [data-theme="light"] .tab-btn.active::after { display: none !important; }
   /* Content: flat off-white background */
@@ -1763,7 +1782,7 @@ function Dash({ onClose, role, theme='dark', toggleTheme }) {
   const [activePresetId,setActivePresetId]=useState(_defPreset);
   const [activePeriod,setActivePeriod]=useState(()=>PERIOD_PRESETS.find(p=>p.id===_defPreset).getRange());
   const [customFrom,setCustomFrom]=useState(''), [customTo,setCustomTo]=useState('');
-  const [leads,setLeads]=useState([]), [leadsLoad,setLeadsLoad]=useState(false), [leadSearch,setLeadSearch]=useState('');
+  const [leads,setLeads]=useState([]), [leadsLoad,setLeadsLoad]=useState(false), [leadSearch,setLeadSearch]=useState(''), [leadStatusFilter,setLeadStatusFilter]=useState('all');
   const [convSessions,setConvSessions]=useState([]), [convLoading,setConvLoading]=useState(false);
   const [selectedConv,setSelectedConv]=useState(null), [convMessages,setConvMessages]=useState([]), [convMsgLoad,setConvMsgLoad]=useState(false);
   const [scData,setScData]=useState(null), [scLoading,setScLoading]=useState(false);
@@ -1791,6 +1810,14 @@ const isMarketing = role.name === 'Marketing';
     setLeadsLoad(true);
     try{ const r=await fetch('/api/analytics',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'getLeads'})}); const j=await r.json(); if(j.ok)setLeads(j.leads||[]); }catch(e){console.error(e);}
     setLeadsLoad(false);
+  },[]);
+
+  const updateLeadStatusLocal = useCallback(async(id, newStatus) => {
+    setLeads(prev => prev.map(l => l.id===id ? {...l, status: newStatus} : l));
+    try {
+      await fetch('/api/analytics', {method:'POST', credentials:'include', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({action:'updateLeadStatus', id, status: newStatus})});
+    } catch(e) { console.error(e); }
   },[]);
 
   const loadConversations=useCallback(async()=>{
@@ -2062,19 +2089,18 @@ const ALL_TABS=[
 
       {/* ── TABS ── */}
       {!isMobile ? (
-        <div className="tabs-row" style={{ padding:'0 22px', borderBottom:`1px solid ${P.border}`,
-          display:'flex', gap:0, overflowX:'auto',
+        <div className="tabs-row" style={{ display:'flex', overflowX:'auto',
           background:P.surface, flexShrink:0 }}>
           {TABS.map(t=>(
             <button key={t.id} onClick={()=>setTab(t.id)}
               className={`tab-btn ${tab===t.id?'active':''}`}
               style={{ background:'transparent',
-                color:tab===t.id?P.orange:P.textDim,
-                border:'none', padding:'12px 16px',
+                color:tab===t.id?'#fff':P.textDim,
+                border:'none', padding:'7px 13px',
                 cursor:'pointer', fontSize:12,
                 fontWeight:tab===t.id?600:400,
                 whiteSpace:'nowrap',
-                letterSpacing: '-0.01em' }}>
+                letterSpacing:'-0.01em' }}>
               {t.label}
               {t.id==='distribuidores'&&leads.length>0&&(
                 <span style={{ marginLeft:5, background:P.okDim, color:P.orange,
@@ -2595,27 +2621,31 @@ const ALL_TABS=[
               <StatCard label="Esta semana"  value={leadsSemana}   sub="últimos 7 días"          color={P.grayLight}  icon="📅"/>
               <StatCard label="Hoy"          value={leadsHoy}      sub="nuevas hoy"              color={P.orangeWarm} icon="⚡"/>
             </div>
-            {leads.length>=1&&(()=>{
+            {(leads.length>=1 || leadsProdData.length>0)&&(()=>{
               const _bd={}; leads.forEach(l=>{ if(!l.ts)return; const iso=String(l.ts).trim().replace(' ','T')+(String(l.ts).includes('Z')?'':'Z'); const d=new Date(iso); if(isNaN(d.getTime()))return; const k=d.toLocaleString('en-CA',{timeZone:'America/Mexico_City'}).split(',')[0]; if(k)_bd[k]=(_bd[k]||0)+1; });
               const _peak=Object.values(_bd).length ? Math.max(...Object.values(_bd)) : 0;
               return (
-                <div className="card-hover" style={{ ...CARD, marginBottom:12 }}>
-                  <CardTopBar/>
-                  <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:16, flexWrap:'wrap', gap:6 }}>
-                    <p style={{ ...ST, marginBottom:0 }}>Registros diarios — últimos 14 días</p>
-                    {_peak>0&&<Tag color={P.orange} size={9}>pico: {_peak} en un día</Tag>}
-                  </div>
-                  <LeadsLineChart leads={leads}/>
+                <div style={{ display:'grid', gridTemplateColumns:isMobile?'1fr':`${leadsProdData.length>0&&leads.length>=1?'1fr 1fr':'1fr'}`, gap:12, marginBottom:12 }}>
+                  {leads.length>=1&&(
+                    <div className="card-hover" style={{ ...CARD, marginBottom:0 }}>
+                      <CardTopBar/>
+                      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:16, flexWrap:'wrap', gap:6 }}>
+                        <p style={{ ...ST, marginBottom:0 }}>Registros diarios — 14 días</p>
+                        {_peak>0&&<Tag color={P.orange} size={9}>pico: {_peak} en un día</Tag>}
+                      </div>
+                      <LeadsLineChart leads={leads}/>
+                    </div>
+                  )}
+                  {leadsProdData.length>0&&(
+                    <div className="card-hover" style={{ ...CARD, marginBottom:0 }}>
+                      <CardTopBar/>
+                      <p style={ST}>Productos de interés</p>
+                      <BarChart data={leadsProdData} color={P.orange} max={8}/>
+                    </div>
+                  )}
                 </div>
               );
             })()}
-            {leadsProdData.length>0&&(
-              <div className="card-hover" style={{ ...CARD, marginBottom:12 }}>
-                <CardTopBar/>
-                <p style={ST}>Productos de interés</p>
-                <BarChart data={leadsProdData} color={P.orange} max={8}/>
-              </div>
-            )}
             <div className="card-hover" style={CARD}>
               <CardTopBar/>
               <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:16, flexWrap:'wrap', gap:8 }}>
@@ -2636,6 +2666,39 @@ const ALL_TABS=[
                   </button>}
                 </div>
               </div>
+              {/* Filtros de estatus */}
+              {(() => {
+                const LEAD_STATUS = [
+                  {id:'all',      label:'Todos',    color:P.textSub},
+                  {id:'pendiente',label:'Pendiente',color:'#F59E0B'},
+                  {id:'revisado', label:'Revisado', color:'#3B82F6'},
+                  {id:'enviado',  label:'Enviado',  color:'#22C55E'},
+                ];
+                const counts = {all:leads.length, pendiente:0, revisado:0, enviado:0};
+                leads.forEach(l=>{ const s=l.status||'pendiente'; if(counts[s]!==undefined) counts[s]++; });
+                return (
+                  <div style={{ display:'flex', gap:5, marginBottom:12, flexWrap:'wrap' }}>
+                    {LEAD_STATUS.map(s=>{
+                      const active = leadStatusFilter===s.id;
+                      return (
+                        <button key={s.id} onClick={()=>setLeadStatusFilter(s.id)}
+                          style={{ display:'inline-flex', alignItems:'center', gap:5, padding:'5px 12px',
+                            borderRadius:20, fontSize:11, fontWeight:active?700:500, cursor:'pointer',
+                            background: active ? s.color : 'transparent',
+                            color: active ? '#fff' : P.textDim,
+                            border:`1px solid ${active ? s.color : P.border}`,
+                            transition:'all 0.13s ease' }}>
+                          {s.label}
+                          <span style={{ background: active?'rgba(255,255,255,0.25)':P.border2,
+                            borderRadius:10, padding:'1px 6px', fontSize:9, fontWeight:700 }}>
+                            {counts[s.id]}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
               <input type="text" placeholder="Buscar por nombre, empresa, WhatsApp o email..."
                 value={leadSearch} onChange={e=>setLeadSearch(e.target.value)}
                 style={{ width:'100%', marginBottom:14, background:P.surface2,
@@ -2643,49 +2706,90 @@ const ALL_TABS=[
                   color:P.text, fontSize:12, outline:'none', transition:'border-color 0.15s ease' }}
                 onFocus={e=>e.target.style.borderColor=P.orange+'48'}
                 onBlur={e=>e.target.style.borderColor=P.border}/>
-              {leadsLoad?<Spinner/>:(
-                <div style={{ overflowX:'auto', WebkitOverflowScrolling:'touch' }}>
-                  <table style={{ width:'100%', borderCollapse:'collapse', fontSize:12, minWidth:isMobile?560:'auto' }}>
-                    <thead><tr>{['Fecha','Nombre','Empresa','WhatsApp','Email','Productos','Nota'].map(h=>(
-                      <th key={h} style={{ color:P.textDim, fontWeight:600, padding:'9px 11px', textAlign:'left',
-                        borderBottom:`1px solid ${P.border}`, fontSize:10, textTransform:'uppercase',
-                        letterSpacing:'0.08em', background:P.surface2, whiteSpace:'nowrap' }}>{h}</th>
-                    ))}</tr></thead>
-                    <tbody>
-                      {leads.filter(l=>{ const q=leadSearch.toLowerCase(); return !q||(l.nombre||'').toLowerCase().includes(q)||(l.empresa||'').toLowerCase().includes(q)||(l.email||'').toLowerCase().includes(q)||(l.whatsapp||'').includes(q); }).map((l,i)=>(
-                        <tr key={i} className="row-hover" style={{ borderBottom:`1px solid ${P.border2}` }}>
-                          <td className="mono" style={{ padding:'9px 11px', color:P.textDim, fontSize:10, whiteSpace:'nowrap' }}>{fmtFechaHora(l.ts)}</td>
-                          <td style={{ padding:'9px 11px', color:P.text, fontWeight:600, whiteSpace:'nowrap' }}>{l.nombre}</td>
-                          <td style={{ padding:'9px 11px', color:P.textSub, whiteSpace:'nowrap' }}>{l.empresa}</td>
-                          <td style={{ padding:'9px 11px' }}>
-                            <a href={`https://wa.me/52${(l.whatsapp||'').replace(/\D/g,'')}`} target="_blank"
-                              style={{ color:P.orange, fontFamily:T.mono, fontSize:11, textDecoration:'none',
-                                display:'flex', alignItems:'center', gap:5, whiteSpace:'nowrap',
-                                fontWeight:600 }}>
-                              📲 {l.whatsapp}
-                            </a>
-                          </td>
-                          <td className="mono" style={{ padding:'9px 11px', color:P.textSub, fontSize:11, whiteSpace:'nowrap' }}>{l.email}</td>
-                          <td style={{ padding:'9px 11px' }}>
+              {leadsLoad ? <Spinner/> : (() => {
+                const STATUSES = [
+                  {id:'pendiente', label:'Pendiente', color:'#F59E0B'},
+                  {id:'revisado',  label:'Revisado',  color:'#3B82F6'},
+                  {id:'enviado',   label:'Enviado',   color:'#22C55E'},
+                ];
+                const filtered = leads.filter(l=>{
+                  const q = leadSearch.toLowerCase();
+                  const matchSearch = !q||(l.nombre||'').toLowerCase().includes(q)||(l.empresa||'').toLowerCase().includes(q)||(l.email||'').toLowerCase().includes(q)||(l.whatsapp||'').includes(q);
+                  const matchStatus = leadStatusFilter==='all' || (l.status||'pendiente')===leadStatusFilter;
+                  return matchSearch && matchStatus;
+                });
+                if (!filtered.length) return (
+                  <div style={{ textAlign:'center', padding:'44px 0', color:P.textDim, fontSize:12 }}>
+                    {leadStatusFilter==='all' ? 'Sin solicitudes registradas' : `Sin registros con estatus "${leadStatusFilter}"`}
+                  </div>
+                );
+                return (
+                  <div style={{ display:'flex', flexDirection:'column', gap:7 }}>
+                    {filtered.map((l,i) => {
+                      const st = l.status || 'pendiente';
+                      const stCfg = STATUSES.find(s=>s.id===st) || STATUSES[0];
+                      return (
+                        <div key={i} style={{ background:P.surface2, border:`1px solid ${P.border}`,
+                          borderRadius:10, padding:'11px 14px', display:'flex', flexDirection:'column', gap:8 }}>
+                          {/* Fila 1: fecha + nombre + empresa */}
+                          <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:10, flexWrap:'wrap' }}>
+                            <div style={{ display:'flex', flexDirection:'column', gap:1, flex:1, minWidth:0 }}>
+                              <div style={{ display:'flex', alignItems:'center', gap:8, flexWrap:'wrap' }}>
+                                <span style={{ fontWeight:700, fontSize:13, color:P.text }}>{l.nombre}</span>
+                                {l.empresa && <span style={{ fontSize:11, color:P.textSub }}>{l.empresa}</span>}
+                              </div>
+                              <span className="mono" style={{ fontSize:9.5, color:P.textDim }}>{fmtFechaHora(l.ts)}</span>
+                            </div>
+                            {/* Etiquetas de estatus */}
+                            <div style={{ display:'flex', gap:5, flexShrink:0, flexWrap:'wrap' }}>
+                              {STATUSES.map(s => {
+                                const active = st===s.id;
+                                return (
+                                  <button key={s.id} onClick={()=>updateLeadStatusLocal(l.id, s.id)}
+                                    style={{ display:'inline-flex', alignItems:'center', gap:4, padding:'4px 11px',
+                                      borderRadius:20, fontSize:10.5, fontWeight:active?700:500, cursor:'pointer',
+                                      background: active ? s.color : 'transparent',
+                                      color: active ? '#fff' : P.textDim,
+                                      border:`1.5px solid ${active ? s.color : P.border}`,
+                                      whiteSpace:'nowrap', transition:'all 0.12s ease' }}>
+                                    <span style={{ width:6, height:6, borderRadius:'50%',
+                                      background: active ? 'rgba(255,255,255,0.8)' : P.border,
+                                      flexShrink:0, transition:'background 0.12s' }}/>
+                                    {s.label}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                          {/* Fila 2: contacto + productos */}
+                          <div style={{ display:'flex', alignItems:'center', gap:16, flexWrap:'wrap' }}>
+                            {l.whatsapp && (
+                              <a href={`https://wa.me/52${(l.whatsapp||'').replace(/\D/g,'')}`} target="_blank"
+                                style={{ color:P.orange, fontFamily:T.mono, fontSize:11, textDecoration:'none',
+                                  display:'flex', alignItems:'center', gap:4, fontWeight:600 }}>
+                                📲 {l.whatsapp}
+                              </a>
+                            )}
+                            {l.email && <span className="mono" style={{ fontSize:10.5, color:P.textSub }}>{l.email}</span>}
                             {(l.productos||'').split(',').filter(Boolean).map((pr,j)=><Tag key={j} color={P.orange} size={9}>{pr.trim()}</Tag>)}
-                            {!(l.productos||'').trim()&&<span style={{ color:P.textDim, fontSize:10 }}>—</span>}
-                          </td>
-                          <td style={{ padding:'9px 11px' }}>
-                            {l.comentarios
-                              ? <div title={l.comentarios} style={{ display:'inline-flex', alignItems:'center', gap:4, background:'rgba(251,103,11,0.1)', border:'1px solid rgba(251,103,11,0.3)', borderRadius:6, padding:'3px 7px', cursor:'default' }}>
-                                  <span style={{ fontSize:10 }}>💬</span>
-                                  <span style={{ fontSize:9, color:'#FB670B', fontWeight:600, maxWidth:100, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', display:'inline-block' }}>{l.comentarios.slice(0,40)}{l.comentarios.length>40?'…':''}</span>
-                                </div>
-                              : <span style={{ color:'rgba(236,235,224,0.20)', fontSize:10 }}>—</span>
-                            }
-                          </td>
-                        </tr>
-                      ))}
-                      {!leads.length&&!leadsLoad&&<tr><td colSpan={7} style={{ color:P.textDim, textAlign:'center', padding:44, fontSize:12 }}>Sin solicitudes registradas</td></tr>}
-                    </tbody>
-                  </table>
-                </div>
-              )}
+                            {l.comentarios && (
+                              <div title={l.comentarios} style={{ display:'inline-flex', alignItems:'center', gap:4,
+                                background:'rgba(251,103,11,0.1)', border:'1px solid rgba(251,103,11,0.3)',
+                                borderRadius:6, padding:'2px 7px' }}>
+                                <span style={{ fontSize:10 }}>💬</span>
+                                <span style={{ fontSize:9.5, color:'#FB670B', fontWeight:600, maxWidth:180,
+                                  overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+                                  {l.comentarios.slice(0,60)}{l.comentarios.length>60?'…':''}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
             </div>
           </div>
         )}

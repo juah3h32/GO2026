@@ -240,6 +240,7 @@ async function ensureLeadsTable() {
     )
   `);
   try { await db.execute(`ALTER TABLE distribuidor_leads ADD COLUMN comentarios TEXT NOT NULL DEFAULT ''`); } catch {}
+  try { await db.execute(`ALTER TABLE distribuidor_leads ADD COLUMN status TEXT NOT NULL DEFAULT 'pendiente'`); } catch {}
   await db.execute(`CREATE INDEX IF NOT EXISTS idx_leads_ts ON distribuidor_leads(ts DESC)`);
 }
 
@@ -249,8 +250,14 @@ export async function saveLead({ nombre, empresa, whatsapp, email, productos, co
 }
 export async function readLeads() {
   await ensureInit(); await ensureLeadsTable();
-  const res = await db.execute(`SELECT id, ts, nombre, empresa, whatsapp, email, productos, comentarios FROM distribuidor_leads ORDER BY id DESC LIMIT 500`);
+  const res = await db.execute(`SELECT id, ts, nombre, empresa, whatsapp, email, productos, comentarios, status FROM distribuidor_leads ORDER BY id DESC LIMIT 500`);
   return res.rows;
+}
+export async function updateLeadStatus(id, status) {
+  await ensureInit(); await ensureLeadsTable();
+  const VALID = ['pendiente','revisado','enviado'];
+  if (!VALID.includes(status)) throw new Error('Status inválido');
+  await db.execute({ sql: `UPDATE distribuidor_leads SET status = ? WHERE id = ?`, args: [status, id] });
 }
 export async function resetLeads() {
   await ensureInit(); await ensureLeadsTable();

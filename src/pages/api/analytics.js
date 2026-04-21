@@ -1,5 +1,5 @@
 // src/pages/api/analytics.js
-import { logInteraction, readAllData, resetData, saveLead, readLeads, resetLeads, saveRecruitmentLead } from '../../lib/analytics-db';
+import { logInteraction, readAllData, resetData, saveLead, readLeads, resetLeads, saveRecruitmentLead, updateLeadStatus } from '../../lib/analytics-db';
 import { notifyNewDistribuidor } from '../../lib/notify.ts';
 import { notifyNewVacante } from '../../lib/notify.js';
 import { verifyAdminToken } from '../../lib/verifyAdminToken.ts';
@@ -185,6 +185,16 @@ export async function POST({ request }) {
     // ── RESET leads de distribuidores ─────────────────────────────────────────
     if (action === 'resetLeads') {
       await resetLeads();
+      return json({ ok: true });
+    }
+
+    // ── ACTUALIZAR estatus de un lead ─────────────────────────────────────────
+    if (action === 'updateLeadStatus') {
+      const adminRole = await verifyAdminToken(request);
+      if (!adminRole) return json({ ok: false, error: 'No autorizado' }, 401);
+      const { id, status } = body;
+      if (!id || !status) return json({ ok: false, error: 'Faltan datos' }, 400);
+      await updateLeadStatus(id, status);
       return json({ ok: true });
     }
 
