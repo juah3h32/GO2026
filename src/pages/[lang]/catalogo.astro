@@ -19,8 +19,8 @@ const { lang } = Astro.params;
 const currentLang = (lang && lang in translations) ? lang : 'es';
 const t = translations[currentLang as keyof typeof translations] as typeof es;
 
-const "https://drive.google.com/file/d/100HDnibFYDgG3gYL9zfta0slSpMjbw-d/view?usp=drivesdkeneralCatalog = {
-  es: "",
+const generalCatalog = {
+  es: "https://drive.google.com/file/d/100HDnibFYDgG3gYL9zfta0slSpMjbw-d/view?usp=sharing",
   en: "https://drive.google.com/file/d/1OcXZGR5adoeyIW1Tspsaa7BVv0Lx1bLC/view",
 };
 
