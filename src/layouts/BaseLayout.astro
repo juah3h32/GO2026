@@ -306,15 +306,28 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
           var loader = document.getElementById("loader-wrapper");
           if (!loader) return;
           loader.classList.add("loader-hidden");
-          setTimeout(function () { loader.style.display = "none"; }, 500);
+          setTimeout(function () { loader.style.display = "none"; }, 550);
+        }
+
+        function injectProductImage() {
+          var loaderImg = document.getElementById("loader-product-img");
+          if (!loaderImg) return;
+          // Busca la imagen del producto activo en la página
+          var src =
+            (document.getElementById("product-hero-img") || {}).src ||
+            (document.querySelector(".product-hero-img") || {}).src ||
+            (document.querySelector(".thumb-item.active img") || {}).src;
+          if (!src) return;
+          loaderImg.onload = function () { loaderImg.classList.add("visible"); };
+          loaderImg.src = src;
         }
 
         function setupLoader() {
-          // Si la página tiene video de fondo, esperar a que esté listo
+          injectProductImage();
+
           var videoBg = document.querySelector(".video-bg");
           if (!videoBg) { hideLoader(); return; }
 
-          // Fallback: ocultar en 4s máximo aunque el video tarde
           var fallback = setTimeout(hideLoader, 4000);
 
           function onReady() {
@@ -322,27 +335,27 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
             hideLoader();
           }
 
-          // Ya tiene datos suficientes para reproducir
           if (videoBg.readyState >= 3) { onReady(); return; }
-
           videoBg.addEventListener("canplay", onReady, { once: true });
           videoBg.addEventListener("error",   onReady, { once: true });
         }
 
-        // Esperar a que el DOM esté listo antes de buscar el video
-        if (document.readyState === "complete") {
+        // Primera carga: inyectar imagen apenas el DOM esté listo
+        if (document.readyState !== "loading") {
           setupLoader();
         } else {
-          window.addEventListener("load", setupLoader, { once: true });
+          document.addEventListener("DOMContentLoaded", setupLoader, { once: true });
         }
 
-        // Re-ejecutar en navegación SPA de Astro
+        // Navegación SPA de Astro
         document.addEventListener("astro:page-load", function () {
           var loader = document.getElementById("loader-wrapper");
+          var loaderImg = document.getElementById("loader-product-img");
           if (!loader) return;
           loader.style.display = "";
           loader.style.opacity = "";
           loader.classList.remove("loader-hidden");
+          if (loaderImg) { loaderImg.src = ""; loaderImg.classList.remove("visible"); }
           setupLoader();
         });
       })();
