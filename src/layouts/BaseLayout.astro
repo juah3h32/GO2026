@@ -303,18 +303,48 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
     <script is:inline>
       (function () {
         function hideLoader() {
-          requestAnimationFrame(function () {
-            var loader = document.getElementById("loader-wrapper");
-            if (!loader) return;
-            loader.style.opacity = "0";
-            setTimeout(function () { loader.style.display = "none"; }, 400);
-          });
+          var loader = document.getElementById("loader-wrapper");
+          if (!loader) return;
+          loader.classList.add("loader-hidden");
+          setTimeout(function () { loader.style.display = "none"; }, 500);
         }
+
+        function setupLoader() {
+          // Si la página tiene video de fondo, esperar a que esté listo
+          var videoBg = document.querySelector(".video-bg");
+          if (!videoBg) { hideLoader(); return; }
+
+          // Fallback: ocultar en 4s máximo aunque el video tarde
+          var fallback = setTimeout(hideLoader, 4000);
+
+          function onReady() {
+            clearTimeout(fallback);
+            hideLoader();
+          }
+
+          // Ya tiene datos suficientes para reproducir
+          if (videoBg.readyState >= 3) { onReady(); return; }
+
+          videoBg.addEventListener("canplay", onReady, { once: true });
+          videoBg.addEventListener("error",   onReady, { once: true });
+        }
+
+        // Esperar a que el DOM esté listo antes de buscar el video
         if (document.readyState === "complete") {
-          hideLoader();
+          setupLoader();
         } else {
-          window.addEventListener("load", hideLoader, { once: true });
+          window.addEventListener("load", setupLoader, { once: true });
         }
+
+        // Re-ejecutar en navegación SPA de Astro
+        document.addEventListener("astro:page-load", function () {
+          var loader = document.getElementById("loader-wrapper");
+          if (!loader) return;
+          loader.style.display = "";
+          loader.style.opacity = "";
+          loader.classList.remove("loader-hidden");
+          setupLoader();
+        });
       })();
     </script>
 
