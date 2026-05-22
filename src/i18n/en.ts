@@ -277,14 +277,14 @@ export const en = {
     {
       img: "carrusel/img7.webp",
       division: "FLEXIBLE",
-      description: "Neo Empaques International specializes in advanced flexible packaging solutions, designed to optimize the preservation and presentation of products in multiple industries.",
+      descripcion: "Neo Empaques International specializes in advanced flexible packaging solutions, designed to optimize the preservation and presentation of products in multiple industries.",
       slug: "empaques-flexibles",
       video: "GO/carrusel/bobina-impresa.mp4"
     },
     {
       img: "carrusel/nuev2a.png",
       division: "NATURIZABLE",
-      description: "Sustainable packaging that returns to the earth. 100% Plant Based, recyclable and compostable solutions for the food industry.",
+      descripcion: "Sustainable packaging that returns to the earth. 100% Plant Based, recyclable and compostable solutions for the food industry.",
       slug: "naturizable",
       video: "GO/carrusel/charola.mp4"
     }
