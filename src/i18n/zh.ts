@@ -284,6 +284,74 @@ export const zh = {
   ],
 
   // =================================================
+  // 页面：天然可降解包装
+  // =================================================
+  naturizable: {
+    meta_title: "Naturizable | Grupo Ortiz",
+    meta_description: "100%植物基可持续包装，回归大地。适用于食品行业的可回收可堆肥托盘。",
+    back_aria: "返回",
+    coming_soon_badge: "即将推出",
+    specs_title: "技术规格",
+    specs_labels: {
+      material: "材料",
+      usage: "用途",
+      resistance: "耐受性",
+      presentation: "展示"
+    },
+    products: [
+      {
+        name: "托盘 855",
+        description: "承载食物的尊严包装。服务于厨师、屠夫、摊贩和主厨——使命完成后，无声无息地回归大地。我们承托世界，一个托盘一次。",
+        img: "/images/divisiones/detallec.webp",
+        video: "GO/carrusel/charola.mp4",
+        specs_values: {
+          material: "牛皮纸板",
+          usage: "食品",
+          resistance: "防油脂",
+          presentation: "环保"
+        },
+        gallery: [
+          "/images/divisiones/detallec.webp",
+          "/images/divisiones/empa.webp",
+          "/images/divisiones/lado.webp"
+        ]
+      },
+      {
+        name: "纤维素杯",
+        soon: true,
+        description: "高质量生物可降解纤维素杯。一种可持续且优雅的饮料服务解决方案，在不妥协功能性的前提下，致力于环境保护。",
+        img: "/images/divisiones/vaso.webp",
+        video: "GO/carrusel/charola.mp4",
+        specs_values: {
+          material: "纤维素",
+          usage: "饮料 / 活动",
+          resistance: "耐热",
+          presentation: "环保"
+        },
+        gallery: [
+          "/images/divisiones/vaso.webp"
+        ]
+      },
+      {
+        name: "容器",
+        soon: true,
+        description: "专为各种工业和商业应用设计的专业容器。为存储和运输提供最大耐用性和效率。",
+        img: "/images/divisiones/contenedor.webp",
+        video: "GO/carrusel/charola.mp4",
+        specs_values: {
+          material: "聚合物",
+          usage: "多用途",
+          resistance: "工业级",
+          presentation: "多种尺寸"
+        },
+        gallery: [
+          "/images/divisiones/contenedor.webp"
+        ]
+      }
+    ]
+  },
+
+  // =================================================
   // 页面：缠绕膜（拉伸薄膜）
   // =================================================
   stretch_film: {

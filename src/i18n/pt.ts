@@ -283,6 +283,74 @@ export const pt = {
   ],
 
   // =================================================
+  // PÁGINA: NATURIZABLE
+  // =================================================
+  naturizable: {
+    meta_title: "Naturizable | Grupo Ortiz",
+    meta_description: "Embalagem sustentável 100% Plant Based que retorna à terra. Bandejas recicláveis e compostáveis para a indústria alimentar.",
+    back_aria: "Voltar",
+    coming_soon_badge: "Em Breve",
+    specs_title: "ESPECIFICAÇÕES TÉCNICAS",
+    specs_labels: {
+      material: "Material",
+      usage: "Uso",
+      resistance: "Resistência",
+      presentation: "Apresentação"
+    },
+    products: [
+      {
+        name: "BANDEJA 855",
+        description: "Embalagem que sustenta a comida com dignidade. Serve ao taqueiro, ao açougueiro, ao feirante, ao chef — e quando termina, retorna à terra sem pedir permissão. Sustentamos o mundo. Uma bandeja de cada vez.",
+        img: "/images/divisiones/detallec.webp",
+        video: "GO/carrusel/charola.mp4",
+        specs_values: {
+          material: "Cartão Kraft",
+          usage: "Alimentos",
+          resistance: "Antigraxa",
+          presentation: "Ecológica"
+        },
+        gallery: [
+          "/images/divisiones/detallec.webp",
+          "/images/divisiones/empa.webp",
+          "/images/divisiones/lado.webp"
+        ]
+      },
+      {
+        name: "COPO DE CELULOSE",
+        soon: true,
+        description: "Copos de celulose biodegradáveis de alta qualidade. Uma solução sustentável e elegante para o serviço de bebidas, comprometida com o meio ambiente sem comprometer a funcionalidade.",
+        img: "/images/divisiones/vaso.webp",
+        video: "GO/carrusel/charola.mp4",
+        specs_values: {
+          material: "Celulose",
+          usage: "Bebidas / Eventos",
+          resistance: "Térmica",
+          presentation: "Ecológica"
+        },
+        gallery: [
+          "/images/divisiones/vaso.webp"
+        ]
+      },
+      {
+        name: "CONTENTORES",
+        soon: true,
+        description: "Contentores especializados para diversas aplicações industriais e comerciais. Projetados para máxima durabilidade e eficiência no armazenamento e transporte.",
+        img: "/images/divisiones/contenedor.webp",
+        video: "GO/carrusel/charola.mp4",
+        specs_values: {
+          material: "Polímeros",
+          usage: "Multiusos",
+          resistance: "Industrial",
+          presentation: "Vários Tamanhos"
+        },
+        gallery: [
+          "/images/divisiones/contenedor.webp"
+        ]
+      }
+    ]
+  },
+
+  // =================================================
   // PÁGINA: STRETCH FILM (Filme Extensível)
   // =================================================
   stretch_film: {

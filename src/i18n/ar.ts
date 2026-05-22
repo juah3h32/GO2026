@@ -283,6 +283,74 @@ export const ar = {
   ],
 
   // =================================================
+  // صفحة: ناتورالايزبل
+  // =================================================
+  naturizable: {
+    meta_title: "Naturizable | Grupo Ortiz",
+    meta_description: "تغليف مستدام 100% نباتي يعود إلى الأرض. أطباق قابلة لإعادة التدوير والتسميد لصناعة الأغذية.",
+    back_aria: "رجوع",
+    coming_soon_badge: "قريباً",
+    specs_title: "المواصفات الفنية",
+    specs_labels: {
+      material: "المادة",
+      usage: "الاستخدام",
+      resistance: "المقاومة",
+      presentation: "العرض"
+    },
+    products: [
+      {
+        name: "طبق 855",
+        description: "تغليف يحمل الطعام بكرامة. يخدم الطاهي والجزار والبائع والشيف — وعند انتهاء عمره، يعود إلى الأرض دون استئذان. ندعم العالم. طبق واحد في كل مرة.",
+        img: "/images/divisiones/detallec.webp",
+        video: "GO/carrusel/charola.mp4",
+        specs_values: {
+          material: "كرافت كارتون",
+          usage: "أغذية",
+          resistance: "مقاوم للدهون",
+          presentation: "بيئي"
+        },
+        gallery: [
+          "/images/divisiones/detallec.webp",
+          "/images/divisiones/empa.webp",
+          "/images/divisiones/lado.webp"
+        ]
+      },
+      {
+        name: "كوب سيليلوز",
+        soon: true,
+        description: "أكواب سيليلوز قابلة للتحلل الحيوي عالية الجودة. حل مستدام وأنيق لخدمة المشروبات، ملتزم بالبيئة دون المساومة على الوظيفية.",
+        img: "/images/divisiones/vaso.webp",
+        video: "GO/carrusel/charola.mp4",
+        specs_values: {
+          material: "سيليلوز",
+          usage: "مشروبات / فعاليات",
+          resistance: "حراري",
+          presentation: "بيئي"
+        },
+        gallery: [
+          "/images/divisiones/vaso.webp"
+        ]
+      },
+      {
+        name: "حاويات",
+        soon: true,
+        description: "حاويات متخصصة لتطبيقات صناعية وتجارية متنوعة. مصممة لأقصى قدر من المتانة والكفاءة في التخزين والنقل.",
+        img: "/images/divisiones/contenedor.webp",
+        video: "GO/carrusel/charola.mp4",
+        specs_values: {
+          material: "بوليمرات",
+          usage: "متعدد الاستخدامات",
+          resistance: "صناعي",
+          presentation: "أحجام متعددة"
+        },
+        gallery: [
+          "/images/divisiones/contenedor.webp"
+        ]
+      }
+    ]
+  },
+
+  // =================================================
   // صفحة: ستريتش فيلم (فيلم التمدد)
   // =================================================
   stretch_film: {
