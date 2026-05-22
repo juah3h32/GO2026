@@ -20,8 +20,9 @@ const currentLang = (lang && lang in translations) ? lang : "es";
 // Cambia este ID por el video de Cloudinary que quieres usar para el hero.
 // Solo pon el public_id sin extensión, igual que en el home.
 const CLOUD      = import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME;
-const VIDEO_ID   = "fed1_yuf3ck";
-const posterUrl  = `https://res.cloudinary.com/${CLOUD}/video/upload/f_jpg,q_auto,so_0/Quie%CC%81n_es_grupo_ortiz_1_e4zilg.jpg`;
+const VIDEO_ID        = "GO/vacantes/video";
+const VIDEO_LOCAL     = "/videos/vacantes/video.mp4";
+const posterUrl  = `https://res.cloudinary.com/${CLOUD}/video/upload/f_jpg,q_auto,so_0/GO/vacantes/video.jpg`;
 
 const benefits = [
   {
@@ -169,18 +170,32 @@ const steps = [
 
       <!-- Video Cloudinary — envuelto en div absoluto para que no afecte el flex layout -->
       <div class="vac-hero__video-wrap">
-        <CldVideoPlayer
-  src={VIDEO_ID}
-  width="1920"
-  height="1080"
-  class="hero__video hero__video--fill" 
-  autoplay
-  muted
-  loop
-  playsinline
-  controls={false}
-  poster={posterUrl}
-/>
+        <div data-fallback-wrap style="position:absolute;inset:0;z-index:0;overflow:hidden;">
+          <CldVideoPlayer
+            src={VIDEO_ID}
+            width="1920"
+            height="1080"
+            class="hero__video hero__video--fill"
+            autoplay
+            muted
+            loop
+            playsinline
+            controls={false}
+            poster={posterUrl}
+          />
+          <!-- Fallback local: se muestra solo si Cloudinary falla -->
+          <video
+            class="hero__video hero__video--fill"
+            src={VIDEO_LOCAL}
+            autoplay
+            muted
+            loop
+            playsinline
+            poster={posterUrl}
+            data-role="fallback"
+            style="display:none;"
+          ></video>
+        </div>
       </div>
 
       <!-- Overlay -->

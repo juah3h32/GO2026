@@ -1,0 +1,356 @@
+---
+// src/pages/[lang]/charolas.astro
+
+import "../../styles/cuerdas.css"; 
+export const prerender = true; 
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import BuyButton from "../../components/BuyButton.astro";
+import Footer from "../../components/Footer.astro";
+import VideoWithFallback from "../../components/VideoWithFallback.astro";
+import { languages, translations } from "../../i18n";
+
+export function getStaticPaths() {
+  return Object.keys(languages).map((lang) => ({
+    params: { lang },
+  }));
+}
+
+const { lang } = Astro.params;
+const currentLang = (lang && lang in translations) ? lang : 'es';
+const t = translations[currentLang as keyof typeof translations] as any;
+
+// Use naturizable data, fallback to arpillas if missing to avoid crash
+const pageData = t.naturizable || t.arpillas;
+const productsList = pageData.products;
+const firstProduct = productsList[0];
+const specsLabels = pageData.specs_labels;
+const comingSoonBadge = pageData.coming_soon_badge || "Próximamente";
+
+const specs = [
+  { label: specsLabels.material,     id: "spec-mat",    tag: firstProduct.specs_values.material },
+  { label: specsLabels.usage,        id: "spec-unit",   tag: firstProduct.specs_values.usage },
+  { label: specsLabels.resistance,   id: "spec-resist", tag: firstProduct.specs_values.resistance },
+  { label: specsLabels.presentation, id: "spec-charge", tag: firstProduct.specs_values.presentation },
+];
+---
+
+<BaseLayout
+    title={pageData.meta_title}
+    description={pageData.meta_description || ""}
+    canonicalSlug="naturizable/"
+    currentLang={currentLang}
+    moveLogoMobile={true}
+>
+  
+  <script src="https://unpkg.com/gsap@3.12.5/dist/gsap.min.js" defer></script>
+
+  <style is:global>
+    /* Botón regresar visible en móvil para esta página */
+    @media screen and (max-width: 1024px) {
+      #btn-regresar {
+        display: flex !important;
+        position: fixed !important;
+        top: 14px !important;
+        left: 14px !important;
+        transform: none !important;
+        z-index: 9999 !important;
+        width: 36px !important;
+        height: 36px !important;
+        padding: 0 !important;
+        border-radius: 50% !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: rgba(0,0,0,0.50) !important;
+        border: 1.5px solid rgba(255,255,255,0.30) !important;
+        color: #fff !important;
+        backdrop-filter: blur(12px) !important;
+        -webkit-backdrop-filter: blur(12px) !important;
+      }
+      #btn-regresar:hover { background: rgba(0,0,0,0.70) !important; }
+      #btn-regresar svg { width: 18px !important; height: 18px !important; }
+    }
+  </style>
+
+  <div id="wipe-transition" class="wipe-container"></div>
+
+  <div class="video-bg-wrapper">
+    {productsList.map((prod: any, index: number) => (
+      <VideoWithFallback
+        class={`video-bg ${index === 0 ? 'visible' : ''}`}
+        cloudinaryId={prod.video.replace(/\.mp4$/, '')}
+        localFallback={`/videos/${prod.video.replace(/^GO\//, '')}`}
+        poster={(prod as any).img || undefined}
+        autoplay={index === 0}
+        muted={true}
+        loop={true}
+        playsinline={true}
+        preload="metadata"
+      />
+    ))}
+    <div class="video-overlay"></div>
+  </div>
+
+  <main class="main-container" data-products={JSON.stringify(productsList)}>
+
+    <div class="content">
+      <a href={`/${currentLang}/productos`} class="back-arrow-btn2" id="btn-regresar" aria-label={pageData.back_aria}>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12" />
+          <polyline points="12 19 5 12 12 5" />
+        </svg>
+      </a>
+    
+      <div class="text-area" style="max-width: 550px; align-items: flex-start;">
+        <h1 id="product-title" class="fade-in-text anim-text" style="text-align: left; width: 100%;">
+          {firstProduct.name}
+        </h1>
+        <p id="product-desc" class="fade-in-text anim-text" style="text-align: left; width: 100%; line-height: 1.5;">
+          {firstProduct.description}
+        </p>
+
+        <div class="specs-container fade-in-text anim-text" style="text-align: left; width: 100%;">
+          <h3 class="specs-title">{pageData.specs_title}</h3>
+          <div class="specs-grid">
+            {specs.map((spec) => (
+              <div class="spec-box">
+                <span class="spec-label">{spec.label}</span>
+                <span class="spec-value" id={spec.id}>{spec.tag}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div class="fade-in-text w-full flex justify-center lg:justify-start" id="button-area">
+          <div id="btn-buy-wrapper" class={firstProduct.soon ? 'soon-hidden' : ''}>
+            <BuyButton text={t.common.buy || 'Comprar'} redirecting={t.common.redirecting || 'Redirigiendo...'} />
+          </div>
+          <button id="btn-soon" class="btn-buy btn-soon" disabled aria-disabled="true" style={firstProduct.soon ? '' : 'display:none'}>
+            <span class="btn-label">{comingSoonBadge}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- MINIATURAS -->
+      <div class="thumbnails fade-in-text" id="thumbnails-container">
+        {productsList.map((prod: any, index: number) => (
+          <div 
+            class={`thumb-item ${index === 0 ? 'active' : ''}`} 
+            data-index={String(index)}
+            role="button"
+            tabindex="0"
+            aria-label={prod.name}
+          >
+            <img src={prod.img} alt={prod.name} loading="lazy" decoding="async" width="60" height="60"/>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <div class="wheel-container">
+      <div class="wheel" id="product-wheel" style="position: relative;">
+
+        <div class="product-image-overlay" id="product-image-overlay">
+          <img
+            id="product-hero-img"
+            class="product-hero-img"
+            src={firstProduct.img}
+            alt={firstProduct.name}
+          />
+        </div>
+
+        <div class="product-gallery" id="product-gallery">
+          {productsList.map((prod: any, index: number) => (
+            <div class={`gallery-strip ${index === 0 ? 'active' : ''}`} data-gallery-index={index}>
+              {(prod.gallery || [prod.img, prod.img, prod.img]).map((imgSrc: string, imgIdx: number) => (
+                <div class="gallery-photo" data-img-index={imgIdx + 1}>
+                  <img 
+                    src={imgSrc} 
+                    alt={`${prod.name} vista ${imgIdx + 1}`} 
+                    loading="lazy" 
+                    decoding="async" 
+                  />
+                  <div class="gallery-photo-glow"></div>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <script is:inline>
+  function initNaturizableLogic() {
+    const container = document.querySelector('.main-container');
+    if (!container) return;
+
+    const products = JSON.parse(container.dataset.products || '[]');
+    
+    const titleEl = document.getElementById('product-title');
+    const descEl  = document.getElementById('product-desc');
+    const heroImg = document.getElementById('product-hero-img');
+
+    const specIds = {
+      mat:    document.getElementById('spec-mat'),
+      unit:   document.getElementById('spec-unit'),
+      resist: document.getElementById('spec-resist'),
+      charge: document.getElementById('spec-charge'),
+    };
+
+    function updateContent(idx) {
+      const product = products[idx];
+      if (!product) return;
+      const anims = document.querySelectorAll('.anim-text');
+      const applyText = () => {
+        if (titleEl) titleEl.textContent = product.name;
+        if (descEl)  descEl.textContent  = product.description;
+        if (product.specs_values) {
+          // Map charolas specs to cuerdas layout IDs
+          if (specIds.mat)    specIds.mat.textContent    = product.specs_values.material     || '';
+          if (specIds.unit)   specIds.unit.textContent   = product.specs_values.usage        || '';
+          if (specIds.resist) specIds.resist.textContent = product.specs_values.resistance   || '';
+          if (specIds.charge) specIds.charge.textContent = product.specs_values.presentation || '';
+        }
+      };
+      if (typeof gsap !== 'undefined') {
+        gsap.killTweensOf(anims);
+        gsap.to(anims, { opacity: 0, y: 10, duration: 0.2, onComplete: () => {
+          applyText();
+          gsap.to(anims, { opacity: 1, y: 0, duration: 0.3 });
+        }});
+      } else {
+        applyText();
+      }
+    }
+
+    function updateVideo(idx) {
+      document.querySelectorAll('.video-bg').forEach((vid, i) => {
+        if (i === idx) {
+          vid.classList.add('visible');
+          vid.currentTime = 0;
+          vid.play().catch(() => {});
+          vid.onended = () => {
+            vid.pause();
+            vid.currentTime = vid.duration - 0.001;
+          };
+        } else {
+          vid.classList.remove('visible');
+          vid.pause();
+          vid.onended = null;
+        }
+      });
+    }
+
+    function updateGallery(idx) {
+      document.querySelectorAll('.gallery-strip').forEach((strip, i) => {
+        strip.classList.toggle('active', i === idx);
+      });
+    }
+
+    function selectProduct(idx) {
+      const thumbs = document.querySelectorAll('.thumb-item');
+      if (thumbs[idx] && thumbs[idx].classList.contains('active')) return;
+
+      thumbs.forEach(t => t.classList.remove('active'));
+      if (thumbs[idx]) thumbs[idx].classList.add('active');
+
+      if (heroImg && products[idx] && products[idx].img) {
+        heroImg.src = products[idx].img;
+        heroImg.alt = products[idx].name || '';
+      }
+
+      const buyWrapper = document.getElementById('btn-buy-wrapper');
+      const soonBtn = document.getElementById('btn-soon');
+      if (buyWrapper && soonBtn) {
+        const isSoon = !!(products[idx] && products[idx].soon);
+        buyWrapper.classList.toggle('soon-hidden', isSoon);
+        soonBtn.style.display = isSoon ? '' : 'none';
+      }
+
+      updateContent(idx);
+      updateVideo(idx);
+      updateGallery(idx);
+    }
+
+    const thumbs = document.querySelectorAll('.thumb-item');
+    thumbs.forEach((thumb) => {
+      const idx = parseInt(thumb.dataset.index, 10);
+      if (isNaN(idx)) return;
+
+      thumb.addEventListener('touchstart', function(e) {
+        e.stopPropagation();
+      }, { passive: true });
+
+      thumb.addEventListener('touchend', function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        selectProduct(idx);
+      }, { passive: false });
+
+      thumb.addEventListener('click', function(e) {
+        e.stopPropagation();
+        selectProduct(idx);
+      });
+    });
+
+    document.querySelectorAll('.gallery-photo').forEach((photo) => {
+      const activate = () => {
+        const clickedImg = photo.querySelector('img');
+        if (heroImg && clickedImg) heroImg.src = clickedImg.src;
+      };
+      photo.addEventListener('touchend', function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        activate();
+      }, { passive: false });
+      photo.addEventListener('click', function(e) {
+        e.stopPropagation();
+        activate();
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initNaturizableLogic);
+  } else {
+    initNaturizableLogic();
+  }
+  document.addEventListener("astro:page-load",  initNaturizableLogic);
+  document.addEventListener("astro:after-swap", initNaturizableLogic);
+  </script>
+
+  <script is:inline>
+  function initTransition() {
+    const wipe = document.getElementById("wipe-transition");
+    const btn  = document.getElementById("btn-regresar");
+    if (!wipe || !btn) return;
+    
+    wipe.classList.remove("active");
+    
+    const newBtn = btn.cloneNode(true);
+    btn.parentNode.replaceChild(newBtn, btn);
+
+    newBtn.addEventListener("click", (e) => {
+      e.preventDefault(); 
+      const url = newBtn.getAttribute("href");
+      const isDark = document.documentElement.classList.contains('dark') || 
+                     document.body.classList.contains('dark');
+      wipe.style.setProperty('--reveal-bg', isDark ? "#262626" : "#ffffff");
+      wipe.classList.add("active"); 
+      setTimeout(() => { window.location.href = url; }, 600); 
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTransition);
+  } else {
+    initTransition();
+  }
+  document.addEventListener("astro:page-load",  initTransition);
+  document.addEventListener("astro:after-swap", initTransition);
+  </script>
+
+  <Footer currentLang={currentLang} />
+</BaseLayout>

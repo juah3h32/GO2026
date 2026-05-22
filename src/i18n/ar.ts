@@ -236,49 +236,49 @@ export const ar = {
       division: "ستريتش فيلم",
       descripcion: "فيلم تمدد بوضوح بصري عالٍ ومعايير جودة مميزة. يضمن سلامة الحمولة وكفاءة التكاليف. تشمل مجموعتنا خياراً قابلاً للتحلل البيولوجي، مُصمَّماً للتحلل بنسبة 90% أسرع.",
       slug: "stretch-film",
-      video: "carrusel/stretch-film.mp4"
+      video: "GO/carrusel/stretch-film.mp4"
     },
     {
       img: "carrusel/img4.webp",
       division: "أكياس الشبك",
       descripcion: "أكياس شبكية من رافيا البولي بروبيلين بنسيج دائري عالي المقاومة والمتانة. تصميم مهوّى مثالي للفواكه والخضروات.",
       slug: "arpillas",
-      video: "carrusel/arpillas.mp4"
+      video: "GO/carrusel/arpillas.mp4"
     },
     {
       img: "carrusel/img2.webp",
       division: "الحبال",
       descripcion: "حبال من خيوط البولي بروبيلين عالية الأداء. توازن مثالي بين الخفة الفائقة والمقاومة العالية للكسر.",
       slug: "cuerdas",
-      video: "carrusel/cuerdas.mp4"
+      video: "GO/carrusel/cuerdas.mp4"
     },
     {
       img: "carrusel/img3.webp",
       division: "الرافيا",
       descripcion: "رافيا فيلم البولي بروبيلين عالية الأداء. خفيفة جداً وعالية المقاومة للكسر. مرنة ومتعددة الاستخدامات.",
       slug: "rafias",
-      video: "carrusel/rafia.mp4"
+      video: "GO/carrusel/rafia.mp4"
     },
     {
       img: "carrusel/img5.webp",
       division: "الأكياس",
       descripcion: "أكياس رافيا بجودة فائقة. حل تعبئة متين للأغذية والمواد الكيميائية والأسمدة.",
       slug: "sacos",
-      video: "carrusel/sacos.mp4"
+      video: "GO/carrusel/sacos.mp4"
     },
     {
       img: "carrusel/img6.webp",
       division: "حواف الحماية",
       descripcion: "حواف كرتونية لتحسين اللوجستيات. مقاومة هيكلية واستقرار أكبر للأحمال.",
       slug: "esquineros",
-      video: "carrusel/esquineros.mp4"
+      video: "GO/carrusel/esquineros.mp4"
     },
     {
       img: "carrusel/img7.webp",
       division: "التغليف المرن",
       descripcion: "تتخصص Neo Empaques International في حلول التغليف المرن المتقدمة، المصمّمة لتحسين الحفظ وتقديم المنتجات في صناعات متعددة.",
       slug: "empaques-flexibles",
-      video: "carrusel/bobina-impresa.mp4"
+      video: "GO/carrusel/bobina-impresa.mp4"
     }
   ],
 
@@ -1196,7 +1196,8 @@ footer: {
       eyebrow:      "منذ 1959",
       title_top:    "نحن الشركة المصنّعة",
       title_bot:    "الرائدة في أمريكا اللاتينية",
-      video: "home_zv3jjz",
+      video: "GO/home/hero",
+      typewriter_prefix: "MANUFACTURER OF",
       subtitle:     "أكثر من 65 عاماً في تصنيع حلول هندسية متقدمة للصناعات في القارات الخمس.",
       btn_products: "منتجاتنا",
       btn_about:    "اعرف أكثر",
@@ -1222,6 +1223,12 @@ footer: {
         { title: "حافة حماية",     tag: "القسم 07", description: "حواف كرافت لحماية الحواف أثناء التخزين والنقل. توزيع متساوٍ للضغط وأقصى استقرار للأحمال.",                                                img: "/images/divisiones/esquineros.webp",        color: "#7b3fa0", slug: "esquineros",         soon: false },
         { title: "مستهلكات",       tag: "القسم 10", description: "منتجات مستهلكة من البولي بروبيلين للاستخدام الصناعي والغذائي والطبي. حلول صحية واقتصادية وعالية المقاومة.",                               img: "/images/divisiones/desechables.webp",       color: "#e05500", slug: "desechables",        soon: true  }
       ]
+    },
+
+    parallax: {
+      eyebrow: "Production Plant",
+      title:    "Everything",
+      title_em: "starts here"
     },
 
     porque: {
@@ -1272,7 +1279,7 @@ footer: {
       title:    "نُصدّر إلى",
       title_em: "العالم",
       desc:     "تصل منتجاتنا إلى عملاء في أكثر من 30 دولة، مما يرسّخ موقعنا كقادة في البوليمرات البلاستيكية.",
-      video: "camion_n1nitn",
+      video: "GO/home/camion",
       stats: [
         { number: 65,   label: "عاماً"    },
         { number: 30,   prefix: "+", label: "دولة"    },

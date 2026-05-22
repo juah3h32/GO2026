@@ -46,48 +46,51 @@ export const onRequest = defineMiddleware(async (context, next) => {
   // Bloquear service worker de desarrollo
   if (path === '/dev-sw.js') return new Response(null, { status: 404 });
 
-  // Vercel inyecta x-vercel-forwarded-for como la IP real del cliente (no falsificable)
-  // Fallback a x-forwarded-for solo si no hay header de Vercel
-  const rawIp = req.headers.get('x-vercel-forwarded-for')
-              || req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
-              || req.headers.get('x-real-ip')
-              || null;
-  // Validar formato IPv4/IPv6 básico para evitar inyección de claves en el Map
-  const IP_RE = /^[\d.:a-fA-F]+$/;
-  const ip = rawIp && IP_RE.test(rawIp) ? rawIp : 'unknown';
-
   // ── Rate limiting por tipo de ruta ─────────────────────────────────────────
-  if (CHAT_PATHS.some(p => path.startsWith(p))) {
-    // Chatbot: 20 req/min por IP
-    if (isRateLimited(`chat:${ip}`, 20, 60_000)) {
-      return new Response(JSON.stringify({ ok: false, error: 'Demasiadas solicitudes. Intenta en un momento.' }), {
-        status: 429,
-        headers: { 'Content-Type': 'application/json', 'Retry-After': '60' },
-      });
-    }
-  } else if (LEAD_PATHS.some(p => path.startsWith(p))) {
-    // Leads / candidatos: 15 req/min por IP
-    if (isRateLimited(`lead:${ip}`, 15, 60_000)) {
-      return new Response(JSON.stringify({ ok: false, error: 'Demasiadas solicitudes.' }), {
-        status: 429,
-        headers: { 'Content-Type': 'application/json', 'Retry-After': '60' },
-      });
-    }
-  } else if (ADMIN_PATHS.some(p => path.startsWith(p))) {
-    // Rutas admin: 60 req/min por IP
-    if (isRateLimited(`admin:${ip}`, 60, 60_000)) {
-      return new Response(JSON.stringify({ ok: false, error: 'Demasiadas solicitudes.' }), {
-        status: 429,
-        headers: { 'Content-Type': 'application/json', 'Retry-After': '60' },
-      });
-    }
-  } else if (path.startsWith('/api/')) {
-    // Resto de APIs: 30 req/min por IP
-    if (isRateLimited(`api:${ip}`, 30, 60_000)) {
-      return new Response(JSON.stringify({ ok: false, error: 'Demasiadas solicitudes.' }), {
-        status: 429,
-        headers: { 'Content-Type': 'application/json', 'Retry-After': '60' },
-      });
+  const isChat  = CHAT_PATHS.some(p => path.startsWith(p));
+  const isLead  = LEAD_PATHS.some(p => path.startsWith(p));
+  const isAdmin = ADMIN_PATHS.some(p => path.startsWith(p));
+  const isApi   = path.startsWith('/api/');
+
+  if (isChat || isLead || isAdmin || isApi) {
+    // Vercel inyecta x-vercel-forwarded-for como la IP real del cliente (no falsificable)
+    // Fallback a x-forwarded-for solo si no hay header de Vercel
+    const rawIp = req.headers.get('x-vercel-forwarded-for')
+                || req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+                || req.headers.get('x-real-ip')
+                || null;
+    // Validar formato IPv4/IPv6 básico para evitar inyección de claves en el Map
+    const IP_RE = /^[\d.:a-fA-F]+$/;
+    const ip = rawIp && IP_RE.test(rawIp) ? rawIp : 'unknown';
+
+    if (isChat) {
+      if (isRateLimited(`chat:${ip}`, 20, 60_000)) {
+        return new Response(JSON.stringify({ ok: false, error: 'Demasiadas solicitudes. Intenta en un momento.' }), {
+          status: 429,
+          headers: { 'Content-Type': 'application/json', 'Retry-After': '60' },
+        });
+      }
+    } else if (isLead) {
+      if (isRateLimited(`lead:${ip}`, 15, 60_000)) {
+        return new Response(JSON.stringify({ ok: false, error: 'Demasiadas solicitudes.' }), {
+          status: 429,
+          headers: { 'Content-Type': 'application/json', 'Retry-After': '60' },
+        });
+      }
+    } else if (isAdmin) {
+      if (isRateLimited(`admin:${ip}`, 60, 60_000)) {
+        return new Response(JSON.stringify({ ok: false, error: 'Demasiadas solicitudes.' }), {
+          status: 429,
+          headers: { 'Content-Type': 'application/json', 'Retry-After': '60' },
+        });
+      }
+    } else {
+      if (isRateLimited(`api:${ip}`, 30, 60_000)) {
+        return new Response(JSON.stringify({ ok: false, error: 'Demasiadas solicitudes.' }), {
+          status: 429,
+          headers: { 'Content-Type': 'application/json', 'Retry-After': '60' },
+        });
+      }
     }
   }
 

@@ -1,6 +1,5 @@
 // src/pages/api/chat.js
 // ─── FIX: Salto inteligente de puesto al nombre si ya viene preseleccionado ───
-import { MsEdgeTTS, OUTPUT_FORMAT } from "msedge-tts";
 import * as googleTTS from 'google-tts-api';
 import { Buffer } from 'node:buffer';
 import { logInteraction, saveRecruitmentLead, readVacantes, markNotificadosVacante, checkDuplicateByPhone, checkDuplicateByName, checkDuplicateByEmail } from '../../lib/analytics-db.js';
@@ -8,11 +7,6 @@ import { notifyNewVacante, notifyEsperaVacante, notifyEnglishLead } from '../../
 
 export const prerender = false;
 
-const VOICE_MAP = {
-  es: "es-MX-DaliaNeural", en: "en-US-JennyNeural",
-  pt: "pt-BR-FranciscaNeural", fr: "fr-FR-DeniseNeural",
-  zh: "zh-CN-XiaoxiaoNeural", ar: "ar-EG-SalmaNeural",
-};
 const LANGUAGES_MAP = {
   es: 'Spanish', en: 'English', pt: 'Portuguese',
   zh: 'Chinese', ar: 'Arabic',  fr: 'French',
@@ -27,6 +21,7 @@ const PRODUCT_ALIASES = {
   arpillas:   ['arpilla','arpillas','arpila','arpilas','malla','mallas','red','redes','arpilla circular','arpilla monofilamento','arpila','arpílla','arpiilla'],
   esquineros: ['esquinero','esquineros','esquinero kraft','cantonera','cantoneras','protector de esquina','esquineros de carton','eskinero','esquinro'],
   flexible:   ['empaque flexible','empaques flexibles','bobina','bobinas','stand up','standup','bolsa stand up','bolsa alto vacio','flexible','flexibles','pouch','empaque','empaques','bolsa impresa'],
+  charola:    ['charola','charolas','charola naturizable','charola biodegradable','charola termoformable','charola para alimentos','charola compostable','charola ecologica','charola eco'],
 };
 
 function detectarProducto(texto) {
@@ -224,47 +219,77 @@ Registra al candidato en lista de espera y dile que le avisarás cuando se abra 
   }
 
   return `
-Eres BOTGO, asesor comercial de Grupo Ortiz con 8 años en la empresa.
-Hablas en ${targetLang} — tono cálido, directo y profesional, como una persona real.
-Nunca menciones que eres IA ni robot. Usa frases cortas y naturales.
-JAMÁS incluyas URLs.
+Eres BOTGO, asesor comercial mexicano de Grupo Ortiz.
+Hablas en ${targetLang} — tono cálido, directo y natural, como alguien de Michoacán que conoce la empresa de memoria.
+JAMÁS digas que eres IA, robot o sistema. Nunca incluyas URLs.
 
 ══════════════════════════════════════════
   REGLA DE ORO — RESPUESTAS CORTAS
 ══════════════════════════════════════════
 - Máximo 2-3 líneas por respuesta. SIEMPRE.
 - Nunca des toda la información de golpe.
-- Da un dato o idea principal y pregunta si quiere saber más.
+- Da un dato principal y pregunta si quiere saber más.
 
 ══════════════════════════════════════════
   REGLA DE FORMATO — TIPOS DE PRODUCTO
 ══════════════════════════════════════════
-Cuando el usuario pregunte "¿qué tipos hay?":
+Si preguntan "¿qué tipos hay?":
 PASO 1 — Lista SOLO los nombres en **negritas**, sin descripción.
-PASO 2 — Si el usuario menciona un nombre específico: 2-3 líneas describiendo ESE tipo.
+PASO 2 — Si menciona uno específico: 2-3 líneas solo de ese tipo.
 Nunca mezcles ambos pasos.
 
 ══════════════════════════════════════════
-  GRUPO ORTIZ — QUIÉNES SOMOS
+  GRUPO ORTIZ — DATOS OFICIALES
 ══════════════════════════════════════════
-Fundado en 1959 en Morelia, Michoacán, México por Nicandro Ortiz.
-Líderes fabricantes de empaques industriales y agrícolas en Latinoamérica.
-Más de 65 años de experiencia. Presencia en 5 continentes y más de 30 países.
-3,000 colaboradores. 13 plantas de producción (12 en Morelia, 1 en Monterrey).
-Capacidad: 220,000 toneladas anuales.
-Certificaciones: FSSC 22000, ISO 9001:2015, AIB International, Kosher Pareve.
-Contacto: WhatsApp ${waPhone} | contacto@grupoo.com.mx | Morelia, Michoacán.
+Empresa 100% mexicana, fundada en 1959 en Morelia, Michoacán por Nicandro Ortiz.
+Principales fabricantes de polímeros y empaques en México y Latinoamérica. Más de 65 años.
++3,000 colaboradores (56% plantilla femenina). 13 plantas (12 en Morelia, 1 en Monterrey).
+260 unidades logísticas propias. Capacidad: 220,000 toneladas anuales.
+Exporta a América y Europa. Bodega en San Antonio, TX (20915 Wilderness Oak).
+Historia: 1959 fundación · 1970 sacos y arpillas · 1985 maquinaria europea · 1995 stretch y flexibles · 2005 exportaciones · 2015 planta de reciclado.
+Filosofía: obsesión por el cliente · innovación constante · excelencia operativa · pensamiento a largo plazo · mejor empleador del planeta.
+Valores: Responsabilidad, Confianza, Pasión, Perseverancia, Disciplina, Proactividad, Respeto.
+Impacto social: Casa Hogar Tacámbaro, Despensa GO, Cero Huella, Composta Viva, alianza con The Ocean Cleanup.
+Certificaciones: FSSC 22000, ISO 9001, AIB International, Kosher Pareve.
+Contacto: WhatsApp ${waPhone} | atencionacliente@grupo-ortiz.com | Morelia, Michoacán, México.
 
 ══════════════════════════════════════════
   CATÁLOGO COMPLETO DE PRODUCTOS
 ══════════════════════════════════════════
-1. Rafias — PP 100% virgen. Amarre agrícola, avícola, invernaderos.
-2. Película stretch — Paletizado, logística, almacén.
-3. Cuerdas de polipropileno — Amarre agrícola, industrial, marino.
-4. Sacos de rafia — Granos, fertilizantes, construcción.
-5. Arpillas — Horticultura, frutas, verduras, mariscos.
-6. Esquineros de cartón kraft — Protección de bordes, exportación.
-7. Empaques flexibles — Alimentos, café, carnes, farmacéutica.
+1. RAFIAS — PP 100% virgen, calibres 2-8 mm, con filtro UV.
+   Tipos: Rafia de Atar · Rafia Ecológica · Rafia Fibrilada Negra.
+   Usos: amarre agrícola, avícola, invernaderos, horticultura.
+
+2. STRETCH FILM — Película estirable LLDPE. Incluye opción biodegradable.
+   Tipos: Premium · Automático · Manual Preestirado · Manual Banding · Coreles · Manual Rígido.
+   Anchos 3-30 pulg, largos 1,000-25,000 ft, gauge 40-120.
+   Usos: paletizado, logística, almacén.
+
+3. CUERDAS PP — Polipropileno con filtro UV, alta tenacidad.
+   Tipos: Ferretera (4-19 mm, 175 kg resist) · Invernadero (3-8 mm, negra) · Ecológica (múltiples calibres y colores).
+   Usos: agrícola, industrial, marino, ferretería, macrotúneles.
+
+4. SACOS DE RAFIA — PP tejido plano. Impresión personalizada disponible.
+   Tipos: Sin Laminar · Transparente · Ecológico (material reciclado).
+   Medidas: 35-80 cm ancho · 49-115 cm largo · resistencia 120-200 kgf.
+   Usos: alimentos, fertilizantes, construcción, productos a granel.
+
+5. ARPILLAS — Malla PP, tejido circular y plano.
+   Tipos: Circular · Monofilamento Circular · Costura Lateral · Etiqueta Laminada.
+   Anchos 23-70 cm, disponibles con jareta o refuerzo.
+   Usos: frutas, verduras, mariscos, flores, exportación.
+
+6. ESQUINEROS KRAFT — Cartón kraft café o blanco.
+   Pestaña 1.5 pulg, espesor 0.08 mm, longitud 11.81 cm.
+   Usos: protección de bordes, transporte, paletizado, exportación.
+
+7. EMPAQUES FLEXIBLES — Alta barrera, laminación especializada (Neo Empaques International).
+   Tipos: Bobina Impresa (hasta 1,450 mm, 10 tintas) · Bolsa Stand Up (150 g-1 kg, zipper) · Stand Up Pouch impresa · Bolsa Alto Vacío.
+   Usos: alimentos, café, carnes, quesos, embutidos, cosméticos, farmacéutica.
+
+8. NATURIZABLE — 100% Plant Based, reciclable y compostable.
+   Tipos disponibles: Charola 855 (cartón kraft antigrasa). Próximamente: Vaso de Celulosa, Contenedores.
+   Usos: alimentos frescos, retail, supermercados, taqueros, carniceros, fruteros.
 
 ══════════════════════════════════════════
   MÓDULO COTIZACIÓN / CONTACTO DIRECTO
@@ -278,7 +303,7 @@ Termina con: [ACCION:WHATSAPP]
 ══════════════════════════════════════════
 Si piden catálogo/ficha/PDF:
 Termina con: [ACCION:PDF:nombre]
-Valores: rafia | stretch | cuerdas | sacos | arpillas | esquineros | flexible | general
+Valores: rafia | stretch | cuerdas | sacos | arpillas | esquineros | flexible | charola | general
 
 ══════════════════════════════════════════
   MÓDULO DISTRIBUIDOR
@@ -440,48 +465,55 @@ function escapeXml(str) {
     .replace(/'/g, '&apos;');
 }
 
-async function streamToBuffer(readable) {
-  return new Promise((resolve, reject) => {
-    const chunks = [];
-    readable.on('data',  c => chunks.push(Buffer.from(c)));
-    readable.on('end',   () => resolve(Buffer.concat(chunks)));
-    readable.on('error', e => reject(e));
-  });
-}
 
-async function generarAudio(texto, lang) {
+// OpenAI TTS voice per language — tts-1 is the most economical ($0.015/1K chars)
+const OPENAI_VOICE_MAP = {
+  es: 'nova', en: 'nova', pt: 'nova',
+  zh: 'nova', ar: 'nova', fr: 'nova',
+};
+
+async function generarAudio(texto, lang, apiKey) {
   const clean = limpiarTextoParaAudio(texto);
   if (!clean) return null;
-  const voice = VOICE_MAP[lang] || VOICE_MAP.es;
 
-  const ssml = `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="${lang || 'es'}">
-    <voice name="${voice}">
-      <prosody rate="+20%" pitch="+0%">${escapeXml(clean)}</prosody>
-    </voice>
-  </speak>`;
-
+  // Primary: OpenAI tts-1 (economical, low-latency, conversational)
   try {
-    const tts = new MsEdgeTTS();
-    await tts.setMetadata(voice, OUTPUT_FORMAT.AUDIO_24KHZ_48KBITRATE_MONO_MP3);
-    const stream = await Promise.race([
-      tts.toStream(ssml),
-      new Promise((_, r) => setTimeout(() => r(new Error('TTS timeout')), 6000)),
-    ]);
-    const buf = await streamToBuffer(stream);
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 8000);
+    const res = await fetch('https://api.openai.com/v1/audio/speech', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: 'tts-1',
+        input: clean,
+        voice: OPENAI_VOICE_MAP[lang] || 'nova',
+        response_format: 'mp3',
+      }),
+      signal: controller.signal,
+    });
+    clearTimeout(timer);
+    if (!res.ok) throw new Error(`OpenAI TTS ${res.status}`);
+    const arrayBuf = await res.arrayBuffer();
+    const buf = Buffer.from(arrayBuf);
     return `data:audio/mp3;base64,${buf.toString('base64')}`;
-  } catch (errEdge) {
-    console.warn('⚠️ MsEdgeTTS falló, usando Google TTS:', errEdge.message);
-    try {
-      const results = await googleTTS.getAllAudioBase64(clean, {
-        lang: lang || 'es', slow: false,
-        host: 'https://translate.google.com', timeout: 5000, splitPunct: '.,!?',
-      });
-      const combined = Buffer.concat(results.map(r => Buffer.from(r.base64, 'base64')));
-      return `data:audio/mp3;base64,${combined.toString('base64')}`;
-    } catch (errGoogle) {
-      console.warn('⚠️ Google TTS también falló:', errGoogle.message);
-      return null;
-    }
+  } catch (errOpenAI) {
+    console.warn('⚠️ OpenAI TTS falló, usando Google TTS:', errOpenAI.message);
+  }
+
+  // Fallback: Google TTS (free)
+  try {
+    const results = await googleTTS.getAllAudioBase64(clean, {
+      lang: lang || 'es', slow: false,
+      host: 'https://translate.google.com', timeout: 5000, splitPunct: '.,!?',
+    });
+    const combined = Buffer.concat(results.map(r => Buffer.from(r.base64, 'base64')));
+    return `data:audio/mp3;base64,${combined.toString('base64')}`;
+  } catch (errGoogle) {
+    console.warn('⚠️ Google TTS también falló:', errGoogle.message);
+    return null;
   }
 }
 
@@ -535,13 +567,13 @@ export async function POST({ request }) {
       );
     }
 
+    const targetLang = LANGUAGES_MAP[language] || 'Spanish';
+    const langCode   = language || 'es';
+
     // Límites de seguridad
     if (messages.length > 60) {
       return new Response(JSON.stringify({ reply: 'Conversación demasiado larga. Inicia una nueva.', waPhone: langCode === 'en' ? '12104293789' : '524432072593' }), { status: 200 });
     }
-
-    const targetLang = LANGUAGES_MAP[language] || 'Spanish';
-    const langCode   = language || 'es';
 
     // Strip de prompt injection: elimina etiquetas internas antes de enviar a la IA
     const stripInjection = (text) => String(text || '')
@@ -638,7 +670,7 @@ export async function POST({ request }) {
       if (existente) {
         const puestoExist = existente.puesto ? ` para el puesto de ${existente.puesto}` : '';
         const msg = `Ya tenemos tu solicitud registrada${puestoExist}. Nuestro equipo de RH ya tiene tus datos y te contactará muy pronto. ¡Gracias por tu interés en Grupo Ortiz! 🌟`;
-        const audioUrl = isVoice ? await generarAudio(msg, langCode) : null;
+        const audioUrl = isVoice ? await generarAudio(msg, langCode, apiKey) : null;
         return new Response(JSON.stringify({
           reply: msg, audio: audioUrl,
           accionWA: false, accionPDF: null, accionCV: false,
@@ -660,7 +692,7 @@ export async function POST({ request }) {
       : buildSystemPrompt('Spanish', puestoPreseleccionado, vacantesActivas, nombreDetectado, langCode);
 
     const dataES = await fetchOpenAI(apiKey, {
-      model: 'gpt-4o-mini',
+      model: 'gpt-4.1-mini',
       messages: [
         { role: 'system', content: systemPrompt },
         ...cleanMessages,
@@ -721,7 +753,7 @@ export async function POST({ request }) {
     if (langCode !== 'es') {
       try {
         const dataTrad = await fetchOpenAI(apiKey, {
-          model: 'gpt-4o-mini',
+          model: 'gpt-4.1-mini',
           messages: [
             {
               role: 'system',
@@ -789,7 +821,7 @@ export async function POST({ request }) {
 
 
     // ── Audio ──────────────────────────────────────────────────────────────
-    const audioUrl = isVoice ? await generarAudio(replyText, langCode) : null;
+    const audioUrl = isVoice ? await generarAudio(replyText, langCode, apiKey) : null;
 
     return new Response(
       JSON.stringify({
@@ -815,9 +847,7 @@ export async function POST({ request }) {
     console.error('❌ chat error:', error.message);
     return new Response(
       JSON.stringify({
-        reply:               langCode === 'en'
-          ? 'Sorry, I had an issue. You can reach us directly on WhatsApp at +1 210-429-3789 😊'
-          : 'Disculpa, tuve un problema. Puedes contactarnos directo al +52 443-207-2593 por WhatsApp 😊',
+        reply:               'Disculpa, tuve un problema. Puedes contactarnos directo al +52 443-207-2593 por WhatsApp 😊',
         detail:              error.message,
         audio:               null,
         accionWA:            false,

@@ -24,10 +24,21 @@ function json(data, status = 200) {
   return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
 }
 
+// ── Escapado de HTML para prevenir XSS ───────────────────────────────────────
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 // ── Logo ──────────────────────────────────────────────────────────────────────
 function getLogoBase64() {
   try {
-    const p = join(process.cwd(), 'public/images/logo.png');
+    const p = join(process.cwd(), 'public/images/logo/logo.png');
     if (!existsSync(p)) return null;
     return `data:image/png;base64,${readFileSync(p).toString('base64')}`;
   } catch { return null; }
@@ -105,7 +116,9 @@ async function comprimirImagen(base64, mimeType) {
 
 // ── Convierte primera página de PDF a imagen JPEG usando Puppeteer ────────────
 async function pdfPageToImage(base64, nombre = '') {
-  const tmpPath = join(tmpdir(), `cv_${Date.now()}_${Math.random().toString(36).slice(2)}.pdf`);
+  // 🔒 Usar crypto para generar nombre impredecible y evitar race conditions
+  const { randomUUID } = await import('crypto');
+  const tmpPath = join(tmpdir(), `cv_${randomUUID()}.pdf`);
   let browser;
   try {
     writeFileSync(tmpPath, Buffer.from(base64, 'base64'));
@@ -143,7 +156,7 @@ async function visionExtract(base64, mimeType, apiKey, nombre = '') {
         method:  'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
         body: JSON.stringify({
-          model:      'gpt-4o-mini',
+          model:      'gpt-4.1-mini',
           max_tokens: 700,
           messages: [{
             role: 'user',
@@ -269,12 +282,12 @@ async function analyzeWithAI(candidates, vacantes) {
 
   const vacList = vacantes.length
     ? vacantes.map(v => {
-        let entry = `• VACANTE "${v.titulo}"`;
-        if (v.area)        entry += ` | Área: ${v.area}`;
-        if (v.tipo)        entry += ` | Tipo: ${v.tipo}`;
-        if (v.salario)     entry += ` | Salario: ${v.salario}`;
-        if (v.descripcion) entry += `\n  Descripción: ${v.descripcion.slice(0, 300)}`;
-        if (v.requisitos)  entry += `\n  Requisitos: ${v.requisitos.slice(0, 500)}`;
+        let entry = `• VACANTE "${escapeHtml(v.titulo)}"`;
+        if (v.area)        entry += ` | Área: ${escapeHtml(v.area)}`;
+        if (v.tipo)        entry += ` | Tipo: ${escapeHtml(v.tipo)}`;
+        if (v.salario)     entry += ` | Salario: ${escapeHtml(v.salario)}`;
+        if (v.descripcion) entry += `\n  Descripción: ${escapeHtml(v.descripcion.slice(0, 300))}`;
+        if (v.requisitos)  entry += `\n  Requisitos: ${escapeHtml(v.requisitos.slice(0, 500))}`;
         return entry;
       }).join('\n\n')
     : '(sin vacantes activas actualmente)';
@@ -284,8 +297,8 @@ async function analyzeWithAI(candidates, vacantes) {
     const esEspera = c.en_lista_espera === 1 || c.en_lista_espera === true;
     const msg      = (c.mensaje || '').trim().slice(0, 200);
 
-    let line = `ID:${c.id} | ${c.nombre || 'Sin nombre'} | Puesto solicitado: "${c.puesto || '-'}"`;
-    line += ` | Edad: ${c.edad || 'no indicada'} | Estado: ${c.estado_rep || 'no indicado'}`;
+    let line = `ID:${c.id} | ${escapeHtml(c.nombre || 'Sin nombre')} | Puesto solicitado: "${escapeHtml(c.puesto || '-')}"`;
+    line += ` | Edad: ${escapeHtml(c.edad || 'no indicada')} | Estado: ${escapeHtml(c.estado_rep || 'no indicado')}`;
     if (esEspera) line += ' | [LISTA_ESPERA]';
 
     if (cvText) {
@@ -763,6 +776,25 @@ function candidatoMatchVacante(c, vacante) {
   return puesto && (titulo.includes(puesto) || puesto.includes(titulo) || words.some(w => puesto.includes(w)));
 }
 
+// ── Valida origen/referer para prevenir CSRF ──────────────────────────────────
+function validateOrigin(request) {
+  const origin = request.headers.get('origin') || request.headers.get('referer');
+  const allowedOrigins = [
+    'https://grupo-ortiz.com',
+    'https://www.grupo-ortiz.com',
+    'http://localhost:4321',
+    'http://localhost:3000',
+    'http://127.0.0.1:4321',
+    'http://127.0.0.1:3000',
+  ];
+
+  if (!origin) return false;
+  try {
+    const originUrl = new URL(origin).origin;
+    return allowedOrigins.includes(originUrl);
+  } catch { return false; }
+}
+
 // ── POST ──────────────────────────────────────────────────────────────────────
 export async function POST({ request }) {
   const internalSecret = import.meta.env.CRON_SECRET_EXTERNAL || process.env.CRON_SECRET_EXTERNAL;
@@ -771,6 +803,12 @@ export async function POST({ request }) {
   if (!isCronCall) {
     const role = await verifyAdminToken(request);
     if (!role) return new Response(JSON.stringify({ error: 'No autorizado' }), { status: 401 });
+
+    // Valida origen si viene de navegador (cookie JWT)
+    if (!validateOrigin(request)) {
+      console.warn('[recruitment-ia] CSRF: Origen rechazado:', request.headers.get('origin'));
+      return new Response(JSON.stringify({ error: 'Origen no permitido' }), { status: 403 });
+    }
   }
 
   try {

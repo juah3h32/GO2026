@@ -6,8 +6,6 @@ const {
 } = Astro.props;
 ---
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-
 <button id="truck-cta-btn" class="cta-btn" data-whatsapp={whatsappNumber}>
   <span class="default">{text}</span>
   <span class="success">
@@ -17,16 +15,18 @@ const {
   <div class="truck">
     <div class="wheel"></div>
     <div class="back">
-      <img src="/images/logoN.png" alt="Logo Grupo Ortiz" class="truck-logo" />
+      <img src="/images/logo/LogoN.svg" alt="Logo Grupo Ortiz" class="truck-logo" />
     </div>
     <div class="front"></div>
     <div class="box"></div>
   </div>
 </button>
 
-<script is:inline>
-  document.addEventListener("DOMContentLoaded", () => {
-    const button = document.getElementById("truck-cta-btn");
+<script>
+  import gsap from 'gsap';
+
+  (function () {
+  const button = document.getElementById("truck-cta-btn");
     if (!button) return;
     const truck = button.querySelector(".truck");
     const box = button.querySelector(".box");
@@ -122,7 +122,7 @@ const {
         });
       }
     });
-  });
+  })();
 </script>
 
 <style>

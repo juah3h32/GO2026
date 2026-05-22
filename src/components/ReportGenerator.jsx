@@ -748,7 +748,7 @@ function buildReclutamientoCover(candidates, periodo, logoBase64, todayFmt) {
 
 // ── HTML principal ─────────────────────────────────────────────────────────────
 // reportType: 'general' | 'distribuidor' | 'reclutamiento'
-export function buildReportHTML(data, periodMeta=null, analysis=null, logoBase64=null, leads=[], candidates=[], reportType='general', scData=null) {
+export function buildReportHTML(data, periodMeta=null, analysis=null, logoBase64=null, leads=[], candidates=[], reportType='general', scData=null, prevData=null) {
   const now=new Date(), today=now.toISOString().split('T')[0];
   const todayFmt=now.toLocaleDateString('es-MX',{timeZone:'America/Mexico_City',day:'2-digit',month:'short',year:'2-digit'});
   const yest=new Date(now); yest.setDate(yest.getDate()-1);
@@ -1240,6 +1240,310 @@ ${C(`
 </body></html>`;
   }
 
+  // ── REPORTE COMPARATIVO — comparativo (basado en diseño resumen) ──────────
+  if (reportType === 'comparativo') {
+    const now_ms = Date.now();
+
+    // ── Período actual ─────────────────────────────────────────────────────────
+    const currMsg  = data?.totalMessages || 0;
+    const currSess = data?.totalSessions || 0;
+    const currWA   = data?.totalWhatsApp || 0;
+    const currPDF  = data?.totalPDFs || 0;
+    const currConv = currMsg ? ((currWA / currMsg) * 100).toFixed(1) : '0.0';
+    const currMps  = currSess ? (currMsg / currSess).toFixed(1) : '0.0';
+    const distTotal  = leads.length;
+    const distSemana = leads.filter(l => { const d = parseTursoDate(l.ts); return d && (now_ms - d.getTime()) < 7 * 24 * 60 * 60 * 1000; }).length;
+    const distHoy    = leads.filter(l => { const d = parseTursoDate(l.ts); return d && (now_ms - d.getTime()) < 24 * 60 * 60 * 1000; }).length;
+    const rhTotal  = candidates.length;
+    const rhConCv  = candidates.filter(c => c.cv_nombre).length;
+    const rhSemana = candidates.filter(c => { const d = parseTursoDate(c.created_at || c.ts); return d && (now_ms - d.getTime()) < 7 * 24 * 60 * 60 * 1000; }).length;
+
+    // ── Período anterior ───────────────────────────────────────────────────────
+    const prevMsg  = prevData?.totalMessages || 0;
+    const prevSess = prevData?.totalSessions || 0;
+    const prevWA   = prevData?.totalWhatsApp || 0;
+    const prevPDF  = prevData?.totalPDFs || 0;
+    const prevConv = prevMsg ? ((prevWA / prevMsg) * 100).toFixed(1) : '0.0';
+    const prevMps  = prevSess ? (prevMsg / prevSess).toFixed(1) : '0.0';
+    const hasPrev  = !!(prevData && (prevMsg > 0 || prevSess > 0));
+
+    // ── Deltas ─────────────────────────────────────────────────────────────────
+    const delta = (curr, prev) => {
+      if (!prev) return { val: '—', color: 'rgba(255,255,255,0.25)', arrow: '', abs: 0 };
+      const p = ((curr - prev) / prev * 100);
+      const pct = Math.abs(p).toFixed(1) + '%';
+      if (p > 0.05) return { val: '+' + pct, color: '#22C55E', arrow: '▲', abs: curr - prev };
+      if (p < -0.05) return { val: '-' + pct, color: '#EF4444', arrow: '▼', abs: prev - curr };
+      return { val: '0%', color: 'rgba(255,255,255,0.35)', arrow: '◆', abs: 0 };
+    };
+
+    // ── Productos e intenciones ────────────────────────────────────────────────
+    const currProds = data?.products || {}, prevProds = prevData?.products || {};
+    const allProdKeys = [...new Set([...Object.keys(currProds), ...Object.keys(prevProds)])];
+    const mergedProds = allProdKeys.map(k => ({ key: k, curr: currProds[k] || 0, prev: prevProds[k] || 0 }))
+      .sort((a, b) => (b.curr + b.prev) - (a.curr + a.prev)).slice(0, 6);
+
+    const currIntents = data?.intents || {}, prevIntents = prevData?.intents || {};
+    const allIntentKeys = [...new Set([...Object.keys(currIntents), ...Object.keys(prevIntents)])];
+    const mergedIntents = allIntentKeys.map(k => ({ key: k, curr: currIntents[k] || 0, prev: prevIntents[k] || 0 }))
+      .sort((a, b) => (b.curr + b.prev) - (a.curr + a.prev)).slice(0, 5);
+    const totalIntents = Math.max(Object.values(currIntents).reduce((a, b) => a + b, 0), 1);
+
+    // ── Gráfica ────────────────────────────────────────────────────────────────
+    const daily14Curr = Object.entries(data?.daily || {}).sort(([a], [b]) => a.localeCompare(b)).slice(-14);
+    const daily14Prev = prevData?.daily ? Object.entries(prevData.daily).sort(([a], [b]) => a.localeCompare(b)).slice(-14) : [];
+
+    // ── Etiquetas de período ───────────────────────────────────────────────────
+    const MESES_C = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    const fmtRango = (fStr, tStr) => {
+      if (!fStr) return '—';
+      const f = new Date(fStr + 'T00:00:00');
+      const t = tStr ? new Date(tStr + 'T00:00:00') : f;
+      return `${f.getDate()} ${MESES_C[f.getMonth()]} — ${t.getDate()} ${MESES_C[t.getMonth()]}`;
+    };
+    const currLabel = fmtRango(periodMeta?.from, periodMeta?.to);
+    const prevLabel = (() => {
+      if (!periodMeta?.from) return 'Período anterior';
+      const fromD = new Date(periodMeta.from + 'T00:00:00');
+      const toD   = periodMeta.to ? new Date(periodMeta.to + 'T23:59:59') : new Date();
+      const dur   = toD.getTime() - fromD.getTime();
+      const pTo   = new Date(fromD.getTime() - 1); // día antes
+      const pFrom = new Date(pTo.getTime() - dur);
+      return fmtRango(pFrom.toISOString().slice(0, 10), pTo.toISOString().slice(0, 10));
+    })();
+
+    // ── Análisis IA ────────────────────────────────────────────────────────────
+    const aiBullets = analysis
+      ? analysis.split('\n').filter(l => /^([-•*]|\d+\.)\s+/.test(l.trim())).map(l => l.trim().replace(/^([-•*]|\d+\.)\s+/, ''))
+      : [];
+    const aiText = aiBullets.filter(Boolean).join(' ').slice(0, 500) || (analysis?.trim() || '');
+
+    // ── Helpers ────────────────────────────────────────────────────────────────
+    const S = (t, c, b) => `<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;padding-bottom:6px;border-bottom:1.5px solid ${c}30;">
+      <div style="width:3px;height:16px;background:${c};border-radius:2px;flex-shrink:0;"></div>
+      <span style="font-family:'Barlow',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.20em;text-transform:uppercase;color:rgba(255,255,255,0.55);flex:1;">${t}</span>
+      ${b ? `<span style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:${c};">${b}</span>` : ''}
+    </div>`;
+    const C = content => `<div style="background:#111111;border-radius:8px;border:1px solid rgba(255,255,255,0.10);padding:9px 11px;display:flex;flex-direction:column;overflow:hidden;">${content}</div>`;
+    const mini3 = items => items.map(([l, v, c]) => `
+      <div style="flex:1;background:#1A1A1A;border-radius:6px;padding:7px 4px;text-align:center;border:1px solid rgba(255,255,255,0.10);">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:25px;font-weight:800;color:${c};line-height:1;">${v}</div>
+        <div style="font-family:'Barlow',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.10em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-top:3px;">${l}</div>
+      </div>`).join('');
+
+    const C_BLUE = '#0088DD', C_GREEN = '#22C55E', C_PURPLE = '#A855F7';
+    const iLabels = { compra: 'Compra', pdf: 'PDF', info: 'Info', reclutamiento: 'Empleo', otro: 'Consulta General' };
+    const iColors = [ORANGE, BLACK, GRAY_D, GRAY_MID, GRAY_LIGHT, CREAM_DARK];
+
+    return `<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="UTF-8">
+<title>BotGO · Reporte Comparativo · ${today}</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700;800&family=Barlow+Condensed:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html,body{width:100%;height:100%;}
+  body{background:#000000;font-family:'Barlow',Helvetica,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  @media print{@page{size:A4 landscape;margin:0;} html,body{height:100%;}}
+</style>
+</head><body>
+<div style="width:100%;height:100vh;display:flex;flex-direction:column;background:#000000;">
+
+  <!-- HEADER — igual que resumen -->
+  <div style="background:${BLACK};display:flex;align-items:stretch;flex-shrink:0;position:relative;">
+    <div style="position:absolute;top:0;left:0;right:0;height:2.5px;background:linear-gradient(90deg,${C_PURPLE},${ORANGE},${C_BLUE},${C_GREEN});"></div>
+    <div style="padding:8px 14px;display:flex;align-items:center;gap:9px;border-right:1px solid rgba(255,255,255,0.08);flex-shrink:0;">
+      ${logoBase64 ? `<img src="${logoBase64}" style="height:24px;width:auto;filter:brightness(0) invert(1);display:block;"/>` : `<div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:#fff;">GO</div>`}
+      <div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:#fff;letter-spacing:0.04em;text-transform:uppercase;line-height:1;">Reporte Comparativo</div>
+        <div style="font-family:'Barlow',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.22em;color:rgba(255,255,255,0.45);text-transform:uppercase;">Comparativo · Grupo Ortiz · BotGO</div>
+      </div>
+    </div>
+    ${[
+      [currMsg.toLocaleString('es-MX'), 'Mensajes', ORANGE],
+      [currSess.toLocaleString('es-MX'), 'Sesiones', 'rgba(255,255,255,0.75)'],
+      [currWA.toLocaleString('es-MX'), 'WhatsApp', ORANGE_DARK],
+      [currConv + '%', 'Conversión', ORANGE],
+      [currPDF.toLocaleString('es-MX'), 'PDFs', GRAY_MID],
+      [distTotal.toLocaleString('es-MX'), 'Distrib.', C_BLUE],
+      [rhTotal.toLocaleString('es-MX'), 'Candidatos', C_GREEN],
+      [currMps, 'Msgs/Ses', 'rgba(255,255,255,0.50)'],
+    ].map(([v, l, c], i, a) => `
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 4px;text-align:center;border-right:${i < a.length - 1 ? '1px solid rgba(255,255,255,0.07)' : 'none'};position:relative;">
+        <div style="position:absolute;bottom:0;left:20%;right:20%;height:1.5px;background:${c};opacity:0.5;border-radius:1px;"></div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:800;color:${c};line-height:1;">${v}</div>
+        <div style="font-family:'Barlow',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.13em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-top:2px;">${l}</div>
+      </div>`).join('')}
+    <div style="padding:6px 14px;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;border-left:1px solid rgba(255,255,255,0.08);flex-shrink:0;gap:1px;min-width:120px;">
+      <div style="font-family:'Barlow',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.20em;text-transform:uppercase;color:rgba(255,255,255,0.40);">Período</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:rgba(255,255,255,0.92);text-align:right;line-height:1.2;text-transform:uppercase;">${currLabel}</div>
+      <div style="font-family:'Barlow',sans-serif;font-size:10px;font-weight:600;color:rgba(255,255,255,0.35);">${todayFmt}</div>
+    </div>
+  </div>
+
+  <!-- COMPARISON STRIP — compacto, una sola línea por métrica -->
+  ${hasPrev ? `
+  <div style="flex-shrink:0;background:#0D0D0D;border-bottom:1px solid rgba(255,255,255,0.10);padding:6px 14px;display:flex;align-items:center;gap:10px;">
+    <div style="flex-shrink:0;background:${C_PURPLE};border-radius:4px;padding:2px 8px;display:flex;align-items:center;gap:4px;">
+      <span style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:800;color:#fff;letter-spacing:0.05em;text-transform:uppercase;line-height:1;">VS</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
+      <span style="font-family:'Barlow',sans-serif;font-size:9px;font-weight:600;color:rgba(255,255,255,0.30);">${prevLabel}</span>
+      <span style="color:rgba(255,255,255,0.15);">→</span>
+      <span style="font-family:'Barlow',sans-serif;font-size:9px;font-weight:700;color:${C_PURPLE};">${currLabel}</span>
+    </div>
+    <div style="flex:1;display:flex;gap:0;">
+      ${[
+        ['Mensajes', currMsg, prevMsg, ORANGE],
+        ['Sesiones', currSess, prevSess, 'rgba(255,255,255,0.70)'],
+        ['WhatsApp', currWA, prevWA, ORANGE_DARK],
+        ['PDFs', currPDF, prevPDF, GRAY_MID],
+        ['Conversión', currConv, prevConv, ORANGE],
+      ].map(([l, c, p, clr]) => {
+        const d = delta(typeof c === 'string' ? parseFloat(c) : c, typeof p === 'string' ? parseFloat(p) : p);
+        return `
+        <div style="flex:1;display:flex;align-items:center;gap:4px;padding:2px 8px;border-right:1px solid rgba(255,255,255,0.04);min-width:0;">
+          <span style="font-family:'Barlow',sans-serif;font-size:8px;font-weight:600;color:rgba(255,255,255,0.30);text-transform:uppercase;letter-spacing:0.04em;">${l}</span>
+          <span style="font-family:'Barlow',sans-serif;font-size:8px;color:rgba(255,255,255,0.18);">${typeof p === 'number' ? p.toLocaleString('es-MX') : p}</span>
+          <span style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;color:${clr};">${typeof c === 'number' ? c.toLocaleString('es-MX') : c}</span>
+          <span style="font-family:'Barlow',sans-serif;font-size:8.5px;font-weight:700;color:${d.color};white-space:nowrap;">${d.arrow} ${d.val}</span>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>` : `<div style="flex-shrink:0;background:#0D0D0D;border-bottom:1px solid rgba(255,255,255,0.10);padding:4px 14px;font-family:'Barlow',sans-serif;font-size:9px;color:rgba(255,255,255,0.25);text-align:center;">Sin datos del período anterior para comparar · Configure un rango con historial</div>`}
+
+  <!-- IA STRIP -->
+  ${aiText ? `
+  <div style="flex-shrink:0;background:#0D0D0D;border-bottom:1px solid rgba(255,255,255,0.10);padding:9px 14px;display:flex;align-items:center;gap:12px;">
+    <div style="flex-shrink:0;background:${ORANGE};border-radius:5px;padding:4px 9px;display:flex;align-items:center;justify-content:center;min-width:32px;min-height:28px;">
+      <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;color:#fff;letter-spacing:0.07em;text-transform:uppercase;line-height:1;">IA</span>
+    </div>
+    <div style="width:1px;height:30px;background:rgba(255,255,255,0.12);flex-shrink:0;"></div>
+    <div style="flex:1;min-width:0;">
+      <div style="font-family:'Barlow',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.48);margin-bottom:4px;">Análisis ejecutivo del período</div>
+      <div style="font-family:'Barlow',sans-serif;font-size:13px;font-weight:500;color:rgba(255,255,255,0.85);line-height:1.55;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;">${aiText}</div>
+    </div>
+  </div>` : ''}
+
+  <!-- CUERPO — 2 filas (misma estructura que resumen) -->
+  <div style="flex:1;display:flex;flex-direction:column;padding:5px 8px 0;gap:5px;min-height:0;">
+
+    <!-- FILA 1 -->
+    <div style="flex:1.15;display:grid;grid-template-columns:2.5fr 1fr;gap:6px;min-height:0;">
+
+      ${C(`
+        ${S('Actividad · Últimos 14 días', ORANGE, '')}
+        <div style="flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0;width:100%;">
+          <svg viewBox="0 0 780 200" style="width:100%;height:auto;display:block;overflow:visible;">
+            ${buildLineSVG(daily14Curr, false)}
+          </svg>
+        </div>
+        ${daily14Prev.length > 0 ? `
+        <div style="margin-top:3px;padding-top:3px;border-top:1px solid rgba(255,255,255,0.05);">
+          <svg viewBox="0 0 780 100" style="width:100%;height:auto;display:block;overflow:visible;opacity:0.35;">
+            ${buildLineSVG(daily14Prev, true)}
+          </svg>
+          <div style="font-family:'Barlow',sans-serif;font-size:7px;color:rgba(255,255,255,0.18);text-align:right;margin-top:1px;">← ${prevLabel}</div>
+        </div>` : ''}
+      `)}
+
+      ${C(`
+        ${S('Top Productos', ORANGE_DARK, '')}
+        <div style="flex:1;display:flex;flex-direction:column;justify-content:center;">
+          ${mergedProds.slice(0, 5).map((p, i) => {
+            const maxP = Math.max(mergedProds[0]?.curr || 1, mergedProds[0]?.prev || 1, 1);
+            const d = delta(p.curr, p.prev);
+            const isTop = i === 0;
+            return `
+            <div style="margin-bottom:6px;">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:1px;">
+                <span style="font-family:'Barlow',sans-serif;font-size:12px;font-weight:600;color:${isTop ? '#FFFFFF' : 'rgba(255,255,255,0.72)'};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100px;">${p.key}</span>
+                <div style="display:flex;align-items:center;gap:3px;flex-shrink:0;">
+                  ${hasPrev ? `<span style="font-family:'Barlow',sans-serif;font-size:8px;color:rgba(255,255,255,0.22);">${p.prev}</span><span style="color:rgba(255,255,255,0.10);font-size:8px;">→</span>` : ''}
+                  <span style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:${isTop ? ORANGE : 'rgba(255,255,255,0.40)'};">${p.curr}</span>
+                  ${hasPrev ? `<span style="font-family:'Barlow',sans-serif;font-size:8px;font-weight:700;color:${d.color};">${d.arrow}${d.val}</span>` : ''}
+                </div>
+              </div>
+              <div style="height:3px;background:rgba(255,255,255,0.12);border-radius:2px;overflow:hidden;"><div style="width:${Math.round(p.curr / maxP * 100)}%;height:100%;background:${isTop ? `linear-gradient(90deg,${ORANGE},${ORANGE_DARK})` : 'rgba(255,255,255,0.25)'};border-radius:2px;"></div></div>
+            </div>`;
+          }).join('') || `<div style="color:${GRAY_LIGHT};font-size:9px;text-align:center;">Sin datos</div>`}
+        </div>
+      `)}
+
+    </div>
+
+    <!-- FILA 2 -->
+    <div style="flex:1;display:grid;grid-template-columns:1fr 1.15fr 1.15fr;gap:6px;min-height:0;">
+
+      ${C(`
+        ${S('Intenciones · dist.', GRAY_MID, '')}
+        <div style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;">
+          <svg viewBox="0 0 140 140" width="82" height="82" style="flex-shrink:0;">${buildDonutSVG(Object.entries(currIntents).filter(([,v]) => v > 0), iColors, true)}</svg>
+          <div style="flex:1;min-width:0;">
+            ${mergedIntents.slice(0, 5).map((int, i) => {
+              const p = Math.round(int.curr / totalIntents * 100);
+              const d = delta(int.curr, int.prev);
+              return `
+              <div style="display:flex;align-items:center;gap:4px;margin-bottom:5px;">
+                <div style="width:5px;height:5px;border-radius:50%;background:${iColors[i % iColors.length]};flex-shrink:0;"></div>
+                <span style="font-family:'Barlow',sans-serif;font-size:11px;color:rgba(255,255,255,0.82);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${iLabels[int.key] || int.key}</span>
+                <span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:#FFFFFF;">${p}%</span>
+                ${hasPrev ? `<span style="font-family:'Barlow',sans-serif;font-size:7px;font-weight:600;color:${d.color};min-width:30px;text-align:right;">${d.arrow}${d.val}</span>` : ''}
+              </div>`;
+            }).join('')}
+          </div>
+        </div>
+      `)}
+
+      ${scData?.ok ? (() => {
+        const C_SC = '#4285F4', C_YLW = '#FBBC04';
+        return C(`
+          ${S('Google Search Console', C_SC, (scData.totalImpressions ?? 0).toLocaleString('es-MX'))}
+          <div style="display:flex;gap:4px;margin-bottom:5px;">${mini3([
+            ['Impresiones', (scData.totalImpressions ?? 0).toLocaleString('es-MX'), C_YLW],
+            ['Clicks', (scData.totalClicks ?? 0).toLocaleString('es-MX'), C_SC],
+            ['CTR', (scData.avgCtr ?? '0') + '%', C_GREEN],
+          ])}</div>
+          <div style="flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0;">
+            <div style="font-family:'Barlow',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.40);margin-bottom:2px;">Clics orgánicos · últimos 14 días</div>
+            <svg viewBox="0 0 680 130" style="width:100%;height:auto;max-height:105px;display:block;overflow:visible;">${buildSCLineSVG(scData.dailyClicks || [])}</svg>
+          </div>
+        `);
+      })() : C(`
+        ${S('Distribuidores', C_BLUE, distTotal.toLocaleString('es-MX'))}
+        <div style="flex:1;display:flex;flex-direction:column;gap:5px;">
+          <div style="display:flex;gap:5px;">${mini3([['Semana', distSemana, C_BLUE], ['Mes', distTotal, C_BLUE], ['Hoy', distHoy, distHoy > 0 ? C_BLUE : 'rgba(255,255,255,0.25)']])}</div>
+          <div style="font-family:'Barlow',sans-serif;font-size:9px;font-weight:600;color:rgba(255,255,255,0.35);text-align:center;padding:2px 0;">${distTotal} solicitudes totales</div>
+        </div>
+      `)}
+
+      ${C(`
+        ${S('Reclutamiento RH', C_GREEN, rhTotal.toLocaleString('es-MX'))}
+        <div style="flex:1;display:flex;flex-direction:column;gap:5px;">
+          <div style="display:flex;gap:5px;">${mini3([['Semana', rhSemana, C_GREEN], ['Mes', rhTotal, C_GREEN], ['Con CV', rhConCv, rhConCv > 0 ? C_GREEN : 'rgba(255,255,255,0.25)']])}</div>
+          <div style="font-family:'Barlow',sans-serif;font-size:9px;font-weight:600;color:rgba(255,255,255,0.35);text-align:center;padding:2px 0;">${rhTotal} candidatos totales</div>
+        </div>
+      `)}
+
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div style="padding:4px 12px;background:${BLACK};display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+    <span style="font-family:'Barlow',sans-serif;font-size:10px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.35);">Comparativo · Grupo Ortiz · BotGO Analytics · Confidencial</span>
+    <div style="display:flex;align-items:center;gap:5px;">
+      <div style="width:14px;height:1.5px;background:${C_PURPLE};border-radius:1px;"></div>
+      <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:rgba(255,255,255,0.60);letter-spacing:0.06em;">REPORTE COMPARATIVO</span>
+      <div style="width:14px;height:1.5px;background:${C_PURPLE};border-radius:1px;"></div>
+    </div>
+    <span style="font-family:'Barlow',sans-serif;font-size:10px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.35);">${todayFmt}</span>
+  </div>
+
+</div>
+</body></html>`;
+  }
+
   // Portada según tipo
   const coverPage = reportType==='distribuidor'
     ? buildDistribuidorCover(leads, periodo, logoBase64, todayFmt)
@@ -1647,7 +1951,7 @@ export function DownloadReportButton({ data, periodMeta = null, style = {}, repo
         fetchLogoBase64(),
         fetch('/api/analytics',   {method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'getLeads'})}).then(r=>r.json()).catch(()=>({ok:false,leads:[]})),
         fetch('/api/recruitment', {method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'list'})}).then(r=>r.json()).catch(()=>({ok:false,candidates:[]})),
-        reportType === 'resumen'
+        reportType === 'resumen' || reportType === 'comparativo'
           ? fetch('/api/search-console', {method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(scDateRange)}).then(r=>r.json()).catch(()=>({ok:false}))
           : Promise.resolve(null),
       ]);
@@ -1656,8 +1960,33 @@ export function DownloadReportButton({ data, periodMeta = null, style = {}, repo
       const leads      = filterLeadsByPeriod(allLeads, periodMeta?.from, periodMeta?.to);
       const candidates = candidatesRes?.ok ? (candidatesRes.candidates || []) : [];
 
+      // Para comparativo: calcular datos del período anterior (mismo tamaño, justo atrás)
+      let prevData = null;
+      if (reportType === 'comparativo' && periodMeta?.from && periodMeta?.to) {
+        try {
+          const fromDate = new Date(periodMeta.from + 'T00:00:00');
+          const toDate   = new Date(periodMeta.to   + 'T23:59:59');
+          const durationMs = toDate.getTime() - fromDate.getTime();
+          const prevTo   = new Date(fromDate.getTime() - 1);
+          const prevFrom = new Date(prevTo.getTime() - durationMs);
+          const prevFromStr = prevFrom.toISOString().slice(0, 10);
+          const prevToStr   = prevTo.toISOString().slice(0, 10);
+
+          const r = await fetch('/api/analytics', {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'get', from: prevFromStr, to: prevToStr })
+          });
+          const j = await r.json();
+          if (j.ok) prevData = j.data;
+        } catch (e) {
+          console.error('[DownloadReportButton] Error fetch anterior:', e);
+        }
+      }
+
       setStatus('building');
-      const html = buildReportHTML(data, periodMeta, analysis, logoBase64, leads, candidates, reportType, scData);
+      const html = buildReportHTML(data, periodMeta, analysis, logoBase64, leads, candidates, reportType, scData, prevData);
 
       const slug = periodMeta?.preset==='today' ? 'hoy'
                  : periodMeta?.preset==='7d'    ? '7dias'
@@ -1667,7 +1996,7 @@ export function DownloadReportButton({ data, periodMeta = null, style = {}, repo
                  : periodMeta?.from && periodMeta?.to ? `${periodMeta.from}_${periodMeta.to}`
                  : new Date().toISOString().split('T')[0];
 
-      const prefix   = reportType==='distribuidor' ? 'distribuidores' : reportType==='reclutamiento' ? 'reclutamiento' : reportType==='resumen' ? 'resumen' : 'botgo';
+      const prefix   = reportType==='distribuidor' ? 'distribuidores' : reportType==='reclutamiento' ? 'reclutamiento' : reportType==='resumen' ? 'resumen' : reportType==='comparativo' ? 'comparativo' : 'botgo';
       const filename = `reporte-${prefix}-${slug}.pdf`;
 
       setStatus('exporting');
@@ -1681,15 +2010,22 @@ export function DownloadReportButton({ data, periodMeta = null, style = {}, repo
         });
 
         if (response.ok) {
-          const blob = await response.blob();
-          const url  = window.URL.createObjectURL(blob);
-          const a    = document.createElement('a');
-          a.href     = url;
-          a.download = filename;
-          document.body.appendChild(a);
-          a.click();
-          window.URL.revokeObjectURL(url);
-          document.body.removeChild(a);
+          const blob   = await response.blob();
+          const url    = window.URL.createObjectURL(blob);
+          const isMob  = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+          if (isMob) {
+            // iOS Safari no soporta a.click() para descargar blobs — abre en nueva pestaña
+            window.open(url, '_blank');
+            setTimeout(() => window.URL.revokeObjectURL(url), 10_000);
+          } else {
+            const a    = document.createElement('a');
+            a.href     = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+          }
           setStatus('done');
           setBusy(false);
           setTimeout(() => { setStatus('idle'); setErrMsg(null); }, 4000);
@@ -1700,16 +2036,22 @@ export function DownloadReportButton({ data, periodMeta = null, style = {}, repo
         }
       } catch (apiErr) {
         console.warn('[PDF API Fallback]', apiErr);
-        // Si falla la API, descargamos el HTML como última opción (sin abrir ventanas que bloquea el CSP)
+        // Fallback: HTML si falla la API PDF
         const blob    = new Blob([html], { type: 'text/html;charset=utf-8' });
         const blobUrl = URL.createObjectURL(blob);
-        const a    = document.createElement('a');
-        a.href     = blobUrl;
-        a.download = filename.replace('.pdf', '.html');
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        setTimeout(() => URL.revokeObjectURL(blobUrl), 5_000);
+        const isMob   = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        if (isMob) {
+          window.open(blobUrl, '_blank');
+          setTimeout(() => URL.revokeObjectURL(blobUrl), 10_000);
+        } else {
+          const a    = document.createElement('a');
+          a.href     = blobUrl;
+          a.download = filename.replace('.pdf', '.html');
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setTimeout(() => URL.revokeObjectURL(blobUrl), 5_000);
+        }
       }
 
       setStatus('done');
@@ -1722,7 +2064,7 @@ export function DownloadReportButton({ data, periodMeta = null, style = {}, repo
     setTimeout(() => { setStatus('idle'); setErrMsg(null); }, 4000);
   };
 
-  const TYPE_IDLE = { general:'↓ General', distribuidor:'↓ Distribuidores', reclutamiento:'↓ Reclutamiento', resumen:'↓ Resumen' };
+  const TYPE_IDLE = { general:'↓ General', distribuidor:'↓ Distribuidores', reclutamiento:'↓ Reclutamiento', resumen:'↓ Resumen', comparativo:'↓ Comparativo' };
   const labels = { idle: TYPE_IDLE[reportType] || '↓ PDF', analyzing:'Analizando…', building:'Generando…', exporting:'Exportando…', done:'✓ Listo' };
 
   return (

@@ -1,0 +1,29 @@
+---
+export const prerender = false;
+import AdminPanel from '../components/AdminPanel.jsx';
+---
+<!DOCTYPE html>
+<html lang="es" class="dark" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>GO · Admin</title>
+
+  <link rel="manifest" href="/stats-manifest.json" />
+  <meta name="theme-color" content="#0F0E0C" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <meta name="apple-mobile-web-app-title" content="GO Admin" />
+  <link rel="apple-touch-icon" href="/pwa-192x192.png" />
+  <meta name="robots" content="noindex,nofollow" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; background: #0F0E0C; }
+  </style>
+</head>
+<body>
+  <AdminPanel autoOpen={true} client:only="react" />
+</body>
+</html>

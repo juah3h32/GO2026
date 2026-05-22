@@ -8,6 +8,8 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import Footer from "../../components/Footer.astro";
 import { languages, translations } from '../../i18n';
 import { CldVideoPlayer } from 'astro-cloudinary';
+import HeroHeadingTypewriter from '../../components/HeroHeadingTypewriter.tsx';
+import StickySection from '../../components/StickySection.astro';
 
 export function getStaticPaths() {
   return Object.keys(languages).map((lang) => ({
@@ -23,24 +25,42 @@ const th = t.home as typeof translations['es']['home'];
 const certifications = th.certs.items;
 const certsLoop = [...certifications, ...certifications];
 
+const divItems = th.divisiones.items;
+const divLoop  = [...divItems, ...divItems];
+
+/* ── Typewriter hero words (localizados) ── */
+const tyPrefix   = (th.hero as any).typewriter_prefix as string ?? ""
+const tyGeoWord  = tyPrefix
+  ? th.hero.title_bot.slice(tyPrefix.length).trim()
+  : th.hero.title_bot
+const tyWords    = [
+  tyGeoWord.toUpperCase(),
+  ...th.divisiones.items
+    .filter((d: any) => !d.soon)
+    .map((d: any) => (d.title as string).toUpperCase()),
+]
+
 /* ── Cloud name para posters ── */
 const CLOUD = import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME;
 const poster = (src: string) =>
   `https://res.cloudinary.com/${CLOUD}/video/upload/f_jpg,q_auto,so_0/${src}.jpg`;
 ---
 
-<BaseLayout 
-  title={th.meta_title} 
+<BaseLayout
+  title={th.meta_title}
   description={th.meta_description}
   currentLang={currentLang}
 >
+  <Fragment slot="head">
+    <link rel="preload" as="image" href={poster(th.hero.video)} fetchpriority="high" />
+  </Fragment>
 
 <!-- ═══════════════════════════════════════
      HERO
 ═══════════════════════════════════════ -->
 <section class="hero hero--static">
   <!-- Wrapper absoluto — aísla el CldVideoPlayer del flujo del documento -->
-  <div class="hero__video-wrap">
+  <div class="hero__video-wrap" data-fallback-wrap>
     <CldVideoPlayer
       src={th.hero.video}
       width="1920"
@@ -53,9 +73,22 @@ const poster = (src: string) =>
       controls={false}
       poster={poster(th.hero.video)}
     />
+    <!-- Fallback local: se muestra solo si Cloudinary falla -->
+    <video
+      class="hero__video hero__video--fill"
+      src={`/videos/${th.hero.video.replace(/^GO\//, '')}.mp4`}
+      autoplay
+      muted
+      loop
+      playsinline
+      poster={poster(th.hero.video)}
+      data-role="fallback"
+      style="display:none;"
+    ></video>
   </div>
 
   <div class="hero__gradient-overlay"></div>
+  <div class="hero__eco-overlay" aria-hidden="true"></div>
 
   <div class="hero__content is-visible" id="heroContent">
     <div class="hero__center">
@@ -66,7 +99,15 @@ const poster = (src: string) =>
       </div>
       <h1 class="hero__heading hero__heading--center">
         <span class="hero__heading-top">{th.hero.title_top}</span>
-        <span class="hero__heading-bottom"><em>{th.hero.title_bot}</em></span>
+        <span class="hero__heading-bottom">
+          <HeroHeadingTypewriter
+            client:load
+            prefix={tyPrefix}
+            words={tyWords}
+            speed={75}
+            delayBetweenWords={2400}
+          />
+        </span>
       </h1>
       <div class="hero__actions hero__actions--center">
         <a href={`/${currentLang}/productos`} class="btn btn--solid">
@@ -110,35 +151,22 @@ const poster = (src: string) =>
     </div>
   </div>
 
-  <div class="div-wrapper">
-
-    <div class="arrows">
-      <button id="divPrev" aria-label={t.common.previous}>
-        <svg viewBox="0 0 24 24" stroke-width="2.2">
-          <line x1="19" y1="12" x2="5" y2="12"/>
-          <polyline points="12 5 5 12 12 19"/>
-        </svg>
-      </button>
-      <button id="divNext" aria-label={t.common.next}>
-        <svg viewBox="0 0 24 24" stroke-width="2.2">
-          <line x1="5" y1="12" x2="19" y2="12"/>
-          <polyline points="12 5 19 12 12 19"/>
-        </svg>
-      </button>
-    </div>
-
-    <div class="div-grid" id="divGrid">
-      {th.divisiones.items.map((div, i) => (
-        (div as any).soon ? (
+  <div class="div-tape-wrap">
+    <div class="div-tape">
+      {divLoop.map((div, i) => {
+        const isClone = i >= divItems.length;
+        const idx     = i % divItems.length;
+        return (div as any).soon ? (
           <div
             class="div-card div-card--soon"
             style={`--accent: ${div.color}; --img: url('${div.img}')`}
-            aria-label={`${div.title} - Próximamente`}
+            aria-hidden={isClone ? "true" : "false"}
+            aria-label={!isClone ? `${div.title} - Próximamente` : undefined}
           >
             <div class="div-card__bg"></div>
             <div class="div-card__overlay"></div>
             <span class="div-card__soon-badge">Próximamente</span>
-            <span class="div-card__num">{String(i + 1).padStart(2, '0')}</span>
+            <span class="div-card__num">{String(idx + 1).padStart(2, '0')}</span>
             <div class="div-card__content">
               <span class="div-card__tag">{div.tag}</span>
               <h3 class="div-card__title">{div.title}</h3>
@@ -151,10 +179,12 @@ const poster = (src: string) =>
             href={`/${currentLang}/${(div as any).slug}`}
             class="div-card"
             style={`--accent: ${div.color}; --img: url('${div.img}')`}
+            aria-hidden={isClone ? "true" : undefined}
+            tabindex={isClone ? -1 : undefined}
           >
             <div class="div-card__bg"></div>
             <div class="div-card__overlay"></div>
-            <span class="div-card__num">{String(i + 1).padStart(2, '0')}</span>
+            <span class="div-card__num">{String(idx + 1).padStart(2, '0')}</span>
             <div class="div-card__content">
               <span class="div-card__tag">{div.tag}</span>
               <h3 class="div-card__title">{div.title}</h3>
@@ -166,66 +196,106 @@ const poster = (src: string) =>
             </div>
             <div class="div-card__line"></div>
           </a>
-        )
-      ))}
-    </div>
-
-  </div>
-
-  <div class="div-progress-wrap">
-    <div class="div-progress" id="divProgress">
-      <div class="div-progress__fill" id="divProgressFill"></div>
+        );
+      })}
     </div>
   </div>
 
 </section>
+
+
 
 
 <!-- ═══════════════════════════════════════
      POR QUÉ ELEGIRNOS
 ═══════════════════════════════════════ -->
-<section class="porque">
-  <div class="porque__inner">
-    <div class="porque__left">
-      <p class="section-tag">{th.porque.tag}</p>
-      <h2 class="section-heading">
-        {th.porque.title}<br><em>{th.porque.title_em}</em>
-      </h2>
-      <p class="porque__body">{th.porque.body}</p>
-      <div class="porque__features">
-        {th.porque.features.map((f) => (
-          <div class="porque__feature">
-            <div class="porque__feature-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+<StickySection zIndex={2} class="sticky-porque">
+  <div class="porque">
+    <div class="porque__inner">
+      <div class="porque__left">
+        <p class="section-tag">{th.porque.tag}</p>
+        <h2 class="section-heading">
+          {th.porque.title}<br><em>{th.porque.title_em}</em>
+        </h2>
+        <p class="porque__body">{th.porque.body}</p>
+        <div class="porque__features">
+          {th.porque.features.map((f) => (
+            <div class="porque__feature">
+              <div class="porque__feature-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div>
+                <strong>{f.title}</strong>
+                <p>{f.description}</p>
+              </div>
             </div>
-            <div>
-              <strong>{f.title}</strong>
-              <p>{f.description}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-      <a href={`/${currentLang}/about`} class="btn btn--solid mt-xl">
-        {th.porque.btn}
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </a>
-    </div>
-
-    <div class="porque__right">
-      <div class="porque__img-frame">
-        <img src={th.porque.img} alt="Planta de Producción Grupo Ortiz" loading="lazy">
-        <div class="porque__badge">
-          <span class="porque__badge-num count-anim" data-target={th.porque.badge1_number} data-suffix="" data-prefix="">0</span>
-          <span class="porque__badge-lbl">{th.porque.badge1_label}</span>
+          ))}
         </div>
-        <div class="porque__badge porque__badge--2">
-          <span class="porque__badge-num count-anim" data-target={th.porque.badge2_number} data-suffix="" data-prefix="">0</span>
-          <span class="porque__badge-lbl">{th.porque.badge2_label}</span>
+        <a href={`/${currentLang}/about`} class="btn btn--solid mt-xl">
+          {th.porque.btn}
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+
+      <div class="porque__right">
+        <div class="porque__img-frame">
+          <img src={th.porque.img} alt={th.porque.img_alt || "Planta de Producción Grupo Ortiz"} loading="lazy" width="800" height="450">
+          <div class="porque__badge">
+            <span class="porque__badge-num count-anim" data-target={th.porque.badge1_number} data-suffix="" data-prefix="">0</span>
+            <span class="porque__badge-lbl">{th.porque.badge1_label}</span>
+          </div>
+          <div class="porque__badge porque__badge--2">
+            <span class="porque__badge-num count-anim" data-target={th.porque.badge2_number} data-suffix="" data-prefix="">0</span>
+            <span class="porque__badge-lbl">{th.porque.badge2_label}</span>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</section>
+</StickySection>
+
+
+<!-- ═══════════════════════════════════════
+     PARALLAX
+═══════════════════════════════════════ -->
+<StickySection zIndex={3} class="sticky-video">
+  <div class="parallax-section">
+    <div class="parallax-section__bg">
+      <video
+        data-src="/videos/4K.mp4"
+        muted
+        playsinline
+        loop
+        preload="none"
+        class="parallax-section__video"
+      ></video>
+    </div>
+    <div class="parallax-section__content">
+      <p class="section-tag section-tag--light">{th.parallax.eyebrow}</p>
+      <h2 class="section-heading section-heading--light">
+        {th.parallax.title} <em>{th.parallax.title_em}</em>
+      </h2>
+    </div>
+  </div>
+</StickySection>
+
+<script is:inline>
+  (function () {
+    var video = document.querySelector('.parallax-section__video[data-src]');
+    if (!video) return;
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          video.src = video.dataset.src;
+          video.load();
+          video.play().catch(function () {});
+          io.disconnect();
+        }
+      });
+    }, { rootMargin: '300px' });
+    io.observe(video);
+  })();
+</script>
 
 
 <!-- ═══════════════════════════════════════
@@ -233,6 +303,7 @@ const poster = (src: string) =>
 ═══════════════════════════════════════ -->
 <section class="certs">
   <div class="certs__head">
+    <p class="section-tag">{th.certs.tag}</p>
     <h2 class="certs__title">
       <span class="certs__title--black">{th.certs.title}</span><span class="certs__title--orange"> {th.certs.title_em}</span>
     </h2>
@@ -241,7 +312,7 @@ const poster = (src: string) =>
     <div class="certs__track">
       {certsLoop.map((cert, i) => (
         <div class="cert-card" aria-hidden={i >= certifications.length ? "true" : "false"}>
-          <img src={cert.img} alt={i < certifications.length ? cert.code : ""} loading="lazy" class="cert-card__img">
+          <img src={cert.img} alt={i < certifications.length ? cert.code : ""} loading="lazy" class="cert-card__img" width="118" height="84">
         </div>
       ))}
     </div>
@@ -276,19 +347,33 @@ const poster = (src: string) =>
      GLOBAL — VIDEO DE FONDO
 ═══════════════════════════════════════ -->
 <section class="global">
-  <CldVideoPlayer
-    src={th.global.video}
-    width="0"
-    height="0"
-    class="global__video"
-    autoplay
-    muted
-    loop
-    playsinline
-    controls={false}
-    id="globalVideo"
-    poster={poster(th.global.video)}
-  />
+  <div data-fallback-wrap style="position:absolute;inset:0;z-index:0;">
+    <CldVideoPlayer
+      src={th.global.video}
+      width="0"
+      height="0"
+      class="global__video"
+      autoplay
+      muted
+      loop
+      playsinline
+      controls={false}
+      id="globalVideo"
+      poster={poster(th.global.video)}
+    />
+    <!-- Fallback local: se muestra solo si Cloudinary falla -->
+    <video
+      class="global__video"
+      src={`/videos/${th.global.video.replace(/^GO\//, '')}.mp4`}
+      autoplay
+      muted
+      loop
+      playsinline
+      poster={poster(th.global.video)}
+      data-role="fallback"
+      style="display:none;"
+    ></video>
+  </div>
   <div class="global__video-overlay"></div>
   <div class="global__inner">
     <p class="section-tag section-tag--light">{th.global.tag}</p>
@@ -320,7 +405,7 @@ const poster = (src: string) =>
     <p class="section-tag">{th.cta.tag}</p>
     <h2 class="cta__heading">{th.cta.title} <em>{th.cta.title_em}</em></h2>
     <p class="cta__sub">{th.cta.sub}</p>
-    <a href={`/${currentLang}/distribuidor`} class="btn btn--solid btn--xl">
+    <a href={`/${currentLang}/distribuidor#statsRow`} class="btn btn--solid btn--xl">
       {th.cta.btn}
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
         <path d="M5 12h14M12 5l7 7-7 7"/>
@@ -328,6 +413,10 @@ const poster = (src: string) =>
     </a>
   </div>
 </section>
+
+
+
+
 
 
 <script is:inline>
@@ -367,140 +456,321 @@ function initVideoFade() {
     .forEach(el => el.classList.add('is-loaded'));
 }
 
-/* ---- DIVISIONES GRID ---- */
-function initDivGrid() {
-  const grid    = document.getElementById('divGrid');
-  const prevBtn = document.getElementById('divPrev');
-  const nextBtn = document.getElementById('divNext');
-  const fill    = document.getElementById('divProgressFill');
-  if (!grid) return;
-
-  const cards = grid.querySelectorAll('.div-card');
-
-  function updateProgress() {
-    const max = grid.scrollWidth - grid.clientWidth;
-    if (fill) fill.style.width = (max > 0 ? (grid.scrollLeft / max) * 100 : 0) + '%';
-  }
-
-  function scrollByCard(dir) {
-    const w = (cards[0]?.offsetWidth ?? 300) + 2;
-    grid.scrollBy({ left: dir * w, behavior: 'smooth' });
-  }
-  prevBtn?.addEventListener('click', () => scrollByCard(-1));
-  nextBtn?.addEventListener('click', () => scrollByCard( 1));
-  grid.addEventListener('scroll', updateProgress, { passive: true });
-
-  const FRICTION   = 0.93;
-  const STOP_VEL   = 0.8;
-  const MULTIPLIER = 1.0;
-  const SAMPLES    = 5;
-
-  let dragging    = false;
-  let moved       = false;
-  let startX      = 0;
-  let startScroll = 0;
-  let rafId       = null;
-
-  const velBuf = new Array(SAMPLES).fill(0);
-  let   bufIdx = 0;
-  let   lastX  = 0;
-  let   lastT  = 0;
-
-  function pushVelocity(v) { velBuf[bufIdx % SAMPLES] = v; bufIdx++; }
-  function avgVelocity()   { return velBuf.reduce((a, b) => a + b, 0) / SAMPLES; }
-
-  function stopMomentum() {
-    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
-  }
-
-  function snapNearest() {
-    const w = (cards[0]?.offsetWidth ?? 300) + 2;
-    const nearest = Math.round(grid.scrollLeft / w) * w;
-    grid.scrollTo({ left: nearest, behavior: 'smooth' });
-  }
-
-  function runMomentum() {
-    stopMomentum();
-    let vel = avgVelocity() * 18;
-    if (Math.abs(vel) < STOP_VEL) { snapNearest(); return; }
-    function step() {
-      vel *= FRICTION;
-      grid.scrollLeft -= vel;
-      updateProgress();
-      if (Math.abs(vel) > STOP_VEL) {
-        rafId = requestAnimationFrame(step);
-      } else {
-        rafId = null;
-        snapNearest();
-      }
-    }
-    rafId = requestAnimationFrame(step);
-  }
-
-  grid.addEventListener('mousedown', (e) => {
-    if (e.button !== 0) return;
-    stopMomentum();
-    dragging    = true;
-    moved       = false;
-    startX      = e.clientX;
-    startScroll = grid.scrollLeft;
-    lastX       = e.clientX;
-    lastT       = performance.now();
-    velBuf.fill(0); bufIdx = 0;
-    grid.classList.add('is-dragging');
-  });
-
-  document.addEventListener('mousemove', (e) => {
-    if (!dragging) return;
-    const now = performance.now();
-    const dt  = Math.max(now - lastT, 1);
-    pushVelocity((e.clientX - lastX) / dt);
-    lastX = e.clientX;
-    lastT = now;
-    const delta = (e.clientX - startX) * MULTIPLIER;
-    if (Math.abs(delta) > 3) moved = true;
-    grid.scrollLeft = startScroll - delta;
-    updateProgress();
-  });
-
-  function endDrag(e) {
-    if (!dragging) return;
-    dragging = false;
-    grid.classList.remove('is-dragging');
-    if (moved) { runMomentum(); }
-  }
-
-  document.addEventListener('mouseup',    endDrag);
-  document.addEventListener('mouseleave', endDrag);
-
-  cards.forEach((card) => {
-    card.addEventListener('click', (e) => {
-      if (moved) { e.preventDefault(); moved = false; }
-    });
-    card.addEventListener('dragstart', (e) => e.preventDefault());
-  });
-
-  grid.addEventListener('wheel', (e) => {
-    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
-      updateProgress();
-    }
-  }, { passive: true });
-
-  updateProgress();
-  window.addEventListener('resize', updateProgress);
-}
-
-
-
 /* ---- INIT ---- */
 function init() {
   initCounters();
-  initDivGrid();
   initVideoFade();
 }
 
 document.addEventListener('DOMContentLoaded', init);
 document.addEventListener('astro:page-load', init);
+</script>
+
+<style>
+  /*
+    Estado inicial del hero: oculto via animación con fill-mode:both.
+    GSAP sobreescribe con inline styles (mayor especificidad).
+    Si GSAP falla o tarda, el fallback CSS revela el texto a los 2.5s.
+  */
+  :global(.hero__eyebrow),
+  :global(.hero__heading-top),
+  :global(.hero__heading-bottom),
+  :global(.hero__actions--center),
+  :global(.hero__stat),
+  :global(.hero__stat-sep) {
+    animation: hero-fallback-reveal 0.6s ease forwards;
+    animation-delay: 0.8s;
+    opacity: 0;
+    animation-fill-mode: both;
+  }
+
+  @keyframes hero-fallback-reveal {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(.hero__eyebrow),
+    :global(.hero__heading-top),
+    :global(.hero__heading-bottom),
+    :global(.hero__actions--center),
+    :global(.hero__stat),
+    :global(.hero__stat-sep) {
+      animation: none;
+      opacity: 1;
+    }
+  }
+
+  /* ── Certificaciones track ── */
+  .parallax-section {
+    position: relative;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: #000;
+    z-index: 3;
+    box-shadow: 0 -24px 64px rgba(0, 0, 0, 0.24);
+  }
+  .parallax-section__bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+  .parallax-section__video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transform: translateZ(0);
+  }
+  .parallax-section__bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.28);
+    pointer-events: none;
+  }
+  .parallax-section__content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 0 var(--pad);
+  }
+  .parallax-section__content .section-heading--light,
+  .parallax-section__content .section-heading--light em {
+    text-shadow: 0 2px 24px rgba(0, 0, 0, 0.7);
+  }
+  .parallax-section__content .section-tag--light {
+    text-shadow: 0 1px 12px rgba(0, 0, 0, 0.6);
+  }
+
+  /* ── Móvil: sección video + sección 65 años — fijas igual que en desktop ── */
+  @media (max-width: 768px) {
+    /* Doble clase para ganar especificidad sobre .sticky-section { height: auto } */
+    :global(.sticky-section.sticky-video),
+    :global(.sticky-section.sticky-porque) {
+      position : sticky !important;
+      top      : 0 !important;
+      height   : 100svh !important;
+      overflow : hidden !important;
+    }
+
+    /* Porque en móvil: llena el alto, imagen oculta para que el contenido quepa */
+    :global(.sticky-porque .porque) {
+      height  : 100svh !important;
+      padding : clamp(28px, 6vw, 52px) 0 !important;
+      overflow: hidden !important;
+    }
+    :global(.sticky-porque .porque__right) {
+      display: none !important;
+    }
+    :global(.sticky-porque .porque__left) {
+      max-width: 520px;
+      margin   : 0 auto;
+    }
+  }
+</style>
+
+<script>
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import Lenis from 'lenis';
+
+gsap.registerPlugin(ScrollTrigger);
+
+let homeCtx: gsap.Context | null = null;
+let lenis: Lenis | null = null;
+let lenisTicker: ((time: number) => void) | null = null;
+
+function destroyLenis() {
+  if (lenisTicker) { gsap.ticker.remove(lenisTicker); lenisTicker = null; }
+  if (lenis) { lenis.destroy(); lenis = null; }
+}
+
+function run() {
+  /* 1. Limpiar todo el estado GSAP y Lenis anteriores */
+  if (homeCtx) { homeCtx.revert(); homeCtx = null; }
+  destroyLenis();
+
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    gsap.set(
+      '.hero__eyebrow, .hero__heading-top, .hero__heading-bottom, .hero__actions--center, .hero__stat, .hero__stat-sep',
+      { autoAlpha: 1, clearProps: 'transform' }
+    );
+    return;
+  }
+
+  /*
+    2. Scroll instantáneo al top.
+    { behavior: 'instant' } ignora el scroll-behavior: smooth del CSS global,
+    así el layout está en posición 0 antes de que ScrollTrigger calcule offsets.
+  */
+  const isMobile = window.innerWidth <= 768;
+
+  /* Solo en desktop: scroll al top para que ScrollTrigger calcule bien los pins */
+  if (!isMobile) window.scrollTo({ top: 0, behavior: 'instant' });
+
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+
+    /* ── Lenis solo en desktop — en móvil el scroll nativo es más fiable ── */
+    if (!isMobile) {
+      lenis = new Lenis({
+        duration: 1.4,
+        easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        smoothWheel: true,
+      });
+      lenis.on('scroll', ScrollTrigger.update);
+      lenisTicker = (time: number) => { lenis!.raf(time * 1000); };
+      gsap.ticker.add(lenisTicker);
+      gsap.ticker.lagSmoothing(0);
+    }
+
+    homeCtx = gsap.context(() => {
+
+      /* ── HERO: estado inicial ── */
+      gsap.set('.hero__eyebrow',         { autoAlpha: 0, y: 28 });
+      gsap.set('.hero__heading-top',     { autoAlpha: 0, y: 44 });
+      gsap.set('.hero__heading-bottom',  { autoAlpha: 0, y: 32 });
+      gsap.set('.hero__actions--center', { autoAlpha: 0, y: 22 });
+      gsap.set('.hero__stat, .hero__stat-sep', { autoAlpha: 0 });
+
+      /* ── HERO: entrada ── */
+      gsap.timeline({
+        delay: 0.1,
+        defaults: { ease: 'power3.out' },
+        onComplete() { gsap.set('.hero__stat', { clearProps: 'transform' }); }
+      })
+        .to('.hero__eyebrow',          { autoAlpha: 1, y: 0, duration: 0.85 })
+        .to('.hero__heading-top',      { autoAlpha: 1, y: 0, duration: 0.90 }, '-=0.52')
+        .to('.hero__heading-bottom',   { autoAlpha: 1, y: 0, duration: 0.85 }, '-=0.65')
+        .to('.hero__actions--center',  { autoAlpha: 1, y: 0, duration: 0.75 }, '-=0.42')
+        .to('.hero__stat, .hero__stat-sep', {
+          autoAlpha: 1, duration: 0.55, stagger: { amount: 0.35 }
+        }, '-=0.32');
+
+      /* ── HERO: parallax video (solo desktop) ── */
+      if (!isMobile) {
+        gsap.to('.hero__video-wrap', {
+          yPercent: 20, ease: 'none',
+          scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 1.5 }
+        });
+      }
+
+      /* ── VIDEO MÁQUINA: parallax en móvil (sección CSS-sticky) ──
+         El video panea hacia arriba mientras el usuario hace scroll
+         a través de la sección. scale(1.15) da margen para que
+         el movimiento no exponga bordes negros.                        */
+      if (isMobile) {
+        gsap.fromTo('.parallax-section__video',
+          { yPercent: 5, scale: 1.15 },
+          {
+            yPercent : -5,
+            scale    : 1.15,
+            ease     : 'none',
+            scrollTrigger: {
+              trigger : '.sticky-section.sticky-video',
+              start   : 'top top',
+              end     : 'bottom top',
+              scrub   : 1.5,
+            }
+          }
+        );
+      }
+
+      /* ── ECO border-dissolve ── */
+      gsap.to('.hero__eco-overlay', {
+        opacity: 1, ease: 'power3.in',
+        scrollTrigger: { trigger: '.hero', start: 'top top', end: '75% top', scrub: 1 }
+      });
+      gsap.to('.hero__video-wrap', {
+        opacity: 0, ease: 'power2.in',
+        scrollTrigger: { trigger: '.hero', start: '15% top', end: '80% top', scrub: 1 }
+      });
+
+      /* ── DIVISIONES ── */
+      gsap.from('.divisiones__head-inner', {
+        autoAlpha: 0, y: 40, duration: 0.9, ease: 'power3.out',
+        scrollTrigger: { trigger: '.divisiones__head', start: 'top 92%' }
+      });
+      gsap.from('.div-tape-wrap', {
+        autoAlpha: 0, y: 30, duration: 1, ease: 'power3.out',
+        scrollTrigger: { trigger: '.div-tape-wrap', start: 'top 95%' }
+      });
+
+      /* ── PORQUE ELEGIRNOS — responsive ── */
+      gsap.matchMedia().add({
+        '(min-width: 1101px)': () => {
+          gsap.from('.porque__left', {
+            autoAlpha: 0, x: -64, duration: 1.05, ease: 'power3.out',
+            scrollTrigger: { trigger: '.porque__inner', start: 'top 78%' }
+          });
+          gsap.from('.porque__right', {
+            autoAlpha: 0, x: 64, duration: 1.05, ease: 'power3.out',
+            scrollTrigger: { trigger: '.porque__inner', start: 'top 78%' }
+          });
+          gsap.to('.porque__img-frame img', {
+            yPercent: -8, ease: 'none',
+            scrollTrigger: { trigger: '.porque__right', start: 'top bottom', end: 'bottom top', scrub: 1.5 }
+          });
+          gsap.from('.compromiso__card--light', {
+            autoAlpha: 0, x: -72, duration: 0.95, ease: 'power3.out',
+            scrollTrigger: { trigger: '.compromiso', start: 'top 82%' }
+          });
+          gsap.from('.compromiso__card--dark', {
+            autoAlpha: 0, x: 72, duration: 0.95, ease: 'power3.out',
+            scrollTrigger: { trigger: '.compromiso', start: 'top 82%' }
+          });
+        },
+        '(max-width: 1100px)': () => {
+          gsap.from('.porque__left, .porque__right', {
+            autoAlpha: 0, y: 40, duration: 0.9, ease: 'power3.out',
+            stagger: 0.18,
+            scrollTrigger: { trigger: '.porque__inner', start: 'top 95%' }
+          });
+          gsap.from('.compromiso__card', {
+            autoAlpha: 0, y: 40, duration: 0.9, ease: 'power3.out',
+            stagger: 0.18,
+            scrollTrigger: { trigger: '.compromiso', start: 'top 95%' }
+          });
+        }
+      });
+
+      /* Decorativos SVG */
+      gsap.to('.compromiso__deco', {
+        rotation: 22, ease: 'none',
+        scrollTrigger: { trigger: '.compromiso', start: 'top bottom', end: 'bottom top', scrub: 2 }
+      });
+
+      /* ── CERTIFICACIONES ── */
+      gsap.from('.certs__title', {
+        autoAlpha: 0, y: 50, duration: 0.9, ease: 'power3.out',
+        scrollTrigger: { trigger: '.certs__head', start: 'top 92%' }
+      });
+
+      /* ── GLOBAL ── */
+      gsap.from('.global__inner .section-tag, .global__inner .section-heading--light, .global__desc', {
+        autoAlpha: 0, y: 36, duration: 0.85, ease: 'power3.out',
+        stagger: 0.14,
+        scrollTrigger: { trigger: '.global__inner', start: 'top 92%' }
+      });
+      gsap.from('.global__stat', {
+        autoAlpha: 0, y: 28, duration: 0.7, ease: 'power3.out',
+        stagger: 0.1,
+        scrollTrigger: { trigger: '.global__stats', start: 'top 95%' }
+      });
+
+      ScrollTrigger.refresh();
+    });
+  }));
+}
+
+document.addEventListener('DOMContentLoaded', run);
+document.addEventListener('astro:page-load', run);
+
+/* bfcache: restauración desde caché con botón Atrás del navegador */
+window.addEventListener('pageshow', (e) => { if (e.persisted) run(); });
 </script>
 
 <Footer currentLang={currentLang} />

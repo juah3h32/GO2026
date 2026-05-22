@@ -1018,8 +1018,13 @@ model-viewer::part(default-progress-mask) { display: none !important; opacity: 0
   }
 
   .text-area > div:last-child, .btn-container { width: 100%; margin-top: 15px; padding-bottom: 15px; }
-  .text-area button, .buy-btn {
+  /* Asegura que el wrapper del botón ocupe ancho completo */
+  #button-area { width: 100% !important; display: block !important; box-sizing: border-box !important; }
+  #btn-buy-wrapper { width: 100% !important; box-sizing: border-box !important; }
+  #btn-buy-wrapper.soon-hidden { display: none !important; }
+  .text-area button, .buy-btn, #truck-cta-btn {
     background: #fb670b !important; color: #ffffff !important; width: 100% !important;
+    box-sizing: border-box !important;
     border-radius: 50px; padding: clamp(14px,4vw,20px) 0; font-size: clamp(0.9rem,3.5vw,1.1rem);
     font-weight: 700; text-transform: uppercase; letter-spacing: var(--ls-label-xs);
     box-shadow: 0 8px 24px rgba(251,103,11,0.3); cursor: pointer; border: none;
@@ -1220,4 +1225,46 @@ model-viewer::part(default-progress-mask) { display: none !important; opacity: 0
   .text-area p     { margin-bottom: var(--pd-p-gap) !important; }
   .specs-container { margin-bottom: var(--pd-specs-bottom) !important; }
   .thumbnails      { margin-top: clamp(0.4rem, 1vh, 2rem) !important; }
+}
+
+/* =================================================================
+   SOON BUTTON — bloqueado, estilo consistente con CTA
+   ================================================================= */
+.btn-soon {
+  padding: 12px 0;
+  width: 220px;
+  text-align: center;
+  position: relative;
+  border: 2px solid #999;
+  outline: none;
+  color: #999 !important;
+  background: #e0e0e0;
+  border-radius: 15px;
+  appearance: none;
+  -webkit-appearance: none;
+  -webkit-tap-highlight-color: transparent;
+  overflow: hidden;
+  margin-top: 20px;
+  cursor: not-allowed;
+  opacity: 0.75;
+}
+.btn-soon .btn-label {
+  display: block;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 24px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #888 !important;
+}
+
+:root.dark .btn-soon,
+.dark .btn-soon {
+  background: #3a3a3a;
+  border-color: #666;
+  color: #999 !important;
+}
+:root.dark .btn-soon .btn-label,
+.dark .btn-soon .btn-label {
+  color: #999 !important;
 }

@@ -4,6 +4,7 @@ import { getTurso }                                          from '../../../lib/
 import { buildReportHTML }                                   from '../../../components/ReportGenerator.jsx';
 import { readAllData, readLeads, readRecruitmentLeads }      from '../../../lib/analytics-db.js';
 import { verifyAdminToken }                                  from '../../../lib/verifyAdminToken.ts';
+import { checkRateLimit, getClientIp }                       from '../../../lib/rateLimit.ts';
 import puppeteer                                             from 'puppeteer-core';
 import { existsSync, readFileSync }                          from 'fs';
 import { join }                                              from 'path';
@@ -14,8 +15,9 @@ export const prerender = false;
 // ── Filtrar datos por rango (igual que analytics.js) ─────────────────────────
 function filterByDateRange(data, from, to, leads = []) {
   if (!from && !to) return data;
-  const fromTs = from ? new Date(from).setHours(0,  0,  0,   0) : null;
-  const toTs   = to   ? new Date(to  ).setHours(23, 59, 59, 999) : null;
+  // Usar UTC explícito para que coincida con new Date(k) que también es UTC (date-only form)
+  const fromTs = from ? new Date(from + 'T00:00:00Z').getTime() : null;
+  const toTs   = to   ? new Date(to   + 'T23:59:59Z').getTime() : null;
 
   const filterDaily = (daily = {}) => {
     const result = {};
@@ -101,7 +103,7 @@ function filterLeadsByPeriod(leads, from, to) {
 // ── Logo desde el sistema de archivos (más rápido que fetch HTTP) ─────────────
 function getLogoBase64() {
   try {
-    const p = join(process.cwd(), 'public/images/logoN.png');
+    const p = join(process.cwd(), 'public/images/logo/logoN.png');
     if (!existsSync(p)) return null;
     return `data:image/png;base64,${readFileSync(p).toString('base64')}`;
   } catch { return null; }
@@ -208,7 +210,7 @@ async function sendPDFViaWahooks(phone, pdfBuffer, filename) {
 
 // ── Nombre del archivo PDF ────────────────────────────────────────────────────
 const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-const TYPE_LABEL = { general: 'General', distribuidor: 'Distribuidores', reclutamiento: 'Reclutamiento', resumen: 'Resumen', candidatos_ia: 'Reclutamiento_IA' };
+const TYPE_LABEL = { general: 'General', distribuidor: 'Distribuidores', reclutamiento: 'Reclutamiento', resumen: 'Resumen', comparativo: 'Reporte_Comparativo', candidatos_ia: 'Reclutamiento_IA' };
 
 function getWeekNumber(date) {
   const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
@@ -247,8 +249,40 @@ function buildFilename(report_type, period, period_from, period_to) {
   return `${safe(periodoLabel)}_${safe(tipo)}.pdf`;
 }
 
+// ── Valida origen/referer para prevenir CSRF ──────────────────────────────────
+function validateOrigin(request) {
+  const origin = request.headers.get('origin') || request.headers.get('referer');
+  const allowedOrigins = [
+    'https://grupo-ortiz.com',
+    'https://www.grupo-ortiz.com',
+    'http://localhost:4321',
+    'http://localhost:3000',
+    'http://127.0.0.1:4321',
+    'http://127.0.0.1:3000',
+  ];
+
+  if (!origin) return false;
+  try {
+    const originUrl = new URL(origin).origin;
+    return allowedOrigins.includes(originUrl);
+  } catch { return false; }
+}
+
 // ── POST ──────────────────────────────────────────────────────────────────────
 export async function POST({ request }) {
+  // 🔒 Rate limiting: máx 5 PDFs por minuto por IP
+  const clientIp = getClientIp(request);
+  const rateLimitCheck = checkRateLimit(clientIp, 5, 60000);
+  if (!rateLimitCheck.ok) {
+    return new Response(JSON.stringify({ error: 'Límite de tasa excedido', retryAfter: rateLimitCheck.retryAfter }), {
+      status: 429,
+      headers: {
+        'Content-Type': 'application/json',
+        'Retry-After': String(rateLimitCheck.retryAfter),
+      },
+    });
+  }
+
   // Acepta auth de usuario (cookie JWT) O llamada interna del cron (header secreto)
   const internalSecret = import.meta.env.CRON_SECRET_EXTERNAL || process.env.CRON_SECRET_EXTERNAL;
   const cronHeader     = request.headers.get('x-cron-secret');
@@ -257,6 +291,12 @@ export async function POST({ request }) {
   if (!isCronCall) {
     const role = await verifyAdminToken(request);
     if (!role) return new Response(JSON.stringify({ error: 'No autorizado' }), { status: 401 });
+
+    // Valida origen si viene de navegador (cookie JWT)
+    if (!validateOrigin(request)) {
+      console.warn('[send-now] CSRF: Origen rechazado:', request.headers.get('origin'));
+      return new Response(JSON.stringify({ error: 'Origen no permitido' }), { status: 403 });
+    }
   }
 
   try {
@@ -298,11 +338,12 @@ export async function POST({ request }) {
       const data  = filterByDateRange(rawData, from, to);
       const leads = filterLeadsByPeriod(allLeads, from, to);
 
-      // Variables exclusivas para el reporte "resumen"
+      // Variables exclusivas para los reportes "resumen" y "comparativo"
       let analysis = null;
       let scData = null;
+      let prevData = null;
 
-      if (report_type === 'resumen') {
+      if (report_type === 'resumen' || report_type === 'comparativo') {
         // 1. Obtener datos de Google Search Console
         try {
           const today = new Date().toISOString().slice(0, 10);
@@ -321,22 +362,48 @@ export async function POST({ request }) {
           scData = { ok: false };
         }
 
-        // 2. Generar Análisis IA
+        // 2. Para comparativo: obtener datos del período anterior (misma duración, desplazado atrás)
+        if (report_type === 'comparativo' && from && to) {
+          try {
+            const fromDate = new Date(from + 'T00:00:00');
+            const toDate   = new Date(to   + 'T23:59:59');
+            const durationMs = toDate.getTime() - fromDate.getTime();
+            const prevTo   = new Date(fromDate.getTime() - 1); // día antes de from
+            const prevFrom = new Date(prevTo.getTime() - durationMs);
+
+            const fmtDate = d => d.toISOString().slice(0, 10);
+            const prevFromStr = fmtDate(prevFrom);
+            const prevToStr   = fmtDate(prevTo);
+
+            const prevRawData = await readAllData().catch(() => ({}));
+            prevData = filterByDateRange(prevRawData, prevFromStr, prevToStr);
+            console.log(`[send-now] Período anterior: ${prevFromStr} → ${prevToStr} | msgs=${prevData.totalMessages || 0}`);
+          } catch (e) {
+            console.error('[send-now] Error obteniendo período anterior:', e);
+            prevData = null;
+          }
+        }
+
+        // 3. Generar Análisis IA
         try {
           const tp = Object.entries(data?.products || {}).sort(([, a], [, b]) => b - a).slice(0, 5).map(([k, v]) => `${k}:${v}`).join(', ');
           const tk = Object.entries(data?.keywords || {}).sort(([, a], [, b]) => b - a).slice(0, 8).map(([k, v]) => `${k}:${v}`).join(', ');
           const msgs = (data?.lastMessages || []).slice(-20).map(m => m.user).join(' | ');
-          
+
+          const compareCtx = report_type === 'comparativo' && prevData
+            ? `\nCOMPARATIVO — Período anterior: Sesiones:${prevData.totalSessions || 0}|Mensajes:${prevData.totalMessages || 0}|WhatsApp:${prevData.totalWhatsApp || 0}|PDFs:${prevData.totalPDFs || 0}`
+            : '';
+
           const prompt = `Eres analista ejecutivo de ventas de Grupo Ortiz (empaques industriales, México).
 Analiza los datos del chatbot BotGO del período "${periodMeta.preset}" y genera un resumen ejecutivo en español (máximo 180 palabras).
 DATOS:
 Sesiones:${data.totalSessions || 0}|Mensajes:${data.totalMessages || 0}|WhatsApp:${data.totalWhatsApp || 0}|PDFs:${data.totalPDFs || 0}
 Productos top: ${tp || 'sin datos'}
 Keywords top: ${tk || 'sin datos'}
-Intenciones: Compra=${data.intents?.compra || 0}, Info=${data.intents?.info || 0}, PDF=${data.intents?.pdf || 0}, Empleo=${data.intents?.reclutamiento || 0}
+Intenciones: Compra=${data.intents?.compra || 0}, Info=${data.intents?.info || 0}, PDF=${data.intents?.pdf || 0}, Empleo=${data.intents?.reclutamiento || 0}${compareCtx}
 Consultas recientes: ${msgs.substring(0, 400) || 'sin datos'}
 INSTRUCCIONES:
-- Escribe exactamente 4 bullets con los hallazgos más importantes
+- Escribe exactamente 4 bullets con los hallazgos más importantes${report_type === 'comparativo' ? ', incluyendo comparación vs período anterior' : ''}
 - Cada bullet empieza con "- " (guión espacio)
 - Incluye: comportamiento general, producto estrella, oportunidades, recomendación comercial
 - Usa números concretos de los datos
@@ -355,8 +422,8 @@ INSTRUCCIONES:
         }
       }
 
-      // 3. Pasamos analysis y scData al generador (el scData es el 8vo parámetro)
-      html = buildReportHTML(data, periodMeta, analysis, logoBase64, leads, candidates, report_type, scData);
+      // 3. Pasamos analysis y scData al generador
+      html = buildReportHTML(data, periodMeta, analysis, logoBase64, leads, candidates, report_type, scData, prevData);
     }
     const filename = buildFilename(report_type, period, period_from, period_to);
 

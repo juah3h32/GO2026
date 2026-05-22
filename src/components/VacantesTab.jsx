@@ -72,7 +72,7 @@ const LIMITS = {
   ubicacion:   40,
   horario:     40,
   salario:     40,
-  descripcion: 250,
+  descripcion: 160,
   requisitos:  800,
 };
 
@@ -140,13 +140,15 @@ const IcSparkle = () => (
   </svg>
 );
 
-function IaBtn({ campo, loading, onClick, P }) {
+function IaBtn({ campo, loading, onClick, P, generar = false }) {
   const isLoading = loading === campo;
+  const label = generar ? 'Generar con IA' : 'Mejorar con IA';
+  const loadLabel = generar ? 'Generando…' : 'Mejorando…';
   return (
     <button
       onClick={onClick}
       disabled={isLoading}
-      title="Mejorar con IA"
+      title={label}
       style={{
         display:'inline-flex', alignItems:'center', gap:5,
         padding:'4px 10px', borderRadius:6, border:`1px solid ${P.orange}40`,
@@ -160,7 +162,7 @@ function IaBtn({ campo, loading, onClick, P }) {
         ? <div style={{ width:10, height:10, borderRadius:'50%', border:`1.5px solid ${P.orange}40`, borderTop:`1.5px solid ${P.orange}`, animation:'spin 0.7s linear infinite' }}/>
         : <IcSparkle />
       }
-      {isLoading ? 'Mejorando…' : 'Mejorar con IA'}
+      {isLoading ? loadLabel : label}
     </button>
   );
 }
@@ -172,7 +174,7 @@ function Modal({ open, onClose, title, children, P }) {
   return createPortal(
     <div style={{ position:'fixed', inset:0, zIndex:999999999, background:'rgba(0,0,0,0.45)', backdropFilter:'blur(6px)', display:'flex', alignItems:'center', justifyContent:'center', padding:16 }}
       onClick={e => e.target === e.currentTarget && onClose()}>
-      <div style={{ background:P.surface, border:`1px solid ${P.border}`, borderRadius:14, width:'100%', maxWidth:560, maxHeight:'88vh', display:'flex', flexDirection:'column', boxShadow:'0 16px 60px rgba(0,0,0,0.25)', animation:'fadeUp 0.22s ease both' }}>
+      <div style={{ background:P.surface, border:`1px solid ${P.border}`, borderRadius:14, width:'100%', maxWidth:560, maxHeight:'94vh', display:'flex', flexDirection:'column', boxShadow:'0 16px 60px rgba(0,0,0,0.25)', animation:'fadeUp 0.22s ease both' }}>
         <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'18px 22px', borderBottom:`1px solid ${P.border}`, flexShrink:0 }}>
           <div style={{ display:'flex', alignItems:'center', gap:8 }}>
             <span style={{ color:P.orange, display:'flex' }}>{Ic.briefcase}</span>
@@ -207,6 +209,7 @@ export default function VacantesTab({ theme = 'dark' }) {
   const [modal,       setModal]       = useState(false);
   const [editing,     setEditing]     = useState(null);
   const [form,        setForm]        = useState(EMPTY_FORM);
+  const descRef = React.useRef(null);
   const [saving,      setSaving]      = useState(false);
   const [status,      setStatus]      = useState(null); // 'ok' | 'error' | null
   const [delConfirm,  setDelConfirm]  = useState(null);
@@ -223,6 +226,14 @@ export default function VacantesTab({ theme = 'dark' }) {
   const [notifModal,  setNotifModal]  = useState(null);   // vacante seleccionada para notificar
   const [notifSending,setNotifSending]= useState(false);
   const [notifResult, setNotifResult] = useState(null);   // { enviados, fallidos }
+
+  // Auto-resize del textarea de descripción
+  useEffect(() => {
+    const el = descRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight}px`;
+  }, [form.descripcion]);
 
   const inp = {
     width:'100%', background:P.surface, border:`1px solid ${P.border}`, borderRadius:8,
@@ -242,10 +253,10 @@ export default function VacantesTab({ theme = 'dark' }) {
     if (form.titulo.trim()) setForm(f => ({ ...f, titulo: toTitleCase(f.titulo.trim()) }));
   };
 
-  // IA: restructura descripción o requisitos
+  // IA: genera o restructura descripción/requisitos
   const mejorarConIA = async (campo) => {
-    const texto = form[campo]?.trim();
-    if (!texto) return;
+    const texto = form[campo]?.trim() || '';
+    if (!form.titulo.trim()) return;
     setIaLoading(campo);
     setIaError(null);
     try {
@@ -423,49 +434,53 @@ export default function VacantesTab({ theme = 'dark' }) {
   const inactivas = vacantes.filter(v => !v.activa);
 
   return (
-    <div style={{ animation:'fadeUp 0.22s ease both' }}>
+    <div>
       <style>{`
         @keyframes spin    { to { transform:rotate(360deg); } }
         @keyframes fadeUp  { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
       `}</style>
 
-      {/* ── HEADER ── */}
-      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:16, flexWrap:'wrap', gap:8 }}>
-        <div>
-          <div style={{ fontWeight:600, fontSize:15, color:P.text, letterSpacing:'-0.02em', marginBottom:2 }}>Vacantes</div>
-          <div style={{ fontSize:11, color:P.textDim }}>Publicadas en la página pública de empleo</div>
-        </div>
-        <div style={{ display:'flex', gap:6 }}>
-          <button onClick={load} title="Actualizar" style={{ padding:'7px 10px', borderRadius:8, border:`1px solid ${P.border}`, background:'transparent', color:P.textSub, cursor:'pointer', display:'flex', alignItems:'center', transition:'all 0.12s ease' }}
-            onMouseEnter={e => { e.currentTarget.style.background=P.surface2; }}
-            onMouseLeave={e => { e.currentTarget.style.background='transparent'; }}>
-            {Ic.refresh}
-          </button>
-          <button onClick={openCreate}
-            style={{ padding:'8px 16px', borderRadius:8, border:'none', background:P.orange, color:'#fff', cursor:'pointer', fontSize:12, fontWeight:600, display:'flex', alignItems:'center', gap:6 }}>
-            {Ic.plus} Nueva vacante
-          </button>
-        </div>
-      </div>
+      {/* ── STICKY: HEADER + KPIs + BANNER ── */}
+      <div style={{ position:'sticky', top:0, zIndex:10, background:P.bg, paddingBottom:10, marginBottom:4 }}>
 
-      {/* ── KPIs ── */}
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(140px,1fr))', gap:8, marginBottom:14 }}>
-        {[
-          { label:'Total',    value:vacantes.length,   color:P.textSub,  accent:P.textDim },
-          { label:'Activas',  value:activas.length,    color:P.green,    accent:P.green   },
-          { label:'Pausadas', value:inactivas.length,  color:P.grayMid,  accent:P.grayMid },
-          { label:'Ver más activo', value: activas.length > LIMIT_WARN ? 'Sí' : 'No', color: activas.length > LIMIT_WARN ? P.orange : P.textSub, accent: activas.length > LIMIT_WARN ? P.orange : P.textDim },
-        ].map(s => (
-          <div key={s.label} style={{ background:P.surface, border:`1px solid ${P.border}`, borderRadius:12, padding:'18px 20px', position:'relative', overflow:'hidden', boxShadow:'0 1px 3px rgba(0,0,0,0.06)' }}>
-            <div style={{ position:'absolute', top:0, left:0, right:0, height:2.5, background:s.accent, opacity:0.5 }}/>
-            <div style={{ color:P.textDim, fontSize:10, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:12 }}>{s.label}</div>
-            <div style={{ fontSize:34, fontFamily:"'DM Mono',monospace", fontWeight:500, color:s.color, letterSpacing:'-0.04em' }}>{s.value}</div>
+        {/* Header */}
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:14, flexWrap:'wrap', gap:8 }}>
+          <div>
+            <div style={{ fontWeight:600, fontSize:15, color:P.text, letterSpacing:'-0.02em', marginBottom:2 }}>Vacantes</div>
+            <div style={{ fontSize:11, color:P.textDim }}>Publicadas en la página pública de empleo</div>
           </div>
-        ))}
-      </div>
+          <div style={{ display:'flex', gap:6 }}>
+            <button onClick={load} title="Actualizar" style={{ padding:'7px 10px', borderRadius:8, border:`1px solid ${P.border}`, background:'transparent', color:P.textSub, cursor:'pointer', display:'flex', alignItems:'center', transition:'all 0.12s ease' }}
+              onMouseEnter={e => { e.currentTarget.style.background=P.surface2; }}
+              onMouseLeave={e => { e.currentTarget.style.background='transparent'; }}>
+              {Ic.refresh}
+            </button>
+            <button onClick={openCreate}
+              style={{ padding:'8px 16px', borderRadius:8, border:'none', background:P.orange, color:'#fff', cursor:'pointer', fontSize:12, fontWeight:600, display:'flex', alignItems:'center', gap:6 }}>
+              {Ic.plus} Nueva vacante
+            </button>
+          </div>
+        </div>
 
-      {/* ── BANNER DE LÍMITE ── */}
-      <LimitBanner count={activas.length} P={P} />
+        {/* KPIs */}
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:8, marginBottom:14 }}>
+          {[
+            { label:'Total',    value:vacantes.length,   color:P.textSub,  accent:P.textDim },
+            { label:'Activas',  value:activas.length,    color:P.green,    accent:P.green   },
+            { label:'Pausadas', value:inactivas.length,  color:P.grayMid,  accent:P.grayMid },
+            { label:'Ver más activo', value: activas.length > LIMIT_WARN ? 'Sí' : 'No', color: activas.length > LIMIT_WARN ? P.orange : P.textSub, accent: activas.length > LIMIT_WARN ? P.orange : P.textDim },
+          ].map(s => (
+            <div key={s.label} style={{ background:P.surface, border:`1px solid ${P.border}`, borderRadius:10, padding:'14px 16px', position:'relative', overflow:'hidden', boxShadow:'0 1px 3px rgba(0,0,0,0.06)' }}>
+              <div style={{ position:'absolute', top:0, left:0, right:0, height:2.5, background:s.accent, opacity:0.5 }}/>
+              <div style={{ color:P.textDim, fontSize:10, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:8 }}>{s.label}</div>
+              <div style={{ fontSize:28, fontFamily:"'DM Mono',monospace", fontWeight:500, color:s.color, letterSpacing:'-0.04em' }}>{s.value}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Banner límite */}
+        <LimitBanner count={activas.length} P={P} />
+      </div>
 
       {/* ── LISTA ── */}
       <div style={CARD}>
@@ -504,8 +519,8 @@ export default function VacantesTab({ theme = 'dark' }) {
                   {/* Barra superior de color */}
                   <div style={{ height:3, background: v.activa ? P.green : P.grayMid, transition:'background 0.2s' }}/>
 
-                  {/* Cuerpo */}
-                  <div style={{ padding:'14px 16px 10px', flex:1, display:'flex', flexDirection:'column', gap:8 }}>
+                  {/* Cuerpo — clic abre editor */}
+                  <div onClick={() => openEdit(v)} style={{ padding:'14px 16px 10px', flex:1, display:'flex', flexDirection:'column', gap:8, cursor:'pointer' }}>
 
                     {/* Cabecera: título + badges */}
                     <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:8 }}>
@@ -525,8 +540,7 @@ export default function VacantesTab({ theme = 'dark' }) {
 
                     {/* Descripción */}
                     {v.descripcion && (
-                      <p style={{ fontSize:11, color:P.textDim, margin:0, lineHeight:1.5,
-                        overflow:'hidden', display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical' }}>
+                      <p style={{ fontSize:11, color:P.textDim, margin:0, lineHeight:1.55 }}>
                         {v.descripcion}
                       </p>
                     )}
@@ -583,177 +597,156 @@ export default function VacantesTab({ theme = 'dark' }) {
       <Modal open={modal} onClose={() => setModal(false)} title={editing ? 'Editar vacante' : 'Nueva vacante'} P={P}>
         <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
 
-          {/* Título */}
+          {/* ── Fila 1: Título (full) ── */}
           <div>
             <FieldLabel P={P} current={form.titulo.length} max={LIMITS.titulo}>Título del puesto *</FieldLabel>
             <input value={form.titulo} onChange={setField('titulo')} placeholder="Ej: Operador de Producción"
               style={{ ...inp, borderColor: isAllCaps(form.titulo) ? P.err : undefined }}
               onFocus={focusIn} onBlur={onTituloBlur} />
             {isAllCaps(form.titulo) && (
-              <div style={{ display:'flex', alignItems:'center', gap:6, marginTop:5, fontSize:11, color:P.err }}>
-                <span style={{ display:'flex' }}>{Ic.warn}</span>
-                No uses todo en mayúsculas. Al salir del campo se corregirá automáticamente.
-              </div>
-            )}
-            {!isAllCaps(form.titulo) && form.titulo.length > 0 && (
-              <div style={{ fontSize:10, color:P.textDim, marginTop:4 }}>
-                Primera letra de cada palabra en mayúscula · Ej: "Supervisor de Producción"
+              <div style={{ display:'flex', alignItems:'center', gap:6, marginTop:4, fontSize:10, color:P.err }}>
+                {Ic.warn} Todo en mayúsculas — se corregirá al salir del campo.
               </div>
             )}
           </div>
 
-          {/* Empresa / Negocio (opcional) */}
-          <div>
-            <FieldLabel P={P} current={form.empresa.length} max={LIMITS.empresa} hint="Opcional — si se omite se muestra 'Grupo Ortiz'">Empresa / Negocio</FieldLabel>
-            <input value={form.empresa} onChange={setField('empresa')} placeholder="Ej: Distribuidora del Centro"
-              style={inp} onFocus={focusIn} onBlur={focusOut} />
-            {form.empresa.trim() && (
-              <div style={{ fontSize:10, color:P.textDim, marginTop:4 }}>
-                La vacante mostrará <strong style={{ color:P.textSub }}>{form.empresa.trim()}</strong> como empresa contratante
-              </div>
-            )}
-          </div>
-
-          {/* Área + Tipo */}
+          {/* ── Fila 2: Empresa + Área ── */}
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+            <div>
+              <FieldLabel P={P} current={form.empresa.length} max={LIMITS.empresa} hint="Opcional">Empresa</FieldLabel>
+              <input value={form.empresa} onChange={setField('empresa')} placeholder="Ej: Distribuidora del Centro"
+                style={inp} onFocus={focusIn} onBlur={focusOut} />
+            </div>
             <div>
               <FieldLabel P={P}>Área</FieldLabel>
               <select value={form.area} onChange={setField('area')} style={{ ...inp, cursor:'pointer' }}>
                 {AREAS.map(a => <option key={a} value={a}>{a}</option>)}
               </select>
             </div>
+          </div>
+
+          {/* ── Fila 3: Tipo + Ubicación + Horario ── */}
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:10 }}>
             <div>
-              <FieldLabel P={P}>Tipo de contrato</FieldLabel>
-              <select value={form.tipo} onChange={setField('tipo')} style={{ ...inp, cursor:'pointer' }}>
+              <FieldLabel P={P}>Tipo</FieldLabel>
+              <select value={form.tipo} onChange={setField('tipo')} style={{ ...inp, cursor:'pointer', fontSize:11 }}>
                 {TIPOS.map(t => <option key={t} value={t}>{t}</option>)}
               </select>
             </div>
-          </div>
-
-          {/* Ubicación */}
-          <div>
-            <FieldLabel P={P} current={form.ubicacion.length} max={LIMITS.ubicacion}>Ubicación</FieldLabel>
-            <input value={form.ubicacion} onChange={setField('ubicacion')} placeholder="Ej: Morelia, Mich."
-              style={inp} onFocus={focusIn} onBlur={focusOut} />
-          </div>
-
-          {/* Horario + Salario */}
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+            <div>
+              <FieldLabel P={P} current={form.ubicacion.length} max={LIMITS.ubicacion}>Ubicación</FieldLabel>
+              <input value={form.ubicacion} onChange={setField('ubicacion')} placeholder="Morelia, Mich."
+                style={{ ...inp, fontSize:11 }} onFocus={focusIn} onBlur={focusOut} />
+            </div>
             <div>
               <FieldLabel P={P}>Horario</FieldLabel>
-              <select value={form.horario} onChange={setField('horario')} style={{ ...inp, cursor:'pointer' }}
+              <select value={form.horario} onChange={setField('horario')} style={{ ...inp, cursor:'pointer', fontSize:11 }}
                 onFocus={focusIn} onBlur={focusOut}>
                 {HORARIOS.map(h => <option key={h} value={h}>{h}</option>)}
               </select>
             </div>
-            <div>
-              <FieldLabel P={P} current={form.salario.length} max={LIMITS.salario}>Salario (opcional)</FieldLabel>
-              <input value={form.salario} onChange={setField('salario')} placeholder="Ej: $10,000 mensual"
-                style={inp} onFocus={focusIn} onBlur={focusOut} />
-            </div>
           </div>
 
-          {/* Descripción breve */}
+          {/* ── Fila 4: Salario ── */}
+          <div>
+            <FieldLabel P={P} current={form.salario.length} max={LIMITS.salario}>Salario <span style={{ fontSize:10, fontWeight:400, color:P.textDim }}>(opcional)</span></FieldLabel>
+            <input value={form.salario} onChange={setField('salario')} placeholder="Ej: $10,000 mensual"
+              style={inp} onFocus={focusIn} onBlur={focusOut} />
+          </div>
+
+          {/* ── Fila 5: Descripción breve ── */}
           <div>
             <FieldLabel P={P} hint="Visible en la tarjeta" current={form.descripcion.length} max={LIMITS.descripcion}
-              rightAction={form.descripcion.length >= Math.floor(LIMITS.descripcion * 0.6)
-                ? <IaBtn campo="descripcion" loading={iaLoading} onClick={() => mejorarConIA('descripcion')} P={P} />
+              rightAction={form.titulo.trim()
+                ? <IaBtn campo="descripcion" loading={iaLoading} onClick={() => mejorarConIA('descripcion')} P={P} generar={!form.descripcion.trim()} />
                 : null}>
               Descripción breve
             </FieldLabel>
-            <textarea value={form.descripcion} onChange={setField('descripcion')}
-              placeholder="Resumen corto del puesto que verá el candidato en la tarjeta..."
-              rows={3} style={{ ...inp, resize:'vertical', lineHeight:1.6, borderColor: form.descripcion.length >= LIMITS.descripcion * 0.9 ? P.err : undefined }}
+            <textarea ref={descRef} value={form.descripcion} onChange={setField('descripcion')}
+              placeholder="Escribe algo o usa IA para generar automáticamente…"
+              rows={2} style={{ ...inp, resize:'none', lineHeight:1.6, overflowY:'hidden', minHeight:58, borderColor: form.descripcion.length >= LIMITS.descripcion ? P.err : undefined }}
               onFocus={focusIn} onBlur={focusOut} />
+            {form.descripcion.length >= LIMITS.descripcion && (
+              <div style={{ fontSize:10, color:P.err, marginTop:3 }}>Límite de {LIMITS.descripcion} caracteres alcanzado</div>
+            )}
             {iaError && iaLoading === null && <div style={{ fontSize:10, color:P.err, marginTop:4 }}>{iaError}</div>}
           </div>
 
-          {/* Requisitos */}
+          {/* ── Fila 6: Requisitos ── */}
           <div>
             <FieldLabel P={P} hint="Un requisito por línea" current={form.requisitos.length} max={LIMITS.requisitos}
-              rightAction={form.requisitos.length >= Math.floor(LIMITS.requisitos * 0.6)
-                ? <IaBtn campo="requisitos" loading={iaLoading} onClick={() => mejorarConIA('requisitos')} P={P} />
+              rightAction={form.titulo.trim()
+                ? <IaBtn campo="requisitos" loading={iaLoading} onClick={() => mejorarConIA('requisitos')} P={P} generar={!form.requisitos.trim()} />
                 : null}>
               Requisitos / Detalles
             </FieldLabel>
             <textarea value={form.requisitos} onChange={setField('requisitos')}
               placeholder={'Ej:\nExperiencia mínima 1 año\nSaber usar Excel\nDisponibilidad de horario'}
-              rows={4} style={{ ...inp, resize:'vertical', lineHeight:1.6, borderColor: form.requisitos.length >= LIMITS.requisitos * 0.9 ? P.err : undefined }}
+              rows={3} style={{ ...inp, resize:'vertical', lineHeight:1.6, borderColor: form.requisitos.length >= LIMITS.requisitos * 0.9 ? P.err : undefined }}
               onFocus={focusIn} onBlur={focusOut} />
+            {iaError && iaLoading === null && <div style={{ fontSize:10, color:P.err, marginTop:4 }}>{iaError}</div>}
           </div>
 
-          {/* Toggle publicar */}
-          <label style={{ display:'flex', alignItems:'center', gap:10, cursor:'pointer', padding:'10px 12px', background:P.surface3, borderRadius:8, border:`1px solid ${P.border}` }}>
+          {/* ── Fila 7: Toggles lado a lado ── */}
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+            {/* Publicar */}
             <div onClick={() => setForm(f => ({ ...f, activa: f.activa ? 0 : 1 }))}
-              style={{ width:38, height:21, borderRadius:11, position:'relative', flexShrink:0, cursor:'pointer', background: form.activa ? P.green : P.border, transition:'background 0.18s ease' }}>
-              <div style={{ position:'absolute', top:3, left: form.activa ? 20 : 3, width:15, height:15, borderRadius:'50%', background:'#fff', transition:'left 0.18s ease', boxShadow:'0 1px 4px rgba(0,0,0,0.25)' }}/>
-            </div>
-            <div>
-              <div style={{ fontSize:12, color:P.text, fontWeight:600 }}>{form.activa ? 'Publicar inmediatamente' : 'Guardar como pausada'}</div>
-              <div style={{ fontSize:10, color:P.textDim }}>
-                {form.activa
-                  ? 'La vacante aparecerá en la página pública al guardar'
-                  : 'Puedes activarla después desde la lista'}
+              style={{ display:'flex', alignItems:'center', gap:9, cursor:'pointer', padding:'10px 12px', background:P.surface3, borderRadius:8, border:`1px solid ${P.border}` }}>
+              <div style={{ width:34, height:19, borderRadius:10, position:'relative', flexShrink:0, background: form.activa ? P.green : P.border, transition:'background 0.18s ease' }}>
+                <div style={{ position:'absolute', top:2, left: form.activa ? 17 : 2, width:15, height:15, borderRadius:'50%', background:'#fff', transition:'left 0.18s ease', boxShadow:'0 1px 3px rgba(0,0,0,0.2)' }}/>
               </div>
-            </div>
-          </label>
-
-          {/* Toggle múltiples posiciones */}
-          <label style={{ display:'flex', alignItems:'center', gap:10, cursor:'pointer', padding:'10px 12px', background: form.multiples ? `${P.orange}0D` : P.surface3, borderRadius:8, border:`1px solid ${form.multiples ? P.orange+'35' : P.border}`, transition:'all 0.15s ease' }}>
-            <div onClick={() => setForm(f => ({ ...f, multiples: f.multiples ? 0 : 1 }))}
-              style={{ width:38, height:21, borderRadius:11, position:'relative', flexShrink:0, cursor:'pointer', background: form.multiples ? P.orange : P.border, transition:'background 0.18s ease' }}>
-              <div style={{ position:'absolute', top:3, left: form.multiples ? 20 : 3, width:15, height:15, borderRadius:'50%', background:'#fff', transition:'left 0.18s ease', boxShadow:'0 1px 4px rgba(0,0,0,0.25)' }}/>
-            </div>
-            <div>
-              <div style={{ fontSize:12, color: form.multiples ? P.orange : P.text, fontWeight:600 }}>
-                {form.multiples ? '🔥 Contratando a varios candidatos' : 'Contratando a varios candidatos'}
-              </div>
-              <div style={{ fontSize:10, color:P.textDim }}>Muestra un badge en la tarjeta pública indicando alta demanda</div>
-            </div>
-          </label>
-
-          {/* Beneficios — aplican a todas las vacantes */}
-          <div style={{ borderRadius:9, border:`1px solid ${P.green}28`, background:P.greenDim, overflow:'hidden' }}>
-            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'10px 13px', borderBottom:`1px solid ${P.green}18` }}>
-              <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-                <span style={{ color:P.green, display:'flex' }}>
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                </span>
-                <span style={{ fontSize:11, fontWeight:700, color:P.green, textTransform:'uppercase', letterSpacing:'0.08em' }}>Lo que ofrecemos — incluido en todas las vacantes</span>
-              </div>
-              <button
-                onClick={() => { setBenEdit(null); setBenDraft(''); setBenNew(''); setBenModal(true); }}
-                style={{ display:'inline-flex', alignItems:'center', gap:5, padding:'4px 9px', borderRadius:6, border:`1px solid ${P.green}35`, background:`${P.green}12`, color:P.green, fontSize:10, fontWeight:600, cursor:'pointer', flexShrink:0 }}>
-                {Ic.edit} Editar
-              </button>
-            </div>
-            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'6px 10px', padding:'12px 13px' }}>
-              {beneficios.map((b, i) => (
-                <div key={i} style={{ display:'flex', alignItems:'center', gap:6, fontSize:11, color:P.text }}>
-                  <span style={{ color:P.green, display:'flex', flexShrink:0 }}>
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                  </span>
-                  {b}
+              <div>
+                <div style={{ fontSize:11, color: form.activa ? P.text : P.textSub, fontWeight:600, lineHeight:1.3 }}>
+                  {form.activa ? 'Publicar ahora' : 'Guardar pausada'}
                 </div>
-              ))}
+                <div style={{ fontSize:10, color:P.textDim, lineHeight:1.3 }}>
+                  {form.activa ? 'Visible al guardar' : 'Activar después'}
+                </div>
+              </div>
+            </div>
+            {/* Múltiples */}
+            <div onClick={() => setForm(f => ({ ...f, multiples: f.multiples ? 0 : 1 }))}
+              style={{ display:'flex', alignItems:'center', gap:9, cursor:'pointer', padding:'10px 12px', background: form.multiples ? `${P.orange}0D` : P.surface3, borderRadius:8, border:`1px solid ${form.multiples ? P.orange+'35' : P.border}`, transition:'all 0.15s ease' }}>
+              <div style={{ width:34, height:19, borderRadius:10, position:'relative', flexShrink:0, background: form.multiples ? P.orange : P.border, transition:'background 0.18s ease' }}>
+                <div style={{ position:'absolute', top:2, left: form.multiples ? 17 : 2, width:15, height:15, borderRadius:'50%', background:'#fff', transition:'left 0.18s ease', boxShadow:'0 1px 3px rgba(0,0,0,0.2)' }}/>
+              </div>
+              <div>
+                <div style={{ fontSize:11, color: form.multiples ? P.orange : P.textSub, fontWeight:600, lineHeight:1.3 }}>Varias posiciones</div>
+                <div style={{ fontSize:10, color:P.textDim, lineHeight:1.3 }}>Badge de alta demanda</div>
+              </div>
             </div>
           </div>
 
-          {/* Feedback guardado */}
+          {/* ── Fila 8: Beneficios compacto ── */}
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'9px 13px', borderRadius:8, border:`1px solid ${P.green}28`, background:P.greenDim }}>
+            <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+              <span style={{ color:P.green, display:'flex', flexShrink:0 }}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </span>
+              <span style={{ fontSize:11, color:P.green, fontWeight:600 }}>
+                {beneficios.length} beneficios incluidos en todas las vacantes
+              </span>
+            </div>
+            <button onClick={() => { setBenEdit(null); setBenDraft(''); setBenNew(''); setBenModal(true); }}
+              style={{ display:'inline-flex', alignItems:'center', gap:5, padding:'4px 9px', borderRadius:6, border:`1px solid ${P.green}35`, background:`${P.green}12`, color:P.green, fontSize:10, fontWeight:600, cursor:'pointer', flexShrink:0 }}>
+              {Ic.edit} Editar
+            </button>
+          </div>
+
+          {/* ── Feedback + Acciones ── */}
           {status && (
-            <div style={{ padding:'10px 14px', borderRadius:8, fontSize:12,
+            <div style={{ padding:'9px 13px', borderRadius:8, fontSize:12,
               background: status==='ok' ? P.greenDim : P.errDim,
               color:      status==='ok' ? P.green    : P.err,
               display:'flex', alignItems:'center', gap:8 }}>
               <span style={{ display:'flex' }}>{status==='ok' ? Ic.check : Ic.warn}</span>
-              {status==='ok'        ? 'Vacante guardada correctamente.'
-               : status==='duplicate' ? `Ya existe una vacante con el título "${form.titulo.trim()}". Usa un nombre diferente.`
+              {status==='ok'          ? 'Vacante guardada correctamente.'
+               : status==='duplicate' ? `Ya existe "${form.titulo.trim()}". Usa un nombre diferente.`
                : 'Ocurrió un error. Intenta de nuevo.'}
             </div>
           )}
 
-          {/* Acciones */}
-          <div style={{ display:'flex', gap:8, marginTop:4 }}>
+          <div style={{ display:'flex', gap:8 }}>
             <button onClick={handleSave} disabled={saving || !form.titulo.trim() || isAllCaps(form.titulo)}
               style={{ flex:1, padding:'11px 0', borderRadius:9, border:'none', fontSize:12, fontWeight:600,
                 background: saving || !form.titulo.trim() || isAllCaps(form.titulo) ? P.surface2 : P.orange,

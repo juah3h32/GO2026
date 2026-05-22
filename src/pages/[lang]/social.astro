@@ -1,9 +1,10 @@
 ---
 import "../../styles/impactosocial.css";
-export const prerender = true;  // ← AGREGAR ESTA LÍNEA
+export const prerender = true;
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Footer from "../../components/Footer.astro";
 import { languages, translations } from "../../i18n";
+import ImpactoTimeline from "../../components/ImpactoTimeline";
 
 export function getStaticPaths() {
   return Object.keys(languages).map((lang) => ({ params: { lang } }));
@@ -297,56 +298,13 @@ const ti = t.impacto_social as typeof translations['es']['impacto_social'];
       </div>
     </section>
 
-    <!-- TIMELINE -->
-    <section class="timeline-section">
-      <div class="container-tesla">
-        <div class="section-header">
-          <h2 class="section-title">{ti.timeline.title}</h2>
-          <p class="section-subtitle">{ti.timeline.subtitle}</p>
-        </div>
-      </div>
-
-      <div class="container-tesla timeline-desktop">
-        <div class="timeline-container">
-          {ti.timeline.items.map((item, i) => (
-            <div class="timeline-item" data-aos={i % 2 === 0 ? "fade-right" : "fade-left"}>
-              <div class="timeline-content">
-                <span class="timeline-number">{item.num}</span>
-                <h3 class="timeline-title">{item.title}</h3>
-                <p class="timeline-description">{item.desc}</p>
-              </div>
-              <div class="timeline-image">
-                {item.isVideo ? (
-                  <video src={item.img} autoplay muted loop playsinline poster={item.poster} />
-                ) : (
-                  <img src={item.img} alt={item.title} loading="lazy" />
-                )}
-              </div>
-              <div class="timeline-dot"></div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div class="timeline-mobile-carousel" aria-hidden="true">
-        {ti.timeline.items.map((item) => (
-          <div class="tmc-card">
-            <div class="tmc-img">
-              {item.isVideo ? (
-                <video src={item.img} autoplay muted loop playsinline poster={item.poster} style="width:100%;height:100%;object-fit:cover;display:block;" />
-              ) : (
-                <img src={item.img} alt={item.title} loading="lazy" />
-              )}
-            </div>
-            <div class="tmc-body">
-              <span class="tmc-num">{item.num}</span>
-              <h3 class="tmc-title">{item.title}</h3>
-              <p class="tmc-desc">{item.desc_short}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
+    <!-- TIMELINE (ProgressSlider) -->
+    <ImpactoTimeline
+      client:visible
+      title={ti.timeline.title}
+      subtitle={ti.timeline.subtitle}
+      items={ti.timeline.items as any}
+    />
 
     <!-- CTA -->
     <section class="juntos-section">
@@ -546,9 +504,14 @@ const ti = t.impacto_social as typeof translations['es']['impacto_social'];
 
     function goTo(index) {
       current = Math.max(0, Math.min(index, cards.length - 1));
-      const card   = cards[current];
-      const trackW = track.clientWidth;
-      track.scrollTo({ left: card.offsetLeft - (trackW - card.offsetWidth) / 2, behavior: "smooth" });
+      const card     = cards[current];
+      const trackW   = track.clientWidth;
+      const scrollPos = Math.max(0, card.offsetLeft - (trackW - card.offsetWidth) / 2);
+      const pageBefore = window.scrollY;
+      track.style.scrollSnapType = "none";
+      track.scrollLeft = scrollPos;
+      track.style.scrollSnapType = "";
+      if (window.scrollY !== pageBefore) window.scrollTo(0, pageBefore);
       dots.forEach((d, i) => d.classList.toggle("active", i === current));
     }
 
@@ -574,6 +537,11 @@ const ti = t.impacto_social as typeof translations['es']['impacto_social'];
     });
 
     document.addEventListener("keydown", (e) => {
+      if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+      const vSection = document.querySelector(".vision-section");
+      if (!vSection) return;
+      const r = vSection.getBoundingClientRect();
+      if (r.top >= window.innerHeight || r.bottom <= 0) return;
       if (e.key === "ArrowLeft")  goTo(current - 1);
       if (e.key === "ArrowRight") goTo(current + 1);
     });
@@ -813,5 +781,6 @@ const ti = t.impacto_social as typeof translations['es']['impacto_social'];
 })();
 </script>
 
-<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-<script is:inline src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<link rel="preload" href="https://unpkg.com/aos@2.3.1/dist/aos.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet"></noscript>
+<script defer src="https://unpkg.com/aos@2.3.1/dist/aos.js" is:inline></script>

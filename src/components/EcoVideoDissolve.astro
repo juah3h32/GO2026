@@ -1,0 +1,158 @@
+---
+/**
+ * EcoVideoDissolve — Wrapper reutilizable para videos con transición scroll-linked.
+ *
+ * Efecto: al hacer scroll, los bordes del video se consumen con el gradiente ECO
+ * Skybound (azul → celeste) y el video se desvanece. El overlay completa antes
+ * de que la sección siguiente sea completamente visible.
+ *
+ * Uso básico:
+ *   <EcoVideoDissolve videoSelector=".mi-video-wrap">
+ *     <div class="mi-video-wrap">
+ *       <video …/>
+ *     </div>
+ *   </EcoVideoDissolve>
+ *
+ * Consulta ANIMATIONS.md en la raíz del proyecto para detalles completos.
+ */
+
+interface Props {
+  /** Clases extra para el wrapper raíz */
+  class?: string;
+  /** z-index del wrapper (debe superar al de la sección siguiente) */
+  zIndex?: number;
+  /** Selector CSS del video wrapper interno (para aplicar fade directo al video) */
+  videoSelector?: string;
+  /** Cuándo termina el overlay — notación GSAP ScrollTrigger, ej. "75% top" */
+  dissolveEnd?: string;
+  /** Cuándo inicia el fade del video, ej. "15% top" */
+  fadeStart?: string;
+  /** Cuándo termina el fade del video, ej. "80% top" */
+  fadeEnd?: string;
+  /** Suavizado del scrub (mayor = más suave) */
+  scrub?: number;
+  /** Ease del overlay (GSAP string) */
+  ease?: string;
+}
+
+const {
+  class: className = '',
+  zIndex       = 2,
+  videoSelector,
+  dissolveEnd  = '75% top',
+  fadeStart    = '15% top',
+  fadeEnd      = '80% top',
+  scrub        = 1,
+  ease         = 'power3.in',
+} = Astro.props;
+---
+
+<div
+  class:list={['eco-dissolve-wrap', className]}
+  style={`--edz: ${zIndex}`}
+  data-dissolve-end={dissolveEnd}
+  data-fade-start={fadeStart}
+  data-fade-end={fadeEnd}
+  data-scrub={scrub}
+  data-ease={ease}
+  data-video-sel={videoSelector ?? ''}
+>
+  <slot />
+  <div class="eco-dissolve__overlay" aria-hidden="true"></div>
+</div>
+
+<style>
+  .eco-dissolve-wrap {
+    position: relative;
+    z-index: var(--edz, 2);
+    overflow: hidden;
+  }
+
+  /* Overlay ECO Skybound — borde-dissolve */
+  .eco-dissolve__overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+
+    /* Capa 1: blanco hacia arriba para entrar en sección siguiente */
+    /* Capa 2: gradiente ECO Skybound horizontal */
+    background:
+      linear-gradient(to top, #ffffff 0%, rgba(255, 255, 255, 0.1) 42%),
+      linear-gradient(90deg, rgb(28, 83, 189) 0%, rgb(83, 173, 254) 100%);
+
+    /* Máscara radial: centro transparente (video visible), bordes opacos */
+    mask-image: radial-gradient(
+      ellipse 44% 36% at 50% 44%,
+      transparent       0%,
+      rgba(0, 0, 0, 0.7) 50%,
+      black             68%
+    );
+    -webkit-mask-image: radial-gradient(
+      ellipse 44% 36% at 50% 44%,
+      transparent       0%,
+      rgba(0, 0, 0, 0.7) 50%,
+      black             68%
+    );
+
+    opacity: 0;
+    will-change: opacity;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .eco-dissolve__overlay { display: none; }
+  }
+</style>
+
+<script>
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  function initEcoDissolve() {
+    document.querySelectorAll<HTMLElement>('.eco-dissolve-wrap').forEach((wrap) => {
+      const overlay      = wrap.querySelector<HTMLElement>('.eco-dissolve__overlay');
+      if (!overlay) return;
+
+      const dissolveEnd  = wrap.dataset.dissolveEnd  ?? '75% top';
+      const fadeStart    = wrap.dataset.fadeStart    ?? '15% top';
+      const fadeEnd      = wrap.dataset.fadeEnd      ?? '80% top';
+      const scrub        = Number(wrap.dataset.scrub ?? 1);
+      const ease         = wrap.dataset.ease         ?? 'power3.in';
+      const videoSel     = wrap.dataset.videoSel;
+
+      /* — Overlay ECO: cubre bordes con gradiente — */
+      gsap.to(overlay, {
+        opacity: 1,
+        ease,
+        scrollTrigger: {
+          trigger: wrap,
+          start: 'top top',
+          end: dissolveEnd,
+          scrub,
+        },
+      });
+
+      /* — Video fade: el propio video se esfuma — */
+      if (videoSel) {
+        const videoEl = wrap.querySelector<HTMLElement>(videoSel);
+        if (videoEl) {
+          gsap.to(videoEl, {
+            opacity: 0,
+            ease: 'power2.in',
+            scrollTrigger: {
+              trigger: wrap,
+              start: fadeStart,
+              end: fadeEnd,
+              scrub,
+            },
+          });
+        }
+      }
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', initEcoDissolve);
+  document.addEventListener('astro:page-load',  initEcoDissolve);
+</script>

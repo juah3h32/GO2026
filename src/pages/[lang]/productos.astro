@@ -8,6 +8,8 @@ import "../../styles/global.css";
 import "../../styles/flechas.css";
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import Footer from "../../components/Footer.astro";
+import VideoWithFallback from "../../components/VideoWithFallback.astro";
 import { languages, translations } from "../../i18n";
 
 // 1. DEFINIR LA ESTRUCTURA DEL PRODUCTO
@@ -51,7 +53,7 @@ const firstProductImg =
   productsList.length > 0 ? resolveImg(productsList[0].img) : null;
 ---
 
-<BaseLayout title={`${t.nav.products} | Grupo Ortiz`} currentLang={currentLang}>
+<BaseLayout title={`${t.nav.products} | Grupo Ortiz`} canonicalSlug="productos/" currentLang={currentLang}>
   {
     firstProductImg && (
       <link rel="preload" as="image" href={firstProductImg} slot="head" />
@@ -60,6 +62,25 @@ const firstProductImg =
 
   <!-- Script para model-viewer (si usas modelos 3D) -->
 
+
+  <h1 class="sr-only">{t.nav.products} | Grupo Ortiz</h1>
+
+  <div class="video-background-container">
+    {productsList.map((item) => item.video && (
+      <VideoWithFallback
+        class="video-background"
+        cloudinaryId={item.video.startsWith('/') ? '' : item.video.replace(/\.mp4$/, '')}
+        localFallback={item.video.startsWith('/') ? item.video : `/videos/${item.video.replace(/^GO\//, '')}`}
+        poster={resolveImg(item.img)}
+        autoplay={false}
+        muted={true}
+        loop={true}
+        playsinline={true}
+        preload="none"
+        productName={item.division}
+      />
+    ))}
+  </div>
 
   <div id="reveal-container" class="reveal-container">
     <div class="reveal-bg"></div>
@@ -283,4 +304,6 @@ const firstProductImg =
       }
     }
   </style>
+
+  <Footer currentLang={currentLang} />
 </BaseLayout>

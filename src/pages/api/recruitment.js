@@ -31,9 +31,74 @@ export async function POST({ request }) {
   try {
     const contentType = request.headers.get('content-type') || '';
 
-    // ── Subida de CV (multipart/form-data) ────────────────────────────────
+    // ── Multipart: CV upload suelto  O  save completo con CV ─────────────
     if (contentType.includes('multipart/form-data')) {
-      const formData  = await request.formData();
+      const formData = await request.formData();
+      const action   = formData.get('action') || '';
+
+      // ── save completo con CV adjunto (viene de handleConfirmarRegistro) ──
+      if (action === 'save') {
+        const file         = formData.get('cv');
+        const nombre       = formData.get('nombre')       || '';
+        const email        = formData.get('email')        || '';
+        const telefono     = formData.get('telefono')     || '';
+        const puesto       = formData.get('puesto')       || '';
+        const edad         = formData.get('edad')         || '';
+        const estado       = formData.get('estado')       || '';
+        const colonia      = formData.get('colonia')      || '';
+        const comentarios  = formData.get('comentarios')  || '';
+        const sessionId    = formData.get('sessionId')    || '';
+        const esListaEspera = formData.get('esListaEspera') === '1';
+        const cvNombreForm = formData.get('cvNombre')     || '';
+
+        let cvBase64 = '', cvNombre = cvNombreForm, cvTipo = '';
+        if (file && typeof file !== 'string' && file.size > 0) {
+          const MAX_SIZE = 5 * 1024 * 1024;
+          if (file.size <= MAX_SIZE) {
+            cvBase64 = Buffer.from(await file.arrayBuffer()).toString('base64');
+            cvNombre = file.name || cvNombreForm;
+            cvTipo   = file.type || '';
+          }
+        }
+
+        if (!nombre && !email && !telefono) {
+          return json({ ok: false, error: 'Datos insuficientes.' }, 400);
+        }
+
+        let en_lista_espera = esListaEspera ? 1 : 0;
+        if (!esListaEspera) {
+          try {
+            const vacantesActivas = (await readVacantes(true)) || [];
+            if (!vacantesActivas.length) {
+              en_lista_espera = 1;
+            } else if (puesto) {
+              const pLow = puesto.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+              const hay  = vacantesActivas.some(v =>
+                (v.titulo||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').includes(pLow) ||
+                pLow.includes((v.titulo||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,''))
+              );
+              if (!hay) en_lista_espera = 1;
+            }
+          } catch {}
+        }
+
+        const saved = await saveRecruitmentLead({
+          nombre, email, telefono, puesto, edad,
+          estado_rep: estado, colonia,
+          cvNombre, cvBase64, cvTipo,
+          mensaje: '', comentarios, sessionId,
+          en_lista_espera,
+        });
+
+        try {
+          if (en_lista_espera) await notifyEsperaVacante({ nombre, puesto, telefono, email, sessionId });
+          else                  await notifyNewVacante({ nombre, puesto, telefono, email, cvNombre, sessionId });
+        } catch (e) { console.warn('notify error:', e.message); }
+
+        return json({ ok: true, id: saved?.id || null, esListaEspera: !!en_lista_espera });
+      }
+
+      // ── upload de CV suelto (previsualización antes de confirmar) ─────────
       const file      = formData.get('cv');
       const sessionId = formData.get('sessionId') || '';
 
@@ -52,7 +117,7 @@ export async function POST({ request }) {
         return json({ ok: false, error: 'Tipo de archivo no permitido. Usa PDF, DOC, DOCX, JPG o PNG.' }, 400);
       }
 
-      const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
+      const MAX_SIZE = 5 * 1024 * 1024;
       if (file.size > MAX_SIZE) {
         return json({ ok: false, error: 'El archivo excede el límite de 5 MB.' }, 400);
       }
@@ -63,15 +128,7 @@ export async function POST({ request }) {
 
       console.log(`📄 CV recibido: ${fileName} (${(file.size / 1024).toFixed(1)} KB) session=${sessionId}`);
 
-      return json({
-        ok: true,
-        cv: {
-          nombre: fileName,
-          tipo:   file.type,
-          base64,
-          tamaño: file.size,
-        },
-      });
+      return json({ ok: true, cv: { nombre: fileName, tipo: file.type, base64, tamaño: file.size } });
     }
 
     // ── Acciones JSON ─────────────────────────────────────────────────────

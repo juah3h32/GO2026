@@ -237,28 +237,28 @@ chatbot: {
       division: "STRETCH FILM",
       descripcion: "Película estirable de alta claridad óptica y estándares de calidad. Asegura la integridad de la carga y eficiencia en costos. Nuestra línea incluye opción Biodegradable, formulada para degradarse 90% más rápido.",
       slug: "stretch-film",
-      video: "carrusel/stretch-film.mp4"
+      video: "GO/carrusel/stretch-film.mp4"
     },
       {
       img: "carrusel/img4.webp",
       division: "ARPILLA",
       descripcion: "Sacos de malla de Rafia de Polipropileno en tejido circular de alta resistencia y durabilidad. Diseño ventilado ideal para frutas y verduras.",
       slug: "arpillas",
-      video: "carrusel/arpillas.mp4"
+      video: "GO/carrusel/arpillas.mp4"
     },
     {
       img: "carrusel/img2.webp",
       division: "CUERDA",
       descripcion: "Cuerda de Filamento de Polipropileno (PP) de alto rendimiento. Equilibrio perfecto: extrema ligereza sin sacrificar resistencia a la rotura.",
       slug: "cuerdas",
-      video: "carrusel/cuerdas.mp4"
+      video: "GO/carrusel/cuerdas.mp4"
     },
     {
       img: "carrusel/img3.webp",
       division: "RAFIA",
       descripcion: "Rafia de Película de Polipropileno (PP) de alto rendimiento. Gran ligereza y alta resistencia a la rotura. Flexible y versátil.",
       slug: "rafias",
-      video: "carrusel/rafia.mp4"
+      video: "GO/carrusel/rafia.mp4"
     },
 
     {
@@ -266,23 +266,98 @@ chatbot: {
       division: "SACO",
       descripcion: "Sacos de Rafia de calidad superior. Solución de envasado robusta para alimentos, productos químicos y fertilizantes.",
       slug: "sacos",
-      video: "carrusel/sacos.mp4"
+      video: "GO/carrusel/sacos.mp4"
     },
     {
       img: "carrusel/img6.webp",
       division: "ESQUINERO",
       descripcion: "Esquineros de cartón para optimizar la logística. Resistencia estructural y mayor estabilidad de carga.",
       slug: "esquineros",
-      video: "carrusel/esquineros.mp4"
+      video: "GO/carrusel/esquineros.mp4"
     },
     {
       img: "carrusel/img7.webp",
       division: "FLEXIBLE",
       descripcion: "Neo Empaques International se especializa en soluciones avanzadas de empaque flexible, diseñadas para optimizar la conservación y presentación de productos en múltiples industrias.",
       slug: "empaques-flexibles",
-      video: "carrusel/bobina-impresa.mp4"
+      video: "GO/carrusel/bobina-impresa.mp4"
+    },
+    {
+      img: "carrusel/nuev2a.png",
+      division: "NATURIZABLE",
+      descripcion: "Empaque sustentable que regresa a la tierra. Soluciones 100% Plant Based, reciclables y compostables para la industria alimentaria.",
+      slug: "naturizable",
+      video: "GO/carrusel/charola.mp4"
     }
   ],
+
+  // =================================================
+  // PÁGINA: NATURIZABLE
+  // =================================================
+  naturizable: {
+    meta_title: "Naturizable | Grupo Ortiz",
+    meta_description: "Empaque sustentable 100% Plant Based que regresa a la tierra. Charolas reciclables y compostables para la industria alimentaria.",
+    back_aria: "Volver",
+    coming_soon_badge: "Próximamente",
+    specs_title: "ESPECIFICACIONES TÉCNICAS",
+    specs_labels: {
+      material: "Material",
+      usage: "Uso",
+      resistance: "Resistencia",
+      presentation: "Presentación"
+    },
+    products: [
+      {
+        name: "CHAROLA 855",
+        description: "Empaque que sostiene la comida con dignidad. Sirve al taquero, al carnicero, al frutero, al chef — y cuando termina, regresa a la tierra sin pedir permiso. Sostenemos al mundo. Una charola a la vez.",
+        img: "/images/divisiones/detallec.webp",
+        video: "GO/carrusel/charola.mp4",
+        specs_values: {
+          material: "Cartón Kraft",
+          usage: "Alimentos",
+          resistance: "Antigrasa",
+          presentation: "Ecológica"
+        },
+        gallery: [
+          "/images/divisiones/detallec.webp",
+          "/images/divisiones/empa.webp",
+          "/images/divisiones/lado.webp"
+        ]
+      },
+      {
+        name: "VASO DE CELULOSA",
+        soon: true,
+        description: "Vasos de celulosa biodegradables de alta calidad. Una solución sostenible y elegante para el servicio de bebidas, comprometida con el medio ambiente sin comprometer la funcionalidad.",
+        img: "/images/divisiones/vaso.webp",
+        video: "GO/carrusel/charola.mp4",
+        specs_values: {
+          material: "Celulosa",
+          usage: "Bebidas / Eventos",
+          resistance: "Térmica",
+          presentation: "Ecológica"
+        },
+        gallery: [
+          "/images/divisiones/vaso.webp"
+        ]
+      },
+      {
+        name: "CONTENEDORES",
+        soon: true,
+        description: "Contenedores especializados para diversas aplicaciones industriales y comerciales. Diseñados para máxima durabilidad y eficiencia en el almacenamiento y transporte.",
+        img: "/images/divisiones/contenedor.webp",
+        video: "GO/carrusel/charola.mp4",
+        specs_values: {
+          material: "Polímeros",
+          usage: "Multiusos",
+          resistance: "Industrial",
+          presentation: "Varios Tamaños"
+        },
+        gallery: [
+          "/images/divisiones/contenedor.webp"
+        ]
+      }
+    ]
+  },
 
   // =================================================
   // PÁGINA: STRETCH FILM (Película Estirable)
@@ -1196,7 +1271,8 @@ footer: {
       eyebrow:      "Desde 1959",
       title_top:    "SOMOS EL PRINCIPAL",
       title_bot:    "FABRICANTE DE LATINOAMÉRICA",
-      video: "home_zv3jjz",
+      typewriter_prefix: "FABRICANTE DE",
+      video: "GO/home/hero",
       subtitle:     "Más de 65 años fabricando soluciones de alta ingeniería para industrias en los cinco continentes.",
       btn_products: "Nuestros Productos",
       btn_about:    "Conocer Más",
@@ -1220,8 +1296,14 @@ footer: {
         { title: "Saco",             tag: "División 05", description: "Sacos de rafia de calidad superior. Solución de envasado robusta para alimentos, productos químicos, fertilizantes y productos a granel.",                    img: "/images/divisiones/sacos.webp",             color: "#3a7d44", slug: "sacos",              soon: false },
         { title: "Stretch film",     tag: "División 06", description: "Película estirable de alta claridad óptica. Asegura la integridad de la carga con eficiencia en costos. Incluye opción biodegradable.",                       img: "/images/divisiones/film-estirable.webp",    color: "#2c5f8a", slug: "stretch-film",       soon: false },
         { title: "Esquinero",        tag: "División 07", description: "Esquineros de cartón kraft para protección de bordes durante el almacenamiento y transporte. Distribución uniforme de presión y máxima estabilidad de carga.", img: "/images/divisiones/esquineros.webp",        color: "#7b3fa0", slug: "esquineros",         soon: false },
-        { title: "Desechable",       tag: "División 10", description: "Productos desechables de polipropileno para uso industrial, alimentario y hospitalario. Soluciones higiénicas, económicas y de alta resistencia.",            img: "/images/divisiones/desechables.webp",       color: "#e05500", slug: "desechables",        soon: true  }
+        { title: "Naturizable",      tag: "División 08", description: "Empaque sustentable que regresa a la tierra. Soluciones 100% Plant Based, reciclables y compostables para la industria alimentaria.",            img: "/images/divisiones/desechables.webp",       color: "#e05500", slug: "naturizable",        soon: false }
       ]
+    },
+
+    parallax: {
+      eyebrow: "Planta de Producción",
+      title:    "Aquí",
+      title_em: "nace todo"
     },
 
     porque: {
@@ -1272,7 +1354,7 @@ footer: {
       title:    "Exportamos al",
       title_em: "mundo",
       desc:     "Nuestros productos llegan a clientes en más de 30 países, consolidando nuestra posición como líderes en polímeros plásticos.",
-      video: "camion_n1nitn",
+      video: "GO/home/camion",
       stats: [
         { number: 65,   label: "Años"        },
         { number: 30,   prefix: "+", label: "Países"      },

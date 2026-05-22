@@ -131,6 +131,9 @@ const GLOBAL_CSS = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300&family=DM+Mono:wght@400;500&display=swap');
   *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
 
+  /* Ocultar BotGO mientras el panel está abierto */
+  body.admin-panel-open .botgo-container { display:none !important; }
+
   /* ── OVERLAY ── */
   .admin-overlay {
     position:fixed; inset:0; z-index:99999999;
@@ -1683,42 +1686,130 @@ const RobotIcon = ({ size=36 }) => {
 
 function Login({ onLogin }) {
   const P = useP();
-  const [pw,setPw]=useState(''), [err,setErr]=useState(false), [loading,setLoading]=useState(false);
-  const [focused,setFocused]=useState(false), [showPw,setShowPw]=useState(false);
+  // step: 'login' | 'recover-request' | 'recover-otp' | 'recover-done'
+  const [step, setStep]             = useState('login');
+
+  // login
+  const [pw,setPw]                  = useState('');
+  const [err,setErr]                = useState(false);
+  const [loading,setLoading]        = useState(false);
+  const [focused,setFocused]        = useState(false);
+  const [showPw,setShowPw]          = useState(false);
+
+  // recovery
+  const [recUser,setRecUser]        = useState('');
+  const [recToken,setRecToken]      = useState('');
+  const [recOtp,setRecOtp]          = useState('');
+  const [recNewPw,setRecNewPw]      = useState('');
+  const [recErr,setRecErr]          = useState('');
+  const [recLoading,setRecLoading]  = useState(false);
+  const [recFocused,setRecFocused]  = useState('');
+
   const inputRef=useRef(null), cardRef=useRef(null);
-  useEffect(()=>{ setTimeout(()=>inputRef.current?.focus(),280); },[]);
+  useEffect(()=>{ setTimeout(()=>inputRef.current?.focus(),280); },[step]);
+
   const shake=()=>{ const el=cardRef.current; if(!el)return; [-7,7,-4,4,-2,2,0].forEach((x,i)=>setTimeout(()=>{el.style.transform=`translateX(${x}px)`;},i*50)); };
-  const go=async(e)=>{ e.preventDefault(); setLoading(true); try{ const res=await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw})}); const data=await res.json(); if(data.ok){onLogin(data.role);}else{setErr(true);shake();setTimeout(()=>setErr(false),2500);} }catch{setErr(true);shake();setTimeout(()=>setErr(false),2500);} setLoading(false); };
-  return (
-    <div ref={cardRef} className="scanline-wrap" style={{ padding:'48px 40px 40px', transition:'transform 0.05s ease' }}>
-      {/* Top gradient */}
+
+  // ── login ────────────────────────────────────────────────────────────────
+  const go=async(e)=>{
+    e.preventDefault(); setLoading(true);
+    try{
+      const res=await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw})});
+      const data=await res.json();
+      if(data.ok){onLogin(data.role);}
+      else{setErr(true);shake();setTimeout(()=>setErr(false),2500);}
+    }catch{setErr(true);shake();setTimeout(()=>setErr(false),2500);}
+    setLoading(false);
+  };
+
+  // ── recovery paso 1: solicitar OTP ───────────────────────────────────────
+  const reqOtp=async(e)=>{
+    e.preventDefault(); if(!recUser||recLoading) return;
+    setRecLoading(true); setRecErr('');
+    try{
+      const res=await fetch('/api/recover',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'request',username:recUser})});
+      const data=await res.json();
+      if(data.ok){setRecToken(data.token); setStep('recover-otp');}
+      else setRecErr(data.error||'Error al enviar');
+    }catch{setRecErr('Error de conexión');}
+    setRecLoading(false);
+  };
+
+  // ── recovery paso 2: verificar OTP y cambiar contraseña ─────────────────
+  const resetPw=async(e)=>{
+    e.preventDefault(); if(recOtp.length<6||recNewPw.length<6||recLoading) return;
+    setRecLoading(true); setRecErr('');
+    try{
+      const res=await fetch('/api/recover',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'reset',token:recToken,otp:recOtp.trim(),newPassword:recNewPw})});
+      const data=await res.json();
+      if(data.ok) setStep('recover-done');
+      else{setRecErr(data.error||'Código incorrecto'); shake();}
+    }catch{setRecErr('Error de conexión');}
+    setRecLoading(false);
+  };
+
+  // ── estilos reutilizables ────────────────────────────────────────────────
+  const iStyle=(fk,hasErr=false)=>({
+    width:'100%', background:P.surface2,
+    border:`1px solid ${hasErr?P.gray+'80':recFocused===fk?P.orange+'55':P.border}`,
+    borderRadius:10, padding:'13px 16px', color:P.text, fontSize:13, outline:'none',
+    boxSizing:'border-box', transition:'border-color 0.15s ease, box-shadow 0.15s ease',
+    boxShadow:recFocused===fk?`0 0 0 3px ${P.orange}10`:'none',
+  });
+  const selStyle=(fk)=>({...iStyle(fk), appearance:'none', cursor:'pointer'});
+  const btnStyle=(disabled)=>({
+    background:disabled?P.surface3:P.orange, color:disabled?P.textDim:'#fff',
+    border:'none', borderRadius:10, padding:'13px 0', fontSize:13, fontWeight:600,
+    cursor:disabled?'not-allowed':'pointer', transition:'all 0.16s ease',
+    boxShadow:!disabled?`0 4px 20px ${P.orange}40`:'none', letterSpacing:'-0.01em', width:'100%',
+  });
+  const linkStyle={ background:'none', border:'none', cursor:'pointer', color:P.textDim,
+    fontSize:11, textDecoration:'underline', padding:0, fontFamily:'inherit' };
+
+  const CardDecor=()=>(
+    <>
       <div style={{ position:'absolute', top:0, left:0, right:0, height:3,
         background:`linear-gradient(90deg,transparent,${P.orange},${P.orangeWarm},transparent)`, opacity:0.7 }}/>
-      {/* Subtle corner bg light */}
       <div style={{ position:'absolute', top:-60, right:-60, width:180, height:180, borderRadius:'50%',
         background:`radial-gradient(circle, ${P.orange}12 0%, transparent 70%)`, pointerEvents:'none' }}/>
       <div style={{ position:'absolute', bottom:-40, left:-40, width:140, height:140, borderRadius:'50%',
         background:`radial-gradient(circle, ${P.orange}08 0%, transparent 70%)`, pointerEvents:'none' }}/>
+    </>
+  );
 
-      <div style={{ textAlign:'center', marginBottom:32, position:'relative' }}>
-        <div style={{ display:'inline-flex', alignItems:'center', justifyContent:'center',
-          width:72, height:72, borderRadius:18, background:P.surface2,
-          border:`1px solid ${P.border}`, marginBottom:22,
-          boxShadow:`0 0 32px ${P.orange}25, 0 8px 24px rgba(0,0,0,0.5)`,
-          position:'relative', animation:'float 4s ease infinite' }}>
-          <RobotIcon size={48}/>
-          <div style={{ position:'absolute', bottom:-5, right:-5, width:16, height:16, borderRadius:'50%',
-            background:P.orange, border:`2.5px solid ${P.surface}`, animation:'pulse 2s infinite',
-            boxShadow:`0 0 8px ${P.orange}` }}/>
-        </div>
-        <h2 style={{ fontWeight:700, fontSize:22, color:P.text, letterSpacing:'-0.03em', marginBottom:6 }}>Panel Admin</h2>
-        <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
-          <span style={{ display:'inline-block', width:24, height:1, background:`linear-gradient(90deg,transparent,${P.orange})`, opacity:0.7 }}/>
-          <span style={{ color:P.textDim, fontSize:11, letterSpacing:'0.07em', textTransform:'uppercase', fontWeight:500 }}>BotGO · Grupo Ortiz</span>
-          <span style={{ display:'inline-block', width:24, height:1, background:`linear-gradient(90deg,${P.orange},transparent)`, opacity:0.7 }}/>
-        </div>
+  const LogoHeader=({title,sub})=>(
+    <div style={{ textAlign:'center', marginBottom:28, position:'relative' }}>
+      <div style={{ display:'inline-flex', alignItems:'center', justifyContent:'center',
+        width:72, height:72, borderRadius:18, background:P.surface2,
+        border:`1px solid ${P.border}`, marginBottom:20,
+        boxShadow:`0 0 32px ${P.orange}25, 0 8px 24px rgba(0,0,0,0.5)`,
+        position:'relative', animation:'float 4s ease infinite' }}>
+        <RobotIcon size={48}/>
+        <div style={{ position:'absolute', bottom:-5, right:-5, width:16, height:16, borderRadius:'50%',
+          background:P.orange, border:`2.5px solid ${P.surface}`, animation:'pulse 2s infinite',
+          boxShadow:`0 0 8px ${P.orange}` }}/>
       </div>
+      <h2 style={{ fontWeight:700, fontSize:20, color:P.text, letterSpacing:'-0.03em', marginBottom:4 }}>{title}</h2>
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
+        <span style={{ display:'inline-block', width:24, height:1, background:`linear-gradient(90deg,transparent,${P.orange})`, opacity:0.7 }}/>
+        <span style={{ color:P.textDim, fontSize:11, letterSpacing:'0.07em', textTransform:'uppercase', fontWeight:500 }}>{sub}</span>
+        <span style={{ display:'inline-block', width:24, height:1, background:`linear-gradient(90deg,${P.orange},transparent)`, opacity:0.7 }}/>
+      </div>
+    </div>
+  );
 
+  const Spinner=()=>(
+    <span style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
+      <div style={{ width:13,height:13,borderRadius:'50%',border:'2px solid rgba(255,255,255,0.2)',borderTop:'2px solid #fff',animation:'spin 0.65s linear infinite' }}/>
+      Cargando
+    </span>
+  );
+
+  // ── render: login ────────────────────────────────────────────────────────
+  if(step==='login') return (
+    <div ref={cardRef} className="scanline-wrap" style={{ padding:'48px 40px 40px', transition:'transform 0.05s ease' }}>
+      <CardDecor/>
+      <LogoHeader title="Panel Admin" sub="BotGO · Grupo Ortiz"/>
       <form onSubmit={go} style={{ display:'flex', flexDirection:'column', gap:11, position:'relative' }}>
         <div style={{ position:'relative' }}>
           <input ref={inputRef} type={showPw?'text':'password'} value={pw} onChange={e=>setPw(e.target.value)}
@@ -1742,23 +1833,106 @@ function Login({ onLogin }) {
             <span style={{ color:P.grayMid }}>{Icons.alert}</span> Contraseña incorrecta
           </div>
         )}
-        <button type="submit" disabled={loading||!pw} className="btn-base"
-          style={{ background:loading||!pw?P.surface3:P.orange,
-            color:loading||!pw?P.textDim:'#fff', border:'none', borderRadius:10,
-            padding:'13px 0', fontSize:13, fontWeight:600,
-            cursor:loading||!pw?'not-allowed':'pointer', transition:'all 0.16s ease',
-            boxShadow:!loading&&pw?`0 4px 20px ${P.orange}40`:'none',
-            letterSpacing:'-0.01em' }}>
-          {loading
-            ? <span style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
-                <div style={{ width:13,height:13,borderRadius:'50%',border:'2px solid rgba(255,255,255,0.2)',borderTop:'2px solid #fff',animation:'spin 0.65s linear infinite' }}/>
-                Verificando
-              </span>
-            : 'Continuar →'}
+        <button type="submit" disabled={loading||!pw} className="btn-base" style={btnStyle(loading||!pw)}>
+          {loading ? <Spinner/> : 'Continuar →'}
         </button>
       </form>
+      <div style={{ textAlign:'center', marginTop:16 }}>
+        <button style={linkStyle} onClick={()=>{setRecErr('');setStep('recover-request');}}>
+          ¿Olvidaste tu contraseña?
+        </button>
+      </div>
     </div>
   );
+
+  // ── render: recover-request ──────────────────────────────────────────────
+  if(step==='recover-request') return (
+    <div ref={cardRef} className="scanline-wrap" style={{ padding:'44px 40px 36px', transition:'transform 0.05s ease' }}>
+      <CardDecor/>
+      <LogoHeader title="Recuperar acceso" sub="BotGO · Grupo Ortiz"/>
+      <p style={{ color:P.textSub, fontSize:12, textAlign:'center', marginBottom:20, lineHeight:1.6 }}>
+        El código se enviará al <span style={{ color:P.text, fontWeight:600 }}>administrador</span>,<br/>
+        quien lo compartirá contigo.
+      </p>
+      <form onSubmit={reqOtp} style={{ display:'flex', flexDirection:'column', gap:11 }}>
+        <select ref={inputRef} value={recUser} onChange={e=>setRecUser(e.target.value)}
+          onFocus={()=>setRecFocused('u')} onBlur={()=>setRecFocused('')}
+          style={selStyle('u')}>
+          <option value="">Selecciona tu usuario…</option>
+          <option value="Admin">Admin</option>
+          <option value="RH">RH</option>
+          <option value="Marketing">Marketing</option>
+          <option value="Distribuidor">Distribuidor</option>
+        </select>
+        {recErr&&(
+          <div style={{ background:P.errDim, border:`1px solid ${P.gray}38`, borderRadius:8,
+            padding:'9px 13px', color:P.grayLight, fontSize:11, display:'flex', alignItems:'center', gap:7 }}>
+            <span style={{ color:P.grayMid }}>{Icons.alert}</span> {recErr}
+          </div>
+        )}
+        <button type="submit" disabled={recLoading||!recUser} style={btnStyle(recLoading||!recUser)}>
+          {recLoading ? <Spinner/> : 'Enviar código al admin →'}
+        </button>
+      </form>
+      <div style={{ textAlign:'center', marginTop:14 }}>
+        <button style={linkStyle} onClick={()=>setStep('login')}>← Volver al login</button>
+      </div>
+    </div>
+  );
+
+  // ── render: recover-otp ──────────────────────────────────────────────────
+  if(step==='recover-otp') return (
+    <div ref={cardRef} className="scanline-wrap" style={{ padding:'44px 40px 36px', transition:'transform 0.05s ease' }}>
+      <CardDecor/>
+      <LogoHeader title="Ingresa el código" sub="BotGO · Grupo Ortiz"/>
+      <p style={{ color:P.textSub, fontSize:12, textAlign:'center', marginBottom:20, lineHeight:1.6 }}>
+        Código enviado al administrador.<br/>
+        <span style={{ color:P.text, fontWeight:600 }}>Vence en 10 minutos.</span>
+      </p>
+      <form onSubmit={resetPw} style={{ display:'flex', flexDirection:'column', gap:11 }}>
+        <input ref={inputRef} type="text" inputMode="numeric" maxLength={6}
+          value={recOtp} onChange={e=>setRecOtp(e.target.value.replace(/\D/g,''))}
+          onFocus={()=>setRecFocused('otp')} onBlur={()=>setRecFocused('')}
+          placeholder="Código de 6 dígitos"
+          style={{ ...iStyle('otp'), textAlign:'center', fontSize:22, letterSpacing:8, fontWeight:700 }}/>
+        <input type="password" value={recNewPw} onChange={e=>setRecNewPw(e.target.value)}
+          onFocus={()=>setRecFocused('pw')} onBlur={()=>setRecFocused('')}
+          placeholder="Nueva contraseña (mín. 6 caracteres)"
+          autoComplete="new-password"
+          style={iStyle('pw')}/>
+        {recErr&&(
+          <div style={{ background:P.errDim, border:`1px solid ${P.gray}38`, borderRadius:8,
+            padding:'9px 13px', color:P.grayLight, fontSize:11, display:'flex', alignItems:'center', gap:7 }}>
+            <span style={{ color:P.grayMid }}>{Icons.alert}</span> {recErr}
+          </div>
+        )}
+        <button type="submit" disabled={recLoading||recOtp.length<6||recNewPw.length<6} style={btnStyle(recLoading||recOtp.length<6||recNewPw.length<6)}>
+          {recLoading ? <Spinner/> : 'Cambiar contraseña →'}
+        </button>
+      </form>
+      <div style={{ textAlign:'center', marginTop:14, display:'flex', gap:20, justifyContent:'center' }}>
+        <button style={linkStyle} onClick={()=>{setRecErr('');setStep('recover-request');}}>Reenviar código</button>
+        <button style={linkStyle} onClick={()=>setStep('login')}>← Cancelar</button>
+      </div>
+    </div>
+  );
+
+  // ── render: recover-done ─────────────────────────────────────────────────
+  if(step==='recover-done') return (
+    <div className="scanline-wrap" style={{ padding:'52px 40px 44px', textAlign:'center' }}>
+      <CardDecor/>
+      <div style={{ fontSize:48, marginBottom:16 }}>✅</div>
+      <h2 style={{ fontWeight:700, fontSize:20, color:P.text, letterSpacing:'-0.03em', marginBottom:8 }}>
+        Contraseña actualizada
+      </h2>
+      <p style={{ color:P.textSub, fontSize:13, marginBottom:28, lineHeight:1.6 }}>
+        Tu contraseña fue cambiada exitosamente.<br/>Ya puedes iniciar sesión.
+      </p>
+      <button style={btnStyle(false)} onClick={()=>setStep('login')}>Ir al login →</button>
+    </div>
+  );
+
+  return null;
 }
 
 // ── SC METRIC DEFS (used in Dash + Console toggle cards) ─────────────────────
@@ -1785,6 +1959,7 @@ function Dash({ onClose, role, theme='dark', toggleTheme }) {
   const [leads,setLeads]=useState([]), [leadsLoad,setLeadsLoad]=useState(false), [leadSearch,setLeadSearch]=useState(''), [leadStatusFilter,setLeadStatusFilter]=useState('all');
   const [convSessions,setConvSessions]=useState([]), [convLoading,setConvLoading]=useState(false);
   const [selectedConv,setSelectedConv]=useState(null), [convMessages,setConvMessages]=useState([]), [convMsgLoad,setConvMsgLoad]=useState(false);
+  const [voiceCalls,setVoiceCalls]=useState([]), [vcLoading,setVcLoading]=useState(false), [selectedCall,setSelectedCall]=useState(null);
   const [scData,setScData]=useState(null), [scLoading,setScLoading]=useState(false);
   const [activeMetrics,setActiveMetrics]=useState(['clicks','impressions']);
 
@@ -1860,6 +2035,15 @@ const isMarketing = role.name === 'Marketing';
     setConvMsgLoad(false);
   },[]);
 
+  const loadVoiceCalls=useCallback(async()=>{
+    setVcLoading(true);
+    try{
+      const r=await fetch('/api/voice-calls',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'list',limit:80})});
+      const j=await r.json(); if(j.ok)setVoiceCalls(j.calls||[]);
+    }catch(e){console.error(e);}
+    setVcLoading(false);
+  },[]);
+
   useEffect(()=>{
     if(canSee('overview')||canSee('activity')||canSee('products')||canSee('keywords')||canSee('messages')||canSee('ai')){
       const p=PERIOD_PRESETS.find(p=>p.id===_defPreset), range=p.getRange();
@@ -1870,6 +2054,7 @@ const isMarketing = role.name === 'Marketing';
   useEffect(()=>{ if(tab==='distribuidores')loadLeads(); },[tab]);
   useEffect(()=>{ if(tab==='overview'||tab==='console')loadSC(activePeriod?.from,activePeriod?.to); },[tab]);
   useEffect(()=>{ if(tab==='conversations'){setSelectedConv(null);setConvMessages([]);loadConversations();} },[tab]);
+  useEffect(()=>{ if(tab==='llamadas'){setSelectedCall(null);loadVoiceCalls();} },[tab]);
   useEffect(()=>{
     clearInterval(itvRef.current);
     if(auto) itvRef.current=setInterval(()=>load(true,activePeriod?.from,activePeriod?.to),10000);
@@ -1935,6 +2120,7 @@ const ALL_TABS=[
     {id:'keywords',label:'Búsquedas',      icon:'◎'},
     {id:'messages',label:'Mensajes',       icon:'◐'},
     {id:'conversations',label:'Conversaciones',icon:'◧'},
+    {id:'llamadas',     label:'Llamadas IA',   icon:'◉'},
     {id:'distribuidores',label:'Distribuidores',icon:'◑'},
     {id:'recruitment',label:'Reclutamiento',icon:'◒'},
     {id:'vacantes', label:'Vacantes', icon:'◓'},
@@ -2046,7 +2232,7 @@ const ALL_TABS=[
                 {Icons.sync}
               </button>
             )}
-            {isAdmin&&!isMobile&&<DownloadReportButton data={data} periodMeta={{preset:activePresetId,from:activePeriod?.from,to:activePeriod?.to}} reportType="resumen"/>}
+            {isAdmin&&<DownloadReportButton data={data} periodMeta={{preset:activePresetId,from:activePeriod?.from,to:activePeriod?.to}} reportType="resumen"/>}
             {/* Botón tema global */}
             {toggleTheme&&(
               <button onClick={toggleTheme} title={theme==='dark'?'Tema claro':'Tema oscuro'}
@@ -2146,11 +2332,11 @@ const ALL_TABS=[
       <div className="adash-scroll"
         style={{
           flex:1, minHeight:0,
-          overflowY:(tab==='overview'||tab==='console')?'hidden':'auto',
+          overflowY: (tab==='overview'||tab==='console') ? 'hidden' : 'auto',
           overflowX:'hidden',
           padding: isMobile ? '12px 12px 16px' : (tab==='overview'||tab==='console') ? '14px 20px 14px' : '20px 24px 36px',
           background:P.bg,
-          display:(tab==='overview'||tab==='console')?'flex':'block',
+          display: isMobile ? 'block' : (tab==='overview'||tab==='console') ? 'flex' : 'block',
           flexDirection:'column'
         }}
         onClick={()=>menuOpen&&setMenuOpen(false)}>
@@ -2159,7 +2345,7 @@ const ALL_TABS=[
 
         {/* ── OVERVIEW ── */}
         {!loading&&data&&tab==='overview'&&canSee('overview')&&(
-          <div style={{display:'flex',flexDirection:'column',flex:1,minHeight:0,gap:6}}>
+          <div style={{display:'flex',flexDirection:'column',flex:isMobile?'none':1,minHeight:0,gap:6}}>
             {/* Fila acumulado */}
             <div style={{flexShrink:0}}>
               <div style={{marginBottom:5}}>
@@ -2184,16 +2370,16 @@ const ALL_TABS=[
                 <StatCard small label="PDFs"      value={td.pdf||0}   sub={`ayer: ${yd.pdf||0}`}    color={P.grayMid}    icon="📋" trend={(td.pdf||0)-(yd.pdf||0)}/>
               </div>
             </div>
-            {/* Gráficas — llenan el espacio restante, flex:1 con minHeight:0 garantiza sin overflow */}
-            <div style={{flex:1,minHeight:0,display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:7}}>
-              <div className="card-hover" style={{...CARD,padding:'10px 14px',display:'flex',flexDirection:'column',minHeight:0,marginBottom:0}}>
+            {/* Gráficas */}
+            <div style={{flex:isMobile?'none':1,minHeight:0,display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:7}}>
+              <div className="card-hover" style={{...CARD,padding:'10px 14px',display:'flex',flexDirection:'column',height:isMobile?260:undefined,minHeight:isMobile?260:0,marginBottom:0}}>
                 <CardTopBar/>
                 <p style={{...ST,marginBottom:6,fontSize:10}}>Distribución de intenciones</p>
                 <div style={{flex:1,minHeight:0,display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden'}}>
                   <DonutChart intents={data.intents}/>
                 </div>
               </div>
-              <div className="card-hover" style={{...CARD,padding:'10px 14px',display:'flex',flexDirection:'column',minHeight:0,marginBottom:0}}>
+              <div className="card-hover" style={{...CARD,padding:'10px 14px',display:'flex',flexDirection:'column',height:isMobile?260:undefined,minHeight:isMobile?260:0,marginBottom:0}}>
                 <CardTopBar/>
                 <p style={{...ST,marginBottom:6,fontSize:10}}>Actividad — últimos 14 días</p>
                 <div style={{flex:1,minHeight:0,display:'flex',alignItems:'center',overflow:'hidden'}}>
@@ -2206,7 +2392,7 @@ const ALL_TABS=[
 
         {/* ── CONSOLE (Google Search Console) ── */}
         {tab==='console'&&canSee('console')&&(
-          <div style={{display:'flex',flexDirection:'column',flex:1,minHeight:0,gap:8}}>
+          <div style={{display:'flex',flexDirection:'column',flex:isMobile?'none':1,minHeight:0,gap:8}}>
             {/* Header */}
             <div style={{display:'flex',alignItems:'center',gap:8,flexShrink:0}}>
               <svg width="15" height="15" viewBox="0 0 48 48" style={{flexShrink:0}}>
@@ -2408,7 +2594,7 @@ const ALL_TABS=[
               <CardTopBar/>
               <p style={ST}>Historial diario</p>
               <div style={{ overflowX:'auto', WebkitOverflowScrolling:'touch' }}>
-                <table style={{ width:'100%', borderCollapse:'collapse', fontSize:12, minWidth:isMobile?480:'auto' }}>
+                <table style={{ width:'100%', borderCollapse:'collapse', fontSize:12, minWidth:480 }}>
                   <thead><tr>{['Fecha','Sesiones','Mensajes','WhatsApp','PDFs','Conv.%'].map(h=>(
                     <th key={h} style={{ color:P.textDim, fontWeight:600, padding:'9px 11px', textAlign:'left',
                       borderBottom:`1px solid ${P.border}`, fontSize:10, textTransform:'uppercase',
@@ -2604,6 +2790,117 @@ const ALL_TABS=[
                         </div>
                       ))}
                       {!convMsgLoad&&convMessages.length===0&&<div style={{ textAlign:'center', padding:'36px 0', color:P.textDim, fontSize:12 }}>Sin mensajes</div>}
+                    </div>
+                  </>
+                )}
+              </div>
+
+            </div>
+          </div>
+        )}
+
+        {/* ── LLAMADAS IA ── */}
+        {tab==='llamadas'&&canSee('llamadas')&&(
+          <div className="tab-content" key="llamadas">
+            <div style={{ display:'flex', gap:12, alignItems:'flex-start', flexWrap:isMobile?'wrap':'nowrap' }}>
+
+              {/* Lista de llamadas */}
+              <div className="card-hover" style={{ ...CARD, flex:'0 0 auto', width:isMobile?'100%':280, minWidth:0 }}>
+                <CardTopBar color="#FB670B"/>
+                <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:12, gap:8 }}>
+                  <p style={{ ...ST, marginBottom:0 }}>Llamadas de voz</p>
+                  <div style={{ display:'flex', gap:6, alignItems:'center' }}>
+                    {voiceCalls.length>0&&<Tag color={P.orange}>{voiceCalls.length}</Tag>}
+                    <button onClick={loadVoiceCalls} className="btn-base"
+                      style={{ padding:'5px 10px', borderRadius:7, fontSize:11, background:P.border2, border:`1px solid ${P.border}`, color:P.textSub, cursor:'pointer', display:'flex', alignItems:'center' }}>
+                      {Icons.sync}
+                    </button>
+                  </div>
+                </div>
+                {vcLoading&&<div style={{ textAlign:'center', padding:'36px 0', color:P.textDim, fontSize:12 }}>Cargando…</div>}
+                {!vcLoading&&voiceCalls.length===0&&(
+                  <div style={{ textAlign:'center', padding:'36px 0', color:P.textDim, fontSize:12 }}>
+                    Sin llamadas registradas.<br/>
+                    <span style={{ fontSize:10, opacity:0.6 }}>Las llamadas aparecen al colgar.</span>
+                  </div>
+                )}
+                <div style={{ display:'flex', flexDirection:'column', gap:5, maxHeight:560, overflowY:'auto' }}>
+                  {voiceCalls.map(c=>{
+                    const isSelected=selectedCall?.id===c.id;
+                    const mins=Math.floor(c.duration/60), secs=c.duration%60;
+                    const durLabel=c.duration>0?`${mins>0?mins+'m ':''}${secs}s`:'<1s';
+                    const langFlag={es:'🇲🇽',en:'🇺🇸',pt:'🇧🇷',zh:'🇨🇳',ar:'🇸🇦',fr:'🇫🇷'}[c.lang]||'🌐';
+                    return (
+                      <button key={c.id} onClick={()=>setSelectedCall(isSelected?null:c)}
+                        className="row-hover btn-base"
+                        style={{ textAlign:'left', padding:'9px 10px', borderRadius:8, cursor:'pointer',
+                          background:isSelected?P.border2:P.surface2,
+                          border:`1px solid ${isSelected?P.orange:P.border}`,
+                          display:'flex', flexDirection:'column', gap:3 }}>
+                        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:6 }}>
+                          <span style={{ fontSize:10 }}>{langFlag} <span className="mono" style={{ fontSize:9, color:P.textDim }}>{fmtFechaHora(c.ts)}</span></span>
+                          <Tag color={P.grayMid} size={9}>{durLabel}</Tag>
+                        </div>
+                        <div style={{ display:'flex', gap:4, alignItems:'center' }}>
+                          <Tag color={P.orange+'55'} size={8}>{c.turn_count} turnos</Tag>
+                          {c.products.slice(0,2).map(p=><Tag key={p} color={P.grayLight} size={8}>{p}</Tag>)}
+                        </div>
+                        {c.transcript.length>0&&(
+                          <span style={{ fontSize:9, color:P.textDim, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', maxWidth:'100%' }}>
+                            {c.transcript.find(t=>t.role==='user')?.text?.slice(0,60)||'…'}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Transcripción de la llamada seleccionada */}
+              <div className="card-hover" style={{ ...CARD, flex:1, minWidth:0 }}>
+                <CardTopBar color="#FB670B"/>
+                {!selectedCall&&(
+                  <div style={{ textAlign:'center', padding:'64px 0', color:P.textDim, fontSize:12 }}>
+                    Selecciona una llamada para ver la transcripción
+                  </div>
+                )}
+                {selectedCall&&(
+                  <>
+                    <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:14, gap:8, flexWrap:'wrap' }}>
+                      <p style={{ ...ST, marginBottom:0 }}>Transcripción</p>
+                      <div style={{ display:'flex', gap:6, flexWrap:'wrap' }}>
+                        {(()=>{
+                          const mins=Math.floor(selectedCall.duration/60), secs=selectedCall.duration%60;
+                          return <Tag color={P.grayMid} size={9}>{mins>0?mins+'m ':''}{secs}s</Tag>;
+                        })()}
+                        <Tag color={P.orange} size={9}>{selectedCall.turn_count} turnos</Tag>
+                        <span className="mono" style={{ fontSize:9, color:P.textDim }}>{fmtFechaHora(selectedCall.ts)}</span>
+                      </div>
+                    </div>
+                    <div style={{ display:'flex', flexDirection:'column', gap:8, maxHeight:560, overflowY:'auto' }}>
+                      {selectedCall.transcript.length===0&&(
+                        <div style={{ textAlign:'center', padding:'36px 0', color:P.textDim, fontSize:12 }}>Sin transcripción</div>
+                      )}
+                      {selectedCall.transcript.map((turn,i)=>{
+                        const isUser=turn.role==='user';
+                        return (
+                          <div key={i} style={{ display:'flex', justifyContent:isUser?'flex-end':'flex-start' }}>
+                            <div style={{
+                              background: isUser ? P.orange+'22' : P.surface2,
+                              border: `1px solid ${isUser ? P.orange+'44' : P.border}`,
+                              borderRadius: isUser ? '12px 12px 3px 12px' : '12px 12px 12px 3px',
+                              padding:'8px 12px', maxWidth:'82%',
+                            }}>
+                              <div style={{ fontSize:9, color:P.textDim, marginBottom:4, fontWeight:600, letterSpacing:'0.5px', textTransform:'uppercase' }}>
+                                {isUser ? '🎤 Tú' : '🤖 BotGO'}
+                              </div>
+                              <div style={{ fontSize:13, color: isUser ? P.text : P.textSub, lineHeight:1.55, wordBreak:'break-word' }}>
+                                {turn.text}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </>
                 )}
@@ -2881,10 +3178,11 @@ const ALL_TABS=[
               </div>
             </div>
 
-            {/* Report cards — 4 en una sola fila */}
-            <div style={{ display:'grid', gridTemplateColumns:isMobile?'1fr 1fr':'repeat(4,1fr)', gap:10 }}>
+            {/* Report cards — 5 en grid */}
+            <div style={{ display:'grid', gridTemplateColumns:isMobile?'1fr 1fr':'repeat(5,1fr)', gap:10 }}>
               {[
                 { type:'resumen',       label:'Resumen',        desc:'Vista ejecutiva · 1 página completa', icon:Icons.bar,     accent:'#A855F7' },
+                { type:'comparativo',   label:'Comparativo',    desc:'Comparativo · este período vs anterior', icon:Icons.bar, accent:'#EC4899' },
                 { type:'general',       label:'General',        desc:'Analytics · Distrib. · RH',           icon:Icons.bar,     accent:P.orange },
                 { type:'distribuidor',  label:'Distribuidores', desc:'Red de distribución · solicitudes',   icon:Icons.truck,   accent:'#0077CC' },
                 { type:'reclutamiento', label:'Reclutamiento',  desc:'Candidatos · pipeline de talento',    icon:Icons.recruit, accent:'#22C55E' },
@@ -2953,9 +3251,9 @@ const ALL_TABS=[
 }
 
 // ── MAIN EXPORT ───────────────────────────────────────────────────────────────
-export default function AdminPanel() {
-  
-  const [visible,setVisible]=useState(false), [role,setRole]=useState(null);
+export default function AdminPanel({ autoOpen = false }) {
+
+  const [visible,setVisible]=useState(autoOpen), [role,setRole]=useState(null);
 
   // Lee el tema del sistema del sitio (mismo key que el navbar: 'theme')
   const [theme, setTheme] = useState(() => {
@@ -3027,6 +3325,7 @@ export default function AdminPanel() {
       document.body.style.top=`-${scrollY}px`;
       document.body.style.width='100%';
       document.body.dataset.scrollY=scrollY;
+      document.body.classList.add('admin-panel-open');
     } else {
       const scrollY=parseInt(document.body.dataset.scrollY||'0',10);
       document.documentElement.style.overflow='';
@@ -3034,6 +3333,7 @@ export default function AdminPanel() {
       document.body.style.position='';
       document.body.style.top='';
       document.body.style.width='';
+      document.body.classList.remove('admin-panel-open');
       window.scrollTo(0,scrollY);
     }
     return()=>{
@@ -3043,6 +3343,7 @@ export default function AdminPanel() {
       document.body.style.position='';
       document.body.style.top='';
       document.body.style.width='';
+      document.body.classList.remove('admin-panel-open');
       window.scrollTo(0,scrollY);
     };
   },[visible]);

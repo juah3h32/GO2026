@@ -237,49 +237,49 @@ export const zh = {
       division: "缠绕膜",
       descripcion: "高光学清晰度和质量标准的拉伸薄膜。确保货物完整性和成本效益。我们的产品线包括生物降解选项，配方可加快 90% 的降解速度。",
       slug: "stretch-film",
-      video: "carrusel/stretch-film.mp4"
+      video: "GO/carrusel/stretch-film.mp4"
     },
     {
       img: "carrusel/img4.webp",
       division: "网袋",
       descripcion: "高强度耐用圆织聚丙烯拉菲草网袋。透气设计，非常适合水果和蔬菜。",
       slug: "arpillas",
-      video: "carrusel/arpillas.mp4"
+      video: "GO/carrusel/arpillas.mp4"
     },
     {
       img: "carrusel/img2.webp",
       division: "绳索",
       descripcion: "高性能聚丙烯长丝绳索（PP）。完美平衡：极轻而不牺牲断裂强度。",
       slug: "cuerdas",
-      video: "carrusel/cuerdas.mp4"
+      video: "GO/carrusel/cuerdas.mp4"
     },
     {
       img: "carrusel/img3.webp",
       division: "拉菲草",
       descripcion: "高性能聚丙烯薄膜拉菲草（PP）。重量轻，断裂强度高。柔韧多用途。",
       slug: "rafias",
-      video: "carrusel/rafia.mp4"
+      video: "GO/carrusel/rafia.mp4"
     },
     {
       img: "carrusel/img5.webp",
       division: "编织袋",
       descripcion: "优质拉菲草编织袋。适用于食品、化工品和肥料的坚固包装解决方案。",
       slug: "sacos",
-      video: "carrusel/sacos.mp4"
+      video: "GO/carrusel/sacos.mp4"
     },
     {
       img: "carrusel/img6.webp",
       division: "护角",
       descripcion: "优化物流的纸板护角。结构强度更高，货物稳定性更好。",
       slug: "esquineros",
-      video: "carrusel/esquineros.mp4"
+      video: "GO/carrusel/esquineros.mp4"
     },
     {
       img: "carrusel/img7.webp",
       division: "软包装",
       descripcion: "Neo Empaques International 专注于先进的软包装解决方案，旨在优化多个行业产品的保存和展示。",
       slug: "empaques-flexibles",
-      video: "carrusel/bobina-impresa.mp4"
+      video: "GO/carrusel/bobina-impresa.mp4"
     }
   ],
 
@@ -1196,7 +1196,8 @@ footer: {
       eyebrow:      "自 1959 年",
       title_top:    "我们是拉丁美洲",
       title_bot:    "主要制造商",
-      video: "home_zv3jjz",
+      video: "GO/home/hero",
+      typewriter_prefix: "MANUFACTURER OF",
       subtitle:     "65 年以上为五大洲的行业制造高工程解决方案。",
       btn_products: "我们的产品",
       btn_about:    "了解更多",
@@ -1222,6 +1223,12 @@ footer: {
         { title: "护角",       tag: "部门 07", description: "牛皮卡纸护角，保护存储和运输过程中的边缘。均匀分压，最大化货物稳定性。",           img: "/images/divisiones/esquineros.webp",     color: "#7b3fa0", slug: "esquineros",         soon: false },
         { title: "一次性用品", tag: "部门 10", description: "用于工业、食品和医疗的聚丙烯一次性产品。卫生、经济且高强度的解决方案。",           img: "/images/divisiones/desechables.webp",    color: "#e05500", slug: "desechables",        soon: true  }
       ]
+    },
+
+    parallax: {
+      eyebrow: "Production Plant",
+      title:    "Everything",
+      title_em: "starts here"
     },
 
     porque: {
@@ -1272,7 +1279,7 @@ footer: {
       title:    "我们向",
       title_em: "世界出口",
       desc:     "我们的产品远销 30 多个国家的客户，巩固了我们作为塑料聚合物领袖的地位。",
-      video: "camion_n1nitn",
+      video: "GO/home/camion",
       stats: [
         { number: 65,   label: "年"   },
         { number: 30,   prefix: "+", label: "国家" },

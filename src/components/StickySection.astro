@@ -1,0 +1,84 @@
+---
+interface Props {
+  zIndex?: number;
+  class?: string;
+  id?: string;
+}
+
+const { zIndex = 1, class: className = "", id } = Astro.props;
+---
+
+<section id={id} class={`sticky-section ${className}`} style={`--z-index: ${zIndex}`}>
+  <div class="sticky-section__inner">
+    <slot />
+  </div>
+</section>
+
+<style>
+  .sticky-section {
+    position: relative;
+    height  : 100vh;
+    width   : 100%;
+    z-index : var(--z-index);
+    overflow: hidden;
+  }
+
+  .sticky-section__inner {
+    height         : 100%;
+    width          : 100%;
+    display        : flex;
+    flex-direction : column;
+    justify-content: center;
+  }
+
+  /* ── MÓVIL: flujo normal, sin altura fija ── */
+  @media (max-width: 768px) {
+    .sticky-section {
+      height  : auto !important;
+      overflow: visible !important;
+    }
+    .sticky-section__inner {
+      height: auto !important;
+    }
+  }
+</style>
+
+<script>
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  gsap.registerPlugin(ScrollTrigger);
+
+  let mm: gsap.MatchMedia | null = null;
+
+  function initSticky() {
+    // Siempre limpiar instancia anterior (navegación SPA)
+    if (mm) { mm.revert(); mm = null; }
+
+    mm = gsap.matchMedia();
+
+    // Solo en desktop: pin con efecto de secciones apiladas
+    mm.add('(min-width: 769px)', () => {
+      const triggers: ReturnType<typeof ScrollTrigger.create>[] = [];
+
+      document.querySelectorAll('.sticky-section').forEach(section => {
+        triggers.push(
+          ScrollTrigger.create({
+            trigger       : section,
+            start         : 'top top',
+            pin           : true,
+            pinSpacing    : false,
+            invalidateOnRefresh: true,
+          })
+        );
+      });
+
+      // Cleanup automático al salir del breakpoint o navegar
+      return () => {
+        triggers.forEach(t => t.kill());
+      };
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', initSticky);
+  document.addEventListener('astro:page-load',  initSticky);
+</script>

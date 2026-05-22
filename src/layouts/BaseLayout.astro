@@ -11,6 +11,8 @@ import FondoGlobal from "../components/FondoGlobal.astro";
 import Cursor from "../components/CustomCursor.astro";
 import DockMenu from "../components/DockMenu.astro";
 import BotGO from "../components/BotGO.jsx";
+import VideoFallbackGuard from "../components/VideoFallbackGuard.astro";
+import "../styles/global.css";
 import "../styles/fonts-inline.css";
 import "../styles/typography.css";
 import "../styles/backgrounds.css";
@@ -20,9 +22,18 @@ const {
   description = "Más de 65 años fabricando stretch film, sacos, cuerdas, rafia, arpillas y empaques flexibles. Líder en polímeros plásticos en México y Latinoamérica.",
   author = "Grupo Ortiz",
   currentLang = "es",
+  canonicalSlug = "",
   moveLogoMobile = false,
   pwaIcon = "/pwa-192x192.png",
 } = Astro.props;
+
+const BASE_URL = "https://grupo-ortiz.com";
+const ALL_LANGS = ["es", "en", "pt", "zh", "ar"];
+const OG_LOCALE_MAP: Record<string, string> = {
+  es: "es_MX", en: "en_US", pt: "pt_BR", zh: "zh_CN", ar: "ar_SA",
+};
+const canonicalUrl = `${BASE_URL}/${currentLang}/${canonicalSlug}`;
+const ogLocale = OG_LOCALE_MAP[currentLang] ?? "es_MX";
 
 const lang = (currentLang && currentLang in translations) ? currentLang : "es";
 const t = translations[lang as keyof typeof translations] as any;
@@ -42,7 +53,7 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
     <meta charset="utf-8" />
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
     <meta name="theme-color" content="#ffffff" />
     <meta name="google-site-verification" content="rOmVFzyWzonDprnnaI7IaKK0inenxoZB4zXYCa7R5GU" />
@@ -81,17 +92,22 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
     {description && <meta name="description" content={description} />}
     <meta name="author" content={author} />
     <meta name="robots" content="index, follow" />
-    <link rel="canonical" href={`https://grupo-ortiz.com/${currentLang}/`} />
+    <link rel="canonical" href={canonicalUrl} />
+    {ALL_LANGS.map(lng => (
+      <link rel="alternate" hreflang={lng === 'zh' ? 'zh-Hans' : lng === 'pt' ? 'pt-BR' : lng}
+            href={`${BASE_URL}/${lng}/${canonicalSlug}`} />
+    ))}
+    <link rel="alternate" hreflang="x-default" href={`${BASE_URL}/`} />
 
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     {description && <meta property="og:description" content={description} />}
-    <meta property="og:locale" content={currentLang === 'es' ? 'es_MX' : 'en_US'} />
+    <meta property="og:locale" content={ogLocale} />
     <meta property="og:site_name" content="Grupo Ortiz" />
     <meta property="og:image" content="https://grupo-ortiz.com/images/og-preview.jpg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:url" content={`https://grupo-ortiz.com/${currentLang}/`} />
+    <meta property="og:url" content={canonicalUrl} />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
@@ -103,6 +119,10 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
     <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png" />
     <link rel="icon" type="image/png" sizes="512x512" href="/favicon-512x512.png" />
     <link rel="apple-touch-icon" href={pwaIcon} />
+
+    <!-- Performance: preconnect CDN críticos antes de cualquier asset -->
+    <link rel="preconnect" href="https://res.cloudinary.com" crossorigin />
+    <link rel="dns-prefetch" href="https://res.cloudinary.com" />
 
     {pwaInfo && <Fragment set:html={pwaInfo.webManifest.linkTag} />}
     <slot name="head" />
@@ -242,6 +262,8 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
 
     <slot />
 
+    <VideoFallbackGuard />
+
     <div id="dock-menu-wrapper">
       <DockMenu />
     </div>
@@ -270,7 +292,7 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
               immediate: true,
               // Busca actualizaciones cada 30 segundos para detectar nuevos deploys rápido
               onRegisteredSW(_swUrl, r) {
-                r && setInterval(() => { r.update(); }, 30_000);
+                r && setInterval(() => { r.update(); }, 60 * 60 * 1000);
               },
             });
           });

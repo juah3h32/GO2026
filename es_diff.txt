@@ -1,0 +1,98 @@
+diff --git a/src/i18n/es.ts b/src/i18n/es.ts
+index 90048fe..1410eb2 100644
+--- a/src/i18n/es.ts
++++ b/src/i18n/es.ts
+@@ -281,9 +281,84 @@ chatbot: {
+       descripcion: "Neo Empaques International se especializa en soluciones avanzadas de empaque flexible, diseñadas para optimizar la conservación y presentación de productos en múltiples industrias.",
+       slug: "empaques-flexibles",
+       video: "carrusel/bobina-impresa.mp4"
++    },
++    {
++      img: "carrusel/nuev2a.png",
++      division: "NATURIZABLE",
++      descripcion: "Empaque sustentable que regresa a la tierra. Soluciones 100% Plant Based, reciclables y compostables para la industria alimentaria.",
++      slug: "naturizable",
++      video: "charola"
+     }
+   ],
+ 
++  // =================================================
++  // PÁGINA: NATURIZABLE
++  // =================================================
++  naturizable: {
++    meta_title: "Naturizable | Grupo Ortiz",
++    meta_description: "Empaque sustentable 100% Plant Based que regresa a la tierra. Charolas reciclables y compostables para la industria alimentaria.",
++    back_aria: "Volver",
++    coming_soon_badge: "Próximamente",
++    specs_title: "ESPECIFICACIONES TÉCNICAS",
++    specs_labels: {
++      material: "Material",
++      usage: "Uso",
++      resistance: "Resistencia",
++      presentation: "Presentación"
++    },
++    products: [
++      {
++        name: "CHAROLA 855",
++        description: "Empaque que sostiene la comida con dignidad. Sirve al taquero, al carnicero, al frutero, al chef — y cuando termina, regresa a la tierra sin pedir permiso. Sostenemos al mundo. Una charola a la vez.",
++        img: "/images/divisiones/detallec.webp",
++        video: "charola",
++        specs_values: {
++          material: "Cartón Kraft",
++          usage: "Alimentos",
++          resistance: "Antigrasa",
++          presentation: "Ecológica"
++        },
++        gallery: [
++          "/images/divisiones/detallec.webp",
++          "/images/divisiones/empa.webp",
++          "/images/divisiones/lado.webp"
++        ]
++      },
++      {
++        name: "VASO DE CELULOSA",
++        soon: true,
++        description: "Vasos de celulosa biodegradables de alta calidad. Una solución sostenible y elegante para el servicio de bebidas, comprometida con el medio ambiente sin comprometer la funcionalidad.",
++        img: "/images/divisiones/vaso.webp",
++        video: "charola",
++        specs_values: {
++          material: "Celulosa",
++          usage: "Bebidas / Eventos",
++          resistance: "Térmica",
++          presentation: "Ecológica"
++        },
++        gallery: [
++          "/images/divisiones/vaso.webp"
++        ]
++      },
++      {
++        name: "CONTENEDORES",
++        soon: true,
++        description: "Contenedores especializados para diversas aplicaciones industriales y comerciales. Diseñados para máxima durabilidad y eficiencia en el almacenamiento y transporte.",
++        img: "/images/divisiones/contenedor.webp",
++        video: "charola",
++        specs_values: {
++          material: "Polímeros",
++          usage: "Multiusos",
++          resistance: "Industrial",
++          presentation: "Varios Tamaños"
++        },
++        gallery: [
++          "/images/divisiones/contenedor.webp"
++        ]
++      }
++    ]
++  },
++
+   // =================================================
+   // PÁGINA: STRETCH FILM (Película Estirable)
+   // =================================================
+@@ -1220,7 +1295,7 @@ footer: {
+         { title: "Saco",             tag: "División 05", description: "Sacos de rafia de calidad superior. Solución de envasado robusta para alimentos, productos químicos, fertilizantes y productos a granel.",                    img: "/images/divisiones/sacos.webp",             color: "#3a7d44", slug: "sacos",              soon: false },
+         { title: "Stretch film",     tag: "División 06", description: "Película estirable de alta claridad óptica. Asegura la integridad de la carga con eficiencia en costos. Incluye opción biodegradable.",                       img: "/images/divisiones/film-estirable.webp",    color: "#2c5f8a", slug: "stretch-film",       soon: false },
+         { title: "Esquinero",        tag: "División 07", description: "Esquineros de cartón kraft para protección de bordes durante el almacenamiento y transporte. Distribución uniforme de presión y máxima estabilidad de carga.", img: "/images/divisiones/esquineros.webp",        color: "#7b3fa0", slug: "esquineros",         soon: false },
+-        { title: "Desechable",       tag: "División 10", description: "Productos desechables de polipropileno para uso industrial, alimentario y hospitalario. Soluciones higiénicas, económicas y de alta resistencia.",            img: "/images/divisiones/desechables.webp",       color: "#e05500", slug: "desechables",        soon: true  }
++        { title: "Naturizable",      tag: "División 08", description: "Empaque sustentable que regresa a la tierra. Soluciones 100% Plant Based, reciclables y compostables para la industria alimentaria.",            img: "/images/divisiones/desechables.webp",       color: "#e05500", slug: "naturizable",        soon: false }
+       ]
+     },
+ 

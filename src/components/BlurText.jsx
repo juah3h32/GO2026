@@ -46,7 +46,7 @@ const PDF_MAP = {
   esquineros: { label: 'Catálogo Esquineros',       url: 'https://drive.google.com/file/d/181Hvr0HQffLU3rmcXkccYoqj-Y_A-gxr/view' },
   flexible:   { label: 'Catálogo Empaque Flexible', url: 'https://drive.google.com/file/d/1TGxUcGHjW1NHF8K8YkRisbRE8uAuTnPO/view' },
   empaque:    { label: 'Catálogo Empaque Flexible', url: 'https://drive.google.com/file/d/1TGxUcGHjW1NHF8K8YkRisbRE8uAuTnPO/view' },
-  general:    { label: 'Catálogo General',          url: 'https://drive.google.com/file/d/1348E3b37R1KmpggjAURhsuQMfARyBaXB/view' },
+  general:    { label: 'Catálogo General',          url: 'https://drive.google.com/file/d/100HDnibFYDgG3gYL9zfta0slSpMjbw-d/view?usp=sharing' },
 };
 
 function detectarProducto(texto) {

@@ -1,0 +1,127 @@
+---
+interface Props {
+  videoSrc: string;
+  eyebrow?: string;
+  title?: string;
+  titleEm?: string;
+  id?: string;
+}
+
+const { 
+  videoSrc, 
+  eyebrow, 
+  title, 
+  titleEm, 
+  id = "scrollVideoSection" 
+} = Astro.props;
+---
+
+<section class="parallax-section" id={id}>
+  <div class="parallax-section__bg">
+    <video
+      class="parallax-section__video"
+      src={videoSrc}
+      muted
+      playsinline
+      preload="metadata"
+    ></video>
+  </div>
+  <div class="parallax-section__content">
+    {eyebrow && <p class="section-tag section-tag--light">{eyebrow}</p>}
+    {(title || titleEm) && (
+      <h2 class="section-heading section-heading--light">
+        {title} {titleEm && <em>{titleEm}</em>}
+      </h2>
+    )}
+  </div>
+</section>
+
+<style>
+  .parallax-section {
+    position: relative;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: #000;
+    z-index: 3;
+    box-shadow: 0 -24px 64px rgba(0, 0, 0, 0.24);
+  }
+  .parallax-section__bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+  .parallax-section__video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transform: translateZ(0);
+  }
+  .parallax-section__bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.28);
+    pointer-events: none;
+  }
+  .parallax-section__content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 0 2rem;
+  }
+  .parallax-section__content .section-heading--light,
+  .parallax-section__content .section-heading--light em {
+    text-shadow: 0 2px 24px rgba(0, 0, 0, 0.7);
+  }
+  .parallax-section__content .section-tag--light {
+    text-shadow: 0 1px 12px rgba(0, 0, 0, 0.6);
+  }
+</style>
+
+<script>
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  function initScrollVideo() {
+    const sections = document.querySelectorAll('.parallax-section');
+    
+    sections.forEach(section => {
+      const vid = section.querySelector('video') as HTMLVideoElement | null;
+      if (!vid) return;
+
+      vid.pause();
+      
+      const setupScrub = () => {
+        const dur = vid.duration;
+        if (!dur || isNaN(dur) || !isFinite(dur)) return;
+
+        ScrollTrigger.create({
+          trigger: section,
+          start: 'top top',
+          end: '+=220%',
+          pin: true,
+          pinSpacing: true,
+          scrub: 0.3,
+          onUpdate(self) {
+            vid.currentTime = self.progress * dur;
+          },
+        });
+        ScrollTrigger.refresh();
+      };
+
+      if (vid.readyState >= 1) {
+        setupScrub();
+      } else {
+        vid.addEventListener('loadedmetadata', setupScrub, { once: true });
+      }
+    });
+  }
+
+  // Ejecutar en carga inicial y transiciones de Astro
+  document.addEventListener('DOMContentLoaded', initScrollVideo);
+  document.addEventListener('astro:page-load', initScrollVideo);
+</script>

@@ -74,8 +74,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // ✅ LAZY LOAD: asignar src solo en este momento, la primera vez
     if (!targetVideo.src || targetVideo.src === window.location.href) {
-      targetVideo.src = targetVideo.dataset.src;
-      targetVideo.load();
+      if (targetVideo.dataset.src) {
+        targetVideo.src = targetVideo.dataset.src;
+        targetVideo.load();
+      } else if (targetVideo.querySelector('source')) {
+        // Si tiene <source> (VideoWithFallback), forzamos la carga
+        targetVideo.load();
+      }
     }
 
     targetVideo.currentTime = 0;

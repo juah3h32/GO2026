@@ -1,0 +1,6 @@
+- [Project Overview](project_overview.md) — GO2026: Astro 5 SSR site for Grupo Ortiz with i18n, BotGO chatbot, admin panel, Vercel/Turso backend
+- [Architecture Map](architecture_map.md) — Layers: pages -> BaseLayout -> components (Astro/React) -> lib (Turso/notify/auth) -> APIs
+- [i18n System](i18n_system.md) — 5 langs (es/en/pt/zh/ar), single dictionary per lang, consumed via translations[lang], dynamic [lang] segment
+- [API Surface](api_surface.md) — Public chat, recruitment, push, vacantes; admin-protected analytics, reports, conversations, search-console, users
+- [Critical Files](critical_files.md) — High-fan-in modules: BaseLayout, i18n/index, lib/turso, lib/analytics-db, BotGO, AdminPanel
+- [Tech Stack](tech_stack.md) — Astro+React, Turso libsql, Vercel serverless, Cloudinary, OpenAI, GSAP, Three.js, web-push, Puppeteer, Tailwind

@@ -236,55 +236,130 @@ export const en = {
       division: "STRETCH FILM",
       descripcion: "High optical clarity stretch film meeting strict quality standards. Ensures load integrity and cost efficiency. Our line includes a Biodegradable option, formulated to degrade 90% faster.",
       slug: "stretch-film",
-      video: "carrusel/stretch-film.mp4"
+      video: "GO/carrusel/stretch-film.mp4"
     },
     {
       img: "carrusel/img4.webp",
       division: "MESH BAG",
       descripcion: "High-resistance, durable circular-woven polypropylene raffia mesh bags. Ventilated design ideal for fruits and vegetables.",
       slug: "arpillas",
-      video: "carrusel/arpillas.mp4"
+      video: "GO/carrusel/arpillas.mp4"
     },
     {
       img: "carrusel/img2.webp",
       division: "ROPE",
       descripcion: "High-performance polypropylene filament (PP) rope. The perfect balance: extreme lightness without sacrificing breaking resistance.",
       slug: "cuerdas",
-      video: "carrusel/cuerdas.mp4"
+      video: "GO/carrusel/cuerdas.mp4"
     },
     {
       img: "carrusel/img3.webp",
       division: "RAFFIA",
       descripcion: "High-performance polypropylene film (PP) raffia. Very lightweight with high breaking resistance. Flexible and versatile.",
       slug: "rafias",
-      video: "carrusel/rafia.mp4"
+      video: "GO/carrusel/rafia.mp4"
     },
     {
       img: "carrusel/img5.webp",
       division: "WOVEN SACK",
       descripcion: "Premium quality raffia sacks. Robust packaging solution for food, chemicals and fertilizers.",
       slug: "sacos",
-      video: "carrusel/sacos.mp4"
+      video: "GO/carrusel/sacos.mp4"
     },
     {
       img: "carrusel/img6.webp",
       division: "EDGE PROTECTOR",
       descripcion: "Cardboard edge protectors to optimize logistics. Structural resistance and greater load stability.",
       slug: "esquineros",
-      video: "carrusel/esquineros.mp4"
+      video: "GO/carrusel/esquineros.mp4"
     },
     {
       img: "carrusel/img7.webp",
       division: "FLEXIBLE",
-      descripcion: "Neo Empaques International specializes in advanced flexible packaging solutions, designed to optimize preservation and product presentation across multiple industries.",
+      description: "Neo Empaques International specializes in advanced flexible packaging solutions, designed to optimize the preservation and presentation of products in multiple industries.",
       slug: "empaques-flexibles",
-      video: "carrusel/bobina-impresa.mp4"
+      video: "GO/carrusel/bobina-impresa.mp4"
+    },
+    {
+      img: "carrusel/nuev2a.png",
+      division: "NATURIZABLE",
+      description: "Sustainable packaging that returns to the earth. 100% Plant Based, recyclable and compostable solutions for the food industry.",
+      slug: "naturizable",
+      video: "GO/carrusel/charola.mp4"
     }
-  ],
+    ],
 
-  // =================================================
-  // PAGE: STRETCH FILM
-  // =================================================
+    // =================================================
+    // PAGE: NATURIZABLE
+    // =================================================
+    naturizable: {
+    meta_title: "Naturizable | Grupo Ortiz",
+    meta_description: "100% Plant Based sustainable packaging that returns to the earth. Recyclable and compostable trays for the food industry.",
+    back_aria: "Back",
+    coming_soon_badge: "Coming Soon",
+    specs_title: "TECHNICAL SPECIFICATIONS",
+    specs_labels: {
+      material: "Material",
+      usage: "Usage",
+      resistance: "Resistance",
+      presentation: "Presentation"
+    },
+    products: [
+      {
+        name: "CHAROLA 855",
+        description: "Packaging that holds food with dignity. It serves the taquero, the butcher, the greengrocer, the chef — and when it's done, it returns to the earth without asking permission. We sustain the world. One tray at a time.",
+        img: "/images/divisiones/detallec.webp",
+        video: "GO/carrusel/charola.mp4",
+        specs_values: {
+          material: "Kraft Cardboard",
+          usage: "Food",
+          resistance: "Greaseproof",
+          presentation: "Eco-friendly"
+        },
+        gallery: [
+          "/images/divisiones/detallec.webp",
+          "/images/divisiones/empa.webp",
+          "/images/divisiones/lado.webp"
+        ]
+      },
+      {
+        name: "CELLULOSE CUP",
+        soon: true,
+        description: "High-quality biodegradable cellulose cups. A sustainable and elegant solution for beverage service, committed to the environment without compromising functionality.",
+        img: "/images/divisiones/vaso.webp",
+        video: "GO/carrusel/charola.mp4",
+        specs_values: {
+          material: "Cellulose",
+          usage: "Drinks / Events",
+          resistance: "Thermal",
+          presentation: "Eco-friendly"
+        },
+        gallery: [
+          "/images/divisiones/vaso.webp"
+        ]
+      },
+      {
+        name: "CONTAINERS",
+        soon: true,
+        description: "Specialized containers for various industrial and commercial applications. Designed for maximum durability and efficiency in storage and transport.",
+        img: "/images/divisiones/contenedor.webp",
+        video: "GO/carrusel/charola.mp4",
+        specs_values: {
+          material: "Polymers",
+          usage: "Multi-purpose",
+          resistance: "Industrial",
+          presentation: "Various Sizes"
+        },
+        gallery: [
+          "/images/divisiones/contenedor.webp"
+        ]
+      }
+    ]
+    },
+
+    // =================================================
+    // PAGE: STRETCH FILM
+    // =================================================
   stretch_film: {
     meta_title: "Stretch Film | Grupo Ortiz",
     back_aria: "Back to products",
@@ -1195,7 +1270,8 @@ footer: {
       eyebrow:      "Since 1959",
       title_top:    "WE ARE THE LEADING",
       title_bot:    "MANUFACTURER IN LATIN AMERICA",
-      video: "home_zv3jjz",
+      typewriter_prefix: "MANUFACTURER OF",
+      video: "GO/home/hero",
       subtitle:     "More than 65 years manufacturing high-engineering solutions for industries across five continents.",
       btn_products: "Our Products",
       btn_about:    "Learn More",
@@ -1219,8 +1295,14 @@ footer: {
         { title: "Woven Sack",        tag: "Division 05", description: "Premium quality raffia sacks. Robust packaging solution for food, chemicals, fertilizers and bulk products.",                                                     img: "/images/divisiones/sacos.webp",          color: "#3a7d44", slug: "sacos",              soon: false },
         { title: "Stretch Film",      tag: "Division 06", description: "High optical clarity stretch film. Ensures load integrity with cost efficiency. Includes biodegradable option.",                                                   img: "/images/divisiones/film-estirable.webp", color: "#2c5f8a", slug: "stretch-film",       soon: false },
         { title: "Edge Protector",    tag: "Division 07", description: "Kraft cardboard edge protectors for edge protection during storage and transport. Uniform pressure distribution and maximum load stability.",                     img: "/images/divisiones/esquineros.webp",     color: "#7b3fa0", slug: "esquineros",         soon: false },
-        { title: "Disposable",        tag: "Division 10", description: "Polypropylene disposable products for industrial, food and hospital use. Hygienic, economical and high-resistance solutions.",                                    img: "/images/divisiones/desechables.webp",    color: "#e05500", slug: "desechables",        soon: true  }
+        { title: "Naturizable",      tag: "Division 08", description: "Sustainable packaging that returns to the earth. 100% Plant Based, recyclable and compostable solutions for the food industry.",                                    img: "/images/divisiones/desechables.webp",    color: "#e05500", slug: "naturizable",        soon: false }
       ]
+    },
+
+    parallax: {
+      eyebrow: "Production Plant",
+      title:    "Everything",
+      title_em: "starts here"
     },
 
     porque: {
@@ -1271,7 +1353,7 @@ footer: {
       title:    "We export to the",
       title_em: "world",
       desc:     "Our products reach clients in more than 30 countries, consolidating our position as leaders in plastic polymers.",
-      video: "camion_n1nitn",
+      video: "GO/home/camion",
       stats: [
         { number: 65,   label: "Years"       },
         { number: 30,   prefix: "+", label: "Countries"  },

@@ -2,13 +2,15 @@
 import React, { useState, useRef, useEffect, useCallback, lazy, Suspense } from 'react';
 import './BotGO.css';
 import { translations } from '../i18n';
+import VoiceCallGO from './VoiceCallGO';
 
 // ✅ FIX: ReactMarkdown cargado de forma lazy
 const ReactMarkdown = lazy(() => import('react-markdown'));
 
+// 🔒 FIX: Regexes seguras contra ReDoS — límites explícitos y sin backtracking
 const INTENT_COMPRA_REGEX = [
-  /\bcompr[a-z]{2,}/, /coti[a-z]{0,6}/, /preci[a-z]{0,3}/, /cuant[a-z]{0,2}/,
-  /cost[a-z]{0,3}/, /presup[a-z]{0,6}/, /adquir[a-z]{0,4}/, /dispon[a-z]{0,8}/,
+  /\bcompr[a-z]{2,5}/, /coti[a-z]{0,5}/, /preci[a-z]{0,3}/, /cuant[a-z]{0,2}/,
+  /cost[a-z]{0,3}/, /presup[a-z]{0,5}/, /adquir[a-z]{0,3}/, /dispon[a-z]{0,5}/,
   /pedid[a-z]{0,2}/, /orden[a-z]{0,2}/,
 ];
 const INTENT_COMPRA_FRASES = [
@@ -17,7 +19,8 @@ const INTENT_COMPRA_FRASES = [
 ];
 
 // Palabras que indican contexto de empleo — nunca deben activar intención de compra
-const INTENT_EMPLEO_REGEX = /postular|vacante|empleo|trabajo|solicitud.*empleo|quiero trabajar|aplicar.*puesto|registro.*empleo|puesto de/i;
+// 🔒 FIX: Limitado a máx 30 caracteres para evitar ReDoS
+const INTENT_EMPLEO_REGEX = /^.{0,30}(postular|vacante|empleo|trabajo|solicitud.*empleo|quiero trabajar|aplicar.*puesto|registro.*empleo|puesto de)/i;
 
 function fmtSalario(raw) {
   if (!raw) return null;
@@ -35,6 +38,17 @@ const PRODUCTOS_LISTA = [
   'empaque', 'esquineros', 'esquinero', 'cuerdas', 'cuerda', 'arpillas', 'arpilla',
   'malla', 'sacos', 'saco', 'rafia', 'flexible',
 ];
+
+const PRODUCT_CARDS = {
+  rafia:      { name: 'Rafias',             desc: 'PP 100% virgen · agro, avícola, invernadero', slug: 'rafias',             color: '#f97316' },
+  stretch:    { name: 'Stretch Film',       desc: 'Paletizado · manual, máquina, prerred',        slug: 'stretch-film',       color: '#3b82f6' },
+  cuerdas:    { name: 'Cuerdas PP',         desc: 'Torcidas y trenzadas · agro e industrial',     slug: 'cuerdas',            color: '#22c55e' },
+  sacos:      { name: 'Sacos de Rafia',     desc: 'Granos, fertilizantes, construcción',          slug: 'sacos',              color: '#a855f7' },
+  arpillas:   { name: 'Arpillas',           desc: 'Frutas, verduras, mariscos, flores',           slug: 'arpillas',           color: '#ec4899' },
+  esquineros: { name: 'Esquineros Kraft',   desc: 'Protección de bordes · exportación',           slug: 'esquineros',         color: '#f59e0b' },
+  flexible:   { name: 'Empaques Flexibles', desc: 'Pouch, alto vacío, doypack',                   slug: 'empaques-flexibles', color: '#14b8a6' },
+  charola:    { name: 'Charola Naturizable',desc: 'Biodegradable · retail y alimentos frescos',   slug: 'catalogo',           color: '#84cc16' },
+};
 
 // ─── ICONS ────────────────────────────────────────────────────────────────────
 const RobotIcon = ({ className }) => (
@@ -86,6 +100,12 @@ const KeyboardIcon = () => (
 const CloseIcon = ({ size = 24 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+  </svg>
+);
+const PhoneCallIcon = ({ size = 24 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M22 16.92v3a2 2 0 01-2.18 2 19.86 19.86 0 01-8.63-3.07A19.5 19.5 0 013.1 5.18 2 2 0 015.09 3h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L9.1 10.91a16 16 0 006.99 6.99l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
+    <path d="M14.05 3a9 9 0 018 7.94"/><path d="M14.05 7A5 5 0 0118 11"/>
   </svg>
 );
 const WhatsAppIcon = () => (
@@ -185,7 +205,7 @@ const PDF_MAP = {
   esquineros: { label: 'Catálogo Esquineros',      url: 'https://drive.google.com/file/d/181Hvr0HQffLU3rmcXkccYoqj-Y_A-gxr/view' },
   flexible:   { label: 'Catálogo Empaque Flexible', url: 'https://drive.google.com/file/d/1TGxUcGHjW1NHF8K8YkRisbRE8uAuTnPO/view' },
   empaque:    { label: 'Catálogo Empaque Flexible', url: 'https://drive.google.com/file/d/1TGxUcGHjW1NHF8K8YkRisbRE8uAuTnPO/view' },
-  general:    { label: 'Catálogo General',         url: 'https://drive.google.com/file/d/1348E3b37R1KmpggjAURhsuQMfARyBaXB/view' },
+  general:    { label: 'Catálogo General',         url: 'https://drive.google.com/file/d/100HDnibFYDgG3gYL9zfta0slSpMjbw-d/view?usp=sharing' },
 };
 
 function detectarProducto(texto) {
@@ -224,15 +244,39 @@ function formatFileSize(bytes) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+// 🔒 Valida y sanitiza entrada de formulario
+function sanitizeInput(value, fieldType, maxLength = 100) {
+  if (!value) return '';
+  const trimmed = String(value).trim().slice(0, maxLength);
+
+  // Validaciones por tipo de campo
+  switch (fieldType) {
+    case 'email': {
+      const emailMatch = trimmed.match(/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/);
+      return emailMatch ? emailMatch[0] : '';
+    }
+    case 'phone': {
+      const phoneMatch = trimmed.match(/[\d\s\-\+\(\)]{8,20}/);
+      return phoneMatch ? phoneMatch[0] : '';
+    }
+    case 'edad': {
+      const ageMatch = trimmed.match(/\d{1,3}/);
+      return ageMatch ? ageMatch[0] : '';
+    }
+    default:
+      return trimmed;
+  }
+}
+
 // ✅ FIX CLAVE: Esta función ahora atrapa "Quiero postularme a la vacante de X" y guarda el puesto en memoria automáticamente
 function extraerDatosDeHistorial(msgs) {
   const data = { nombre: '', puesto: '', edad: '', estado: '', colonia: '', email: '', telefono: '' };
-  
+
   // 1. Detección automática del puesto desde el mensaje oculto del sistema
   for (const m of msgs) {
     if (m.role === 'user') {
       const match = (m.content || '').match(/postularme a la vacante de (.*)/i);
-      if (match) data.puesto = match[1].trim();
+      if (match) data.puesto = sanitizeInput(match[1], 'default', 50);
     }
   }
 
@@ -241,26 +285,25 @@ function extraerDatosDeHistorial(msgs) {
     const bot  = msgs[i];
     const user = msgs[i + 1];
     if (bot.role !== 'assistant' || user.role !== 'user') continue;
-    
+
     const pregunta  = (bot.content  || '').toLowerCase();
     const respuesta = (user.content || '').trim();
     if (!respuesta || respuesta.length < 2) continue;
 
     if (/puesto|posici[oó]n|[aá]rea|trabajo.*interesa|tipo de puesto|aplicar a|qu[eé] puesto|a qu[eé] puesto|cu[aá]l.*puesto/i.test(pregunta) && !data.puesto) {
-      data.puesto = respuesta;
+      data.puesto = sanitizeInput(respuesta, 'default', 50);
     } else if (/nombre completo|c[oó]mo te llamas|tu nombre|cu[aá]l es tu nombre/i.test(pregunta) && !data.nombre) {
-      if (!/^\d+$/.test(respuesta)) data.nombre = respuesta;
+      if (!/^\d+$/.test(respuesta)) data.nombre = sanitizeInput(respuesta, 'default', 60);
     } else if (/cu[aá]ntos a[nñ]os|a[nñ]os tienes|edad/i.test(pregunta) && !data.edad) {
-      data.edad = respuesta;
+      data.edad = sanitizeInput(respuesta, 'edad', 3);
     } else if (/estado.*rep[uú]blica|estado.*vives|qu[eé] estado|en qu[eé] estado/i.test(pregunta) && !data.estado) {
-      data.estado = respuesta;
+      data.estado = sanitizeInput(respuesta, 'default', 50);
     } else if (/colonia|municipio|localidad/i.test(pregunta) && !data.colonia) {
-      data.colonia = respuesta;
+      data.colonia = sanitizeInput(respuesta, 'default', 50);
     } else if (/correo|email|e-mail|mail/i.test(pregunta) && !data.email) {
-      const emailMatch = respuesta.match(/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/);
-      data.email = emailMatch ? emailMatch[0] : respuesta;
+      data.email = sanitizeInput(respuesta, 'email', 100);
     } else if (/whatsapp|tel[eé]fono|n[uú]mero|celular/i.test(pregunta) && !data.telefono) {
-      data.telefono = respuesta;
+      data.telefono = sanitizeInput(respuesta, 'phone', 20);
     }
   }
   return data;
@@ -998,6 +1041,52 @@ const MicToast = ({ message, onDismiss }) => {
   );
 };
 
+// ─── PRODUCT FLOAT CARD ───────────────────────────────────────────────────────
+const ProductFloatCard = ({ productKey, lang, onClose }) => {
+  const [visible, setVisible] = useState(false);
+  const data = PRODUCT_CARDS[productKey];
+
+  useEffect(() => {
+    const t = setTimeout(() => setVisible(true), 60);
+    return () => clearTimeout(t);
+  }, []);
+
+  if (!data) return null;
+
+  const handleClose = () => {
+    setVisible(false);
+    setTimeout(onClose, 320);
+  };
+
+  const initial = data.name.charAt(0).toUpperCase();
+
+  return (
+    <div className={`pfc-card ${visible ? 'pfc-visible' : ''}`} role="complementary" aria-label={`Ver producto: ${data.name}`}>
+      <button className="pfc-close" onClick={handleClose} aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <div className="pfc-top">
+        <div className="pfc-circle" style={{ background: data.color }}>
+          <span className="pfc-initial">{initial}</span>
+        </div>
+        <div className="pfc-info">
+          <p className="pfc-name">{data.name}</p>
+          <p className="pfc-desc">{data.desc}</p>
+        </div>
+      </div>
+      <a
+        href={`/${lang}/${data.slug}`}
+        className="pfc-btn"
+        style={{ background: data.color }}
+        onClick={handleClose}
+      >
+        Ver detalles
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  );
+};
+
 // ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
 export default function BotGO({ language = 'es' }) {
   const currentLangCode = translations[language] ? language : 'es';
@@ -1036,6 +1125,9 @@ export default function BotGO({ language = 'es' }) {
   const [micToast,   setMicToast]   = useState('');
   const [deferredInstallPrompt, setDeferredInstallPrompt] = useState(null);
   const [pwaInstalled,          setPwaInstalled]          = useState(false);
+  const [isVoiceCallOpen,   setIsVoiceCallOpen]   = useState(false);
+  const [realtimeAvailable, setRealtimeAvailable] = useState(true);
+  const [productCard,       setProductCard]       = useState(null);
   const installPromptRef = useRef(null); // ref para evitar clausuras desactualizadas
 
   const chatWindowRef        = useRef(null);
@@ -1051,6 +1143,7 @@ export default function BotGO({ language = 'es' }) {
   const waveAnimRef          = useRef(null);
   const sessionIdRef         = useRef(`s_${Date.now()}_${Math.random().toString(36).slice(2,8)}`);
   const fetchAbortRef        = useRef(null); // cancela fetch anterior si llega uno nuevo
+  const productCardTimerRef  = useRef(null);
   const vacListRef           = useRef([]);   // vacantes activas cargadas (para quickReplies dinámicos)
 
   // Memoizado para que MicToast no reinicie su timer en cada render del padre
@@ -1273,30 +1366,56 @@ export default function BotGO({ language = 'es' }) {
   const handleConfirmarRegistro = useCallback(async (datos) => {
     const cvActual = cvSubido;
     try {
-      const res = await fetch('/api/recruitment', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action:        'save',
-          nombre:        datos.nombre        || '',
-          email:         datos.email         || '',
-          telefono:      datos.telefono      || '',
-          puesto:        datos.puesto        || '',
-          edad:          datos.edad          || '',
-          estado:        datos.estado        || '',
-          colonia:       datos.colonia       || '',
-          cvNombre:      cvActual?.nombre    || '',
-          cvBase64:      cvActual?.base64    || '',
-          cvTipo:        cvActual?.tipo      || '',
-          comentarios:   datos.comentarios   || '',
-          sessionId:     sessionIdRef.current,
-          esListaEspera: datos.esListaEspera || false,
-        }),
-      });
+      let fetchOpts;
+
+      if (cvActual?.base64) {
+        // FormData evita mandar base64 como JSON (que puede exceder 4.5MB en Vercel)
+        const fd = new FormData();
+        fd.append('action',        'save');
+        fd.append('nombre',        datos.nombre        || '');
+        fd.append('email',         datos.email         || '');
+        fd.append('telefono',      datos.telefono      || '');
+        fd.append('puesto',        datos.puesto        || '');
+        fd.append('edad',          datos.edad          || '');
+        fd.append('estado',        datos.estado        || '');
+        fd.append('colonia',       datos.colonia       || '');
+        fd.append('comentarios',   datos.comentarios   || '');
+        fd.append('sessionId',     sessionIdRef.current);
+        fd.append('esListaEspera', datos.esListaEspera ? '1' : '0');
+        // CV como binario — evita overhead del 33% de base64
+        try {
+          const bytes = Uint8Array.from(atob(cvActual.base64), c => c.charCodeAt(0));
+          const blob  = new Blob([bytes], { type: cvActual.tipo || 'application/octet-stream' });
+          fd.append('cv', blob, cvActual.nombre || 'cv');
+        } catch { fd.append('cvNombre', cvActual.nombre || ''); }
+        fetchOpts = { method: 'POST', body: fd };
+      } else {
+        fetchOpts = {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'save',
+            nombre:        datos.nombre        || '',
+            email:         datos.email         || '',
+            telefono:      datos.telefono      || '',
+            puesto:        datos.puesto        || '',
+            edad:          datos.edad          || '',
+            estado:        datos.estado        || '',
+            colonia:       datos.colonia       || '',
+            cvNombre:      '',
+            cvBase64:      '',
+            cvTipo:        '',
+            comentarios:   datos.comentarios   || '',
+            sessionId:     sessionIdRef.current,
+            esListaEspera: datos.esListaEspera || false,
+          }),
+        };
+      }
+
+      const res    = await fetch('/api/recruitment', fetchOpts);
       const result = await res.json();
       setCandidatoRegistrado({ ...datos, id: result.id || null });
     } catch {
-      // Mostrar éxito de todas formas para no bloquear al usuario
       setCandidatoRegistrado({ ...datos, id: null });
     }
     setPreRegistroPendiente(null);
@@ -1661,6 +1780,28 @@ export default function BotGO({ language = 'es' }) {
     }
   };
 
+  const handleRealtimeFallback = () => {
+    setIsVoiceCallOpen(false);
+    setRealtimeAvailable(false);
+    setTimeout(toggleListening, 300);
+  };
+
+  const handleVoiceWhatsApp = useCallback((topic) => {
+    const waText = t.waStart || 'Hola Grupo Ortiz, me interesa cotizar';
+    const waLink = `https://wa.me/524432072593?text=${encodeURIComponent(waText + ' ' + (topic || 'sus productos'))}`;
+    setMessages(prev => [...prev, {
+      role: 'assistant',
+      content: t.salesMsg || '¡Con gusto! Escríbenos al WhatsApp para una cotización exacta según tu volumen 😊',
+      waLink,
+      pdfData: null, distLink: null, isDuplicate: false,
+      showCVUpload: false, quickReplies: null, quickRepliesUsed: false,
+    }]);
+  }, [t]);
+
+  const handleVoiceProduct = useCallback((_key) => {
+    // VoiceCallGO renders its own pill card via portal — skip ProductFloatCard here
+  }, []);
+
   const playAudio = async (b64) => {
     if (!b64) return;
     if (audioRef.current) {
@@ -1755,10 +1896,10 @@ export default function BotGO({ language = 'es' }) {
     const compraNow = enReclutamiento ? false : esIntencionCompra(text, historialActual);
     const pdfNow    = enReclutamiento ? false : esSolicitudPDF(text);
     
-    // Lista segura para el body del request
+    // Solo role+content — stripeamos campos de UI para reducir payload
     const payloadMessages = [
-      ...currentMsgs.map(m => m.quickReplies ? { ...m, quickRepliesUsed: true } : m),
-      userMsg
+      ...currentMsgs.map(m => ({ role: m.role, content: m.content || '' })),
+      { role: 'user', content: text },
     ];
 
     try {
@@ -1770,8 +1911,9 @@ export default function BotGO({ language = 'es' }) {
           messages: payloadMessages,
           isVoice, language: currentLangCode,
           sessionId: sessionIdRef.current,
+          // No enviamos base64 — chat.js solo usa cvAdjunto.nombre
           cvAdjunto: cvParaEnviar
-            ? { nombre: cvParaEnviar.nombre, tipo: cvParaEnviar.tipo, base64: cvParaEnviar.base64, tamaño: cvParaEnviar.tamaño }
+            ? { nombre: cvParaEnviar.nombre, tipo: cvParaEnviar.tipo, tamaño: cvParaEnviar.tamaño }
             : null,
         }),
       });
@@ -1878,6 +2020,11 @@ export default function BotGO({ language = 'es' }) {
         quickReplies, quickRepliesUsed: false,
       }]);
       setLastVoiceResponse(replyText);
+      if (prodReply && !enFlujoReclutamiento && !accionWA) {
+        clearTimeout(productCardTimerRef.current);
+        setProductCard({ key: prodReply, lang: currentLangCode });
+        productCardTimerRef.current = setTimeout(() => setProductCard(null), 10000);
+      }
       if (isVoice && audioUrl) await playAudio(audioUrl);
       
     } catch (err) {
@@ -2104,8 +2251,15 @@ export default function BotGO({ language = 'es' }) {
             )}
             <div className="voice-controls">
               <button className="voice-control-btn secondary" onClick={() => setViewMode('chat')} aria-label="Modo teclado"><KeyboardIcon /></button>
-              <button className={`voice-control-btn primary-mic ${isListening ? 'active' : ''}`} onClick={toggleListening} aria-label={isListening ? 'Detener' : 'Hablar'}>
-                <MicIcon isListening={isListening} size={32} />
+              <button
+                className={`voice-control-btn primary-mic ${isListening ? 'active' : ''}`}
+                onClick={realtimeAvailable ? () => setIsVoiceCallOpen(true) : toggleListening}
+                aria-label={realtimeAvailable ? 'Llamada de voz IA' : (isListening ? 'Detener' : 'Hablar')}
+              >
+                {realtimeAvailable
+                  ? <PhoneCallIcon size={32} />
+                  : <MicIcon isListening={isListening} size={32} />
+                }
               </button>
               <button className="voice-control-btn secondary" onClick={handleCloseChat} aria-label="Cerrar"><CloseIcon /></button>
             </div>
@@ -2242,7 +2396,25 @@ export default function BotGO({ language = 'es' }) {
             <MicToast message={micToast} onDismiss={dismissMicToast} />
           </div>
         )}
+
+        {isVoiceCallOpen && (
+          <VoiceCallGO
+            lang={currentLangCode}
+            onEnd={() => setIsVoiceCallOpen(false)}
+            onFallback={handleRealtimeFallback}
+            onWhatsApp={handleVoiceWhatsApp}
+            onProduct={handleVoiceProduct}
+          />
+        )}
       </div>
+
+      {productCard && isOpen && (
+        <ProductFloatCard
+          productKey={productCard.key}
+          lang={productCard.lang}
+          onClose={() => setProductCard(null)}
+        />
+      )}
 
       {!isOpen && (
         <div className={`botgo-launcher ${mounted ? 'launcher-ready' : 'launcher-prerender'}`}>
@@ -2263,6 +2435,7 @@ export default function BotGO({ language = 'es' }) {
           )}
         </div>
       )}
+
     </div>
   );
 }

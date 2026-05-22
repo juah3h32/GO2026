@@ -47,6 +47,10 @@ const features =
     : defaultCards;
 
 const stats = pageData.stats || [{ val: 0, symbol: "+", label: "Cargando..." }];
+
+/* Progress bar widths per stat — maps to visual proportion */
+const statBarWidths = ["75%", "85%", "65%"];
+
 const form = pageData.form || {
   title: "Solicitud",
   desc: "Contáctanos",
@@ -64,21 +68,21 @@ const form = pageData.form || {
 };
 
 const heroSubtitle = pageData.hero?.subtitle || "Portal Mayoristas";
-const heroTitle = pageData.hero?.title || "Multiplica tus Ingresos";
-const heroDesc = pageData.hero?.desc || "Distribuye productos de alta demanda.";
-const heroCta = pageData.hero?.cta || "Comenzar";
-const metaTitle = pageData.meta_title || "Distribuidor";
+const heroTitle    = pageData.hero?.title || "Multiplica tus Ingresos";
+const heroDesc     = pageData.hero?.desc || "Distribuye productos de alta demanda.";
+const heroCta      = pageData.hero?.cta || "Comenzar";
+const metaTitle    = pageData.meta_title || "Distribuidor";
+const metaDesc     = pageData.meta_description || "";
 
 const placeholderImg =
   "https://placehold.co/600x900/111/fb670b?text=App+Distribuidor&font=roboto";
 ---
 
-<BaseLayout title={metaTitle} currentLang={currentLang}>
+<BaseLayout title={metaTitle} description={metaDesc} canonicalSlug="distribuidor/" currentLang={currentLang}>
 
   <!-- ── HEAD: íconos con preload para garantizar carga antes del paint ── -->
   <Fragment slot="head">
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
 
     <!-- preload garantiza que el font de íconos llegue antes del primer render -->
     <link
@@ -91,12 +95,6 @@ const placeholderImg =
       href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css"
     />
   </Fragment>
-
-  <!-- ── SCRIPTS CDN en orden, is:inline, SIN defer ── -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" is:inline></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" is:inline></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" is:inline></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.0/vanilla-tilt.min.js" is:inline></script>
 
   <!-- Efecto de revelación al enviar formulario -->
   <div class="reveal-container" id="revealEffect">
@@ -122,12 +120,10 @@ const placeholderImg =
         <h4 class="gs-fade">{heroSubtitle}</h4>
         <h1 class="gs-title" set:html={heroTitle} />
         <p class="gs-fade">{heroDesc}</p>
-        <div class="gs-fade">
-          <a href="#formulario" class="btn-cta">
-            {heroCta}
-            <i class="ri-arrow-right-line"></i>
-          </a>
-        </div>
+        <a href="#formulario" class="btn-cta gs-fade">
+          {heroCta}
+          <i class="ri-arrow-right-line"></i>
+        </a>
       </div>
       <div class="hero-visual">
         <img
@@ -140,11 +136,20 @@ const placeholderImg =
       </div>
     </section>
 
+    <!-- Section Divider -->
+    <div class="section-divider" aria-hidden="true">
+      <div class="section-divider-dot"></div>
+    </div>
+
     <!-- Features Grid -->
     <div class="grid-features">
       {
-        features.map((card: any) => (
-          <div class="card js-tilt" data-tilt>
+        features.map((card: any, index: number) => (
+          <div
+            class="card js-tilt"
+            data-tilt
+            data-num={String(index + 1).padStart(2, "0")}
+          >
             <div class="card-header">
               <div class="card-icon-wrap">
                 <i class={card.icon} />
@@ -161,15 +166,21 @@ const placeholderImg =
     <div class="carousel-dots" id="cardsDots"></div>
 
     <!-- Stats Section -->
-    <div class="stats-row gs-reveal" id="statsRow">
+    <div class="stats-row in-view" id="statsRow">
       {
-        stats.map((stat: any) => (
+        stats.map((stat: any, index: number) => (
           <div class="stat-box">
             <div class="stat-number">
-              <span class="counter" data-target={stat.val}>0</span>
+              <span class="stat-val">{stat.val}</span>
               <span class="stat-symbol">{stat.symbol}</span>
             </div>
             <div class="stat-label">{stat.label}</div>
+            <div class="stat-bar-wrap">
+              <div
+                class="stat-bar"
+                style={`--bar-width: ${statBarWidths[index] ?? "70%"}`}
+              ></div>
+            </div>
           </div>
         ))
       }
@@ -242,160 +253,90 @@ const placeholderImg =
 
   </div><!-- /distribuidor-container -->
 
-  <script is:inline>
-  // ─────────────────────────────────────────────────────────────
-  // UTILIDAD: espera a que las libs estén listas (polling seguro)
-  // ─────────────────────────────────────────────────────────────
-  function waitForLibs(callback, maxWait) {
-    var waited = 0;
-    var interval = setInterval(function () {
-      waited += 50;
-      if (typeof window.gsap !== "undefined" && typeof window.ScrollTrigger !== "undefined") {
-        clearInterval(interval);
-        callback();
-      } else if (waited >= (maxWait || 6000)) {
-        clearInterval(interval);
-        callback(); // intentar igual con lo disponible
-      }
-    }, 50);
-  }
+  <script>
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  gsap.registerPlugin(ScrollTrigger);
 
   // ─────────────────────────────────────────────────────────────
   // FUNCIÓN PRINCIPAL
   // ─────────────────────────────────────────────────────────────
   function initDistribuidor() {
-    if (typeof window.gsap === "undefined") {
-      setTimeout(initDistribuidor, 200);
-      return;
-    }
-
-    var gsap = window.gsap;
-    var ScrollTrigger = window.ScrollTrigger;
-
-    if (ScrollTrigger) {
-      gsap.registerPlugin(ScrollTrigger);
-      // Limpiar instancias anteriores (SPA/View Transitions de Astro)
-      ScrollTrigger.getAll().forEach(function (st) { st.kill(); });
-    }
+    // Limpiar instancias anteriores (SPA/View Transitions de Astro)
+    ScrollTrigger.getAll().forEach(function (st) { st.kill(); })
 
     // ── HERO ─────────────────────────────────────────────────────
     var heroTl = gsap.timeline({ defaults: { ease: "power4.out" } });
     heroTl
-      .from(".gs-title", { y: 100, opacity: 0, duration: 1.2 })
-      .from(".gs-fade",  { y: 30,  opacity: 0, duration: 0.8, stagger: 0.15 }, "-=0.6")
-      .from(".gs-img",   { scale: 0.9, opacity: 0, duration: 1.5, ease: "power2.out" }, "-=1");
+      .from(".gs-title", { y: 80, opacity: 0, duration: 1.2, filter: "blur(8px)" })
+      .from(".gs-fade",  { y: 30,  opacity: 0, duration: 0.8, stagger: 0.18 }, "-=0.7")
+      .from(".gs-img",   { scale: 0.88, opacity: 0, duration: 1.5, ease: "power2.out", filter: "blur(4px)" }, "-=1");
+
+    // ── SECTION DIVIDER ──────────────────────────────────────────
+    var divider = document.querySelector(".section-divider");
+    if (divider) {
+      gsap.from(divider, {
+        opacity: 0,
+        scaleX: 0.4,
+        duration: 1,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: divider,
+          start: "top 92%",
+          toggleActions: "play none none none",
+        },
+      });
+    }
 
     // ── CARDS ─────────────────────────────────────────────────────
     var cards = document.querySelectorAll(".card");
-    if (cards.length > 0 && ScrollTrigger) {
+    if (cards.length > 0) {
       gsap.fromTo(
         cards,
-        { y: 80, autoAlpha: 0, scale: 0.95 },
+        { y: 70, autoAlpha: 0, scale: 0.94, filter: "blur(6px)" },
         {
-          y: 0, autoAlpha: 1, scale: 1,
-          duration: 0.9,
-          stagger: { amount: 0.4, from: "start" },
-          ease: "back.out(1.4)",
+          y: 0, autoAlpha: 1, scale: 1, filter: "blur(0px)",
+          duration: 0.85,
+          stagger: { amount: 0.45, from: "start" },
+          ease: "back.out(1.5)",
           scrollTrigger: {
             trigger: ".grid-features",
-            start: "top 90%",
+            start: "top 88%",
             toggleActions: "play none none none",
           },
         }
       );
     }
 
-    // ── GS-REVEAL (stats + form)
-    // CLAVE FIX VERCEL: detecta si el elemento ya está en viewport al cargar
-    // para no depender de scroll en páginas SSG servidas desde CDN
-    // ──────────────────────────────────────────────────────────────
-    document.querySelectorAll(".gs-reveal").forEach(function (elem) {
-      var rect = elem.getBoundingClientRect();
-      var alreadyVisible = rect.top < window.innerHeight * 0.98;
+    // stats se renderizan directo en HTML — sin JS necesario
 
-      if (alreadyVisible || !ScrollTrigger) {
-        // Animar directamente sin esperar scroll
-        gsap.fromTo(
-          elem,
-          { y: 60, autoAlpha: 0 },
-          { y: 0, autoAlpha: 1, duration: 1.2, ease: "power3.out", delay: 0.4 }
-        );
-      } else {
-        gsap.fromTo(
-          elem,
-          { y: 60, autoAlpha: 0 },
-          {
-            y: 0, autoAlpha: 1, duration: 1.2, ease: "power3.out",
-            scrollTrigger: {
-              trigger: elem,
-              start: "top 95%",
-              toggleActions: "play none none none",
-            },
-          }
-        );
-      }
-    });
-
-    // ── COUNTERS ──────────────────────────────────────────────────
-    // FIX VERCEL: si el stat ya está en viewport (page load desde CDN),
-    // arrancar la animación directamente con un delay pequeño.
-    document.querySelectorAll(".counter").forEach(function (counter) {
-      var targetAttr = counter.getAttribute("data-target");
-      if (!targetAttr) return;
-
-      var targetValue = parseInt(targetAttr.replace(/\D/g, ""), 10) || 0;
-      if (targetValue === 0) return; // nada que animar
-
-      var countObj = { val: 0 };
-
-      var rect = counter.getBoundingClientRect();
-      var alreadyVisible = rect.top < window.innerHeight * 0.98;
-
-      // Formateador de números (puntos de miles)
-      function formatNum(n) {
-        return Math.round(n).toLocaleString("es-MX");
-      }
-
-      if (alreadyVisible || !ScrollTrigger) {
-        // Ya visible: animar con delay para que se vea después del reveal
-        gsap.to(countObj, {
-          val: targetValue,
-          duration: 2.5,
-          delay: 0.8,
-          ease: "power2.out",
-          onUpdate: function () { counter.textContent = formatNum(countObj.val); },
-          onComplete: function () { counter.textContent = formatNum(targetValue); },
-        });
-      } else {
-        gsap.to(countObj, {
-          val: targetValue,
-          duration: 2.5,
-          ease: "power2.out",
-          scrollTrigger: {
-            trigger: counter,
-            start: "top 95%",
-            toggleActions: "play none none reset",
-          },
-          onUpdate: function () { counter.textContent = formatNum(countObj.val); },
-          onComplete: function () { counter.textContent = formatNum(targetValue); },
-        });
-      }
-    });
-
-    // ── THREE.JS PARTICLES ───────────────────────────────────────
-    if (typeof window.THREE !== "undefined" && window.innerWidth > 768) {
-      initThreeJSBackground();
+    // ── FORM REVEAL — GSAP solo para el formulario (sin contadores) ─
+    var formSection = document.querySelector('.form-section');
+    if (formSection) {
+      gsap.set(formSection, { autoAlpha: 0, y: 50 });
+      var formIO = new IntersectionObserver(function (entries, obs) {
+        if (!entries[0].isIntersecting) return;
+        obs.disconnect();
+        gsap.to(formSection, { autoAlpha: 1, y: 0, duration: 1.2, ease: 'power3.out' });
+      }, { threshold: 0.05 });
+      formIO.observe(formSection);
     }
 
-    // ── VANILLA TILT ─────────────────────────────────────────────
-    if (typeof window.VanillaTilt !== "undefined") {
+    // ── THREE.JS PARTICLES (lazy — solo desktop)
+    if (window.innerWidth > 768) {
+      import('three').then(function(m) { initThreeJSBackground(m); });
+    }
+
+    // ── VANILLA TILT (lazy)
+    import('vanilla-tilt').then(function(m) {
+      var VanillaTilt = m.default || m;
       var tiltEls = document.querySelectorAll(".js-tilt");
       if (tiltEls.length) {
-        window.VanillaTilt.init(tiltEls, {
-          max: 8, speed: 400, glare: true, "max-glare": 0.15, scale: 1.03,
+        VanillaTilt.init(tiltEls, {
+          max: 8, speed: 400, glare: true, "max-glare": 0.12, scale: 1.03,
         });
       }
-    }
+    });
 
     // ── CAROUSEL DOTS (móvil) ────────────────────────────────────
     setupCarouselDots();
@@ -407,7 +348,8 @@ const placeholderImg =
   // ─────────────────────────────────────────────────────────────
   // THREE.JS BACKGROUND
   // ─────────────────────────────────────────────────────────────
-  function initThreeJSBackground() {
+  function initThreeJSBackground(m) {
+    var THREE = m.default || m;
     var container = document.getElementById("canvas-bg");
     if (!container) return;
     container.innerHTML = "";
@@ -538,17 +480,7 @@ const placeholderImg =
   // ─────────────────────────────────────────────────────────────
   // ARRANQUE — compatible con carga normal + SPA (View Transitions)
   // ─────────────────────────────────────────────────────────────
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", function () {
-      waitForLibs(initDistribuidor, 6000);
-    });
-  } else {
-    waitForLibs(initDistribuidor, 6000);
-  }
-
-  // Astro View Transitions / SPA routing
-  document.addEventListener("astro:page-load",  function () { waitForLibs(initDistribuidor, 6000); });
-  document.addEventListener("astro:after-swap", function () { waitForLibs(initDistribuidor, 6000); });
+  document.addEventListener("astro:page-load", initDistribuidor);
   </script>
 
   <Footer currentLang={currentLang} />

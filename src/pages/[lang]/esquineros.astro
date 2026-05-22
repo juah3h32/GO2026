@@ -3,6 +3,7 @@ import "../../styles/cuerdas.css";
 export const prerender = true;  // ← AGREGAR ESTA LÍNEA
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import BuyButton from "../../components/BuyButton.astro";
+import Footer from "../../components/Footer.astro";
 import { languages, translations } from "../../i18n";
 
 export function getStaticPaths() {
@@ -25,9 +26,11 @@ const specs = [
 ];
 ---
 
-<BaseLayout 
-    title={pageData.meta_title} 
-    currentLang={currentLang} 
+<BaseLayout
+    title={pageData.meta_title}
+    description={pageData.meta_description || ""}
+    canonicalSlug="esquineros/"
+    currentLang={currentLang}
     moveLogoMobile={true}
 >
 
@@ -41,7 +44,7 @@ const specs = [
         class={`video-bg ${index === 0 ? 'visible' : ''}`}
         data-video-index={index}
         src={prod.video || ''}
-        autoplay muted playsinline preload="auto"
+        autoplay muted playsinline preload="metadata"
       />
     ))}
     <div class="video-overlay"></div>
@@ -355,4 +358,5 @@ function updateVideo(idx) {
   document.addEventListener("astro:after-swap", initTransition);
   </script>
 
+  <Footer currentLang={currentLang} />
 </BaseLayout>

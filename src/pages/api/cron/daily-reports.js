@@ -91,7 +91,10 @@ async function runCron({ forceAll = false, baseUrl = 'https://grupo-ortiz.com' }
 
       // 3. Llamar al endpoint de envío
       try {
-        const cronSecret = import.meta.env.CRON_SECRET_EXTERNAL || process.env.CRON_SECRET_EXTERNAL || 'ortiz2026';
+        const cronSecret = import.meta.env.CRON_SECRET_EXTERNAL || process.env.CRON_SECRET_EXTERNAL;
+        if (!cronSecret) {
+          throw new Error('CRON_SECRET_EXTERNAL no configurado. Define la variable de entorno.');
+        }
         const res = await fetch(`${baseUrl}/api/reports/send-now`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'x-cron-secret': cronSecret },
@@ -136,13 +139,14 @@ export async function GET({ request }) {
   
   const authHeader = request.headers.get('authorization');
   const cronSecret = import.meta.env.CRON_SECRET;
-  
+
   // Es válido si viene de Vercel (con su secreto) O del servicio externo (con el token en la URL)
   const isValidVercel = cronSecret && authHeader === `Bearer ${cronSecret}`;
-  const cronExternal = import.meta.env.CRON_SECRET_EXTERNAL || process.env.CRON_SECRET_EXTERNAL || 'ortiz2026';
-  const isValidExternal = token && token === cronExternal;
+  const cronExternal = import.meta.env.CRON_SECRET_EXTERNAL || process.env.CRON_SECRET_EXTERNAL;
+  const isValidExternal = cronExternal && token && token === cronExternal;
 
   if (!isValidVercel && !isValidExternal) {
+    console.error('[daily-reports] Acceso denegado: no se proporcionó secret válido');
     return new Response('No autorizado', { status: 401 });
   }
 

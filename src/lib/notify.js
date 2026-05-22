@@ -24,7 +24,7 @@ export const DEFAULT_CAPTION =
 // ── Logo desde el filesystem ──────────────────────────────────────────────────
 function getLogoBase64() {
   try {
-    const p = join(process.cwd(), 'public/images/logoN.png');
+    const p = join(process.cwd(), 'public/images/logo/logoN.png');
     if (!existsSync(p)) return null;
     return `data:image/png;base64,${readFileSync(p).toString('base64')}`;
   } catch { return null; }
@@ -311,10 +311,13 @@ export async function notifyNewVacante(candidate) {
         await sendWAText(phone, message);
         // 2 — PDF del perfil (mensaje separado, sin caption)
         await sendWAPDF(phone, pdfBuffer, filename);
-        results.push({ config: config.name, phone, name: rName, ok: true });
+        // 🔒 LOG SEGURO: no exponer teléfono real, usar hash
+        const phoneHash = Buffer.from(phone).toString('base64').slice(0, 8);
+        results.push({ config: config.name, phone: `****${phoneHash}`, name: rName, ok: true });
       } catch (err) {
-        console.error(`[notify] Error → ${phone}:`, err.message);
-        results.push({ config: config.name, phone, name: rName, ok: false, error: err.message });
+        const phoneHash = Buffer.from(phone).toString('base64').slice(0, 8);
+        console.error(`[notify] Error → ****${phoneHash}:`, err.message);
+        results.push({ config: config.name, phone: `****${phoneHash}`, name: rName, ok: false, error: err.message });
       }
     }
     try { await touchCandidateNotifLastSent(config.id); } catch {}

@@ -1,0 +1,61 @@
+---
+// VideoFallbackGuard.astro
+// Agrega este componente UNA VEZ por página (en el layout o en cada página que use CldVideoPlayer).
+// Detecta fallos de Cloudinary y activa automáticamente el video local como respaldo.
+// No toca nada si Cloudinary funciona correctamente.
+---
+<script>
+  function setupFallbacks() {
+    document.querySelectorAll<HTMLElement>('[data-fallback-wrap]').forEach((wrap) => {
+      const fallback = wrap.querySelector<HTMLVideoElement>('video[data-role="fallback"]');
+      if (!fallback) return;
+
+      // El video primario es cualquier <video> que NO sea el fallback
+      const primary = [...wrap.querySelectorAll<HTMLVideoElement>('video')]
+        .find(v => v.dataset.role !== 'fallback');
+      if (!primary) return;
+
+      let activated = false;
+      let timer: ReturnType<typeof setTimeout>;
+
+      function activate() {
+        if (activated) return;
+        activated = true;
+        clearTimeout(timer);
+
+        // Mostrar el fallback con los mismos estilos que el primario
+        fallback!.style.cssText = [
+          'display:block',
+          'position:absolute',
+          'inset:0',
+          'width:100%',
+          'height:100%',
+          'object-fit:cover',
+          'object-position:center',
+          'z-index:2',
+          'pointer-events:none',
+        ].join(';');
+
+        fallback!.play().catch(() => {});
+
+        // Ocultar el reproductor de Cloudinary para liberar recursos
+        primary!.style.display = 'none';
+      }
+
+      // 1. Error directo en el elemento <video> o sus <source>
+      primary.addEventListener('error', activate, true);
+
+      // 2. Tiempo límite: si en 12 s no ha arrancado, usar fallback
+      timer = setTimeout(() => {
+        if (primary.readyState < 2) activate();
+      }, 12000);
+
+      // Cancelar el timer si el video principal arranca bien
+      primary.addEventListener('canplay',  () => clearTimeout(timer), { once: true });
+      primary.addEventListener('playing',  () => clearTimeout(timer), { once: true });
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', setupFallbacks);
+  document.addEventListener('astro:page-load',  setupFallbacks);
+</script>

@@ -228,6 +228,49 @@ export async function readSessionMessages(sessionId) {
   return res.rows;
 }
 
+// ─── VOICE CALLS ──────────────────────────────────────────────────────────────
+async function ensureVoiceCallsTable() {
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS voice_calls (
+      id         INTEGER PRIMARY KEY AUTOINCREMENT,
+      ts         TEXT NOT NULL DEFAULT (datetime('now')),
+      lang       TEXT NOT NULL DEFAULT 'es',
+      duration   INTEGER NOT NULL DEFAULT 0,
+      turn_count INTEGER NOT NULL DEFAULT 0,
+      transcript TEXT NOT NULL DEFAULT '[]',
+      products   TEXT
+    )
+  `);
+  try { await db.execute(`CREATE INDEX IF NOT EXISTS idx_vc_ts ON voice_calls(ts DESC)`); } catch {}
+}
+
+export async function saveVoiceCall({ lang = 'es', duration = 0, turns = [] }) {
+  await ensureVoiceCallsTable();
+  const products = [...new Set(turns.map(t => detectProduct(t.text)).filter(Boolean))].join(',') || null;
+  await db.execute({
+    sql: `INSERT INTO voice_calls (lang, duration, turn_count, transcript, products) VALUES (?, ?, ?, ?, ?)`,
+    args: [lang, duration, turns.length, JSON.stringify(turns.slice(0, 120)), products],
+  });
+}
+
+export async function readVoiceCalls({ limit = 60, offset = 0 } = {}) {
+  await ensureVoiceCallsTable();
+  const res = await db.execute({
+    sql: `SELECT id, ts, lang, duration, turn_count, transcript, products FROM voice_calls ORDER BY id DESC LIMIT ? OFFSET ?`,
+    args: [limit, offset],
+  });
+  const countRes = await db.execute('SELECT COUNT(*) as n FROM voice_calls');
+  return {
+    calls: res.rows.map(r => ({
+      id: r.id, ts: r.ts, lang: r.lang,
+      duration: r.duration, turn_count: r.turn_count,
+      transcript: (() => { try { return JSON.parse(r.transcript || '[]'); } catch { return []; } })(),
+      products: r.products ? r.products.split(',').filter(Boolean) : [],
+    })),
+    total: countRes.rows[0]?.n || 0,
+  };
+}
+
 // ─── DISTRIBUIDOR LEADS ───────────────────────────────────────────────────────
 async function ensureLeadsTable() {
   await db.execute(`

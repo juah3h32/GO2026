@@ -49,6 +49,7 @@ const Ic = {
 
 const REPORT_TYPES = [
   { value:'resumen',       label:'Resumen',        icon:<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>, color:'#A855F7', desc:'Vista ejecutiva · 1 página completa' },
+  { value:'comparativo',   label:'Comparativo',    icon:<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>, color:'#EC4899', desc:'Comparativo · período actual vs anterior' },
   { value:'general',       label:'General',        icon:Ic.chart,   color:C.orange,    desc:'Analytics, distribuidores y reclutamiento' },
   { value:'distribuidor',  label:'Distribuidores', icon:Ic.truck,   color:'#0088DD',   desc:'Red de distribution y solicitudes' },
   { value:'reclutamiento', label:'Reclutamiento',  icon:Ic.recruit, color:'#22C55E',   desc:'Pipeline de candidatos y talento' },

@@ -1,0 +1,108 @@
+---
+// VideoWithFallback.astro
+// Fuente 1: Cloudinary. Fuente 2: local. Fuente 3: imagen poster (inyectada por JS).
+
+interface Props {
+  cloudinaryId: string;
+  localFallback: string;
+  cloudName?: string;
+  poster?: string;
+  autoplay?: boolean;
+  muted?: boolean;
+  loop?: boolean;
+  playsinline?: boolean;
+  controls?: boolean;
+  class?: string;
+  id?: string;
+  preload?: "auto" | "metadata" | "none";
+  productName?: string;
+}
+
+const {
+  cloudinaryId,
+  cloudName = import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME ?? "dfuzfdrat",
+  localFallback,
+  poster,
+  autoplay = false,
+  muted = true,
+  loop = false,
+  playsinline = true,
+  controls = false,
+  class: className,
+  id,
+  preload = "auto",
+  productName,
+} = Astro.props;
+
+const cldSrc = `https://res.cloudinary.com/${cloudName}/video/upload/q_auto:good,fl_faststart/${cloudinaryId}.mp4`;
+---
+
+<video
+  id={id}
+  class={className}
+  poster={poster}
+  autoplay={autoplay}
+  muted={muted}
+  loop={loop}
+  playsinline={playsinline}
+  controls={controls}
+  preload={preload}
+  data-fallback={localFallback}
+  data-poster={poster}
+  data-product={productName}
+>
+  <source src={cldSrc} type="video/mp4" />
+  <source src={localFallback} type="video/mp4" />
+</video>
+
+<script>
+  function attachFallback(video: HTMLVideoElement) {
+    const local = video.dataset.fallback;
+    const posterSrc = video.dataset.poster;
+    if (!local) return;
+    let triedLocal = false;
+    let stallTimer: ReturnType<typeof setTimeout>;
+
+    function showImageFallback() {
+      if (!posterSrc) return;
+      const img = document.createElement('img');
+      img.src = posterSrc;
+      img.alt = '';
+      img.setAttribute('aria-hidden', 'true');
+      // Copia todos los estilos computados relevantes del video
+      img.className = video.className;
+      img.style.cssText = video.style.cssText;
+      img.style.objectFit = 'cover';
+      video.parentElement?.insertBefore(img, video);
+      video.style.display = 'none';
+    }
+
+    function switchToLocal() {
+      if (triedLocal) { showImageFallback(); return; }
+      triedLocal = true;
+      clearTimeout(stallTimer);
+      if (video.currentSrc?.includes(local) || video.src?.includes(local)) return;
+      video.src = local;
+      video.load();
+      if (video.autoplay) video.play().catch(showImageFallback);
+    }
+
+    video.addEventListener('error', switchToLocal, true);
+
+    video.addEventListener('stalled', () => {
+      stallTimer = setTimeout(switchToLocal, 8000);
+    });
+    video.addEventListener('waiting', () => {
+      if (video.readyState < 2) stallTimer = setTimeout(switchToLocal, 10000);
+    });
+    video.addEventListener('playing', () => clearTimeout(stallTimer));
+    video.addEventListener('canplay', () => clearTimeout(stallTimer));
+  }
+
+  function initFallbacks() {
+    document.querySelectorAll<HTMLVideoElement>('video[data-fallback]').forEach(attachFallback);
+  }
+
+  document.addEventListener('DOMContentLoaded', initFallbacks);
+  document.addEventListener('astro:page-load', initFallbacks);
+</script>

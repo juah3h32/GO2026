@@ -1,0 +1,2 @@
+- [Vulnerabilidades Críticas Identificadas](security-critical-issues.md) — 5 vulnerabilidades de severidad crítica encontradas y parcialmente corregidas en API endpoints
+- [Hardening Requerido](security-hardening-roadmap.md) — Plan de 3 fases para eliminar 'unsafe-inline', agregar WAF, y completar rate limiting en todos los endpoints

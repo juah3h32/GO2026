@@ -236,49 +236,49 @@ export const pt = {
       division: "STRETCH FILM",
       descripcion: "Filme extensível de alta clareza óptica e padrões de qualidade. Garante a integridade da carga e eficiência em custos. Nossa linha inclui opção Biodegradável, formulada para se degradar 90% mais rápido.",
       slug: "stretch-film",
-      video: "carrusel/stretch-film.mp4"
+      video: "GO/carrusel/stretch-film.mp4"
     },
     {
       img: "carrusel/img4.webp",
       division: "SACO DE REDE",
       descripcion: "Sacos de malha de Rafia de Polipropileno em tecido circular de alta resistência e durabilidade. Design ventilado ideal para frutas e verduras.",
       slug: "arpillas",
-      video: "carrusel/arpillas.mp4"
+      video: "GO/carrusel/arpillas.mp4"
     },
     {
       img: "carrusel/img2.webp",
       division: "CORDA",
       descripcion: "Corda de Filamento de Polipropileno (PP) de alto desempenho. Equilíbrio perfeito: extrema leveza sem sacrificar resistência à ruptura.",
       slug: "cuerdas",
-      video: "carrusel/cuerdas.mp4"
+      video: "GO/carrusel/cuerdas.mp4"
     },
     {
       img: "carrusel/img3.webp",
       division: "RAFIA",
       descripcion: "Rafia de Filme de Polipropileno (PP) de alto desempenho. Grande leveza e alta resistência à ruptura. Flexível e versátil.",
       slug: "rafias",
-      video: "carrusel/rafia.mp4"
+      video: "GO/carrusel/rafia.mp4"
     },
     {
       img: "carrusel/img5.webp",
       division: "SACO",
       descripcion: "Sacos de Rafia de qualidade superior. Solução de embalagem robusta para alimentos, produtos químicos e fertilizantes.",
       slug: "sacos",
-      video: "carrusel/sacos.mp4"
+      video: "GO/carrusel/sacos.mp4"
     },
     {
       img: "carrusel/img6.webp",
       division: "CANTONEIRA",
       descripcion: "Cantoneiras de papelão para otimizar a logística. Resistência estrutural e maior estabilidade de carga.",
       slug: "esquineros",
-      video: "carrusel/esquineros.mp4"
+      video: "GO/carrusel/esquineros.mp4"
     },
     {
       img: "carrusel/img7.webp",
       division: "FLEXÍVEL",
       descripcion: "A Neo Empaques International é especializada em soluções avançadas de embalagem flexível, projetadas para otimizar a conservação e apresentação de produtos em múltiplas indústrias.",
       slug: "empaques-flexibles",
-      video: "carrusel/bobina-impresa.mp4"
+      video: "GO/carrusel/bobina-impresa.mp4"
     }
   ],
 
@@ -1196,7 +1196,8 @@ footer: {
       eyebrow:      "Desde 1959",
       title_top:    "SOMOS O PRINCIPAL",
       title_bot:    "FABRICANTE DA AMÉRICA LATINA",
-      video: "home_zv3jjz",
+      video: "GO/home/hero",
+      typewriter_prefix: "MANUFACTURER OF",
       subtitle:     "Mais de 65 anos fabricando soluções de alta engenharia para indústrias nos cinco continentes.",
       btn_products: "Nossos Produtos",
       btn_about:    "Saiba Mais",
@@ -1222,6 +1223,12 @@ footer: {
         { title: "Cantoneira",        tag: "Divisão 07", description: "Cantoneiras de papelão kraft para proteção de bordas durante o armazenamento e transporte. Distribuição uniforme de pressão e máxima estabilidade de carga.", img: "/images/divisiones/esquineros.webp",        color: "#7b3fa0", slug: "esquineros",         soon: false },
         { title: "Descartável",       tag: "Divisão 10", description: "Produtos descartáveis de polipropileno para uso industrial, alimentar e hospitalar. Soluções higiênicas, econômicas e de alta resistência.",               img: "/images/divisiones/desechables.webp",       color: "#e05500", slug: "desechables",        soon: true  }
       ]
+    },
+
+    parallax: {
+      eyebrow: "Production Plant",
+      title:    "Everything",
+      title_em: "starts here"
     },
 
     porque: {
@@ -1272,7 +1279,7 @@ footer: {
       title:    "Exportamos para o",
       title_em: "mundo",
       desc:     "Nossos produtos chegam a clientes em mais de 30 países, consolidando nossa posição como líderes em polímeros plásticos.",
-      video: "camion_n1nitn",
+      video: "GO/home/camion",
       stats: [
         { number: 65,   label: "Anos"        },
         { number: 30,   prefix: "+", label: "Países"      },

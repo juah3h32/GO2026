@@ -55,10 +55,12 @@ function getValorIcon(title: string): string {
 }
 ---
 
-<BaseLayout title={qs.meta_title} currentLang={currentLang}>
+<BaseLayout title={qs.meta_title} description={qs.meta_description || ""} canonicalSlug="about/" currentLang={currentLang}>
     <!-- Carga diferida del CSS pesado -->
   
   
+  <h1 class="sr-only">{qs.meta_title}</h1>
+
   <section class="quienes-somos" dir={isRTL ? "rtl" : "ltr"}>
     <div class="container">
 
@@ -97,6 +99,7 @@ function getValorIcon(title: string): string {
           </div>
           <div class="tl-right">
             <div class="tl-cards-container" id="tl-cards" role="list">
+              <div class="tl-track" id="tl-track">
             {tlEvents.map((ev, i) => (
   <div
     class={`tl-card${i === 0 ? " active" : ""}`}
@@ -133,6 +136,7 @@ function getValorIcon(title: string): string {
     </div>
   </div>
 ))}
+              </div>
             </div>
           </div>
         </div>
@@ -339,16 +343,21 @@ function getValorIcon(title: string): string {
       <div class="valores-section">
         <h3 class="block-title">{qs.valores.title}</h3>
         <p class="block-subtitle">{qs.valores.subtitle}</p>
-        <div class="valores-carousel-wrapper" aria-label={qs.valores.title} role="region">
-          <div class="valores-carousel" id="valores-carousel">
+        <div class="valores-track-wrap" role="region" aria-label={qs.valores.title}>
+          <div class="valores-track" id="valores-track">
             {valoresDup.map((v, i) => (
               <div
-                class={`valor-item${i >= valores.length ? " valor-duplicate" : ""}`}
+                class="valor-card"
                 aria-hidden={i >= valores.length ? "true" : undefined}
               >
-                <div class="valor-icon-box" aria-hidden="true" set:html={getValorIcon(v.title)} />
-                <h4 class="valor-title">{v.title}</h4>
-                <p class="valor-description">{v.description}</p>
+                <div class="valor-card-visual">
+                  <span class="valor-card-num" aria-hidden="true">{String((i % valores.length) + 1).padStart(2, '0')}</span>
+                  <div class="valor-card-icon-wrap" aria-hidden="true" set:html={getValorIcon(v.title)} />
+                </div>
+                <div class="valor-card-content">
+                  <h4 class="valor-card-title">{v.title}</h4>
+                  <p class="valor-card-desc">{v.description}</p>
+                </div>
               </div>
             ))}
           </div>
@@ -362,20 +371,60 @@ function getValorIcon(title: string): string {
 
 <script>
   function initTL() {
-    const container   = document.getElementById("tl-cards") as HTMLElement | null;
-    const cards       = document.querySelectorAll<HTMLElement>(".tl-card");
+    const container   = document.getElementById("tl-cards")        as HTMLElement | null;
+    const track       = document.getElementById("tl-track")         as HTMLElement | null;
     const prevBtn     = document.querySelector<HTMLButtonElement>(".tl-prev");
     const nextBtn     = document.querySelector<HTMLButtonElement>(".tl-next");
     const counter     = document.getElementById("tl-counter");
     const progressBar = document.getElementById("tl-progress-bar") as HTMLElement | null;
-    const description = document.getElementById("tl-description") as HTMLElement | null;
-    const eventTitle  = document.getElementById("tl-event-title") as HTMLElement | null;
+    const description = document.getElementById("tl-description")  as HTMLElement | null;
+    const eventTitle  = document.getElementById("tl-event-title")  as HTMLElement | null;
 
-    if (!container || !cards.length) return;
-    const safeContainer = container;
+    if (!container || !track) return;
+    if (track.dataset.initialized) return;
+    track.dataset.initialized = "true";
 
-    let currentIndex = 0, isDragging = false, startX = 0, scrollLeft = 0, hasMoved = false;
-    const totalCards = cards.length;
+    const realCards = Array.from(track.querySelectorAll<HTMLElement>(".tl-card"));
+    const n = realCards.length;
+    if (!n) return;
+
+    // Clonar primera y última card para loop infinito sin salto visible
+    const cloneLast  = realCards[n - 1].cloneNode(true) as HTMLElement;
+    const cloneFirst = realCards[0].cloneNode(true)     as HTMLElement;
+    cloneLast.setAttribute("aria-hidden", "true");
+    cloneFirst.setAttribute("aria-hidden", "true");
+    track.insertBefore(cloneLast, realCards[0]);
+    track.appendChild(cloneFirst);
+
+    // allCards: [cloneLast(0), real0(1)…realN-1(N), cloneFirst(N+1)]
+    const allCards = Array.from(track.querySelectorAll<HTMLElement>(".tl-card"));
+
+    let idx        = 1;
+    let isMoving   = false;
+    let isDragging = false, hasMoved = false;
+    let dragStartX = 0, dragStartTx = 0;
+
+    function getTranslate(i: number): number {
+      const style = getComputedStyle(track!);
+      const gap   = parseFloat(style.gap) || parseFloat(style.columnGap) || 40;
+      let offset  = 0;
+      for (let j = 0; j < i; j++) offset += (allCards[j]?.offsetWidth || 380) + gap;
+      const cw = allCards[i]?.offsetWidth || 380;
+      return -(offset + cw / 2 - container!.offsetWidth / 2);
+    }
+
+    function setTranslate(tx: number, animated: boolean) {
+      track!.style.transition = animated
+        ? "transform 0.5s cubic-bezier(0.25,0.8,0.25,1)"
+        : "none";
+      track!.style.transform = `translateX(${tx}px)`;
+    }
+
+    function getRealIdx(i: number): number {
+      if (i === 0)     return n - 1;
+      if (i === n + 1) return 0;
+      return i - 1;
+    }
 
     function fadeSwap(el: HTMLElement | null, text: string) {
       if (!el) return;
@@ -383,115 +432,149 @@ function getValorIcon(title: string): string {
       setTimeout(() => { el.textContent = text; el.style.opacity = "1"; }, 200);
     }
 
-    function updateProgress(index: number) {
+    function updateProgress(ri: number) {
       if (!progressBar) return;
-      progressBar.style.width     = `${100 / totalCards}%`;
-      progressBar.style.transform = `translateX(${(index / (totalCards - 1)) * 100}%)`;
+      progressBar.style.width = n <= 1 ? "100%" : `${((ri + 1) / n) * 100}%`;
     }
 
-    function updateTL(index: number, fromDrag = false) {
-      if (index < 0 || index >= totalCards) return;
-      currentIndex = index;
-      cards.forEach((card, i) => card.classList.toggle("active", i === index));
-      const activeCard = cards[index];
-      if (!activeCard) return;
-      if (!fromDrag) {
-        const scrollPos = activeCard.offsetLeft - safeContainer.offsetWidth / 2 + activeCard.offsetWidth / 2;
-        safeContainer.scrollTo({ left: Math.max(0, scrollPos), behavior: "smooth" });
-      }
-      fadeSwap(eventTitle,  activeCard.dataset.title       ?? "");
-      fadeSwap(description, activeCard.dataset.description ?? "");
-      if (counter) counter.textContent = String(index + 1).padStart(2, "0");
-      updateProgress(index);
+    function updateUI(ri: number) {
+      const card = realCards[ri];
+      if (!card) return;
+      fadeSwap(eventTitle,  card.dataset.title       ?? "");
+      fadeSwap(description, card.dataset.description ?? "");
+      if (counter) counter.textContent = String(ri + 1).padStart(2, "0");
+      updateProgress(ri);
     }
 
-    function detectClosestCard(): number {
-      const center = safeContainer.getBoundingClientRect().left + safeContainer.offsetWidth / 2;
-      let ci = 0, cd = Infinity;
-      cards.forEach((card, i) => {
-        const r = card.getBoundingClientRect();
-        const d = Math.abs(r.left + r.width / 2 - center);
-        if (d < cd) { cd = d; ci = i; }
-      });
-      return ci;
+    function goTo(newIdx: number, animated = true) {
+      idx = newIdx;
+      const ri = getRealIdx(idx);
+      allCards.forEach((c, i) => c.classList.toggle("active", i === idx));
+      setTranslate(getTranslate(idx), animated);
+      updateUI(ri);
+      isMoving = animated;
     }
 
-    safeContainer.addEventListener("mousedown", (e: MouseEvent) => {
+    // Al terminar la transición: saltar al card real si aterrizamos en un clon
+    track.addEventListener("transitionend", (e: TransitionEvent) => {
+      if (e.propertyName !== "transform") return;
+      isMoving = false;
+      if (idx === 0)     goTo(n,     false);
+      if (idx === n + 1) goTo(1,     false);
+    });
+
+    prevBtn?.addEventListener("click", () => { if (!isMoving) goTo(idx - 1); });
+    nextBtn?.addEventListener("click", () => { if (!isMoving) goTo(idx + 1); });
+
+    // Drag mouse
+    container.addEventListener("mousedown", (e: MouseEvent) => {
       if ((e.target as HTMLElement).closest("button, a")) return;
+      e.preventDefault();
       isDragging = true; hasMoved = false;
-      startX = e.pageX - safeContainer.offsetLeft; scrollLeft = safeContainer.scrollLeft;
-      safeContainer.style.cursor = "grabbing"; e.preventDefault();
+      dragStartX = e.clientX; dragStartTx = getTranslate(idx);
+      container.style.cursor = "grabbing";
+      track.style.transition = "none";
+    });
+    window.addEventListener("mousemove", (e: MouseEvent) => {
+      if (!isDragging) return;
+      const delta = e.clientX - dragStartX;
+      if (Math.abs(delta) > 5) hasMoved = true;
+      track.style.transform = `translateX(${dragStartTx + delta}px)`;
+    });
+    window.addEventListener("mouseup", (e: MouseEvent) => {
+      if (!isDragging) return;
+      isDragging = false; container.style.cursor = "grab";
+      const delta = e.clientX - dragStartX;
+      if (Math.abs(delta) > 60 && !isMoving) goTo(delta < 0 ? idx + 1 : idx - 1);
+      else setTranslate(getTranslate(idx), true);
     });
 
-    safeContainer.addEventListener("mousemove", (e: MouseEvent) => {
-      if (!isDragging) return; e.preventDefault(); hasMoved = true;
-      safeContainer.scrollLeft = scrollLeft - (e.pageX - safeContainer.offsetLeft - startX) * 1.5;
-    });
-
-    const stopDrag = () => {
-      if (!isDragging) return; isDragging = false; safeContainer.style.cursor = "grab";
-      if (hasMoved) setTimeout(() => { const c = detectClosestCard(); if (c !== currentIndex) updateTL(c, true); }, 100);
-      hasMoved = false;
-    };
-
-    safeContainer.addEventListener("mouseup",    stopDrag);
-    safeContainer.addEventListener("mouseleave", stopDrag);
-
-    let touchStartX = 0;
-    safeContainer.addEventListener("touchstart", (e: TouchEvent) => { touchStartX = e.touches[0].clientX; }, { passive: true });
-    safeContainer.addEventListener("touchend",   (e: TouchEvent) => {
-      const diff = touchStartX - e.changedTouches[0].clientX;
-      if (Math.abs(diff) > 50) updateTL(diff > 0 ? Math.min(currentIndex + 1, totalCards - 1) : Math.max(currentIndex - 1, 0));
+    // Touch
+    container.addEventListener("touchstart", (e: TouchEvent) => {
+      isDragging = true; hasMoved = false;
+      dragStartX = e.touches[0].clientX; dragStartTx = getTranslate(idx);
+      track.style.transition = "none";
+    }, { passive: true });
+    container.addEventListener("touchmove", (e: TouchEvent) => {
+      if (!isDragging) return;
+      const delta = e.touches[0].clientX - dragStartX;
+      if (Math.abs(delta) > 5) hasMoved = true;
+      track.style.transform = `translateX(${dragStartTx + delta}px)`;
+    }, { passive: true });
+    container.addEventListener("touchend", (e: TouchEvent) => {
+      if (!isDragging) return;
+      isDragging = false;
+      const delta = e.changedTouches[0].clientX - dragStartX;
+      if (Math.abs(delta) > 50 && !isMoving) goTo(delta < 0 ? idx + 1 : idx - 1);
+      else setTranslate(getTranslate(idx), true);
     }, { passive: true });
 
-    cards.forEach((card, i) => {
-      card.addEventListener("click",   ()                 => { if (!hasMoved && !isDragging) updateTL(i); });
-      card.addEventListener("keydown", (e: KeyboardEvent) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); updateTL(i); } });
-    });
-
-    prevBtn?.addEventListener("click", () => { if (currentIndex > 0)              updateTL(currentIndex - 1); });
-    nextBtn?.addEventListener("click", () => { if (currentIndex < totalCards - 1) updateTL(currentIndex + 1); });
-
-    let scrollTimeout: ReturnType<typeof setTimeout>, lastScrollLeft = 0;
-    safeContainer.addEventListener("scroll", () => {
-      if (isDragging) return;
-      clearTimeout(scrollTimeout);
-      scrollTimeout = setTimeout(() => {
-        if (Math.abs(safeContainer.scrollLeft - lastScrollLeft) > 20) {
-          const c = detectClosestCard(); if (c !== currentIndex) updateTL(c, true); lastScrollLeft = safeContainer.scrollLeft;
-        }
-      }, 150);
-    }, { passive: true });
-
+    // Teclado
     document.addEventListener("keydown", (e: KeyboardEvent) => {
       const tl = document.querySelector(".tl-block");
       if (!tl) return;
       const { top, bottom } = tl.getBoundingClientRect();
       if (top >= window.innerHeight || bottom <= 0) return;
-      if      (e.key === "ArrowLeft"  && currentIndex > 0)              { e.preventDefault(); updateTL(currentIndex - 1); }
-      else if (e.key === "ArrowRight" && currentIndex < totalCards - 1) { e.preventDefault(); updateTL(currentIndex + 1); }
+      if (e.key === "ArrowLeft"  && !isMoving) { e.preventDefault(); goTo(idx - 1); }
+      if (e.key === "ArrowRight" && !isMoving) { e.preventDefault(); goTo(idx + 1); }
+    });
+
+    // Click en card adyacente para navegar hacia ella
+    allCards.forEach((card, i) => {
+      if (i === 0 || i === n + 1) return;
+      card.addEventListener("click", () => {
+        if (hasMoved) return;
+        if (i !== idx && !isMoving) goTo(i);
+      });
+      card.addEventListener("keydown", (e: KeyboardEvent) => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); if (!isMoving) goTo(i); }
+      });
+    });
+
+    // Tap para revelar info en móvil
+    if (window.innerWidth <= 767) {
+      allCards.forEach((card) => {
+        card.addEventListener("click", () => {
+          if (hasMoved) return;
+          const isOpen = card.classList.contains("tl-info-open");
+          allCards.forEach(c => c.classList.remove("tl-info-open"));
+          if (!isOpen) card.classList.add("tl-info-open");
+        });
+      });
+    }
+
+    // Recalcular posición al cambiar tamaño de ventana
+    let resizeTimer: ReturnType<typeof setTimeout>;
+    window.addEventListener("resize", () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => setTranslate(getTranslate(idx), false), 100);
     });
 
     if (description) description.style.transition = "opacity 0.3s ease";
     if (eventTitle)  eventTitle.style.transition  = "opacity 0.3s ease";
-    // Inicializar estado sin scroll (las cards ya renderizan en posición correcta)
-    // fromDrag=true omite el scrollTo que forzaba un reflow y provocaba el salto visual
-    updateTL(0, true);
-    updateProgress(0);
+    goTo(1, false);
 
-    // ── Tap para revelar info en móvil ──
-if (window.innerWidth <= 767) {
-  cards.forEach((card) => {
-    card.addEventListener("click", () => {
-      if (hasMoved) return;
-      const isOpen = card.classList.contains("tl-info-open");
-      // Cierra todas primero
-      cards.forEach(c => c.classList.remove("tl-info-open"));
-      // Si no estaba abierta, la abre
-      if (!isOpen) card.classList.add("tl-info-open");
-    });
-  });
-}
+    // Autoplay solo en desktop
+    let autoTimer: ReturnType<typeof setInterval> | null = null;
+
+    function startAuto() {
+      if (window.innerWidth <= 767) return;
+      stopAuto();
+      autoTimer = setInterval(() => {
+        if (!isMoving && !isDragging) goTo(idx + 1);
+      }, 4000);
+    }
+
+    function stopAuto() {
+      if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+    }
+
+    container.addEventListener("mouseenter", stopAuto);
+    container.addEventListener("mouseleave", startAuto);
+    prevBtn?.addEventListener("click", () => { stopAuto(); startAuto(); });
+    nextBtn?.addEventListener("click", () => { stopAuto(); startAuto(); });
+
+    startAuto();
   }
   
 
@@ -568,7 +651,20 @@ if (window.innerWidth <= 767) {
     cards.forEach((card) => observer.observe(card));
   }
 
-  function initAll() { initMapAnimations(); initBreakdownAnimations(); initInfraCardAnimations(); }
+  function initValoresBento() {
+    const wrap  = document.querySelector(".valores-track-wrap");
+    const track = document.querySelector(".valores-track");
+    if (!wrap || !track) return;
+    // Arranca el scroll sólo cuando la sección entra en viewport
+    new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) wrap.classList.add("playing");
+        else wrap.classList.remove("playing");
+      });
+    }, { threshold: 0.15 }).observe(wrap);
+  }
+
+  function initAll() { initMapAnimations(); initBreakdownAnimations(); initInfraCardAnimations(); initValoresBento(); }
   document.addEventListener("DOMContentLoaded", initAll);
   document.addEventListener("astro:page-load",  initAll);
 </script>

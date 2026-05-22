@@ -663,12 +663,15 @@ export default function VacantesPage() {
               {/* Requisitos */}
               {selected.requisitos && (
                 <div style={{ marginBottom:20 }}>
-                  <p style={{ fontFamily:FONT_SANS, fontSize:11, fontWeight:700, color:'var(--clr-muted)', textTransform:'uppercase', letterSpacing:'0.10em', margin:'0 0 10px' }}>Requisitos y detalles</p>
-                  <ul className="vp-req-list">
+                  <p style={{ fontFamily:FONT_SANS, fontSize:11, fontWeight:700, color:'var(--clr-muted)', textTransform:'uppercase', letterSpacing:'0.10em', margin:'0 0 12px' }}>Requisitos y detalles</p>
+                  <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
                     {selected.requisitos.split('\n').filter(l => l.trim()).map((line, idx) => (
-                      <li key={idx}>{line.replace(/^[-•*]\s*/, '').trim()}</li>
+                      <div key={idx} style={{ display:'flex', alignItems:'flex-start', gap:10, fontFamily:FONT_SANS, fontSize:14, color:'var(--clr-muted)', lineHeight:1.6 }}>
+                        <span style={{ width:7, height:7, borderRadius:'50%', background:'#FB670B', flexShrink:0, marginTop:6, display:'inline-block' }}/>
+                        <span>{line.replace(/^[-•·*]\s*/, '').trim()}</span>
+                      </div>
                     ))}
-                  </ul>
+                  </div>
                 </div>
               )}
 
