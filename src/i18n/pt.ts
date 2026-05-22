@@ -60,12 +60,13 @@ export const pt = {
     // ── Tooltip desktop (cartão) ──
     tooltipTitle:  'Como posso',
     tooltipAccent: 'te ajudar hoje?',
-    tooltipCta:    '¡Iniciar chat agora!',
+    tooltipCta:    'Iniciar chat agora!',
     tooltipItems: [
-      { text: 'Solicite',                  bold: 'informações sobre produtos'     },
-      { text: 'Faça seu',                  bold: 'pedido diretamente'             },
-      { text: 'Contate',                   bold: 'o atendimento ao cliente'       },
-      { text: 'Baixe',                     bold: 'catálogos e fichas técnicas'    },
+      { text: 'Candidate-se às nossas', bold: 'vagas de emprego'               },
+      { text: 'Solicite',               bold: 'informações sobre produtos'     },
+      { text: 'Faça seu',               bold: 'pedido diretamente'             },
+      { text: 'Contate',                bold: 'o atendimento ao cliente'       },
+      { text: 'Baixe',                  bold: 'catálogos e fichas técnicas'    },
     ],
 
     // ── Pílula mobile ──
@@ -1032,7 +1033,7 @@ export const pt = {
       planta_label:  "PLANTA",
       plantas_label: "PLANTAS",
       items: [
-        { num: "04", label: "Casacos", width: 100, delay: 0 },
+        { num: "04", label: "Sacos", width: 100, delay: 0 },
         { num: "02", label: "Sacos de Rede",       width: 50,  delay: 100 },
         { num: "01", label: "Corda",               width: 25,  delay: 200 },
         { num: "03", label: "Stretch Film",        width: 50,  delay: 300 },
@@ -1289,14 +1290,14 @@ footer: {
         { title: "Saco",              tag: "Divisão 05", description: "Sacos de rafia de qualidade superior. Solução de embalagem robusta para alimentos, produtos químicos, fertilizantes e produtos a granel.",                   img: "/images/divisiones/sacos.webp",             color: "#3a7d44", slug: "sacos",              soon: false },
         { title: "Stretch film",      tag: "Divisão 06", description: "Filme extensível de alta clareza óptica. Garante a integridade da carga com eficiência em custos. Inclui opção biodegradável.",                             img: "/images/divisiones/film-estirable.webp",    color: "#2c5f8a", slug: "stretch-film",       soon: false },
         { title: "Cantoneira",        tag: "Divisão 07", description: "Cantoneiras de papelão kraft para proteção de bordas durante o armazenamento e transporte. Distribuição uniforme de pressão e máxima estabilidade de carga.", img: "/images/divisiones/esquineros.webp",        color: "#7b3fa0", slug: "esquineros",         soon: false },
-        { title: "Descartável",       tag: "Divisão 10", description: "Produtos descartáveis de polipropileno para uso industrial, alimentar e hospitalar. Soluções higiênicas, econômicas e de alta resistência.",               img: "/images/divisiones/desechables.webp",       color: "#e05500", slug: "desechables",        soon: true  }
+        { title: "Naturizable",       tag: "Divisão 08", description: "Embalagem sustentável que retorna à terra. Soluções 100% Plant Based, recicláveis e compostáveis para a indústria alimentar.",                        img: "/images/divisiones/desechables.webp",       color: "#e05500", slug: "naturizable",        soon: false }
       ]
     },
 
     parallax: {
-      eyebrow: "Production Plant",
-      title:    "Everything",
-      title_em: "starts here"
+      eyebrow: "Planta de Produção",
+      title:    "Aqui",
+      title_em: "nasce tudo"
     },
 
     porque: {

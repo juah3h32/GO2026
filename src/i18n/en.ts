@@ -62,6 +62,7 @@ export const en = {
     tooltipAccent: 'help you today?',
     tooltipCta:    'Start chatting now!',
     tooltipItems: [
+      { text: 'Apply to our',    bold: 'job openings'               },
       { text: 'Request',         bold: 'product information'        },
       { text: 'Place your',      bold: 'order directly'             },
       { text: 'Contact',         bold: 'customer service'           },
@@ -1038,7 +1039,7 @@ arpillas: {
       planta_label:  "PLANT",
       plantas_label: "PLANTS",
       items: [
-        { num: "04", label: "Jackets", width: 100, delay: 0 },
+        { num: "04", label: "Woven Sacks", width: 100, delay: 0 },
         { num: "02", label: "Mesh Bags",         width: 50,  delay: 100 },
         { num: "01", label: "Rope",              width: 25,  delay: 200 },
         { num: "03", label: "Stretch Film",      width: 50,  delay: 300 },

@@ -62,6 +62,7 @@ export const ar = {
     tooltipAccent: 'مساعدتك اليوم؟',
     tooltipCta:    'ابدأ المحادثة الآن!',
     tooltipItems: [
+      { text: 'تقدّم لـ',          bold: 'وظائفنا المتاحة'              },
       { text: 'اطلب',              bold: 'معلومات المنتجات'             },
       { text: 'أتمّ',              bold: 'طلبك مباشرةً'                 },
       { text: 'تواصل مع',          bold: 'خدمة العملاء'                 },
@@ -1011,8 +1012,8 @@ export const ar = {
     },
 
     instalaciones: {
-      title_white:  "منشآتنا",
-      title_orange: "",
+      title_white:  "جولة في",
+      title_orange: "منشآتنا",
       subtitle:     "جولات افتراضية 360°",
       badge_soon:   "قريباً",
       badge_tour:   "مشاهدة الجولة",
@@ -1032,7 +1033,7 @@ export const ar = {
       planta_label:  "مصنع",
       plantas_label: "مصانع",
       items: [
-        { num: "04", label: "سترات", width: 100, delay: 0 },
+        { num: "04", label: "أكياس", width: 100, delay: 0 },
         { num: "02", label: "شبكات",               width: 50,  delay: 100 },
         { num: "01", label: "حبل",                 width: 25,  delay: 200 },
         { num: "03", label: "ستريتش فيلم",         width: 50,  delay: 300 },
@@ -1294,9 +1295,9 @@ footer: {
     },
 
     parallax: {
-      eyebrow: "Production Plant",
-      title:    "Everything",
-      title_em: "starts here"
+      eyebrow: "مصنع الإنتاج",
+      title:    "هنا",
+      title_em: "يبدأ كل شيء"
     },
 
     porque: {

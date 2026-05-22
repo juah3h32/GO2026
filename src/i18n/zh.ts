@@ -1065,29 +1065,29 @@ export const zh = {
 // FOOTER
 // =================================================
 footer: {
-  about_us:         "關於我們",
-  about:            "公司簡介",
-  social_impact:    "社會影響",
-  customer_service: "客戶服務",
-  be_distributor:   "成為經銷商",
-  catalog:          "產品目錄",
-  cta_button:       "我想成為經銷商",
-  rights:           "版權所有。",
+  about_us:         "关于我们",
+  about:            "公司简介",
+  social_impact:    "社会影响",
+  customer_service: "客户服务",
+  be_distributor:   "成为经销商",
+  catalog:          "产品目录",
+  cta_button:       "我想成为经销商",
+  rights:           "版权所有。",
 
-  // 聯絡資訊 — 墨西哥
+  // 联络资讯 — 墨西哥
   region_mexico:    "墨西哥",
   email:            "atencionacliente@grupo-ortiz.com",
   phone_mx:         "+52 (443) 207-2593",
 
-  // 聯絡資訊 — 美國
-  region_usa:       "美國",
+  // 联络资讯 — 美国
+  region_usa:       "美国",
   phone_us:         "+1 (210) 429-3789",
 
-  // 美國地址
-  label_warehouse:  "倉庫",
+  // 美国地址
+  label_warehouse:  "仓库",
   address_warehouse: "20915 Wilderness Oak, San Antonio TX 78258",
 
-  label_office:     "辦公室",
+  label_office:     "办公室",
   address_office:   "San Antonio, TX 78258",
 },
 
@@ -1294,9 +1294,9 @@ footer: {
     },
 
     parallax: {
-      eyebrow: "Production Plant",
-      title:    "Everything",
-      title_em: "starts here"
+      eyebrow: "生产工厂",
+      title:    "一切",
+      title_em: "从这里开始"
     },
 
     porque: {
