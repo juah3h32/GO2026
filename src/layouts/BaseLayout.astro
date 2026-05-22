@@ -309,22 +309,7 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
           setTimeout(function () { loader.style.display = "none"; }, 550);
         }
 
-        function injectProductImage() {
-          var loaderImg = document.getElementById("loader-product-img");
-          if (!loaderImg) return;
-          // Busca la imagen del producto activo en la página
-          var src =
-            (document.getElementById("product-hero-img") || {}).src ||
-            (document.querySelector(".product-hero-img") || {}).src ||
-            (document.querySelector(".thumb-item.active img") || {}).src;
-          if (!src) return;
-          loaderImg.onload = function () { loaderImg.classList.add("visible"); };
-          loaderImg.src = src;
-        }
-
         function setupLoader() {
-          injectProductImage();
-
           var videoBg = document.querySelector(".video-bg");
           if (!videoBg) { hideLoader(); return; }
 
@@ -355,7 +340,6 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
           loader.style.display = "";
           loader.style.opacity = "";
           loader.classList.remove("loader-hidden");
-          if (loaderImg) { loaderImg.src = ""; loaderImg.classList.remove("visible"); }
           setupLoader();
         });
       })();

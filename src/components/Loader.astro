@@ -1,6 +1,4 @@
-<div id="loader-wrapper" aria-hidden="true">
-  <img id="loader-product-img" alt="" aria-hidden="true" />
-</div>
+<div id="loader-wrapper" aria-hidden="true"></div>
 
 <style>
   #loader-wrapper {
@@ -8,29 +6,12 @@
     inset: 0;
     z-index: 99990;
     background: #ffffff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     transition: opacity 0.45s ease;
     pointer-events: none;
   }
 
   html.dark #loader-wrapper {
     background: #0f0f0f;
-  }
-
-  #loader-product-img {
-    width: 120px;
-    height: 120px;
-    object-fit: contain;
-    object-position: center;
-    opacity: 0;
-    transition: opacity 0.25s ease;
-    border-radius: 8px;
-  }
-
-  #loader-product-img.visible {
-    opacity: 1;
   }
 
   #loader-wrapper.loader-hidden {
