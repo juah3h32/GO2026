@@ -280,6 +280,13 @@ export const pt = {
       descripcion: "A Neo Empaques International é especializada em soluções avançadas de embalagem flexível, projetadas para otimizar a conservação e apresentação de produtos em múltiplas indústrias.",
       slug: "empaques-flexibles",
       video: "GO/carrusel/bobina-impresa.mp4"
+    },
+    {
+      img: "carrusel/nuev2a.png",
+      division: "NATURIZABLE",
+      descripcion: "Embalagem sustentável que retorna à terra. Soluções 100% Plant Based, recicláveis e compostáveis para a indústria alimentar.",
+      slug: "naturizable",
+      video: "GO/carrusel/charola.mp4"
     }
   ],
 

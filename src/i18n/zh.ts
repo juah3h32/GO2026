@@ -280,6 +280,13 @@ export const zh = {
       descripcion: "Neo Empaques International 专注于先进的软包装解决方案，旨在优化多个行业产品的保存和展示。",
       slug: "empaques-flexibles",
       video: "GO/carrusel/bobina-impresa.mp4"
+    },
+    {
+      img: "carrusel/nuev2a.png",
+      division: "NATURIZABLE",
+      descripcion: "回归大地的可持续包装。100%植物基、可回收可堆肥的食品行业解决方案。",
+      slug: "naturizable",
+      video: "GO/carrusel/charola.mp4"
     }
   ],
 

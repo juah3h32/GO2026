@@ -280,6 +280,13 @@ export const ar = {
       descripcion: "تتخصص Neo Empaques International في حلول التغليف المرن المتقدمة، المصمّمة لتحسين الحفظ وتقديم المنتجات في صناعات متعددة.",
       slug: "empaques-flexibles",
       video: "GO/carrusel/bobina-impresa.mp4"
+    },
+    {
+      img: "carrusel/nuev2a.png",
+      division: "NATURIZABLE",
+      descripcion: "تغليف مستدام يعود إلى الأرض. حلول 100% نباتية، قابلة لإعادة التدوير والتسميد لصناعة الأغذية.",
+      slug: "naturizable",
+      video: "GO/carrusel/charola.mp4"
     }
   ],
 
