@@ -1227,6 +1227,9 @@ model-viewer::part(default-progress-mask) { display: none !important; opacity: 0
   .thumbnails      { margin-top: clamp(0.4rem, 1vh, 2rem) !important; }
 }
 
+/* Ocultar botón comprar en productos próximamente — global (desktop + mobile) */
+#btn-buy-wrapper.soon-hidden { display: none !important; }
+
 /* =================================================================
    SOON BUTTON — bloqueado, estilo consistente con CTA
    ================================================================= */
