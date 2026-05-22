@@ -40,7 +40,6 @@ const cldSrc = `https://res.cloudinary.com/${cloudName}/video/upload/q_auto:good
 <video
   id={id}
   class={className}
-  poster={poster}
   autoplay={autoplay}
   muted={muted}
   loop={loop}
@@ -61,7 +60,6 @@ const cldSrc = `https://res.cloudinary.com/${cloudName}/video/upload/q_auto:good
     const posterSrc = video.dataset.poster;
     if (!local) return;
     let triedLocal = false;
-    let stallTimer: ReturnType<typeof setTimeout>;
 
     function showImageFallback() {
       if (!posterSrc) return;
@@ -69,7 +67,6 @@ const cldSrc = `https://res.cloudinary.com/${cloudName}/video/upload/q_auto:good
       img.src = posterSrc;
       img.alt = '';
       img.setAttribute('aria-hidden', 'true');
-      // Copia todos los estilos computados relevantes del video
       img.className = video.className;
       img.style.cssText = video.style.cssText;
       img.style.objectFit = 'cover';
@@ -80,23 +77,14 @@ const cldSrc = `https://res.cloudinary.com/${cloudName}/video/upload/q_auto:good
     function switchToLocal() {
       if (triedLocal) { showImageFallback(); return; }
       triedLocal = true;
-      clearTimeout(stallTimer);
       if (video.currentSrc?.includes(local) || video.src?.includes(local)) return;
       video.src = local;
       video.load();
       if (video.autoplay) video.play().catch(showImageFallback);
     }
 
+    // Solo activa fallback en error real (404, red caída, etc.)
     video.addEventListener('error', switchToLocal, true);
-
-    video.addEventListener('stalled', () => {
-      stallTimer = setTimeout(switchToLocal, 8000);
-    });
-    video.addEventListener('waiting', () => {
-      if (video.readyState < 2) stallTimer = setTimeout(switchToLocal, 10000);
-    });
-    video.addEventListener('playing', () => clearTimeout(stallTimer));
-    video.addEventListener('canplay', () => clearTimeout(stallTimer));
   }
 
   function initFallbacks() {
