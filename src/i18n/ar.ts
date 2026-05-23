@@ -955,7 +955,7 @@ export const ar = {
       title_orange:  "عبر الزمن",
       nav_prev:      "السابق",
       nav_next:      "التالي",
-      video_bg:      "/videos/background.mp4",
+      video_bg:      "/videos/home/background.mp4",
       video_bg_webm: "",
       video_poster:  "",
       events: [

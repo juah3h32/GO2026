@@ -954,7 +954,7 @@ arpillas: {
       title_orange:  "JOURNEY",
       nav_prev:      "Previous",
       nav_next:      "Next",
-      video_bg:      "/videos/background.mp4",
+      video_bg:      "/videos/home/background.mp4",
       video_bg_webm: "",
       video_poster:  "",
       events: [

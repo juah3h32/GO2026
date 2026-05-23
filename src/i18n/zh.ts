@@ -955,7 +955,7 @@ export const zh = {
       title_orange:  "发展历程",
       nav_prev:      "上一个",
       nav_next:      "下一个",
-      video_bg:      "/videos/background.mp4",
+      video_bg:      "/videos/home/background.mp4",
       video_bg_webm: "",
       video_poster:  "",
       events: [
