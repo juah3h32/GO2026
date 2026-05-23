@@ -282,6 +282,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const link = button.getAttribute('href');
 
       saveCarouselPosition();
+
+      if (window.innerWidth <= 1024) {
+        window.location.href = link;
+        return;
+      }
+
       carousel.classList.add('transition-active');
 
       try {

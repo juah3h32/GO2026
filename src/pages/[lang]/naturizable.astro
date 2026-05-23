@@ -42,8 +42,6 @@ const specs = [
     moveLogoMobile={true}
 >
   
-  <script src="https://unpkg.com/gsap@3.12.5/dist/gsap.min.js" defer></script>
-
   <style is:global>
     /* Botón regresar visible en móvil para esta página */
     @media screen and (max-width: 1024px) {
@@ -53,9 +51,9 @@ const specs = [
         top: 14px !important;
         left: 14px !important;
         transform: none !important;
-        z-index: 9999 !important;
-        width: 36px !important;
-        height: 36px !important;
+        z-index: 1000003 !important;
+        width: 44px !important;
+        height: 44px !important;
         padding: 0 !important;
         border-radius: 50% !important;
         align-items: center !important;
@@ -65,9 +63,13 @@ const specs = [
         color: #fff !important;
         backdrop-filter: blur(12px) !important;
         -webkit-backdrop-filter: blur(12px) !important;
+        pointer-events: auto !important;
+        touch-action: manipulation !important;
+        cursor: pointer !important;
+        -webkit-tap-highlight-color: rgba(255,255,255,0.2) !important;
       }
-      #btn-regresar:hover { background: rgba(0,0,0,0.70) !important; }
-      #btn-regresar svg { width: 18px !important; height: 18px !important; }
+      #btn-regresar:active { background: rgba(0,0,0,0.80) !important; }
+      #btn-regresar svg { width: 20px !important; height: 20px !important; pointer-events: none !important; }
     }
   </style>
 
@@ -214,15 +216,11 @@ const specs = [
           if (specIds.charge) specIds.charge.textContent = product.specs_values.presentation || '';
         }
       };
-      if (typeof gsap !== 'undefined') {
-        gsap.killTweensOf(anims);
-        gsap.to(anims, { opacity: 0, y: 10, duration: 0.2, onComplete: () => {
-          applyText();
-          gsap.to(anims, { opacity: 1, y: 0, duration: 0.3 });
-        }});
-      } else {
+      anims.forEach(el => el.classList.add('js-animating'));
+      setTimeout(() => {
         applyText();
-      }
+        anims.forEach(el => el.classList.remove('js-animating'));
+      }, 200);
     }
 
     function updateVideo(idx) {
@@ -332,15 +330,21 @@ const specs = [
     const newBtn = btn.cloneNode(true);
     btn.parentNode.replaceChild(newBtn, btn);
 
-    newBtn.addEventListener("click", (e) => {
-      e.preventDefault(); 
+    function doNavigate(e) {
+      e.preventDefault();
+      e.stopPropagation();
       const url = newBtn.getAttribute("href");
-      const isDark = document.documentElement.classList.contains('dark') || 
+      const isDark = document.documentElement.classList.contains('dark') ||
                      document.body.classList.contains('dark');
       wipe.style.setProperty('--reveal-bg', isDark ? "#262626" : "#ffffff");
-      wipe.classList.add("active"); 
-      setTimeout(() => { window.location.href = url; }, 600); 
-    });
+      wipe.classList.add("active");
+      setTimeout(() => { window.location.href = url; }, 600);
+    }
+    newBtn.addEventListener("click", doNavigate);
+    newBtn.addEventListener("touchend", function(e) {
+      e.stopPropagation();
+      doNavigate(e);
+    }, { passive: false });
   }
 
   if (document.readyState === 'loading') {

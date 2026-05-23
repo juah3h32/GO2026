@@ -13,9 +13,9 @@ import DockMenu from "../components/DockMenu.astro";
 import BotGO from "../components/BotGO.jsx";
 import VideoFallbackGuard from "../components/VideoFallbackGuard.astro";
 import "../styles/global.css";
-import "../styles/fonts-inline.css";
 import "../styles/typography.css";
 import "../styles/backgrounds.css";
+// fonts-inline.css (118KB base64) loaded non-blocking — see script below
 
 const {
   title = "Grupo Ortiz | Fabricante de Polímeros y Empaques en México",
@@ -126,6 +126,10 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
 
     {pwaInfo && <Fragment set:html={pwaInfo.webManifest.linkTag} />}
     <slot name="head" />
+
+    <!-- fonts-inline.css (118KB base64): non-blocking load — fonts arrive without blocking LCP -->
+    <link rel="stylesheet" href="/styles/fonts-inline.css" media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href="/styles/fonts-inline.css" /></noscript>
 
     <script is:inline>
       (function () {
@@ -272,8 +276,6 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
 
     <div id="admin-panel-root"></div>
 
-    <script src="/scripts/theme-toggle.js" defer></script>
-
     <script>
       if ('serviceWorker' in navigator) {
         // Cuando el SW cambia de controlador (nueva versión activada), recarga la página.
@@ -313,7 +315,9 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
           var videoBg = document.querySelector(".video-bg");
           if (!videoBg) { hideLoader(); return; }
 
-          var fallback = setTimeout(hideLoader, 4000);
+          // Mobile: 1500ms max. Desktop: 3000ms max. Never block LCP for video.
+          var isMobile = window.innerWidth <= 768 || navigator.connection && navigator.connection.effectiveType && navigator.connection.effectiveType !== '4g';
+          var fallback = setTimeout(hideLoader, isMobile ? 1500 : 3000);
 
           function onReady() {
             clearTimeout(fallback);

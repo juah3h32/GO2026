@@ -4,7 +4,17 @@
    · Rebote/salto móvil → overscroll-behavior: none + 100dvh
    · Video negro inicial → .video-bg-wrapper con bg del poster
    · overscroll iOS/Android → touch-action correcto
+   · GSAP CDN removed — CSS keyframe replaces product text fade
    ================================================================= */
+
+/* CSS replacement for GSAP product text fade — zero JS weight */
+@keyframes _anim-fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.anim-text.js-animating {
+  animation: _anim-fade-in 0.3s ease forwards;
+}
 
 /* =================================================================
    1. VARIABLES

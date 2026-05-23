@@ -24,6 +24,10 @@ const specs = [
   { label: specsLabels.thick,    id: "spec-thick",    tag: firstProduct.specs_values.thick },
   { label: specsLabels.length,   id: "spec-length",   tag: firstProduct.specs_values.length }
 ];
+
+const CLOUD = import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME;
+const videoPoster = (src: string) =>
+  CLOUD ? `https://res.cloudinary.com/${CLOUD}/video/upload/f_jpg,q_auto,so_0/${src.replace(/\.mp4$/, '')}.jpg` : '';
 ---
 
 <BaseLayout
@@ -33,8 +37,9 @@ const specs = [
     currentLang={currentLang}
     moveLogoMobile={true}
 >
-
-  <script src="https://unpkg.com/gsap@3.12.5/dist/gsap.min.js" defer></script>
+  <Fragment slot="head">
+    {CLOUD && <link rel="preload" as="image" href={videoPoster(firstProduct.video || '')} fetchpriority="high" />}
+  </Fragment>
 
   <div id="wipe-transition" class="wipe-container"></div>
 
@@ -44,7 +49,9 @@ const specs = [
         class={`video-bg ${index === 0 ? 'visible' : ''}`}
         data-video-index={index}
         src={prod.video || ''}
-        autoplay muted playsinline preload="metadata"
+        autoplay muted playsinline
+        preload={index === 0 ? 'metadata' : 'none'}
+        poster={index === 0 ? videoPoster(prod.video || '') : undefined}
       />
     ))}
     <div class="video-overlay"></div>
@@ -178,15 +185,13 @@ const specs = [
           if (specIds.lengthyd) specIds.lengthyd.textContent = product.specs_values.lengthyd || '';
         }
       };
-      if (typeof gsap !== 'undefined') {
-        gsap.killTweensOf(anims);
-        gsap.to(anims, { opacity: 0, y: 10, duration: 0.2, onComplete: () => {
-          applyText();
-          gsap.to(anims, { opacity: 1, y: 0, duration: 0.3 });
-        }});
-      } else {
+      // CSS keyframe fade — no GSAP needed
+      anims.forEach(el => { el.classList.remove('js-animating'); (el as HTMLElement).style.opacity = '0'; });
+      setTimeout(() => {
         applyText();
-      }
+        anims.forEach(el => { (el as HTMLElement).style.opacity = ''; el.classList.add('js-animating'); });
+        setTimeout(() => anims.forEach(el => el.classList.remove('js-animating')), 350);
+      }, 200);
     }
 
     // ── Actualizar video ─────────────────────────────────────────

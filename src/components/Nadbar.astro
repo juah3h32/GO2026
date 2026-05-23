@@ -19,11 +19,12 @@ const t = langData.nav;
 const pagesWithBackBtn = [
   '/cuerdas',
   '/rafias',
-  '/arpillas', 
+  '/arpillas',
   '/sacos',
   '/esquineros',
   '/empaques-flexibles',
   '/stretch-film',
+  '/naturizable',
 ];
 
 const showBackBtn = pagesWithBackBtn.some(page => pathname.includes(page));
@@ -72,7 +73,7 @@ function getLangPath(targetLang: string) {
     <div class="nav-left">
       <div class="logo">
         <a href={`/${safeLang}/`} class="js-trigger-home">
-            <img src="/images/logo/logo.png" alt="Logo" />
+            <img src="/images/logo/logo.png" alt="Logo" width="180" height="45" />
         </a>
       </div>
     </div>

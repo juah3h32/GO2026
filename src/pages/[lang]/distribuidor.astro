@@ -80,20 +80,19 @@ const placeholderImg =
 
 <BaseLayout title={metaTitle} description={metaDesc} canonicalSlug="distribuidor/" currentLang={currentLang}>
 
-  <!-- ── HEAD: íconos con preload para garantizar carga antes del paint ── -->
+  <!-- ── HEAD: íconos cargados sin bloquear render ── -->
   <Fragment slot="head">
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
-
-    <!-- preload garantiza que el font de íconos llegue antes del primer render -->
-    <link
-      rel="preload"
-      href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css"
-      as="style"
-    />
+    <!-- Non-blocking CSS load: media=print switches to all on load, zero render-blocking -->
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css"
+      media="print"
+      onload="this.media='all'"
     />
+    <noscript>
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" />
+    </noscript>
   </Fragment>
 
   <!-- Efecto de revelación al enviar formulario -->
