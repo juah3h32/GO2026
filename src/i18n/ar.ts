@@ -924,7 +924,7 @@ export const ar = {
     ],
     stats: [
       { val: 25, symbol: "ك",  label: "طن شهرياً"       },
-      { val: 35, symbol: "+",  label: "عاماً من التاريخ" },
+      { val: 65, symbol: "",   label: "عاماً من التاريخ" },
       { val: 15, symbol: "م",  label: "إجمالي المبيعات"  }
     ],
     form: {

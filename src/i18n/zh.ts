@@ -924,7 +924,7 @@ export const zh = {
     ],
     stats: [
       { val: 25, symbol: "千", label: "月产量（吨）" },
-      { val: 35, symbol: "+", label: "年历史"       },
+      { val: 65, symbol: "", label: "年历史"       },
       { val: 15, symbol: "百万", label: "总销售额"  }
     ],
     form: {

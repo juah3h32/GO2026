@@ -924,7 +924,7 @@ export const pt = {
     ],
     stats: [
       { val: 25, symbol: "k", label: "Toneladas Mensais"  },
-      { val: 35, symbol: "+", label: "Anos de História"   },
+      { val: 65, symbol: "", label: "Anos de História"   },
       { val: 15, symbol: "M", label: "Vendas Totais"      }
     ],
     form: {

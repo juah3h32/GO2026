@@ -923,7 +923,7 @@ arpillas: {
     ],
     stats: [
       { val: 25, symbol: "k", label: "Monthly Tonnes"  },
-      { val: 35, symbol: "+", label: "Years of History" },
+      { val: 65, symbol: "", label: "Years of History" },
       { val: 15, symbol: "M", label: "Total Sales"      }
     ],
     form: {

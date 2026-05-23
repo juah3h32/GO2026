@@ -925,7 +925,7 @@ gallery: [
     ],
     stats: [
       { val: 25, symbol: "k", label: "Toneladas Mensuales" },
-      { val: 35, symbol: "+", label: "Años de Historia"    },
+      { val: 65, symbol: "", label: "Años de Historia"    },
       { val: 15, symbol: "M", label: "Ventas Totales"      }
     ],
     form: {
