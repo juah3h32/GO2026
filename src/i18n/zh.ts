@@ -287,6 +287,12 @@ export const zh = {
       descripcion: "回归大地的可持续包装。100%植物基、可回收可堆肥的食品行业解决方案。",
       slug: "naturizable",
       video: "GO/carrusel/charola.mp4"
+    },
+    {
+      img: "/carruselB.webp",
+      division: "BOLSAS",
+      descripcion: "高强度聚丙烯袋。多功能、经济实惠，提供多种尺寸用于工业和商业包装。",
+      slug: "bolsas"
     }
   ],
 
@@ -923,15 +929,6 @@ export const zh = {
 
     products: [
       {
-        name: "袋子 15×25 厘米",
-        img:   "/15x25.webp",
-        thumb: "/15x25.webp",
-        link:  "#",
-        description: "紧凑型聚丙烯袋，适合小产品包装。完美用于零售、种子包装、香料和单份消费品。高抗撕裂性，表面均匀。",
-        specs_values: { width: "15 厘米", height: "25 厘米", mat: "聚丙烯", use: "零售" },
-        gallery: ["/bolsa.webp", "/15x25.webp", "/bolsa.webp"]
-      },
-      {
         name: "袋子 18×25 厘米",
         img:   "/18x25.webp",
         thumb: "/18x25.webp",
@@ -966,6 +963,15 @@ export const zh = {
         description: "最大容量袋，用于大体积工业包装。专为重载荷、散装材料和高需求配送物流而设计。极强耐用性，高质量表面处理。",
         specs_values: { width: "30 厘米", height: "40 厘米", mat: "聚丙烯", use: "工业物流" },
         gallery: ["/bolsa.webp", "/30x40.webp", "/bolsa.webp"]
+      },
+      {
+        name: "袋子 15×25 厘米",
+        img:   "/15x25.webp",
+        thumb: "/15x25.webp",
+        link:  "#",
+        description: "紧凑型聚丙烯袋，适合小产品包装。完美用于零售、种子包装、香料和单份消费品。高抗撕裂性，表面均匀。",
+        specs_values: { width: "15 厘米", height: "25 厘米", mat: "聚丙烯", use: "零售" },
+        gallery: ["/bolsa.webp", "/15x25.webp", "/bolsa.webp"]
       }
     ]
   },

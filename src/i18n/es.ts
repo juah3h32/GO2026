@@ -288,6 +288,12 @@ chatbot: {
       descripcion: "Empaque sustentable que regresa a la tierra. Soluciones 100% Plant Based, reciclables y compostables para la industria alimentaria.",
       slug: "naturizable",
       video: "GO/carrusel/charola.mp4"
+    },
+    {
+      img: "/carruselB.webp",
+      division: "BOLSAS",
+      descripcion: "Bolsas de polipropileno de alta resistencia. Versátiles y económicas, disponibles en múltiples tamaños para empaque industrial y comercial.",
+      slug: "bolsas"
     }
   ],
 
@@ -924,15 +930,6 @@ gallery: [
 
     products: [
       {
-        name: "BOLSA 15×25 CM",
-        img:   "/15x25.webp",
-        thumb: "/15x25.webp",
-        link:  "#",
-        description: "Bolsa de polipropileno compacta, ideal para empaque de productos pequeños. Perfecta para comercio detallista, empaque de semillas, especias y productos de consumo en porciones individuales. Alta resistencia al rasgado con acabado uniforme.",
-        specs_values: { width: "15 cm", height: "25 cm", mat: "Polipropileno", use: "Comercio detallista" },
-        gallery: ["/bolsa.webp", "/15x25.webp", "/bolsa.webp"]
-      },
-      {
         name: "BOLSA 18×25 CM",
         img:   "/18x25.webp",
         thumb: "/18x25.webp",
@@ -967,6 +964,15 @@ gallery: [
         description: "Bolsa de máxima capacidad para empaque industrial de gran volumen. Diseñada para cargas pesadas, materiales a granel y logística de distribución de alta demanda. Resistencia extrema con acabado de alta calidad.",
         specs_values: { width: "30 cm", height: "40 cm", mat: "Polipropileno", use: "Logística industrial" },
         gallery: ["/bolsa.webp", "/30x40.webp", "/bolsa.webp"]
+      },
+      {
+        name: "BOLSA 15×25 CM",
+        img:   "/15x25.webp",
+        thumb: "/15x25.webp",
+        link:  "#",
+        description: "Bolsa de polipropileno compacta, ideal para empaque de productos pequeños. Perfecta para comercio detallista, empaque de semillas, especias y productos de consumo en porciones individuales. Alta resistencia al rasgado con acabado uniforme.",
+        specs_values: { width: "15 cm", height: "25 cm", mat: "Polipropileno", use: "Comercio detallista" },
+        gallery: ["/bolsa.webp", "/15x25.webp", "/bolsa.webp"]
       }
     ]
   },

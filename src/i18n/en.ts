@@ -287,6 +287,12 @@ export const en = {
       descripcion: "Sustainable packaging that returns to the earth. 100% Plant Based, recyclable and compostable solutions for the food industry.",
       slug: "naturizable",
       video: "GO/carrusel/charola.mp4"
+    },
+    {
+      img: "/carruselB.webp",
+      division: "BOLSAS",
+      descripcion: "High-strength polypropylene bags. Versatile and cost-effective, available in multiple sizes for industrial and commercial packaging.",
+      slug: "bolsas"
     }
     ],
 
@@ -922,15 +928,6 @@ arpillas: {
 
     products: [
       {
-        name: "BAG 15×25 CM",
-        img:   "/15x25.webp",
-        thumb: "/15x25.webp",
-        link:  "#",
-        description: "Compact polypropylene bag, ideal for packaging small products. Perfect for retail, seed packaging, spices and individual-portion consumer products. High tear resistance with uniform finish.",
-        specs_values: { width: "15 cm", height: "25 cm", mat: "Polypropylene", use: "Retail" },
-        gallery: ["/bolsa.webp", "/15x25.webp", "/bolsa.webp"]
-      },
-      {
         name: "BAG 18×25 CM",
         img:   "/18x25.webp",
         thumb: "/18x25.webp",
@@ -965,6 +962,15 @@ arpillas: {
         description: "Maximum-capacity bag for large-volume industrial packaging. Designed for heavy loads, bulk materials and high-demand distribution logistics. Extreme resistance with high-quality finish.",
         specs_values: { width: "30 cm", height: "40 cm", mat: "Polypropylene", use: "Industrial logistics" },
         gallery: ["/bolsa.webp", "/30x40.webp", "/bolsa.webp"]
+      },
+      {
+        name: "BAG 15×25 CM",
+        img:   "/15x25.webp",
+        thumb: "/15x25.webp",
+        link:  "#",
+        description: "Compact polypropylene bag, ideal for packaging small products. Perfect for retail, seed packaging, spices and individual-portion consumer products. High tear resistance with uniform finish.",
+        specs_values: { width: "15 cm", height: "25 cm", mat: "Polypropylene", use: "Retail" },
+        gallery: ["/bolsa.webp", "/15x25.webp", "/bolsa.webp"]
       }
     ]
   },
