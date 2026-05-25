@@ -925,48 +925,48 @@ gallery: [
     products: [
       {
         name: "BOLSA 15×25 CM",
-        img:   "/bolsa.webp",
+        img:   "/15x25.webp",
         thumb: "/15x25.webp",
         link:  "#",
         description: "Bolsa de polipropileno compacta, ideal para empaque de productos pequeños. Perfecta para comercio detallista, empaque de semillas, especias y productos de consumo en porciones individuales. Alta resistencia al rasgado con acabado uniforme.",
         specs_values: { width: "15 cm", height: "25 cm", mat: "Polipropileno", use: "Comercio detallista" },
-        gallery: ["/bolsa.webp", "/bolsa.webp", "/bolsa.webp"]
+        gallery: ["/bolsa.webp", "/15x25.webp", "/bolsa.webp"]
       },
       {
         name: "BOLSA 18×25 CM",
-        img:   "/bolsa.webp",
+        img:   "/18x25.webp",
         thumb: "/18x25.webp",
         link:  "#",
         description: "Bolsa de polipropileno de tamaño estándar para empaque versátil de productos de mediano volumen. Ideal para granos, cereales, botanas y artículos de uso cotidiano con presentación limpia y resistente.",
         specs_values: { width: "18 cm", height: "25 cm", mat: "Polipropileno", use: "Empaque industrial" },
-        gallery: ["/bolsa.webp", "/bolsa.webp", "/bolsa.webp"]
+        gallery: ["/bolsa.webp", "/18x25.webp", "/bolsa.webp"]
       },
       {
         name: "BOLSA 20×30 CM",
-        img:   "/bolsa.webp",
+        img:   "/20x30.webp",
         thumb: "/20x30.webp",
         link:  "#",
         description: "Bolsa de mediano formato con alta capacidad volumétrica. Diseñada para el empaque de frutas, verduras, productos agrícolas y mercancía de mediano peso. Resistente al rasgado con acabado uniforme.",
         specs_values: { width: "20 cm", height: "30 cm", mat: "Polipropileno", use: "Empaque agrícola" },
-        gallery: ["/bolsa.webp", "/bolsa.webp", "/bolsa.webp"]
+        gallery: ["/bolsa.webp", "/20x30.webp", "/bolsa.webp"]
       },
       {
         name: "BOLSA 25×35 CM",
-        img:   "/bolsa.webp",
+        img:   "/25x35.webp",
         thumb: "/25x35.webp",
         link:  "#",
         description: "Bolsa de gran formato ideal para el manejo de productos de mayor volumen. Perfecta para empaque de ropa, textiles, calzado y mercancía de distribución. Ofrece resistencia superior y excelente presentación.",
         specs_values: { width: "25 cm", height: "35 cm", mat: "Polipropileno", use: "Distribución a granel" },
-        gallery: ["/bolsa.webp", "/bolsa.webp", "/bolsa.webp"]
+        gallery: ["/bolsa.webp", "/25x35.webp", "/bolsa.webp"]
       },
       {
         name: "BOLSA 30×40 CM",
-        img:   "/bolsa.webp",
+        img:   "/30x40.webp",
         thumb: "/30x40.webp",
         link:  "#",
         description: "Bolsa de máxima capacidad para empaque industrial de gran volumen. Diseñada para cargas pesadas, materiales a granel y logística de distribución de alta demanda. Resistencia extrema con acabado de alta calidad.",
         specs_values: { width: "30 cm", height: "40 cm", mat: "Polipropileno", use: "Logística industrial" },
-        gallery: ["/bolsa.webp", "/bolsa.webp", "/bolsa.webp"]
+        gallery: ["/bolsa.webp", "/30x40.webp", "/bolsa.webp"]
       }
     ]
   },
@@ -1362,7 +1362,7 @@ footer: {
         { title: "Stretch film",     tag: "División 06", description: "Película estirable de alta claridad óptica. Asegura la integridad de la carga con eficiencia en costos. Incluye opción biodegradable.",                       img: "/images/divisiones/film-estirable.webp",    color: "#2c5f8a", slug: "stretch-film",       soon: false },
         { title: "Esquinero",        tag: "División 07", description: "Esquineros de cartón kraft para protección de bordes durante el almacenamiento y transporte. Distribución uniforme de presión y máxima estabilidad de carga.", img: "/images/divisiones/esquineros.webp",        color: "#7b3fa0", slug: "esquineros",         soon: false },
         { title: "Naturizable",      tag: "División 08", description: "Empaque sustentable que regresa a la tierra. Soluciones 100% Plant Based, reciclables y compostables para la industria alimentaria.",            img: "/images/divisiones/desechables.webp",       color: "#e05500", slug: "naturizable",        soon: false },
-        { title: "Bolsas",           tag: "División 09", description: "Bolsas de polipropileno de alta resistencia para empaque industrial y comercial. Versátiles, económicas y disponibles en múltiples tamaños y presentaciones.",  img: "/carruselB.webp",                           color: "#c0392b", slug: "bolsas",             soon: false }
+        { title: "Bolsas",           tag: "División 09", description: "Bolsas de polipropileno de alta resistencia para empaque industrial y comercial. Versátiles, económicas y disponibles en múltiples tamaños y presentaciones.",  img: "/bolsa.webp",                               color: "#c0392b", slug: "bolsas",             soon: false }
       ]
     },
 

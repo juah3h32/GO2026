@@ -923,48 +923,48 @@ arpillas: {
     products: [
       {
         name: "BAG 15×25 CM",
-        img:   "/bolsa.webp",
+        img:   "/15x25.webp",
         thumb: "/15x25.webp",
         link:  "#",
         description: "Compact polypropylene bag, ideal for packaging small products. Perfect for retail, seed packaging, spices and individual-portion consumer products. High tear resistance with uniform finish.",
         specs_values: { width: "15 cm", height: "25 cm", mat: "Polypropylene", use: "Retail" },
-        gallery: ["/bolsa.webp", "/bolsa.webp", "/bolsa.webp"]
+        gallery: ["/bolsa.webp", "/15x25.webp", "/bolsa.webp"]
       },
       {
         name: "BAG 18×25 CM",
-        img:   "/bolsa.webp",
+        img:   "/18x25.webp",
         thumb: "/18x25.webp",
         link:  "#",
         description: "Standard-size polypropylene bag for versatile packaging of medium-volume products. Ideal for grains, cereals, snacks and everyday items with a clean, durable presentation.",
         specs_values: { width: "18 cm", height: "25 cm", mat: "Polypropylene", use: "Industrial packaging" },
-        gallery: ["/bolsa.webp", "/bolsa.webp", "/bolsa.webp"]
+        gallery: ["/bolsa.webp", "/18x25.webp", "/bolsa.webp"]
       },
       {
         name: "BAG 20×30 CM",
-        img:   "/bolsa.webp",
+        img:   "/20x30.webp",
         thumb: "/20x30.webp",
         link:  "#",
         description: "Medium-format bag with high volumetric capacity. Designed for packaging fruits, vegetables, agricultural products and medium-weight merchandise. Tear-resistant with a uniform finish.",
         specs_values: { width: "20 cm", height: "30 cm", mat: "Polypropylene", use: "Agricultural packaging" },
-        gallery: ["/bolsa.webp", "/bolsa.webp", "/bolsa.webp"]
+        gallery: ["/bolsa.webp", "/20x30.webp", "/bolsa.webp"]
       },
       {
         name: "BAG 25×35 CM",
-        img:   "/bolsa.webp",
+        img:   "/25x35.webp",
         thumb: "/25x35.webp",
         link:  "#",
         description: "Large-format bag ideal for handling higher-volume products. Perfect for clothing, textiles, footwear and bulk distribution merchandise. Superior resistance and excellent presentation.",
         specs_values: { width: "25 cm", height: "35 cm", mat: "Polypropylene", use: "Bulk distribution" },
-        gallery: ["/bolsa.webp", "/bolsa.webp", "/bolsa.webp"]
+        gallery: ["/bolsa.webp", "/25x35.webp", "/bolsa.webp"]
       },
       {
         name: "BAG 30×40 CM",
-        img:   "/bolsa.webp",
+        img:   "/30x40.webp",
         thumb: "/30x40.webp",
         link:  "#",
         description: "Maximum-capacity bag for large-volume industrial packaging. Designed for heavy loads, bulk materials and high-demand distribution logistics. Extreme resistance with high-quality finish.",
         specs_values: { width: "30 cm", height: "40 cm", mat: "Polypropylene", use: "Industrial logistics" },
-        gallery: ["/bolsa.webp", "/bolsa.webp", "/bolsa.webp"]
+        gallery: ["/bolsa.webp", "/30x40.webp", "/bolsa.webp"]
       }
     ]
   },
@@ -1362,7 +1362,7 @@ footer: {
         { title: "Stretch Film",      tag: "Division 06", description: "High optical clarity stretch film. Ensures load integrity with cost efficiency. Includes biodegradable option.",                                                   img: "/images/divisiones/film-estirable.webp", color: "#2c5f8a", slug: "stretch-film",       soon: false },
         { title: "Edge Protector",    tag: "Division 07", description: "Kraft cardboard edge protectors for edge protection during storage and transport. Uniform pressure distribution and maximum load stability.",                     img: "/images/divisiones/esquineros.webp",     color: "#7b3fa0", slug: "esquineros",         soon: false },
         { title: "Naturizable",      tag: "Division 08", description: "Sustainable packaging that returns to the earth. 100% Plant Based, recyclable and compostable solutions for the food industry.",                                    img: "/images/divisiones/desechables.webp",    color: "#e05500", slug: "naturizable",        soon: false },
-        { title: "Bags",             tag: "Division 09", description: "High-strength polypropylene bags for industrial and commercial packaging. Versatile, cost-effective and available in multiple sizes and presentations.",               img: "/carruselB.webp",                        color: "#c0392b", slug: "bolsas",             soon: false }
+        { title: "Bags",             tag: "Division 09", description: "High-strength polypropylene bags for industrial and commercial packaging. Versatile, cost-effective and available in multiple sizes and presentations.",               img: "/bolsa.webp",                            color: "#c0392b", slug: "bolsas",             soon: false }
       ]
     },
 
