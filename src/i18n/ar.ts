@@ -289,7 +289,7 @@ export const ar = {
       video: "GO/carrusel/charola.mp4"
     },
     {
-      img: "/carruselB.webp",
+      img: "/images/bolsas/carruselB.webp",
       division: "BOLSAS",
       descripcion: "أكياس بولي بروبيلين عالية المقاومة. متعددة الاستخدامات واقتصادية، متوفرة بمقاسات متعددة للتعبئة الصناعية والتجارية.",
       slug: "bolsas"
@@ -929,49 +929,49 @@ export const ar = {
 
     products: [
       {
-        name: "كيس 18×25 سم",
-        img:   "/18x25.webp",
-        thumb: "/18x25.webp",
-        link:  "#",
-        description: "كيس بولي بروبيلين بحجم قياسي للتعبئة متعددة الاستخدامات لمنتجات الحجم المتوسط. مثالي للحبوب والمواد الغذائية والمنتجات اليومية بعرض نظيف ومتين.",
-        specs_values: { width: "18 سم", height: "25 سم", mat: "بولي بروبيلين", use: "تعبئة صناعية" },
-        gallery: ["/bolsa.webp", "/18x25.webp", "/bolsa.webp"]
-      },
-      {
-        name: "كيس 20×30 سم",
-        img:   "/20x30.webp",
-        thumb: "/20x30.webp",
-        link:  "#",
-        description: "كيس متوسط الحجم بسعة حجمية عالية. مصمم لتعبئة الفواكه والخضروات والمنتجات الزراعية والبضائع متوسطة الوزن. مقاوم للتمزق مع تشطيب منتظم.",
-        specs_values: { width: "20 سم", height: "30 سم", mat: "بولي بروبيلين", use: "تعبئة زراعية" },
-        gallery: ["/bolsa.webp", "/20x30.webp", "/bolsa.webp"]
-      },
-      {
-        name: "كيس 25×35 سم",
-        img:   "/25x35.webp",
-        thumb: "/25x35.webp",
-        link:  "#",
-        description: "كيس كبير الحجم مثالي للتعامل مع المنتجات ذات الحجم الأكبر. مناسب للملابس والمنسوجات والأحذية وبضائع التوزيع بالجملة. مقاومة فائقة وعرض ممتاز.",
-        specs_values: { width: "25 سم", height: "35 سم", mat: "بولي بروبيلين", use: "توزيع بالجملة" },
-        gallery: ["/bolsa.webp", "/25x35.webp", "/bolsa.webp"]
-      },
-      {
-        name: "كيس 30×40 سم",
-        img:   "/30x40.webp",
-        thumb: "/30x40.webp",
-        link:  "#",
-        description: "كيس بأقصى سعة للتعبئة الصناعية بحجم كبير. مصمم للأحمال الثقيلة والمواد السائبة ولوجستيات التوزيع عالية الطلب. مقاومة قصوى مع تشطيب عالي الجودة.",
-        specs_values: { width: "30 سم", height: "40 سم", mat: "بولي بروبيلين", use: "لوجستيات صناعية" },
-        gallery: ["/bolsa.webp", "/30x40.webp", "/bolsa.webp"]
-      },
-      {
         name: "كيس 15×25 سم",
-        img:   "/15x25.webp",
-        thumb: "/15x25.webp",
+        img:   "/images/bolsas/15x25.webp",
+        thumb: "/images/bolsas/15x25.webp",
         link:  "#",
         description: "كيس بولي بروبيلين مدمج، مثالي لتعبئة المنتجات الصغيرة. مناسب لتجارة التجزئة وتعبئة البذور والتوابل ومنتجات الاستهلاك الفردي. مقاومة عالية للتمزق مع تشطيب منتظم.",
         specs_values: { width: "15 سم", height: "25 سم", mat: "بولي بروبيلين", use: "تجارة التجزئة" },
-        gallery: ["/bolsa.webp", "/15x25.webp", "/bolsa.webp"]
+        gallery: ["/images/bolsas/bolsa.webp", "/images/bolsas/15x25.webp", "/images/bolsas/bolsa.webp"]
+      },
+      {
+        name: "كيس 18×25 سم",
+        img:   "/images/bolsas/18x25.webp",
+        thumb: "/images/bolsas/18x25.webp",
+        link:  "#",
+        description: "كيس بولي بروبيلين بحجم قياسي للتعبئة متعددة الاستخدامات لمنتجات الحجم المتوسط. مثالي للحبوب والمواد الغذائية والمنتجات اليومية بعرض نظيف ومتين.",
+        specs_values: { width: "18 سم", height: "25 سم", mat: "بولي بروبيلين", use: "تعبئة صناعية" },
+        gallery: ["/images/bolsas/bolsa.webp", "/images/bolsas/18x25.webp", "/images/bolsas/bolsa.webp"]
+      },
+      {
+        name: "كيس 20×30 سم",
+        img:   "/images/bolsas/20x30.webp",
+        thumb: "/images/bolsas/20x30.webp",
+        link:  "#",
+        description: "كيس متوسط الحجم بسعة حجمية عالية. مصمم لتعبئة الفواكه والخضروات والمنتجات الزراعية والبضائع متوسطة الوزن. مقاوم للتمزق مع تشطيب منتظم.",
+        specs_values: { width: "20 سم", height: "30 سم", mat: "بولي بروبيلين", use: "تعبئة زراعية" },
+        gallery: ["/images/bolsas/bolsa.webp", "/images/bolsas/20x30.webp", "/images/bolsas/bolsa.webp"]
+      },
+      {
+        name: "كيس 25×35 سم",
+        img:   "/images/bolsas/25x35.webp",
+        thumb: "/images/bolsas/25x35.webp",
+        link:  "#",
+        description: "كيس كبير الحجم مثالي للتعامل مع المنتجات ذات الحجم الأكبر. مناسب للملابس والمنسوجات والأحذية وبضائع التوزيع بالجملة. مقاومة فائقة وعرض ممتاز.",
+        specs_values: { width: "25 سم", height: "35 سم", mat: "بولي بروبيلين", use: "توزيع بالجملة" },
+        gallery: ["/images/bolsas/bolsa.webp", "/images/bolsas/25x35.webp", "/images/bolsas/bolsa.webp"]
+      },
+      {
+        name: "كيس 30×40 سم",
+        img:   "/images/bolsas/30x40.webp",
+        thumb: "/images/bolsas/30x40.webp",
+        link:  "#",
+        description: "كيس بأقصى سعة للتعبئة الصناعية بحجم كبير. مصمم للأحمال الثقيلة والمواد السائبة ولوجستيات التوزيع عالية الطلب. مقاومة قصوى مع تشطيب عالي الجودة.",
+        specs_values: { width: "30 سم", height: "40 سم", mat: "بولي بروبيلين", use: "لوجستيات صناعية" },
+        gallery: ["/images/bolsas/bolsa.webp", "/images/bolsas/30x40.webp", "/images/bolsas/bolsa.webp"]
       }
     ]
   },
@@ -1369,7 +1369,7 @@ footer: {
         { title: "ستريتش فيلم",    tag: "القسم 06", description: "فيلم تمدد بوضوح بصري عالٍ. يضمن سلامة الحمولة بكفاءة في التكاليف. يشمل خياراً قابلاً للتحلل البيولوجي.",                                  img: "/images/divisiones/film-estirable.webp",    color: "#2c5f8a", slug: "stretch-film",       soon: false },
         { title: "حافة حماية",     tag: "القسم 07", description: "حواف كرافت لحماية الحواف أثناء التخزين والنقل. توزيع متساوٍ للضغط وأقصى استقرار للأحمال.",                                                img: "/images/divisiones/esquineros.webp",        color: "#7b3fa0", slug: "esquineros",         soon: false },
         { title: "مستهلكات",       tag: "القسم 10", description: "منتجات مستهلكة من البولي بروبيلين للاستخدام الصناعي والغذائي والطبي. حلول صحية واقتصادية وعالية المقاومة.",                               img: "/images/divisiones/desechables.webp",       color: "#e05500", slug: "desechables",        soon: true  },
-        { title: "أكياس",          tag: "القسم 09", description: "أكياس بولي بروبيلين عالية المقاومة للتعبئة الصناعية والتجارية. متعددة الاستخدامات واقتصادية ومتوفرة بمقاسات وأشكال متعددة.",                    img: "/bolsa.webp",                               color: "#c0392b", slug: "bolsas",             soon: false }
+        { title: "أكياس",          tag: "القسم 09", description: "أكياس بولي بروبيلين عالية المقاومة للتعبئة الصناعية والتجارية. متعددة الاستخدامات واقتصادية ومتوفرة بمقاسات وأشكال متعددة.",                    img: "/images/bolsas/bolsa.webp",                               color: "#c0392b", slug: "bolsas",             soon: false }
       ]
     },
 

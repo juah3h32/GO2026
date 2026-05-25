@@ -289,7 +289,7 @@ export const zh = {
       video: "GO/carrusel/charola.mp4"
     },
     {
-      img: "/carruselB.webp",
+      img: "/images/bolsas/carruselB.webp",
       division: "BOLSAS",
       descripcion: "高强度聚丙烯袋。多功能、经济实惠，提供多种尺寸用于工业和商业包装。",
       slug: "bolsas"
@@ -929,49 +929,49 @@ export const zh = {
 
     products: [
       {
-        name: "袋子 18×25 厘米",
-        img:   "/18x25.webp",
-        thumb: "/18x25.webp",
-        link:  "#",
-        description: "标准尺寸聚丙烯袋，适用于中等体积产品的多功能包装。适合谷物、麦片、零食和日用品，外观整洁耐用。",
-        specs_values: { width: "18 厘米", height: "25 厘米", mat: "聚丙烯", use: "工业包装" },
-        gallery: ["/bolsa.webp", "/18x25.webp", "/bolsa.webp"]
-      },
-      {
-        name: "袋子 20×30 厘米",
-        img:   "/20x30.webp",
-        thumb: "/20x30.webp",
-        link:  "#",
-        description: "中等尺寸袋，体积容量大。专为水果、蔬菜、农产品和中等重量商品的包装而设计。抗撕裂，表面均匀。",
-        specs_values: { width: "20 厘米", height: "30 厘米", mat: "聚丙烯", use: "农业包装" },
-        gallery: ["/bolsa.webp", "/20x30.webp", "/bolsa.webp"]
-      },
-      {
-        name: "袋子 25×35 厘米",
-        img:   "/25x35.webp",
-        thumb: "/25x35.webp",
-        link:  "#",
-        description: "大尺寸袋，适合处理更大体积的产品。完美用于服装、纺织品、鞋类和散装配送商品。出色的耐用性和展示效果。",
-        specs_values: { width: "25 厘米", height: "35 厘米", mat: "聚丙烯", use: "散装配送" },
-        gallery: ["/bolsa.webp", "/25x35.webp", "/bolsa.webp"]
-      },
-      {
-        name: "袋子 30×40 厘米",
-        img:   "/30x40.webp",
-        thumb: "/30x40.webp",
-        link:  "#",
-        description: "最大容量袋，用于大体积工业包装。专为重载荷、散装材料和高需求配送物流而设计。极强耐用性，高质量表面处理。",
-        specs_values: { width: "30 厘米", height: "40 厘米", mat: "聚丙烯", use: "工业物流" },
-        gallery: ["/bolsa.webp", "/30x40.webp", "/bolsa.webp"]
-      },
-      {
         name: "袋子 15×25 厘米",
-        img:   "/15x25.webp",
-        thumb: "/15x25.webp",
+        img:   "/images/bolsas/15x25.webp",
+        thumb: "/images/bolsas/15x25.webp",
         link:  "#",
         description: "紧凑型聚丙烯袋，适合小产品包装。完美用于零售、种子包装、香料和单份消费品。高抗撕裂性，表面均匀。",
         specs_values: { width: "15 厘米", height: "25 厘米", mat: "聚丙烯", use: "零售" },
-        gallery: ["/bolsa.webp", "/15x25.webp", "/bolsa.webp"]
+        gallery: ["/images/bolsas/bolsa.webp", "/images/bolsas/15x25.webp", "/images/bolsas/bolsa.webp"]
+      },
+      {
+        name: "袋子 18×25 厘米",
+        img:   "/images/bolsas/18x25.webp",
+        thumb: "/images/bolsas/18x25.webp",
+        link:  "#",
+        description: "标准尺寸聚丙烯袋，适用于中等体积产品的多功能包装。适合谷物、麦片、零食和日用品，外观整洁耐用。",
+        specs_values: { width: "18 厘米", height: "25 厘米", mat: "聚丙烯", use: "工业包装" },
+        gallery: ["/images/bolsas/bolsa.webp", "/images/bolsas/18x25.webp", "/images/bolsas/bolsa.webp"]
+      },
+      {
+        name: "袋子 20×30 厘米",
+        img:   "/images/bolsas/20x30.webp",
+        thumb: "/images/bolsas/20x30.webp",
+        link:  "#",
+        description: "中等尺寸袋，体积容量大。专为水果、蔬菜、农产品和中等重量商品的包装而设计。抗撕裂，表面均匀。",
+        specs_values: { width: "20 厘米", height: "30 厘米", mat: "聚丙烯", use: "农业包装" },
+        gallery: ["/images/bolsas/bolsa.webp", "/images/bolsas/20x30.webp", "/images/bolsas/bolsa.webp"]
+      },
+      {
+        name: "袋子 25×35 厘米",
+        img:   "/images/bolsas/25x35.webp",
+        thumb: "/images/bolsas/25x35.webp",
+        link:  "#",
+        description: "大尺寸袋，适合处理更大体积的产品。完美用于服装、纺织品、鞋类和散装配送商品。出色的耐用性和展示效果。",
+        specs_values: { width: "25 厘米", height: "35 厘米", mat: "聚丙烯", use: "散装配送" },
+        gallery: ["/images/bolsas/bolsa.webp", "/images/bolsas/25x35.webp", "/images/bolsas/bolsa.webp"]
+      },
+      {
+        name: "袋子 30×40 厘米",
+        img:   "/images/bolsas/30x40.webp",
+        thumb: "/images/bolsas/30x40.webp",
+        link:  "#",
+        description: "最大容量袋，用于大体积工业包装。专为重载荷、散装材料和高需求配送物流而设计。极强耐用性，高质量表面处理。",
+        specs_values: { width: "30 厘米", height: "40 厘米", mat: "聚丙烯", use: "工业物流" },
+        gallery: ["/images/bolsas/bolsa.webp", "/images/bolsas/30x40.webp", "/images/bolsas/bolsa.webp"]
       }
     ]
   },
@@ -1368,7 +1368,7 @@ footer: {
         { title: "缠绕膜",     tag: "部门 06", description: "高光学清晰度的拉伸薄膜。以成本效益确保货物完整性。包含生物降解选项。",             img: "/images/divisiones/film-estirable.webp", color: "#2c5f8a", slug: "stretch-film",       soon: false },
         { title: "护角",       tag: "部门 07", description: "牛皮卡纸护角，保护存储和运输过程中的边缘。均匀分压，最大化货物稳定性。",           img: "/images/divisiones/esquineros.webp",     color: "#7b3fa0", slug: "esquineros",         soon: false },
         { title: "一次性用品", tag: "部门 10", description: "用于工业、食品和医疗的聚丙烯一次性产品。卫生、经济且高强度的解决方案。",           img: "/images/divisiones/desechables.webp",    color: "#e05500", slug: "desechables",        soon: true  },
-        { title: "袋子",       tag: "部门 09", description: "用于工业和商业包装的高强度聚丙烯袋。多功能、经济实惠，提供多种尺寸和规格。",         img: "/bolsa.webp",                            color: "#c0392b", slug: "bolsas",             soon: false }
+        { title: "袋子",       tag: "部门 09", description: "用于工业和商业包装的高强度聚丙烯袋。多功能、经济实惠，提供多种尺寸和规格。",         img: "/images/bolsas/bolsa.webp",                            color: "#c0392b", slug: "bolsas",             soon: false }
       ]
     },
 

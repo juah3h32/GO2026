@@ -25,6 +25,12 @@ const specs = [
   { label: specsLabels.mat,    id: "spec-mat",    tag: firstProduct.specs_values.mat },
   { label: specsLabels.use,    id: "spec-use",    tag: firstProduct.specs_values.use }
 ];
+
+const CLOUD = import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME || 'dfuzfdrat';
+const toCDN = (localPath: string) => {
+  const filename = localPath.split('/').pop();
+  return `https://res.cloudinary.com/${CLOUD}/image/upload/q_auto:good/GO/bolsas/${filename}`;
+};
 ---
 
 <BaseLayout
@@ -35,7 +41,7 @@ const specs = [
     moveLogoMobile={true}
 >
   <Fragment slot="head">
-    <link rel="preload" as="image" href="/bolsa.webp" fetchpriority="high" />
+    <link rel="preload" as="image" href={toCDN(firstProduct.img)} fetchpriority="high" />
   </Fragment>
 
   <div id="wipe-transition" class="wipe-container"></div>
@@ -88,7 +94,7 @@ const specs = [
             tabindex="0"
             aria-label={prod.name}
           >
-            <img src={prod.thumb} alt={prod.name} loading="lazy" decoding="async" width="60" height="60"/>
+            <img src={toCDN(prod.thumb)} onerror={`this.onerror=null;this.src='${prod.thumb}'`} alt={prod.name} loading="lazy" decoding="async" width="60" height="60"/>
           </div>
         ))}
       </div>
@@ -101,7 +107,8 @@ const specs = [
           <img
             id="product-hero-img"
             class="product-hero-img"
-            src={firstProduct.img}
+            src={toCDN(firstProduct.img)}
+            onerror={`this.onerror=null;this.src='${firstProduct.img}'`}
             alt={firstProduct.name}
           />
         </div>
@@ -112,7 +119,9 @@ const specs = [
               {(prod.gallery || [prod.img, prod.img, prod.img]).map((imgSrc: string, imgIdx: number) => (
                 <div class="gallery-photo" data-img-index={imgIdx + 1}>
                   <img
-                    src={imgSrc}
+                    src={toCDN(imgSrc)}
+                    data-local={imgSrc}
+                    onerror={`this.onerror=null;this.src='${imgSrc}'`}
                     alt={`${prod.name} vista ${imgIdx + 1}`}
                     loading="lazy"
                     decoding="async"
@@ -131,7 +140,8 @@ const specs = [
 
   <style>
     .bolsas-bg {
-      background-image: url('/carruselB.webp');
+      background-image: url('https://res.cloudinary.com/dfuzfdrat/image/upload/q_auto:good/GO/bolsas/carruselB.webp'),
+                        url('/images/bolsas/carruselB.webp');
       background-size: cover;
       background-position: center;
     }
@@ -143,6 +153,16 @@ const specs = [
     if (!container) return;
 
     const products = JSON.parse(container.dataset.products || '[]');
+
+    const CLOUD = 'dfuzfdrat';
+    function toCDN(localPath) {
+      const filename = localPath.split('/').pop();
+      return `https://res.cloudinary.com/${CLOUD}/image/upload/q_auto:good/GO/bolsas/${filename}`;
+    }
+    function setImgSrc(imgEl, localPath) {
+      imgEl.onerror = function() { this.onerror = null; this.src = localPath; };
+      imgEl.src = toCDN(localPath);
+    }
 
     const titleEl = document.getElementById('product-title');
     const descEl  = document.getElementById('product-desc');
@@ -191,7 +211,7 @@ const specs = [
       if (thumbs[idx]) thumbs[idx].classList.add('active');
 
       if (heroImg && products[idx] && products[idx].img) {
-        heroImg.src = products[idx].img;
+        setImgSrc(heroImg, products[idx].img);
         heroImg.alt = products[idx].name || '';
       }
 
@@ -250,7 +270,7 @@ const specs = [
     document.querySelectorAll('.gallery-photo').forEach((photo) => {
       const activate = () => {
         const clickedImg = photo.querySelector('img');
-        if (heroImg && clickedImg) heroImg.src = clickedImg.src;
+        if (heroImg && clickedImg) setImgSrc(heroImg, clickedImg.dataset.local || clickedImg.getAttribute('src'));
       };
       photo.addEventListener('touchend', function(e) {
         e.stopPropagation(); e.preventDefault(); activate();
