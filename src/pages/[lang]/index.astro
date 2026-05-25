@@ -7,7 +7,6 @@ export const prerender = true;
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Footer from "../../components/Footer.astro";
 import { languages, translations } from '../../i18n';
-import { CldVideoPlayer } from 'astro-cloudinary';
 import HeroHeadingTypewriter from '../../components/HeroHeadingTypewriter.tsx';
 import StickySection from '../../components/StickySection.astro';
 
@@ -59,20 +58,19 @@ const poster = (src: string) =>
      HERO
 ═══════════════════════════════════════ -->
 <section class="hero hero--static">
-  <!-- Wrapper absoluto — aísla el CldVideoPlayer del flujo del documento -->
+  <!-- Video hero de fondo —— Cloudinary URL directa, sin SDK -->
   <div class="hero__video-wrap" data-fallback-wrap>
-    <CldVideoPlayer
-      src={th.hero.video}
-      width="1920"
-      height="1080"
+    <video
+      id="hero-video"
       class="hero__video hero__video--fill"
+      src={`https://res.cloudinary.com/${CLOUD}/video/upload/q_auto:good,fl_faststart/${th.hero.video}.mp4`}
       autoplay
       muted
       loop
       playsinline
-      controls={false}
+      preload="metadata"
       poster={poster(th.hero.video)}
-    />
+    ></video>
     <!-- Fallback local: se muestra solo si Cloudinary falla -->
     <video
       class="hero__video hero__video--fill"
@@ -101,7 +99,7 @@ const poster = (src: string) =>
         <span class="hero__heading-top">{th.hero.title_top}</span>
         <span class="hero__heading-bottom">
           <HeroHeadingTypewriter
-            client:load
+            client:idle
             prefix={tyPrefix}
             words={tyWords}
             speed={75}
@@ -348,19 +346,17 @@ const poster = (src: string) =>
 ═══════════════════════════════════════ -->
 <section class="global">
   <div data-fallback-wrap style="position:absolute;inset:0;z-index:0;">
-    <CldVideoPlayer
-      src={th.global.video}
-      width="0"
-      height="0"
+    <video
+      id="global-video"
       class="global__video"
+      src={`https://res.cloudinary.com/${CLOUD}/video/upload/q_auto:good,fl_faststart/${th.global.video}.mp4`}
       autoplay
       muted
       loop
       playsinline
-      controls={false}
-      id="globalVideo"
+      preload="none"
       poster={poster(th.global.video)}
-    />
+    ></video>
     <!-- Fallback local: se muestra solo si Cloudinary falla -->
     <video
       class="global__video"
@@ -583,16 +579,139 @@ gsap.registerPlugin(ScrollTrigger);
 let homeCtx: gsap.Context | null = null;
 let lenis: Lenis | null = null;
 let lenisTicker: ((time: number) => void) | null = null;
-
 function destroyLenis() {
   if (lenisTicker) { gsap.ticker.remove(lenisTicker); lenisTicker = null; }
   if (lenis) { lenis.destroy(); lenis = null; }
+}
+
+/* ── DIVISIONES: scroll infinito JS + drag ── */
+let divTapeRafId: number | null = null;
+let divTapeAbortCtrl: AbortController | null = null;
+
+function destroyDivTape() {
+  if (divTapeRafId !== null) { cancelAnimationFrame(divTapeRafId); divTapeRafId = null; }
+  if (divTapeAbortCtrl) { divTapeAbortCtrl.abort(); divTapeAbortCtrl = null; }
+}
+
+function initDivTape() {
+  destroyDivTape();
+  const tape = document.querySelector<HTMLElement>('.div-tape');
+  const wrap = document.querySelector<HTMLElement>('.div-tape-wrap');
+  if (!tape || !wrap) return;
+
+  tape.style.animation = 'none';
+
+  const totalWidth = tape.scrollWidth / 2;
+  const speed = totalWidth / (60 * 60);
+
+  function cardStep(): number {
+    const card = tape.querySelector<HTMLElement>('.div-card');
+    return card ? card.offsetWidth + 16 : 320;
+  }
+
+  let pos = 0;
+  let paused = false;
+  let isSnapping = false;
+  let snapTarget = 0;
+
+  function goToCard(direction: number) {
+    /* direction: -1 = avanzar (siguiente), +1 = retroceder (anterior) */
+    const step = cardStep();
+    /* Partir desde la posición ya snapeada más cercana, no desde pos raw */
+    const base = Math.round(pos / step) * step;
+    let target = base + direction * step;
+    /* Resolver borde del ciclo infinito */
+    while (target - pos > totalWidth / 2) target -= totalWidth;
+    while (pos - target > totalWidth / 2) target += totalWidth;
+    snapTarget = target;
+    isSnapping = true;
+  }
+
+  function tick() {
+    if (isSnapping) {
+      pos += (snapTarget - pos) * 0.14;
+      if (Math.abs(snapTarget - pos) < 0.5) {
+        pos = snapTarget;
+        isSnapping = false;
+        while (pos > 0) pos -= totalWidth;
+        while (pos < -totalWidth) pos += totalWidth;
+      }
+    } else if (!paused) {
+      pos -= speed;
+      if (pos <= -totalWidth) pos += totalWidth;
+    }
+    tape.style.transform = `translateX(${pos}px)`;
+    divTapeRafId = requestAnimationFrame(tick);
+  }
+  divTapeRafId = requestAnimationFrame(tick);
+
+  let isDragging = false;
+  let hasDragged = false;
+  let dragStartX = 0;
+  let dragStartPos = 0;
+
+  divTapeAbortCtrl = new AbortController();
+  const { signal } = divTapeAbortCtrl;
+
+  wrap.addEventListener('mouseenter', () => { paused = true; }, { signal });
+  wrap.addEventListener('mouseleave', () => {
+    paused = false;
+    isDragging = false;
+    hasDragged = false;
+    wrap.classList.remove('is-grabbing');
+  }, { signal });
+
+  /* ── Drag con ratón: arrastra y suelta → snap al más cercano ── */
+  tape.addEventListener('mousedown', (e: MouseEvent) => {
+    /* Evitar selección de texto/elementos al arrastrar */
+    e.preventDefault();
+    isDragging = true;
+    isSnapping = false;
+    hasDragged = false;
+    dragStartX = e.clientX;
+    dragStartPos = pos;
+  }, { signal });
+
+  document.addEventListener('mousemove', (e: MouseEvent) => {
+    if (!isDragging) return;
+    const delta = e.clientX - dragStartX;
+    if (!hasDragged && Math.abs(delta) > 6) {
+      hasDragged = true;
+      wrap.classList.add('is-grabbing');
+    }
+    if (hasDragged) {
+      /* Seguir el dedo libremente mientras arrastra */
+      pos = dragStartPos + delta;
+      while (pos > 0) pos -= totalWidth;
+      while (pos < -totalWidth) pos += totalWidth;
+    }
+  }, { signal });
+
+  document.addEventListener('mouseup', () => {
+    if (!isDragging) return;
+    isDragging = false;
+    wrap.classList.remove('is-grabbing');
+    if (hasDragged) {
+      /* Snap al producto más cercano según cuánto se arrastró */
+      const dragged = pos - dragStartPos;
+      const step = cardStep();
+      /* Si arrastró más de la mitad de una tarjeta → avanzar/retroceder */
+      const dir = Math.abs(dragged) > step * 0.3
+        ? (dragged < 0 ? -1 : 1)
+        : 0;
+      goToCard(dir);
+      /* Bloquar el click siguiente para no navegar al soltar */
+      tape.addEventListener('click', (ev) => ev.preventDefault(), { once: true, signal });
+    }
+    hasDragged = false;
+  }, { signal });
 }
 
 function run() {
   /* 1. Limpiar todo el estado GSAP y Lenis anteriores */
   if (homeCtx) { homeCtx.revert(); homeCtx = null; }
   destroyLenis();
+  destroyDivTape();
 
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     gsap.set(
@@ -625,6 +744,9 @@ function run() {
       lenisTicker = (time: number) => { lenis!.raf(time * 1000); };
       gsap.ticker.add(lenisTicker);
       gsap.ticker.lagSmoothing(0);
+
+      /* Carrusel de divisiones con drag y scroll infinito */
+      initDivTape();
     }
 
     homeCtx = gsap.context(() => {
@@ -768,6 +890,14 @@ function run() {
 
 document.addEventListener('DOMContentLoaded', run);
 document.addEventListener('astro:page-load', run);
+
+/* Limpiar Lenis, GSAP y carrusel al navegar FUERA del home */
+document.addEventListener('astro:before-swap', () => {
+  destroyDivTape();
+  destroyLenis();
+  if (homeCtx) { homeCtx.revert(); homeCtx = null; }
+  ScrollTrigger.getAll().forEach(t => t.kill());
+});
 
 /* bfcache: restauración desde caché con botón Atrás del navegador */
 window.addEventListener('pageshow', (e) => { if (e.persisted) run(); });

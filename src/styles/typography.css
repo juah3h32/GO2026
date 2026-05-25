@@ -92,11 +92,12 @@
 
 @font-face {
   font-family : 'SF Pro';
-  src         : url('/fonts/SF-Pro.woff2') format('woff2'),
-                url('/fonts/SF-Pro.ttf')   format('truetype');
+  src         : local('SF Pro Display'), local('SF Pro Text'),
+                local('.SF NS Display'), local('.SF NS Text'),
+                local('Helvetica Neue'), local('Helvetica');
   font-weight : normal;
   font-style  : normal;
-  font-display: swap;
+  font-display: optional;
 }
 
 

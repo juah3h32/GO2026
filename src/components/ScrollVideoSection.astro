@@ -20,10 +20,10 @@ const {
   <div class="parallax-section__bg">
     <video
       class="parallax-section__video"
-      src={videoSrc}
+      data-src={videoSrc}
       muted
       playsinline
-      preload="metadata"
+      preload="none"
     ></video>
   </div>
   <div class="parallax-section__content">
@@ -86,9 +86,24 @@ const {
   import gsap from 'gsap';
   import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
+  function lazyLoadSectionVideos() {
+    document.querySelectorAll<HTMLVideoElement>('.parallax-section__video[data-src]').forEach((vid) => {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          vid.src = vid.dataset.src!;
+          vid.load();
+          io.disconnect();
+        });
+      }, { rootMargin: '400px' });
+      io.observe(vid);
+    });
+  }
+
   function initScrollVideo() {
+    lazyLoadSectionVideos();
     const sections = document.querySelectorAll('.parallax-section');
-    
+
     sections.forEach(section => {
       const vid = section.querySelector('video') as HTMLVideoElement | null;
       if (!vid) return;

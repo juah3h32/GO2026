@@ -6,7 +6,6 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import Footer from "../../components/Footer.astro";
 import VacantesPage from "../../components/VacantesPage.jsx";
 import VacantesNotifPrompt from "../../components/VacantesNotifPrompt.jsx";
-import { CldVideoPlayer } from 'astro-cloudinary';
 import { languages, translations } from "../../i18n";
 
 export function getStaticPaths() {
@@ -171,18 +170,17 @@ const steps = [
       <!-- Video Cloudinary — envuelto en div absoluto para que no afecte el flex layout -->
       <div class="vac-hero__video-wrap">
         <div data-fallback-wrap style="position:absolute;inset:0;z-index:0;overflow:hidden;">
-          <CldVideoPlayer
-            src={VIDEO_ID}
-            width="1920"
-            height="1080"
+          <video
+            id="vacantes-video"
             class="hero__video hero__video--fill"
+            src={`https://res.cloudinary.com/${CLOUD}/video/upload/q_auto:good,fl_faststart/${VIDEO_ID}.mp4`}
             autoplay
             muted
             loop
             playsinline
-            controls={false}
+            preload="metadata"
             poster={posterUrl}
-          />
+          ></video>
           <!-- Fallback local: se muestra solo si Cloudinary falla -->
           <video
             class="hero__video hero__video--fill"
@@ -300,7 +298,7 @@ const steps = [
           <h2 class="section-heading">Vacantes en <em>Morelia</em></h2>
         </div>
 
-        <VacantesPage client:load />
+        <VacantesPage client:visible />
 
       </div>
     </section>
@@ -348,6 +346,6 @@ const steps = [
 
   </div>
 
-  <VacantesNotifPrompt client:load />
+  <VacantesNotifPrompt client:idle />
 
 </BaseLayout>
