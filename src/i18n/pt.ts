@@ -292,7 +292,8 @@ export const pt = {
       img: "/images/bolsas/carruselB.webp",
       division: "BOLSAS",
       descripcion: "Bolsas de polipropileno de alta resistência. Versáteis e econômicas, disponíveis em múltiplos tamanhos para embalagem industrial e comercial.",
-      slug: "bolsas"
+      slug: "bolsas",
+      video: "GO/carrusel/bolsa.mp4"
     }
   ],
 

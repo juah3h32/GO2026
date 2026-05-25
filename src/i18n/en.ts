@@ -292,7 +292,8 @@ export const en = {
       img: "/images/bolsas/carruselB.webp",
       division: "BOLSAS",
       descripcion: "High-strength polypropylene bags. Versatile and cost-effective, available in multiple sizes for industrial and commercial packaging.",
-      slug: "bolsas"
+      slug: "bolsas",
+      video: "GO/carrusel/bolsa.mp4"
     }
     ],
 

@@ -292,7 +292,8 @@ export const ar = {
       img: "/images/bolsas/carruselB.webp",
       division: "BOLSAS",
       descripcion: "أكياس بولي بروبيلين عالية المقاومة. متعددة الاستخدامات واقتصادية، متوفرة بمقاسات متعددة للتعبئة الصناعية والتجارية.",
-      slug: "bolsas"
+      slug: "bolsas",
+      video: "GO/carrusel/bolsa.mp4"
     }
   ],
 

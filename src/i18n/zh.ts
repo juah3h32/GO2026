@@ -292,7 +292,8 @@ export const zh = {
       img: "/images/bolsas/carruselB.webp",
       division: "BOLSAS",
       descripcion: "高强度聚丙烯袋。多功能、经济实惠，提供多种尺寸用于工业和商业包装。",
-      slug: "bolsas"
+      slug: "bolsas",
+      video: "GO/carrusel/bolsa.mp4"
     }
   ],
 
