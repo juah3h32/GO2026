@@ -1283,9 +1283,9 @@ footer: {
           num: "01", title: "بيت الأمل",
           desc:       "دعم دار الأيتام في تاكامبارو، ميتشواكان. كل طفل يستحق منزلاً مليئاً بالحب.",
           desc_short: "دعم دار الأيتام في تاكامبارو، ميتشواكان.",
-          img:        "/images/impacto/hogar.mp4",
+          img:        "/videos/impacto/hogar.mp4",
           isVideo:    true,
-          poster:     "/images/impacto/hogar.mp4"
+          poster:     "/videos/impacto/hogar.mp4"
         },
         {
           num: "02", title: "سلة GO",

@@ -22,7 +22,7 @@ const ti = t.impacto_social as typeof translations['es']['impacto_social'];
     <!-- HERO -->
     <section class="hero-tesla">
       <div class="hero-tesla-bg">
-        <video autoplay muted loop playsinline class="hero-tesla-video">
+        <video autoplay muted loop playsinline preload="metadata" class="hero-tesla-video">
           <source src={ti.hero.video} type="video/mp4">
         </video>
         <div class="hero-tesla-overlay"></div>
@@ -208,7 +208,7 @@ const ti = t.impacto_social as typeof translations['es']['impacto_social'];
     <!-- OCÉANOS -->
     <section class="oceanos-section">
       <div class="oceanos-hero">
-        <video autoplay muted loop playsinline class="oceanos-bg-video">
+        <video autoplay muted loop playsinline preload="metadata" class="oceanos-bg-video">
           <source src={ti.oceanos.hero_video} type="video/mp4">
         </video>
         <div class="oceanos-hero-overlay"></div>
@@ -277,7 +277,7 @@ const ti = t.impacto_social as typeof translations['es']['impacto_social'];
           {ti.oceanos.partners.map((partner) => (
             <div class="oceanos-partner-card">
               <div class="oceanos-partner-logo">
-                <video autoplay muted loop playsinline poster={partner.poster}>
+                <video autoplay muted loop playsinline preload="metadata" poster={partner.poster}>
                   <source src={partner.video} type="video/mp4">
                 </video>
               </div>

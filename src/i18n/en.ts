@@ -1282,9 +1282,9 @@ footer: {
           num: "01", title: "HOPE HOME",
           desc:       "Support for Casa Hogar in Tacámbaro, Michoacán. Every child deserves a home full of love.",
           desc_short: "Support for Casa Hogar in Tacámbaro, Michoacán.",
-          img:        "/images/impacto/hogar.mp4",
+          img:        "/videos/impacto/hogar.mp4",
           isVideo:    true,
-          poster:     "/images/impacto/hogar.mp4"
+          poster:     "/videos/impacto/hogar.mp4"
         },
         {
           num: "02", title: "GO PANTRY",

@@ -1282,9 +1282,9 @@ footer: {
           num: "01", title: "希望之家",
           desc:       "支持米却肯州塔坎巴罗的儿童之家。每个孩子都值得拥有一个充满爱的家园。",
           desc_short: "支持米却肯州塔坎巴罗的儿童之家。",
-          img:        "/images/impacto/hogar.mp4",
+          img:        "/videos/impacto/hogar.mp4",
           isVideo:    true,
-          poster:     "/images/impacto/hogar.mp4"
+          poster:     "/videos/impacto/hogar.mp4"
         },
         {
           num: "02", title: "GO 食品篮",

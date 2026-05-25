@@ -1282,9 +1282,9 @@ footer: {
           num: "01", title: "HOGAR DE ESPERANZA",
           desc:       "Apoyo a Casa Hogar en Tacámbaro, Michoacán. Cada niño merece un hogar lleno de amor.",
           desc_short: "Apoyo a Casa Hogar en Tacámbaro, Michoacán.",
-          img:        "/images/impacto/hogar.mp4",
+          img:        "/videos/impacto/hogar.mp4",
           isVideo:    true,
-          poster:     "/images/impacto/hogar.mp4"
+          poster:     "/videos/impacto/hogar.mp4"
         },
         {
           num: "02", title: "DESPENSA GO",

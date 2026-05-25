@@ -1283,9 +1283,9 @@ footer: {
           num: "01", title: "LAR DE ESPERANÇA",
           desc:       "Apoio ao Lar de Crianças em Tacámbaro, Michoacán. Cada criança merece um lar cheio de amor.",
           desc_short: "Apoio ao Lar de Crianças em Tacámbaro, Michoacán.",
-          img:        "/images/impacto/hogar.mp4",
+          img:        "/videos/impacto/hogar.mp4",
           isVideo:    true,
-          poster:     "/images/impacto/hogar.mp4"
+          poster:     "/videos/impacto/hogar.mp4"
         },
         {
           num: "02", title: "CESTA BÁSICA GO",
