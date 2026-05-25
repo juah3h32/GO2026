@@ -31,7 +31,7 @@ const specs = [
 
 const CLOUD = import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME;
 const videoPoster = (src: string) =>
-  CLOUD ? `https://res.cloudinary.com/${CLOUD}/video/upload/f_jpg,q_auto,so_0/${src.replace(/\.mp4$/, '')}.jpg` : '';
+  CLOUD ? `https://res.cloudinary.com/${CLOUD}/video/upload/f_jpg,q_auto,so_0/${src.replace(/^\//, "").replace(/\.mp4$/, "")}.jpg` : '';
 ---
 
 <BaseLayout
@@ -190,10 +190,10 @@ const videoPoster = (src: string) =>
         }
       };
       // CSS keyframe fade — no GSAP needed
-      anims.forEach(el => { el.classList.remove('js-animating'); (el as HTMLElement).style.opacity = '0'; });
+      anims.forEach(el => { el.classList.remove('js-animating'); el.style.opacity = '0'; });
       setTimeout(() => {
         applyText();
-        anims.forEach(el => { (el as HTMLElement).style.opacity = ''; el.classList.add('js-animating'); });
+        anims.forEach(el => { el.style.opacity = ''; el.classList.add('js-animating'); });
         setTimeout(() => anims.forEach(el => el.classList.remove('js-animating')), 350);
       }, 200);
     }

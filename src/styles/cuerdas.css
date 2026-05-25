@@ -364,7 +364,7 @@ model-viewer.model-3d-custom { width: 100%; height: 100%; min-height: 400px; poi
 .product-image-overlay {
   position: absolute; inset: 0; z-index: 20;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: clamp(14px, 2vh, 28px); transition: opacity .5s ease; pointer-events: auto !important;
+  gap: clamp(14px, 2vh, 28px); transition: opacity .5s ease; pointer-events: none;
 }
 .product-image-overlay.hidden { opacity: 0; pointer-events: none !important; }
 .product-hero-img {
@@ -567,6 +567,7 @@ model-viewer::part(default-progress-mask) { display: none !important; opacity: 0
   inset: 0;
   background: rgba(0,0,0,0.72);
   z-index: 1;
+  pointer-events: none;
 }
 
 /* =================================================================
@@ -876,12 +877,13 @@ model-viewer::part(default-progress-mask) { display: none !important; opacity: 0
     width: 100% !important;
     padding: 0 12px !important;
     z-index: 99999999 !important;
-    pointer-events: auto !important;
+    pointer-events: none !important;
     transform: none !important;
   }
   .gallery-photo {
     transform: none !important; transition: none !important;
     max-width: clamp(75px,19vw,140px) !important;
+    pointer-events: auto !important;
   }
   .gallery-photo:hover, .gallery-photo:active { transform: none !important; box-shadow: 0 8px 24px rgba(0,0,0,0.35) !important; }
   .gallery-photo:hover img, .gallery-photo:active img { transform: none !important; }

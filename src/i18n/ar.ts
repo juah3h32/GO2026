@@ -1297,7 +1297,8 @@ footer: {
         { title: "كيس",            tag: "القسم 05", description: "أكياس رافيا بجودة فائقة. حل تعبئة متين للأغذية والمواد الكيميائية والأسمدة والمنتجات السائبة.",                                            img: "/images/divisiones/sacos.webp",             color: "#3a7d44", slug: "sacos",              soon: false },
         { title: "ستريتش فيلم",    tag: "القسم 06", description: "فيلم تمدد بوضوح بصري عالٍ. يضمن سلامة الحمولة بكفاءة في التكاليف. يشمل خياراً قابلاً للتحلل البيولوجي.",                                  img: "/images/divisiones/film-estirable.webp",    color: "#2c5f8a", slug: "stretch-film",       soon: false },
         { title: "حافة حماية",     tag: "القسم 07", description: "حواف كرافت لحماية الحواف أثناء التخزين والنقل. توزيع متساوٍ للضغط وأقصى استقرار للأحمال.",                                                img: "/images/divisiones/esquineros.webp",        color: "#7b3fa0", slug: "esquineros",         soon: false },
-        { title: "مستهلكات",       tag: "القسم 10", description: "منتجات مستهلكة من البولي بروبيلين للاستخدام الصناعي والغذائي والطبي. حلول صحية واقتصادية وعالية المقاومة.",                               img: "/images/divisiones/desechables.webp",       color: "#e05500", slug: "desechables",        soon: true  }
+        { title: "مستهلكات",       tag: "القسم 10", description: "منتجات مستهلكة من البولي بروبيلين للاستخدام الصناعي والغذائي والطبي. حلول صحية واقتصادية وعالية المقاومة.",                               img: "/images/divisiones/desechables.webp",       color: "#e05500", slug: "desechables",        soon: true  },
+        { title: "أكياس",          tag: "القسم 09", description: "أكياس بولي بروبيلين عالية المقاومة للتعبئة الصناعية والتجارية. متعددة الاستخدامات واقتصادية ومتوفرة بمقاسات وأشكال متعددة.",                    img: "/images/divisiones/bolsas.webp",            color: "#c0392b", slug: "bolsas",             soon: true  }
       ]
     },
 

@@ -4,9 +4,8 @@ import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import tailwind from '@astrojs/tailwind';
 import AstroPWA from '@vite-pwa/astro';
-import vercel from '@astrojs/vercel/serverless';
+import vercel from '@astrojs/vercel';
 import path from 'path';
-import basicSsl from '@vitejs/plugin-basic-ssl';
 
 export default defineConfig({
   site: 'https://grupo-ortiz.com',
@@ -63,7 +62,7 @@ export default defineConfig({
   ],
 
 vite: {
-  plugins: [basicSsl()],
+  plugins: [],
   resolve: {
     alias: {
       '@': path.resolve('./src'),

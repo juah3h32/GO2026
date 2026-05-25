@@ -676,9 +676,14 @@ html.dark .div-card__line { background: #fff; }
   animation: divTapeScroll 60s linear infinite;
   will-change: transform;
 }
-.div-tape:hover { animation-play-state: paused; }
 @media (prefers-reduced-motion: reduce) {
   .div-tape { animation: none; }
+}
+@media (min-width: 769px) {
+  .div-tape-wrap { cursor: grab; }
+  .div-tape      { user-select: none; -webkit-user-select: none; }
+  .div-tape-wrap.is-grabbing,
+  .div-tape-wrap.is-grabbing * { cursor: grabbing !important; }
 }
 @keyframes divTapeScroll {
   0%   { transform: translateX(0); }

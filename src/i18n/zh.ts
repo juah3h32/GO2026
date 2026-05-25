@@ -1296,7 +1296,8 @@ footer: {
         { title: "编织袋",     tag: "部门 05", description: "优质拉菲草编织袋。适用于食品、化工品、化肥和散装产品的坚固包装解决方案。",         img: "/images/divisiones/sacos.webp",          color: "#3a7d44", slug: "sacos",              soon: false },
         { title: "缠绕膜",     tag: "部门 06", description: "高光学清晰度的拉伸薄膜。以成本效益确保货物完整性。包含生物降解选项。",             img: "/images/divisiones/film-estirable.webp", color: "#2c5f8a", slug: "stretch-film",       soon: false },
         { title: "护角",       tag: "部门 07", description: "牛皮卡纸护角，保护存储和运输过程中的边缘。均匀分压，最大化货物稳定性。",           img: "/images/divisiones/esquineros.webp",     color: "#7b3fa0", slug: "esquineros",         soon: false },
-        { title: "一次性用品", tag: "部门 10", description: "用于工业、食品和医疗的聚丙烯一次性产品。卫生、经济且高强度的解决方案。",           img: "/images/divisiones/desechables.webp",    color: "#e05500", slug: "desechables",        soon: true  }
+        { title: "一次性用品", tag: "部门 10", description: "用于工业、食品和医疗的聚丙烯一次性产品。卫生、经济且高强度的解决方案。",           img: "/images/divisiones/desechables.webp",    color: "#e05500", slug: "desechables",        soon: true  },
+        { title: "袋子",       tag: "部门 09", description: "用于工业和商业包装的高强度聚丙烯袋。多功能、经济实惠，提供多种尺寸和规格。",         img: "/images/divisiones/bolsas.webp",         color: "#c0392b", slug: "bolsas",             soon: true  }
       ]
     },
 
