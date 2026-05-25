@@ -189,12 +189,14 @@ const firstProductImg =
     window.PRODUCTS_DATA = {};
     productsList.forEach((item) => {
       if (item.video) {
-        // Si el video ya es URL completa, úsalo directo; si no, agrega /videos/
+        // URL completa → usar directo
+        // Ruta local absoluta (/videos/…) → usar directo
+        // ID Cloudinary (GO/carrusel/…) → convertir a ruta local quitando el prefijo GO/
         const videoSrc = item.video.startsWith("http")
           ? item.video
           : item.video.startsWith("/")
           ? item.video
-          : `/videos/${item.video}`;
+          : `/videos/${item.video.replace(/^GO\//, '')}`;
         window.PRODUCTS_DATA[item.division] = videoSrc;
       }
     });

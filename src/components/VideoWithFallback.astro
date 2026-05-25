@@ -1,6 +1,6 @@
 ---
 // VideoWithFallback.astro
-// Fuente 1: Cloudinary. Fuente 2: local. Fuente 3: imagen poster (inyectada por JS).
+// Fuente 1: Cloudinary (q_auto:best). Fuente 2: local. Fuente 3: imagen poster como último recurso.
 
 interface Props {
   cloudinaryId: string;
@@ -34,7 +34,11 @@ const {
   productName,
 } = Astro.props;
 
-const cldSrc = `https://res.cloudinary.com/${cloudName}/video/upload/q_auto:good,fl_faststart/${cloudinaryId}.mp4`;
+// q_auto:best = máxima calidad sin comprimir de más
+// fl_faststart = permite reproducción progresiva antes de descarga completa
+const cldSrc = cloudinaryId
+  ? `https://res.cloudinary.com/${cloudName}/video/upload/q_auto:best,fl_faststart/${cloudinaryId}.mp4`
+  : null;
 ---
 
 <video
@@ -50,15 +54,20 @@ const cldSrc = `https://res.cloudinary.com/${cloudName}/video/upload/q_auto:good
   data-poster={poster}
   data-product={productName}
 >
-  <source src={cldSrc} type="video/mp4" />
+  {cldSrc && <source src={cldSrc} type="video/mp4" />}
   <source src={localFallback} type="video/mp4" />
 </video>
 
 <script>
   function attachFallback(video: HTMLVideoElement) {
+    // Evitar registrar el listener más de una vez por elemento
+    if ((video as any).__fallbackAttached) return;
+    (video as any).__fallbackAttached = true;
+
     const local = video.dataset.fallback;
     const posterSrc = video.dataset.poster;
     if (!local) return;
+
     let triedLocal = false;
 
     function showImageFallback() {
@@ -77,13 +86,15 @@ const cldSrc = `https://res.cloudinary.com/${cloudName}/video/upload/q_auto:good
     function switchToLocal() {
       if (triedLocal) { showImageFallback(); return; }
       triedLocal = true;
-      if (video.currentSrc?.includes(local) || video.src?.includes(local)) return;
+      // Verificar que el local no esté ya en uso (currentSrc es URL absoluta)
+      const currentSrc = video.currentSrc || '';
+      if (currentSrc && (currentSrc.endsWith(local) || currentSrc.includes(local))) return;
       video.src = local;
       video.load();
       if (video.autoplay) video.play().catch(showImageFallback);
     }
 
-    // Solo activa fallback en error real (404, red caída, etc.)
+    // Solo activa fallback en error real (404, red caída, codec no soportado)
     video.addEventListener('error', switchToLocal, true);
   }
 
