@@ -26,7 +26,7 @@ const LOCAL_CHROME_PATHS = [
 async function getBrowserConfig(): Promise<{ executablePath: string; args: string[] }> {
   const isServerless = !!(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
   if (isServerless) {
-    const chromium = await import('@sparticuz/chromium');
+    // chromium no disponible en este entorno
     return {
       executablePath: await chromium.default.executablePath(),
       args: [...chromium.default.args, '--no-sandbox', '--allow-file-access-from-files'],

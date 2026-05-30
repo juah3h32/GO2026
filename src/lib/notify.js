@@ -41,8 +41,8 @@ const LOCAL_CHROME = [
 async function getBrowserConfig() {
   const isServerless = !!(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
   if (isServerless) {
-    const chromium = await import('@sparticuz/chromium');
-    return { executablePath: await chromium.default.executablePath(), args: [...chromium.default.args, '--no-sandbox'] };
+    // chromium no disponible en este entorno
+    throw new Error("PDF generation not available in production");
   }
   const fromEnv = process.env.CHROME_PATH;
   if (fromEnv && existsSync(fromEnv)) return { executablePath: fromEnv, args: ['--no-sandbox', '--disable-setuid-sandbox'] };
