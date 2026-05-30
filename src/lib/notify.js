@@ -226,19 +226,20 @@ function buildFilename(nombre, puesto) {
   return `Perfil_${safe(nombre)}_${safe(puesto)}.pdf`;
 }
 
-// ── Wahooks: enviar mensaje de texto — endpoint /send con { chatId, text } ───
+// ── Wahooks: enviar mensaje de texto — endpoint /send con { to, text } ───
 export async function sendWAText(phone, message) {
+  const url          = import.meta.env.WAHOOKS_URL;
   const token        = import.meta.env.WAHOOKS_TOKEN;
   const connectionId = import.meta.env.WAHOOKS_CONNECTION_ID;
-  if (!token || !connectionId) throw new Error('Wahooks no configurado');
+  if (!url || !token || !connectionId) throw new Error('Wahooks no configurado');
 
-  const chatId = `${String(phone).replace(/\D/g, '')}@s.whatsapp.net`;
+  const to = `${String(phone).replace(/\D/g, '')}@s.whatsapp.net`;
   const res = await fetch(
-    `https://api.wahooks.com/api/connections/${connectionId}/send`,
+    `${url}/api/connections/${connectionId}/send`,
     {
       method:  'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body:    JSON.stringify({ chatId, text: message }),
+      body:    JSON.stringify({ to, text: message }),
     }
   );
   if (!res.ok) {
@@ -249,17 +250,18 @@ export async function sendWAText(phone, message) {
 
 // ── Wahooks: enviar PDF (sin caption — el mensaje ya fue enviado antes) ───────
 async function sendWAPDF(phone, pdfBuffer, filename) {
+  const url          = import.meta.env.WAHOOKS_URL;
   const token        = import.meta.env.WAHOOKS_TOKEN;
   const connectionId = import.meta.env.WAHOOKS_CONNECTION_ID;
-  if (!token || !connectionId) throw new Error('Wahooks no configurado');
+  if (!url || !token || !connectionId) throw new Error('Wahooks no configurado');
 
-  const chatId = `${String(phone).replace(/\D/g, '')}@s.whatsapp.net`;
+  const to = `${String(phone).replace(/\D/g, '')}@s.whatsapp.net`;
   const res = await fetch(
-    `https://api.wahooks.com/api/connections/${connectionId}/send-document`,
+    `${url}/api/connections/${connectionId}/send-document`,
     {
       method:  'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body:    JSON.stringify({ chatId, data: pdfBuffer.toString('base64'), mimetype: 'application/pdf', filename }),
+      body:    JSON.stringify({ to, data: pdfBuffer.toString('base64'), mimetype: 'application/pdf', filename }),
     }
   );
   if (!res.ok) {

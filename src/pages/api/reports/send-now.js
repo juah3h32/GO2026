@@ -182,22 +182,22 @@ async function generatePDF(html) {
 
 // ── Enviar PDF vía Wahooks send-document ──────────────────────────────────────
 async function sendPDFViaWahooks(phone, pdfBuffer, filename) {
+  const url          = import.meta.env.WAHOOKS_URL;
   const token        = import.meta.env.WAHOOKS_TOKEN;
   const connectionId = import.meta.env.WAHOOKS_CONNECTION_ID;
 
-  if (!token || !connectionId) {
-    return { ok: false, error: 'Wahooks no configurado (WAHOOKS_TOKEN / WAHOOKS_CONNECTION_ID)' };
+  if (!url || !token || !connectionId) {
+    return { ok: false, error: 'Wahooks no configurado (WAHOOKS_URL / WAHOOKS_TOKEN / WAHOOKS_CONNECTION_ID)' };
   }
 
-  const cleanPhone = String(phone).replace(/\D/g, '');
-  const chatId     = `${cleanPhone}@s.whatsapp.net`;
-  const data       = pdfBuffer.toString('base64');
+  const to   = `${String(phone).replace(/\D/g, '')}@s.whatsapp.net`;
+  const data = pdfBuffer.toString('base64');
 
   try {
-    const res      = await fetch(`https://api.wahooks.com/api/connections/${connectionId}/send-document`, {
+    const res      = await fetch(`${url}/api/connections/${connectionId}/send-document`, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body:    JSON.stringify({ chatId, data, mimetype: 'application/pdf', filename }),
+      body:    JSON.stringify({ to, data, mimetype: 'application/pdf', filename }),
     });
     const bodyText = await res.text();
     console.log(`[send-now] Wahooks ${phone} → HTTP ${res.status}: ${bodyText.slice(0, 120)}`);
