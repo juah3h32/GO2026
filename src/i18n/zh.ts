@@ -324,7 +324,7 @@ export const zh = {
         name: "托盘 855",
         description: "承载食物的尊严包装。服务于厨师、屠夫、摊贩和主厨——使命完成后，无声无息地回归大地。我们承托世界，一个托盘一次。",
         img: "/images/divisiones/detallec.webp",
-        video: "/videos/carrusel/charola.mp4",
+        video: "GO/carrusel/charola.mp4",
         specs_values: {
           material: "牛皮纸板",
           usage: "食品",
@@ -342,7 +342,7 @@ export const zh = {
         soon: true,
         description: "高质量生物可降解纤维素杯。一种可持续且优雅的饮料服务解决方案，在不妥协功能性的前提下，致力于环境保护。",
         img: "/images/divisiones/vaso.webp",
-        video: "/videos/carrusel/charola.mp4",
+        video: "GO/carrusel/charola.mp4",
         specs_values: {
           material: "纤维素",
           usage: "饮料 / 活动",
@@ -358,7 +358,7 @@ export const zh = {
         soon: true,
         description: "专为各种工业和商业应用设计的专业容器。为存储和运输提供最大耐用性和效率。",
         img: "/images/divisiones/contenedor.webp",
-        video: "/videos/carrusel/charola.mp4",
+        video: "GO/carrusel/charola.mp4",
         specs_values: {
           material: "聚合物",
           usage: "多用途",

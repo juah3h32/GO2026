@@ -324,7 +324,7 @@ export const en = {
         name: "CHAROLA 855",
         description: "Packaging that holds food with dignity. It serves the taquero, the butcher, the greengrocer, the chef — and when it's done, it returns to the earth without asking permission. We sustain the world. One tray at a time.",
         img: "/images/divisiones/detallec.webp",
-        video: "/videos/carrusel/charola.mp4",
+        video: "GO/carrusel/charola.mp4",
         specs_values: {
           material: "Kraft Cardboard",
           usage: "Food",
@@ -342,7 +342,7 @@ export const en = {
         soon: true,
         description: "High-quality biodegradable cellulose cups. A sustainable and elegant solution for beverage service, committed to the environment without compromising functionality.",
         img: "/images/divisiones/vaso.webp",
-        video: "/videos/carrusel/charola.mp4",
+        video: "GO/carrusel/charola.mp4",
         specs_values: {
           material: "Cellulose",
           usage: "Drinks / Events",
@@ -358,7 +358,7 @@ export const en = {
         soon: true,
         description: "Specialized containers for various industrial and commercial applications. Designed for maximum durability and efficiency in storage and transport.",
         img: "/images/divisiones/contenedor.webp",
-        video: "/videos/carrusel/charola.mp4",
+        video: "GO/carrusel/charola.mp4",
         specs_values: {
           material: "Polymers",
           usage: "Multi-purpose",

@@ -325,7 +325,7 @@ chatbot: {
         name: "CHAROLA 855",
         description: "Empaque que sostiene la comida con dignidad. Sirve al taquero, al carnicero, al frutero, al chef — y cuando termina, regresa a la tierra sin pedir permiso. Sostenemos al mundo. Una charola a la vez.",
         img: "/images/divisiones/detallec.webp",
-        video: "/videos/carrusel/charola.mp4",
+        video: "GO/carrusel/charola.mp4",
         specs_values: {
           material: "Cartón Kraft",
           usage: "Alimentos",
@@ -343,7 +343,7 @@ chatbot: {
         soon: true,
         description: "Vasos de celulosa biodegradables de alta calidad. Una solución sostenible y elegante para el servicio de bebidas, comprometida con el medio ambiente sin comprometer la funcionalidad.",
         img: "/images/divisiones/vaso.webp",
-        video: "/videos/carrusel/charola.mp4",
+        video: "GO/carrusel/charola.mp4",
         specs_values: {
           material: "Celulosa",
           usage: "Bebidas / Eventos",
@@ -359,7 +359,7 @@ chatbot: {
         soon: true,
         description: "Contenedores especializados para diversas aplicaciones industriales y comerciales. Diseñados para máxima durabilidad y eficiencia en el almacenamiento y transporte.",
         img: "/images/divisiones/contenedor.webp",
-        video: "/videos/carrusel/charola.mp4",
+        video: "GO/carrusel/charola.mp4",
         specs_values: {
           material: "Polímeros",
           usage: "Multiusos",

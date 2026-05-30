@@ -12,9 +12,8 @@ export default defineConfig({
 
   output: 'server',
   adapter: vercel({
-    // Pasar headers CSP directamente al adapter también,
-    // para que no los sobrescriba en rutas serverless
     isr: false,
+    functionPerRoute: true,
   }),
 
   server: {
@@ -73,9 +72,8 @@ vite: {
   // Secretos como CRON_SECRET_EXTERNAL, WAHOOKS_TOKEN deben accederse SOLO via process.env en server
   envPrefix: ['TURSO_', 'JWT_', 'OPENAI_', 'NOTIFY_', 'VAPID_'],
   ssr: {
-    noExternal: ['three', 'cesium'],
-    // puppeteer-core, chromium y pdf-parse deben quedar externos en SSR (binarios/Node nativos)
-    external: ['puppeteer-core', '@sparticuz/chromium', 'pdf-parse', 'web-push'],
+    noExternal: [],
+    external: ['puppeteer-core', '@sparticuz/chromium', 'pdf-parse', 'web-push', 'googleapis', 'pdfjs-dist'],
   },
     define: {
       CESIUM_BASE_URL: JSON.stringify('/cesium')

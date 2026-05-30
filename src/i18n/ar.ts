@@ -324,7 +324,7 @@ export const ar = {
         name: "طبق 855",
         description: "تغليف يحمل الطعام بكرامة. يخدم الطاهي والجزار والبائع والشيف — وعند انتهاء عمره، يعود إلى الأرض دون استئذان. ندعم العالم. طبق واحد في كل مرة.",
         img: "/images/divisiones/detallec.webp",
-        video: "/videos/carrusel/charola.mp4",
+        video: "GO/carrusel/charola.mp4",
         specs_values: {
           material: "كرافت كارتون",
           usage: "أغذية",
@@ -342,7 +342,7 @@ export const ar = {
         soon: true,
         description: "أكواب سيليلوز قابلة للتحلل الحيوي عالية الجودة. حل مستدام وأنيق لخدمة المشروبات، ملتزم بالبيئة دون المساومة على الوظيفية.",
         img: "/images/divisiones/vaso.webp",
-        video: "/videos/carrusel/charola.mp4",
+        video: "GO/carrusel/charola.mp4",
         specs_values: {
           material: "سيليلوز",
           usage: "مشروبات / فعاليات",
@@ -358,7 +358,7 @@ export const ar = {
         soon: true,
         description: "حاويات متخصصة لتطبيقات صناعية وتجارية متنوعة. مصممة لأقصى قدر من المتانة والكفاءة في التخزين والنقل.",
         img: "/images/divisiones/contenedor.webp",
-        video: "/videos/carrusel/charola.mp4",
+        video: "GO/carrusel/charola.mp4",
         specs_values: {
           material: "بوليمرات",
           usage: "متعدد الاستخدامات",

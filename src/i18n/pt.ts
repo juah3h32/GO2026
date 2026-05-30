@@ -324,7 +324,7 @@ export const pt = {
         name: "BANDEJA 855",
         description: "Embalagem que sustenta a comida com dignidade. Serve ao taqueiro, ao açougueiro, ao feirante, ao chef — e quando termina, retorna à terra sem pedir permissão. Sustentamos o mundo. Uma bandeja de cada vez.",
         img: "/images/divisiones/detallec.webp",
-        video: "/videos/carrusel/charola.mp4",
+        video: "GO/carrusel/charola.mp4",
         specs_values: {
           material: "Cartão Kraft",
           usage: "Alimentos",
@@ -342,7 +342,7 @@ export const pt = {
         soon: true,
         description: "Copos de celulose biodegradáveis de alta qualidade. Uma solução sustentável e elegante para o serviço de bebidas, comprometida com o meio ambiente sem comprometer a funcionalidade.",
         img: "/images/divisiones/vaso.webp",
-        video: "/videos/carrusel/charola.mp4",
+        video: "GO/carrusel/charola.mp4",
         specs_values: {
           material: "Celulose",
           usage: "Bebidas / Eventos",
@@ -358,7 +358,7 @@ export const pt = {
         soon: true,
         description: "Contentores especializados para diversas aplicações industriais e comerciais. Projetados para máxima durabilidade e eficiência no armazenamento e transporte.",
         img: "/images/divisiones/contenedor.webp",
-        video: "/videos/carrusel/charola.mp4",
+        video: "GO/carrusel/charola.mp4",
         specs_values: {
           material: "Polímeros",
           usage: "Multiusos",
