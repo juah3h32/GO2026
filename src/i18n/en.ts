@@ -237,21 +237,21 @@ export const en = {
       division: "STRETCH FILM",
       descripcion: "High optical clarity stretch film meeting strict quality standards. Ensures load integrity and cost efficiency. Our line includes a Biodegradable option, formulated to degrade 90% faster.",
       slug: "stretch-film",
-      video: "GO/carrusel/stretch-film.mp4"
+      video: "/videos/carrusel/stretch-film.mp4"
     },
     {
       img: "carrusel/img4.webp",
       division: "MESH BAG",
       descripcion: "High-resistance, durable circular-woven polypropylene raffia mesh bags. Ventilated design ideal for fruits and vegetables.",
       slug: "arpillas",
-      video: "GO/carrusel/arpillas.mp4"
+      video: "/videos/carrusel/arpillas.mp4"
     },
     {
       img: "carrusel/img2.webp",
       division: "ROPE",
       descripcion: "High-performance polypropylene filament (PP) rope. The perfect balance: extreme lightness without sacrificing breaking resistance.",
       slug: "cuerdas",
-      video: "GO/carrusel/cuerdas.mp4"
+      video: "/videos/carrusel/cuerdas.mp4"
     },
     {
       img: "carrusel/img3.webp",
@@ -265,35 +265,42 @@ export const en = {
       division: "WOVEN SACK",
       descripcion: "Premium quality raffia sacks. Robust packaging solution for food, chemicals and fertilizers.",
       slug: "sacos",
-      video: "GO/carrusel/sacos.mp4"
+      video: "/videos/carrusel/sacos.mp4"
     },
     {
       img: "carrusel/img6.webp",
       division: "EDGE PROTECTOR",
       descripcion: "Cardboard edge protectors to optimize logistics. Structural resistance and greater load stability.",
       slug: "esquineros",
-      video: "GO/carrusel/esquineros.mp4"
+      video: "/videos/carrusel/esquineros.mp4"
     },
     {
       img: "carrusel/img7.webp",
       division: "FLEXIBLE",
       descripcion: "Neo Empaques International specializes in advanced flexible packaging solutions, designed to optimize the preservation and presentation of products in multiple industries.",
       slug: "empaques-flexibles",
-      video: "GO/carrusel/bobina-impresa.mp4"
+      video: "/videos/carrusel/bobina-impresa.mp4"
     },
     {
       img: "carrusel/nuev2a.png",
       division: "NATURIZABLE",
       descripcion: "Sustainable packaging that returns to the earth. 100% Plant Based, recyclable and compostable solutions for the food industry.",
       slug: "naturizable",
-      video: "GO/carrusel/charola.mp4"
+      video: "/videos/carrusel/charola.mp4"
     },
     {
       img: "/images/bolsas/carruselB.webp",
       division: "BOLSAS",
       descripcion: "High-strength polypropylene bags. Versatile and cost-effective, available in multiple sizes for industrial and commercial packaging.",
       slug: "bolsas",
-      video: "GO/carrusel/bolsa.mp4"
+      video: "GO/carrusel/bolsa4.mp4"
+    },
+    {
+      img: "carrusel/carrusel_acolchado.png",
+      division: "ACOLCHADO",
+      descripcion: "Agricultural mulch film for covering soil in crops, gardens and orchards. Controls weeds, retains moisture and regulates soil temperature.",
+      slug: "acolchado",
+      video: "/videos/carrusel/acolchadoV.mp4"
     }
     ],
 
@@ -317,7 +324,7 @@ export const en = {
         name: "CHAROLA 855",
         description: "Packaging that holds food with dignity. It serves the taquero, the butcher, the greengrocer, the chef — and when it's done, it returns to the earth without asking permission. We sustain the world. One tray at a time.",
         img: "/images/divisiones/detallec.webp",
-        video: "GO/carrusel/charola.mp4",
+        video: "/videos/carrusel/charola.mp4",
         specs_values: {
           material: "Kraft Cardboard",
           usage: "Food",
@@ -335,7 +342,7 @@ export const en = {
         soon: true,
         description: "High-quality biodegradable cellulose cups. A sustainable and elegant solution for beverage service, committed to the environment without compromising functionality.",
         img: "/images/divisiones/vaso.webp",
-        video: "GO/carrusel/charola.mp4",
+        video: "/videos/carrusel/charola.mp4",
         specs_values: {
           material: "Cellulose",
           usage: "Drinks / Events",
@@ -351,7 +358,7 @@ export const en = {
         soon: true,
         description: "Specialized containers for various industrial and commercial applications. Designed for maximum durability and efficiency in storage and transport.",
         img: "/images/divisiones/contenedor.webp",
-        video: "GO/carrusel/charola.mp4",
+        video: "/videos/carrusel/charola.mp4",
         specs_values: {
           material: "Polymers",
           usage: "Multi-purpose",
@@ -385,7 +392,7 @@ export const en = {
       {
         name: 'PREMIUM STRETCH',
         img: '/images/stretch/premium.png',
-        video: "/videos/stretch/fondo.mp4",
+        video: "GO/stretch/fondo",
         link: '#',
         description: "Designed for high-demand machinery, this moderate-stretch film offers an efficient and reliable solution for securing loads in automated processes. Its composition guarantees high resistance and superior performance in demanding packaging applications.",
         specs_values: { width: "19-30 in", length: "1000-15000 ft", gauge: "40-110", weight: "10-40 kg", type: "Manual" },
@@ -398,7 +405,7 @@ export const en = {
       {
         name: 'AUTOMATIC',
         img: '/images/stretch/stretch.png',
-        video: "/videos/stretch/fondo.mp4",
+        video: "GO/stretch/fondo",
         link: '#',
         description: "Designed to be applied with traditional wrapping machines, this stretch film offers high yield and excellent performance in automated palletizing processes. Its formulation guarantees resistance and stability in load securing.",
         specs_values: { width: "18-30 in", length: "2000-15000 ft", gauge: "50-110", weight: "10-49 kg", type: "Automatic" },
@@ -411,7 +418,7 @@ export const en = {
       {
         name: 'PRE-STRETCHED MANUAL',
         img: '/images/stretch/prestirado.png',
-        video: "/videos/stretch/fondo.mp4",
+        video: "GO/stretch/fondo",
         link: '#',
         description: "Designed for high-performance manual application, this pre-stretched film stands out for offering one of the lowest thicknesses on the market. Its technology eliminates the need to exert additional force when wrapping, facilitating immediate use and improving efficiency in the palletizing process.",
         specs_values: { width: "16-17 in", length: "7000-25000 ft", gauge: "40-120", weight: "10-40 kg", type: "Manual" },
@@ -424,7 +431,7 @@ export const en = {
       {
         name: 'MANUAL BANDING',
         img: '/images/stretch/banding.png',
-        video: "/videos/stretch/fondo.mp4",
+        video: "GO/stretch/fondo",
         link: '#',
         description: "Designed for manual wrapping applications with moderate stretch, this traditional stretch film offers excellent performance in packaging and load securing processes. Its composition guarantees resistance and stability in general applications.",
         specs_values: { width: "3-12 in", length: "7000-25000 ft", gauge: "40-120", weight: "10-40 kg", type: "Manual" },
@@ -437,7 +444,7 @@ export const en = {
       {
         name: 'CORELESS',
         img: '/images/stretch/coreles.png',
-        video: "/videos/stretch/fondo.mp4",
+        video: "GO/stretch/fondo",
         link: '#',
         description: "Coreless stretch film, designed to maximize material usage and reduce waste in the palletizing process. Its multilayer construction offers high tear resistance, excellent elongation, and firm load securing, ideal for manual and semi-automatic applications.",
         specs_values: {
@@ -456,7 +463,7 @@ export const en = {
       {
         name: 'RIGID MANUAL',
         img: '/images/stretch/stretch.png',
-        video: "/videos/stretch/fondo.mp4",
+        video: "GO/stretch/fondo",
         link: '#',
         description: "Specially formulated for manual wrapping applications with limited stretch, this stretch film offers high performance and great reliability in packaging processes. Its composition guarantees stability and efficiency in load securing.",
         specs_values: { width: "17-30 in", length: "1000-15000 ft", gauge: "40-90", weight: "10-40 kg", type: "Manual", color: "Black/Color" },
@@ -503,7 +510,7 @@ export const en = {
       {
         name: 'GREENHOUSE ROPE',
         img: '/images/cuerdas/CuerdaNegra.webp',
-        video: "/videos/cuerdas/CuerdaI.mp4",
+        video: "GO/cuerdas/CuerdaI",
         link: '#',
         description: "Made with polypropylene (PP) and a UV stabilizer, this rope is ideal for the maritime sector and activities with high sun exposure. Its specialized formulation slows UV-induced degradation, extending service life and guaranteeing greater weather resistance. It is the perfect solution for providing firmness and stability in agricultural macro-tunnels.",
         specs_values: { load: "3,240 m", mat: "PP-UV", weight: "18 kg", resist: "105 kg", charge: "3-8 mm" },
@@ -516,7 +523,7 @@ export const en = {
       {
         name: 'ECO ROPE',
         img: '/images/cuerdas/CuerdaEco.png',
-        video: "/videos/cuerdas/CuerdaE.mp4",
+        video: "GO/cuerdas/CuerdaE",
         link: '#',
         description: "Made with high-quality polypropylene (PP), this rope is available in a wide variety of presentations, gauges and colors, in plain or combined versions, reinforced or branded. Its versatility and resistance make it a reliable option for multiple applications in industries, factories, warehouses, wholesale markets, hardware stores, and machining areas.",
         specs_values: { load: "3,240 m", mat: "PP-UV", weight: "18 kg", resist: "105 kg", charge: "3-8 mm" },
@@ -549,7 +556,7 @@ export const en = {
         name: "TYING RAFFIA",
         description: "Made with 100% virgin polypropylene, this raffia offers high resistance and excellent yield, maintaining its physical properties even in outdoor conditions. Its quality guarantees durability and reliable performance in demanding applications. It is widely used in the agricultural, poultry and horticultural sectors.",
         img: "/images/rafias/atar.png",
-        video: "/videos/rafia/fondoN.mp4",
+        video: "GO/rafia/fondoN",
         specs_values: {
           cal: "2-8 mm",
           yield: "90 kg",
@@ -566,7 +573,7 @@ export const en = {
         name: "ECO RAFFIA",
         description: "Made with high-quality polypropylene, this raffia offers excellent resistance and maintains its physical properties even in outdoor conditions. Its reliable yield makes it an ideal option for agricultural, poultry and horticultural applications.",
         img: "/images/rafias/Eco.png",
-        video: "/videos/rafia/fondoE.mp4",
+        video: "GO/rafia/fondoE",
         specs_values: {
           cal: "2-8",
           yield: "90-500 kg",
@@ -583,7 +590,7 @@ export const en = {
         name: "BLACK FIBRILLATED RAFFIA",
         description: "Made with high-quality polypropylene, this raffia offers great resistance and maintains its physical properties even in outdoor conditions. Its excellent yield makes it ideal for industrial, hardware and packaging applications, as well as for the agricultural, poultry and horticultural sectors.",
         img: "/images/rafias/negra.png",
-        video: "/videos/rafia/fondoR.mp4",
+        video: "GO/rafia/fondoR",
         specs_values: {
           cal: "2-8",
           yield: "90-500 kg",
@@ -728,7 +735,7 @@ arpillas: {
       {
         name: 'TRANSPARENT SACK',
         img: '/images/sacos/saco.png',
-        video: "/videos/saco/transp.mp4",
+        video: "GO/saco/transp",
         link: '#',
         description: "Made with polypropylene tapes and a transparent finish, these sacks offer high resistance and allow excellent visibility of the packaged product. Their structure guarantees durability and reliable performance in storage and transport applications.",
         specs_values: {
@@ -840,7 +847,7 @@ arpillas: {
         name: "PRINTED ROLL",
         description: "Our rolls feature a wide variety of laminations, gauges and finishes. With printing options of up to 10 inks and 133 lines per inch. Maximum development: 1,140 mm. Maximum print width: 1,450 mm. Compatible with automatic packaging machinery to optimize production efficiency.",
         img: "/images/flexible/bobina-impresa.png",
-        video: "/videos/flexible/bobinaf.mp4",
+        video: "GO/flexible/bobinaf",
         gallery: [
           "/images/flexible/bobina-impresa-1.png",
           "/images/flexible/bobina-impresa.png",
@@ -876,7 +883,7 @@ arpillas: {
         name: "PRINTED STAND UP POUCH",
         description: "Line of bags with attractive decorative designs: Red Berries, Flowers, Fruits, Wheat, Blue Gift and Pink Gift. Zipper closure, resistant structure and Natural or Metallic finishes. Available in sizes from 150 g to 1 kg. Ideal for those seeking high-quality, visually appealing packaging.",
         img: "/images/flexible/standup-origanics.png",
-        video: "/videos/flexible/standup-origanics.mp4",
+        video: "GO/flexible/standup-origanics",
         gallery: [
           "/images/flexible/standup-origanics-2.png",
           "/images/flexible/standup-origanics.png",
@@ -894,7 +901,7 @@ arpillas: {
         name: "VACUUM BAG",
         description: "Designed to maximize freshness and shelf life of meats, cheeses, cold cuts and fresh products. Their hermetic seal eliminates air, retains the product's natural properties and prevents loss of flavor, texture and quality. Made with high-resistance, high-barrier materials.",
         img: "/images/flexible/bolsa-alto-vacio.png",
-        video: "/videos/flexible/bolsa-alto-vacio.mp4",
+        video: "GO/flexible/bolsa-alto-vacio",
         gallery: [
           "/images/flexible/bolsa-alto-vacio-1.png",
           "/images/flexible/bolsa-alto-vacio.png",
@@ -929,31 +936,40 @@ arpillas: {
 
     products: [
       {
+        name: "BAG 15×20 CM",
+        img:   "/images/bolsas/15x25.webp",
+        thumb: "/images/bolsas/15x25.webp",
+        link:  "#",
+        description: "Compact polypropylene bag ideal for packaging small products in individual portions. Perfect for retail, seeds, spices, and daily use. High tear resistance with a uniform finish.",
+        specs_values: { width: "15 cm", height: "20 cm", mat: "Polipropileno", use: "Retail" },
+        gallery: ["/images/bolsas/15x20d.webp", "/images/bolsas/15x20.png", "/images/bolsas/15x20f.webp"]
+      },
+            {
         name: "BAG 15×25 CM",
         img:   "/images/bolsas/15x25.webp",
         thumb: "/images/bolsas/15x25.webp",
         link:  "#",
         description: "Compact polypropylene bag, ideal for packaging small products. Perfect for retail, seed packaging, spices and individual-portion consumer products. High tear resistance with uniform finish.",
         specs_values: { width: "15 cm", height: "25 cm", mat: "Polypropylene", use: "Retail" },
-        gallery: ["/images/bolsas/bolsa.webp", "/images/bolsas/15x25.webp", "/images/bolsas/bolsa.webp"]
+        gallery: ["/images/bolsas/15x20d.webp", "/images/bolsas/15x25.webp", "/images/bolsas/15x20f.webp"]
       },
       {
         name: "BAG 18×25 CM",
-        img:   "/images/bolsas/18x25.webp",
-        thumb: "/images/bolsas/18x25.webp",
+        img:   "/images/bolsas/18X25.png",
+        thumb: "/images/bolsas/18X25.png",
         link:  "#",
         description: "Standard-size polypropylene bag for versatile packaging of medium-volume products. Ideal for grains, cereals, snacks and everyday items with a clean, durable presentation.",
         specs_values: { width: "18 cm", height: "25 cm", mat: "Polypropylene", use: "Industrial packaging" },
-        gallery: ["/images/bolsas/bolsa.webp", "/images/bolsas/18x25.webp", "/images/bolsas/bolsa.webp"]
+        gallery: ["/images/bolsas/18X25_D.png", "/images/bolsas/18X25.png", "/images/bolsas/18X25_F.png"]
       },
       {
         name: "BAG 20×30 CM",
-        img:   "/images/bolsas/20x30.webp",
-        thumb: "/images/bolsas/20x30.webp",
+        img:   "/images/bolsas/20X30.png",
+        thumb: "/images/bolsas/20X30.png",
         link:  "#",
         description: "Medium-format bag with high volumetric capacity. Designed for packaging fruits, vegetables, agricultural products and medium-weight merchandise. Tear-resistant with a uniform finish.",
         specs_values: { width: "20 cm", height: "30 cm", mat: "Polypropylene", use: "Agricultural packaging" },
-        gallery: ["/images/bolsas/bolsa.webp", "/images/bolsas/20x30.webp", "/images/bolsas/bolsa.webp"]
+        gallery: ["/images/bolsas/20X30_D.png", "/images/bolsas/20X30.png", "/images/bolsas/20X30_F.png"]
       },
       {
         name: "BAG 25×35 CM",
@@ -962,16 +978,84 @@ arpillas: {
         link:  "#",
         description: "Large-format bag ideal for handling higher-volume products. Perfect for clothing, textiles, footwear and bulk distribution merchandise. Superior resistance and excellent presentation.",
         specs_values: { width: "25 cm", height: "35 cm", mat: "Polypropylene", use: "Bulk distribution" },
-        gallery: ["/images/bolsas/bolsa.webp", "/images/bolsas/25x35.webp", "/images/bolsas/bolsa.webp"]
+        gallery: ["/images/bolsas/25x35_D.png", "/images/bolsas/25x35.webp", "/images/bolsas/25X35_F.png"]
       },
       {
         name: "BAG 30×40 CM",
-        img:   "/images/bolsas/30x40.webp",
-        thumb: "/images/bolsas/30x40.webp",
+        img:   "/images/bolsas/30X40.png",
+        thumb: "/images/bolsas/30X40.png",
         link:  "#",
         description: "Maximum-capacity bag for large-volume industrial packaging. Designed for heavy loads, bulk materials and high-demand distribution logistics. Extreme resistance with high-quality finish.",
         specs_values: { width: "30 cm", height: "40 cm", mat: "Polypropylene", use: "Industrial logistics" },
-        gallery: ["/images/bolsas/bolsa.webp", "/images/bolsas/30x40.webp", "/images/bolsas/bolsa.webp"]
+        gallery: ["/images/bolsas/30X40_D.png", "/images/bolsas/30X40.png", "/images/bolsas/30X40_F.png"]
+      },
+      {
+        name: "BAG 35×45 CM",
+        img:   "/images/bolsas/35X45.png",
+        thumb: "/images/bolsas/35X45.png",
+        link:  "#",
+        description: "High-capacity polypropylene bag for large-volume product packaging. Designed for heavy loads, industrial materials and demanding distribution logistics. High-quality resistant finish.",
+        specs_values: { width: "35 cm", height: "45 cm", mat: "Polypropylene", use: "Industrial packaging" },
+        gallery: ["/images/bolsas/35X45_D.png", "/images/bolsas/35X45.png", "/images/bolsas/35X45_F.png"]
+      },
+      {
+        name: "BAG 40×60 CM",
+        img:   "/images/bolsas/40X60.png",
+        thumb: "/images/bolsas/40X60.png",
+        link:  "#",
+        description: "Extra-large bag for packaging and storing bulky products. Ideal for textiles, lightweight construction materials and large-scale distribution. Maximum structural strength.",
+        specs_values: { width: "40 cm", height: "60 cm", mat: "Polypropylene", use: "Industrial storage" },
+        gallery: ["/images/bolsas/40X60_D.png", "/images/bolsas/40X60.png", "/images/bolsas/40X60_F.png"]
+      },
+      {
+        name: "BAG 50×70 CM",
+        img:   "/images/bolsas/50X70.png",
+        thumb: "/images/bolsas/50X70.png",
+        link:  "#",
+        description: "Large-format bag for high-weight and high-volume loads. Designed for high-demand industrial applications, export logistics and bulk material storage. Guaranteed extreme resistance.",
+        specs_values: { width: "50 cm", height: "70 cm", mat: "Polypropylene", use: "Logistics & export" },
+        gallery: ["/images/bolsas/50X70_D.png", "/images/bolsas/50X70.png", "/images/bolsas/50X70_F.png"]
+      },
+      {
+        name: "BAG 60×90 CM",
+        img:   "/images/bolsas/60X90.png",
+        thumb: "/images/bolsas/60X90.png",
+        link:  "#",
+        description: "The largest-capacity bag in the catalog. Ideal for large-scale industrial packaging, heavy input storage and mass distribution. Built to withstand the most extreme demands.",
+        specs_values: { width: "60 cm", height: "90 cm", mat: "Polypropylene", use: "Industrial / Bulk" },
+        gallery: ["/images/bolsas/60X90_D.png", "/images/bolsas/60X90.png", "/images/bolsas/60X90_F.png"]
+      }
+    ]
+  },
+
+  // =================================================
+  // PAGE: ACOLCHADO (PADDED)
+  // =================================================
+  acolchado: {
+    meta_title: "Padded | Grupo Ortiz",
+    meta_description: "Polypropylene padded material for industrial protection and cushioning. High impact resistance.",
+    back_aria: "Back to products",
+    specs_title: "TECHNICAL SPECIFICATIONS",
+    specs_labels: {
+      width:     "Fabric Weight",
+      thickness: "Protection",
+      mat:       "Resistance",
+      use:       "Durability"
+    },
+    products: [
+      {
+        name: "PADDED",
+        img:   "/images/acolchado/acolachad1.webp",
+        thumb: "/images/acolchado/acolachad1.webp",
+        link:  "#",
+        description: "Agricultural mulch (acolchado) is a plastic film placed over soil to protect it and maximize crop yield. It prevents weed and grass growth without herbicides, retains soil moisture reducing irrigation frequency, regulates soil temperature, prevents erosion and mud, and keeps crops cleaner. Ideal for crops, vegetable gardens, ornamental gardens and orchards of any scale.",
+        specs_values: {
+          width:     "85 gr/m² + 14 gr/m²",
+          thickness: "UV",
+          mat:       "High",
+          use:       "Enhanced"
+        },
+        gallery: ["/images/acolchado/acolachad1.webp", "/images/acolchado/acolachad2.webp", "/images/acolchado/acolachad3.webp"]
       }
     ]
   },
@@ -1026,7 +1110,7 @@ arpillas: {
       title_orange:  "JOURNEY",
       nav_prev:      "Previous",
       nav_next:      "Next",
-      video_bg:      "/videos/home/background.mp4",
+      video_bg:      "GO/nosotros/background",
       video_bg_webm: "",
       video_poster:  "",
       events: [
@@ -1369,7 +1453,8 @@ footer: {
         { title: "Stretch Film",      tag: "Division 06", description: "High optical clarity stretch film. Ensures load integrity with cost efficiency. Includes biodegradable option.",                                                   img: "/images/divisiones/film-estirable.webp", color: "#2c5f8a", slug: "stretch-film",       soon: false },
         { title: "Edge Protector",    tag: "Division 07", description: "Kraft cardboard edge protectors for edge protection during storage and transport. Uniform pressure distribution and maximum load stability.",                     img: "/images/divisiones/esquineros.webp",     color: "#7b3fa0", slug: "esquineros",         soon: false },
         { title: "Naturizable",      tag: "Division 08", description: "Sustainable packaging that returns to the earth. 100% Plant Based, recyclable and compostable solutions for the food industry.",                                    img: "/images/divisiones/desechables.webp",    color: "#e05500", slug: "naturizable",        soon: false },
-        { title: "Bags",             tag: "Division 09", description: "High-strength polypropylene bags for industrial and commercial packaging. Versatile, cost-effective and available in multiple sizes and presentations.",               img: "/images/bolsas/bolsa.webp",                            color: "#c0392b", slug: "bolsas",             soon: false }
+        { title: "Bags",             tag: "Division 09", description: "High-strength polypropylene bags for industrial and commercial packaging. Versatile, cost-effective and available in multiple sizes and presentations.",               img: "/images/bolsas/bolsa.webp",                            color: "#c0392b", slug: "bolsas",             soon: false },
+        { title: "Padded",           tag: "Division 10", description: "Plastic mulch film placed over soil in crops, gardens and orchards. Controls weeds, retains moisture, regulates soil temperature and prevents erosion for greater agricultural productivity.",                            img: "/images/divisiones/acolchado.webp",                    color: "#5d7a8a", slug: "acolchado",          soon: false }
       ]
     },
 

@@ -70,6 +70,12 @@ const RobotIcon = ({ className }) => (
     <ellipse cx="50" cy="78" rx="6" ry="2" fill="#D35400" opacity="0.8" />
   </svg>
 );
+const SparkIcon = ({ className }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none">
+    <path d="M12 2C12.4 5.8 14.8 9.6 22 12C14.8 14.4 12.4 18.2 12 22C11.6 18.2 9.2 14.4 2 12C9.2 9.6 11.6 5.8 12 2Z" fill="currentColor"/>
+    <path d="M12 7.5C12.2 9.2 13.2 10.8 16 12C13.2 13.2 12.2 14.8 12 16.5C11.8 14.8 10.8 13.2 8 12C10.8 10.8 11.8 9.2 12 7.5Z" fill="currentColor" opacity="0.45"/>
+  </svg>
+);
 const SendIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" />
@@ -2047,7 +2053,7 @@ export default function BotGO({ language = 'es' }) {
   // ─── RENDER ────────────────────────────────────────────────────────────────
   return (
     <div className={`botgo-container ${isOpen ? 'open' : ''}`} style={{ fontFamily: isRTL ? 'Tahoma, Arial, sans-serif' : 'inherit' }}>
-      <div ref={chatWindowRef} className={`botgo-window ${isOpen ? 'show' : ''}`}>
+      <div ref={chatWindowRef} className={`botgo-window ${isOpen ? 'show' : ''}`} onWheel={e => e.stopPropagation()}>
 
         {viewMode === 'voice' && (
           <div className="botgo-voice-interface" style={{ position: 'relative' }}>

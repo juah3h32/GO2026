@@ -60,30 +60,54 @@ html.dark {
    3. BOTÃ“N FLOTANTE (LAUNCHER)
    ========================================= */
 .botgo-button {
-  width: 60px;
-  height: 60px;
+  width: 62px;
+  height: 62px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary-orange), #fb670b);
-  border: 3px solid #fff;
+  background: transparent;
+  border: none;
   cursor: pointer;
-  box-shadow: var(--shadow-button);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 4px 24px rgba(251,103,11,0.35), 0 0 40px rgba(251,103,11,0.12);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.botgo-button::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, #FB670B 0%, #FFB347 28%, #FFE599 52%, #FF6B1A 76%, #FB670B 100%);
+  animation: btn-ring-spin 3s linear infinite;
+  z-index: 0;
+}
+.botgo-button::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: #0f0f0f;
+  z-index: 1;
 }
 .botgo-button:hover {
   transform: scale(1.1);
-  box-shadow: 0 8px 25px rgba(242, 79, 19, 0.6);
+  box-shadow: 0 6px 32px rgba(251,103,11,0.6), 0 0 50px rgba(251,103,11,0.2);
 }
 .botgo-button:focus-visible {
   outline: 2px solid var(--primary-orange-dark);
   outline-offset: 4px;
 }
 .botgo-btn-icon {
-  width: 35px;
-  height: 35px;
-  color: white;
+  width: 26px;
+  height: 26px;
+  color: #fff;
+  position: relative;
+  z-index: 2;
+  filter: drop-shadow(0 0 6px rgba(255,179,71,0.6));
+}
+@keyframes btn-ring-spin {
+  to { transform: rotate(360deg); }
 }
 
 /* =========================================
@@ -157,14 +181,42 @@ html.dark .header-back-btn { color: #ffffff; }
   cursor: text;
 }
 .header-avatar-container {
-  width: 45px;
-  height: 45px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
-  border: 2px solid var(--primary-orange);
-  padding: 2px;
-  background: white;
+  border: none;
+  padding: 0;
+  background: transparent;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
-.header-robot-icon { width: 100%; height: 100%; }
+.header-avatar-container::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, #FB670B 0%, #FFB347 28%, #FFE599 52%, #FF6B1A 76%, #FB670B 100%);
+  animation: btn-ring-spin 4s linear infinite;
+  z-index: 0;
+}
+.header-avatar-container::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: white;
+  z-index: 1;
+}
+html.dark .header-avatar-container::after { background: #1c1c1e; }
+.header-robot-icon {
+  width: calc(100% - 10px);
+  height: calc(100% - 10px);
+  position: relative;
+  z-index: 2;
+}
 
 /* =========================================
    6. ÃREA DE MENSAJES
@@ -554,7 +606,7 @@ html.dark .msg-strong { color: #FB670B; }
 
 /* Hide scrollbar but allow scroll */
 .voice-content::-webkit-scrollbar { display: none; }
-.voice-content { -ms-overflow-style: none; scrollbar-width: none; }
+.voice-content { -ms-overflow-style: none; scrollbar-width: none; overscroll-behavior: contain; }
 
 .voice-text-display {
   position: relative; width: 100%; max-width: 100%;
@@ -598,10 +650,8 @@ html.dark .msg-strong { color: #FB670B; }
   overflow: visible;
 }
 
-/* â”€â”€ NÃºcleo: gradiente cÃ³nico rotante â”€â”€ */
+/* ── Núcleo Gemini-style: gradiente luminoso + esfera 3D ── */
 .voice-orb-core {
-  /* FIX: reducido de 68px a 58px â€” deja margen para la animaciÃ³n
-     sin que toque el borde del contenedor al escalar */
   width: 58px;
   height: 58px;
   border-radius: 50%;
@@ -609,24 +659,47 @@ html.dark .msg-strong { color: #FB670B; }
   z-index: 10;
   background: conic-gradient(
     from 0deg,
-    #FB670B  0%,
-    #C5C5C5 28%,
-    #535353 52%,
-    #FB670B 72%,
-    #C5C5C5 100%
+    #FF8C42  0%,
+    #FFD580 22%,
+    #FFF8E1 38%,
+    #FF5500 55%,
+    #FFA040 76%,
+    #FF8C42 100%
   );
+  animation: orbSpin 4s linear infinite, orbBreathe 3s ease-in-out infinite;
   transition: transform 0.4s ease, box-shadow 0.4s ease;
+  box-shadow:
+    0 0 28px rgba(251,103,11,0.45),
+    0 0 60px rgba(251,103,11,0.15),
+    inset 0 0 18px rgba(255,255,255,0.08);
 }
 
-/* Cristal interior del orbe */
+/* Highlight de luz superior-izquierda (efecto esfera 3D) */
+.voice-orb-core::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 34% 28%,
+    rgba(255,255,255,0.60) 0%,
+    rgba(255,255,255,0.18) 30%,
+    rgba(255,255,255,0.00) 62%
+  );
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Capa interna de profundidad */
 .voice-orb-core::after {
   content: '';
   position: absolute;
-  inset: 7px;
+  inset: 6px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.13);
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
+  background: rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 1;
 }
 
 /* â”€â”€ Ondas/rings: posicionados desde el centro â”€â”€ */
@@ -641,12 +714,28 @@ html.dark .msg-strong { color: #FB670B; }
   height: 58px;
 }
 
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ IDLE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ──────────── IDLE ──────────── */
 .voice-orb-container.idle .voice-orb-core {
   animation: orbSpin 4s linear infinite, orbBreathe 3s ease-in-out infinite;
   box-shadow:
-    0 0 28px rgba(251, 103, 11, 0.4),
-    0 0 60px rgba(251, 103, 11, 0.15);
+    0 0 32px rgba(251,103,11,0.50),
+    0 0 70px rgba(251,103,11,0.18),
+    inset 0 0 18px rgba(255,255,255,0.08);
+}
+.voice-orb-container.idle .voice-orb-ring {
+  border: 1.5px solid rgba(251,103,11,0.18);
+  width: 80px; height: 80px;
+  animation: idleRingBreath 3s ease-in-out infinite;
+  opacity: 1;
+}
+.voice-orb-container.idle .voice-orb-ring.ring-2 {
+  width: 100px; height: 100px;
+  border-color: rgba(251,103,11,0.10);
+  animation-delay: 0.5s;
+}
+@keyframes idleRingBreath {
+  0%, 100% { opacity: 0.25; transform: translate(-50%,-50%) scale(0.97); }
+  50%       { opacity: 0.55; transform: translate(-50%,-50%) scale(1.03); }
 }
 
 @keyframes orbSpin {

@@ -1,38 +1,42 @@
 ---
 // src/pages/index.astro
+// Prioridad: 1) cookie lang_pref  2) país IP  3) Accept-Language  4) es
 
-// 1. Obtener la preferencia de idioma del navegador/sistema del usuario
-// Esto devuelve una cadena como: "en-US,en;q=0.9,es;q=0.8"
-const acceptLanguage = Astro.request.headers.get('accept-language') || '';
+// 1. Preferencia guardada por el usuario
+const cookies = Astro.request.headers.get('cookie') || '';
+const langPrefMatch = cookies.match(/(?:^|;\s*)lang_pref=([a-z]{2})/);
+const savedPref = langPrefMatch?.[1];
+const VALID = new Set(['es', 'en', 'pt', 'zh', 'ar']);
 
-// 2. Convertir a minúsculas para facilitar la búsqueda
-const langHeader = acceptLanguage.toLowerCase();
+if (savedPref && VALID.has(savedPref)) {
+  return Astro.redirect(`/${savedPref}/`);
+}
 
-// 3. Definir el idioma por defecto (Fallback)
+// 2. País por IP (Vercel provee este header en producción)
+const country = (Astro.request.headers.get('x-vercel-ip-country') || '').toUpperCase();
+
+const EN_COUNTRIES = new Set(['US','GB','CA','AU','NZ','IE','ZA','IN','NG','PH','JM','TT','BB','GH','KE','UG','TZ','ZW','ZM','MW','BW','NA']);
+const PT_COUNTRIES = new Set(['BR','PT','AO','MZ','CV','ST','GW','TL']);
+const ZH_COUNTRIES = new Set(['CN','TW','HK','MO']);
+const AR_COUNTRIES = new Set(['SA','AE','EG','MA','DZ','TN','LY','JO','LB','KW','QA','BH','OM','YE','IQ','SY','SD','MR','PS','DJ','KM','SO']);
+
 let targetLang = 'es';
 
-// 4. Lógica de Detección
-// Verificamos si la cadena contiene los códigos de los idiomas que soportas.
-// El orden del 'if/else' define la prioridad si el usuario tiene varios.
-
-if (langHeader.includes('en')) {
-  // Detecta inglés (en-US, en-GB, etc.)
-  targetLang = 'en';
-} 
-else if (langHeader.includes('pt') || langHeader.includes('br')) {
-  // Detecta portugués o referencias a Brasil
-  targetLang = 'pt';
-} 
-else if (langHeader.includes('zh') || langHeader.includes('cn')) {
-  // Detecta chino
-  targetLang = 'zh';
-} 
-else if (langHeader.includes('ar')) {
-  // Detecta árabe
-  targetLang = 'ar';
+if (country) {
+  if (EN_COUNTRIES.has(country))      targetLang = 'en';
+  else if (PT_COUNTRIES.has(country)) targetLang = 'pt';
+  else if (ZH_COUNTRIES.has(country)) targetLang = 'zh';
+  else if (AR_COUNTRIES.has(country)) targetLang = 'ar';
 }
-// Si no cae en ninguno de los anteriores, se queda en 'es'
 
-// 5. Redirección automática
+// 3. Fallback: Accept-Language (si el país no mapeó)
+if (targetLang === 'es' && !country) {
+  const langHeader = (Astro.request.headers.get('accept-language') || '').toLowerCase();
+  if (langHeader.includes('en'))                        targetLang = 'en';
+  else if (langHeader.includes('pt') || langHeader.includes('br')) targetLang = 'pt';
+  else if (langHeader.includes('zh') || langHeader.includes('cn')) targetLang = 'zh';
+  else if (langHeader.includes('ar'))                   targetLang = 'ar';
+}
+
 return Astro.redirect(`/${targetLang}/`);
 ---

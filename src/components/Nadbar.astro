@@ -25,6 +25,8 @@ const pagesWithBackBtn = [
   '/empaques-flexibles',
   '/stretch-film',
   '/naturizable',
+  '/bolsas',
+  '/acolchado',
 ];
 
 const showBackBtn = pagesWithBackBtn.some(page => pathname.includes(page));
@@ -308,19 +310,30 @@ function getLangPath(targetLang: string) {
         acc.addEventListener("click", (e) => {
             const btn = e.currentTarget as HTMLElement;
             const wasActive = btn.classList.contains("active");
-            
+
             accordions.forEach(otherAcc => {
                 otherAcc.classList.remove("active");
                 const panel = otherAcc.nextElementSibling as HTMLElement;
                 if (panel) panel.style.maxHeight = '';
             });
-            
+
             if (!wasActive) {
                 btn.classList.add("active");
                 const panel = btn.nextElementSibling as HTMLElement;
                 if (panel) panel.style.maxHeight = panel.scrollHeight + "px";
             }
         });
+    });
+
+    // Guardar preferencia de idioma en cookie al seleccionar manualmente
+    const VALID_LANGS = new Set(['es', 'en', 'pt', 'zh', 'ar']);
+    document.querySelectorAll<HTMLAnchorElement>('.lang-menu-pos .dropdown-item, .mobile-mini-dropdown .mini-item').forEach(link => {
+      link.addEventListener('click', () => {
+        const match = link.getAttribute('href')?.match(/^\/([a-z]{2})\//);
+        if (match && VALID_LANGS.has(match[1])) {
+          document.cookie = `lang_pref=${match[1]}; max-age=31536000; path=/; SameSite=Lax`;
+        }
+      });
     });
   }
   

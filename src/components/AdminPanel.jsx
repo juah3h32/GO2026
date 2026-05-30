@@ -8,6 +8,7 @@ import { DownloadReportButton } from './ReportGenerator';
 import RecruitmentTab from './RecruitmentTab';
 import ReportScheduler from './ReportScheduler';
 import VacantesTab from './VacantesTab';
+import ChangelogTab from './ChangelogTab';
 
 // ── COUNTRY CODES (GSC alpha-3) → nombre + bandera ───────────────────────────
 const COUNTRY_MAP = {
@@ -951,7 +952,7 @@ function StatCard({ label, value, sub, color: _color, icon, trend, small }) {
         {icon && <span style={{ fontSize: small?12:15, opacity:0.22 }}>{icon}</span>}
       </div>
       <p key={key} className="stat-num stat-num-anim"
-        style={{ color:P.text, fontSize: small?24:36, marginBottom: small?4:8, fontFamily:"'DM Mono',monospace", fontWeight:500, letterSpacing:'-0.02em' }}>
+        style={{ color:color, fontSize: small?24:36, marginBottom: small?4:8, fontFamily:"'DM Mono',monospace", fontWeight:800, letterSpacing:'-0.04em', lineHeight:1 }}>
         {typeof value==='number' ? disp.toLocaleString('es-MX') : (value??'—')}
       </p>
       <div style={{ display:'flex', alignItems:'center', gap:6 }}>
@@ -1200,7 +1201,7 @@ function getStrength(pw) {
 const ALL_PERMS = [
   {id:'overview'},{id:'console'},{id:'activity'},{id:'products'},{id:'keywords'},
   {id:'messages'},{id:'conversations'},{id:'distribuidores'},
-  {id:'recruitment'},{id:'vacantes'},{id:'ai'},{id:'reportes'},
+  {id:'recruitment'},{id:'vacantes'},{id:'ai'},{id:'reportes'},{id:'changelog'},
 ];
 
 const PERM_GROUPS = [
@@ -1238,6 +1239,7 @@ const PERM_GROUPS = [
     items: [
       {id:'ai',            label:'Análisis IA'},
       {id:'reportes',      label:'Reportes'},
+      {id:'changelog',     label:'Historial de mejoras'},
     ],
   },
 ];
@@ -2126,13 +2128,19 @@ const ALL_TABS=[
     {id:'vacantes', label:'Vacantes', icon:'◓'},
     {id:'ai',label:'Análisis IA',          icon:'✦'},
     {id:'reportes',label:'Reportes',       icon:'◫'},
+    {id:'changelog',label:'Historial',     icon:'◭'},
     {id:'users',label:'Usuarios',          icon:'◴'},
   ];
   
   // ✅ CORRECCIÓN FINAL: Permitimos nombres de Admin y banderas de Admin, PERO bloqueamos a RH explícitamente.
-  const canSeeReportes = !isRH && (role.name === 'Admin' || role.name === 'Super Admin' || role.role === 'Administrador' || isAdmin || isOnlyAdmin || role.tabs.includes('reportes'));
-  
-  const TABS=ALL_TABS.filter(t => t.id==='reportes' ? canSeeReportes : canSee(t.id));
+  const canSeeReportes  = !isRH && (role.name === 'Admin' || role.name === 'Super Admin' || role.role === 'Administrador' || isAdmin || isOnlyAdmin || role.tabs.includes('reportes'));
+  const canSeeChangelog = isAdmin || isOnlyAdmin || role.tabs.includes('changelog');
+
+  const TABS=ALL_TABS.filter(t => {
+    if (t.id === 'reportes')  return canSeeReportes;
+    if (t.id === 'changelog') return canSeeChangelog;
+    return canSee(t.id);
+  });
   // Shared card style
   const CARD={
     background:P.surface,
@@ -2341,7 +2349,7 @@ const ALL_TABS=[
         }}
         onClick={()=>menuOpen&&setMenuOpen(false)}>
 
-        {loading&&tab!=='distribuidores'&&tab!=='recruitment'&&tab!=='users'&&<Spinner/>}
+        {loading&&tab!=='distribuidores'&&tab!=='recruitment'&&tab!=='users'&&tab!=='changelog'&&<Spinner/>}
 
         {/* ── OVERVIEW ── */}
         {!loading&&data&&tab==='overview'&&canSee('overview')&&(
@@ -3242,6 +3250,13 @@ const ALL_TABS=[
         {tab==='vacantes'&&canSee('vacantes')&&(
           <div className="tab-content" key="vac">
             <VacantesTab theme={theme}/>
+          </div>
+        )}
+
+        {/* ── HISTORIAL DE MEJORAS ── */}
+        {tab==='changelog'&&canSeeChangelog&&(
+          <div className="tab-content" key="clog">
+            <ChangelogTab P={P} theme={theme}/>
           </div>
         )}
       </div>

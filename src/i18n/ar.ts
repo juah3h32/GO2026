@@ -237,21 +237,21 @@ export const ar = {
       division: "ستريتش فيلم",
       descripcion: "فيلم تمدد بوضوح بصري عالٍ ومعايير جودة مميزة. يضمن سلامة الحمولة وكفاءة التكاليف. تشمل مجموعتنا خياراً قابلاً للتحلل البيولوجي، مُصمَّماً للتحلل بنسبة 90% أسرع.",
       slug: "stretch-film",
-      video: "GO/carrusel/stretch-film.mp4"
+      video: "/videos/carrusel/stretch-film.mp4"
     },
     {
       img: "carrusel/img4.webp",
       division: "أكياس الشبك",
       descripcion: "أكياس شبكية من رافيا البولي بروبيلين بنسيج دائري عالي المقاومة والمتانة. تصميم مهوّى مثالي للفواكه والخضروات.",
       slug: "arpillas",
-      video: "GO/carrusel/arpillas.mp4"
+      video: "/videos/carrusel/arpillas.mp4"
     },
     {
       img: "carrusel/img2.webp",
       division: "الحبال",
       descripcion: "حبال من خيوط البولي بروبيلين عالية الأداء. توازن مثالي بين الخفة الفائقة والمقاومة العالية للكسر.",
       slug: "cuerdas",
-      video: "GO/carrusel/cuerdas.mp4"
+      video: "/videos/carrusel/cuerdas.mp4"
     },
     {
       img: "carrusel/img3.webp",
@@ -265,35 +265,42 @@ export const ar = {
       division: "الأكياس",
       descripcion: "أكياس رافيا بجودة فائقة. حل تعبئة متين للأغذية والمواد الكيميائية والأسمدة.",
       slug: "sacos",
-      video: "GO/carrusel/sacos.mp4"
+      video: "/videos/carrusel/sacos.mp4"
     },
     {
       img: "carrusel/img6.webp",
       division: "حواف الحماية",
       descripcion: "حواف كرتونية لتحسين اللوجستيات. مقاومة هيكلية واستقرار أكبر للأحمال.",
       slug: "esquineros",
-      video: "GO/carrusel/esquineros.mp4"
+      video: "/videos/carrusel/esquineros.mp4"
     },
     {
       img: "carrusel/img7.webp",
       division: "التغليف المرن",
       descripcion: "تتخصص Neo Empaques International في حلول التغليف المرن المتقدمة، المصمّمة لتحسين الحفظ وتقديم المنتجات في صناعات متعددة.",
       slug: "empaques-flexibles",
-      video: "GO/carrusel/bobina-impresa.mp4"
+      video: "/videos/carrusel/bobina-impresa.mp4"
     },
     {
       img: "carrusel/nuev2a.png",
       division: "NATURIZABLE",
       descripcion: "تغليف مستدام يعود إلى الأرض. حلول 100% نباتية، قابلة لإعادة التدوير والتسميد لصناعة الأغذية.",
       slug: "naturizable",
-      video: "GO/carrusel/charola.mp4"
+      video: "/videos/carrusel/charola.mp4"
     },
     {
       img: "/images/bolsas/carruselB.webp",
       division: "BOLSAS",
       descripcion: "أكياس بولي بروبيلين عالية المقاومة. متعددة الاستخدامات واقتصادية، متوفرة بمقاسات متعددة للتعبئة الصناعية والتجارية.",
       slug: "bolsas",
-      video: "GO/carrusel/bolsa.mp4"
+      video: "GO/carrusel/bolsa4.mp4"
+    },
+    {
+      img: "carrusel/carrusel_acolchado.png",
+      division: "ACOLCHADO",
+      descripcion: "غطاء زراعي لتغطية التربة في الزراعة والحدائق. يكافح الأعشاب الضارة، يحافظ على الرطوبة وينظّم درجة حرارة التربة.",
+      slug: "acolchado",
+      video: "/videos/carrusel/acolchadoV.mp4"
     }
   ],
 
@@ -317,7 +324,7 @@ export const ar = {
         name: "طبق 855",
         description: "تغليف يحمل الطعام بكرامة. يخدم الطاهي والجزار والبائع والشيف — وعند انتهاء عمره، يعود إلى الأرض دون استئذان. ندعم العالم. طبق واحد في كل مرة.",
         img: "/images/divisiones/detallec.webp",
-        video: "GO/carrusel/charola.mp4",
+        video: "/videos/carrusel/charola.mp4",
         specs_values: {
           material: "كرافت كارتون",
           usage: "أغذية",
@@ -335,7 +342,7 @@ export const ar = {
         soon: true,
         description: "أكواب سيليلوز قابلة للتحلل الحيوي عالية الجودة. حل مستدام وأنيق لخدمة المشروبات، ملتزم بالبيئة دون المساومة على الوظيفية.",
         img: "/images/divisiones/vaso.webp",
-        video: "GO/carrusel/charola.mp4",
+        video: "/videos/carrusel/charola.mp4",
         specs_values: {
           material: "سيليلوز",
           usage: "مشروبات / فعاليات",
@@ -351,7 +358,7 @@ export const ar = {
         soon: true,
         description: "حاويات متخصصة لتطبيقات صناعية وتجارية متنوعة. مصممة لأقصى قدر من المتانة والكفاءة في التخزين والنقل.",
         img: "/images/divisiones/contenedor.webp",
-        video: "GO/carrusel/charola.mp4",
+        video: "/videos/carrusel/charola.mp4",
         specs_values: {
           material: "بوليمرات",
           usage: "متعدد الاستخدامات",
@@ -385,7 +392,7 @@ export const ar = {
       {
         name: 'تغليف ممتاز (STRETCH PREMIUM)',
         img: '/images/stretch/premium.png',
-        video: "/videos/stretch/fondo.mp4",
+        video: "GO/stretch/fondo",
         link: '#',
         description: "مصمم للآلات ذات المتطلبات العالية، يوفر فيلم التغليف (ستريتش) متوسط التمدد هذا حلاً فعالاً وموثوقاً لتأمين الأحمال في العمليات الآلية. يضمن تركيبه مقاومة عالية وأداءً فائقاً في تطبيقات التعبئة والتغليف الشاقة.",
         specs_values: { width: "19-30 بوصة", length: "1000-15000 قدم", gauge: "40-110", weight: "10-40 كجم", type: "يدوي" },
@@ -398,7 +405,7 @@ export const ar = {
       {
         name: 'آلي (AUTOMÁTICO)',
         img: '/images/stretch/stretch.png',
-        video: "/videos/stretch/fondo.mp4",
+        video: "GO/stretch/fondo",
         link: '#',
         description: "مصمم للاستخدام مع آلات التغليف التقليدية، يوفر فيلم التغليف هذا إنتاجية عالية وأداءً ممتازاً في عمليات منصات التحميل الآلية. تضمن تركيبته القوة والاستقرار في تأمين الأحمال.",
         specs_values: { width: "18-30 بوصة", length: "2000-15000 قدم", gauge: "50-110", weight: "10-49 كجم", type: "آلي" },
@@ -411,7 +418,7 @@ export const ar = {
       {
         name: 'يدوي مسبق التمدد (MANUAL PREESTIRADO)',
         img: '/images/stretch/prestirado.png',
-        video: "/videos/stretch/fondo.mp4",
+        video: "GO/stretch/fondo",
         link: '#',
         description: "مصمم للتطبيق اليدوي عالي الأداء، يتميز هذا الفيلم مسبق التمدد بتوفيره واحدة من أقل السماكات في السوق. تلغي تقنيته الحاجة إلى بذل قوة إضافية عند التغليف، مما يسهل استخدامه الفوري ويحسن الكفاءة في عملية منصات التحميل.",
         specs_values: { width: "16-17 بوصة", length: "7000-25000 قدم", gauge: "40-120", weight: "10-40 كجم", type: "يدوي" },
@@ -424,7 +431,7 @@ export const ar = {
       {
         name: 'ربط يدوي (MANUAL BANDING)',
         img: '/images/stretch/banding.png',
-        video: "/videos/stretch/fondo.mp4",
+        video: "GO/stretch/fondo",
         link: '#',
         description: "مصمم لتطبيقات التغليف اليدوي مع تمدد معتدل، يوفر فيلم التغليف التقليدي هذا أداءً ممتازاً في عمليات التعبئة وتأمين الأحمال. يضمن تركيبه المقاومة والاستقرار في التطبيقات العامة.",
         specs_values: { width: "3-12 بوصة", length: "7000-25000 قدم", gauge: "40-120", weight: "10-40 كجم", type: "يدوي" },
@@ -437,7 +444,7 @@ export const ar = {
       {
         name: 'بدون قلب كرتوني (CORELESS)',
         img: '/images/stretch/coreles.png',
-        video: "/videos/stretch/fondo.mp4",
+        video: "GO/stretch/fondo",
         link: '#',
         description: "فيلم تغليف بدون قلب كرتوني، مصمم لتحقيق أقصى استفادة من المواد وتقليل النفايات في عملية منصات التحميل. يوفر هيكله متعدد الطبقات مقاومة عالية للتمزق، واستطالة ممتازة، وتثبيتاً محكماً للحمل، وهو مثالي للتطبيقات اليدوية ونصف الآلية.",
         specs_values: {
@@ -456,7 +463,7 @@ export const ar = {
       {
         name: 'يدوي صلب (MANUAL RÍGIDO)',
         img: '/images/stretch/stretch.png',
-        video: "/videos/stretch/fondo.mp4",
+        video: "GO/stretch/fondo",
         link: '#',
         description: "تمت صياغته خصيصاً لتطبيقات التغليف اليدوي ذات التمدد المحدود، يوفر فيلم التغليف هذا أداءً عالياً وموثوقية كبيرة في عمليات التعبئة والتغليف. يضمن تركيبه الاستقرار والكفاءة في تأمين الأحمال.",
         specs_values: { width: "17-30 بوصة", length: "1000-15000 قدم", gauge: "40-90", weight: "10-40 كجم", type: "يدوي", color: "أسود/ملون" },
@@ -503,7 +510,7 @@ export const ar = {
       {
         name: 'حبل البيوت المحمية',
         img: '/images/cuerdas/CuerdaNegra.webp',
-        video: "/videos/cuerdas/CuerdaI.mp4",
+        video: "GO/cuerdas/CuerdaI",
         link: '#',
         description: "مصنوع من البولي بروبيلين (PP) ومثبّت UV، هذا الحبل مثالي للقطاع البحري والأنشطة ذات التعرض الشمسي العالي. تركيبته المتخصصة تبطّئ التلف الناجم عن الأشعة فوق البنفسجية، مما يطيل عمره الافتراضي ويضمن مقاومة أكبر للعوامل الجوية. إنه الحل المثالي للصلابة والاستقرار في الأنفاق الزراعية الكبيرة.",
         specs_values: { load: "3,240 م", mat: "PP-UV", weight: "18 كجم", resist: "105 كجم", charge: "3-8 مم" },
@@ -516,7 +523,7 @@ export const ar = {
       {
         name: 'الحبل البيئي',
         img: '/images/cuerdas/CuerdaEco.png',
-        video: "/videos/cuerdas/CuerdaE.mp4",
+        video: "GO/cuerdas/CuerdaE",
         link: '#',
         description: "مصنوع من البولي بروبيلين (PP) عالي الجودة، يوفر هذا الحبل مجموعة واسعة من التقديمات والمقاسات والألوان، متاح بإصدارات ملساء أو مجمّعة، مع تعزيز أو بعلامة. تنوّعه ومقاومته يجعلانه خياراً موثوقاً للتطبيقات المتعددة في الصناعات والمصانع والمستودعات والأسواق والأعمال العامة.",
         specs_values: { load: "3,240 م", mat: "PP-UV", weight: "18 كجم", resist: "105 كجم", charge: "3-8 مم" },
@@ -549,7 +556,7 @@ export const ar = {
         name: "رافيا الربط",
         description: "مصنوعة من بولي بروبيلين 100% بكر، تقدّم هذه الرافيا مقاومة عالية وأداءً ممتازاً مع الحفاظ على خصائصها الفيزيائية حتى في الظروف الجوية القاسية. جودتها تضمن المتانة والأداء الموثوق في التطبيقات الصعبة. تُستخدم على نطاق واسع في القطاعات الزراعية والدواجن والبستنة.",
         img: "/images/rafias/atar.png",
-        video: "/videos/rafia/fondoN.mp4",
+        video: "GO/rafia/fondoN",
         specs_values: {
           cal: "2-8 مم",
           yield: "90 كجم",
@@ -566,7 +573,7 @@ export const ar = {
         name: "الرافيا البيئية",
         description: "مصنوعة من بولي بروبيلين عالي الجودة، تقدّم هذه الرافيا مقاومة ممتازة وتحافظ على خصائصها الفيزيائية حتى في الظروف الجوية القاسية. أداؤها الموثوق يجعلها خياراً مثالياً للتطبيقات الزراعية والدواجن والبستنة.",
         img: "/images/rafias/Eco.png",
-        video: "/videos/rafia/fondoE.mp4",
+        video: "GO/rafia/fondoE",
         specs_values: {
           cal: "2-8",
           yield: "90-500 كجم",
@@ -583,7 +590,7 @@ export const ar = {
         name: "رافيا ليفية سوداء",
         description: "مصنوعة من بولي بروبيلين عالي الجودة، تقدّم هذه الرافيا مقاومة كبيرة وتحافظ على خصائصها الفيزيائية حتى في الظروف الجوية. أداؤها الممتاز يجعلها مثالية للتطبيقات الصناعية والأدوات والتغليف، فضلاً عن القطاعات الزراعية والدواجن والبستنة.",
         img: "/images/rafias/negra.png",
-        video: "/videos/rafia/fondoR.mp4",
+        video: "GO/rafia/fondoR",
         specs_values: {
           cal: "2-8",
           yield: "90-500 كجم",
@@ -729,7 +736,7 @@ export const ar = {
       {
         name: 'كيس شفاف',
         img: '/images/sacos/saco.png',
-        video: "/videos/saco/transp.mp4",
+        video: "GO/saco/transp",
         link: '#',
         description: "مصنوعة من شرائط بولي بروبيلين بتشطيب شفاف، تقدّم هذه الأكياس مقاومة عالية وتتيح رؤية المنتج المعبأ بوضوح. هيكلها يضمن المتانة والأداء الموثوق في تطبيقات التخزين والنقل.",
         specs_values: {
@@ -841,7 +848,7 @@ export const ar = {
         name: "بكرة مطبوعة",
         description: "تتميّز بكراتنا بتنوع كبير في الطلاءات والسُّمك والتشطيبات. مع خيار الطباعة حتى 10 أحبار و133 خطاً في البوصة. الحد الأقصى للمحيط: 1,140 مم. الحد الأقصى لعرض الطباعة: 1,450 مم. متوافقة مع آلات التعبئة الأوتوماتيكية لتحسين كفاءة الإنتاج.",
         img: "/images/flexible/bobina-impresa.png",
-        video: "/videos/flexible/bobinaf.mp4",
+        video: "GO/flexible/bobinaf",
         gallery: [
           "/images/flexible/bobina-impresa-1.png",
           "/images/flexible/bobina-impresa.png",
@@ -877,7 +884,7 @@ export const ar = {
         name: "كيس ستاند أب بوتش",
         description: "سلسلة أكياس بتصاميم زخرفية جذابة: توت أحمر، أزهار، فواكه، سنابل، هدية زرقاء وهدية وردية. إغلاق بسحّاب وهيكل متين وتشطيبات طبيعية أو معدنية. متاحة بأحجام من 150 جم حتى 1 كجم. مثالية لمن يبحث عن تغليف عالي الجودة وجاذبية بصرية.",
         img: "/images/flexible/standup-origanics.png",
-        video: "/videos/flexible/standup-origanics.mp4",
+        video: "GO/flexible/standup-origanics",
         gallery: [
           "/images/flexible/standup-origanics-2.png",
           "/images/flexible/standup-origanics.png",
@@ -895,7 +902,7 @@ export const ar = {
         name: "كيس تفريغ عالٍ",
         description: "مصمّمة لتعظيم نضارة وعمر صلاحية اللحوم والأجبان والنقانق والمنتجات الطازجة. يزيل إغلاقها المحكم الهواء ويحافظ على الخصائص الطبيعية للمنتج ويمنع فقدان الطعم والملمس والجودة. مصنوعة من مواد عالية المقاومة والحاجز.",
         img: "/images/flexible/bolsa-alto-vacio.png",
-        video: "/videos/flexible/bolsa-alto-vacio.mp4",
+        video: "GO/flexible/bolsa-alto-vacio",
         gallery: [
           "/images/flexible/bolsa-alto-vacio-1.png",
           "/images/flexible/bolsa-alto-vacio.png",
@@ -930,31 +937,40 @@ export const ar = {
 
     products: [
       {
+        name: "كيس 15×20 سم",
+        img:   "/images/bolsas/15x25.webp",
+        thumb: "/images/bolsas/15x25.webp",
+        link:  "#",
+        description: "كيس بولي بروبيلين مدمج مثالي لتعبئة المنتجات الصغيرة في أجزاء فردية. مثالي للبيع بالتجزئة والبذور والتوابل. مقاومة عالية للتمزق مع نهاية موحدة.",
+        specs_values: { width: "15 cm", height: "20 cm", mat: "Polipropileno", use: "التجزئة" },
+        gallery: ["/images/bolsas/15x20d.webp", "/images/bolsas/15x20.png", "/images/bolsas/15x20f.webp"]
+      },
+            {
         name: "كيس 15×25 سم",
         img:   "/images/bolsas/15x25.webp",
         thumb: "/images/bolsas/15x25.webp",
         link:  "#",
         description: "كيس بولي بروبيلين مدمج، مثالي لتعبئة المنتجات الصغيرة. مناسب لتجارة التجزئة وتعبئة البذور والتوابل ومنتجات الاستهلاك الفردي. مقاومة عالية للتمزق مع تشطيب منتظم.",
         specs_values: { width: "15 سم", height: "25 سم", mat: "بولي بروبيلين", use: "تجارة التجزئة" },
-        gallery: ["/images/bolsas/bolsa.webp", "/images/bolsas/15x25.webp", "/images/bolsas/bolsa.webp"]
+        gallery: ["/images/bolsas/15x20d.webp", "/images/bolsas/15x25.webp", "/images/bolsas/15x20f.webp"]
       },
       {
         name: "كيس 18×25 سم",
-        img:   "/images/bolsas/18x25.webp",
-        thumb: "/images/bolsas/18x25.webp",
+        img:   "/images/bolsas/18X25.png",
+        thumb: "/images/bolsas/18X25.png",
         link:  "#",
         description: "كيس بولي بروبيلين بحجم قياسي للتعبئة متعددة الاستخدامات لمنتجات الحجم المتوسط. مثالي للحبوب والمواد الغذائية والمنتجات اليومية بعرض نظيف ومتين.",
         specs_values: { width: "18 سم", height: "25 سم", mat: "بولي بروبيلين", use: "تعبئة صناعية" },
-        gallery: ["/images/bolsas/bolsa.webp", "/images/bolsas/18x25.webp", "/images/bolsas/bolsa.webp"]
+        gallery: ["/images/bolsas/18X25_D.png", "/images/bolsas/18X25.png", "/images/bolsas/18X25_F.png"]
       },
       {
         name: "كيس 20×30 سم",
-        img:   "/images/bolsas/20x30.webp",
-        thumb: "/images/bolsas/20x30.webp",
+        img:   "/images/bolsas/20X30.png",
+        thumb: "/images/bolsas/20X30.png",
         link:  "#",
         description: "كيس متوسط الحجم بسعة حجمية عالية. مصمم لتعبئة الفواكه والخضروات والمنتجات الزراعية والبضائع متوسطة الوزن. مقاوم للتمزق مع تشطيب منتظم.",
         specs_values: { width: "20 سم", height: "30 سم", mat: "بولي بروبيلين", use: "تعبئة زراعية" },
-        gallery: ["/images/bolsas/bolsa.webp", "/images/bolsas/20x30.webp", "/images/bolsas/bolsa.webp"]
+        gallery: ["/images/bolsas/20X30_D.png", "/images/bolsas/20X30.png", "/images/bolsas/20X30_F.png"]
       },
       {
         name: "كيس 25×35 سم",
@@ -963,16 +979,84 @@ export const ar = {
         link:  "#",
         description: "كيس كبير الحجم مثالي للتعامل مع المنتجات ذات الحجم الأكبر. مناسب للملابس والمنسوجات والأحذية وبضائع التوزيع بالجملة. مقاومة فائقة وعرض ممتاز.",
         specs_values: { width: "25 سم", height: "35 سم", mat: "بولي بروبيلين", use: "توزيع بالجملة" },
-        gallery: ["/images/bolsas/bolsa.webp", "/images/bolsas/25x35.webp", "/images/bolsas/bolsa.webp"]
+        gallery: ["/images/bolsas/25x35_D.png", "/images/bolsas/25x35.webp", "/images/bolsas/25X35_F.png"]
       },
       {
         name: "كيس 30×40 سم",
-        img:   "/images/bolsas/30x40.webp",
-        thumb: "/images/bolsas/30x40.webp",
+        img:   "/images/bolsas/30X40.png",
+        thumb: "/images/bolsas/30X40.png",
         link:  "#",
         description: "كيس بأقصى سعة للتعبئة الصناعية بحجم كبير. مصمم للأحمال الثقيلة والمواد السائبة ولوجستيات التوزيع عالية الطلب. مقاومة قصوى مع تشطيب عالي الجودة.",
         specs_values: { width: "30 سم", height: "40 سم", mat: "بولي بروبيلين", use: "لوجستيات صناعية" },
-        gallery: ["/images/bolsas/bolsa.webp", "/images/bolsas/30x40.webp", "/images/bolsas/bolsa.webp"]
+        gallery: ["/images/bolsas/30X40_D.png", "/images/bolsas/30X40.png", "/images/bolsas/30X40_F.png"]
+      },
+      {
+        name: "كيس 35×45 سم",
+        img:   "/images/bolsas/35X45.png",
+        thumb: "/images/bolsas/35X45.png",
+        link:  "#",
+        description: "كيس بولي بروبيلين عالي السعة لتعبئة المنتجات كبيرة الحجم. مصمم للأحمال الثقيلة والمواد الصناعية ولوجستيات التوزيع المتطلبة. تشطيب عالي المقاومة والجودة.",
+        specs_values: { width: "35 سم", height: "45 سم", mat: "بولي بروبيلين", use: "تعبئة صناعية" },
+        gallery: ["/images/bolsas/35X45_D.png", "/images/bolsas/35X45.png", "/images/bolsas/35X45_F.png"]
+      },
+      {
+        name: "كيس 40×60 سم",
+        img:   "/images/bolsas/40X60.png",
+        thumb: "/images/bolsas/40X60.png",
+        link:  "#",
+        description: "كيس كبير الحجم لتعبئة وتخزين المنتجات الضخمة. مثالي للمنسوجات ومواد البناء الخفيفة والتوزيع واسع النطاق. أقصى مقاومة هيكلية.",
+        specs_values: { width: "40 سم", height: "60 سم", mat: "بولي بروبيلين", use: "تخزين صناعي" },
+        gallery: ["/images/bolsas/40X60_D.png", "/images/bolsas/40X60.png", "/images/bolsas/40X60_F.png"]
+      },
+      {
+        name: "كيس 50×70 سم",
+        img:   "/images/bolsas/50X70.png",
+        thumb: "/images/bolsas/50X70.png",
+        link:  "#",
+        description: "كيس كبير الحجم للأحمال عالية الوزن والحجم. مصمم للتطبيقات الصناعية عالية الطلب ولوجستيات التصدير وتخزين المواد السائبة. مقاومة قصوى مضمونة.",
+        specs_values: { width: "50 سم", height: "70 سم", mat: "بولي بروبيلين", use: "لوجستيات وتصدير" },
+        gallery: ["/images/bolsas/50X70_D.png", "/images/bolsas/50X70.png", "/images/bolsas/50X70_F.png"]
+      },
+      {
+        name: "كيس 60×90 سم",
+        img:   "/images/bolsas/60X90.png",
+        thumb: "/images/bolsas/60X90.png",
+        link:  "#",
+        description: "الكيس الأكبر سعة في الكتالوج. مثالي للتعبئة الصناعية واسعة النطاق وتخزين المدخلات الثقيلة والتوزيع الجماعي. مصمم لتحمل أشد المتطلبات قسوة.",
+        specs_values: { width: "60 سم", height: "90 سم", mat: "بولي بروبيلين", use: "صناعي / سائب" },
+        gallery: ["/images/bolsas/60X90_D.png", "/images/bolsas/60X90.png", "/images/bolsas/60X90_F.png"]
+      }
+    ]
+  },
+
+  // =================================================
+  // صفحة: المواد المبطنة (أكولشادو)
+  // =================================================
+  acolchado: {
+    meta_title: "مواد مبطنة | Grupo Ortiz",
+    meta_description: "مواد مبطنة من البولي بروبيلين للحماية الصناعية وتخفيف الصدمات. مقاومة عالية للصدمات.",
+    back_aria: "العودة إلى المنتجات",
+    specs_title: "المواصفات الفنية",
+    specs_labels: {
+      width:     "الوزن النسيجي",
+      thickness: "الحماية",
+      mat:       "المقاومة",
+      use:       "المتانة"
+    },
+    products: [
+      {
+        name: "مواد مبطنة",
+        img:   "/images/acolchado/acolachad1.webp",
+        thumb: "/images/acolchado/acolachad1.webp",
+        link:  "#",
+        description: "الغطاء الزراعي (الملش) هو شريط بلاستيكي يُوضع على سطح التربة لحمايتها وزيادة إنتاجية المحاصيل. يمنع نمو الأعشاب الضارة دون مبيدات، يحافظ على رطوبة التربة مما يقلل الري، ينظّم درجة حرارة الأرض، يمنع التآكل والوحل، ويبقي المحصول نظيفاً. مثالي للمزارع والحدائق والبساتين بكافة أحجامها.",
+        specs_values: {
+          width:     "85 gr/m² + 14 gr/m²",
+          thickness: "UV",
+          mat:       "عالية",
+          use:       "أعلى"
+        },
+        gallery: ["/images/acolchado/acolachad1.webp", "/images/acolchado/acolachad2.webp", "/images/acolchado/acolachad3.webp"]
       }
     ]
   },
@@ -1027,7 +1111,7 @@ export const ar = {
       title_orange:  "عبر الزمن",
       nav_prev:      "السابق",
       nav_next:      "التالي",
-      video_bg:      "/videos/home/background.mp4",
+      video_bg:      "GO/nosotros/background",
       video_bg_webm: "",
       video_poster:  "",
       events: [
@@ -1370,7 +1454,8 @@ footer: {
         { title: "ستريتش فيلم",    tag: "القسم 06", description: "فيلم تمدد بوضوح بصري عالٍ. يضمن سلامة الحمولة بكفاءة في التكاليف. يشمل خياراً قابلاً للتحلل البيولوجي.",                                  img: "/images/divisiones/film-estirable.webp",    color: "#2c5f8a", slug: "stretch-film",       soon: false },
         { title: "حافة حماية",     tag: "القسم 07", description: "حواف كرافت لحماية الحواف أثناء التخزين والنقل. توزيع متساوٍ للضغط وأقصى استقرار للأحمال.",                                                img: "/images/divisiones/esquineros.webp",        color: "#7b3fa0", slug: "esquineros",         soon: false },
         { title: "مستهلكات",       tag: "القسم 10", description: "منتجات مستهلكة من البولي بروبيلين للاستخدام الصناعي والغذائي والطبي. حلول صحية واقتصادية وعالية المقاومة.",                               img: "/images/divisiones/desechables.webp",       color: "#e05500", slug: "desechables",        soon: true  },
-        { title: "أكياس",          tag: "القسم 09", description: "أكياس بولي بروبيلين عالية المقاومة للتعبئة الصناعية والتجارية. متعددة الاستخدامات واقتصادية ومتوفرة بمقاسات وأشكال متعددة.",                    img: "/images/bolsas/bolsa.webp",                               color: "#c0392b", slug: "bolsas",             soon: false }
+        { title: "أكياس",          tag: "القسم 09", description: "أكياس بولي بروبيلين عالية المقاومة للتعبئة الصناعية والتجارية. متعددة الاستخدامات واقتصادية ومتوفرة بمقاسات وأشكال متعددة.",                    img: "/images/bolsas/bolsa.webp",                               color: "#c0392b", slug: "bolsas",             soon: false },
+        { title: "مواد مبطنة",     tag: "القسم 10", description: "شريط بلاستيكي يُغطي التربة في الزراعة والحدائق. يكافح الأعشاب الضارة، يحافظ على رطوبة التربة وينظّم درجة حرارتها لتحسين الإنتاجية الزراعية.",                                                      img: "/images/divisiones/acolchado.webp",                       color: "#5d7a8a", slug: "acolchado",          soon: false }
       ]
     },
 

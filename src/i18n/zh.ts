@@ -237,21 +237,21 @@ export const zh = {
       division: "缠绕膜",
       descripcion: "高光学清晰度和质量标准的拉伸薄膜。确保货物完整性和成本效益。我们的产品线包括生物降解选项，配方可加快 90% 的降解速度。",
       slug: "stretch-film",
-      video: "GO/carrusel/stretch-film.mp4"
+      video: "/videos/carrusel/stretch-film.mp4"
     },
     {
       img: "carrusel/img4.webp",
       division: "网袋",
       descripcion: "高强度耐用圆织聚丙烯拉菲草网袋。透气设计，非常适合水果和蔬菜。",
       slug: "arpillas",
-      video: "GO/carrusel/arpillas.mp4"
+      video: "/videos/carrusel/arpillas.mp4"
     },
     {
       img: "carrusel/img2.webp",
       division: "绳索",
       descripcion: "高性能聚丙烯长丝绳索（PP）。完美平衡：极轻而不牺牲断裂强度。",
       slug: "cuerdas",
-      video: "GO/carrusel/cuerdas.mp4"
+      video: "/videos/carrusel/cuerdas.mp4"
     },
     {
       img: "carrusel/img3.webp",
@@ -265,35 +265,42 @@ export const zh = {
       division: "编织袋",
       descripcion: "优质拉菲草编织袋。适用于食品、化工品和肥料的坚固包装解决方案。",
       slug: "sacos",
-      video: "GO/carrusel/sacos.mp4"
+      video: "/videos/carrusel/sacos.mp4"
     },
     {
       img: "carrusel/img6.webp",
       division: "护角",
       descripcion: "优化物流的纸板护角。结构强度更高，货物稳定性更好。",
       slug: "esquineros",
-      video: "GO/carrusel/esquineros.mp4"
+      video: "/videos/carrusel/esquineros.mp4"
     },
     {
       img: "carrusel/img7.webp",
       division: "软包装",
       descripcion: "Neo Empaques International 专注于先进的软包装解决方案，旨在优化多个行业产品的保存和展示。",
       slug: "empaques-flexibles",
-      video: "GO/carrusel/bobina-impresa.mp4"
+      video: "/videos/carrusel/bobina-impresa.mp4"
     },
     {
       img: "carrusel/nuev2a.png",
       division: "NATURIZABLE",
       descripcion: "回归大地的可持续包装。100%植物基、可回收可堆肥的食品行业解决方案。",
       slug: "naturizable",
-      video: "GO/carrusel/charola.mp4"
+      video: "/videos/carrusel/charola.mp4"
     },
     {
       img: "/images/bolsas/carruselB.webp",
       division: "BOLSAS",
       descripcion: "高强度聚丙烯袋。多功能、经济实惠，提供多种尺寸用于工业和商业包装。",
       slug: "bolsas",
-      video: "GO/carrusel/bolsa.mp4"
+      video: "GO/carrusel/bolsa4.mp4"
+    },
+    {
+      img: "carrusel/carrusel_acolchado.png",
+      division: "ACOLCHADO",
+      descripcion: "农用地膜，用于覆盖农作物、菜园和果园的土壤。防治杂草、保持水分、调节土壤温度。",
+      slug: "acolchado",
+      video: "/videos/carrusel/acolchadoV.mp4"
     }
   ],
 
@@ -317,7 +324,7 @@ export const zh = {
         name: "托盘 855",
         description: "承载食物的尊严包装。服务于厨师、屠夫、摊贩和主厨——使命完成后，无声无息地回归大地。我们承托世界，一个托盘一次。",
         img: "/images/divisiones/detallec.webp",
-        video: "GO/carrusel/charola.mp4",
+        video: "/videos/carrusel/charola.mp4",
         specs_values: {
           material: "牛皮纸板",
           usage: "食品",
@@ -335,7 +342,7 @@ export const zh = {
         soon: true,
         description: "高质量生物可降解纤维素杯。一种可持续且优雅的饮料服务解决方案，在不妥协功能性的前提下，致力于环境保护。",
         img: "/images/divisiones/vaso.webp",
-        video: "GO/carrusel/charola.mp4",
+        video: "/videos/carrusel/charola.mp4",
         specs_values: {
           material: "纤维素",
           usage: "饮料 / 活动",
@@ -351,7 +358,7 @@ export const zh = {
         soon: true,
         description: "专为各种工业和商业应用设计的专业容器。为存储和运输提供最大耐用性和效率。",
         img: "/images/divisiones/contenedor.webp",
-        video: "GO/carrusel/charola.mp4",
+        video: "/videos/carrusel/charola.mp4",
         specs_values: {
           material: "聚合物",
           usage: "多用途",
@@ -385,7 +392,7 @@ export const zh = {
       {
         name: '高级缠绕膜',
         img: '/images/stretch/premium.png',
-        video: "/videos/stretch/fondo.mp4",
+        video: "GO/stretch/fondo",
         link: '#',
         description: "专为高要求机械设计，这款中等拉伸的缠绕膜为自动化流程中的货物固定提供高效可靠的解决方案。其配方保证了在要求苛刻的包装应用中的高强度和卓越性能。",
         specs_values: { width: "19-30 英寸", length: "1000-15000 英尺", gauge: "40-110", weight: "10-40 公斤", type: "手动" },
@@ -398,7 +405,7 @@ export const zh = {
       {
         name: '自动缠绕膜',
         img: '/images/stretch/stretch.png',
-        video: "/videos/stretch/fondo.mp4",
+        video: "GO/stretch/fondo",
         link: '#',
         description: "专为传统裹包机设计，这款缠绕膜在自动托盘包装流程中提供高性能和卓越表现。其配方保证货物固定的强度和稳定性。",
         specs_values: { width: "18-30 英寸", length: "2000-15000 英尺", gauge: "50-110", weight: "10-49 公斤", type: "自动" },
@@ -411,7 +418,7 @@ export const zh = {
       {
         name: '手动预拉伸膜',
         img: '/images/stretch/prestirado.png',
-        video: "/videos/stretch/fondo.mp4",
+        video: "GO/stretch/fondo",
         link: '#',
         description: "专为高性能手动应用设计，这款预拉伸膜以市场上最薄的厚度之一著称。其技术消除了包裹时施加额外力量的需要，便于即时使用并提高托盘包装流程的效率。",
         specs_values: { width: "16-17 英寸", length: "7000-25000 英尺", gauge: "40-120", weight: "10-40 公斤", type: "手动" },
@@ -424,7 +431,7 @@ export const zh = {
       {
         name: '手动捆扎膜',
         img: '/images/stretch/banding.png',
-        video: "/videos/stretch/fondo.mp4",
+        video: "GO/stretch/fondo",
         link: '#',
         description: "专为中等拉伸手动包裹应用设计，这款传统缠绕膜在包装和货物固定流程中表现出色。其配方保证在一般应用中的强度和稳定性。",
         specs_values: { width: "3-12 英寸", length: "7000-25000 英尺", gauge: "40-120", weight: "10-40 公斤", type: "手动" },
@@ -437,7 +444,7 @@ export const zh = {
       {
         name: '无芯缠绕膜',
         img: '/images/stretch/coreles.png',
-        video: "/videos/stretch/fondo.mp4",
+        video: "GO/stretch/fondo",
         link: '#',
         description: "无纸芯缠绕膜，旨在最大限度地利用材料并减少托盘包装过程中的废料。其多层结构提供高抗撕裂性、良好延伸性和牢固的货物固定，适用于手动和半自动应用。",
         specs_values: {
@@ -456,7 +463,7 @@ export const zh = {
       {
         name: '手动硬质缠绕膜',
         img: '/images/stretch/stretch.png',
-        video: "/videos/stretch/fondo.mp4",
+        video: "GO/stretch/fondo",
         link: '#',
         description: "专为有限拉伸手动包裹应用设计，这款缠绕膜在包装流程中提供高性能和极高可靠性。其配方保证货物固定的稳定性和效率。",
         specs_values: { width: "17-30 英寸", length: "1000-15000 英尺", gauge: "40-90", weight: "10-40 公斤", type: "手动", color: "黑色/彩色" },
@@ -503,7 +510,7 @@ export const zh = {
       {
         name: '温室绳',
         img: '/images/cuerdas/CuerdaNegra.webp',
-        video: "/videos/cuerdas/CuerdaI.mp4",
+        video: "GO/cuerdas/CuerdaI",
         link: '#',
         description: "采用聚丙烯（PP）和紫外线稳定剂制成，这款绳索非常适合海洋行业和高阳光暴露的活动。其专业配方延缓紫外线辐射造成的磨损，延长使用寿命并保证更强的耐候性。是为农业大棚提供稳固性和稳定性的完美解决方案。",
         specs_values: { load: "3,240 米", mat: "PP-UV", weight: "18 公斤", resist: "105 公斤", charge: "3-8 毫米" },
@@ -516,7 +523,7 @@ export const zh = {
       {
         name: '环保绳',
         img: '/images/cuerdas/CuerdaEco.png',
-        video: "/videos/cuerdas/CuerdaE.mp4",
+        video: "GO/cuerdas/CuerdaE",
         link: '#',
         description: "采用优质聚丙烯（PP）制造，这款绳索提供多种规格、粗细和颜色，有光面或组合版本，带加强或带标记版本。其多功能性和耐久性使其成为多种应用的可靠选择，适用于工业、工厂、仓库、批发市场、五金店和加工区域。",
         specs_values: { load: "3,240 米", mat: "PP-UV", weight: "18 公斤", resist: "105 公斤", charge: "3-8 毫米" },
@@ -549,7 +556,7 @@ export const zh = {
         name: "捆扎拉菲草",
         description: "采用 100% 原生聚丙烯制造，这款拉菲草提供高强度和出色性能，即使在户外条件下也能保持其物理特性。其质量保证了在要求苛刻的应用中的耐久性和可靠性。广泛应用于农业、禽类养殖和园艺行业。",
         img: "/images/rafias/atar.png",
-        video: "/videos/rafia/fondoN.mp4",
+        video: "GO/rafia/fondoN",
         specs_values: {
           cal: "2-8 毫米",
           yield: "90 公斤",
@@ -566,7 +573,7 @@ export const zh = {
         name: "环保拉菲草",
         description: "采用优质聚丙烯制造，这款拉菲草提供出色的强度，即使在户外条件下也能保持其物理特性。其可靠的性能使其成为农业、禽类养殖和园艺应用的理想选择。",
         img: "/images/rafias/Eco.png",
-        video: "/videos/rafia/fondoE.mp4",
+        video: "GO/rafia/fondoE",
         specs_values: {
           cal: "2-8",
           yield: "90-500 公斤",
@@ -583,7 +590,7 @@ export const zh = {
         name: "黑色原纤化拉菲草",
         description: "采用优质聚丙烯制造，这款拉菲草提供高强度，即使在户外条件下也能保持其物理特性。其出色的性能使其非常适合工业、五金和包装应用，以及农业、禽类养殖和园艺行业。",
         img: "/images/rafias/negra.png",
-        video: "/videos/rafia/fondoR.mp4",
+        video: "GO/rafia/fondoR",
         specs_values: {
           cal: "2-8",
           yield: "90-500 公斤",
@@ -729,7 +736,7 @@ export const zh = {
       {
         name: '透明编织袋',
         img: '/images/sacos/saco.png',
-        video: "/videos/saco/transp.mp4",
+        video: "GO/saco/transp",
         link: '#',
         description: "由聚丙烯纱线制成并具有透明外观，这些袋子提供高强度并可清晰看到装袋产品。其结构保证了在存储和运输应用中的耐久性和可靠性。",
         specs_values: {
@@ -841,7 +848,7 @@ export const zh = {
         name: "印刷卷材",
         description: "我们的卷材提供多种复合方式、厚度和表面处理。可选择最多 10 色印刷，133 线/英寸。最大展开：1,140 毫米。最大印刷宽度：1,450 毫米。与自动包装机械兼容，优化生产效率。",
         img: "/images/flexible/bobina-impresa.png",
-        video: "/videos/flexible/bobinaf.mp4",
+        video: "GO/flexible/bobinaf",
         gallery: [
           "/images/flexible/bobina-impresa-1.png",
           "/images/flexible/bobina-impresa.png",
@@ -877,7 +884,7 @@ export const zh = {
         name: "印花自立袋",
         description: "具有吸引人装饰图案的袋子系列：红果、花卉、水果、麦穗、蓝色礼品和粉色礼品。拉链封口、坚固结构和天然或镀铝表面处理。尺寸从 150 克至 1 公斤。适合寻求高质量和视觉吸引力包装的用户。",
         img: "/images/flexible/standup-origanics.png",
-        video: "/videos/flexible/standup-origanics.mp4",
+        video: "GO/flexible/standup-origanics",
         gallery: [
           "/images/flexible/standup-origanics-2.png",
           "/images/flexible/standup-origanics.png",
@@ -895,7 +902,7 @@ export const zh = {
         name: "高真空袋",
         description: "专为最大限度保持肉类、奶酪、熟食和新鲜产品的新鲜度和保质期而设计。其密封排除空气，保留产品的天然特性，防止风味、口感和质量损失。由高强度阻隔材料制成。",
         img: "/images/flexible/bolsa-alto-vacio.png",
-        video: "/videos/flexible/bolsa-alto-vacio.mp4",
+        video: "GO/flexible/bolsa-alto-vacio",
         gallery: [
           "/images/flexible/bolsa-alto-vacio-1.png",
           "/images/flexible/bolsa-alto-vacio.png",
@@ -930,31 +937,40 @@ export const zh = {
 
     products: [
       {
+        name: "袋子 15×20 厘米",
+        img:   "/images/bolsas/15x25.webp",
+        thumb: "/images/bolsas/15x25.webp",
+        link:  "#",
+        description: "紧凑型聚丙烯袋，非常适合以单独份量包装小产品。适合零售、种子、香料和日常使用。高抗撕裂性，表面均匀。",
+        specs_values: { width: "15 cm", height: "20 cm", mat: "Polipropileno", use: "零售" },
+        gallery: ["/images/bolsas/15x20d.webp", "/images/bolsas/15x20.png", "/images/bolsas/15x20f.webp"]
+      },
+            {
         name: "袋子 15×25 厘米",
         img:   "/images/bolsas/15x25.webp",
         thumb: "/images/bolsas/15x25.webp",
         link:  "#",
         description: "紧凑型聚丙烯袋，适合小产品包装。完美用于零售、种子包装、香料和单份消费品。高抗撕裂性，表面均匀。",
         specs_values: { width: "15 厘米", height: "25 厘米", mat: "聚丙烯", use: "零售" },
-        gallery: ["/images/bolsas/bolsa.webp", "/images/bolsas/15x25.webp", "/images/bolsas/bolsa.webp"]
+        gallery: ["/images/bolsas/15x20d.webp", "/images/bolsas/15x25.webp", "/images/bolsas/15x20f.webp"]
       },
       {
         name: "袋子 18×25 厘米",
-        img:   "/images/bolsas/18x25.webp",
-        thumb: "/images/bolsas/18x25.webp",
+        img:   "/images/bolsas/18X25.png",
+        thumb: "/images/bolsas/18X25.png",
         link:  "#",
         description: "标准尺寸聚丙烯袋，适用于中等体积产品的多功能包装。适合谷物、麦片、零食和日用品，外观整洁耐用。",
         specs_values: { width: "18 厘米", height: "25 厘米", mat: "聚丙烯", use: "工业包装" },
-        gallery: ["/images/bolsas/bolsa.webp", "/images/bolsas/18x25.webp", "/images/bolsas/bolsa.webp"]
+        gallery: ["/images/bolsas/18X25_D.png", "/images/bolsas/18X25.png", "/images/bolsas/18X25_F.png"]
       },
       {
         name: "袋子 20×30 厘米",
-        img:   "/images/bolsas/20x30.webp",
-        thumb: "/images/bolsas/20x30.webp",
+        img:   "/images/bolsas/20X30.png",
+        thumb: "/images/bolsas/20X30.png",
         link:  "#",
         description: "中等尺寸袋，体积容量大。专为水果、蔬菜、农产品和中等重量商品的包装而设计。抗撕裂，表面均匀。",
         specs_values: { width: "20 厘米", height: "30 厘米", mat: "聚丙烯", use: "农业包装" },
-        gallery: ["/images/bolsas/bolsa.webp", "/images/bolsas/20x30.webp", "/images/bolsas/bolsa.webp"]
+        gallery: ["/images/bolsas/20X30_D.png", "/images/bolsas/20X30.png", "/images/bolsas/20X30_F.png"]
       },
       {
         name: "袋子 25×35 厘米",
@@ -963,16 +979,84 @@ export const zh = {
         link:  "#",
         description: "大尺寸袋，适合处理更大体积的产品。完美用于服装、纺织品、鞋类和散装配送商品。出色的耐用性和展示效果。",
         specs_values: { width: "25 厘米", height: "35 厘米", mat: "聚丙烯", use: "散装配送" },
-        gallery: ["/images/bolsas/bolsa.webp", "/images/bolsas/25x35.webp", "/images/bolsas/bolsa.webp"]
+        gallery: ["/images/bolsas/25x35_D.png", "/images/bolsas/25x35.webp", "/images/bolsas/25X35_F.png"]
       },
       {
         name: "袋子 30×40 厘米",
-        img:   "/images/bolsas/30x40.webp",
-        thumb: "/images/bolsas/30x40.webp",
+        img:   "/images/bolsas/30X40.png",
+        thumb: "/images/bolsas/30X40.png",
         link:  "#",
         description: "最大容量袋，用于大体积工业包装。专为重载荷、散装材料和高需求配送物流而设计。极强耐用性，高质量表面处理。",
         specs_values: { width: "30 厘米", height: "40 厘米", mat: "聚丙烯", use: "工业物流" },
-        gallery: ["/images/bolsas/bolsa.webp", "/images/bolsas/30x40.webp", "/images/bolsas/bolsa.webp"]
+        gallery: ["/images/bolsas/30X40_D.png", "/images/bolsas/30X40.png", "/images/bolsas/30X40_F.png"]
+      },
+      {
+        name: "袋子 35×45 厘米",
+        img:   "/images/bolsas/35X45.png",
+        thumb: "/images/bolsas/35X45.png",
+        link:  "#",
+        description: "大容量聚丙烯袋，适合大体积产品包装。专为重型载荷、工业材料和高要求配送物流而设计。高质量耐用表面处理。",
+        specs_values: { width: "35 厘米", height: "45 厘米", mat: "聚丙烯", use: "工业包装" },
+        gallery: ["/images/bolsas/35X45_D.png", "/images/bolsas/35X45.png", "/images/bolsas/35X45_F.png"]
+      },
+      {
+        name: "袋子 40×60 厘米",
+        img:   "/images/bolsas/40X60.png",
+        thumb: "/images/bolsas/40X60.png",
+        link:  "#",
+        description: "特大号袋，用于大体积产品的包装和储存。适合纺织品、轻型建材和大规模配送。最大结构强度。",
+        specs_values: { width: "40 厘米", height: "60 厘米", mat: "聚丙烯", use: "工业储存" },
+        gallery: ["/images/bolsas/40X60_D.png", "/images/bolsas/40X60.png", "/images/bolsas/40X60_F.png"]
+      },
+      {
+        name: "袋子 50×70 厘米",
+        img:   "/images/bolsas/50X70.png",
+        thumb: "/images/bolsas/50X70.png",
+        link:  "#",
+        description: "大格式袋，适用于高重量、高体积载荷。专为高需求工业应用、出口物流和散装材料储存而设计。极强耐用性有保障。",
+        specs_values: { width: "50 厘米", height: "70 厘米", mat: "聚丙烯", use: "物流与出口" },
+        gallery: ["/images/bolsas/50X70_D.png", "/images/bolsas/50X70.png", "/images/bolsas/50X70_F.png"]
+      },
+      {
+        name: "袋子 60×90 厘米",
+        img:   "/images/bolsas/60X90.png",
+        thumb: "/images/bolsas/60X90.png",
+        link:  "#",
+        description: "目录中容量最大的袋子。适合大规模工业包装、重型原料储存和大批量配送。专为承受最极端需求而打造。",
+        specs_values: { width: "60 厘米", height: "90 厘米", mat: "聚丙烯", use: "工业 / 散装" },
+        gallery: ["/images/bolsas/60X90_D.png", "/images/bolsas/60X90.png", "/images/bolsas/60X90_F.png"]
+      }
+    ]
+  },
+
+  // =================================================
+  // 页面：缓冲材料
+  // =================================================
+  acolchado: {
+    meta_title: "缓冲材料 | Grupo Ortiz",
+    meta_description: "聚丙烯缓冲材料，用于工业保护和缓冲。高抗冲击性能。",
+    back_aria: "返回产品",
+    specs_title: "技术规格",
+    specs_labels: {
+      width:     "织物克重",
+      thickness: "防护",
+      mat:       "抗性",
+      use:       "耐久性"
+    },
+    products: [
+      {
+        name: "缓冲材料",
+        img:   "/images/acolchado/acolachad1.webp",
+        thumb: "/images/acolchado/acolachad1.webp",
+        link:  "#",
+        description: "农用地膜（mulch）是铺在土壤表面的塑料薄膜，用于保护土壤、提高作物产量。无需除草剂即可抑制杂草和草坪生长，保持土壤水分减少灌溉频率，调节地温，防止水土流失和泥泞，保持作物整洁。适用于各种规模的农业种植、蔬菜园、观赏园和果园。",
+        specs_values: {
+          width:     "85 gr/m² + 14 gr/m²",
+          thickness: "UV",
+          mat:       "高",
+          use:       "更强"
+        },
+        gallery: ["/images/acolchado/acolachad1.webp", "/images/acolchado/acolachad2.webp", "/images/acolchado/acolachad3.webp"]
       }
     ]
   },
@@ -1027,7 +1111,7 @@ export const zh = {
       title_orange:  "发展历程",
       nav_prev:      "上一个",
       nav_next:      "下一个",
-      video_bg:      "/videos/home/background.mp4",
+      video_bg:      "GO/nosotros/background",
       video_bg_webm: "",
       video_poster:  "",
       events: [
@@ -1369,7 +1453,8 @@ footer: {
         { title: "缠绕膜",     tag: "部门 06", description: "高光学清晰度的拉伸薄膜。以成本效益确保货物完整性。包含生物降解选项。",             img: "/images/divisiones/film-estirable.webp", color: "#2c5f8a", slug: "stretch-film",       soon: false },
         { title: "护角",       tag: "部门 07", description: "牛皮卡纸护角，保护存储和运输过程中的边缘。均匀分压，最大化货物稳定性。",           img: "/images/divisiones/esquineros.webp",     color: "#7b3fa0", slug: "esquineros",         soon: false },
         { title: "一次性用品", tag: "部门 10", description: "用于工业、食品和医疗的聚丙烯一次性产品。卫生、经济且高强度的解决方案。",           img: "/images/divisiones/desechables.webp",    color: "#e05500", slug: "desechables",        soon: true  },
-        { title: "袋子",       tag: "部门 09", description: "用于工业和商业包装的高强度聚丙烯袋。多功能、经济实惠，提供多种尺寸和规格。",         img: "/images/bolsas/bolsa.webp",                            color: "#c0392b", slug: "bolsas",             soon: false }
+        { title: "袋子",       tag: "部门 09", description: "用于工业和商业包装的高强度聚丙烯袋。多功能、经济实惠，提供多种尺寸和规格。",         img: "/images/bolsas/bolsa.webp",                            color: "#c0392b", slug: "bolsas",             soon: false },
+        { title: "缓冲材料",   tag: "部门 10", description: "覆盖农作物和花园土壤的塑料地膜。防治杂草、保持土壤水分、调节地温、防止侵蚀，提高农业生产力。",             img: "/images/divisiones/acolchado.webp",                    color: "#5d7a8a", slug: "acolchado",          soon: false }
       ]
     },
 

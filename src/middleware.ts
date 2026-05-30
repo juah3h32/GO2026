@@ -52,14 +52,15 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const isAdmin = ADMIN_PATHS.some(p => path.startsWith(p));
   const isApi   = path.startsWith('/api/');
 
-  if (isChat || isLead || isAdmin || isApi) {
-    // Vercel inyecta x-vercel-forwarded-for como la IP real del cliente (no falsificable)
-    // Fallback a x-forwarded-for solo si no hay header de Vercel
+  // En local no hay headers de Vercel → ip='unknown' → todos comparten clave → 429 inmediato.
+  // El rate limiter solo aplica en producción.
+  const isDev = import.meta.env.DEV || url.hostname === 'localhost' || url.hostname === '127.0.0.1';
+
+  if (!isDev && (isChat || isLead || isAdmin || isApi)) {
     const rawIp = req.headers.get('x-vercel-forwarded-for')
                 || req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
                 || req.headers.get('x-real-ip')
                 || null;
-    // Validar formato IPv4/IPv6 básico para evitar inyección de claves en el Map
     const IP_RE = /^[\d.:a-fA-F]+$/;
     const ip = rawIp && IP_RE.test(rawIp) ? rawIp : 'unknown';
 

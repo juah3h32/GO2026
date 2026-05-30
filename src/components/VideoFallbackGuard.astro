@@ -17,11 +17,13 @@
 
       let activated = false;
       let timer: ReturnType<typeof setTimeout>;
+      let stallTimer: ReturnType<typeof setTimeout>;
 
       function activate() {
         if (activated) return;
         activated = true;
         clearTimeout(timer);
+        clearTimeout(stallTimer);
 
         // Mostrar el fallback con los mismos estilos que el primario
         fallback!.style.cssText = [
@@ -45,14 +47,24 @@
       // 1. Error directo en el elemento <video> o sus <source>
       primary.addEventListener('error', activate, true);
 
-      // 2. Tiempo límite: si en 12 s no ha arrancado, usar fallback
+      // 2. Tiempo límite: si en 3 s no ha arrancado, usar fallback
       timer = setTimeout(() => {
         if (primary.readyState < 2) activate();
-      }, 12000);
+      }, 3000);
 
-      // Cancelar el timer si el video principal arranca bien
-      primary.addEventListener('canplay',  () => clearTimeout(timer), { once: true });
-      primary.addEventListener('playing',  () => clearTimeout(timer), { once: true });
+      // 3. Stalled o waiting prolongado → fallback tras 1.5 s adicionales
+      function onStall() {
+        clearTimeout(stallTimer);
+        stallTimer = setTimeout(() => {
+          if (primary.readyState < 2) activate();
+        }, 1500);
+      }
+      primary.addEventListener('stalled', onStall);
+      primary.addEventListener('waiting', onStall);
+
+      // Cancelar los timers si el video principal arranca bien
+      primary.addEventListener('canplay',  () => { clearTimeout(timer); clearTimeout(stallTimer); }, { once: true });
+      primary.addEventListener('playing',  () => { clearTimeout(timer); clearTimeout(stallTimer); }, { once: true });
     });
   }
 

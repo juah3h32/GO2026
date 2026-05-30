@@ -37,6 +37,7 @@ const productsList = t.products_list as ProductItem[];
 
 const seeMoreText = t.common.seeMore;
 const divisionText = t.common.division;
+const CLOUD = import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME || 'dfuzfdrat';
 
 // 3. HELPER: Resuelve la URL correcta sin importar si viene con http, /images/ o solo nombre
 function resolveImg(img: string): string {
@@ -48,6 +49,20 @@ function resolveImg(img: string): string {
   // Solo nombre de archivo → agrega /images/
   return `/images/${img}`;
 }
+
+// Imágenes de divisiones (fondo blanco) como poster de fallback por slug
+const divisionPoster: Record<string, string> = {
+  "stretch-film":       "/images/divisiones/film-estirable.webp",
+  "arpillas":           "/images/divisiones/arpilla.webp",
+  "cuerdas":            "/images/divisiones/cuerdas.webp",
+  "rafias":             "/images/divisiones/rafia.webp",
+  "sacos":              "/images/divisiones/sacos.webp",
+  "esquineros":         "/images/divisiones/esquineros.webp",
+  "empaques-flexibles": "/images/divisiones/bolsa.webp",
+  "naturizable":        "/images/divisiones/desechables.webp",
+  "bolsas":             "/images/divisiones/bolsas.webp",
+  "acolchado":          "/images/divisiones/acolchado.webp",
+};
 
 const firstProductImg =
   productsList.length > 0 ? resolveImg(productsList[0].img) : null;
@@ -71,7 +86,7 @@ const firstProductImg =
         class="video-background"
         cloudinaryId={item.video.startsWith('/') ? '' : item.video.replace(/\.mp4$/, '')}
         localFallback={item.video.startsWith('/') ? item.video : `/videos/${item.video.replace(/^GO\//, '')}`}
-        poster={resolveImg(item.img)}
+        poster={divisionPoster[item.slug] ?? resolveImg(item.img)}
         autoplay={false}
         muted={true}
         loop={true}
@@ -185,18 +200,18 @@ const firstProductImg =
 
   <script src="/scripts/producto.js" defer></script>
 
-  <script is:inline define:vars={{ productsList }}>
+  <script is:inline define:vars={{ productsList, CLOUD }}>
     window.PRODUCTS_DATA = {};
     productsList.forEach((item) => {
       if (item.video) {
         // URL completa → usar directo
         // Ruta local absoluta (/videos/…) → usar directo
-        // ID Cloudinary (GO/carrusel/…) → convertir a ruta local quitando el prefijo GO/
+        // ID Cloudinary (GO/carrusel/…) → usar URL Cloudinary directa
         const videoSrc = item.video.startsWith("http")
           ? item.video
           : item.video.startsWith("/")
           ? item.video
-          : `/videos/${item.video.replace(/^GO\//, '')}`;
+          : `https://res.cloudinary.com/${CLOUD}/video/upload/q_auto:best/${item.video}`;
         window.PRODUCTS_DATA[item.division] = videoSrc;
       }
     });

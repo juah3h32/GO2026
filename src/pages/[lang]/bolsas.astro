@@ -27,10 +27,9 @@ const specs = [
 ];
 
 const CLOUD = import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME || 'dfuzfdrat';
-const toCDN = (localPath: string) => {
-  const filename = localPath.split('/').pop();
-  return `https://res.cloudinary.com/${CLOUD}/image/upload/q_auto:good/GO/bolsas/${filename}`;
-};
+
+const BG_VIDEO = `/videos/bolsas/video.mp4`;
+const BG_POSTER = `https://res.cloudinary.com/${CLOUD}/video/upload/f_jpg,q_auto,so_0/GO/bolsas/video.jpg`;
 ---
 
 <BaseLayout
@@ -41,12 +40,23 @@ const toCDN = (localPath: string) => {
     moveLogoMobile={true}
 >
   <Fragment slot="head">
-    <link rel="preload" as="image" href={toCDN(firstProduct.img)} fetchpriority="high" />
+    <link rel="preload" as="image" href={firstProduct.img} fetchpriority="high" />
+    <link rel="preload" as="image" href={BG_POSTER} fetchpriority="high" />
   </Fragment>
 
   <div id="wipe-transition" class="wipe-container"></div>
 
-  <div class="video-bg-wrapper bolsas-bg">
+  <div class="video-bg-wrapper">
+    <video
+      class="video-bg visible"
+      src={BG_VIDEO}
+      autoplay
+      muted
+      loop
+      playsinline
+      preload="metadata"
+      poster={BG_POSTER}
+    ></video>
     <div class="video-overlay"></div>
   </div>
 
@@ -94,7 +104,7 @@ const toCDN = (localPath: string) => {
             tabindex="0"
             aria-label={prod.name}
           >
-            <img src={toCDN(prod.thumb)} onerror={`this.onerror=null;this.src='${prod.thumb}'`} alt={prod.name} loading="lazy" decoding="async" width="60" height="60"/>
+            <img src={prod.thumb} alt={prod.name} loading="lazy" decoding="async" width="60" height="60"/>
           </div>
         ))}
       </div>
@@ -107,8 +117,7 @@ const toCDN = (localPath: string) => {
           <img
             id="product-hero-img"
             class="product-hero-img"
-            src={toCDN(firstProduct.img)}
-            onerror={`this.onerror=null;this.src='${firstProduct.img}'`}
+            src={firstProduct.img}
             alt={firstProduct.name}
           />
         </div>
@@ -119,9 +128,7 @@ const toCDN = (localPath: string) => {
               {(prod.gallery || [prod.img, prod.img, prod.img]).map((imgSrc: string, imgIdx: number) => (
                 <div class="gallery-photo" data-img-index={imgIdx + 1}>
                   <img
-                    src={toCDN(imgSrc)}
-                    data-local={imgSrc}
-                    onerror={`this.onerror=null;this.src='${imgSrc}'`}
+                    src={imgSrc}
                     alt={`${prod.name} vista ${imgIdx + 1}`}
                     loading="lazy"
                     decoding="async"
@@ -138,15 +145,6 @@ const toCDN = (localPath: string) => {
 
   </main>
 
-  <style>
-    .bolsas-bg {
-      background-image: url('https://res.cloudinary.com/dfuzfdrat/image/upload/q_auto:good/GO/bolsas/carruselB.webp'),
-                        url('/images/bolsas/carruselB.webp');
-      background-size: cover;
-      background-position: center;
-    }
-  </style>
-
   <script is:inline>
   function initBolsasLogic() {
     const container = document.querySelector('.main-container');
@@ -154,15 +152,6 @@ const toCDN = (localPath: string) => {
 
     const products = JSON.parse(container.dataset.products || '[]');
 
-    const CLOUD = 'dfuzfdrat';
-    function toCDN(localPath) {
-      const filename = localPath.split('/').pop();
-      return `https://res.cloudinary.com/${CLOUD}/image/upload/q_auto:good/GO/bolsas/${filename}`;
-    }
-    function setImgSrc(imgEl, localPath) {
-      imgEl.onerror = function() { this.onerror = null; this.src = localPath; };
-      imgEl.src = toCDN(localPath);
-    }
 
     const titleEl = document.getElementById('product-title');
     const descEl  = document.getElementById('product-desc');
@@ -211,7 +200,7 @@ const toCDN = (localPath: string) => {
       if (thumbs[idx]) thumbs[idx].classList.add('active');
 
       if (heroImg && products[idx] && products[idx].img) {
-        setImgSrc(heroImg, products[idx].img);
+        heroImg.src = products[idx].img;
         heroImg.alt = products[idx].name || '';
       }
 
@@ -270,7 +259,7 @@ const toCDN = (localPath: string) => {
     document.querySelectorAll('.gallery-photo').forEach((photo) => {
       const activate = () => {
         const clickedImg = photo.querySelector('img');
-        if (heroImg && clickedImg) setImgSrc(heroImg, clickedImg.dataset.local || clickedImg.getAttribute('src'));
+        if (heroImg && clickedImg) heroImg.src = clickedImg.getAttribute('src');
       };
       photo.addEventListener('touchend', function(e) {
         e.stopPropagation(); e.preventDefault(); activate();
@@ -279,6 +268,40 @@ const toCDN = (localPath: string) => {
         e.stopPropagation(); activate();
       });
     });
+
+    // Mobile: mostrar solo 5 thumbs + botón "ver más"
+    if (window.innerWidth <= 1024) {
+      const thumbsContainer = document.getElementById('thumbnails-container');
+      if (thumbsContainer) {
+        thumbsContainer.querySelector('.thumb-more-btn')?.remove();
+        const allThumbs = Array.from(thumbsContainer.querySelectorAll('.thumb-item'));
+        const LIMIT = 5;
+        if (allThumbs.length > LIMIT) {
+          allThumbs.forEach((t, i) => { if (i >= LIMIT) t.classList.add('thumb-mobile-hidden'); });
+          const remaining = allThumbs.length - LIMIT;
+          const moreBtn = document.createElement('button');
+          moreBtn.className = 'thumb-more-btn';
+          moreBtn.textContent = '+' + remaining;
+          moreBtn.setAttribute('aria-expanded', 'false');
+          let expanded = false;
+          function toggleMore(e) {
+            e.stopPropagation();
+            expanded = !expanded;
+            allThumbs.forEach((t, i) => {
+              if (i >= LIMIT) t.classList.toggle('thumb-mobile-hidden', !expanded);
+            });
+            moreBtn.textContent = expanded ? '−' : '+' + remaining;
+            moreBtn.setAttribute('aria-expanded', String(expanded));
+            moreBtn.classList.toggle('is-open', expanded);
+          }
+          moreBtn.addEventListener('click', toggleMore);
+          moreBtn.addEventListener('touchend', function(e) {
+            e.preventDefault(); toggleMore(e);
+          }, { passive: false });
+          thumbsContainer.appendChild(moreBtn);
+        }
+      }
+    }
   }
 
   if (document.readyState === 'loading') {

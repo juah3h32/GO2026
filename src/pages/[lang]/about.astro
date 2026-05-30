@@ -35,6 +35,11 @@ const valoresDup    = [...valores, ...valores];
 
 const isRTL = currentLang === "ar";
 
+const CLOUD = import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME || 'dfuzfdrat';
+const toVideoSrc = (v: string) =>
+  v.startsWith('/') || v.startsWith('http') ? v
+  : `https://res.cloudinary.com/${CLOUD}/video/upload/q_auto:best/${v}.mp4`;
+
 // ─────────────────────────────────────────────────────────────────────────────
 // ICONOS POR VALOR
 // ─────────────────────────────────────────────────────────────────────────────
@@ -67,9 +72,8 @@ function getValorIcon(title: string): string {
       <!-- TIMELINE -->
       <div class="tl-block">
         <div class="tl-video-background-container">
-          <video class="tl-video-background" autoplay loop muted playsinline poster={qs.timeline.video_poster}>
-            <source src={qs.timeline.video_bg}      type="video/mp4"  />
-            <source src={qs.timeline.video_bg_webm} type="video/webm" />
+          <video class="tl-video-background" autoplay loop muted playsinline preload="none" poster={qs.timeline.video_poster}>
+            <source src={toVideoSrc(qs.timeline.video_bg)} type="video/mp4"  />
           </video>
         </div>
         <div class="tl-wrapper">

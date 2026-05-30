@@ -1,0 +1,1235 @@
+{
+  "commits": [
+    {
+      "hash": "7569385",
+      "date": "2026-05-25",
+      "message": "hogar.mp4 ruta correcta en i18n + preload metadata en social.astro",
+      "rawMessage": "fix: hogar.mp4 ruta correcta en i18n + preload metadata en social.astro",
+      "type": "fix",
+      "area": "Media"
+    },
+    {
+      "hash": "bffa98e",
+      "date": "2026-05-25",
+      "message": "calidad de video Cloudinary q_auto:best + bugs de fallback",
+      "rawMessage": "fix: calidad de video Cloudinary q_auto:best + bugs de fallback",
+      "type": "fix",
+      "area": "Media"
+    },
+    {
+      "hash": "0f6a2b7",
+      "date": "2026-05-25",
+      "message": "video de fondo bolsas en carrusel de productos",
+      "rawMessage": "feat: video de fondo bolsas en carrusel de productos",
+      "type": "feat",
+      "area": "Productos"
+    },
+    {
+      "hash": "0678fd6",
+      "date": "2026-05-25",
+      "message": "organizar imágenes bolsas + Cloudinary con fallback local",
+      "rawMessage": "feat: organizar imágenes bolsas + Cloudinary con fallback local",
+      "type": "feat",
+      "area": "Productos"
+    },
+    {
+      "hash": "692557e",
+      "date": "2026-05-25",
+      "message": "reorder bolsas 15x25 to last + add bolsas to productos page carousel",
+      "rawMessage": "feat: reorder bolsas 15x25 to last + add bolsas to productos page carousel",
+      "type": "feat",
+      "area": "Productos"
+    },
+    {
+      "hash": "6ea5904",
+      "date": "2026-05-25",
+      "message": "bolsas — imagen producto corregida, galería img2 por tamaño, carrusel usa bolsa.webp",
+      "rawMessage": "fix: bolsas — imagen producto corregida, galería img2 por tamaño, carrusel usa bolsa.webp",
+      "type": "fix",
+      "area": "Productos"
+    },
+    {
+      "hash": "9c6320d",
+      "date": "2026-05-25",
+      "message": "división Bolsas — página de producto con 5 variantes de tamaño",
+      "rawMessage": "feat: división Bolsas — página de producto con 5 variantes de tamaño",
+      "type": "feat",
+      "area": "Productos"
+    },
+    {
+      "hash": "2f9c67e",
+      "date": "2026-05-25",
+      "message": "actualización general — i18n, páginas producto, estilos, assets e imágenes",
+      "rawMessage": "chore: actualización general — i18n, páginas producto, estilos, assets e imágenes",
+      "type": "chore",
+      "area": "Productos"
+    },
+    {
+      "hash": "ee6c202",
+      "date": "2026-05-25",
+      "message": "eliminar CSS bloqueante astro-cloudinary, lazy load videos, client:idle typewriter",
+      "rawMessage": "perf: eliminar CSS bloqueante astro-cloudinary, lazy load videos, client:idle typewriter",
+      "type": "perf",
+      "area": "Media"
+    },
+    {
+      "hash": "bd6628a",
+      "date": "2026-05-23",
+      "message": "distribuidor stats 35+ años → 65 años in all 5 languages",
+      "rawMessage": "fix: distribuidor stats 35+ años → 65 años in all 5 languages",
+      "type": "fix",
+      "area": "i18n"
+    },
+    {
+      "hash": "4461d44",
+      "date": "2026-05-23",
+      "message": "correct video path for about/nosotros timeline section",
+      "rawMessage": "fix: correct video path for about/nosotros timeline section",
+      "type": "fix",
+      "area": "Media"
+    },
+    {
+      "hash": "766604c",
+      "date": "2026-05-23",
+      "message": "mobile speed optimizations + back button fix for naturizable",
+      "rawMessage": "perf: mobile speed optimizations + back button fix for naturizable",
+      "type": "perf",
+      "area": "Productos"
+    },
+    {
+      "hash": "4f22648",
+      "date": "2026-05-22",
+      "message": "loader solo fondo blanco sin imagen, espera canplay del video",
+      "rawMessage": "fix: loader solo fondo blanco sin imagen, espera canplay del video",
+      "type": "fix",
+      "area": "Media"
+    },
+    {
+      "hash": "fd365d2",
+      "date": "2026-05-22",
+      "message": "loader fondo blanco con imagen pequeña centrada",
+      "rawMessage": "fix: loader fondo blanco con imagen pequeña centrada",
+      "type": "fix",
+      "area": "Media"
+    },
+    {
+      "hash": "1b6e4ac",
+      "date": "2026-05-22",
+      "message": "loader muestra imagen del producto en lugar de spinner",
+      "rawMessage": "feat: loader muestra imagen del producto en lugar de spinner",
+      "type": "feat",
+      "area": "Productos"
+    },
+    {
+      "hash": "abc5684",
+      "date": "2026-05-22",
+      "message": "sincronizar loader con canplay del video de fondo",
+      "rawMessage": "feat: sincronizar loader con canplay del video de fondo",
+      "type": "feat",
+      "area": "Media"
+    },
+    {
+      "hash": "50b8267",
+      "date": "2026-05-22",
+      "message": "eliminar flash de imagen en VideoWithFallback",
+      "rawMessage": "fix: eliminar flash de imagen en VideoWithFallback",
+      "type": "fix",
+      "area": "Media"
+    },
+    {
+      "hash": "957c28e",
+      "date": "2026-05-22",
+      "message": "corregir campo descripcion→descripcion en EN para FLEXIBLE y NATURIZABLE",
+      "rawMessage": "fix: corregir campo descripcion→descripcion en EN para FLEXIBLE y NATURIZABLE",
+      "type": "fix",
+      "area": "Productos"
+    },
+    {
+      "hash": "0908153",
+      "date": "2026-05-22",
+      "message": "agregar Naturizable al carrusel de productos en PT, AR, ZH",
+      "rawMessage": "fix: agregar Naturizable al carrusel de productos en PT, AR, ZH",
+      "type": "fix",
+      "area": "Productos"
+    },
+    {
+      "hash": "59dcb13",
+      "date": "2026-05-22",
+      "message": "corregir traducciones faltantes/erróneas en EN, PT, AR, ZH",
+      "rawMessage": "fix: corregir traducciones faltantes/erróneas en EN, PT, AR, ZH",
+      "type": "fix",
+      "area": "i18n"
+    },
+    {
+      "hash": "76c0627",
+      "date": "2026-05-22",
+      "message": "Agregar sección naturizable completa en PT, AR y ZH",
+      "rawMessage": "Agregar sección naturizable completa en PT, AR y ZH",
+      "type": "update",
+      "area": "Productos"
+    },
+    {
+      "hash": "1b30c3f",
+      "date": "2026-05-22",
+      "message": "Fix botón comprar en productos próximamente — aplica en desktop y móvil",
+      "rawMessage": "Fix botón comprar en productos próximamente — aplica en desktop y móvil",
+      "type": "update",
+      "area": "Productos"
+    },
+    {
+      "hash": "2406015",
+      "date": "2026-05-22",
+      "message": "Cloudinary organización GO/, fallbacks video/imagen, fix botón próximamente móvil",
+      "rawMessage": "Cloudinary organización GO/, fallbacks video/imagen, fix botón próximamente móvil",
+      "type": "update",
+      "area": "Media"
+    },
+    {
+      "hash": "bce9268",
+      "date": "2026-04-30",
+      "message": "Update generalCatalog URL for Spanish version",
+      "rawMessage": "Update generalCatalog URL for Spanish version",
+      "type": "update",
+      "area": "General"
+    },
+    {
+      "hash": "b9d2b56",
+      "date": "2026-04-30",
+      "message": "es",
+      "rawMessage": "es",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "3b6f5fb",
+      "date": "2026-04-21",
+      "message": "v2",
+      "rawMessage": "v2",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "d4b2a5e",
+      "date": "2026-04-21",
+      "message": "v2",
+      "rawMessage": "v2",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "3939e30",
+      "date": "2026-04-21",
+      "message": "v2",
+      "rawMessage": "v2",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "1a72183",
+      "date": "2026-04-21",
+      "message": "v2",
+      "rawMessage": "v2",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "21aa44b",
+      "date": "2026-04-21",
+      "message": "v2",
+      "rawMessage": "v2",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "c31490b",
+      "date": "2026-04-21",
+      "message": "v2",
+      "rawMessage": "v2",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "e1458c7",
+      "date": "2026-04-21",
+      "message": "v2",
+      "rawMessage": "v2",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "3ea1050",
+      "date": "2026-04-21",
+      "message": "v2",
+      "rawMessage": "v2",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "93cb72e",
+      "date": "2026-04-21",
+      "message": "v2",
+      "rawMessage": "v2",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "310ae26",
+      "date": "2026-04-21",
+      "message": "v2",
+      "rawMessage": "v2",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "3fdb00f",
+      "date": "2026-04-21",
+      "message": "v2",
+      "rawMessage": "v2",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "c16517c",
+      "date": "2026-04-20",
+      "message": "v2",
+      "rawMessage": "v2",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "93b3a3e",
+      "date": "2026-04-20",
+      "message": "v2",
+      "rawMessage": "v2",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "66ced13",
+      "date": "2026-04-15",
+      "message": "V.2",
+      "rawMessage": "V.2",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "a597fe1",
+      "date": "2026-04-15",
+      "message": "V.2",
+      "rawMessage": "V.2",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "6404d8c",
+      "date": "2026-04-13",
+      "message": "V.2",
+      "rawMessage": "V.2",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "a213225",
+      "date": "2026-04-13",
+      "message": "V.2",
+      "rawMessage": "V.2",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "8c81618",
+      "date": "2026-04-13",
+      "message": "V.2",
+      "rawMessage": "V.2",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "4e98215",
+      "date": "2026-04-13",
+      "message": "V.2",
+      "rawMessage": "V.2",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "94b88ca",
+      "date": "2026-04-11",
+      "message": "V.2",
+      "rawMessage": "V.2",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "f9d72e5",
+      "date": "2026-04-11",
+      "message": "V.2",
+      "rawMessage": "V.2",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "aa0e81e",
+      "date": "2026-04-11",
+      "message": "V.2",
+      "rawMessage": "V.2",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "b11aed6",
+      "date": "2026-04-11",
+      "message": "V.2",
+      "rawMessage": "V.2",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "3f8195a",
+      "date": "2026-04-11",
+      "message": "V.2",
+      "rawMessage": "V.2",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "6396ad8",
+      "date": "2026-04-11",
+      "message": "V.2",
+      "rawMessage": "V.2",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "211fb95",
+      "date": "2026-04-11",
+      "message": "V.2",
+      "rawMessage": "V.2",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "1f2e47f",
+      "date": "2026-04-11",
+      "message": "V.2",
+      "rawMessage": "V.2",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "84b2c72",
+      "date": "2026-03-30",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "3190446",
+      "date": "2026-03-28",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "5a23fea",
+      "date": "2026-03-28",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "86339e8",
+      "date": "2026-03-28",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "c99b5da",
+      "date": "2026-03-28",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "e9e73a3",
+      "date": "2026-03-28",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "0013736",
+      "date": "2026-03-28",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "095d37b",
+      "date": "2026-03-28",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "bae3461",
+      "date": "2026-03-27",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "cc69161",
+      "date": "2026-03-27",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "e25c3a4",
+      "date": "2026-03-27",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "ea323e8",
+      "date": "2026-03-27",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "8975b57",
+      "date": "2026-03-27",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "ec1434f",
+      "date": "2026-03-23",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "b4e3381",
+      "date": "2026-03-23",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "92e7bea",
+      "date": "2026-03-17",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "ea3dd8a",
+      "date": "2026-03-17",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "0287581",
+      "date": "2026-03-17",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "d16a5bc",
+      "date": "2026-03-17",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "5faea8a",
+      "date": "2026-03-17",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "e82eb16",
+      "date": "2026-03-14",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "7351d98",
+      "date": "2026-03-14",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "e6d1779",
+      "date": "2026-03-14",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "ca16888",
+      "date": "2026-03-14",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "ce4045e",
+      "date": "2026-03-14",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "d8a282f",
+      "date": "2026-03-14",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "73a0f19",
+      "date": "2026-03-14",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "914dbe4",
+      "date": "2026-03-14",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "a9025e8",
+      "date": "2026-03-14",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "ddd8398",
+      "date": "2026-03-14",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "2368e5f",
+      "date": "2026-03-14",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "eb54f74",
+      "date": "2026-03-14",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "db364f5",
+      "date": "2026-03-14",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "edd7473",
+      "date": "2026-03-14",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "ae06bad",
+      "date": "2026-03-14",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "c4f3e31",
+      "date": "2026-03-14",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "1a846de",
+      "date": "2026-03-14",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "5657128",
+      "date": "2026-03-14",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "21ac461",
+      "date": "2026-03-14",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "d75530b",
+      "date": "2026-03-14",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "7ead679",
+      "date": "2026-03-14",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "a53003f",
+      "date": "2026-03-14",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "92d4a7c",
+      "date": "2026-03-13",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "f9fe341",
+      "date": "2026-03-13",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "ece047d",
+      "date": "2026-03-13",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "a88dbb1",
+      "date": "2026-03-13",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "81b122b",
+      "date": "2026-03-13",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "93561eb",
+      "date": "2026-03-13",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "f84ee63",
+      "date": "2026-03-13",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "543cb7a",
+      "date": "2026-03-12",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "66313bd",
+      "date": "2026-03-12",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "b2f7128",
+      "date": "2026-03-12",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "23d94a1",
+      "date": "2026-03-12",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "a27a354",
+      "date": "2026-03-12",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "202f932",
+      "date": "2026-03-12",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "5ede990",
+      "date": "2026-03-11",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "b20ea02",
+      "date": "2026-03-11",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "31a704d",
+      "date": "2026-03-11",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "38a6bee",
+      "date": "2026-03-11",
+      "message": "v.1.2",
+      "rawMessage": "v.1.2",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "5886c86",
+      "date": "2026-03-11",
+      "message": "v.1.2",
+      "rawMessage": "v.1.2",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "68dd125",
+      "date": "2026-03-11",
+      "message": "v.1.2",
+      "rawMessage": "v.1.2",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "7dddae7",
+      "date": "2026-03-11",
+      "message": "v.1.2",
+      "rawMessage": "v.1.2",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "882c883",
+      "date": "2026-03-10",
+      "message": "v.1.2",
+      "rawMessage": "v.1.2",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "9be82ad",
+      "date": "2026-03-10",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "93ece29",
+      "date": "2026-03-10",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "7109922",
+      "date": "2026-03-10",
+      "message": "v.1.0",
+      "rawMessage": "v.1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "d920bc3",
+      "date": "2026-03-10",
+      "message": "v1.0.1",
+      "rawMessage": "v1.0.1",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "4cae665",
+      "date": "2026-03-08",
+      "message": "V1.0",
+      "rawMessage": "V1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "bde0587",
+      "date": "2026-03-08",
+      "message": "V1.0",
+      "rawMessage": "V1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "8a89d78",
+      "date": "2026-03-08",
+      "message": "V1.0",
+      "rawMessage": "V1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "46d3025",
+      "date": "2026-03-08",
+      "message": "V1.0",
+      "rawMessage": "V1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "85daf2f",
+      "date": "2026-03-08",
+      "message": "V1.0",
+      "rawMessage": "V1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "68808bf",
+      "date": "2026-03-08",
+      "message": "V1.0",
+      "rawMessage": "V1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "05c74f0",
+      "date": "2026-03-08",
+      "message": "V1.0",
+      "rawMessage": "V1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "f881f54",
+      "date": "2026-03-08",
+      "message": "V1.0",
+      "rawMessage": "V1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "f60e86e",
+      "date": "2026-03-08",
+      "message": "V1.0",
+      "rawMessage": "V1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "1a47e73",
+      "date": "2026-03-08",
+      "message": "V1.0",
+      "rawMessage": "V1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "fac2c51",
+      "date": "2026-03-07",
+      "message": "V1.0",
+      "rawMessage": "V1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "fc75bb3",
+      "date": "2026-03-07",
+      "message": "V1.0",
+      "rawMessage": "V1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "0ed4749",
+      "date": "2026-03-07",
+      "message": "V1.0",
+      "rawMessage": "V1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "502c9ad",
+      "date": "2026-03-07",
+      "message": "V1.0",
+      "rawMessage": "V1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "32c3f29",
+      "date": "2026-03-07",
+      "message": "V1.0",
+      "rawMessage": "V1.0",
+      "type": "release",
+      "area": "General"
+    },
+    {
+      "hash": "d4f180b",
+      "date": "2026-03-06",
+      "message": "cambios time",
+      "rawMessage": "cambios time",
+      "type": "update",
+      "area": "General"
+    },
+    {
+      "hash": "eaef0a3",
+      "date": "2026-03-06",
+      "message": "eliminar blog sin usar",
+      "rawMessage": "fix: eliminar blog sin usar",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "c6dad0c",
+      "date": "2026-03-06",
+      "message": "eliminar blog sin usar",
+      "rawMessage": "fix: eliminar blog sin usar",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "a639f41",
+      "date": "2026-03-06",
+      "message": "eliminar blog sin usar",
+      "rawMessage": "fix: eliminar blog sin usar",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "0736f18",
+      "date": "2026-03-06",
+      "message": "eliminar blog sin usar",
+      "rawMessage": "fix: eliminar blog sin usar",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "18e12b9",
+      "date": "2026-03-06",
+      "message": "eliminar blog sin usar",
+      "rawMessage": "fix: eliminar blog sin usar",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "30510e0",
+      "date": "2026-03-06",
+      "message": "eliminar blog sin usar",
+      "rawMessage": "fix: eliminar blog sin usar",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "fd86e57",
+      "date": "2026-03-06",
+      "message": "eliminar blog sin usar",
+      "rawMessage": "fix: eliminar blog sin usar",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "188ceff",
+      "date": "2026-03-06",
+      "message": "eliminar blog sin usar",
+      "rawMessage": "fix: eliminar blog sin usar",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "3be99e2",
+      "date": "2026-03-06",
+      "message": "eliminar blog sin usar",
+      "rawMessage": "fix: eliminar blog sin usar",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "d267b1f",
+      "date": "2026-03-06",
+      "message": "prerender true en páginas dinámicas",
+      "rawMessage": "fix: prerender true en páginas dinámicas",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "6985820",
+      "date": "2026-03-06",
+      "message": "PWA traducida + auto-dismiss + limpieza de assets",
+      "rawMessage": "feat: PWA traducida + auto-dismiss + limpieza de assets",
+      "type": "feat",
+      "area": "General"
+    },
+    {
+      "hash": "7947f96",
+      "date": "2026-03-05",
+      "message": "Mis cambios recientes",
+      "rawMessage": "Mis cambios recientes",
+      "type": "update",
+      "area": "General"
+    },
+    {
+      "hash": "b599245",
+      "date": "2026-03-05",
+      "message": "Proyecto limpio",
+      "rawMessage": "Proyecto limpio",
+      "type": "update",
+      "area": "General"
+    }
+  ],
+  "stats": {
+    "total": 148,
+    "byType": {
+      "fix": 21,
+      "feat": 7,
+      "chore": 1,
+      "perf": 2,
+      "update": 7,
+      "release": 110
+    },
+    "byArea": {
+      "Media": 9,
+      "Productos": 12,
+      "i18n": 2,
+      "General": 125
+    },
+    "byMonth": {
+      "2026-05": 23,
+      "2026-04": 29,
+      "2026-03": 96
+    },
+    "byAreaType": {
+      "Media": {
+        "fix": 6,
+        "perf": 1,
+        "feat": 1,
+        "update": 1
+      },
+      "Productos": {
+        "feat": 5,
+        "fix": 3,
+        "chore": 1,
+        "perf": 1,
+        "update": 2
+      },
+      "i18n": {
+        "fix": 2
+      },
+      "General": {
+        "update": 4,
+        "release": 110,
+        "fix": 10,
+        "feat": 1
+      }
+    }
+  },
+  "generatedAt": "2026-05-29T00:11:19.604Z"
+}

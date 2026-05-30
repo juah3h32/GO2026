@@ -63,7 +63,7 @@ const poster = (src: string) =>
     <video
       id="hero-video"
       class="hero__video hero__video--fill"
-      src={`https://res.cloudinary.com/${CLOUD}/video/upload/q_auto:best,fl_faststart/${th.hero.video}.mp4`}
+      src={`https://res.cloudinary.com/${CLOUD}/video/upload/q_auto:best/${th.hero.video}.mp4`}
       autoplay
       muted
       loop
@@ -260,7 +260,7 @@ const poster = (src: string) =>
   <div class="parallax-section">
     <div class="parallax-section__bg">
       <video
-        data-src="/videos/4K.mp4"
+        data-src={`https://res.cloudinary.com/${CLOUD}/video/upload/q_auto:best/GO/home/4K.mp4`}
         muted
         playsinline
         loop
@@ -349,7 +349,7 @@ const poster = (src: string) =>
     <video
       id="global-video"
       class="global__video"
-      src={`https://res.cloudinary.com/${CLOUD}/video/upload/q_auto:best,fl_faststart/${th.global.video}.mp4`}
+      src={`https://res.cloudinary.com/${CLOUD}/video/upload/q_auto:best/${th.global.video}.mp4`}
       autoplay
       muted
       loop

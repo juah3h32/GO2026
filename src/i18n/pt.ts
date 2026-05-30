@@ -237,21 +237,21 @@ export const pt = {
       division: "STRETCH FILM",
       descripcion: "Filme extensível de alta clareza óptica e padrões de qualidade. Garante a integridade da carga e eficiência em custos. Nossa linha inclui opção Biodegradável, formulada para se degradar 90% mais rápido.",
       slug: "stretch-film",
-      video: "GO/carrusel/stretch-film.mp4"
+      video: "/videos/carrusel/stretch-film.mp4"
     },
     {
       img: "carrusel/img4.webp",
       division: "SACO DE REDE",
       descripcion: "Sacos de malha de Rafia de Polipropileno em tecido circular de alta resistência e durabilidade. Design ventilado ideal para frutas e verduras.",
       slug: "arpillas",
-      video: "GO/carrusel/arpillas.mp4"
+      video: "/videos/carrusel/arpillas.mp4"
     },
     {
       img: "carrusel/img2.webp",
       division: "CORDA",
       descripcion: "Corda de Filamento de Polipropileno (PP) de alto desempenho. Equilíbrio perfeito: extrema leveza sem sacrificar resistência à ruptura.",
       slug: "cuerdas",
-      video: "GO/carrusel/cuerdas.mp4"
+      video: "/videos/carrusel/cuerdas.mp4"
     },
     {
       img: "carrusel/img3.webp",
@@ -265,35 +265,42 @@ export const pt = {
       division: "SACO",
       descripcion: "Sacos de Rafia de qualidade superior. Solução de embalagem robusta para alimentos, produtos químicos e fertilizantes.",
       slug: "sacos",
-      video: "GO/carrusel/sacos.mp4"
+      video: "/videos/carrusel/sacos.mp4"
     },
     {
       img: "carrusel/img6.webp",
       division: "CANTONEIRA",
       descripcion: "Cantoneiras de papelão para otimizar a logística. Resistência estrutural e maior estabilidade de carga.",
       slug: "esquineros",
-      video: "GO/carrusel/esquineros.mp4"
+      video: "/videos/carrusel/esquineros.mp4"
     },
     {
       img: "carrusel/img7.webp",
       division: "FLEXÍVEL",
       descripcion: "A Neo Empaques International é especializada em soluções avançadas de embalagem flexível, projetadas para otimizar a conservação e apresentação de produtos em múltiplas indústrias.",
       slug: "empaques-flexibles",
-      video: "GO/carrusel/bobina-impresa.mp4"
+      video: "/videos/carrusel/bobina-impresa.mp4"
     },
     {
       img: "carrusel/nuev2a.png",
       division: "NATURIZABLE",
       descripcion: "Embalagem sustentável que retorna à terra. Soluções 100% Plant Based, recicláveis e compostáveis para a indústria alimentar.",
       slug: "naturizable",
-      video: "GO/carrusel/charola.mp4"
+      video: "/videos/carrusel/charola.mp4"
     },
     {
       img: "/images/bolsas/carruselB.webp",
       division: "BOLSAS",
       descripcion: "Bolsas de polipropileno de alta resistência. Versáteis e econômicas, disponíveis em múltiplos tamanhos para embalagem industrial e comercial.",
       slug: "bolsas",
-      video: "GO/carrusel/bolsa.mp4"
+      video: "GO/carrusel/bolsa4.mp4"
+    },
+    {
+      img: "carrusel/carrusel_acolchado.png",
+      division: "ACOLCHADO",
+      descripcion: "Mulch agrícola para cobrir o solo em cultivos, hortas e jardins. Controla ervas daninhas, conserva a humidade e regula a temperatura do solo.",
+      slug: "acolchado",
+      video: "/videos/carrusel/acolchadoV.mp4"
     }
   ],
 
@@ -317,7 +324,7 @@ export const pt = {
         name: "BANDEJA 855",
         description: "Embalagem que sustenta a comida com dignidade. Serve ao taqueiro, ao açougueiro, ao feirante, ao chef — e quando termina, retorna à terra sem pedir permissão. Sustentamos o mundo. Uma bandeja de cada vez.",
         img: "/images/divisiones/detallec.webp",
-        video: "GO/carrusel/charola.mp4",
+        video: "/videos/carrusel/charola.mp4",
         specs_values: {
           material: "Cartão Kraft",
           usage: "Alimentos",
@@ -335,7 +342,7 @@ export const pt = {
         soon: true,
         description: "Copos de celulose biodegradáveis de alta qualidade. Uma solução sustentável e elegante para o serviço de bebidas, comprometida com o meio ambiente sem comprometer a funcionalidade.",
         img: "/images/divisiones/vaso.webp",
-        video: "GO/carrusel/charola.mp4",
+        video: "/videos/carrusel/charola.mp4",
         specs_values: {
           material: "Celulose",
           usage: "Bebidas / Eventos",
@@ -351,7 +358,7 @@ export const pt = {
         soon: true,
         description: "Contentores especializados para diversas aplicações industriais e comerciais. Projetados para máxima durabilidade e eficiência no armazenamento e transporte.",
         img: "/images/divisiones/contenedor.webp",
-        video: "GO/carrusel/charola.mp4",
+        video: "/videos/carrusel/charola.mp4",
         specs_values: {
           material: "Polímeros",
           usage: "Multiusos",
@@ -385,7 +392,7 @@ export const pt = {
       {
         name: 'STRETCH PREMIUM',
         img: '/images/stretch/premium.png',
-        video: "/videos/stretch/fondo.mp4",
+        video: "GO/stretch/fondo",
         link: '#',
         description: "Desenvolvido para maquinário de alta exigência, este filme stretch de estiramento moderado oferece uma solução eficiente e confiável para fixar cargas em processos automatizados. Sua composição garante alta resistência e desempenho superior em aplicações de embalagem exigentes.",
         specs_values: { width: "19-30 pol", length: "1000-15000 ft", gauge: "40-110", weight: "10-40 kg", type: "Manual" },
@@ -398,7 +405,7 @@ export const pt = {
       {
         name: 'AUTOMÁTICO',
         img: '/images/stretch/stretch.png',
-        video: "/videos/stretch/fondo.mp4",
+        video: "GO/stretch/fondo",
         link: '#',
         description: "Desenvolvido para ser aplicado com máquinas envolvedoras tradicionais, este filme stretch oferece alto rendimento e excelente desempenho em processos automatizados de paletização. Sua formulação garante resistência e estabilidade na fixação de cargas.",
         specs_values: { width: "18-30 pol", length: "2000-15000 ft", gauge: "50-110", weight: "10-49 kg", type: "Automático" },
@@ -411,7 +418,7 @@ export const pt = {
       {
         name: 'MANUAL PRÉ-ESTIRADO',
         img: '/images/stretch/prestirado.png',
-        video: "/videos/stretch/fondo.mp4",
+        video: "GO/stretch/fondo",
         link: '#',
         description: "Desenvolvido para aplicação manual de alto desempenho, este filme pré-estirado destaca-se por oferecer uma das menores espessuras do mercado. Sua tecnologia elimina a necessidade de exercer força adicional ao envolver, facilitando seu uso imediato e melhorando a eficiência no processo de paletização.",
         specs_values: { width: "16-17 pol", length: "7000-25000 ft", gauge: "40-120", weight: "10-40 kg", type: "Manual" },
@@ -424,7 +431,7 @@ export const pt = {
       {
         name: 'BANDING MANUAL',
         img: '/images/stretch/banding.png',
-        video: "/videos/stretch/fondo.mp4",
+        video: "GO/stretch/fondo",
         link: '#',
         description: "Desenvolvido para aplicação em envoltório manual com estiramento moderado, este filme stretch tradicional oferece excelente desempenho em processos de embalagem e fixação de carga. Sua composição garante resistência e estabilidade em aplicações gerais.",
         specs_values: { width: "3-12 pol", length: "7000-25000 ft", gauge: "40-120", weight: "10-40 kg", type: "Manual" },
@@ -437,7 +444,7 @@ export const pt = {
       {
         name: 'CORELESS',
         img: '/images/stretch/coreles.png',
-        video: "/videos/stretch/fondo.mp4",
+        video: "GO/stretch/fondo",
         link: '#',
         description: "Filme stretch sem tubete de papelão, desenvolvido para maximizar o aproveitamento do material e reduzir resíduos no processo de paletização. Sua construção multicamadas oferece alta resistência ao rasgo, excelente alongamento e uma fixação firme da carga, ideal para aplicações manuais e semiautomáticas.",
         specs_values: {
@@ -456,7 +463,7 @@ export const pt = {
       {
         name: 'MANUAL RÍGIDO',
         img: '/images/stretch/stretch.png',
-        video: "/videos/stretch/fondo.mp4",
+        video: "GO/stretch/fondo",
         link: '#',
         description: "Formulado especialmente para aplicações em envoltório manual com estiramento limitado, este filme stretch oferece alto desempenho e grande confiabilidade em processos de embalagem. Sua composição garante estabilidade e eficiência na fixação de cargas.",
         specs_values: { width: "17-30 pol", length: "1000-15000 ft", gauge: "40-90", weight: "10-40 kg", type: "Manual", color: "Preto/Colorido" },
@@ -503,7 +510,7 @@ export const pt = {
       {
         name: 'CORDA ESTUFA',
         img: '/images/cuerdas/CuerdaNegra.webp',
-        video: "/videos/cuerdas/CuerdaI.mp4",
+        video: "GO/cuerdas/CuerdaI",
         link: '#',
         description: "Desenvolvido com polipropileno (PP) e estabilizador UV, este cabo é ideal para o setor marítimo e atividades com alta exposição solar. Sua formulação especializada retarda o desgaste provocado pela radiação ultravioleta, prolongando sua vida útil e garantindo maior resistência às intempéries. É a solução perfeita para proporcionar firmeza e estabilidade em macrotúneis agrícolas.",
         specs_values: { load: "3.240 m", mat: "PP-UV", weight: "18 kg", resist: "105 kg", charge: "3-8 mm" },
@@ -516,7 +523,7 @@ export const pt = {
       {
         name: 'CORDA ECOLÓGICA',
         img: '/images/cuerdas/CuerdaEco.png',
-        video: "/videos/cuerdas/CuerdaE.mp4",
+        video: "GO/cuerdas/CuerdaE",
         link: '#',
         description: "Fabricada com polipropileno (PP) de alta qualidade, esta corda oferece uma ampla variedade de apresentações, calibres e cores, disponíveis em versões lisas ou combinadas, com reforço ou com marca. Sua versatilidade e resistência a tornam uma opção confiável para múltiplas aplicações, para uso em indústrias, fábricas, armazéns, mercados, ferragens, lojas de materiais e oficinas.",
         specs_values: { load: "3.240 m", mat: "PP-UV", weight: "18 kg", resist: "105 kg", charge: "3-8 mm" },
@@ -549,7 +556,7 @@ export const pt = {
         name: "RAFIA DE AMARRAR",
         description: "Fabricada com polipropileno 100% virgem, esta rafia oferece alta resistência e excelente rendimento, mantendo suas propriedades físicas mesmo em condições de intempérie. Sua qualidade garante durabilidade e desempenho confiável em aplicações exigentes. É amplamente utilizada nos setores agrícola, avícola e de horticultura.",
         img: "/images/rafias/atar.png",
-        video: "/videos/rafia/fondoN.mp4",
+        video: "GO/rafia/fondoN",
         specs_values: {
           cal: "2-8 mm",
           yield: "90 kg",
@@ -566,7 +573,7 @@ export const pt = {
         name: "RAFIA ECOLÓGICA",
         description: "Fabricada com polipropileno de alta qualidade, esta rafia oferece excelente resistência e mantém suas propriedades físicas mesmo em condições de intempérie. Seu rendimento confiável a torna uma opção ideal para aplicações agrícolas, avícolas e de horticultura.",
         img: "/images/rafias/Eco.png",
-        video: "/videos/rafia/fondoE.mp4",
+        video: "GO/rafia/fondoE",
         specs_values: {
           cal: "2-8",
           yield: "90-500 kg",
@@ -583,7 +590,7 @@ export const pt = {
         name: "RAFIA FIBRILADA PRETA",
         description: "Fabricada com polipropileno de alta qualidade, esta rafia oferece grande resistência e mantém suas propriedades físicas mesmo em condições de intempérie. Seu excelente rendimento a torna ideal para aplicações industriais, de ferragem e embalagem, bem como para os setores agrícola, avícola e de horticultura.",
         img: "/images/rafias/negra.png",
-        video: "/videos/rafia/fondoR.mp4",
+        video: "GO/rafia/fondoR",
         specs_values: {
           cal: "2-8",
           yield: "90-500 kg",
@@ -729,7 +736,7 @@ export const pt = {
       {
         name: 'SACO TRANSPARENTE',
         img: '/images/sacos/saco.png',
-        video: "/videos/saco/transp.mp4",
+        video: "GO/saco/transp",
         link: '#',
         description: "Fabricados com fitas de polipropileno e acabamento transparente, estes sacos oferecem alta resistência e permitem excelente visualização do produto embalado. Sua estrutura garante durabilidade e desempenho confiável em aplicações de armazenamento e transporte.",
         specs_values: {
@@ -841,7 +848,7 @@ export const pt = {
         name: "BOBINA IMPRESSA",
         description: "Nossas bobinas contam com grande variedade em laminações, calibres e acabamentos. Com opção de impressão até 10 tintas e 133 linhas por polegada. Desenvolvimento máximo: 1.140 mm. Largura máxima de impressão: 1.450 mm. Compatíveis com maquinário de envase automático para otimizar a eficiência de produção.",
         img: "/images/flexible/bobina-impresa.png",
-        video: "/videos/flexible/bobinaf.mp4",
+        video: "GO/flexible/bobinaf",
         gallery: [
           "/images/flexible/bobina-impresa-1.png",
           "/images/flexible/bobina-impresa.png",
@@ -877,7 +884,7 @@ export const pt = {
         name: "STAND UP POUCH",
         description: "Linha de bolsas com designs decorativos atraentes: Frutas Vermelhas, Flores, Frutas, Espigas, Presente Azul e Presente Rosa. Fecho tipo zipper, estrutura resistente e acabamentos Natural ou Metalizado. Disponíveis em tamanhos de 150 g até 1 kg. Ideais para quem busca uma embalagem de alta qualidade e apelo visual.",
         img: "/images/flexible/standup-origanics.png",
-        video: "/videos/flexible/standup-origanics.mp4",
+        video: "GO/flexible/standup-origanics",
         gallery: [
           "/images/flexible/standup-origanics-2.png",
           "/images/flexible/standup-origanics.png",
@@ -895,7 +902,7 @@ export const pt = {
         name: "BOLSA ALTO VÁCUO",
         description: "Projetadas para maximizar a frescura e vida útil de carnes, queijos, embutidos e produtos frescos. Seu selamento hermético elimina o ar, retém as propriedades naturais do produto e evita a perda de sabor, textura e qualidade. Fabricadas com materiais de alta resistência e barreira.",
         img: "/images/flexible/bolsa-alto-vacio.png",
-        video: "/videos/flexible/bolsa-alto-vacio.mp4",
+        video: "GO/flexible/bolsa-alto-vacio",
         gallery: [
           "/images/flexible/bolsa-alto-vacio-1.png",
           "/images/flexible/bolsa-alto-vacio.png",
@@ -930,31 +937,40 @@ export const pt = {
 
     products: [
       {
+        name: "BOLSA 15×20 CM",
+        img:   "/images/bolsas/15x20.png",
+        thumb: "/images/bolsas/15x20.png",
+        link:  "#",
+        description: "Bolsa de polipropileno compacta ideal para empaque de productos pequeños en porciones individuales. Alta resistencia al rasgado con acabado uniforme.",
+        specs_values: { width: "15 cm", height: "20 cm", mat: "Polipropileno", use: "Retail" },
+        gallery: ["/images/bolsas/15x20d.webp", "/images/bolsas/15x20.png", "/images/bolsas/15x20f.webp"]
+      },
+      {
         name: "BOLSA 15×25 CM",
         img:   "/images/bolsas/15x25.webp",
         thumb: "/images/bolsas/15x25.webp",
         link:  "#",
         description: "Bolsa de polipropileno compacta, ideal para embalagem de produtos pequenos. Perfeita para varejo, embalagem de sementes, especiarias e produtos de consumo em porções individuais. Alta resistência ao rasgamento com acabamento uniforme.",
         specs_values: { width: "15 cm", height: "25 cm", mat: "Polipropileno", use: "Varejo" },
-        gallery: ["/images/bolsas/bolsa.webp", "/images/bolsas/15x25.webp", "/images/bolsas/bolsa.webp"]
+        gallery: ["/images/bolsas/15x20d.webp", "/images/bolsas/15x25.webp", "/images/bolsas/15x20f.webp"]
       },
       {
         name: "BOLSA 18×25 CM",
-        img:   "/images/bolsas/18x25.webp",
-        thumb: "/images/bolsas/18x25.webp",
+        img:   "/images/bolsas/18X25.png",
+        thumb: "/images/bolsas/18X25.png",
         link:  "#",
         description: "Bolsa de polipropileno de tamanho padrão para embalagem versátil de produtos de médio volume. Ideal para grãos, cereais, lanches e artigos de uso diário com apresentação limpa e durável.",
         specs_values: { width: "18 cm", height: "25 cm", mat: "Polipropileno", use: "Embalagem industrial" },
-        gallery: ["/images/bolsas/bolsa.webp", "/images/bolsas/18x25.webp", "/images/bolsas/bolsa.webp"]
+        gallery: ["/images/bolsas/18X25_D.png", "/images/bolsas/18X25.png", "/images/bolsas/18X25_F.png"]
       },
       {
         name: "BOLSA 20×30 CM",
-        img:   "/images/bolsas/20x30.webp",
-        thumb: "/images/bolsas/20x30.webp",
+        img:   "/images/bolsas/20X30.png",
+        thumb: "/images/bolsas/20X30.png",
         link:  "#",
         description: "Bolsa de médio formato com alta capacidade volumétrica. Projetada para embalagem de frutas, verduras, produtos agrícolas e mercadorias de médio peso. Resistente ao rasgamento com acabamento uniforme.",
         specs_values: { width: "20 cm", height: "30 cm", mat: "Polipropileno", use: "Embalagem agrícola" },
-        gallery: ["/images/bolsas/bolsa.webp", "/images/bolsas/20x30.webp", "/images/bolsas/bolsa.webp"]
+        gallery: ["/images/bolsas/20X30_D.png", "/images/bolsas/20X30.png", "/images/bolsas/20X30_F.png"]
       },
       {
         name: "BOLSA 25×35 CM",
@@ -963,16 +979,84 @@ export const pt = {
         link:  "#",
         description: "Bolsa de grande formato ideal para manuseio de produtos de maior volume. Perfeita para roupas, têxteis, calçados e mercadorias de distribuição a granel. Resistência superior e excelente apresentação.",
         specs_values: { width: "25 cm", height: "35 cm", mat: "Polipropileno", use: "Distribuição a granel" },
-        gallery: ["/images/bolsas/bolsa.webp", "/images/bolsas/25x35.webp", "/images/bolsas/bolsa.webp"]
+        gallery: ["/images/bolsas/25x35_D.png", "/images/bolsas/25x35.webp", "/images/bolsas/25X35_F.png"]
       },
       {
         name: "BOLSA 30×40 CM",
-        img:   "/images/bolsas/30x40.webp",
-        thumb: "/images/bolsas/30x40.webp",
+        img:   "/images/bolsas/30X40.png",
+        thumb: "/images/bolsas/30X40.png",
         link:  "#",
         description: "Bolsa de máxima capacidade para embalagem industrial de grande volume. Projetada para cargas pesadas, materiais a granel e logística de distribuição de alta demanda. Resistência extrema com acabamento de alta qualidade.",
         specs_values: { width: "30 cm", height: "40 cm", mat: "Polipropileno", use: "Logística industrial" },
-        gallery: ["/images/bolsas/bolsa.webp", "/images/bolsas/30x40.webp", "/images/bolsas/bolsa.webp"]
+        gallery: ["/images/bolsas/30X40_D.png", "/images/bolsas/30X40.png", "/images/bolsas/30X40_F.png"]
+      },
+      {
+        name: "BOLSA 35×45 CM",
+        img:   "/images/bolsas/35X45.png",
+        thumb: "/images/bolsas/35X45.png",
+        link:  "#",
+        description: "Bolsa de polipropileno de alta capacidade para embalagem de produtos de alto volume. Projetada para cargas pesadas, materiais industriais e logística de distribuição exigente. Acabamento resistente de alta qualidade.",
+        specs_values: { width: "35 cm", height: "45 cm", mat: "Polipropileno", use: "Embalagem industrial" },
+        gallery: ["/images/bolsas/35X45_D.png", "/images/bolsas/35X45.png", "/images/bolsas/35X45_F.png"]
+      },
+      {
+        name: "BOLSA 40×60 CM",
+        img:   "/images/bolsas/40X60.png",
+        thumb: "/images/bolsas/40X60.png",
+        link:  "#",
+        description: "Bolsa extra-grande para embalagem e armazenamento de produtos volumosos. Ideal para têxteis, materiais de construção leves e distribuição em grande escala. Resistência estrutural máxima.",
+        specs_values: { width: "40 cm", height: "60 cm", mat: "Polipropileno", use: "Armazenamento industrial" },
+        gallery: ["/images/bolsas/40X60_D.png", "/images/bolsas/40X60.png", "/images/bolsas/40X60_F.png"]
+      },
+      {
+        name: "BOLSA 50×70 CM",
+        img:   "/images/bolsas/50X70.png",
+        thumb: "/images/bolsas/50X70.png",
+        link:  "#",
+        description: "Bolsa de grande formato para cargas de alto peso e volume. Projetada para aplicações industriais de alta demanda, logística de exportação e armazenagem de materiais a granel. Resistência extrema garantida.",
+        specs_values: { width: "50 cm", height: "70 cm", mat: "Polipropileno", use: "Logística e exportação" },
+        gallery: ["/images/bolsas/50X70_D.png", "/images/bolsas/50X70.png", "/images/bolsas/50X70_F.png"]
+      },
+      {
+        name: "BOLSA 60×90 CM",
+        img:   "/images/bolsas/60X90.png",
+        thumb: "/images/bolsas/60X90.png",
+        link:  "#",
+        description: "A bolsa de maior capacidade do catálogo. Ideal para embalagem industrial em grande escala, armazenamento de insumos pesados e distribuição em massa. Construída para suportar as exigências mais extremas.",
+        specs_values: { width: "60 cm", height: "90 cm", mat: "Polipropileno", use: "Industrial / Granel" },
+        gallery: ["/images/bolsas/60X90_D.png", "/images/bolsas/60X90.png", "/images/bolsas/60X90_F.png"]
+      }
+    ]
+  },
+
+  // =================================================
+  // PÁGINA: ACOLCHOADO
+  // =================================================
+  acolchado: {
+    meta_title: "Acolchoado | Grupo Ortiz",
+    meta_description: "Material acolchoado de polipropileno para proteção e amortecimento industrial. Alta resistência ao impacto.",
+    back_aria: "Voltar aos produtos",
+    specs_title: "ESPECIFICAÇÕES TÉCNICAS",
+    specs_labels: {
+      width:     "Gramagem",
+      thickness: "Proteção",
+      mat:       "Resistência",
+      use:       "Durabilidade"
+    },
+    products: [
+      {
+        name: "ACOLCHOADO",
+        img:   "/images/acolchado/acolachad1.webp",
+        thumb: "/images/acolchado/acolachad1.webp",
+        link:  "#",
+        description: "O mulch agrícola (acolchado) é um filme plástico colocado sobre o solo para o proteger e maximizar o rendimento das culturas. Evita o crescimento de ervas daninhas e relva sem herbicidas, conserva a humidade do solo reduzindo a rega, regula a temperatura da terra, previne a erosão e a lama, e mantém o cultivo mais limpo. Ideal para cultivos hortícolas, jardins e hortas de qualquer escala.",
+        specs_values: {
+          width:     "85 gr/m² + 14 gr/m²",
+          thickness: "UV",
+          mat:       "Alta",
+          use:       "Maior"
+        },
+        gallery: ["/images/acolchado/acolachad1.webp", "/images/acolchado/acolachad2.webp", "/images/acolchado/acolachad3.webp"]
       }
     ]
   },
@@ -1027,7 +1111,7 @@ export const pt = {
       title_orange:  "TRAJETÓRIA",
       nav_prev:      "Anterior",
       nav_next:      "Próximo",
-      video_bg:      "/videos/home/background.mp4",
+      video_bg:      "GO/nosotros/background",
       video_bg_webm: "",
       video_poster:  "",
       events: [
@@ -1370,7 +1454,8 @@ footer: {
         { title: "Stretch film",      tag: "Divisão 06", description: "Filme extensível de alta clareza óptica. Garante a integridade da carga com eficiência em custos. Inclui opção biodegradável.",                             img: "/images/divisiones/film-estirable.webp",    color: "#2c5f8a", slug: "stretch-film",       soon: false },
         { title: "Cantoneira",        tag: "Divisão 07", description: "Cantoneiras de papelão kraft para proteção de bordas durante o armazenamento e transporte. Distribuição uniforme de pressão e máxima estabilidade de carga.", img: "/images/divisiones/esquineros.webp",        color: "#7b3fa0", slug: "esquineros",         soon: false },
         { title: "Naturizable",       tag: "Divisão 08", description: "Embalagem sustentável que retorna à terra. Soluções 100% Plant Based, recicláveis e compostáveis para a indústria alimentar.",                        img: "/images/divisiones/desechables.webp",       color: "#e05500", slug: "naturizable",        soon: false },
-        { title: "Bolsas",            tag: "Divisão 09", description: "Bolsas de polipropileno de alta resistência para embalagem industrial e comercial. Versáteis, econômicas e disponíveis em múltiplos tamanhos e apresentações.", img: "/images/bolsas/bolsa.webp",                               color: "#c0392b", slug: "bolsas",             soon: false }
+        { title: "Bolsas",            tag: "Divisão 09", description: "Bolsas de polipropileno de alta resistência para embalagem industrial e comercial. Versáteis, econômicas e disponíveis em múltiplos tamanhos e apresentações.", img: "/images/bolsas/bolsa.webp",                               color: "#c0392b", slug: "bolsas",             soon: false },
+        { title: "Acolchoado",        tag: "Divisão 10", description: "Filme plástico para cobrir o solo em cultivos, hortas e jardins. Controla ervas daninhas, conserva a humidade, regula a temperatura do solo e previne a erosão para maior produtividade.",                          img: "/images/divisiones/acolchado.webp",                       color: "#5d7a8a", slug: "acolchado",          soon: false }
       ]
     },
 

@@ -53,7 +53,7 @@ export const POST: APIRoute = async ({ request }) => {
     const adminRole = await verifyAdminToken(request);
     if (!adminRole) return new Response(JSON.stringify({ ok: false, error: 'No autorizado' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
 
-    const { html, filename = 'reporte.pdf' } = await request.json();
+    const { html, filename = 'reporte.pdf', screenshotMode = false } = await request.json();
 
     const { executablePath, args } = await getBrowserConfig();
 
@@ -81,14 +81,35 @@ export const POST: APIRoute = async ({ request }) => {
 
     await page.setContent(html, { waitUntil: 'load', timeout: 60_000 });
 
+    // Esperar que todas las imágenes (incluyendo data-URLs) estén decodificadas
+    await page.evaluate(() =>
+      Promise.all(
+        Array.from((document as any).images)
+          .filter((img: any) => !img.complete)
+          .map((img: any) => new Promise(resolve => { img.onload = img.onerror = resolve; }))
+      )
+    );
+
+    // screenshotMode: para slides con imágenes embebidas, page.screenshot() renderiza
+    // data-URLs correctamente (page.pdf() no lo hace por limitación del motor de impresión)
+    if (screenshotMode) {
+      await new Promise(r => setTimeout(r, 500)); // tick extra para repintar
+      const png = await page.screenshot({ type: 'png', fullPage: false });
+      return new Response(new Blob([png], { type: 'image/png' }), {
+        status: 200,
+        headers: {
+          'Content-Type': 'image/png',
+          'Content-Disposition': `attachment; filename="${filename}"`,
+        },
+      });
+    }
+
     const pdf = await page.pdf({
       preferCSSPageSize: true,
       printBackground: true,
       margin: { top: 0, right: 0, bottom: 0, left: 0 },
     });
 
-    // CORRECCIÓN: Envolvemos el Uint8Array en un Blob para que TypeScript 
-    // lo reconozca como un BodyInit válido para Response.
     return new Response(new Blob([pdf], { type: 'application/pdf' }), {
       status: 200,
       headers: {

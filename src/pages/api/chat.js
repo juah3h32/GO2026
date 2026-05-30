@@ -22,6 +22,8 @@ const PRODUCT_ALIASES = {
   esquineros: ['esquinero','esquineros','esquinero kraft','cantonera','cantoneras','protector de esquina','esquineros de carton','eskinero','esquinro'],
   flexible:   ['empaque flexible','empaques flexibles','bobina','bobinas','stand up','standup','bolsa stand up','bolsa alto vacio','flexible','flexibles','pouch','empaque','empaques','bolsa impresa'],
   charola:    ['charola','charolas','charola naturizable','charola biodegradable','charola termoformable','charola para alimentos','charola compostable','charola ecologica','charola eco'],
+  bolsas:     ['bolsa pp','bolsas pp','bolsa polipropileno','bolsas polipropileno','bolsa transparente','bolsas transparentes','bolsa plastica','bolsas plasticas','bolsa 15x20','bolsa 18x25','bolsa 20x30','bolsa 25x35','bolsa 30x40','bolsa 35x45','bolsa 40x60','bolsa 50x70','bolsa 60x90','bolsas de pp'],
+  acolchado:  ['acolchado','acolchados','mulch','mulching','acolchamiento','lamina acolchada','plastico acolchado','acolchado agricola','lámina acolchada'],
 };
 
 function detectarProducto(texto) {
@@ -291,6 +293,53 @@ Contacto: WhatsApp ${waPhone} | atencionacliente@grupo-ortiz.com | Morelia, Mich
    Tipos disponibles: Charola 855 (cartón kraft antigrasa). Próximamente: Vaso de Celulosa, Contenedores.
    Usos: alimentos frescos, retail, supermercados, taqueros, carniceros, fruteros.
 
+9. BOLSAS PP — Polipropileno, alta resistencia al rasgado, acabado uniforme.
+   Medidas disponibles (ancho × alto):
+   15×20 cm — retail, semillas, especias, porciones individuales.
+   15×25 cm — retail, semillas, especias, empaque individual.
+   18×25 cm — granos, cereales, botanas, uso cotidiano.
+   20×30 cm — frutas, verduras, productos agrícolas, mediano peso.
+   25×35 cm — ropa, textiles, calzado, distribución.
+   30×40 cm — cargas pesadas, materiales a granel, logística.
+   35×45 cm — alto volumen industrial, distribución exigente.
+   40×60 cm — textiles, materiales de construcción ligeros, gran escala.
+   50×70 cm — logística de exportación, materiales a granel, alto peso.
+   60×90 cm — empaque industrial máximo, insumos pesados, distribución masiva.
+   Material: Polipropileno (PP). Usos: retail, agrícola, industrial, logística, exportación.
+
+10. ACOLCHADO — Lámina plástica agrícola (mulch).
+    Gramaje: tela 85 gr/m² + laminado 14 gr/m².
+    Protección UV incluida. Alta resistencia. Mayor durabilidad. Mejor desempeño.
+    Función: se coloca sobre el suelo para controlar malezas sin herbicidas, conservar humedad, regular temperatura, prevenir erosión y encharcamiento.
+    Usos: siembras, cultivos hortícolas, jardines, huertos de cualquier escala.
+    ⚠️ REGLA ACOLCHADO: Solo se vende el producto. NO hay instalación, NO hay accesorios, NO hay servicio adicional. Nunca ofrecer ni preguntar por instalación o accesorios.
+
+══════════════════════════════════════════
+  MÓDULO RECOMENDACIÓN POR NECESIDAD
+══════════════════════════════════════════
+Cuando el usuario describa un problema o necesidad (no nombre un producto), recomienda el más adecuado.
+Formato: 1 recomendación principal + 1 línea de por qué + pregunta de seguimiento.
+
+SIEMBRA / CULTIVO / HUERTO:
+- "proteger mi siembra / cultivo / huerto" → Acolchado: controla malezas, conserva humedad, regula temperatura, protege con UV. Solo se vende la lámina, sin instalación ni accesorios.
+- "atar mis plantas / tomates / invernadero" → Rafia o Cuerdas PP: rafia para amarre fino, cuerdas para macrotúneles.
+- "empacar mis frutas o verduras" → Arpillas (presentación y ventilación) o Bolsas PP (medida según volumen).
+
+EMPAQUE / ALMACENAJE:
+- "empacar granos / cereales / semillas / especias (pequeño)" → Bolsas PP 15×20 o 18×25.
+- "empacar frutas / verduras / productos medianos" → Bolsas PP 20×30 o 25×35.
+- "empacar ropa / textiles / calzado" → Bolsas PP 25×35 o 30×40.
+- "empacar carga pesada / a granel / fertilizantes / construcción" → Sacos de Rafia (120-200 kgf resistencia).
+- "empacar alimentos (café, quesos, carnes, embutidos)" → Empaques Flexibles (Stand Up con zipper, bolsa alto vacío).
+- "empacar alimentos frescos para retail / taquería / carnicería" → Naturizable (charola kraft compostable).
+
+LOGÍSTICA / TRANSPORTE:
+- "envolver pallets / asegurar carga / almacén" → Stretch Film (calibre según carga).
+- "proteger esquinas de mis productos en transporte" → Esquineros Kraft.
+- "empacar para exportación" → Arpillas, Bolsas PP 50×70 o 60×90, Stretch Film.
+
+REGLA: Si la necesidad puede cubrirse con más de uno, menciona el principal y di "¿tu uso es más [opción A] o [opción B]?"
+
 ══════════════════════════════════════════
   MÓDULO COTIZACIÓN / CONTACTO DIRECTO
 ══════════════════════════════════════════
@@ -303,7 +352,7 @@ Termina con: [ACCION:WHATSAPP]
 ══════════════════════════════════════════
 Si piden catálogo/ficha/PDF:
 Termina con: [ACCION:PDF:nombre]
-Valores: rafia | stretch | cuerdas | sacos | arpillas | esquineros | flexible | charola | general
+Valores: rafia | stretch | cuerdas | sacos | arpillas | esquineros | flexible | charola | bolsas | acolchado | general
 
 ══════════════════════════════════════════
   MÓDULO DISTRIBUIDOR
