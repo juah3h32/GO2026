@@ -190,19 +190,32 @@ async function sendPDFViaWahooks(phone, pdfBuffer, filename) {
     return { ok: false, error: 'Wahooks no configurado (WAHOOKS_URL / WAHOOKS_TOKEN / WAHOOKS_CONNECTION_ID)' };
   }
 
-  const to   = `${String(phone).replace(/\D/g, '')}@s.whatsapp.net`;
-  const data = pdfBuffer.toString('base64');
+  const chatId = `${String(phone).replace(/\D/g, '')}@s.whatsapp.net`;
+  const data   = pdfBuffer.toString('base64');
 
+  // Intenta enviar como documento
   try {
-    const res      = await fetch(`${url}/api/connections/${connectionId}/send-document`, {
+    const res = await fetch(`${url}/api/connections/${connectionId}/send-document`, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body:    JSON.stringify({ to, data, mimetype: 'application/pdf', filename }),
+      body:    JSON.stringify({ chatId, data, mimetype: 'application/pdf', filename }),
+    });
+    if (res.ok) return { ok: true };
+    console.warn(`[send-now] send-document falló (${res.status}) — intentando solo texto`);
+  } catch (err) {
+    console.warn(`[send-now] send-document error: ${err.message}`);
+  }
+
+  // Fallback: enviar aviso de texto sin PDF
+  try {
+    const res = await fetch(`${url}/api/connections/${connectionId}/send`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body:    JSON.stringify({ chatId, text: `📊 Reporte listo: ${filename}` }),
     });
     const bodyText = await res.text();
-    console.log(`[send-now] Wahooks ${phone} → HTTP ${res.status}: ${bodyText.slice(0, 120)}`);
     if (!res.ok) return { ok: false, error: `Wahooks HTTP ${res.status}: ${bodyText.slice(0, 120)}` };
-    return { ok: true };
+    return { ok: true, warning: 'PDF no adjuntado — motor NOWEB no soporta documentos' };
   } catch (err) {
     return { ok: false, error: String(err) };
   }

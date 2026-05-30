@@ -228,20 +228,20 @@ function buildFilename(nombre, puesto) {
   return `Perfil_${safe(nombre)}_${safe(puesto)}.pdf`;
 }
 
-// ── Wahooks: enviar mensaje de texto — endpoint /send con { to, text } ───
+// ── Wahooks: enviar mensaje de texto — endpoint /send con { chatId, text } ───
 export async function sendWAText(phone, message) {
   const url          = import.meta.env.WAHOOKS_URL;
   const token        = import.meta.env.WAHOOKS_TOKEN;
   const connectionId = import.meta.env.WAHOOKS_CONNECTION_ID;
   if (!url || !token || !connectionId) throw new Error('Wahooks no configurado');
 
-  const to = `${String(phone).replace(/\D/g, '')}@s.whatsapp.net`;
+  const chatId = `${String(phone).replace(/\D/g, '')}@s.whatsapp.net`;
   const res = await fetch(
     `${url}/api/connections/${connectionId}/send`,
     {
       method:  'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body:    JSON.stringify({ to, text: message }),
+      body:    JSON.stringify({ chatId, text: message }),
     }
   );
   if (!res.ok) {
@@ -257,18 +257,29 @@ async function sendWAPDF(phone, pdfBuffer, filename) {
   const connectionId = import.meta.env.WAHOOKS_CONNECTION_ID;
   if (!url || !token || !connectionId) throw new Error('Wahooks no configurado');
 
-  const to = `${String(phone).replace(/\D/g, '')}@s.whatsapp.net`;
+  const chatId = `${String(phone).replace(/\D/g, '')}@s.whatsapp.net`;
+
+  // Intenta enviar como documento
   const res = await fetch(
     `${url}/api/connections/${connectionId}/send-document`,
     {
       method:  'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body:    JSON.stringify({ to, data: pdfBuffer.toString('base64'), mimetype: 'application/pdf', filename }),
+      body:    JSON.stringify({ chatId, data: pdfBuffer.toString('base64'), mimetype: 'application/pdf', filename }),
     }
   );
-  if (!res.ok) {
-    const body = await res.text();
-    throw new Error(`Wahooks PDF HTTP ${res.status}: ${body.slice(0, 120)}`);
+  if (res.ok) return;
+
+  // Fallback: aviso de texto si send-document no es soportado
+  console.warn(`[notify] send-document falló (${res.status}) — enviando aviso de texto`);
+  const resTxt = await fetch(`${url}/api/connections/${connectionId}/send`, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+    body:    JSON.stringify({ chatId, text: `📎 Perfil PDF disponible: ${filename}` }),
+  });
+  if (!resTxt.ok) {
+    const body = await resTxt.text();
+    throw new Error(`Wahooks fallback HTTP ${resTxt.status}: ${body.slice(0, 120)}`);
   }
 }
 
