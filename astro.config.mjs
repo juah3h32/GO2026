@@ -13,7 +13,19 @@ export default defineConfig({
   output: 'server',
   adapter: vercel({
     isr: false,
-    functionPerRoute: true,
+    excludeFiles: [
+      './node_modules/@sparticuz/chromium/**',
+      './node_modules/pdf-parse/**',
+      './node_modules/canvas/**',
+      './node_modules/@mediapipe/**',
+      './node_modules/three/**',
+      './node_modules/three-stdlib/**',
+      './node_modules/stats-gl/**',
+      './node_modules/jspdf/**',
+      './node_modules/hls.js/**',
+      './node_modules/html2pdf.js/**',
+      './node_modules/date-fns-jalali/**',
+    ],
   }),
 
   server: {
