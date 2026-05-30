@@ -5,7 +5,7 @@ import { readRecruitmentLeads, readVacantes } from '../../../lib/analytics-db.js
 import { existsSync, readFileSync, writeFileSync, unlinkSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
-import puppeteer from 'puppeteer-core';
+
 import * as _pdfParseModule from 'pdf-parse';
 
 export const prerender = false;
@@ -73,7 +73,7 @@ async function makePDF(html) {
   const { executablePath, args } = await getBrowserConfig();
   let browser;
   try {
-    browser = await puppeteer.launch({ executablePath, args, headless: true });
+    const puppeteer = (await import('puppeteer-core')).default; browser = await puppeteer.launch({ executablePath, args, headless: true });
     const page = await browser.newPage();
     await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 2 });
     await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 60_000 });
@@ -124,7 +124,7 @@ async function pdfPageToImage(base64, nombre = '') {
     writeFileSync(tmpPath, Buffer.from(base64, 'base64'));
 
     const { executablePath, args } = await getBrowserConfig();
-    browser = await puppeteer.launch({ executablePath, args, headless: true });
+    const puppeteer = (await import('puppeteer-core')).default; browser = await puppeteer.launch({ executablePath, args, headless: true });
 
     const page = await browser.newPage();
     // Tamaño A4 a 96dpi * 1.5 escala

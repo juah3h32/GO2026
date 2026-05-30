@@ -1,7 +1,6 @@
 // src/lib/notify.js
 // Notificaciones WhatsApp para nuevos candidatos — mismo estilo blanco que los reportes
 import { readCandidateNotifications, touchCandidateNotifLastSent } from './analytics-db.js';
-import puppeteer    from 'puppeteer-core';
 import { existsSync, readFileSync } from 'fs';
 import { join }     from 'path';
 
@@ -56,6 +55,9 @@ async function getBrowserConfig() {
 // ── Generar PDF con Puppeteer ─────────────────────────────────────────────────
 async function generatePDF(html) {
   const { executablePath, args } = await getBrowserConfig();
+  let puppeteer;
+  try { puppeteer = (await import('puppeteer-core')).default; }
+  catch { throw new Error('puppeteer-core no disponible en este entorno'); }
   let browser;
   try {
     browser = await puppeteer.launch({ executablePath, args, headless: true });

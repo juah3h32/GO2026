@@ -4,7 +4,7 @@
 
 import type { APIRoute } from 'astro';
 import { verifyAdminToken } from '../../../lib/verifyAdminToken.ts';
-import puppeteer from 'puppeteer-core';
+
 import { existsSync } from 'fs';
 
 const LOCAL_CHROME_PATHS = [
@@ -82,7 +82,7 @@ export const POST: APIRoute = async ({ request }) => {
 
     const { executablePath, args } = await getBrowserConfig();
 
-    browser = await puppeteer.launch({
+    const puppeteer = (await import('puppeteer-core')).default; browser = await puppeteer.launch({
       executablePath,
       args,
       headless: true,

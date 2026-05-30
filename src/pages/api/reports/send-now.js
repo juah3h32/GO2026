@@ -5,7 +5,7 @@ import { buildReportHTML }                                   from '../../../comp
 import { readAllData, readLeads, readRecruitmentLeads }      from '../../../lib/analytics-db.js';
 import { verifyAdminToken }                                  from '../../../lib/verifyAdminToken.ts';
 import { checkRateLimit, getClientIp }                       from '../../../lib/rateLimit.ts';
-import puppeteer                                             from 'puppeteer-core';
+
 import { existsSync, readFileSync }                          from 'fs';
 import { join }                                              from 'path';
 
@@ -162,7 +162,7 @@ async function generatePDF(html) {
   const { executablePath, args } = await getBrowserConfig();
   let browser;
   try {
-    browser = await puppeteer.launch({ executablePath, args, headless: true });
+    const puppeteer = (await import('puppeteer-core')).default; browser = await puppeteer.launch({ executablePath, args, headless: true });
     const page = await browser.newPage();
     await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 2 });
     // networkidle2 es más rápido que networkidle0 y suficiente para renderizar fuentes

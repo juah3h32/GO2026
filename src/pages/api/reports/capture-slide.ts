@@ -6,7 +6,7 @@
 
 import type { APIRoute } from 'astro';
 import { verifyAdminToken } from '../../../lib/verifyAdminToken.ts';
-import puppeteer from 'puppeteer-core';
+
 import { existsSync, readFileSync, writeFileSync, unlinkSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
@@ -167,7 +167,7 @@ export const POST: APIRoute = async ({ request }) => {
     const logoBase64 = localFileToBase64('images/logo/logoN.png', 'image/png');
 
     const { executablePath, args } = await getBrowserConfig();
-    browser = await puppeteer.launch({ executablePath, args, headless: true });
+    const puppeteer = (await import('puppeteer-core')).default; browser = await puppeteer.launch({ executablePath, args, headless: true });
 
     // ── PASO 1: Screenshot de cada página → archivo en /tmp ─────────────────
     const imageFiles: { label: string; filePath: string | null }[] = [];
