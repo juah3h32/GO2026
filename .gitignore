@@ -44,3 +44,6 @@ credentials.json
 
 # vercel
 .vercel
+
+# videos locales — servir desde Cloudinary en producción
+public/videos/
