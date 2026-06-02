@@ -10,6 +10,7 @@ import { join }       from 'node:path';
 import { saveWAIncoming, updateWAIncomingReply, getWAAuthorizedByPhone, getWagoConfig } from '../../../lib/analytics-db.js';
 import { sendWAText, sendWAPDF, generateReportPDF } from '../../../lib/notify.js';
 import { ejecutarComando } from '../../../lib/wa-commands.js';
+import { ejecutarAsistente } from '../../../lib/wa-assistant.js';
 
 function getLogoBase64() {
   try {
@@ -87,10 +88,20 @@ export async function POST({ request }) {
   let replyPdfData = null;
 
   if (authorized) {
-    // ── Bot de comandos privados ──────────────────────────────────────────────
+    // ── Asistente IA (cerebro) para números autorizados ──────────────────────
     try {
-      const result = await ejecutarComando(msg.body, authorized.permissions);
-      // result es { text, pdfData? } o string legacy
+      let result = null;
+
+      // 1. Asistente IA — entiende lenguaje natural y consulta datos reales
+      try {
+        result = await ejecutarAsistente(msg.body, authorized.permissions, msg.phone);
+      } catch (e) { console.error('[webhook/wa] Asistente IA:', e.message); }
+
+      // 2. Fallback: motor de comandos rígidos si la IA no responde
+      if (!result) {
+        result = await ejecutarComando(msg.body, authorized.permissions);
+      }
+
       if (result && typeof result === 'object') {
         replyText    = result.text    || null;
         replyPdfData = result.pdfData || null;

@@ -992,7 +992,14 @@ export async function getWAAuthorized() {
 export async function getWAAuthorizedByPhone(phone) {
   await ensureInit();
   const clean = String(phone).replace(/\D/g, '');
-  const r = await db.execute({ sql: `SELECT id, phone, name, permissions, active FROM wa_authorized WHERE phone=? AND active=1`, args: [clean] });
+  // Match flexible: WhatsApp manda 521+10 o 52+10 dígitos; el registro puede
+  // tener solo los 10. Comparar por los últimos 10 dígitos de ambos lados.
+  const last10 = clean.slice(-10);
+  const r = await db.execute({
+    sql: `SELECT id, phone, name, permissions, active FROM wa_authorized
+          WHERE active=1 AND (phone=? OR substr(replace(phone,' ',''),-10)=?)`,
+    args: [clean, last10],
+  });
   if (!r.rows.length) return null;
   const row = r.rows[0];
   return { id: row[0], phone: row[1], name: row[2], permissions: JSON.parse(row[3] || '[]'), active: row[4] === 1 };
