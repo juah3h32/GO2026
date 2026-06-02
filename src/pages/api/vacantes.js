@@ -23,7 +23,7 @@ export async function GET() {
     return json({ ok: true, vacantes, beneficios });
   } catch (err) {
     console.error('[vacantes GET]', err);
-    return json({ ok: false, error: 'Error interno del servidor' }, 500);
+    return json({ ok: false, error: `DB error: ${err?.message || err}` }, 500);
   }
 }
 

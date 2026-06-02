@@ -18,7 +18,7 @@ export default defineConfig({
   server: {
     host: true,
     port: 4321,
-    allowedHosts: 'all',
+    allowedHosts: true,
   },
 
   integrations: [
@@ -68,7 +68,7 @@ vite: {
     dedupe: ['react', 'react-dom'],
   },
   // ⚠️ CRÍTICO: Whitelist de prefijos de env seguros para SSR
-  // Secretos como CRON_SECRET_EXTERNAL, WAHOOKS_TOKEN deben accederse SOLO via process.env en server
+  // Secretos como CRON_SECRET_EXTERNAL, WAGO_TOKEN deben accederse SOLO via process.env en server
   envPrefix: ['TURSO_', 'JWT_', 'OPENAI_', 'NOTIFY_', 'VAPID_'],
   ssr: {
     noExternal: [],
@@ -79,7 +79,7 @@ vite: {
     },
     // Permite que Vite no bloquee recursos externos en build
     server: {
-      allowedHosts: 'all',
+      allowedHosts: true,
       headers: {
         // ⚠️ ADVERTENCIA: CSP actual es muy permisiva para desarrollo
         // En producción, eliminar 'unsafe-inline' y 'unsafe-eval', usar nonces

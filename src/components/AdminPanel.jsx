@@ -522,6 +522,7 @@ const GLOBAL_CSS = `
     -webkit-box-shadow: 0 0 0 100px #FFFFFF inset !important;
     -webkit-text-fill-color: #111827 !important;
   }
+
 `;
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
@@ -658,15 +659,15 @@ function LineChart({ daily }) {
   const vals   = entries.map(([,v])=>v.messages||0);
   const waVals = entries.map(([,v])=>v.wa||0);
   const mv=Math.max(...vals,...waVals,1), mn=0;
-  const W=440, H=80, step=W/(vals.length-1);
-  const py = v => H - ((v-mn)/Math.max(mv-mn,1))*(H-16) - 8;
+  const W=440, H=180, step=W/(vals.length-1);
+  const py = v => H - ((v-mn)/Math.max(mv-mn,1))*(H-24) - 12;
   const pts    = vals.map((v,i)=>({ x:i*step, y:py(v) }));
   const waPts  = waVals.map((v,i)=>({ x:i*step, y:py(v) }));
   const pathD  = pts.map((p,i)=>`${i===0?'M':'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
   const waPath = waPts.map((p,i)=>`${i===0?'M':'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
   const areaD  = `${pathD} L${W},${H+4} L0,${H+4} Z`;
   return (
-    <svg width="100%" viewBox={`-4 -4 ${W+8} ${H+58}`} style={{ display:'block' }}>
+    <svg width="100%" viewBox={`-4 -8 ${W+8} ${H+72}`} style={{ display:'block' }}>
       <defs>
         <linearGradient id="ag1" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={P.orange} stopOpacity="0.22"/>
@@ -789,12 +790,12 @@ function DonutChart({ intents }) {
   const ents   = Object.entries(intents||{}).filter(([,v])=>v>0);
   const total  = ents.reduce((s,[,v])=>s+v,0)||1;
   let cumul=0;
-  const R=42, CX=54, CY=54;
+  const R=72, CX=90, CY=90;
   const polar = pct => { const a=pct*2*Math.PI-Math.PI/2; return [CX+R*Math.cos(a), CY+R*Math.sin(a)]; };
   const slices = ents.map(([key,val])=>{ const pct=val/total, start=cumul; cumul+=pct; return {key,val,pct,start}; });
   return (
-    <div style={{ display:'flex', alignItems:'center', gap:24, flexWrap:'wrap' }}>
-      <svg width={108} height={108} viewBox="0 0 108 108" style={{ flexShrink:0 }}>
+    <div style={{ display:'flex', flex:1, minHeight:0, alignItems:'center', justifyContent:'center', gap:32, flexWrap:'wrap', padding:'8px 0' }}>
+      <svg viewBox="0 0 180 180" style={{ width:'min(200px,45%)', height:'auto', flexShrink:0 }}>
         {slices.length===0
           ? <circle cx={CX} cy={CY} r={R} fill={P.border2} stroke={P.border} strokeWidth="1.5"/>
           : slices.map(({key,pct,start},i) => {
@@ -802,21 +803,21 @@ function DonutChart({ intents }) {
               return <path key={key} d={`M${CX},${CY} L${x1},${y1} A${R},${R} 0 ${pct>.5?1:0},1 ${x2},${y2} Z`}
                 fill={COLORS[i%COLORS.length]} opacity="0.90"/>;
             })}
-        <circle cx={CX} cy={CY} r={30} fill={P.bg}/>
-        <circle cx={CX} cy={CY} r={30} fill="none" stroke={P.border} strokeWidth="1.5"/>
-        <text x={CX} y={CY-8} textAnchor="middle" fill={P.textDim} fontSize="7.5" fontFamily="DM Sans,system-ui" letterSpacing="0.1em">TOTAL</text>
-        <text x={CX} y={CY+13} textAnchor="middle" fill={P.text} fontSize="22" fontFamily="DM Mono,monospace" fontWeight="500">{total}</text>
+        <circle cx={CX} cy={CY} r={50} fill={P.bg}/>
+        <circle cx={CX} cy={CY} r={50} fill="none" stroke={P.border} strokeWidth="1.5"/>
+        <text x={CX} y={CY-10} textAnchor="middle" fill={P.textDim} fontSize="10" fontFamily="DM Sans,system-ui" letterSpacing="0.1em">TOTAL</text>
+        <text x={CX} y={CY+18} textAnchor="middle" fill={P.text} fontSize="32" fontFamily="DM Mono,monospace" fontWeight="500">{total}</text>
       </svg>
-      <div style={{ display:'flex', flexDirection:'column', gap:8, flex:1, minWidth:130 }}>
+      <div style={{ display:'flex', flexDirection:'column', gap:12, flex:1, minWidth:140 }}>
         {ents.map(([key,val],i)=>{ const color=COLORS[i%COLORS.length], pct=Math.round((val/total)*100); return (
-          <div key={key} style={{ display:'flex', alignItems:'center', gap:10 }}>
-            <div style={{ width:3, height:14, borderRadius:2, background:color, flexShrink:0, opacity:0.9 }}/>
-            <span style={{ color:P.textSub, fontSize:11, flex:1 }}>{LABELS[key]||key}</span>
-            <span className="mono" style={{ color:P.text, fontSize:11, fontWeight:600 }}>{val}</span>
-            <span className="mono" style={{ color:P.textDim, fontSize:10, width:32, textAlign:'right' }}>{pct}%</span>
+          <div key={key} style={{ display:'flex', alignItems:'center', gap:12 }}>
+            <div style={{ width:4, height:18, borderRadius:2, background:color, flexShrink:0, opacity:0.9 }}/>
+            <span style={{ color:P.textSub, fontSize:13, flex:1 }}>{LABELS[key]||key}</span>
+            <span className="mono" style={{ color:P.text, fontSize:13, fontWeight:600 }}>{val}</span>
+            <span className="mono" style={{ color:P.textDim, fontSize:11, width:36, textAlign:'right' }}>{pct}%</span>
           </div>
         ); })}
-        {!ents.length&&<span style={{ color:P.textDim, fontSize:11 }}>Sin datos</span>}
+        {!ents.length&&<span style={{ color:P.textDim, fontSize:12 }}>Sin datos</span>}
       </div>
     </div>
   );
@@ -1200,7 +1201,7 @@ function getStrength(pw) {
 // Tabs disponibles para asignar permisos
 const ALL_PERMS = [
   {id:'overview'},{id:'console'},{id:'activity'},{id:'products'},{id:'keywords'},
-  {id:'messages'},{id:'conversations'},{id:'distribuidores'},
+  {id:'messages'},{id:'conversations'},{id:'distribuidores'},{id:'whatsapp'},
   {id:'recruitment'},{id:'vacantes'},{id:'ai'},{id:'reportes'},{id:'changelog'},
 ];
 
@@ -1946,7 +1947,7 @@ const SC_METRICS = [
 ];
 
 // ── DASH ──────────────────────────────────────────────────────────────────────
-function Dash({ onClose, role, theme='dark', toggleTheme }) {
+function Dash({ onClose, role, theme='dark', toggleTheme, fullscreen=false }) {
   const P = useP();
   const w=useWindowWidth(), isMobile=w<640, isTablet=w<900;
   const [data,setData]=useState(null), [loading,setLoading]=useState(true);
@@ -2059,9 +2060,13 @@ const isMarketing = role.name === 'Marketing';
   useEffect(()=>{ if(tab==='llamadas'){setSelectedCall(null);loadVoiceCalls();} },[tab]);
   useEffect(()=>{
     clearInterval(itvRef.current);
-    if(auto) itvRef.current=setInterval(()=>load(true,activePeriod?.from,activePeriod?.to),10000);
+    // No hacer polling cuando el usuario está en tabs de interacción (whatsapp, users, etc.)
+    const noPollingTabs = ['whatsapp','users','recruitment','vacantes','reportes','changelog'];
+    if(auto && !noPollingTabs.includes(tab)) {
+      itvRef.current=setInterval(()=>load(true,activePeriod?.from,activePeriod?.to),10000);
+    }
     return()=>clearInterval(itvRef.current);
-  },[load,auto,activePeriod]);
+  },[load,auto,activePeriod,tab]);
 
   const handlePresetSelect=useCallback(preset=>{
     setActivePresetId(preset.id);
@@ -2114,6 +2119,429 @@ const isMarketing = role.name === 'Marketing';
     if(activePresetId==='custom'&&activePeriod?.from)return`${activePeriod.from} – ${activePeriod.to}`;
     return PERIOD_PRESETS.find(p=>p.id===activePresetId)?.label||'';
   })();
+// ── WhatsApp Webhook Tab ──────────────────────────────────────────────────────
+const PERM_OPTIONS = [
+  { id: 'reports',       label: 'Reportes' },
+  { id: 'candidates',    label: 'Candidatos' },
+  { id: 'vacantes',      label: 'Vacantes' },
+  { id: 'distribuidores',label: 'Distribuidores' },
+  { id: 'messages',      label: 'Mensajes bot' },
+  { id: '*',             label: 'Acceso total' },
+];
+
+function WAWebhookTab({ P, isMobile }) {
+  const [subTab, setSubTab]   = useState('conexion');
+  const [msgs, setMsgs]       = useState([]);
+  const [msgsLoading, setMsgsLoading] = useState(false);
+  const [authorized, setAuthorized]   = useState([]);
+  const [authLoading, setAuthLoading] = useState(false);
+
+  // form envío
+  const [sPhone, setSPhone] = useState('');
+  const [sText, setSText]   = useState('');
+  const [sending, setSending] = useState(false);
+  const [sendErr, setSendErr] = useState('');
+
+  // form agregar número
+  const [addPhone, setAddPhone]   = useState('');
+  const [addName, setAddName]     = useState('');
+  const [addPerms, setAddPerms]   = useState([]);
+  const [addErr, setAddErr]       = useState('');
+  const [addLoading, setAddLoading] = useState(false);
+
+  // edición inline
+  const [editId, setEditId]     = useState(null);
+  const [editPerms, setEditPerms] = useState([]);
+  const [editActive, setEditActive] = useState(true);
+
+  const [copied, setCopied] = useState(false);
+
+  // Clave de integración WAGO
+  const [wagoConfig, setWagoConfig]     = useState(null);
+  const [wagoKey, setWagoKey]           = useState('');
+  const [wagoSaving, setWagoSaving]     = useState(false);
+  const [wagoMsg, setWagoMsg]           = useState(null);
+
+  const loadWagoConfig = async () => {
+    try {
+      const r = await fetch('/api/admin/wago-config', { credentials: 'include' });
+      const d = await r.json();
+      if (d.ok) setWagoConfig(d);
+    } catch {}
+  };
+
+  useEffect(() => { loadWagoConfig(); }, []);
+
+  const handleSaveWagoKey = async () => {
+    const key = wagoKey.trim();
+    if (!key) return;
+    setWagoSaving(true); setWagoMsg(null);
+    try {
+      const r = await fetch('/api/admin/wago-config', {
+        method: 'POST', credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ integrationKey: key }),
+      });
+      const d = await r.json();
+      if (d.ok) { setWagoMsg({ ok: true, text: 'Conexión guardada' }); setWagoKey(''); await loadWagoConfig(); }
+      else setWagoMsg({ ok: false, text: d.error || 'Error al guardar' });
+    } catch (e) { setWagoMsg({ ok: false, text: e.message }); }
+    setWagoSaving(false);
+  };
+
+  const handleDisconnectWago = async () => {
+    if (!window.confirm('Desconectar WAGO?')) return;
+    await fetch('/api/admin/wago-config', { method: 'DELETE', credentials: 'include' });
+    setWagoConfig(null); setWagoMsg({ ok: true, text: 'Desconectado' });
+  };
+
+  const webhookUrl = typeof window !== 'undefined'
+    ? `${window.location.origin}/api/webhook/whatsapp`
+    : '/api/webhook/whatsapp';
+
+  const api = (body) => fetch('/api/webhook/wa-admin', {
+    method: 'POST', credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  }).then(r => r.json());
+
+  async function loadMsgs() {
+    setMsgsLoading(true);
+    const d = await api({ action: 'list', limit: 60 }).catch(() => ({}));
+    if (d.ok) setMsgs(d.messages || []);
+    setMsgsLoading(false);
+  }
+
+  async function loadAuthorized() {
+    setAuthLoading(true);
+    const d = await api({ action: 'authorized_list' }).catch(() => ({}));
+    if (d.ok) setAuthorized(d.authorized || []);
+    setAuthLoading(false);
+  }
+
+  useEffect(() => {
+    if (subTab === 'conexion') { loadMsgs(); loadAuthorized(); }
+    else if (subTab === 'numeros') loadAuthorized();
+  }, [subTab]);
+
+  async function handleSend(e) {
+    e.preventDefault(); setSendErr('');
+    if (!sPhone.trim() || !sText.trim()) return;
+    setSending(true);
+    const d = await api({ action: 'send', phone: sPhone.trim(), text: sText.trim() });
+    if (d.ok) { setSText(''); loadMsgs(); }
+    else setSendErr(d.error || 'Error al enviar');
+    setSending(false);
+  }
+
+  async function handleAddPhone(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    setAddErr('');
+    if (!addPhone.trim()) return;
+    setAddLoading(true);
+    try {
+      const d = await api({ action: 'authorized_add', phone: addPhone.trim(), name: addName.trim(), permissions: addPerms });
+      if (d.ok) { setAddPhone(''); setAddName(''); setAddPerms([]); loadAuthorized(); }
+      else setAddErr(d.error || 'Error al agregar');
+    } catch (e) { setAddErr('Error de conexión'); }
+    setAddLoading(false);
+  }
+
+  async function handleSaveEdit(item) {
+    try {
+      await api({ action: 'authorized_update', id: item.id, name: item.name, permissions: editPerms, active: editActive });
+      setEditId(null);
+      loadAuthorized();
+    } catch { /* silencioso */ }
+  }
+
+  async function handleDelete(id) {
+    if (!window.confirm('Eliminar este número?')) return;
+    try {
+      await api({ action: 'authorized_delete', id });
+      loadAuthorized();
+    } catch { /* silencioso */ }
+  }
+
+  function togglePerm(arr, setArr, id) {
+    if (id === '*') { setArr(arr.includes('*') ? [] : ['*']); return; }
+    setArr(arr.includes(id) ? arr.filter(x => x !== id) : [...arr.filter(x => x !== '*'), id]);
+  }
+
+  const CARD = { background: P.surface, border: `1px solid ${P.border}`, borderRadius: 12, padding: '18px 20px', marginBottom: 14 };
+  const LABEL = { fontSize: 11, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: P.textDim, marginBottom: 10 };
+  const INPUT = { background: P.surface2, border: `1px solid ${P.border}`, borderRadius: 8, padding: '8px 11px', color: P.text, fontSize: 12, outline: 'none' };
+  const BTN_SM = { padding: '5px 10px', background: P.surface2, border: `1px solid ${P.border}`, borderRadius: 7, color: P.textSub, fontSize: 11, cursor: 'pointer' };
+  const fmtTs = ts => {
+    if (!ts) return '';
+    try { return new Date(ts.replace(' ', 'T') + 'Z').toLocaleString('es-MX', { timeZone: 'America/Mexico_City', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }); }
+    catch { return ts; }
+  };
+
+  const SUB_TABS = [
+    { id: 'conexion', label: 'Conexion y mensajes' },
+    { id: 'numeros',  label: 'Numeros autorizados' },
+    { id: 'comandos', label: 'Comandos disponibles' },
+  ];
+
+  return (
+    <div>
+      {/* Sub-tabs */}
+      <div style={{ display: 'flex', gap: 4, marginBottom: 16, background: P.surface2, borderRadius: 9, padding: 4, width: 'fit-content' }}>
+        {SUB_TABS.map(t => (
+          <button key={t.id} onClick={() => setSubTab(t.id)}
+            style={{ padding: '6px 14px', borderRadius: 7, border: 'none', background: subTab === t.id ? P.surface : 'transparent',
+              color: subTab === t.id ? P.text : P.textDim, fontSize: 11, fontWeight: subTab === t.id ? 600 : 400, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {/* ── CONEXION Y MENSAJES ── */}
+      {subTab === 'conexion' && (
+        <div>
+          {/* Clave de integración WAGO */}
+          <div style={{ ...CARD, borderColor: wagoConfig?.configured ? '#22c55e40' : P.border, position: 'relative', overflow: 'hidden' }}>
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2.5,
+              background: wagoConfig?.configured ? 'linear-gradient(90deg,#22C55E,#16A34A,transparent)' : `linear-gradient(90deg,${P.orange},transparent)`,
+              opacity: 0.7 }}/>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+              <div>
+                <p style={{ ...LABEL, marginBottom: 2 }}>Conectar WAGO</p>
+                {wagoConfig?.configured ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#22C55E', display: 'inline-block', boxShadow: '0 0 6px #22C55E' }}/>
+                    <span style={{ fontSize: 11, color: '#22C55E', fontWeight: 600 }}>Conectado</span>
+                    <span style={{ fontSize: 10, color: P.textDim }}>{wagoConfig.connectionId}</span>
+                  </div>
+                ) : (
+                  <span style={{ fontSize: 11, color: P.textDim }}>Sin conexión WAGO</span>
+                )}
+              </div>
+              {wagoConfig?.configured && (
+                <button onClick={handleDisconnectWago}
+                  style={{ fontSize: 10, color: '#f87171', border: '1px solid rgba(248,113,113,0.3)', borderRadius: 7, padding: '4px 10px', background: 'transparent', cursor: 'pointer' }}>
+                  Desconectar
+                </button>
+              )}
+            </div>
+            {!wagoConfig?.configured && (
+              <div>
+                <div style={{ fontSize: 11, color: P.textDim, marginBottom: 10, lineHeight: 1.7, background: P.surface3, borderRadius: 8, padding: '8px 10px', border: `1px solid ${P.border}` }}>
+                  <strong style={{ color: P.textSub }}>Pasos:</strong><br/>
+                  1. Abre <strong style={{ color: P.orange }}>wago-lake.vercel.app</strong><br/>
+                  2. Tu conexión → <strong style={{ color: P.textSub }}>Credenciales</strong><br/>
+                  3. Clic en <strong style={{ color: P.orange }}>"Generar clave de integración"</strong><br/>
+                  4. Copia la clave que empieza con <code style={{ fontSize: 10, background: P.surface2, padding: '1px 5px', borderRadius: 4 }}>wago_v1_</code><br/>
+                  5. Pega aquí
+                </div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <input
+                    value={wagoKey}
+                    onChange={e => setWagoKey(e.target.value)}
+                    placeholder="wago_v1_%7B%22url%22%3A%22https..."
+                    style={{ ...INPUT, flex: 1, fontFamily: 'monospace', fontSize: 11 }}
+                  />
+                  <button onClick={handleSaveWagoKey} disabled={wagoSaving || !wagoKey.trim()}
+                    style={{ padding: '8px 16px', background: P.orange, border: 'none', borderRadius: 8, color: '#fff', fontSize: 12, fontWeight: 600, cursor: (wagoSaving || !wagoKey.trim()) ? 'not-allowed' : 'pointer', opacity: (wagoSaving || !wagoKey.trim()) ? 0.6 : 1 }}>
+                    {wagoSaving ? '...' : 'Guardar'}
+                  </button>
+                </div>
+              </div>
+            )}
+            {wagoMsg && (
+              <p style={{ fontSize: 11, marginTop: 8, color: wagoMsg.ok ? '#22C55E' : '#f87171' }}>{wagoMsg.text}</p>
+            )}
+          </div>
+
+          {/* URL webhook */}
+          <div style={CARD}>
+            <p style={LABEL}>URL del Webhook — pegar en WAGO</p>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+              <code style={{ ...INPUT, flex: 1, wordBreak: 'break-all', fontFamily: 'monospace', display: 'block' }}>{webhookUrl}</code>
+              <button onClick={() => { navigator.clipboard.writeText(webhookUrl); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
+                style={{ ...BTN_SM, border: `1px solid ${copied ? P.orange : P.border}`, color: copied ? P.orange : P.textSub }}>
+                {copied ? 'Copiado' : 'Copiar'}
+              </button>
+            </div>
+            <p style={{ fontSize: 11, color: P.textDim, marginTop: 8, lineHeight: 1.6 }}>
+              Metodo: <strong style={{ color: P.textSub }}>POST</strong>. Variable opcional: <code style={{ fontSize: 11 }}>WAGO_WEBHOOK_SECRET</code> + header <code style={{ fontSize: 11 }}>x-webhook-secret</code>.
+            </p>
+          </div>
+
+          {/* Enviar mensaje manual */}
+          <div style={CARD}>
+            <p style={LABEL}>Enviar mensaje manual</p>
+            <form onSubmit={handleSend} style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <input value={sPhone} onChange={e => setSPhone(e.target.value)} placeholder="Telefono (521234567890)"
+                style={{ ...INPUT, flex: '0 0 180px' }}/>
+              <input value={sText} onChange={e => setSText(e.target.value)} placeholder="Mensaje..."
+                style={{ ...INPUT, flex: 1, minWidth: 120 }}/>
+              <button type="submit" disabled={sending}
+                style={{ padding: '8px 16px', background: P.orange, border: 'none', borderRadius: 8, color: '#fff', fontSize: 12, fontWeight: 600, cursor: sending ? 'not-allowed' : 'pointer', opacity: sending ? 0.7 : 1 }}>
+                {sending ? '...' : 'Enviar'}
+              </button>
+            </form>
+            {sendErr && <p style={{ fontSize: 11, color: '#f87171', marginTop: 6 }}>{sendErr}</p>}
+          </div>
+
+          {/* Mensajes entrantes */}
+          <div style={CARD}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+              <p style={{ ...LABEL, marginBottom: 0 }}>Mensajes entrantes</p>
+              <button onClick={loadMsgs} style={BTN_SM}>{msgsLoading ? '...' : 'Actualizar'}</button>
+            </div>
+            {msgsLoading && <p style={{ fontSize: 12, color: P.textDim, textAlign: 'center', padding: '24px 0' }}>Cargando...</p>}
+            {!msgsLoading && msgs.length === 0 && <p style={{ fontSize: 12, color: P.textDim, textAlign: 'center', padding: '32px 0' }}>Sin mensajes</p>}
+            {!msgsLoading && msgs.map(m => (
+              <div key={m.id} style={{ borderBottom: `1px solid ${P.border2}`, paddingBottom: 10, marginBottom: 10 }}>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 3 }}>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: P.orange }}>{m.phone}</span>
+                  <span style={{ fontSize: 10, color: P.textDim }}>{fmtTs(m.ts)}</span>
+                  {authorized.find(a => a.phone === m.phone) && (
+                    <span style={{ fontSize: 9, background: P.okDim, color: P.orange, borderRadius: 6, padding: '1px 6px', fontWeight: 700 }}>Admin</span>
+                  )}
+                </div>
+                <p style={{ fontSize: 12, color: P.text, margin: 0, lineHeight: 1.5 }}>{m.body}</p>
+                {m.bot_reply && (
+                  <p style={{ fontSize: 11, color: P.textSub, margin: '4px 0 0', paddingLeft: 10, borderLeft: `2px solid ${P.border}`, whiteSpace: 'pre-wrap' }}>{m.bot_reply}</p>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── NUMEROS AUTORIZADOS ── */}
+      {subTab === 'numeros' && (
+        <div>
+          {/* Agregar número */}
+          <div style={CARD}>
+            <p style={LABEL}>Agregar numero autorizado</p>
+            <form onSubmit={handleAddPhone}>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 10 }}>
+                <input value={addPhone} onChange={e => setAddPhone(e.target.value)} placeholder="Telefono (521234567890)"
+                  style={{ ...INPUT, flex: '0 0 180px' }}/>
+                <input value={addName} onChange={e => setAddName(e.target.value)} placeholder="Nombre (ej. Juan CEO)"
+                  style={{ ...INPUT, flex: 1, minWidth: 120 }}/>
+              </div>
+              <p style={{ fontSize: 11, color: P.textDim, marginBottom: 6 }}>Permisos:</p>
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
+                {PERM_OPTIONS.map(opt => (
+                  <button key={opt.id} type="button" onClick={() => togglePerm(addPerms, setAddPerms, opt.id)}
+                    style={{ padding: '4px 10px', borderRadius: 6, border: `1px solid ${addPerms.includes(opt.id) ? P.orange : P.border}`,
+                      background: addPerms.includes(opt.id) ? P.okDim : P.surface2,
+                      color: addPerms.includes(opt.id) ? P.orange : P.textSub, fontSize: 11, cursor: 'pointer' }}>
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+              <button type="submit" disabled={addLoading}
+                style={{ padding: '7px 18px', background: P.orange, border: 'none', borderRadius: 8, color: '#fff', fontSize: 12, fontWeight: 600, cursor: addLoading ? 'not-allowed' : 'pointer', opacity: addLoading ? 0.7 : 1 }}>
+                {addLoading ? '...' : 'Agregar'}
+              </button>
+              {addErr && <p style={{ fontSize: 11, color: '#f87171', marginTop: 6 }}>{addErr}</p>}
+            </form>
+          </div>
+
+          {/* Lista */}
+          <div style={CARD}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+              <p style={{ ...LABEL, marginBottom: 0 }}>Numeros registrados</p>
+              <button onClick={loadAuthorized} style={BTN_SM}>{authLoading ? '...' : 'Actualizar'}</button>
+            </div>
+            {authLoading && <p style={{ fontSize: 12, color: P.textDim, textAlign: 'center', padding: '24px 0' }}>Cargando...</p>}
+            {!authLoading && authorized.length === 0 && <p style={{ fontSize: 12, color: P.textDim, textAlign: 'center', padding: '32px 0' }}>Sin numeros autorizados</p>}
+            {!authLoading && authorized.map(item => (
+              <div key={item.id} style={{ borderBottom: `1px solid ${P.border2}`, paddingBottom: 12, marginBottom: 12 }}>
+                {editId === item.id ? (
+                  <div>
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8 }}>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: P.text }}>{item.phone}</span>
+                      <span style={{ fontSize: 11, color: P.textSub }}>{item.name}</span>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: P.textSub, cursor: 'pointer', marginLeft: 'auto' }}>
+                        <input type="checkbox" checked={editActive} onChange={e => setEditActive(e.target.checked)} style={{ accentColor: P.orange }}/>
+                        Activo
+                      </label>
+                    </div>
+                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
+                      {PERM_OPTIONS.map(opt => (
+                        <button key={opt.id} type="button" onClick={() => togglePerm(editPerms, setEditPerms, opt.id)}
+                          style={{ padding: '4px 10px', borderRadius: 6, border: `1px solid ${editPerms.includes(opt.id) ? P.orange : P.border}`,
+                            background: editPerms.includes(opt.id) ? P.okDim : P.surface2,
+                            color: editPerms.includes(opt.id) ? P.orange : P.textSub, fontSize: 11, cursor: 'pointer' }}>
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <button onClick={() => handleSaveEdit(item)} style={{ padding: '5px 12px', background: P.orange, border: 'none', borderRadius: 7, color: '#fff', fontSize: 11, cursor: 'pointer' }}>Guardar</button>
+                      <button onClick={() => setEditId(null)} style={{ ...BTN_SM }}>Cancelar</button>
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                        <span style={{ fontSize: 12, fontWeight: 600, color: item.active ? P.text : P.textDim }}>{item.phone}</span>
+                        {item.name && <span style={{ fontSize: 11, color: P.textSub }}>{item.name}</span>}
+                        {!item.active && <span style={{ fontSize: 9, color: '#f87171', border: '1px solid #f87171', borderRadius: 5, padding: '1px 5px' }}>Inactivo</span>}
+                      </div>
+                      <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 5 }}>
+                        {(item.permissions || []).map(p => (
+                          <span key={p} style={{ fontSize: 9, background: P.okDim, color: P.orange, borderRadius: 5, padding: '1px 7px', fontWeight: 700 }}>
+                            {PERM_OPTIONS.find(o => o.id === p)?.label || p}
+                          </span>
+                        ))}
+                        {!(item.permissions || []).length && <span style={{ fontSize: 10, color: P.textDim }}>Sin permisos</span>}
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: 5 }}>
+                      <button onClick={() => { setEditId(item.id); setEditPerms(item.permissions || []); setEditActive(item.active); }}
+                        style={BTN_SM}>Editar</button>
+                      <button onClick={() => handleDelete(item.id)}
+                        style={{ ...BTN_SM, color: '#f87171', border: '1px solid rgba(248,113,113,0.3)' }}>Eliminar</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── COMANDOS DISPONIBLES ── */}
+      {subTab === 'comandos' && (
+        <div style={CARD}>
+          <p style={LABEL}>Comandos que puedes mandar por WhatsApp</p>
+          <p style={{ fontSize: 11, color: P.textDim, marginBottom: 14, lineHeight: 1.6 }}>
+            Los numeros en la lista de autorizados pueden mandar estos mensajes al numero de WAGO y recibir datos del sistema.
+          </p>
+          {[
+            { cmd: 'hoy', permiso: 'Reportes', desc: 'Estadísticas del día actual (sesiones, mensajes, leads WA, PDFs)' },
+            { cmd: 'semana', permiso: 'Reportes', desc: 'Resumen de los últimos 7 días' },
+            { cmd: 'noviembre / enero / [mes]', permiso: 'Reportes', desc: 'Reporte completo de ese mes (promedio diario incluido)' },
+            { cmd: 'reporte noviembre 2024', permiso: 'Reportes', desc: 'Mes y año específico' },
+            { cmd: 'resumen', permiso: 'Reportes', desc: 'Totales históricos del bot + productos top' },
+            { cmd: 'candidatos', permiso: 'Candidatos', desc: 'Últimos 5 postulantes con puesto y estatus' },
+            { cmd: 'vacantes', permiso: 'Vacantes', desc: 'Lista de vacantes activas publicadas' },
+            { cmd: 'distribuidores', permiso: 'Distribuidores', desc: 'Últimos 5 contactos de distribuidores' },
+            { cmd: 'mensajes', permiso: 'Mensajes bot', desc: 'Últimas consultas recibidas en el bot' },
+            { cmd: 'ayuda', permiso: 'Siempre', desc: 'Lista los comandos disponibles para ese número' },
+          ].map((row, i) => (
+            <div key={i} style={{ display: 'flex', gap: 12, borderBottom: `1px solid ${P.border2}`, paddingBottom: 10, marginBottom: 10, flexWrap: 'wrap' }}>
+              <code style={{ fontSize: 12, color: P.orange, fontFamily: 'monospace', flex: '0 0 auto', minWidth: 180 }}>{row.cmd}</code>
+              <span style={{ fontSize: 9, background: P.surface3, color: P.textSub, borderRadius: 5, padding: '2px 8px', alignSelf: 'flex-start', flexShrink: 0 }}>{row.permiso}</span>
+              <span style={{ fontSize: 11, color: P.textSub, flex: 1, lineHeight: 1.5 }}>{row.desc}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 const ALL_TABS=[
     {id:'overview',label:'Resumen',        icon:'◉'},
     {id:'console', label:'Console',        icon:'◌'},
@@ -2124,6 +2552,7 @@ const ALL_TABS=[
     {id:'conversations',label:'Conversaciones',icon:'◧'},
     {id:'llamadas',     label:'Llamadas IA',   icon:'◉'},
     {id:'distribuidores',label:'Distribuidores',icon:'◑'},
+    {id:'whatsapp',label:'WhatsApp',       icon:'◬'},
     {id:'recruitment',label:'Reclutamiento',icon:'◒'},
     {id:'vacantes', label:'Vacantes', icon:'◓'},
     {id:'ai',label:'Análisis IA',          icon:'✦'},
@@ -2135,10 +2564,12 @@ const ALL_TABS=[
   // ✅ CORRECCIÓN FINAL: Permitimos nombres de Admin y banderas de Admin, PERO bloqueamos a RH explícitamente.
   const canSeeReportes  = !isRH && (role.name === 'Admin' || role.name === 'Super Admin' || role.role === 'Administrador' || isAdmin || isOnlyAdmin || role.tabs.includes('reportes'));
   const canSeeChangelog = isAdmin || isOnlyAdmin || role.tabs.includes('changelog');
+  const canSeeWhatsapp  = isAdmin || isOnlyAdmin || role.tabs.includes('whatsapp');
 
   const TABS=ALL_TABS.filter(t => {
     if (t.id === 'reportes')  return canSeeReportes;
     if (t.id === 'changelog') return canSeeChangelog;
+    if (t.id === 'whatsapp')  return canSeeWhatsapp;
     return canSee(t.id);
   });
   // Shared card style
@@ -2164,12 +2595,15 @@ const ALL_TABS=[
 
   return (
     <div className="adash aroot panel-enter admin-bg-dots"
-      style={{ background:P.bg, border:`1px solid ${P.border}`, borderRadius:isMobile?10:16,
-        width:'100%', maxWidth:isMobile?'100%':isTablet?'98vw':1200,
-        height:isMobile?'100dvh':'90vh', maxHeight:isMobile?'100dvh':'90vh',
-        display:'flex', flexDirection:'column', overflow:'hidden',
-        boxShadow:`0 24px 80px rgba(0,0,0,0.60), 0 0 0 1px ${P.border}`,
-        position:'relative' }}>
+      style={fullscreen
+        ? { background:P.bg,
+            display:'flex', flexDirection:'column', overflow:'hidden' }
+        : { background:P.bg, border:`1px solid ${P.border}`, borderRadius:isMobile?10:16,
+            width:'100%', maxWidth:isMobile?'100%':isTablet?'98vw':1200,
+            height:isMobile?'100dvh':'90vh', maxHeight:isMobile?'100dvh':'90vh',
+            display:'flex', flexDirection:'column', overflow:'hidden',
+            boxShadow:`0 24px 80px rgba(0,0,0,0.60), 0 0 0 1px ${P.border}`,
+            position:'relative' }}>
       <style>{GLOBAL_CSS}</style>
 
       {/* ── HEADER ── */}
@@ -2383,11 +2817,11 @@ const ALL_TABS=[
               <div className="card-hover" style={{...CARD,padding:'10px 14px',display:'flex',flexDirection:'column',height:isMobile?260:undefined,minHeight:isMobile?260:0,marginBottom:0}}>
                 <CardTopBar/>
                 <p style={{...ST,marginBottom:6,fontSize:10}}>Distribución de intenciones</p>
-                <div style={{flex:1,minHeight:0,display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden'}}>
+                <div style={{flex:1,minHeight:0,display:'flex',alignItems:'stretch',overflow:'hidden'}}>
                   <DonutChart intents={data.intents}/>
                 </div>
               </div>
-              <div className="card-hover" style={{...CARD,padding:'10px 14px',display:'flex',flexDirection:'column',height:isMobile?260:undefined,minHeight:isMobile?260:0,marginBottom:0}}>
+              <div className="card-hover" style={{...CARD,padding:'10px 14px',display:'flex',flexDirection:'column',height:isMobile?280:undefined,minHeight:isMobile?280:0,marginBottom:0}}>
                 <CardTopBar/>
                 <p style={{...ST,marginBottom:6,fontSize:10}}>Actividad — últimos 14 días</p>
                 <div style={{flex:1,minHeight:0,display:'flex',alignItems:'center',overflow:'hidden'}}>
@@ -3253,6 +3687,13 @@ const ALL_TABS=[
           </div>
         )}
 
+        {/* ── WHATSAPP WEBHOOK ── */}
+        {canSeeWhatsapp&&(
+          <div className="tab-content" key="wa" style={{ display: tab==='whatsapp' ? undefined : 'none' }}>
+            <WAWebhookTab P={P} isMobile={isMobile}/>
+          </div>
+        )}
+
         {/* ── HISTORIAL DE MEJORAS ── */}
         {tab==='changelog'&&canSeeChangelog&&(
           <div className="tab-content" key="clog">
@@ -3376,7 +3817,7 @@ export default function AdminPanel({ autoOpen = false }) {
                   position:'relative', overflow:'hidden' }}>
                   <Login onLogin={r=>setRole(r)}/>
                 </div>
-              : <Dash onClose={()=>{setVisible(false);setRole(null);}} role={role} theme={theme} toggleTheme={toggleTheme}/>
+              : <Dash onClose={()=>{setVisible(false);setRole(null);}} role={role} theme={theme} toggleTheme={toggleTheme} fullscreen={false}/>
             }
           </div>
         )}

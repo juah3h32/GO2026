@@ -2,6 +2,9 @@
   "name": "2026",
   "type": "module",
   "version": "0.0.1",
+  "license": "UNLICENSED",
+  "author": "Juan Pablo Corona <juancorona-cmyk>",
+  "private": true,
   "bin": {
     "claude": "./scripts/claude-cli.js"
   },
@@ -9,6 +12,7 @@
     "dev": "astro dev --host",
     "tunnel": "npx cloudflared tunnel --url http://localhost:4321",
     "dev:tunnel": "concurrently \"npm run dev\" \"sleep 3 && npm run tunnel\"",
+    "dev:wago": "bash scripts/wago-dev.sh",
     "prebuild": "node scripts/gen-changelog.mjs",
     "build": "astro build",
     "preview": "astro preview",

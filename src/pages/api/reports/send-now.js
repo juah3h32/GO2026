@@ -1,5 +1,5 @@
 // src/pages/api/reports/send-now.js
-// Genera el PDF exacto (mismo HTML que el botón de descarga) y lo envía via Wahooks
+// Genera el PDF exacto (mismo HTML que el botón de descarga) y lo envía via WAGO
 import { getTurso }                                          from '../../../lib/turso';
 import { buildReportHTML }                                   from '../../../components/ReportGenerator.jsx';
 import { readAllData, readLeads, readRecruitmentLeads }      from '../../../lib/analytics-db.js';
@@ -180,45 +180,70 @@ async function generatePDF(html) {
   }
 }
 
-// ── Enviar PDF vía Wahooks send-document ──────────────────────────────────────
-async function sendPDFViaWahooks(phone, pdfBuffer, filename) {
-  const url          = import.meta.env.WAHOOKS_URL;
-  const token        = import.meta.env.WAHOOKS_TOKEN;
-  const connectionId = import.meta.env.WAHOOKS_CONNECTION_ID;
+
+// ── Enviar texto simple vía WAGO /send ─────────────────────────────────────
+async function sendTextViaWAGO(url, token, connectionId, chatId, text) {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), 10_000);
+  try {
+    const res = await fetch(`${url}/api/connections/${connectionId}/send`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body:    JSON.stringify({ chatId, text }),
+      signal:  ctrl.signal,
+    });
+    const body = await res.text().catch(() => '');
+    if (!res.ok) {
+      console.warn(`[send-now] send texto falló (${res.status}): ${body.slice(0, 200)}`);
+      return { ok: false, error: `WAGO texto error ${res.status}` };
+    }
+    console.log(`[send-now] texto enviado OK → ${chatId}`);
+    return { ok: true, warning: 'PDF no adjuntado — enviado como texto' };
+  } catch (err) {
+    const msg = err.name === 'AbortError' ? 'timeout 10s' : err.message;
+    console.warn(`[send-now] send texto error: ${msg}`);
+    return { ok: false, error: `WAGO texto: ${msg}` };
+  } finally {
+    clearTimeout(t);
+  }
+}
+
+// ── Enviar PDF vía WAGO send-document (con fallback texto) ─────────────────
+async function sendPDFViaWAGO(phone, pdfBuffer, filename) {
+  const url          = process.env.WAGO_URL          || import.meta.env.WAGO_URL;
+  const token        = process.env.WAGO_TOKEN        || import.meta.env.WAGO_TOKEN;
+  const connectionId = process.env.WAGO_CONNECTION_ID || import.meta.env.WAGO_CONNECTION_ID;
 
   if (!url || !token || !connectionId) {
-    return { ok: false, error: 'Wahooks no configurado (WAHOOKS_URL / WAHOOKS_TOKEN / WAHOOKS_CONNECTION_ID)' };
+    return { ok: false, error: 'WAGO no configurado — verifica WAGO_URL / WAGO_TOKEN / WAGO_CONNECTION_ID en Vercel' };
   }
 
   const chatId = `${String(phone).replace(/\D/g, '')}@s.whatsapp.net`;
   const data   = pdfBuffer.toString('base64');
 
+  console.log(`[send-now] enviando a chatId=${chatId}`);
+
   // Intenta enviar como documento
   try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 10_000);
     const res = await fetch(`${url}/api/connections/${connectionId}/send-document`, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body:    JSON.stringify({ chatId, data, mimetype: 'application/pdf', filename }),
+      signal:  ctrl.signal,
     });
+    clearTimeout(t);
     if (res.ok) return { ok: true };
-    console.warn(`[send-now] send-document falló (${res.status}) — intentando solo texto`);
+    const errBody = await res.text().catch(() => '');
+    console.warn(`[send-now] send-document falló (${res.status}): ${errBody.slice(0, 200)} — fallback texto`);
   } catch (err) {
-    console.warn(`[send-now] send-document error: ${err.message}`);
+    const msg = err.name === 'AbortError' ? 'timeout 10s' : err.message;
+    console.warn(`[send-now] send-document error: ${msg} — fallback texto`);
   }
 
-  // Fallback: enviar aviso de texto sin PDF
-  try {
-    const res = await fetch(`${url}/api/connections/${connectionId}/send`, {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body:    JSON.stringify({ chatId, text: `📊 Reporte listo: ${filename}` }),
-    });
-    const bodyText = await res.text();
-    if (!res.ok) return { ok: false, error: `Wahooks HTTP ${res.status}: ${bodyText.slice(0, 120)}` };
-    return { ok: true, warning: 'PDF no adjuntado — motor NOWEB no soporta documentos' };
-  } catch (err) {
-    return { ok: false, error: String(err) };
-  }
+  // NOWEB free no soporta send-document — requiere WAHA Plus o engine WEBJS
+  return { ok: false, error: 'send-document requiere WAHA Plus o engine WEBJS' };
 }
 
 // ── Nombre del archivo PDF ────────────────────────────────────────────────────
@@ -441,15 +466,14 @@ INSTRUCCIONES:
     const filename = buildFilename(report_type, period, period_from, period_to);
 
     // 3. Generar PDF
-    let pdfBuffer;
+    let pdfBuffer = null;
+    let pdfErrMsg = null;
     try {
       pdfBuffer = await generatePDF(html);
     } catch (pdfErr) {
+      pdfErrMsg = String(pdfErr);
       console.error('[send-now] Error PDF:', pdfErr);
-      return new Response(
-        JSON.stringify({ ok: false, error: 'Error generando PDF: ' + String(pdfErr) }),
-        { status: 500, headers: { 'Content-Type': 'application/json' } }
-      );
+      // No abortar — si no hay Chrome intentamos fallback texto
     }
 
     // 4. Enviar a cada número
@@ -457,7 +481,24 @@ INSTRUCCIONES:
     for (const entry of phones) {
       const phone = typeof entry === 'string' ? entry : entry?.phone;
       if (!phone) { results.push({ phone: '?', ok: false, error: 'Falta número' }); continue; }
-      const result = await sendPDFViaWahooks(phone, pdfBuffer, filename);
+
+      if (!pdfBuffer) {
+        // Sin Chrome (prod) → fallback texto directo
+        const url          = process.env.WAGO_URL          || import.meta.env.WAGO_URL;
+        const token        = process.env.WAGO_TOKEN        || import.meta.env.WAGO_TOKEN;
+        const connectionId = process.env.WAGO_CONNECTION_ID || import.meta.env.WAGO_CONNECTION_ID;
+        if (!url || !token || !connectionId) {
+          results.push({ phone, ok: false, error: 'WAGO no configurado' });
+          continue;
+        }
+        const chatId = `${String(phone).replace(/\D/g, '')}@s.whatsapp.net`;
+        const result = await sendTextViaWAGO(url, token, connectionId, chatId,
+          `Reporte listo: ${filename.replace('.pdf', '')} — disponible en el panel`);
+        results.push({ phone, ...result, warning: 'PDF no disponible — enviado como texto' });
+        continue;
+      }
+
+      const result = await sendPDFViaWAGO(phone, pdfBuffer, filename);
       results.push({ phone, ...result });
     }
 

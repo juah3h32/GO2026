@@ -140,6 +140,77 @@ function buildLineSVG(daily14, noLegend=false) {
   return out;
 }
 
+// ── Gráfica dual: período anterior (dashed) vs actual (solid) ────────────────
+function buildDualLineSVG(currEntries, prevEntries) {
+  const W=780, H=210, PL=52, PR=24, PT=40, PB=36, CW=W-PL-PR, CH=H-PT-PB;
+  if (currEntries.length < 1)
+    return `<text x="${W/2}" y="${H/2}" text-anchor="middle" font-family="'Barlow',Helvetica" font-size="11" fill="rgba(255,255,255,0.25)">Sin datos</text>`;
+
+  const cMsgs = currEntries.map(([,v]) => v.messages || 0);
+  const pMsgs = prevEntries.map(([,v]) => v.messages || 0);
+  const maxV  = Math.max(...cMsgs, ...pMsgs, 1);
+  const nC = currEntries.length, nP = prevEntries.length;
+
+  const pxC = i => PL + (nC <= 1 ? CW/2 : (i/(nC-1))*CW);
+  const pxP = i => PL + (nP <= 1 ? CW/2 : (i/(nP-1))*CW);
+  const py  = v => PT + (1 - v/maxV) * CH;
+
+  let out = `<defs>
+    <linearGradient id="dga" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="${ORANGE}" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="${ORANGE}" stop-opacity="0"/>
+    </linearGradient>
+  </defs>`;
+
+  // Grid
+  [0, 0.25, 0.5, 0.75, 1].forEach(p => {
+    const y = py(p * maxV), val = Math.round(p * maxV);
+    out += `<line x1="${PL}" y1="${y.toFixed(1)}" x2="${W-PR}" y2="${y.toFixed(1)}" stroke="${p===0?'rgba(255,255,255,0.12)':'rgba(255,255,255,0.05)'}" stroke-width="1" stroke-dasharray="${p===0?'none':'4,4'}"/>
+    <text x="${(PL-8).toFixed(1)}" y="${(y+3.5).toFixed(1)}" text-anchor="end" font-family="'Barlow',Helvetica" font-size="9" font-weight="600" fill="rgba(255,255,255,0.28)">${val>=1000?(val/1000).toFixed(1)+'k':val}</text>`;
+  });
+
+  // X labels (current)
+  currEntries.forEach(([date], i) => {
+    if (i%2===0 || i===nC-1)
+      out += `<text x="${pxC(i).toFixed(1)}" y="${H-8}" text-anchor="middle" font-family="'Barlow',Helvetica" font-size="8" font-weight="600" fill="rgba(255,255,255,0.22)">${date.slice(5).replace('-','/')}</text>`;
+  });
+
+  // Area actual
+  if (nC >= 2) {
+    const areaD = cMsgs.map((v,i) => `${i===0?'M':'L'}${pxC(i).toFixed(1)},${py(v).toFixed(1)}`).join(' ')
+      + ` L${pxC(nC-1).toFixed(1)},${(PT+CH).toFixed(1)} L${pxC(0).toFixed(1)},${(PT+CH).toFixed(1)} Z`;
+    out += `<path d="${areaD}" fill="url(#dga)"/>`;
+  }
+
+  // Línea anterior (dashed, gris)
+  if (nP >= 2) {
+    const prevD = pMsgs.map((v,i) => `${i===0?'M':'L'}${pxP(i).toFixed(1)},${py(v).toFixed(1)}`).join(' ');
+    out += `<path d="${prevD}" fill="none" stroke="rgba(255,255,255,0.42)" stroke-width="2" stroke-dasharray="6,3" stroke-linejoin="round" stroke-linecap="round"/>`;
+    pMsgs.forEach((v,i) => out += `<circle cx="${pxP(i).toFixed(1)}" cy="${py(v).toFixed(1)}" r="2.5" fill="#111" stroke="rgba(255,255,255,0.38)" stroke-width="1.5"/>`);
+  }
+
+  // Línea actual (solid, naranja)
+  if (nC >= 2) {
+    const currD = cMsgs.map((v,i) => `${i===0?'M':'L'}${pxC(i).toFixed(1)},${py(v).toFixed(1)}`).join(' ');
+    out += `<path d="${currD}" fill="none" stroke="${ORANGE}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+    cMsgs.forEach((v,i) => out += `<circle cx="${pxC(i).toFixed(1)}" cy="${py(v).toFixed(1)}" r="3.5" fill="#111" stroke="${ORANGE}" stroke-width="2.5"/>`);
+  }
+
+  // Leyenda
+  const lx0 = PL, ly = 8;
+  out += `<rect x="${lx0}" y="${ly-2}" width="72" height="16" rx="8" fill="${ORANGE}" fill-opacity="0.12"/>
+  <circle cx="${lx0+10}" cy="${ly+6}" r="4" fill="${ORANGE}"/>
+  <text x="${lx0+19}" y="${ly+10}" font-family="'Barlow',Helvetica" font-size="9" font-weight="700" fill="${ORANGE}">Actual</text>`;
+  if (nP >= 2) {
+    out += `<rect x="${lx0+78}" y="${ly-2}" width="80" height="16" rx="8" fill="rgba(255,255,255,0.05)"/>
+    <line x1="${lx0+88}" y1="${ly+6}" x2="${lx0+98}" y2="${ly+6}" stroke="rgba(255,255,255,0.40)" stroke-width="2" stroke-dasharray="4,2"/>
+    <circle cx="${lx0+93}" cy="${ly+6}" r="2.5" fill="#111" stroke="rgba(255,255,255,0.40)" stroke-width="1.5"/>
+    <text x="${lx0+101}" y="${ly+10}" font-family="'Barlow',Helvetica" font-size="9" font-weight="700" fill="rgba(255,255,255,0.45)">Anterior</text>`;
+  }
+
+  return out;
+}
+
 // ── Gráfica leads ─────────────────────────────────────────────────────────────
 function buildLeadsLineSVG(byDay) {
   const entries = Object.entries(byDay).sort(([a],[b]) => a.localeCompare(b)).slice(-14);
@@ -1339,12 +1410,19 @@ ${C(`
 <html lang="es"><head>
 <meta charset="UTF-8">
 <title>BotGO · Reporte Comparativo · ${today}</title>
-<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700;800&family=Barlow+Condensed:wght@700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Barlow:wght@400;600;700;800&family=Barlow+Condensed:wght@700;800&display=swap" rel="stylesheet">
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
   html,body{width:100%;height:100%;}
-  body{background:#000000;font-family:'Barlow',Helvetica,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  body{background:#000000;font-family:'Inter','Barlow',Helvetica,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   @media print{@page{size:A4 landscape;margin:0;} html,body{height:100%;}}
+  .hdr-num{font-family:'Inter',sans-serif;font-size:22px;font-weight:600;letter-spacing:-0.02em;line-height:1;font-variant-numeric:tabular-nums;}
+  .hdr-lbl{font-family:'Inter',sans-serif;font-size:9px;font-weight:500;letter-spacing:0.05em;text-transform:uppercase;color:rgba(255,255,255,0.40);margin-top:3px;}
+  .hdr-title{font-family:'Inter',sans-serif;font-size:14px;font-weight:600;color:#fff;letter-spacing:-0.01em;line-height:1;}
+  .hdr-sub{font-family:'Inter',sans-serif;font-size:9px;font-weight:400;letter-spacing:0.06em;color:rgba(255,255,255,0.32);text-transform:uppercase;margin-top:3px;}
+  .hdr-period-lbl{font-family:'Inter',sans-serif;font-size:8px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.32);}
+  .hdr-period-val{font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:rgba(255,255,255,0.90);letter-spacing:-0.01em;text-align:right;line-height:1.3;}
+  .hdr-period-date{font-family:'Inter',sans-serif;font-size:9px;font-weight:400;color:rgba(255,255,255,0.28);}
 </style>
 </head><body>
 <div style="width:100%;height:100vh;display:flex;flex-direction:column;background:#000000;">
@@ -1352,61 +1430,85 @@ ${C(`
   <!-- HEADER — igual que resumen -->
   <div style="background:${BLACK};display:flex;align-items:stretch;flex-shrink:0;position:relative;">
     <div style="position:absolute;top:0;left:0;right:0;height:2.5px;background:linear-gradient(90deg,${C_PURPLE},${ORANGE},${C_BLUE},${C_GREEN});"></div>
-    <div style="padding:8px 14px;display:flex;align-items:center;gap:9px;border-right:1px solid rgba(255,255,255,0.08);flex-shrink:0;">
-      ${logoBase64 ? `<img src="${logoBase64}" style="height:24px;width:auto;filter:brightness(0) invert(1);display:block;"/>` : `<div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:#fff;">GO</div>`}
+    <div style="padding:8px 16px;display:flex;align-items:center;gap:10px;border-right:1px solid rgba(255,255,255,0.08);flex-shrink:0;">
+      ${logoBase64 ? `<img src="${logoBase64}" style="height:22px;width:auto;filter:brightness(0) invert(1);display:block;opacity:0.85;"/>` : `<div style="font-family:'Inter',sans-serif;font-size:13px;font-weight:700;color:#fff;letter-spacing:-0.01em;">GO</div>`}
+      <div style="width:1px;height:28px;background:rgba(255,255,255,0.10);"></div>
       <div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:#fff;letter-spacing:0.04em;text-transform:uppercase;line-height:1;">Reporte Comparativo</div>
-        <div style="font-family:'Barlow',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.22em;color:rgba(255,255,255,0.45);text-transform:uppercase;">Comparativo · Grupo Ortiz · BotGO</div>
+        <div class="hdr-title">Reporte Comparativo</div>
+        <div class="hdr-sub">Grupo Ortiz · BotGO Analytics</div>
       </div>
     </div>
     ${[
-      [currMsg.toLocaleString('es-MX'), 'Mensajes', ORANGE],
-      [currSess.toLocaleString('es-MX'), 'Sesiones', 'rgba(255,255,255,0.75)'],
-      [currWA.toLocaleString('es-MX'), 'WhatsApp', ORANGE_DARK],
-      [currConv + '%', 'Conversión', ORANGE],
-      [currPDF.toLocaleString('es-MX'), 'PDFs', GRAY_MID],
-      [distTotal.toLocaleString('es-MX'), 'Distrib.', C_BLUE],
+      [currMsg.toLocaleString('es-MX'), 'Mensajes',   ORANGE],
+      [currSess.toLocaleString('es-MX'), 'Sesiones',  'rgba(255,255,255,0.70)'],
+      [currWA.toLocaleString('es-MX'),  'WhatsApp',   ORANGE_DARK],
+      [currConv + '%',                  'Conversión', ORANGE],
+      [currPDF.toLocaleString('es-MX'), 'PDFs',       GRAY_MID],
+      [distTotal.toLocaleString('es-MX'),'Distrib.',  C_BLUE],
       [rhTotal.toLocaleString('es-MX'), 'Candidatos', C_GREEN],
-      [currMps, 'Msgs/Ses', 'rgba(255,255,255,0.50)'],
+      [currMps,                          'Msgs/Ses',  'rgba(255,255,255,0.45)'],
     ].map(([v, l, c], i, a) => `
-      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 4px;text-align:center;border-right:${i < a.length - 1 ? '1px solid rgba(255,255,255,0.07)' : 'none'};position:relative;">
-        <div style="position:absolute;bottom:0;left:20%;right:20%;height:1.5px;background:${c};opacity:0.5;border-radius:1px;"></div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:800;color:${c};line-height:1;">${v}</div>
-        <div style="font-family:'Barlow',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.13em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-top:2px;">${l}</div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 4px;text-align:center;border-right:${i < a.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none'};position:relative;">
+        <div style="position:absolute;bottom:0;left:25%;right:25%;height:1px;background:${c};opacity:0.35;border-radius:1px;"></div>
+        <div class="hdr-num" style="color:${c};">${v}</div>
+        <div class="hdr-lbl">${l}</div>
       </div>`).join('')}
-    <div style="padding:6px 14px;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;border-left:1px solid rgba(255,255,255,0.08);flex-shrink:0;gap:1px;min-width:120px;">
-      <div style="font-family:'Barlow',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.20em;text-transform:uppercase;color:rgba(255,255,255,0.40);">Período</div>
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:rgba(255,255,255,0.92);text-align:right;line-height:1.2;text-transform:uppercase;">${currLabel}</div>
-      <div style="font-family:'Barlow',sans-serif;font-size:10px;font-weight:600;color:rgba(255,255,255,0.35);">${todayFmt}</div>
+    <div style="padding:6px 16px;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;border-left:1px solid rgba(255,255,255,0.08);flex-shrink:0;gap:2px;min-width:110px;">
+      <div class="hdr-period-lbl">Período</div>
+      <div class="hdr-period-val">${currLabel}</div>
+      <div class="hdr-period-date">${todayFmt}</div>
     </div>
   </div>
 
-  <!-- COMPARISON STRIP — compacto, una sola línea por métrica -->
+  <!-- COMPARISON PANEL — números claros período anterior vs actual -->
   ${hasPrev ? `
-  <div style="flex-shrink:0;background:#0D0D0D;border-bottom:1px solid rgba(255,255,255,0.10);padding:6px 14px;display:flex;align-items:center;gap:10px;">
-    <div style="flex-shrink:0;background:${C_PURPLE};border-radius:4px;padding:2px 8px;display:flex;align-items:center;gap:4px;">
-      <span style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:800;color:#fff;letter-spacing:0.05em;text-transform:uppercase;line-height:1;">VS</span>
+  <div style="flex-shrink:0;background:#0A0A0A;border-bottom:1px solid rgba(255,255,255,0.10);padding:8px 14px;">
+    <!-- Cabecera: etiquetas de período -->
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:7px;">
+      <div style="background:${C_PURPLE};border-radius:4px;padding:2px 8px;flex-shrink:0;">
+        <span style="font-family:'Inter',sans-serif;font-size:10px;font-weight:600;color:#fff;letter-spacing:0.04em;">vs</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:5px;flex-shrink:0;">
+        <div style="width:7px;height:7px;border-radius:2px;background:rgba(255,255,255,0.25);flex-shrink:0;"></div>
+        <span style="font-family:'Inter',sans-serif;font-size:10px;font-weight:500;color:rgba(255,255,255,0.42);">${prevLabel}</span>
+      </div>
+      <span style="color:rgba(255,255,255,0.18);font-size:11px;">→</span>
+      <div style="display:flex;align-items:center;gap:5px;flex-shrink:0;">
+        <div style="width:7px;height:7px;border-radius:2px;background:${ORANGE};flex-shrink:0;"></div>
+        <span style="font-family:'Inter',sans-serif;font-size:10px;font-weight:600;color:rgba(255,255,255,0.88);">${currLabel}</span>
+      </div>
     </div>
-    <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
-      <span style="font-family:'Barlow',sans-serif;font-size:9px;font-weight:600;color:rgba(255,255,255,0.30);">${prevLabel}</span>
-      <span style="color:rgba(255,255,255,0.15);">→</span>
-      <span style="font-family:'Barlow',sans-serif;font-size:9px;font-weight:700;color:${C_PURPLE};">${currLabel}</span>
-    </div>
-    <div style="flex:1;display:flex;gap:0;">
+    <!-- Grid de métricas: anterior / actual / delta -->
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:5px;">
       ${[
-        ['Mensajes', currMsg, prevMsg, ORANGE],
-        ['Sesiones', currSess, prevSess, 'rgba(255,255,255,0.70)'],
-        ['WhatsApp', currWA, prevWA, ORANGE_DARK],
-        ['PDFs', currPDF, prevPDF, GRAY_MID],
+        ['Mensajes',   currMsg,  prevMsg,  ORANGE],
+        ['Sesiones',   currSess, prevSess, 'rgba(255,255,255,0.75)'],
+        ['WhatsApp',   currWA,   prevWA,   ORANGE_DARK],
+        ['PDFs',       currPDF,  prevPDF,  GRAY_MID],
         ['Conversión', currConv, prevConv, ORANGE],
       ].map(([l, c, p, clr]) => {
         const d = delta(typeof c === 'string' ? parseFloat(c) : c, typeof p === 'string' ? parseFloat(p) : p);
+        const fmtVal = v => typeof v === 'number' ? v.toLocaleString('es-MX') : v;
         return `
-        <div style="flex:1;display:flex;align-items:center;gap:4px;padding:2px 8px;border-right:1px solid rgba(255,255,255,0.04);min-width:0;">
-          <span style="font-family:'Barlow',sans-serif;font-size:8px;font-weight:600;color:rgba(255,255,255,0.30);text-transform:uppercase;letter-spacing:0.04em;">${l}</span>
-          <span style="font-family:'Barlow',sans-serif;font-size:8px;color:rgba(255,255,255,0.18);">${typeof p === 'number' ? p.toLocaleString('es-MX') : p}</span>
-          <span style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;color:${clr};">${typeof c === 'number' ? c.toLocaleString('es-MX') : c}</span>
-          <span style="font-family:'Barlow',sans-serif;font-size:8.5px;font-weight:700;color:${d.color};white-space:nowrap;">${d.arrow} ${d.val}</span>
+        <div style="background:#111111;border-radius:8px;border:1px solid rgba(255,255,255,0.07);padding:7px 10px;">
+          <div style="font-family:'Inter',sans-serif;font-size:8px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.32);margin-bottom:5px;">${l}</div>
+          <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:4px;margin-bottom:4px;">
+            <div>
+              <div style="font-family:'Inter',sans-serif;font-size:7px;font-weight:400;color:rgba(255,255,255,0.28);margin-bottom:1px;">Anterior</div>
+              <div style="font-family:'Inter',sans-serif;font-size:19px;font-weight:500;color:rgba(255,255,255,0.42);line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-0.02em;">${fmtVal(p)}</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-family:'Inter',sans-serif;font-size:7px;font-weight:500;color:${clr};opacity:0.90;margin-bottom:1px;">Actual</div>
+              <div style="font-family:'Inter',sans-serif;font-size:19px;font-weight:600;color:${clr};line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-0.02em;">${fmtVal(c)}</div>
+            </div>
+          </div>
+          <div style="height:2px;background:rgba(255,255,255,0.07);border-radius:1px;margin-bottom:4px;overflow:hidden;">
+            <div style="height:100%;width:${Math.min(100, Math.round((typeof c==='number'?c:parseFloat(c)||0) / Math.max(typeof p==='number'?p:parseFloat(p)||1, 1) * 100))}%;background:${clr};border-radius:1px;"></div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:center;gap:3px;">
+            <span style="font-family:'Inter',sans-serif;font-size:10px;font-weight:600;color:${d.color};">${d.arrow}</span>
+            <span style="font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:${d.color};font-variant-numeric:tabular-nums;">${d.val}</span>
+          </div>
         </div>`;
       }).join('')}
     </div>
@@ -1432,41 +1534,41 @@ ${C(`
     <div style="flex:1.15;display:grid;grid-template-columns:2.5fr 1fr;gap:6px;min-height:0;">
 
       ${C(`
-        ${S('Actividad · Últimos 14 días', ORANGE, '')}
+        ${S(daily14Prev.length > 0 ? `Actividad · ${prevLabel} vs ${currLabel}` : 'Actividad · Últimos 14 días', ORANGE, '')}
         <div style="flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0;width:100%;">
-          <svg viewBox="0 0 780 200" style="width:100%;height:auto;display:block;overflow:visible;">
-            ${buildLineSVG(daily14Curr, false)}
+          <svg viewBox="0 0 780 210" style="width:100%;height:auto;display:block;overflow:visible;">
+            ${daily14Prev.length > 0 ? buildDualLineSVG(daily14Curr, daily14Prev) : buildLineSVG(daily14Curr, false)}
           </svg>
         </div>
-        ${daily14Prev.length > 0 ? `
-        <div style="margin-top:3px;padding-top:3px;border-top:1px solid rgba(255,255,255,0.05);">
-          <svg viewBox="0 0 780 100" style="width:100%;height:auto;display:block;overflow:visible;opacity:0.35;">
-            ${buildLineSVG(daily14Prev, true)}
-          </svg>
-          <div style="font-family:'Barlow',sans-serif;font-size:7px;color:rgba(255,255,255,0.18);text-align:right;margin-top:1px;">← ${prevLabel}</div>
-        </div>` : ''}
       `)}
 
       ${C(`
-        ${S('Top Productos', ORANGE_DARK, '')}
-        <div style="flex:1;display:flex;flex-direction:column;justify-content:center;">
+        ${S('Productos', ORANGE_DARK, '')}
+        <div style="flex:1;display:flex;flex-direction:column;justify-content:space-evenly;">
           ${mergedProds.slice(0, 5).map((p, i) => {
-            const maxP = Math.max(mergedProds[0]?.curr || 1, mergedProds[0]?.prev || 1, 1);
+            const maxP = Math.max(...mergedProds.map(x => Math.max(x.curr, x.prev || 0)), 1);
             const d = delta(p.curr, p.prev);
             const isTop = i === 0;
+            const barC = Math.round(p.curr / maxP * 100);
+            const barP = hasPrev ? Math.round((p.prev||0) / maxP * 100) : 0;
+            const rankClr = [ORANGE,'rgba(255,255,255,0.65)','rgba(255,255,255,0.48)','rgba(255,255,255,0.32)','rgba(255,255,255,0.22)'][i];
             return `
-            <div style="margin-bottom:6px;">
-              <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:1px;">
-                <span style="font-family:'Barlow',sans-serif;font-size:12px;font-weight:600;color:${isTop ? '#FFFFFF' : 'rgba(255,255,255,0.72)'};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100px;">${p.key}</span>
+            <div style="padding:5px 7px;border-radius:7px;background:${isTop?'rgba(251,103,11,0.08)':'rgba(255,255,255,0.02)'};border:1px solid ${isTop?'rgba(251,103,11,0.20)':'rgba(255,255,255,0.05)'};">
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+                <span style="font-family:'Inter',sans-serif;font-size:10px;font-weight:700;color:${rankClr};min-width:16px;font-variant-numeric:tabular-nums;">${String(i+1).padStart(2,'0')}</span>
+                <span style="font-family:'Inter',sans-serif;font-size:10.5px;font-weight:${isTop?600:500};color:${isTop?'#fff':'rgba(255,255,255,0.68)'};flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.key}</span>
                 <div style="display:flex;align-items:center;gap:3px;flex-shrink:0;">
-                  ${hasPrev ? `<span style="font-family:'Barlow',sans-serif;font-size:8px;color:rgba(255,255,255,0.22);">${p.prev}</span><span style="color:rgba(255,255,255,0.10);font-size:8px;">→</span>` : ''}
-                  <span style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:${isTop ? ORANGE : 'rgba(255,255,255,0.40)'};">${p.curr}</span>
-                  ${hasPrev ? `<span style="font-family:'Barlow',sans-serif;font-size:8px;font-weight:700;color:${d.color};">${d.arrow}${d.val}</span>` : ''}
+                  ${hasPrev ? `<span style="font-family:'Inter',sans-serif;font-size:9px;color:rgba(255,255,255,0.28);font-variant-numeric:tabular-nums;">${p.prev}</span><span style="color:rgba(255,255,255,0.14);font-size:8px;margin:0 1px;">→</span>` : ''}
+                  <span style="font-family:'Inter',sans-serif;font-size:${isTop?17:14}px;font-weight:600;color:${rankClr};font-variant-numeric:tabular-nums;line-height:1;">${p.curr}</span>
                 </div>
+                ${hasPrev ? `<div style="background:${d.color}15;border:1px solid ${d.color}28;border-radius:4px;padding:1px 4px;flex-shrink:0;"><span style="font-family:'Inter',sans-serif;font-size:8px;font-weight:600;color:${d.color};">${d.arrow}${d.val}</span></div>` : ''}
               </div>
-              <div style="height:3px;background:rgba(255,255,255,0.12);border-radius:2px;overflow:hidden;"><div style="width:${Math.round(p.curr / maxP * 100)}%;height:100%;background:${isTop ? `linear-gradient(90deg,${ORANGE},${ORANGE_DARK})` : 'rgba(255,255,255,0.25)'};border-radius:2px;"></div></div>
+              <div style="display:flex;flex-direction:column;gap:2px;padding-left:22px;">
+                ${hasPrev ? `<div style="height:2px;background:rgba(255,255,255,0.06);border-radius:1px;overflow:hidden;"><div style="width:${barP}%;height:100%;background:rgba(255,255,255,0.22);border-radius:1px;"></div></div>` : ''}
+                <div style="height:${isTop?3:2}px;background:rgba(255,255,255,0.06);border-radius:1px;overflow:hidden;"><div style="width:${barC}%;height:100%;background:${isTop?`linear-gradient(90deg,${ORANGE},${ORANGE_DARK})`:rankClr};border-radius:1px;"></div></div>
+              </div>
             </div>`;
-          }).join('') || `<div style="color:${GRAY_LIGHT};font-size:9px;text-align:center;">Sin datos</div>`}
+          }).join('') || `<div style="color:rgba(255,255,255,0.25);font-size:9px;text-align:center;">Sin datos</div>`}
         </div>
       `)}
 
@@ -1476,22 +1578,32 @@ ${C(`
     <div style="flex:1;display:grid;grid-template-columns:1fr 1.15fr 1.15fr;gap:6px;min-height:0;">
 
       ${C(`
-        ${S('Intenciones · dist.', GRAY_MID, '')}
-        <div style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;">
-          <svg viewBox="0 0 140 140" width="82" height="82" style="flex-shrink:0;">${buildDonutSVG(Object.entries(currIntents).filter(([,v]) => v > 0), iColors, true)}</svg>
-          <div style="flex:1;min-width:0;">
-            ${mergedIntents.slice(0, 5).map((int, i) => {
-              const p = Math.round(int.curr / totalIntents * 100);
-              const d = delta(int.curr, int.prev);
+        ${S('Intenciones', GRAY_MID, '')}
+        <div style="flex:1;display:flex;flex-direction:column;justify-content:space-evenly;">
+          ${(() => {
+            const maxIntV = Math.max(...mergedIntents.map(x => Math.max(x.curr, x.prev || 0)), 1);
+            return mergedIntents.slice(0, 5).map((int, i) => {
+              const clr = iColors[i % iColors.length];
+              const barC = Math.round(int.curr / maxIntV * 100);
+              const barP = hasPrev ? Math.round((int.prev || 0) / maxIntV * 100) : 0;
+              const pct  = Math.round(int.curr / totalIntents * 100);
+              const d    = delta(int.curr, int.prev);
+              const lbl  = (iLabels[int.key] || int.key);
               return `
-              <div style="display:flex;align-items:center;gap:4px;margin-bottom:5px;">
-                <div style="width:5px;height:5px;border-radius:50%;background:${iColors[i % iColors.length]};flex-shrink:0;"></div>
-                <span style="font-family:'Barlow',sans-serif;font-size:11px;color:rgba(255,255,255,0.82);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${iLabels[int.key] || int.key}</span>
-                <span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:#FFFFFF;">${p}%</span>
-                ${hasPrev ? `<span style="font-family:'Barlow',sans-serif;font-size:7px;font-weight:600;color:${d.color};min-width:30px;text-align:right;">${d.arrow}${d.val}</span>` : ''}
+              <div style="display:flex;align-items:center;gap:5px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+                <div style="width:14px;height:14px;border-radius:4px;background:${clr};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                  <span style="font-family:'Inter',sans-serif;font-size:7.5px;font-weight:700;color:#000;">${i+1}</span>
+                </div>
+                <span style="font-family:'Inter',sans-serif;font-size:10px;font-weight:500;color:rgba(255,255,255,0.78);flex:0 0 88px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${lbl}</span>
+                <div style="flex:1;display:flex;flex-direction:column;gap:2px;">
+                  ${hasPrev ? `<div style="height:2px;background:rgba(255,255,255,0.06);border-radius:1px;overflow:hidden;"><div style="width:${barP}%;height:100%;background:rgba(255,255,255,0.22);border-radius:1px;"></div></div>` : ''}
+                  <div style="height:3px;background:rgba(255,255,255,0.06);border-radius:1px;overflow:hidden;"><div style="width:${barC}%;height:100%;background:${clr};border-radius:1px;"></div></div>
+                </div>
+                <span style="font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:${clr};min-width:30px;text-align:right;font-variant-numeric:tabular-nums;">${pct}%</span>
+                ${hasPrev ? `<span style="font-family:'Inter',sans-serif;font-size:8px;font-weight:600;color:${d.color};min-width:36px;text-align:right;white-space:nowrap;">${d.arrow}${d.val}</span>` : ''}
               </div>`;
-            }).join('')}
-          </div>
+            }).join('');
+          })()}
         </div>
       `)}
 
@@ -1559,7 +1671,7 @@ ${C(`
 <title>BotGO Analytics · Grupo Ortiz · ${today}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
   /* ── Variables de la paleta oficial ──────────────────────────────────── */
   :root {
@@ -1578,7 +1690,7 @@ ${C(`
   *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
   body {
     background: var(--bg);
-    font-family: 'Barlow', Helvetica, Arial, sans-serif;
+    font-family: 'Inter', 'Barlow', Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
@@ -1598,8 +1710,8 @@ ${C(`
   }
   .cover-badge { display:flex; align-items:center; gap:10px; }
   .cover-badge span {
-    font-family:'Barlow',sans-serif; font-size:clamp(7px,1.2vw,9px); font-weight:700;
-    letter-spacing:0.35em; text-transform:uppercase; color:rgba(255,255,255,0.28);
+    font-family:'Inter',sans-serif; font-size:clamp(7px,1.2vw,9px); font-weight:500;
+    letter-spacing:0.22em; text-transform:uppercase; color:rgba(255,255,255,0.28);
   }
   .cover-hero { flex:1; display:flex; flex-direction:column; justify-content:center; padding:clamp(20px,3vw,32px) 0; }
   .cover-title {
@@ -1615,19 +1727,19 @@ ${C(`
   }
   .cover-divider   { width:52px; height:2px; background:${ORANGE}; border-radius:2px; margin-bottom:16px; }
   .cover-period-lbl {
-    font-family:'Barlow',sans-serif; font-size:clamp(8px,1.2vw,10px); font-weight:600;
-    letter-spacing:0.12em; color:rgba(255,255,255,0.35); margin-bottom:6px; text-transform:uppercase;
+    font-family:'Inter',sans-serif; font-size:clamp(8px,1.2vw,10px); font-weight:500;
+    letter-spacing:0.10em; color:rgba(255,255,255,0.35); margin-bottom:6px; text-transform:uppercase;
   }
   .cover-period-val {
-    font-family:'Barlow Condensed',sans-serif; font-size:clamp(16px,2.5vw,28px);
-    font-weight:700; letter-spacing:0.01em; color:#fff; text-transform:uppercase;
+    font-family:'Inter',sans-serif; font-size:clamp(15px,2.3vw,26px);
+    font-weight:600; letter-spacing:-0.01em; color:#fff;
   }
   .cover-footer { display:flex; align-items:flex-end; justify-content:space-between; flex-wrap:wrap; gap:12px; width:100%; }
-  .cover-client-lbl  { font-family:'Barlow',sans-serif; font-size:8px; font-weight:700; letter-spacing:0.28em; text-transform:uppercase; color:rgba(255,255,255,0.20); margin-bottom:5px; }
-  .cover-client-name { font-family:'Barlow Condensed',sans-serif; font-size:clamp(16px,2.5vw,24px); font-weight:800; letter-spacing:0.02em; text-transform:uppercase; color:#fff; }
-  .cover-client-sub  { font-family:'Barlow',sans-serif; font-size:8px; font-weight:600; letter-spacing:0.14em; color:rgba(255,255,255,0.20); margin-top:3px; text-transform:uppercase; }
-  .cover-date-lbl { font-family:'Barlow',sans-serif; font-size:8px; font-weight:700; letter-spacing:0.22em; text-transform:uppercase; color:rgba(255,255,255,0.18); margin-bottom:4px; text-align:right; }
-  .cover-date-val { font-family:'Barlow Condensed',sans-serif; font-size:clamp(14px,2vw,22px); font-weight:700; color:rgba(255,255,255,0.42); }
+  .cover-client-lbl  { font-family:'Inter',sans-serif; font-size:8px; font-weight:500; letter-spacing:0.18em; text-transform:uppercase; color:rgba(255,255,255,0.20); margin-bottom:5px; }
+  .cover-client-name { font-family:'Inter',sans-serif; font-size:clamp(15px,2.3vw,22px); font-weight:700; letter-spacing:-0.01em; color:#fff; }
+  .cover-client-sub  { font-family:'Inter',sans-serif; font-size:8px; font-weight:400; letter-spacing:0.08em; color:rgba(255,255,255,0.20); margin-top:3px; text-transform:uppercase; }
+  .cover-date-lbl { font-family:'Inter',sans-serif; font-size:8px; font-weight:500; letter-spacing:0.14em; text-transform:uppercase; color:rgba(255,255,255,0.18); margin-bottom:4px; text-align:right; }
+  .cover-date-val { font-family:'Inter',sans-serif; font-size:clamp(13px,1.8vw,20px); font-weight:500; color:rgba(255,255,255,0.42); }
 
   /* Lado derecho naranja ─────────────────────────────────────────────── */
   .cover-right {
@@ -1648,8 +1760,8 @@ ${C(`
   }
   .cover-logo { position:relative; z-index:2; display:flex; align-items:center; justify-content:center; width:100%; padding:clamp(8px,1.2vw,16px) 0 clamp(4px,0.8vw,10px); }
   .cover-metrics-lbl {
-    font-family:'Barlow',sans-serif; font-size:11px; font-weight:700;
-    letter-spacing:0.20em; text-transform:uppercase; color:rgba(255,255,255,0.85);
+    font-family:'Inter',sans-serif; font-size:10px; font-weight:500;
+    letter-spacing:0.14em; text-transform:uppercase; color:rgba(255,255,255,0.80);
     position:relative; z-index:2; text-align:center; margin-bottom:4px;
   }
   .cover-grid { display:grid; grid-template-columns:1fr 1fr; gap:clamp(7px,1vw,11px); position:relative; z-index:2; }
@@ -1664,8 +1776,8 @@ ${C(`
     background:rgba(255,255,255,0.22); border:1.5px solid rgba(255,255,255,0.35);
     display:flex; align-items:center; justify-content:center; color:#fff;
   }
-  .cover-val  { font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:clamp(26px,3.2vw,38px); letter-spacing:-0.02em; color:#fff; line-height:1; }
-  .cover-lbl  { font-family:'Barlow',sans-serif; font-size:clamp(7px,0.95vw,9px); font-weight:700; letter-spacing:0.16em; text-transform:uppercase; color:rgba(255,255,255,0.65); }
+  .cover-val  { font-family:'Inter',sans-serif; font-weight:600; font-size:clamp(24px,3vw,36px); letter-spacing:-0.03em; color:#fff; line-height:1; font-variant-numeric:tabular-nums; }
+  .cover-lbl  { font-family:'Inter',sans-serif; font-size:clamp(7px,0.90vw,9px); font-weight:500; letter-spacing:0.10em; text-transform:uppercase; color:rgba(255,255,255,0.65); }
 
   /* ── Dashboard ───────────────────────────────────────────────────────── */
   .dashboard { background:var(--bg); }
@@ -1678,8 +1790,8 @@ ${C(`
     padding:0 clamp(14px,2vw,24px); display:flex; align-items:center; gap:12px;
     border-right:1px solid var(--cream); flex-shrink:0;
   }
-  .brand-name { font-family:'Barlow Condensed',sans-serif; font-size:clamp(18px,2.5vw,26px); font-weight:800; letter-spacing:-0.01em; color:${BLACK}; text-transform:uppercase; line-height:1; }
-  .brand-sub  { font-family:'Barlow',sans-serif; font-size:7.5px; font-weight:700; letter-spacing:0.20em; color:var(--gray-l); text-transform:uppercase; margin-top:2px; }
+  .brand-name { font-family:'Inter',sans-serif; font-size:clamp(16px,2.2vw,22px); font-weight:700; letter-spacing:-0.02em; color:${BLACK}; line-height:1; }
+  .brand-sub  { font-family:'Inter',sans-serif; font-size:7.5px; font-weight:400; letter-spacing:0.12em; color:var(--gray-l); text-transform:uppercase; margin-top:3px; }
   .kpi-strip  { display:flex; flex:1; align-items:stretch; overflow-x:auto; }
   .kpi-card {
     flex:1; min-width:80px; display:flex; flex-direction:column; align-items:center;
@@ -1689,15 +1801,15 @@ ${C(`
   .kpi-card:last-child { border-right:none; }
   .kpi-bar   { position:absolute; bottom:0; left:20%; right:20%; height:3px; background:var(--kc); border-radius:3px 3px 0 0; opacity:0.6; }
   .kpi-icon  { opacity:0.5; line-height:1; margin-bottom:2px; }
-  .kpi-val   { font-family:'Barlow Condensed',sans-serif; font-size:clamp(24px,2.8vw,34px); font-weight:800; letter-spacing:-0.02em; color:${BLACK}; line-height:1; }
-  .kpi-lbl   { font-family:'Barlow',sans-serif; font-size:clamp(6px,0.9vw,8px); font-weight:700; letter-spacing:0.16em; text-transform:uppercase; color:var(--gray-l); margin-top:1px; }
-  .kpi-delta { font-family:'Barlow',sans-serif; font-size:clamp(8px,1vw,10px); font-weight:700; margin-top:1px; }
+  .kpi-val   { font-family:'Inter',sans-serif; font-size:clamp(22px,2.6vw,32px); font-weight:600; letter-spacing:-0.03em; color:${BLACK}; line-height:1; font-variant-numeric:tabular-nums; }
+  .kpi-lbl   { font-family:'Inter',sans-serif; font-size:clamp(6px,0.85vw,8px); font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:var(--gray-l); margin-top:2px; }
+  .kpi-delta { font-family:'Inter',sans-serif; font-size:clamp(8px,1vw,10px); font-weight:600; margin-top:1px; font-variant-numeric:tabular-nums; }
   .dash-period {
     padding:0 clamp(12px,2vw,22px); display:flex; flex-direction:column; align-items:flex-end;
     justify-content:center; border-left:1px solid var(--cream); flex-shrink:0; gap:4px; min-width:clamp(120px,16vw,180px);
   }
-  .period-lbl { font-family:'Barlow',sans-serif; font-size:8px; font-weight:700; letter-spacing:0.20em; text-transform:uppercase; color:var(--gray-l); }
-  .period-val { font-family:'Barlow Condensed',sans-serif; font-size:clamp(11px,1.6vw,17px); font-weight:800; letter-spacing:-0.01em; color:${GRAY_D}; text-transform:uppercase; text-align:right; line-height:1.2; }
+  .period-lbl { font-family:'Inter',sans-serif; font-size:8px; font-weight:500; letter-spacing:0.10em; text-transform:uppercase; color:var(--gray-l); }
+  .period-val { font-family:'Inter',sans-serif; font-size:clamp(11px,1.5vw,16px); font-weight:600; letter-spacing:-0.01em; color:${GRAY_D}; text-align:right; line-height:1.3; }
   .cards-grid {
     padding:clamp(8px,1.5vw,12px) clamp(8px,1.5vw,13px) clamp(6px,1vw,10px);
     display:grid; grid-template-columns:minmax(0,2.3fr) minmax(0,1fr); gap:clamp(8px,1.2vw,11px);
@@ -1710,8 +1822,8 @@ ${C(`
   }
   .card-title {
     display:flex; align-items:center; gap:7px; margin-bottom:12px;
-    font-family:'Barlow',sans-serif; font-size:8px; font-weight:700;
-    letter-spacing:0.28em; text-transform:uppercase; color:var(--gray-l); flex-shrink:0;
+    font-family:'Inter',sans-serif; font-size:8px; font-weight:500;
+    letter-spacing:0.14em; text-transform:uppercase; color:var(--gray-l); flex-shrink:0;
   }
   .card-body { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:0; }
   .card-body > div { width:100%; }
@@ -1719,11 +1831,11 @@ ${C(`
     padding:0 clamp(8px,1.5vw,13px) 8px;
     display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;
   }
-  .footer-txt    { font-family:'Barlow',sans-serif; font-size:8px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--gray-l); }
+  .footer-txt    { font-family:'Inter',sans-serif; font-size:8px; font-weight:400; letter-spacing:0.08em; text-transform:uppercase; color:var(--gray-l); }
   .footer-legend { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
   .legend-item   { display:flex; align-items:center; gap:4px; }
   .legend-dot    { width:6px; height:6px; border-radius:2px; }
-  .legend-lbl    { font-family:'Barlow',sans-serif; font-size:7.5px; font-weight:700; letter-spacing:0.10em; text-transform:uppercase; color:var(--gray-l); }
+  .legend-lbl    { font-family:'Inter',sans-serif; font-size:7.5px; font-weight:500; letter-spacing:0.07em; text-transform:uppercase; color:var(--gray-l); }
 
   @media(max-width:900px) {
     .cover { flex-direction:column; min-height:auto; }

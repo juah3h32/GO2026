@@ -934,14 +934,14 @@ const ScheduleModal = React.memo(function ScheduleModal({ form, setForm, editId,
             <div style={{ padding: '10px 13px', background: CM.border2, border: `1px solid ${CM.border}`, borderRadius: 9, marginBottom: 12, display: 'flex', alignItems: 'flex-start', gap: 7 }}>
               <span style={{ color: CM.textDim, flexShrink: 0, marginTop: 1 }}>{Ic.info}</span>
               <span style={{ fontFamily: "'DM Sans',system-ui,sans-serif", fontSize: 11, color: CM.textDim, lineHeight: 1.55 }}>
-                Número con código de país, sin espacios. <span style={{ color: CM.textSub }}>Ej: 523312345678</span>
+                Solo 10 dígitos, sin código de país. <span style={{ color: CM.textSub }}>Ej: 4434845466</span>
               </span>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {form.phones.map((p, i) => (
                 <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   <div style={{ width: 24, height: 24, borderRadius: 7, background: CM.surface3, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9.5, fontWeight: 700, color: CM.textDim, flexShrink: 0, fontFamily: "'DM Mono',monospace" }}>{i + 1}</div>
-                  <input className="rsc-input" placeholder="523312345678" value={p.phone} onChange={e => setPhone(i, e.target.value)} />
+                  <input className="rsc-input" placeholder="4434845466" value={p.phone} onChange={e => setPhone(i, e.target.value)} />
                   {form.phones.length > 1 && (
                     <button onClick={() => removePhone(i)} className="rsc-danger-btn" style={{ padding: '7px 9px' }}>{Ic.trash}</button>
                   )}

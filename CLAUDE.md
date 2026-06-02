@@ -45,7 +45,7 @@ Endpoints en `src/pages/api/`. Patrones importantes:
 - Autenticación admin: `src/lib/verifyAdminToken.ts` — todos los endpoints admin deben llamarlo.
 - Rate limiting: manejado en `src/middleware.ts` (sliding window en memoria, suficiente por instancia Vercel).
 - Límites de payload: chat 50 KB, CV 6 MB, PDF 10 MB, resto 100 KB — ver middleware.
-- Secretos (`CRON_SECRET_EXTERNAL`, `WAHOOKS_TOKEN`, etc.) solo se acceden via `process.env` en código server-side; NO exponerlos con el prefijo `TURSO_`/`JWT_`/etc. de `envPrefix`.
+- Secretos (`CRON_SECRET_EXTERNAL`, `WAGO_TOKEN`, etc.) solo se acceden via `process.env` en código server-side; NO exponerlos con el prefijo `TURSO_`/`JWT_`/etc. de `envPrefix`.
 
 ---
 

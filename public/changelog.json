@@ -1,6 +1,86 @@
 {
   "commits": [
     {
+      "hash": "3c826bd",
+      "date": "2026-05-30",
+      "message": "fallback texto cuando send-document falla en NOWEB engine",
+      "rawMessage": "fix: fallback texto cuando send-document falla en NOWEB engine",
+      "type": "fix",
+      "area": "Media"
+    },
+    {
+      "hash": "ca347bd",
+      "date": "2026-05-30",
+      "message": "reinstalar puppeteer-core (7MB, sin binario chromium) para dev local",
+      "rawMessage": "fix: reinstalar puppeteer-core (7MB, sin binario chromium) para dev local",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "b0b2426",
+      "date": "2026-05-30",
+      "message": "eliminar todos los imports de @sparticuz/chromium — build Vercel OK",
+      "rawMessage": "fix: eliminar todos los imports de @sparticuz/chromium — build Vercel OK",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "8e0b58b",
+      "date": "2026-05-30",
+      "message": "dynamic imports puppeteer + desinstalar sparticuz/chromium y react-three",
+      "rawMessage": "fix: dynamic imports puppeteer + desinstalar sparticuz/chromium y react-three",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "2f6d80e",
+      "date": "2026-05-30",
+      "message": "usar excludeFiles en adapter vercel para reducir bundle SSR",
+      "rawMessage": "fix: usar excludeFiles en adapter vercel para reducir bundle SSR",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "89c2ddc",
+      "date": "2026-05-30",
+      "message": "desinstalar 13 paquetes no usados — reducir bundle Vercel (-600MB+)",
+      "rawMessage": "fix: desinstalar 13 paquetes no usados — reducir bundle Vercel (-600MB+)",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "9e1d2bd",
+      "date": "2026-05-30",
+      "message": "remover videos de git — servir desde Cloudinary, reduce bundle 647MB",
+      "rawMessage": "fix: remover videos de git — servir desde Cloudinary, reduce bundle 647MB",
+      "type": "fix",
+      "area": "Media"
+    },
+    {
+      "hash": "552d2a0",
+      "date": "2026-05-30",
+      "message": "functionPerRoute + reducir bundle size — resolver Vercel 857MB limit",
+      "rawMessage": "fix: functionPerRoute + reducir bundle size — resolver Vercel 857MB limit",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "9516dc2",
+      "date": "2026-05-30",
+      "message": "subir todos los cambios pendientes — bolsas, acolchado, videos, i18n, admin, scripts",
+      "rawMessage": "feat: subir todos los cambios pendientes — bolsas, acolchado, videos, i18n, admin, scripts",
+      "type": "feat",
+      "area": "Productos"
+    },
+    {
+      "hash": "de45258",
+      "date": "2026-05-30",
+      "message": "migrar WhatsApp API a recursomusical + usar WAHOOKS_URL env var",
+      "rawMessage": "fix: migrar WhatsApp API a recursomusical + usar WAHOOKS_URL env var",
+      "type": "fix",
+      "area": "Admin/API"
+    },
+    {
       "hash": "7569385",
       "date": "2026-05-25",
       "message": "hogar.mp4 ruta correcta en i18n + preload metadata en social.astro",
@@ -1186,50 +1266,54 @@
     }
   ],
   "stats": {
-    "total": 148,
+    "total": 158,
     "byType": {
-      "fix": 21,
-      "feat": 7,
+      "fix": 30,
+      "feat": 8,
       "chore": 1,
       "perf": 2,
       "update": 7,
       "release": 110
     },
     "byArea": {
-      "Media": 9,
-      "Productos": 12,
-      "i18n": 2,
-      "General": 125
+      "Media": 11,
+      "General": 131,
+      "Productos": 13,
+      "Admin/API": 1,
+      "i18n": 2
     },
     "byMonth": {
-      "2026-05": 23,
+      "2026-05": 33,
       "2026-04": 29,
       "2026-03": 96
     },
     "byAreaType": {
       "Media": {
-        "fix": 6,
+        "fix": 8,
         "perf": 1,
         "feat": 1,
         "update": 1
       },
+      "General": {
+        "fix": 16,
+        "update": 4,
+        "release": 110,
+        "feat": 1
+      },
       "Productos": {
-        "feat": 5,
+        "feat": 6,
         "fix": 3,
         "chore": 1,
         "perf": 1,
         "update": 2
       },
+      "Admin/API": {
+        "fix": 1
+      },
       "i18n": {
         "fix": 2
-      },
-      "General": {
-        "update": 4,
-        "release": 110,
-        "fix": 10,
-        "feat": 1
       }
     }
   },
-  "generatedAt": "2026-05-29T00:11:19.604Z"
+  "generatedAt": "2026-06-02T17:24:06.121Z"
 }

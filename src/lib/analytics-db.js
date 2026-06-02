@@ -42,6 +42,49 @@ async function ensureInit() {
   // Safe migration: add session_id to existing messages table if missing
   try { await db.execute(`ALTER TABLE messages ADD COLUMN session_id TEXT NOT NULL DEFAULT ''`); } catch {}
   try { await db.execute(`CREATE INDEX IF NOT EXISTS idx_messages_session ON messages(session_id)`); } catch {}
+
+  // WhatsApp entrantes via webhook
+  try {
+    await db.execute(`
+      CREATE TABLE IF NOT EXISTS wa_incoming (
+        id        INTEGER PRIMARY KEY AUTOINCREMENT,
+        ts        TEXT    NOT NULL DEFAULT (datetime('now')),
+        phone     TEXT    NOT NULL DEFAULT '',
+        body      TEXT    NOT NULL DEFAULT '',
+        bot_reply TEXT,
+        msg_id    TEXT    NOT NULL DEFAULT ''
+      )
+    `);
+    await db.execute(`CREATE INDEX IF NOT EXISTS idx_wa_ts ON wa_incoming(ts DESC)`);
+  } catch {}
+
+  // Configuración WAGO — credenciales almacenadas en DB (no en .env)
+  try {
+    await db.execute(`
+      CREATE TABLE IF NOT EXISTS wago_config (
+        id             INTEGER PRIMARY KEY CHECK (id = 1),
+        wago_url       TEXT    NOT NULL DEFAULT '',
+        wago_token     TEXT    NOT NULL DEFAULT '',
+        connection_id  TEXT    NOT NULL DEFAULT '',
+        webhook_secret TEXT    NOT NULL DEFAULT '',
+        updated_at     TEXT    NOT NULL DEFAULT (datetime('now'))
+      )
+    `);
+  } catch {}
+
+  // Teléfonos autorizados para comandos privados
+  try {
+    await db.execute(`
+      CREATE TABLE IF NOT EXISTS wa_authorized (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        phone       TEXT    UNIQUE NOT NULL,
+        name        TEXT    NOT NULL DEFAULT '',
+        permissions TEXT    NOT NULL DEFAULT '[]',
+        active      INTEGER NOT NULL DEFAULT 1,
+        created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
+      )
+    `);
+  } catch {}
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -894,7 +937,108 @@ export async function deleteVacante(id) {
 }
 
 export async function toggleVacante(id, activa) {
-  await ensureInit(); 
+  await ensureInit();
   await ensureVacantesTable();
   await db.execute({ sql: `UPDATE vacantes SET activa=? WHERE id=?`, args: [activa ? 1 : 0, id] });
+}
+
+// ── WhatsApp entrantes via webhook ────────────────────────────────────────────
+export async function saveWAIncoming({ phone, body, msgId = '' }) {
+  await ensureInit();
+  const r = await db.execute({
+    sql:  `INSERT INTO wa_incoming (phone, body, msg_id) VALUES (?,?,?)`,
+    args: [phone, body, msgId],
+  });
+  return r.lastInsertRowid;
+}
+
+export async function updateWAIncomingReply(id, botReply) {
+  await ensureInit();
+  await db.execute({
+    sql:  `UPDATE wa_incoming SET bot_reply=? WHERE id=?`,
+    args: [botReply, id],
+  });
+}
+
+export async function getWAIncoming({ limit = 50, offset = 0 } = {}) {
+  await ensureInit();
+  const r = await db.execute({
+    sql:  `SELECT id, ts, phone, body, bot_reply FROM wa_incoming ORDER BY ts DESC LIMIT ? OFFSET ?`,
+    args: [limit, offset],
+  });
+  return r.rows.map(row => ({
+    id:        row[0],
+    ts:        row[1],
+    phone:     row[2],
+    body:      row[3],
+    bot_reply: row[4],
+  }));
+}
+
+// ── Teléfonos autorizados ─────────────────────────────────────────────────────
+export async function getWAAuthorized() {
+  await ensureInit();
+  const r = await db.execute(`SELECT id, phone, name, permissions, active, created_at FROM wa_authorized ORDER BY id DESC`);
+  return r.rows.map(row => ({
+    id:          row[0],
+    phone:       row[1],
+    name:        row[2],
+    permissions: JSON.parse(row[3] || '[]'),
+    active:      row[4] === 1,
+    created_at:  row[5],
+  }));
+}
+
+export async function getWAAuthorizedByPhone(phone) {
+  await ensureInit();
+  const clean = String(phone).replace(/\D/g, '');
+  const r = await db.execute({ sql: `SELECT id, phone, name, permissions, active FROM wa_authorized WHERE phone=? AND active=1`, args: [clean] });
+  if (!r.rows.length) return null;
+  const row = r.rows[0];
+  return { id: row[0], phone: row[1], name: row[2], permissions: JSON.parse(row[3] || '[]'), active: row[4] === 1 };
+}
+
+export async function addWAAuthorized({ phone, name = '', permissions = [] }) {
+  await ensureInit();
+  const clean = String(phone).replace(/\D/g, '');
+  const r = await db.execute({
+    sql:  `INSERT INTO wa_authorized (phone, name, permissions) VALUES (?,?,?) ON CONFLICT(phone) DO UPDATE SET name=excluded.name, permissions=excluded.permissions, active=1`,
+    args: [clean, name, JSON.stringify(permissions)],
+  });
+  return r.lastInsertRowid;
+}
+
+export async function updateWAAuthorized({ id, name, permissions, active }) {
+  await ensureInit();
+  await db.execute({
+    sql:  `UPDATE wa_authorized SET name=?, permissions=?, active=? WHERE id=?`,
+    args: [name, JSON.stringify(permissions), active ? 1 : 0, id],
+  });
+}
+
+export async function deleteWAAuthorized(id) {
+  await ensureInit();
+  await db.execute({ sql: `DELETE FROM wa_authorized WHERE id=?`, args: [id] });
+}
+
+// ── WAGO Config ───────────────────────────────────────────────────────────────
+export async function getWagoConfig() {
+  await ensureInit();
+  const r = await db.execute(`SELECT wago_url, wago_token, connection_id, webhook_secret FROM wago_config WHERE id=1`);
+  if (!r.rows.length) return null;
+  const row = r.rows[0];
+  return { url: row.wago_url, token: row.wago_token, connectionId: row.connection_id, webhookSecret: row.webhook_secret };
+}
+
+export async function saveWagoConfig({ url, token, connectionId, webhookSecret }) {
+  await ensureInit();
+  await db.execute({
+    sql: `INSERT INTO wago_config (id, wago_url, wago_token, connection_id, webhook_secret, updated_at)
+          VALUES (1, ?, ?, ?, ?, datetime('now'))
+          ON CONFLICT(id) DO UPDATE SET
+            wago_url=excluded.wago_url, wago_token=excluded.wago_token,
+            connection_id=excluded.connection_id, webhook_secret=excluded.webhook_secret,
+            updated_at=excluded.updated_at`,
+    args: [url, token, connectionId, webhookSecret],
+  });
 }

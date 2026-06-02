@@ -1,6 +1,6 @@
 // src/lib/notify.js
 // Notificaciones WhatsApp para nuevos candidatos — mismo estilo blanco que los reportes
-import { readCandidateNotifications, touchCandidateNotifLastSent } from './analytics-db.js';
+import { readCandidateNotifications, touchCandidateNotifLastSent, getWagoConfig } from './analytics-db.js';
 import { existsSync, readFileSync } from 'fs';
 import { join }     from 'path';
 
@@ -228,12 +228,84 @@ function buildFilename(nombre, puesto) {
   return `Perfil_${safe(nombre)}_${safe(puesto)}.pdf`;
 }
 
-// ── Wahooks: enviar mensaje de texto — endpoint /send con { chatId, text } ───
+// ── Generar PDF de reporte BotGO ──────────────────────────────────────────────
+export async function generateReportPDF(pdfData, logoBase64) {
+  const { titulo, periodo, stats = [], extra = '', extra2 = '' } = pdfData;
+  const logoHtml = logoBase64
+    ? `<img src="${logoBase64}" alt="Logo" style="width:36px;height:36px;object-fit:contain;">`
+    : `<span style="font-family:'Barlow Condensed',Helvetica,sans-serif;font-size:22px;font-weight:900;color:${WHITE};letter-spacing:-0.05em;">GO</span>`;
+
+  const now = new Date().toLocaleString('es-MX', {
+    timeZone: 'America/Mexico_City', day:'2-digit', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit',
+  });
+
+  const statCards = stats.map(s => `
+    <div style="background:${BG};border-radius:10px;padding:14px 16px;text-align:center;">
+      <div style="font-family:'Barlow',sans-serif;font-size:7px;font-weight:700;letter-spacing:0.20em;text-transform:uppercase;color:${GRAY_LIGHT};margin-bottom:6px;">${esc(s.label)}</div>
+      <div style="font-family:'DM Mono','Courier New',monospace;font-size:22px;font-weight:700;color:${BLACK};">${esc(s.value)}</div>
+    </div>`).join('');
+
+  const extraHtml = extra ? `
+    <div style="background:${WHITE};border-radius:12px;border:1px solid ${CREAM_DARK};padding:16px 20px;margin-top:12px;">
+      <div style="font-size:7px;font-weight:700;letter-spacing:0.20em;text-transform:uppercase;color:${GRAY_LIGHT};margin-bottom:10px;">Productos top</div>
+      <pre style="font-family:'Barlow',sans-serif;font-size:12px;color:${BLACK};white-space:pre-wrap;margin:0;">${esc(extra)}</pre>
+    </div>` : '';
+
+  const extra2Html = extra2 ? `
+    <div style="background:${WHITE};border-radius:12px;border:1px solid ${CREAM_DARK};padding:16px 20px;margin-top:12px;">
+      <div style="font-size:7px;font-weight:700;letter-spacing:0.20em;text-transform:uppercase;color:${GRAY_LIGHT};margin-bottom:10px;">Búsquedas frecuentes</div>
+      <pre style="font-family:'Barlow',sans-serif;font-size:12px;color:${BLACK};white-space:pre-wrap;margin:0;">${esc(extra2)}</pre>
+    </div>` : '';
+
+  const html = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700;800&family=Barlow+Condensed:wght@700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>*{box-sizing:border-box;margin:0;padding:0}@page{size:A4;margin:0}body{font-family:'Barlow',Helvetica,sans-serif;background:${BG};padding:28px;}</style></head><body>
+  <div style="background:linear-gradient(135deg,${ORANGE} 0%,${ORANGE_DARK} 100%);border-radius:14px;padding:22px 24px;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;box-shadow:0 4px 20px rgba(251,103,11,0.28);">
+    <div style="display:flex;align-items:center;gap:14px;">
+      <div style="width:48px;height:48px;background:rgba(255,255,255,0.18);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;">${logoHtml}</div>
+      <div>
+        <div style="font-size:7px;font-weight:700;letter-spacing:0.25em;text-transform:uppercase;color:rgba(255,255,255,0.65);margin-bottom:3px;">BotGO · Grupo Ortiz</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:900;color:${WHITE};letter-spacing:-0.02em;line-height:1;text-transform:uppercase;">${esc(titulo)}</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.78);font-weight:500;margin-top:2px;">${esc(periodo)}</div>
+      </div>
+    </div>
+    <div style="background:rgba(255,255,255,0.16);border:1px solid rgba(255,255,255,0.24);border-radius:18px;padding:6px 14px;">
+      <div style="font-size:8px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.85);">${esc(now)}</div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(${Math.min(stats.length, 3)},1fr);gap:10px;margin-bottom:4px;">${statCards}</div>
+  ${extraHtml}${extra2Html}
+  <div style="margin-top:14px;display:flex;justify-content:space-between;padding:0 2px;">
+    <span style="font-size:7px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:${GRAY_LIGHT};">BotGO · Grupo Ortiz · Reporte automático</span>
+    <span style="font-size:7px;font-weight:600;color:${GRAY_LIGHT};">${esc(now)}</span>
+  </div>
+</body></html>`;
+
+  const safe = s => (s||'').replace(/[^a-zA-Z0-9]/g,'_').slice(0,20);
+  const filename = `Reporte_${safe(titulo)}.pdf`;
+  const buffer   = await generatePDF(html);
+  return { buffer, filename };
+}
+
+// ── Resolver credenciales WAGO: DB primero, .env como fallback ───────────────
+async function resolveWagoCredentials() {
+  try {
+    const cfg = await getWagoConfig();
+    if (cfg?.url && cfg?.token && cfg?.connectionId) return cfg;
+  } catch { /* fallback a .env */ }
+  const url          = process.env.WAGO_URL           || import.meta.env?.WAGO_URL;
+  const token        = process.env.WAGO_TOKEN         || import.meta.env?.WAGO_TOKEN;
+  const connectionId = process.env.WAGO_CONNECTION_ID || import.meta.env?.WAGO_CONNECTION_ID;
+  const webhookSecret = process.env.WAGO_WEBHOOK_SECRET || import.meta.env?.WAGO_WEBHOOK_SECRET;
+  if (!url || !token || !connectionId) return null;
+  return { url, token, connectionId, webhookSecret };
+}
+
+// ── WAGO: enviar mensaje de texto — endpoint /send con { chatId, text } ───
 export async function sendWAText(phone, message) {
-  const url          = import.meta.env.WAHOOKS_URL;
-  const token        = import.meta.env.WAHOOKS_TOKEN;
-  const connectionId = import.meta.env.WAHOOKS_CONNECTION_ID;
-  if (!url || !token || !connectionId) throw new Error('Wahooks no configurado');
+  const creds = await resolveWagoCredentials();
+  const { url, token, connectionId } = creds || {};
+  if (!url || !token || !connectionId) throw new Error('WAGO no configurado');
 
   const chatId = `${String(phone).replace(/\D/g, '')}@s.whatsapp.net`;
   const res = await fetch(
@@ -246,16 +318,15 @@ export async function sendWAText(phone, message) {
   );
   if (!res.ok) {
     const body = await res.text();
-    throw new Error(`Wahooks texto HTTP ${res.status}: ${body.slice(0, 120)}`);
+    throw new Error(`WAGO texto HTTP ${res.status}: ${body.slice(0, 120)}`);
   }
 }
 
-// ── Wahooks: enviar PDF (sin caption — el mensaje ya fue enviado antes) ───────
-async function sendWAPDF(phone, pdfBuffer, filename) {
-  const url          = import.meta.env.WAHOOKS_URL;
-  const token        = import.meta.env.WAHOOKS_TOKEN;
-  const connectionId = import.meta.env.WAHOOKS_CONNECTION_ID;
-  if (!url || !token || !connectionId) throw new Error('Wahooks no configurado');
+// ── WAGO: enviar PDF (sin caption — el mensaje ya fue enviado antes) ───────
+export async function sendWAPDF(phone, pdfBuffer, filename) {
+  const creds = await resolveWagoCredentials();
+  const { url, token, connectionId } = creds || {};
+  if (!url || !token || !connectionId) throw new Error('WAGO no configurado');
 
   const chatId = `${String(phone).replace(/\D/g, '')}@s.whatsapp.net`;
 
@@ -279,7 +350,7 @@ async function sendWAPDF(phone, pdfBuffer, filename) {
   });
   if (!resTxt.ok) {
     const body = await resTxt.text();
-    throw new Error(`Wahooks fallback HTTP ${resTxt.status}: ${body.slice(0, 120)}`);
+    throw new Error(`WAGO fallback HTTP ${resTxt.status}: ${body.slice(0, 120)}`);
   }
 }
 

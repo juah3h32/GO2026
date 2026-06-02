@@ -20,10 +20,11 @@ import AdminPanel from '../components/AdminPanel.jsx';
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: 100%; background: #0F0E0C; }
+    html, body { height: 100%; width: 100%; overflow: hidden; background: #0F0E0C; }
   </style>
 </head>
 <body>
   <AdminPanel autoOpen={true} client:only="react" />
+
 </body>
 </html>
