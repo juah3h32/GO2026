@@ -2129,6 +2129,12 @@ const PERM_OPTIONS = [
   { id: '*',             label: 'Acceso total' },
 ];
 
+// Categorías de notificación automática — el bot avisa solo cuando hay registro nuevo
+const CAT_OPTIONS = [
+  { id: 'rh',       label: 'RH — nuevos candidatos',                desc: 'Recibe el perfil de cada candidato que se registra' },
+  { id: 'clientes', label: 'Atención a clientes — distribuidores',  desc: 'Recibe la info de cada distribuidor nuevo' },
+];
+
 function WAWebhookTab({ P, isMobile }) {
   const [subTab, setSubTab]   = useState('conexion');
   const [msgs, setMsgs]       = useState([]);
@@ -2146,12 +2152,14 @@ function WAWebhookTab({ P, isMobile }) {
   const [addPhone, setAddPhone]   = useState('');
   const [addName, setAddName]     = useState('');
   const [addPerms, setAddPerms]   = useState([]);
+  const [addCats, setAddCats]     = useState([]);
   const [addErr, setAddErr]       = useState('');
   const [addLoading, setAddLoading] = useState(false);
 
   // edición inline
   const [editId, setEditId]     = useState(null);
   const [editPerms, setEditPerms] = useState([]);
+  const [editCats, setEditCats] = useState([]);
   const [editActive, setEditActive] = useState(true);
 
   const [copied, setCopied] = useState(false);
@@ -2241,8 +2249,8 @@ function WAWebhookTab({ P, isMobile }) {
     if (!addPhone.trim()) return;
     setAddLoading(true);
     try {
-      const d = await api({ action: 'authorized_add', phone: addPhone.trim(), name: addName.trim(), permissions: addPerms });
-      if (d.ok) { setAddPhone(''); setAddName(''); setAddPerms([]); loadAuthorized(); }
+      const d = await api({ action: 'authorized_add', phone: addPhone.trim(), name: addName.trim(), permissions: addPerms, categories: addCats });
+      if (d.ok) { setAddPhone(''); setAddName(''); setAddPerms([]); setAddCats([]); loadAuthorized(); }
       else setAddErr(d.error || 'Error al agregar');
     } catch (e) { setAddErr('Error de conexión'); }
     setAddLoading(false);
@@ -2250,7 +2258,7 @@ function WAWebhookTab({ P, isMobile }) {
 
   async function handleSaveEdit(item) {
     try {
-      await api({ action: 'authorized_update', id: item.id, name: item.name, permissions: editPerms, active: editActive });
+      await api({ action: 'authorized_update', id: item.id, name: item.name, permissions: editPerms, active: editActive, categories: editCats });
       setEditId(null);
       loadAuthorized();
     } catch { /* silencioso */ }
@@ -2437,6 +2445,18 @@ function WAWebhookTab({ P, isMobile }) {
                   </button>
                 ))}
               </div>
+              <p style={{ fontSize: 11, color: P.textDim, marginBottom: 6 }}>Notificaciones automáticas — el bot le avisa cuando hay registro nuevo:</p>
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
+                {CAT_OPTIONS.map(opt => (
+                  <button key={opt.id} type="button" title={opt.desc}
+                    onClick={() => setAddCats(c => c.includes(opt.id) ? c.filter(x => x !== opt.id) : [...c, opt.id])}
+                    style={{ padding: '4px 10px', borderRadius: 6, border: `1px solid ${addCats.includes(opt.id) ? '#22C55E' : P.border}`,
+                      background: addCats.includes(opt.id) ? 'rgba(34,197,94,0.10)' : P.surface2,
+                      color: addCats.includes(opt.id) ? '#22C55E' : P.textSub, fontSize: 11, cursor: 'pointer' }}>
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
               <button type="submit" disabled={addLoading}
                 style={{ padding: '7px 18px', background: P.orange, border: 'none', borderRadius: 8, color: '#fff', fontSize: 12, fontWeight: 600, cursor: addLoading ? 'not-allowed' : 'pointer', opacity: addLoading ? 0.7 : 1 }}>
                 {addLoading ? '...' : 'Agregar'}
@@ -2475,6 +2495,18 @@ function WAWebhookTab({ P, isMobile }) {
                         </button>
                       ))}
                     </div>
+                    <p style={{ fontSize: 10, color: P.textDim, marginBottom: 5 }}>Notificaciones automáticas:</p>
+                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
+                      {CAT_OPTIONS.map(opt => (
+                        <button key={opt.id} type="button" title={opt.desc}
+                          onClick={() => setEditCats(c => c.includes(opt.id) ? c.filter(x => x !== opt.id) : [...c, opt.id])}
+                          style={{ padding: '4px 10px', borderRadius: 6, border: `1px solid ${editCats.includes(opt.id) ? '#22C55E' : P.border}`,
+                            background: editCats.includes(opt.id) ? 'rgba(34,197,94,0.10)' : P.surface2,
+                            color: editCats.includes(opt.id) ? '#22C55E' : P.textSub, fontSize: 11, cursor: 'pointer' }}>
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
                     <div style={{ display: 'flex', gap: 6 }}>
                       <button onClick={() => handleSaveEdit(item)} style={{ padding: '5px 12px', background: P.orange, border: 'none', borderRadius: 7, color: '#fff', fontSize: 11, cursor: 'pointer' }}>Guardar</button>
                       <button onClick={() => setEditId(null)} style={{ ...BTN_SM }}>Cancelar</button>
@@ -2494,11 +2526,16 @@ function WAWebhookTab({ P, isMobile }) {
                             {PERM_OPTIONS.find(o => o.id === p)?.label || p}
                           </span>
                         ))}
-                        {!(item.permissions || []).length && <span style={{ fontSize: 10, color: P.textDim }}>Sin permisos</span>}
+                        {(item.categories || []).map(c => (
+                          <span key={c} style={{ fontSize: 9, background: 'rgba(34,197,94,0.10)', color: '#22C55E', borderRadius: 5, padding: '1px 7px', fontWeight: 700 }}>
+                            {CAT_OPTIONS.find(o => o.id === c)?.label.split(' — ')[0] || c}
+                          </span>
+                        ))}
+                        {!(item.permissions || []).length && !(item.categories || []).length && <span style={{ fontSize: 10, color: P.textDim }}>Sin permisos</span>}
                       </div>
                     </div>
                     <div style={{ display: 'flex', gap: 5 }}>
-                      <button onClick={() => { setEditId(item.id); setEditPerms(item.permissions || []); setEditActive(item.active); }}
+                      <button onClick={() => { setEditId(item.id); setEditPerms(item.permissions || []); setEditCats(item.categories || []); setEditActive(item.active); }}
                         style={BTN_SM}>Editar</button>
                       <button onClick={() => handleDelete(item.id)}
                         style={{ ...BTN_SM, color: '#f87171', border: '1px solid rgba(248,113,113,0.3)' }}>Eliminar</button>

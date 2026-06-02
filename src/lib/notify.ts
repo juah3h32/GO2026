@@ -114,6 +114,13 @@ export async function notifyNewDistribuidor(lead: {
     console.warn('⚠️ EVOLUTION_PHONE_DIST no configurado, saltando notificación WhatsApp...');
   }
 
+  // Notificación automática a números autorizados con categoría 'clientes'
+  tasks.push(
+    import('./notify.js')
+      .then((m: any) => m.notifyCategoriaClientes(lead))
+      .catch((e: any) => console.warn('notif categoría clientes:', e.message)),
+  );
+
   await Promise.allSettled(tasks);
 }
 

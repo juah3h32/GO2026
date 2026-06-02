@@ -46,16 +46,16 @@ export async function POST({ request }) {
   }
 
   if (body.action === 'authorized_add') {
-    const { phone, name, permissions } = body;
+    const { phone, name, permissions, categories } = body;
     if (!phone) return json({ ok: false, error: 'phone requerido' }, 400);
-    await addWAAuthorized({ phone, name: name || '', permissions: permissions || [] });
+    await addWAAuthorized({ phone, name: name || '', permissions: permissions || [], categories: categories || [] });
     return json({ ok: true });
   }
 
   if (body.action === 'authorized_update') {
-    const { id, name, permissions, active } = body;
+    const { id, name, permissions, active, categories } = body;
     if (!id) return json({ ok: false, error: 'id requerido' }, 400);
-    await updateWAAuthorized({ id, name: name || '', permissions: permissions || [], active: active !== false });
+    await updateWAAuthorized({ id, name: name || '', permissions: permissions || [], active: active !== false, categories: categories || [] });
     return json({ ok: true });
   }
 

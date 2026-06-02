@@ -377,6 +377,9 @@ function buildMessage(template, recipientName, candidato, puesto) {
 
 // ── Notificar nuevo candidato — 1) mensaje personalizado  2) PDF ─────────────
 export async function notifyNewVacante(candidate) {
+  // Notificación automática a números autorizados con categoría 'rh'
+  notifyCategoriaRH(candidate).catch(e => console.warn('notif categoría rh:', e.message));
+
   const configs = await readCandidateNotifications();
   const active  = configs.filter(c => c.active && c.phones?.length);
   if (active.length === 0) return { sent: 0, results: [] };
@@ -468,6 +471,59 @@ export async function sendTestNotification(phones, captionTemplate, configId) {
   }
 
   return results;
+}
+
+// ── Notificaciones automáticas por categoría ──────────────────────────────────
+// Envía a todos los números autorizados con la categoría dada.
+// Mensaje personalizado con el nombre de cada destinatario.
+async function notifyCategoria(categoria, buildMsg) {
+  let subs = [];
+  try {
+    const { getWAAuthorizedByCategory } = await import('./analytics-db.js');
+    subs = await getWAAuthorizedByCategory(categoria);
+  } catch (e) { console.error('[notify-cat] DB:', e.message); return { sent: 0 }; }
+  if (!subs.length) return { sent: 0 };
+
+  let sent = 0;
+  for (const s of subs) {
+    try {
+      await sendWAText(s.phone, buildMsg(s.name || ''));
+      sent++;
+    } catch (e) { console.error(`[notify-cat:${categoria}] →${String(s.phone).slice(-4)}:`, e.message); }
+  }
+  console.log(`[notify-cat:${categoria}] enviadas ${sent}/${subs.length}`);
+  return { sent };
+}
+
+// Nuevo candidato → categoría 'rh'
+export async function notifyCategoriaRH(c) {
+  return notifyCategoria('rh', (nombre) => {
+    const saludo = nombre ? `*${nombre}*, hay` : 'Hay';
+    return `${saludo} un nuevo registro de candidato, te lo comparto:\n\n` +
+      `- Nombre: *${c.nombre || '—'}*\n` +
+      `- Puesto: ${c.puesto || '—'}\n` +
+      (c.edad ? `- Edad: ${c.edad}\n` : '') +
+      ((c.estado_rep || c.estado) ? `- Estado: ${c.estado_rep || c.estado}${c.colonia ? ' / ' + c.colonia : ''}\n` : '') +
+      (c.telefono || c.whatsapp ? `- Teléfono: ${c.telefono || c.whatsapp}\n` : '') +
+      (c.email ? `- Email: ${c.email}\n` : '') +
+      ((c.cvNombre || c.cv_nombre) ? `- CV: adjunto en el panel\n` : '') +
+      `\nPuedes gestionarlo desde el panel de Reclutamiento.`;
+  });
+}
+
+// Nuevo distribuidor → categoría 'clientes'
+export async function notifyCategoriaClientes(l) {
+  return notifyCategoria('clientes', (nombre) => {
+    const saludo = nombre ? `*${nombre}*, hay` : 'Hay';
+    return `${saludo} un nuevo registro de distribuidor, te comparto la info:\n\n` +
+      `- Nombre: *${l.nombre || '—'}*\n` +
+      (l.empresa ? `- Empresa: ${l.empresa}\n` : '') +
+      (l.whatsapp ? `- WhatsApp: ${l.whatsapp}\n` : '') +
+      (l.email ? `- Email: ${l.email}\n` : '') +
+      (l.productos ? `- Interesado en: ${Array.isArray(l.productos) ? l.productos.join(', ') : l.productos}\n` : '') +
+      (l.comentarios ? `- Comentario: ${String(l.comentarios).slice(0, 200)}\n` : '') +
+      `\nPuedes darle seguimiento desde el panel de Distribuidores.`;
+  });
 }
 
 // ── Notificar contacto en inglés al número de EE.UU. ─────────────────────────

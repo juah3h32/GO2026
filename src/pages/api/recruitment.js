@@ -91,8 +91,14 @@ export async function POST({ request }) {
         });
 
         try {
-          if (en_lista_espera) await notifyEsperaVacante({ nombre, puesto, telefono, email, sessionId });
-          else                  await notifyNewVacante({ nombre, puesto, telefono, email, cvNombre, sessionId });
+          if (en_lista_espera) {
+            await notifyEsperaVacante({ nombre, puesto, telefono, email, sessionId });
+            // Lista de espera también es registro nuevo → avisar a RH por categoría
+            const { notifyCategoriaRH } = await import('../../lib/notify.js');
+            notifyCategoriaRH({ nombre, puesto, telefono, email }).catch(() => {});
+          } else {
+            await notifyNewVacante({ nombre, puesto, telefono, email, cvNombre, sessionId });
+          }
         } catch (e) { console.warn('notify error:', e.message); }
 
         return json({ ok: true, id: saved?.id || null, esListaEspera: !!en_lista_espera });

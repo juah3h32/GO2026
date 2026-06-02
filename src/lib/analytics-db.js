@@ -978,7 +978,8 @@ export async function getWAIncoming({ limit = 50, offset = 0 } = {}) {
 // ── Teléfonos autorizados ─────────────────────────────────────────────────────
 export async function getWAAuthorized() {
   await ensureInit();
-  const r = await db.execute(`SELECT id, phone, name, permissions, active, created_at FROM wa_authorized ORDER BY id DESC`);
+  try { await db.execute(`ALTER TABLE wa_authorized ADD COLUMN categories TEXT NOT NULL DEFAULT '[]'`); } catch {}
+  const r = await db.execute(`SELECT id, phone, name, permissions, active, created_at, categories FROM wa_authorized ORDER BY id DESC`);
   return r.rows.map(row => ({
     id:          row[0],
     phone:       row[1],
@@ -986,7 +987,22 @@ export async function getWAAuthorized() {
     permissions: JSON.parse(row[3] || '[]'),
     active:      row[4] === 1,
     created_at:  row[5],
+    categories:  (() => { try { return JSON.parse(row[6] || '[]'); } catch { return []; } })(),
   }));
+}
+
+// Categorías de notificación automática: 'rh' (candidatos), 'clientes' (distribuidores)
+export async function getWAAuthorizedByCategory(categoria) {
+  await ensureInit();
+  try { await db.execute(`ALTER TABLE wa_authorized ADD COLUMN categories TEXT NOT NULL DEFAULT '[]'`); } catch {}
+  const r = await db.execute(`SELECT id, phone, name, categories FROM wa_authorized WHERE active=1`);
+  const out = [];
+  for (const row of r.rows) {
+    let cats = [];
+    try { cats = JSON.parse(row[3] || '[]'); } catch {}
+    if (cats.includes(categoria)) out.push({ id: row[0], phone: row[1], name: row[2] });
+  }
+  return out;
 }
 
 export async function getWAAuthorizedByPhone(phone) {
@@ -1005,21 +1021,23 @@ export async function getWAAuthorizedByPhone(phone) {
   return { id: row[0], phone: row[1], name: row[2], permissions: JSON.parse(row[3] || '[]'), active: row[4] === 1 };
 }
 
-export async function addWAAuthorized({ phone, name = '', permissions = [] }) {
+export async function addWAAuthorized({ phone, name = '', permissions = [], categories = [] }) {
   await ensureInit();
+  try { await db.execute(`ALTER TABLE wa_authorized ADD COLUMN categories TEXT NOT NULL DEFAULT '[]'`); } catch {}
   const clean = String(phone).replace(/\D/g, '');
   const r = await db.execute({
-    sql:  `INSERT INTO wa_authorized (phone, name, permissions) VALUES (?,?,?) ON CONFLICT(phone) DO UPDATE SET name=excluded.name, permissions=excluded.permissions, active=1`,
-    args: [clean, name, JSON.stringify(permissions)],
+    sql:  `INSERT INTO wa_authorized (phone, name, permissions, categories) VALUES (?,?,?,?) ON CONFLICT(phone) DO UPDATE SET name=excluded.name, permissions=excluded.permissions, categories=excluded.categories, active=1`,
+    args: [clean, name, JSON.stringify(permissions), JSON.stringify(categories)],
   });
   return r.lastInsertRowid;
 }
 
-export async function updateWAAuthorized({ id, name, permissions, active }) {
+export async function updateWAAuthorized({ id, name, permissions, active, categories = [] }) {
   await ensureInit();
+  try { await db.execute(`ALTER TABLE wa_authorized ADD COLUMN categories TEXT NOT NULL DEFAULT '[]'`); } catch {}
   await db.execute({
-    sql:  `UPDATE wa_authorized SET name=?, permissions=?, active=? WHERE id=?`,
-    args: [name, JSON.stringify(permissions), active ? 1 : 0, id],
+    sql:  `UPDATE wa_authorized SET name=?, permissions=?, active=?, categories=? WHERE id=?`,
+    args: [name, JSON.stringify(permissions), active ? 1 : 0, JSON.stringify(categories), id],
   });
 }
 
