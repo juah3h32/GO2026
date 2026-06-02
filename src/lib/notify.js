@@ -301,13 +301,26 @@ async function resolveWagoCredentials() {
   return { url, token, connectionId, webhookSecret };
 }
 
+// ── Normalizar número mexicano a JID de WhatsApp ─────────────────────────────
+// Celulares MX en WhatsApp usan 521 + 10 dígitos. Acepta:
+//   10 dígitos        → 521 + 10
+//   52 + 10 (12 díg)  → 521 + 10
+//   521 + 10 (13 díg) → tal cual
+//   otros países      → tal cual
+export function toWhatsAppJid(phone) {
+  let n = String(phone).replace(/\D/g, '');
+  if (n.length === 10) n = '521' + n;
+  else if (n.length === 12 && n.startsWith('52') && !n.startsWith('521')) n = '521' + n.slice(2);
+  return `${n}@s.whatsapp.net`;
+}
+
 // ── WAGO: enviar mensaje de texto — endpoint /send con { chatId, text } ───
 export async function sendWAText(phone, message) {
   const creds = await resolveWagoCredentials();
   const { url, token, connectionId } = creds || {};
   if (!url || !token || !connectionId) throw new Error('WAGO no configurado');
 
-  const chatId = `${String(phone).replace(/\D/g, '')}@s.whatsapp.net`;
+  const chatId = toWhatsAppJid(phone);
   const res = await fetch(
     `${url}/api/connections/${connectionId}/send`,
     {
@@ -328,7 +341,7 @@ export async function sendWAPDF(phone, pdfBuffer, filename) {
   const { url, token, connectionId } = creds || {};
   if (!url || !token || !connectionId) throw new Error('WAGO no configurado');
 
-  const chatId = `${String(phone).replace(/\D/g, '')}@s.whatsapp.net`;
+  const chatId = toWhatsAppJid(phone);
 
   // Intenta enviar como documento
   const res = await fetch(
