@@ -145,13 +145,28 @@ export async function POST({ request }) {
     } catch (e) { console.error('[webhook/wa] Send error:', e.message); }
   }
 
-  // Enviar PDF si el comando lo generó (solo para números autorizados)
+  // Enviar PDF si el comando lo generó (solo para números autorizados).
+  // Si el PDF falla (sin Chrome en serverless, timeout, etc.) → reporte como texto.
   if (replyPdfData && authorized) {
     try {
       const logoBase64 = getLogoBase64();
       const { buffer, filename } = await generateReportPDF(replyPdfData, logoBase64);
       await sendWAPDF(msg.phone, buffer, filename);
-    } catch (e) { console.error('[webhook/wa] PDF error:', e.message); }
+    } catch (e) {
+      console.error('[webhook/wa] PDF error:', e.message, '— enviando reporte como texto');
+      try {
+        const p = replyPdfData;
+        const lines = [
+          `*${p.titulo || 'Reporte'}*`,
+          p.periodo ? `_${p.periodo}_` : null,
+          '',
+          ...(p.stats || []).map(s => `- ${s.label}: *${s.value}*`),
+        ];
+        if (p.extra)  lines.push('', p.extra);
+        if (p.extra2) lines.push('', p.extra2);
+        await sendWAText(msg.phone, lines.filter(l => l !== null).join('\n'));
+      } catch (e2) { console.error('[webhook/wa] Fallback texto error:', e2.message); }
+    }
   }
 
   return new Response(JSON.stringify({ ok: true }), { headers: { 'Content-Type': 'application/json' } });
