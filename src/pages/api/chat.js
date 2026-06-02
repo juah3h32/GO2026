@@ -820,7 +820,16 @@ export async function POST({ request }) {
     }
 
     // ── Analytics ──────────────────────────────────────────────────────────
-    if (!noLog) try {
+    // Sesiones WhatsApp de números autorizados (admins) NO cuentan en métricas
+    let skipAnalytics = noLog;
+    if (!skipAnalytics && sessionId && sessionId.startsWith('wa_')) {
+      try {
+        const { getWAAuthorizedByPhone } = await import('../../lib/analytics-db.js');
+        const adminPhone = await getWAAuthorizedByPhone(sessionId.replace('wa_', ''));
+        if (adminPhone) skipAnalytics = true;
+      } catch { /* en duda, loguear */ }
+    }
+    if (!skipAnalytics) try {
       await logInteraction({
         userMessage:  lastUserMsg,
         botReply:     replyText,
@@ -833,6 +842,7 @@ export async function POST({ request }) {
     } catch (e) {
       console.warn('⚠️ analytics log error:', e.message);
     }
+    if (skipAnalytics && !noLog) console.log('[chat] sesión admin — analytics omitido:', sessionId);
 
     // ── Notificar al número de EE.UU. cuando el usuario escribe en inglés ─
     if (langCode === 'en' && (accionReclutamiento || accionDistribuidor || accionWA)) {
