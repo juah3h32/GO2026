@@ -1,6 +1,14 @@
 {
   "commits": [
     {
+      "hash": "ea675f6",
+      "date": "2026-06-03",
+      "message": "videos desde Cloudinary en produccion (estaban gitignored, 404 en vercel)",
+      "rawMessage": "fix: videos desde Cloudinary en produccion (estaban gitignored, 404 en vercel)",
+      "type": "fix",
+      "area": "Media"
+    },
+    {
       "hash": "15680c8",
       "date": "2026-06-03",
       "message": "agregar dependencia three + mejoras webhook whatsapp",
@@ -1402,9 +1410,9 @@
     }
   ],
   "stats": {
-    "total": 175,
+    "total": 176,
     "byType": {
-      "fix": 36,
+      "fix": 37,
       "feat": 19,
       "chore": 1,
       "perf": 2,
@@ -1412,19 +1420,25 @@
       "release": 110
     },
     "byArea": {
+      "Media": 13,
       "General": 143,
       "Productos": 14,
       "Admin/API": 4,
-      "Media": 12,
       "i18n": 2
     },
     "byMonth": {
-      "2026-06": 17,
+      "2026-06": 18,
       "2026-05": 33,
       "2026-04": 29,
       "2026-03": 96
     },
     "byAreaType": {
+      "Media": {
+        "fix": 9,
+        "feat": 2,
+        "perf": 1,
+        "update": 1
+      },
       "General": {
         "fix": 19,
         "feat": 10,
@@ -1441,16 +1455,10 @@
       "Admin/API": {
         "fix": 4
       },
-      "Media": {
-        "feat": 2,
-        "fix": 8,
-        "perf": 1,
-        "update": 1
-      },
       "i18n": {
         "fix": 2
       }
     }
   },
-  "generatedAt": "2026-06-03T18:15:21.419Z"
+  "generatedAt": "2026-06-03T18:22:17.433Z"
 }

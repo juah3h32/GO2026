@@ -237,21 +237,21 @@ export const zh = {
       division: "缠绕膜",
       descripcion: "高光学清晰度和质量标准的拉伸薄膜。确保货物完整性和成本效益。我们的产品线包括生物降解选项，配方可加快 90% 的降解速度。",
       slug: "stretch-film",
-      video: "GO/carrusel/stretch-film.mp4"
+      video: "/videos/carrusel/stretch-film.mp4"
     },
     {
       img: "carrusel/img4.webp",
       division: "网袋",
       descripcion: "高强度耐用圆织聚丙烯拉菲草网袋。透气设计，非常适合水果和蔬菜。",
       slug: "arpillas",
-      video: "GO/carrusel/arpillas.mp4"
+      video: "/videos/carrusel/arpillas.mp4"
     },
     {
       img: "carrusel/img2.webp",
       division: "绳索",
       descripcion: "高性能聚丙烯长丝绳索（PP）。完美平衡：极轻而不牺牲断裂强度。",
       slug: "cuerdas",
-      video: "GO/carrusel/cuerdas.mp4"
+      video: "/videos/carrusel/cuerdas.mp4"
     },
     {
       img: "carrusel/img3.webp",
@@ -265,28 +265,28 @@ export const zh = {
       division: "编织袋",
       descripcion: "优质拉菲草编织袋。适用于食品、化工品和肥料的坚固包装解决方案。",
       slug: "sacos",
-      video: "GO/carrusel/sacos.mp4"
+      video: "/videos/carrusel/sacos.mp4"
     },
     {
       img: "carrusel/img6.webp",
       division: "护角",
       descripcion: "优化物流的纸板护角。结构强度更高，货物稳定性更好。",
       slug: "esquineros",
-      video: "GO/carrusel/esquineros.mp4"
+      video: "/videos/carrusel/esquineros.mp4"
     },
     {
       img: "carrusel/img7.webp",
       division: "软包装",
       descripcion: "Neo Empaques International 专注于先进的软包装解决方案，旨在优化多个行业产品的保存和展示。",
       slug: "empaques-flexibles",
-      video: "GO/carrusel/bobina-impresa.mp4"
+      video: "/videos/carrusel/bobina-impresa.mp4"
     },
     {
       img: "carrusel/nuev2a.png",
       division: "NATURIZABLE",
       descripcion: "回归大地的可持续包装。100%植物基、可回收可堆肥的食品行业解决方案。",
       slug: "naturizable",
-      video: "GO/carrusel/charola.mp4"
+      video: "/videos/carrusel/charola.mp4"
     },
     {
       img: "/images/bolsas/carruselB.webp",
@@ -300,7 +300,7 @@ export const zh = {
       division: "ACOLCHADO",
       descripcion: "农用地膜，用于覆盖农作物、菜园和果园的土壤。防治杂草、保持水分、调节土壤温度。",
       slug: "acolchado",
-      video: "GO/carrusel/acolchadoV.mp4"
+      video: "/videos/carrusel/acolchadoV.mp4"
     }
   ],
 
@@ -324,7 +324,7 @@ export const zh = {
         name: "托盘 855",
         description: "承载食物的尊严包装。服务于厨师、屠夫、摊贩和主厨——使命完成后，无声无息地回归大地。我们承托世界，一个托盘一次。",
         img: "/images/divisiones/detallec.webp",
-        video: "GO/carrusel/charola.mp4",
+        video: "/videos/carrusel/charola.mp4",
         specs_values: {
           material: "牛皮纸板",
           usage: "食品",
@@ -342,7 +342,7 @@ export const zh = {
         soon: true,
         description: "高质量生物可降解纤维素杯。一种可持续且优雅的饮料服务解决方案，在不妥协功能性的前提下，致力于环境保护。",
         img: "/images/divisiones/vaso.webp",
-        video: "GO/carrusel/charola.mp4",
+        video: "/videos/carrusel/charola.mp4",
         specs_values: {
           material: "纤维素",
           usage: "饮料 / 活动",
@@ -358,7 +358,7 @@ export const zh = {
         soon: true,
         description: "专为各种工业和商业应用设计的专业容器。为存储和运输提供最大耐用性和效率。",
         img: "/images/divisiones/contenedor.webp",
-        video: "GO/carrusel/charola.mp4",
+        video: "/videos/carrusel/charola.mp4",
         specs_values: {
           material: "聚合物",
           usage: "多用途",

@@ -79,8 +79,8 @@ const specs = [
     {productsList.map((prod: any, index: number) => (
       <VideoWithFallback
         class={`video-bg ${index === 0 ? 'visible' : ''}`}
-        cloudinaryId={prod.video.replace(/\.mp4$/, '')}
-        localFallback={`/videos/${prod.video.replace(/^GO\//, '')}`}
+        cloudinaryId={prod.video.startsWith('/') ? '' : prod.video.replace(/\.mp4$/, '')}
+        localFallback={prod.video.startsWith('/') ? prod.video : `/videos/${prod.video.replace(/^GO\//, '')}`}
         poster={(prod as any).img || undefined}
         autoplay={index === 0}
         muted={true}
