@@ -45,31 +45,45 @@ export async function POST({ request }) {
   const usingWaha = !!(process.env.WAHA_URL || import.meta.env?.WAHA_URL);
   let body;
 
-  if (secret && !usingWaha) {
-    const wagoSig = request.headers.get('x-wago-signature');
-    const wagoTs  = request.headers.get('x-wago-timestamp') || '';
+  const wagoSig  = request.headers.get('x-wago-signature');
+  const wahaHmac = request.headers.get('x-webhook-hmac');
 
-    if (wagoSig) {
-      // WAGO HMAC-SHA256: sha256=HMAC(secret, "${timestamp}.${rawBody}")
-      let rawText;
-      try { rawText = await request.text(); }
-      catch { return new Response('Bad Request', { status: 400 }); }
+  if (secret && wagoSig) {
+    // WAGO HMAC-SHA256: sha256=HMAC(secret, "${timestamp}.${rawBody}")
+    const wagoTs = request.headers.get('x-wago-timestamp') || '';
+    let rawText;
+    try { rawText = await request.text(); }
+    catch { return new Response('Bad Request', { status: 400 }); }
 
-      const expected = 'sha256=' + createHmac('sha256', secret)
-        .update(`${wagoTs}.${rawText}`)
-        .digest('hex');
+    const expected = 'sha256=' + createHmac('sha256', secret)
+      .update(`${wagoTs}.${rawText}`)
+      .digest('hex');
 
-      if (wagoSig !== expected) return new Response('Unauthorized', { status: 401 });
+    if (wagoSig !== expected) return new Response('Unauthorized', { status: 401 });
 
-      try { body = JSON.parse(rawText); }
-      catch { return new Response('Bad Request', { status: 400 }); }
-    } else {
-      // Fallback: header simple (x-webhook-secret o authorization)
-      const hdr = request.headers.get('x-webhook-secret') || request.headers.get('authorization') || '';
-      if (!hdr.includes(secret)) return new Response('Unauthorized', { status: 401 });
-      try { body = await request.json(); }
-      catch { return new Response('Bad Request', { status: 400 }); }
-    }
+    try { body = JSON.parse(rawText); }
+    catch { return new Response('Bad Request', { status: 400 }); }
+  } else if (secret && wahaHmac) {
+    // WAHA HMAC: x-webhook-hmac = HMAC(key, rawBody) en hex.
+    // Algoritmo en x-webhook-hmac-algorithm (default sha512).
+    const algo = (request.headers.get('x-webhook-hmac-algorithm') || 'sha512').toLowerCase();
+    if (!['sha256', 'sha512'].includes(algo)) return new Response('Unauthorized', { status: 401 });
+
+    let rawText;
+    try { rawText = await request.text(); }
+    catch { return new Response('Bad Request', { status: 400 }); }
+
+    const expected = createHmac(algo, secret).update(rawText).digest('hex');
+    if (wahaHmac !== expected) return new Response('Unauthorized', { status: 401 });
+
+    try { body = JSON.parse(rawText); }
+    catch { return new Response('Bad Request', { status: 400 }); }
+  } else if (secret && !usingWaha) {
+    // Fallback: header simple (x-webhook-secret o authorization)
+    const hdr = request.headers.get('x-webhook-secret') || request.headers.get('authorization') || '';
+    if (!hdr.includes(secret)) return new Response('Unauthorized', { status: 401 });
+    try { body = await request.json(); }
+    catch { return new Response('Bad Request', { status: 400 }); }
   } else {
     try { body = await request.json(); }
     catch { return new Response('Bad Request', { status: 400 }); }
