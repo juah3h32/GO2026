@@ -1,6 +1,14 @@
 {
   "commits": [
     {
+      "hash": "1d6b7f0",
+      "date": "2026-06-03",
+      "message": "quitar videos fallback local en home (404); poll dashboard via GET (CSRF); sonda diagnostico WAHooks",
+      "rawMessage": "fix: quitar videos fallback local en home (404); poll dashboard via GET (CSRF); sonda diagnostico WAHooks",
+      "type": "fix",
+      "area": "Media"
+    },
+    {
       "hash": "4548ebf",
       "date": "2026-06-03",
       "message": "poll directo a chats autorizados (evita /chats global lento de WAHooks)",
@@ -1522,9 +1530,9 @@
     }
   ],
   "stats": {
-    "total": 190,
+    "total": 191,
     "byType": {
-      "fix": 44,
+      "fix": 45,
       "feat": 25,
       "chore": 2,
       "perf": 2,
@@ -1532,19 +1540,25 @@
       "release": 110
     },
     "byArea": {
+      "Media": 18,
       "Admin/API": 6,
       "General": 149,
-      "Media": 17,
       "i18n": 3,
       "Productos": 15
     },
     "byMonth": {
-      "2026-06": 32,
+      "2026-06": 33,
       "2026-05": 33,
       "2026-04": 29,
       "2026-03": 96
     },
     "byAreaType": {
+      "Media": {
+        "fix": 14,
+        "feat": 2,
+        "perf": 1,
+        "update": 1
+      },
       "Admin/API": {
         "fix": 6
       },
@@ -1554,12 +1568,6 @@
         "chore": 1,
         "update": 4,
         "release": 110
-      },
-      "Media": {
-        "fix": 13,
-        "feat": 2,
-        "perf": 1,
-        "update": 1
       },
       "i18n": {
         "feat": 1,
@@ -1574,5 +1582,5 @@
       }
     }
   },
-  "generatedAt": "2026-06-03T19:57:35.381Z"
+  "generatedAt": "2026-06-03T20:01:10.487Z"
 }

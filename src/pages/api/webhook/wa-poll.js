@@ -55,7 +55,12 @@ async function run(request, url) {
   }
 
   const base = `${cfg.url.replace(/\/$/, '')}/api/connections/${cfg.connectionId}`;
-  const headers = { 'Authorization': `Bearer ${cfg.token}` };
+  // User-Agent de navegador: algunos WAF (Cloudflare) bloquean fetch sin UA desde datacenters.
+  const headers = {
+    'Authorization': `Bearer ${cfg.token}`,
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36',
+    'Accept': 'application/json',
+  };
 
   // Sonda de diagnóstico: mide si Vercel alcanza WAHooks (endpoint liviano).
   if (url.searchParams.get('probe') === '1') {
