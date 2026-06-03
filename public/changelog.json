@@ -1,6 +1,14 @@
 {
   "commits": [
     {
+      "hash": "bdccaa2",
+      "date": "2026-06-03",
+      "message": "test: parametro window en poll para reprocesar y verificar envio",
+      "rawMessage": "test: parametro window en poll para reprocesar y verificar envio",
+      "type": "update",
+      "area": "General"
+    },
+    {
       "hash": "6918bb3",
       "date": "2026-06-03",
       "message": "asistente no enviaba — marcaba reply ANTES de enviar; ahora envia primero y reintenta si falla",
@@ -1570,34 +1578,34 @@
     }
   ],
   "stats": {
-    "total": 196,
+    "total": 197,
     "byType": {
+      "update": 8,
       "fix": 49,
       "feat": 26,
       "chore": 2,
       "perf": 2,
-      "update": 7,
       "release": 110
     },
     "byArea": {
-      "General": 154,
+      "General": 155,
       "Media": 18,
       "Admin/API": 6,
       "i18n": 3,
       "Productos": 15
     },
     "byMonth": {
-      "2026-06": 38,
+      "2026-06": 39,
       "2026-05": 33,
       "2026-04": 29,
       "2026-03": 96
     },
     "byAreaType": {
       "General": {
+        "update": 5,
         "fix": 24,
         "feat": 15,
         "chore": 1,
-        "update": 4,
         "release": 110
       },
       "Media": {
@@ -1622,5 +1630,5 @@
       }
     }
   },
-  "generatedAt": "2026-06-03T20:53:49.292Z"
+  "generatedAt": "2026-06-03T21:02:31.790Z"
 }

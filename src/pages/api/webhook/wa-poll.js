@@ -91,6 +91,7 @@ async function run(request, url) {
 
   let processed = 0, scanned = 0, errors = 0;
   const errDetail = [];
+  const dbg = { notFromMe: 0, inWindow: 0, parsed: 0, notReplied: 0 };
   for (const chatId of chatIds) {
     if (processed >= MAX_PER_RUN) break;
 
@@ -109,17 +110,21 @@ async function run(request, url) {
       if (processed >= MAX_PER_RUN) break;
       scanned++;
       if (m?.fromMe) continue;
+      dbg.notFromMe++;
       const ts = Number(m?.timestamp || 0);
       if (ts > 0 && (nowSec - ts) > windowSec) continue;
+      dbg.inWindow++;
 
       const parsed = parseIncoming({ event: 'message', payload: m });
       if (!parsed || parsed.fromMe || !parsed.body) continue;
+      dbg.parsed++;
 
       // Saltar solo si YA tiene respuesta; si quedó sin responder, reintentar.
       if (parsed.msgId) {
         const row = await getWAIncomingByMsgId(parsed.msgId).catch(() => null);
         if (row?.hasReply) continue;
       }
+      dbg.notReplied++;
 
       try {
         const st = await handleIncomingMessage(parsed, origin);
@@ -129,7 +134,7 @@ async function run(request, url) {
     }
   }
 
-  return json({ ok: true, chats: chatIds.length, scanned, processed, errors, errDetail: errDetail.slice(0, 3) });
+  return json({ ok: true, chats: chatIds.length, scanned, processed, errors, dbg, errDetail: errDetail.slice(0, 3) });
 }
 
 export async function GET({ request, url }) { return run(request, url); }
