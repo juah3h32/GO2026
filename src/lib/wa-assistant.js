@@ -195,11 +195,13 @@ const TOOLS = [
     type: 'function',
     function: {
       name: 'postulaciones_por_vacante',
-      description: 'Cuántas postulaciones tiene cada vacante/puesto, ordenadas de más a menos. Para "¿qué vacante tiene más postulaciones?", "¿cuál es la más solicitada?". Si se pasa puesto, lista los candidatos registrados a ese puesto.',
+      description: 'Cuántas postulaciones tiene cada vacante/puesto, ordenadas de más a menos. Para "¿qué vacante tiene más postulaciones?", "¿cuál es la más solicitada?". Si se pasa puesto, lista los candidatos. Acepta periodo para "¿la más solicitada esta semana/hoy/mes?".',
       parameters: {
         type: 'object',
         properties: {
           puesto: { type: 'string', description: 'Opcional: nombre del puesto para ver quiénes se registraron a esa vacante específica.' },
+          periodo: { type: 'string', enum: ['hoy','ayer','semana','mes','todos'], description: 'Filtrar postulaciones por fecha. Omitir = histórico.' },
+          mes: { type: 'integer' }, anio: { type: 'integer' },
         },
       },
     },
@@ -349,7 +351,11 @@ async function ejecutarTool(name, args, ctx) {
   }
 
   if (name === 'postulaciones_por_vacante') {
-    const leads = (await readRecruitmentLeads()) || [];
+    let leads = (await readRecruitmentLeads()) || [];
+    // Filtro de fecha exacto (postulaciones de hoy/semana/mes)
+    const { items, rango } = filtrarPorPeriodo(leads, args.periodo, args.mes, args.anio);
+    leads = items;
+    const periodoLabel = rango.label || 'Histórico completo';
     // Agrupar por puesto
     const conteo = {};
     for (const c of leads) {
@@ -365,18 +371,21 @@ async function ejecutarTool(name, args, ctx) {
     if (args.puesto) {
       const f = String(args.puesto).toLowerCase();
       const match = Object.entries(conteo).find(([p]) => p.toLowerCase().includes(f));
-      if (!match) return { puesto: args.puesto, postulaciones: 0, candidatos: [], nota: 'Sin postulaciones para ese puesto' };
+      if (!match) return { periodo: periodoLabel, puesto: args.puesto, postulaciones: 0, candidatos: [], nota: 'Sin postulaciones para ese puesto en el periodo' };
       return {
+        periodo: periodoLabel,
         puesto: match[0],
         postulaciones: match[1].length,
         candidatos: match[1].slice(0, 15).map(c => ({
           nombre: c.nombre, estatus: c.status || 'nuevo',
           estado: c.estado_rep || c.estado, telefono: c.telefono, email: c.email,
+          fecha: fechaMX(c.ts || c.created_at),
         })),
       };
     }
 
     return {
+      periodo: periodoLabel,
       total_postulaciones: leads.length,
       vacante_mas_solicitada: ranking[0] || null,
       ranking: ranking.slice(0, 12),
@@ -528,7 +537,7 @@ export async function ejecutarAsistente(texto, permsArray, phone) {
       body: JSON.stringify({
         model: MODEL, messages, tools: TOOLS,
         tool_choice: round === 0 ? 'required' : 'auto',
-        max_tokens: 700, temperature: 0.3,
+        max_tokens: 700, temperature: 0.15,
       }),
     });
     if (!res.ok) {
