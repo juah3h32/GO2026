@@ -324,9 +324,12 @@ function wahaConfig() {
   return { url, apiKey, session };
 }
 
-// WAHA usa chatId formato 521...@c.us
+// WAHA usa chatId formato 521...@c.us — pero si ya viene un chatId completo
+// (@c.us, @g.us o @lid), se usa tal cual para responder al remitente correcto.
 function toWahaChatId(phone) {
-  let n = String(phone).replace(/\D/g, '');
+  const s = String(phone);
+  if (s.includes('@')) return s;  // ya es un chatId (incluye @lid de WhatsApp NOWEB)
+  let n = s.replace(/\D/g, '');
   if (n.length === 10) n = '521' + n;
   else if (n.length === 12 && n.startsWith('52') && !n.startsWith('521')) n = '521' + n.slice(2);
   return `${n}@c.us`;

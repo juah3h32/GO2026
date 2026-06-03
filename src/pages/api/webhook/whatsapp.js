@@ -144,7 +144,7 @@ export async function POST({ request }) {
     // Guardar reply en DB PRIMERO, independiente del envío
     if (savedId) await updateWAIncomingReply(savedId, replyText).catch(() => {});
     try {
-      await sendWAText(msg.phone, replyText);
+      await sendWAText(msg.chatId || msg.phone, replyText);
     } catch (e) { console.error('[webhook/wa] Send error:', e.message); }
   }
 
@@ -154,7 +154,7 @@ export async function POST({ request }) {
     try {
       const logoBase64 = getLogoBase64();
       const { buffer, filename } = await generateReportPDF(replyPdfData, logoBase64);
-      await sendWAPDF(msg.phone, buffer, filename);
+      await sendWAPDF(msg.chatId || msg.phone, buffer, filename);
     } catch (e) {
       console.error('[webhook/wa] PDF error:', e.message, '— enviando reporte como texto');
       try {
@@ -167,7 +167,7 @@ export async function POST({ request }) {
         ];
         if (p.extra)  lines.push('', p.extra);
         if (p.extra2) lines.push('', p.extra2);
-        await sendWAText(msg.phone, lines.filter(l => l !== null).join('\n'));
+        await sendWAText(msg.chatId || msg.phone, lines.filter(l => l !== null).join('\n'));
       } catch (e2) { console.error('[webhook/wa] Fallback texto error:', e2.message); }
     }
   }
@@ -197,7 +197,13 @@ function parseIncoming(body) {
     // WAHA formato original: payload.from, payload.body
     const text = p.body || p.text || '';
     if (!text) return null;
-    return { phone: cleanPhone(p.from || ''), body: String(text), fromMe: !!p.fromMe, msgId: p.id || '', timestamp: p.timestamp || 0 };
+    // Preservar chatId original (puede ser @lid o @c.us) para poder responder.
+    // WhatsApp NOWEB a veces usa @lid (Linked ID) en vez del número real.
+    return {
+      phone: cleanPhone(p.from || ''),
+      chatId: p.from || '',           // chatId completo para la respuesta
+      body: String(text), fromMe: !!p.fromMe, msgId: p.id || '', timestamp: p.timestamp || 0,
+    };
   }
 
   // Genérico / WAGO directo
