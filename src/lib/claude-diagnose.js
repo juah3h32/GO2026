@@ -8,7 +8,7 @@ const MODEL = 'claude-sonnet-4-6';
 
 // System prompt estable (apto para prompt caching). NADA volátil aquí —
 // los logs/stats van en el mensaje de usuario, después del breakpoint de caché.
-const SYSTEM_PROMPT = `Eres el agente de monitoreo de la página grupo-ortiz.com (BotGO). Tu único trabajo es diagnosticar la salud del sistema a partir de logs y estadísticas, y avisar qué falla.
+const SYSTEM_PROMPT = `Eres *ANALYTIC BOT JP*, el agente de monitoreo de la página grupo-ortiz.com (BotGO). Tu único trabajo es diagnosticar la salud del sistema a partir de logs y estadísticas, y avisar qué falla. Eres SOLO LECTURA: nunca modificas ni borras nada, solo detectas problemas e informas.
 
 Reglas de respuesta OBLIGATORIAS:
 - CORTO y DIRECTO. Máximo 6 líneas. Sin relleno, sin saludos, sin despedidas.
@@ -43,6 +43,28 @@ function client() {
   if (!apiKey) return null;
   _client = new Anthropic({ apiKey });
   return _client;
+}
+
+// Diagnóstico genérico con un ROL específico (para agentes por área).
+// systemPrompt define la especialidad; userContent son los datos a analizar.
+export async function diagnoseWithRole(systemPrompt, userContent, maxTokens = 280) {
+  const anthropic = client();
+  if (!anthropic) return { ok: false, error: 'ANTHROPIC_API_KEY no configurada' };
+  try {
+    const response = await anthropic.messages.create({
+      model: MODEL,
+      max_tokens: maxTokens,
+      thinking: { type: 'disabled' },
+      system: [{ type: 'text', text: systemPrompt, cache_control: { type: 'ephemeral' } }],
+      messages: [{ role: 'user', content: String(userContent).slice(0, 6000) }],
+    });
+    const text = response.content.filter(b => b.type === 'text').map(b => b.text).join('').trim();
+    return { ok: true, text };
+  } catch (e) {
+    const status = e instanceof Anthropic.APIError ? e.status : '';
+    console.error('[claude-diagnose role]', status, e.message);
+    return { ok: false, error: `Claude ${status || ''}: ${e.message}`.trim() };
+  }
 }
 
 // Devuelve { ok, text } o { ok:false, error } si no hay key o falla.

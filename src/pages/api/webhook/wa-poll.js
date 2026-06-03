@@ -14,8 +14,9 @@ const json = (obj, status = 200) =>
 
 // Solo mensajes de los últimos N minutos (evita responder backlog/historial viejo).
 const WINDOW_SEC = 15 * 60;
-// 2 por corrida: cada respuesta gasta ~9s de latencia WAF + IA; más arriesga timeout (60s).
-const MAX_PER_RUN = 2;
+// 1 por corrida: cada respuesta gasta ~8s IA + ~9s WAF; el cron corre cada minuto,
+// así que los mensajes en cola se atienden en corridas sucesivas sin arriesgar timeout.
+const MAX_PER_RUN = 1;
 
 // fetch con timeout — WAHooks es intermitente (502/lento); no colgar la función.
 async function fetchT(u, opts = {}, ms = 12000) {

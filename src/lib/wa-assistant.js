@@ -2,7 +2,7 @@
 // Cerebro IA del bot privado de WhatsApp — números autorizados.
 // Entiende lenguaje natural, consulta los datos reales del sistema y
 // genera reportes (resumen o comparativo) con PDF.
-import { readAllData, readRecruitmentLeads, readVacantes, readLeads, getWAIncoming, getSystemLogs, getLogStats } from './analytics-db.js';
+import { readAllData, readRecruitmentLeads, readVacantes, readLeads, getWAIncoming, getSystemLogs, getLogStats, markLogsSeen } from './analytics-db.js';
 
 const MODEL = 'gpt-4o-mini';
 
@@ -236,6 +236,22 @@ const TOOLS = [
   {
     type: 'function',
     function: {
+      name: 'analisis_del_dia',
+      description: 'ANALYTIC BOT JP coordina a sus agentes por área (Web, Seguridad, Backend, Datos) y entrega el análisis consolidado del día: si todo está bien o qué se rompió. Usar para "dame el análisis del día", "cómo amaneció la página", "revisa todas las áreas", "reporte de salud", "qué dicen los agentes". Es SOLO LECTURA.',
+      parameters: { type: 'object', properties: {} },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'rastrear_sitio',
+      description: 'ANALYTIC BOT JP recorre TODAS las páginas del sitio grupo-ortiz.com en vivo y revisa si alguna ruta no carga o si hay recursos rotos (videos, imágenes, links que dan 404). Usar cuando el usuario pide "revisa todas las páginas", "checa el sitio completo", "navega la página y dime si algo falla", "hay alguna ruta caída". Tarda algunos segundos. Es SOLO LECTURA.',
+      parameters: { type: 'object', properties: {} },
+    },
+  },
+  {
+    type: 'function',
+    function: {
       name: 'revisar_sistema',
       description: 'Revisa el estado de salud de la página/sistema: errores, advertencias, fallas (videos que no cargan, animaciones, endpoints), y eventos de seguridad (posible extracción de datos, accesos sospechosos). Usar cuando el usuario pregunta "¿cómo está el sistema?", "¿hay algún error/falla?", "¿algo que cambiar?", "¿qué está fallando?", "revisa la página", "¿hay alguna vulnerabilidad?". Devuelve conteos por severidad y los eventos recientes para que diagnostiques y sugieras correcciones.',
       parameters: {
@@ -261,6 +277,8 @@ const TOOL_PERMS = {
   obtener_consultas_recientes: 'messages',
   metricas_dashboard:          'reports',
   revisar_sistema:             '*',
+  rastrear_sitio:              '*',
+  analisis_del_dia:            '*',
 };
 
 // ── Ejecución de tools ────────────────────────────────────────────────────────
@@ -486,6 +504,36 @@ async function ejecutarTool(name, args, ctx) {
     };
   }
 
+  if (name === 'analisis_del_dia') {
+    try {
+      const { runOrchestrator } = await import('./orchestrator.js');
+      const report = await runOrchestrator();
+      return {
+        reporte_consolidado: report.text,
+        instruccion: 'Entrega al usuario EXACTAMENTE el texto de reporte_consolidado, sin reescribirlo. Es el análisis oficial de ANALYTIC BOT JP y sus agentes.',
+      };
+    } catch (e) { return { error: `No pude correr el análisis: ${e.message}` }; }
+  }
+
+  if (name === 'rastrear_sitio') {
+    const origin = process.env.PUBLIC_SITE_URL || import.meta.env?.PUBLIC_SITE_URL || 'https://grupo-ortiz.com';
+    const secret = process.env.CRON_SECRET_EXTERNAL || import.meta.env?.CRON_SECRET_EXTERNAL || '';
+    try {
+      const r = await fetch(`${origin}/api/health-crawl?secret=${encodeURIComponent(secret)}`, {
+        headers: { 'x-cron-secret': secret },
+      });
+      const d = await r.json();
+      if (!d.ok) return { error: d.error || 'no se pudo rastrear' };
+      return {
+        resumen: d.resumen,
+        fallas: (d.findings || []).slice(0, 20),
+        instruccion: 'Eres ANALYTIC BOT JP. Reporta CORTO: si todo cargó bien dilo en una línea. Si hay rutas caídas o recursos rotos, lístalos por tipo (ruta/video/recurso) con la URL y el código, y sugiere la corrección. Seguridad/errores primero.',
+      };
+    } catch (e) {
+      return { error: `No pude rastrear el sitio: ${e.message}` };
+    }
+  }
+
   if (name === 'revisar_sistema') {
     const nivel = args.nivel && args.nivel !== 'todos' ? args.nivel : null;
     const limite = Math.min(args.limite || 25, 60);
@@ -493,6 +541,9 @@ async function ejecutarTool(name, args, ctx) {
       getLogStats().catch(() => ({})),
       getSystemLogs({ level: nivel, limit: limite }).catch(() => []),
     ]);
+
+    // El usuario está revisando → marcar alertas como vistas (evita aviso duplicado del monitor).
+    markLogsSeen().catch(() => {});
 
     // Diagnóstico con CLAUDE (especialista en analizar fallas/seguridad).
     // Devuelve texto corto y directo, listo para WhatsApp.
@@ -502,7 +553,7 @@ async function ejecutarTool(name, args, ctx) {
       if (d.ok && d.text) {
         return {
           diagnostico_experto: d.text,
-          instruccion: 'Entrega al usuario EXACTAMENTE el texto de diagnostico_experto, sin reescribirlo ni resumirlo. Es el diagnóstico oficial del agente de monitoreo.',
+          instruccion: 'Entrega al usuario EXACTAMENTE el texto de diagnostico_experto, sin reescribirlo ni resumirlo. Es el diagnóstico oficial de *ANALYTIC BOT JP* (el agente de monitoreo, solo lectura). Si quieres, antepón una línea "*ANALYTIC BOT JP*:" pero no cambies el contenido.',
         };
       }
     } catch (e) { console.error('[wa-assistant] claude-diagnose:', e.message); }
@@ -567,7 +618,9 @@ Reglas:
 - "¿qué vacante tiene más postulaciones?" → postulaciones_por_vacante. "¿quiénes se registraron a X?" → postulaciones_por_vacante con ese puesto.
 - "dame el control total / panorama / cómo va todo" → metricas_dashboard.
 - "reporte/informe/documento" → enviar_reporte_pdf (resumen por defecto, comparativo si lo pide).
-- "¿cómo está el sistema/la página?", "¿hay errores/fallas?", "¿algo que cambiar/corregir?", "¿hay vulnerabilidades?", "revisa la página" → revisar_sistema. Diagnostica claro y sugiere correcciones; resalta primero lo de seguridad.
+- "¿cómo está el sistema/la página?", "¿hay errores/fallas?", "¿algo que cambiar/corregir?", "¿hay vulnerabilidades?", "revisa el sistema" → revisar_sistema (lee los logs/errores ya capturados). Diagnostica claro y sugiere correcciones; resalta primero lo de seguridad.
+- "revisa todas las páginas", "checa el sitio completo", "navega la página y dime si algo falla", "hay alguna ruta caída/recurso roto" → rastrear_sitio (recorre el sitio en vivo). Tarda unos segundos; avisa que estás revisando.
+- "análisis del día", "cómo amaneció la página", "revisa todas las áreas", "reporte de salud", "qué dicen los agentes" → analisis_del_dia (orquesta a todos los agentes por área). Tarda unos segundos.
 - Datos puntuales (¿cuántos mensajes hoy?) → texto directo, sin PDF.
 - Si combinas varias métricas, organízalas con subtítulos en negrita (ej. *Reclutamiento:*, *Productos:*).
 - Sé conciso pero completo: si piden "todo el control", da un panorama estructurado de varias áreas.

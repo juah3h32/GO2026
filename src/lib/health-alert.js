@@ -12,15 +12,19 @@ let _lastAlertAt = 0; // por instancia; el flag `seen` en DB es el control real
 export async function checkAndAlert() {
   try {
     const stats = await getLogStats();
-    // Solo alertar si hay alertas NUEVAS (no vistas) de nivel error/critical/security
     if (!stats.unseenAlerts) return { alerted: false, reason: 'sin alertas nuevas' };
     if (Date.now() - _lastAlertAt < MIN_INTERVAL_MS) return { alerted: false, reason: 'anti-spam' };
 
-    const logs = await getSystemLogs({ limit: 30 });
+    // Alertar solo por fallas que importan: críticos o seguridad (no errores sueltos del frontend).
+    const criticalLogs = await getSystemLogs({ limit: 30 });
+    const hayGrave = criticalLogs.some(l => (l.level === 'critical' || l.level === 'security') && !l.seen);
+    if (!hayGrave) return { alerted: false, reason: 'sin eventos graves nuevos' };
+
+    const logs = criticalLogs;
     const d = await diagnoseSystem({ stats, logs });
     const texto = d.ok && d.text
-      ? `*Alerta del sistema — grupo-ortiz.com*\n\n${d.text}`
-      : `*Alerta del sistema*: hay ${stats.unseenAlerts} eventos nuevos (errores/seguridad). Revisa el panel.`;
+      ? `*ANALYTIC BOT JP* — alerta\ngrupo-ortiz.com\n\n${d.text}`
+      : `*ANALYTIC BOT JP*: hay ${stats.unseenAlerts} eventos nuevos (errores/seguridad). Revisa el panel.`;
 
     // Avisar a los números autorizados (admins)
     const auth = (await getWAAuthorized().catch(() => [])).filter(a => a.active && a.phone);

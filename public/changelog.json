@@ -1,6 +1,14 @@
 {
   "commits": [
     {
+      "hash": "0b0600a",
+      "date": "2026-06-03",
+      "message": "Claude como agente de diagnostico del sistema + alertas automaticas por WhatsApp",
+      "rawMessage": "feat: Claude como agente de diagnostico del sistema + alertas automaticas por WhatsApp",
+      "type": "feat",
+      "area": "General"
+    },
+    {
       "hash": "bc977c0",
       "date": "2026-06-03",
       "message": "reporte SIEMPRE como PDF adjunto, NUNCA url (reintenta 3x) + voz, rangos, formato",
@@ -1634,40 +1642,40 @@
     }
   ],
   "stats": {
-    "total": 204,
+    "total": 205,
     "byType": {
+      "feat": 30,
       "fix": 51,
-      "feat": 29,
       "update": 10,
       "chore": 2,
       "perf": 2,
       "release": 110
     },
     "byArea": {
+      "General": 158,
       "Admin/API": 11,
-      "General": 157,
       "Media": 18,
       "i18n": 3,
       "Productos": 15
     },
     "byMonth": {
-      "2026-06": 46,
+      "2026-06": 47,
       "2026-05": 33,
       "2026-04": 29,
       "2026-03": 96
     },
     "byAreaType": {
+      "General": {
+        "feat": 16,
+        "fix": 25,
+        "update": 6,
+        "chore": 1,
+        "release": 110
+      },
       "Admin/API": {
         "fix": 7,
         "feat": 3,
         "update": 1
-      },
-      "General": {
-        "fix": 25,
-        "update": 6,
-        "feat": 15,
-        "chore": 1,
-        "release": 110
       },
       "Media": {
         "fix": 14,
@@ -1688,5 +1696,5 @@
       }
     }
   },
-  "generatedAt": "2026-06-03T22:23:17.171Z"
+  "generatedAt": "2026-06-03T22:42:26.418Z"
 }

@@ -211,6 +211,9 @@ export async function handleIncomingMessage(msg, origin) {
   // Enviar respuesta de texto.
   // CLAVE: enviar PRIMERO y marcar en DB SOLO si el envío tuvo éxito. Si falla,
   // bot_reply queda vacío y el siguiente poll lo reintenta (no se pierde la respuesta).
+  // No enviar mensajes vacíos / solo espacios (causaba "mensajes en blanco").
+  if (replyText && !String(replyText).trim()) replyText = null;
+
   let sendStatus = 'no-reply';
   if (replyText) {
     try {
