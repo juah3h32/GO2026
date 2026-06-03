@@ -10,6 +10,119 @@ import { join }     from 'path';
 import { createHash } from 'crypto';
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 
+// ── Reporte ejecutivo en PDF con pdf-lib (serverless — sin navegador) ─────────
+// Genera resumen o comparativo con la misma data del panel. Diseño limpio propio.
+export async function generateExecutiveReportPDF({ report_type, periodMeta, data, prevData, scData, analysis, logoBase64 }) {
+  const rgbHex = (h) => { const n = h.replace('#',''); return rgb(parseInt(n.slice(0,2),16)/255, parseInt(n.slice(2,4),16)/255, parseInt(n.slice(4,6),16)/255); };
+  const C = { orange: rgbHex('#FB670B'), orangeD: rgbHex('#D4530A'), black: rgbHex('#262626'), gray: rgbHex('#6B6B60'), grayL: rgbHex('#9A9A8C'), line: rgbHex('#E2E0D4'), bg: rgbHex('#F4F3EB'), white: rgbHex('#FFFFFF') };
+  const comparativo = report_type === 'comparativo';
+
+  const doc = await PDFDocument.create();
+  const font  = await doc.embedFont(StandardFonts.Helvetica);
+  const fontB = await doc.embedFont(StandardFonts.HelveticaBold);
+  const W = 595.28, H = 841.89; // A4
+  const page = doc.addPage([W, H]);
+  const M = 44;
+  let y = H - M;
+
+  const text = (s, x, yy, { size = 11, bold = false, color = C.black, maxW } = {}) => {
+    let str = String(s ?? '');
+    const f = bold ? fontB : font;
+    if (maxW) { while (str && f.widthOfTextAtSize(str, size) > maxW) str = str.slice(0, -1); }
+    page.drawText(str, { x, y: yy, size, font: f, color });
+  };
+  const rectFill = (x, yy, w, h, color) => page.drawRectangle({ x, y: yy, width: w, height: h, color });
+
+  // Header naranja
+  rectFill(0, H - 88, W, 88, C.orange);
+  if (logoBase64) {
+    try { const png = await doc.embedPng(logoBase64); page.drawImage(png, { x: M, y: H - 70, width: 38, height: 38 }); } catch {}
+  }
+  text('GRUPO ORTIZ — BotGO', M + (logoBase64 ? 50 : 0), H - 38, { size: 9, bold: true, color: C.white });
+  text(comparativo ? 'REPORTE COMPARATIVO' : 'REPORTE RESUMEN', M + (logoBase64 ? 50 : 0), H - 58, { size: 19, bold: true, color: C.white });
+  const periodo = `${periodMeta?.from || ''} a ${periodMeta?.to || ''}`;
+  text(periodo, M + (logoBase64 ? 50 : 0), H - 76, { size: 10, color: C.white });
+  y = H - 88 - 32;
+
+  // Métricas principales (grid 2x2 o con comparativa)
+  const metrics = [
+    ['Sesiones', data?.totalSessions || 0, prevData?.totalSessions],
+    ['Mensajes', data?.totalMessages || 0, prevData?.totalMessages],
+    ['WhatsApp', data?.totalWhatsApp || 0, prevData?.totalWhatsApp],
+    ['PDFs', data?.totalPDFs || 0, prevData?.totalPDFs],
+  ];
+  text('MÉTRICAS DEL PERÍODO', M, y, { size: 11, bold: true, color: C.orangeD }); y -= 18;
+  const colW = (W - 2*M - 12) / 2;
+  for (let i = 0; i < metrics.length; i++) {
+    const [label, val, prev] = metrics[i];
+    const col = i % 2, row = Math.floor(i / 2);
+    const bx = M + col * (colW + 12), by = y - row * 62 - 54;
+    page.drawRectangle({ x: bx, y: by, width: colW, height: 54, color: C.white, borderColor: C.line, borderWidth: 1 });
+    text(label.toUpperCase(), bx + 12, by + 36, { size: 8, bold: true, color: C.grayL });
+    text(String(val), bx + 12, by + 14, { size: 22, bold: true, color: C.black });
+    if (comparativo && prev != null) {
+      const delta = val - prev;
+      const pct = prev > 0 ? Math.round((delta / prev) * 100) : (val > 0 ? 100 : 0);
+      const up = delta >= 0;
+      text(`${up ? '+' : ''}${pct}% vs ${prev}`, bx + 12 + 64, by + 18, { size: 9, bold: true, color: up ? rgbHex('#2E7D32') : rgbHex('#C62828') });
+    }
+  }
+  y -= 2 * 62 + 14;
+
+  // Search Console
+  if (scData?.ok) {
+    text('POSICIONAMIENTO (GOOGLE SEARCH CONSOLE)', M, y, { size: 11, bold: true, color: C.orangeD }); y -= 18;
+    const sc = [
+      ['Impresiones', scData.totalImpressions || 0],
+      ['Clics', scData.totalClicks || 0],
+      ['CTR', `${((scData.avgCtr || 0) * 100).toFixed(1)}%`],
+    ];
+    let sx = M;
+    const scW = (W - 2*M - 24) / 3;
+    for (const [l, v] of sc) {
+      page.drawRectangle({ x: sx, y: y - 46, width: scW, height: 46, color: C.white, borderColor: C.line, borderWidth: 1 });
+      text(l.toUpperCase(), sx + 10, y - 16, { size: 8, bold: true, color: C.grayL });
+      text(String(v), sx + 10, y - 38, { size: 17, bold: true, color: C.black });
+      sx += scW + 12;
+    }
+    y -= 46 + 16;
+  }
+
+  // Top intenciones / consultas
+  const intents = Array.isArray(data?.intents) ? data.intents.slice(0, 5) : [];
+  if (intents.length) {
+    text('TOP INTENCIONES', M, y, { size: 11, bold: true, color: C.orangeD }); y -= 16;
+    for (const it of intents) {
+      const label = it.intent || it.label || it.name || '—';
+      const count = it.count ?? it.value ?? '';
+      text(`• ${label}`, M + 4, y, { size: 10, color: C.black, maxW: W - 2*M - 60 });
+      text(String(count), W - M - 40, y, { size: 10, bold: true, color: C.gray });
+      y -= 15;
+    }
+    y -= 8;
+  }
+
+  // Análisis IA
+  if (analysis) {
+    text('ANÁLISIS EJECUTIVO', M, y, { size: 11, bold: true, color: C.orangeD }); y -= 16;
+    const words = String(analysis).replace(/\*+/g, '').split(/\s+/);
+    let line = '';
+    const maxW = W - 2*M;
+    for (const w of words) {
+      const test = line ? line + ' ' + w : w;
+      if (font.widthOfTextAtSize(test, 10) > maxW) { text(line, M, y, { size: 10, color: C.gray }); y -= 14; line = w; if (y < M + 30) break; }
+      else line = test;
+    }
+    if (line && y >= M + 30) { text(line, M, y, { size: 10, color: C.gray }); y -= 14; }
+  }
+
+  // Footer
+  text('Generado por BotGO — Grupo Ortiz', M, M - 10, { size: 8, color: C.grayL });
+
+  const bytes = await doc.save();
+  return Buffer.from(bytes);
+}
+
 // ── Paleta idéntica a ReportGenerator.jsx ────────────────────────────────────
 const ORANGE      = '#FB670B';
 const BLACK       = '#262626';

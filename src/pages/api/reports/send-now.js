@@ -6,7 +6,7 @@ import { readAllData, readLeads, readRecruitmentLeads }      from '../../../lib/
 import { verifyAdminToken }                                  from '../../../lib/verifyAdminToken.ts';
 import { checkRateLimit, getClientIp }                       from '../../../lib/rateLimit.ts';
 
-import { uploadPDFToCloudinary }                             from '../../../lib/notify.js';
+import { uploadPDFToCloudinary, generateExecutiveReportPDF } from '../../../lib/notify.js';
 import { existsSync, readFileSync }                          from 'fs';
 import { join }                                              from 'path';
 
@@ -147,13 +147,18 @@ const LOCAL_CHROME = [
   '/usr/bin/chromium-browser',
   'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
 ];
+// Pack de Chromium para serverless (binario fuera del bundle → cabe en 250MB de Vercel).
+const CHROMIUM_PACK_URL = process.env.CHROMIUM_PACK_URL
+  || 'https://github.com/Sparticuz/chromium/releases/download/v131.0.1/chromium-v131.0.1-pack.tar';
+
 async function getBrowserConfig() {
   const isServerless = !!(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
   if (isServerless) {
-    // Chromium serverless (@sparticuz/chromium) — renderiza el MISMO HTML del panel.
-    const chromium = (await import('@sparticuz/chromium')).default;
+    // @sparticuz/chromium-min: descarga el binario en runtime (cacheado en /tmp).
+    // Renderiza el MISMO HTML del panel (reporte oscuro idéntico al dashboard).
+    const chromium = (await import('@sparticuz/chromium-min')).default;
     return {
-      executablePath: await chromium.executablePath(),
+      executablePath: await chromium.executablePath(CHROMIUM_PACK_URL),
       args: [...chromium.args, '--no-sandbox', '--disable-setuid-sandbox'],
       headless: chromium.headless,
     };
@@ -475,15 +480,20 @@ INSTRUCCIONES:
     }
     const filename = buildFilename(report_type, period, period_from, period_to);
 
-    // 3. Generar PDF
+    // 3. Generar PDF — Puppeteer en local; pdf-lib en serverless (Chromium no cabe en Vercel)
     let pdfBuffer = null;
     let pdfErrMsg = null;
     try {
       pdfBuffer = await generatePDF(html);
     } catch (pdfErr) {
-      pdfErrMsg = String(pdfErr);
-      console.error('[send-now] Error PDF:', pdfErr);
-      // No abortar — si no hay Chrome intentamos fallback texto
+      // Chromium falló (p.ej. descarga del pack) → fallback pdf-lib para no quedarnos sin PDF.
+      console.error('[send-now] Chromium falló, fallback pdf-lib:', String(pdfErr).slice(0, 160));
+      try {
+        pdfBuffer = await generateExecutiveReportPDF({ report_type, periodMeta, data, prevData, scData, analysis, logoBase64 });
+      } catch (e2) {
+        pdfErrMsg = 'PDF: ' + e2.message;
+        console.error('[send-now] Error pdf-lib:', e2);
+      }
     }
 
     // 3.5. Entrega por link de Cloudinary (evita send-document de pago).

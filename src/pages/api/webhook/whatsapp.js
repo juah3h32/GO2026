@@ -26,7 +26,7 @@ function freshTimestamp(ts) {
 }
 import { existsSync, readFileSync } from 'node:fs';
 import { join }       from 'node:path';
-import { saveWAIncoming, updateWAIncomingReply, getWAAuthorizedByPhone, getWagoConfig, getWAIncomingByMsgId } from '../../../lib/analytics-db.js';
+import { claimWAIncoming, resetWAReply, updateWAIncomingReply, getWAAuthorizedByPhone, getWagoConfig } from '../../../lib/analytics-db.js';
 import { sendWAText, generateReportPDF, uploadPDFToCloudinary, sendTyping } from '../../../lib/notify.js';
 import { ejecutarComando } from '../../../lib/wa-commands.js';
 import { ejecutarAsistente } from '../../../lib/wa-assistant.js';
@@ -135,18 +135,12 @@ export async function POST({ request }) {
 export async function handleIncomingMessage(msg, origin) {
   if (!msg || msg.fromMe || !msg.body) return 'ignored';
 
-  // Dedup inteligente + reintento
-  let savedId;
-  if (msg.msgId) {
-    const row = await getWAIncomingByMsgId(msg.msgId).catch(() => null);
-    if (row?.hasReply) return 'already-replied';
-    if (row) savedId = row.id; // existe sin respuesta → reintentar sin duplicar fila
-  }
-
-  // Guardar mensaje entrante (si es nuevo)
-  if (!savedId) {
-    try { savedId = await saveWAIncoming(msg); } catch (e) { console.error('[webhook/wa] DB:', e.message); }
-  }
+  // CLAIM ATÓMICO: solo UN proceso responde cada mensaje. Si otro poll/cron ya lo
+  // tiene (o ya respondió), salimos sin reenviar. Elimina respuestas duplicadas.
+  const claim = await claimWAIncoming({ phone: msg.phone, body: msg.body, msgId: msg.msgId })
+    .catch(() => ({ id: null, claimed: false }));
+  if (!claim.claimed) return 'busy-or-done';
+  const savedId = claim.id;
 
   // Comportamiento humano: mostrar "escribiendo…" mientras procesa
   sendTyping(msg.phone || msg.chatId, true).catch(() => {});
@@ -219,7 +213,12 @@ export async function handleIncomingMessage(msg, origin) {
     } catch (e) {
       console.error('[webhook/wa] Send error:', e.message);
       sendStatus = `send-failed: ${e.message}`;
+      // Liberar el claim para reintentar en el siguiente poll.
+      if (savedId) await resetWAReply(savedId).catch(() => {});
     }
+  } else {
+    // No se generó respuesta de texto y no hay reporte/PDF → liberar el claim.
+    if (savedId && !replyReportRequest && !replyPdfData) await resetWAReply(savedId).catch(() => {});
   }
 
   // ── Reporte ejecutivo COMPLETO (mismo PDF del panel) ────────────────────────

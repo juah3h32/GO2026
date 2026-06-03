@@ -13,8 +13,8 @@ export default defineConfig({
   output: 'server',
   adapter: vercel({
     isr: false,
-    // Reportes (Chromium serverless ~20-30s) + asistente IA; dar margen amplio.
-    maxDuration: 300,
+    // Reportes (pdf-lib ~2s) + asistente IA + latencia WAF; margen holgado.
+    maxDuration: 60,
   }),
 
   server: {
@@ -74,7 +74,7 @@ vite: {
   envPrefix: ['TURSO_', 'JWT_', 'OPENAI_', 'NOTIFY_', 'VAPID_'],
   ssr: {
     noExternal: [],
-    external: ['puppeteer-core', '@sparticuz/chromium', 'pdf-parse', 'web-push'],
+    external: ['puppeteer-core', '@sparticuz/chromium-min', 'pdf-parse', 'web-push'],
   },
     define: {
       CESIUM_BASE_URL: JSON.stringify('/cesium')

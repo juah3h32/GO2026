@@ -1,6 +1,14 @@
 {
   "commits": [
     {
+      "hash": "f57d005",
+      "date": "2026-06-03",
+      "message": "reporte PDF en produccion via @sparticuz/chromium (resumen y comparativo del dashboard)",
+      "rawMessage": "feat: reporte PDF en produccion via @sparticuz/chromium (resumen y comparativo del dashboard)",
+      "type": "feat",
+      "area": "Admin/API"
+    },
+    {
       "hash": "5a6f1d9",
       "date": "2026-06-03",
       "message": "MAX_PER_RUN=2 en poll para evitar timeout con mensajes pesados",
@@ -1602,39 +1610,40 @@
     }
   ],
   "stats": {
-    "total": 200,
+    "total": 201,
     "byType": {
+      "feat": 27,
       "fix": 50,
       "update": 10,
-      "feat": 26,
       "chore": 2,
       "perf": 2,
       "release": 110
     },
     "byArea": {
+      "Admin/API": 8,
       "General": 157,
-      "Admin/API": 7,
       "Media": 18,
       "i18n": 3,
       "Productos": 15
     },
     "byMonth": {
-      "2026-06": 42,
+      "2026-06": 43,
       "2026-05": 33,
       "2026-04": 29,
       "2026-03": 96
     },
     "byAreaType": {
+      "Admin/API": {
+        "feat": 1,
+        "update": 1,
+        "fix": 6
+      },
       "General": {
         "fix": 25,
         "update": 6,
         "feat": 15,
         "chore": 1,
         "release": 110
-      },
-      "Admin/API": {
-        "update": 1,
-        "fix": 6
       },
       "Media": {
         "fix": 14,
@@ -1655,5 +1664,5 @@
       }
     }
   },
-  "generatedAt": "2026-06-03T21:21:12.370Z"
+  "generatedAt": "2026-06-03T21:38:43.813Z"
 }

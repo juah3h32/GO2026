@@ -57,6 +57,13 @@ async function ensureInit() {
       )
     `);
     await db.execute(`CREATE INDEX IF NOT EXISTS idx_wa_ts ON wa_incoming(ts DESC)`);
+    // Dedup por msg_id (mantiene el id más alto) + índice único parcial.
+    // Necesario para el claim atómico que evita respuestas duplicadas.
+    try {
+      await db.execute(`DELETE FROM wa_incoming WHERE msg_id != '' AND id NOT IN (
+        SELECT MAX(id) FROM wa_incoming WHERE msg_id != '' GROUP BY msg_id)`);
+      await db.execute(`CREATE UNIQUE INDEX IF NOT EXISTS idx_wa_msgid ON wa_incoming(msg_id) WHERE msg_id != ''`);
+    } catch {}
   } catch {}
 
   // Configuración WAGO — credenciales almacenadas en DB (no en .env)
@@ -953,6 +960,56 @@ export async function saveWAIncoming({ phone, body, msgId = '' }) {
   return r.lastInsertRowid;
 }
 
+// Marcador de "en proceso" — bloquea procesamiento concurrente del mismo mensaje.
+const PROC_PREFIX = '__PROC__';
+const PROC_STALE_SEC = 150;
+
+// Claim atómico: inserta la fila (si es nueva) y la reclama para procesar.
+// Devuelve { id, claimed }. claimed=false si otro proceso ya la tiene o ya respondió.
+// Esto evita que polls concurrentes (dashboard + cron) respondan 2-4 veces.
+export async function claimWAIncoming({ phone, body, msgId }) {
+  await ensureInit();
+  const encPhone = encryptField(phone);
+  const encBody  = encryptField(body);
+
+  if (!msgId) {
+    // Sin msg_id no se puede deduplicar atómicamente → insertar y procesar.
+    const r = await db.execute({ sql: `INSERT INTO wa_incoming (phone, body, msg_id) VALUES (?,?,?)`, args: [encPhone, encBody, ''] });
+    return { id: r.lastInsertRowid, claimed: true };
+  }
+
+  const mid = String(msgId);
+  // Asegurar que la fila exista (el índice único hace que un insert duplicado falle).
+  let id = (await db.execute({ sql: `SELECT id FROM wa_incoming WHERE msg_id=? LIMIT 1`, args: [mid] })).rows[0]?.id;
+  if (id == null) {
+    try {
+      const ins = await db.execute({ sql: `INSERT INTO wa_incoming (phone, body, msg_id) VALUES (?,?,?)`, args: [encPhone, encBody, mid] });
+      id = ins.lastInsertRowid;
+    } catch {
+      id = (await db.execute({ sql: `SELECT id FROM wa_incoming WHERE msg_id=? LIMIT 1`, args: [mid] })).rows[0]?.id;
+    }
+  }
+  if (id == null) return { id: null, claimed: false };
+
+  // Claim atómico: solo reclama si está libre (NULL/vacío) o el proc previo está obsoleto.
+  const sentinel = PROC_PREFIX + Math.floor(Date.now() / 1000);
+  const r = await db.execute({
+    sql: `UPDATE wa_incoming SET bot_reply=?
+          WHERE id=? AND (
+            bot_reply IS NULL OR bot_reply=''
+            OR (substr(bot_reply,1,8)=? AND CAST(substr(bot_reply,9) AS INTEGER) < strftime('%s','now') - ?)
+          )`,
+    args: [sentinel, id, PROC_PREFIX, PROC_STALE_SEC],
+  });
+  return { id, claimed: r.rowsAffected > 0 };
+}
+
+// Libera el claim (deja sin respuesta) para que el siguiente poll reintente.
+export async function resetWAReply(id) {
+  await ensureInit();
+  await db.execute({ sql: `UPDATE wa_incoming SET bot_reply=NULL WHERE id=?`, args: [id] });
+}
+
 export async function waIncomingExistsByMsgId(msgId) {
   if (!msgId) return false;
   await ensureInit();
@@ -975,7 +1032,9 @@ export async function getWAIncomingByMsgId(msgId) {
   if (!r.rows.length) return null;
   const row = r.rows[0];
   const reply = row.bot_reply == null ? '' : String(row.bot_reply);
-  return { id: row.id, hasReply: reply.length > 0 };
+  // El marcador de "en proceso" NO cuenta como respuesta real (permite reintento si quedó colgado).
+  const isProc = reply.startsWith(PROC_PREFIX);
+  return { id: row.id, hasReply: reply.length > 0 && !isProc };
 }
 
 export async function updateWAIncomingReply(id, botReply) {
@@ -992,13 +1051,18 @@ export async function getWAIncoming({ limit = 50, offset = 0 } = {}) {
     sql:  `SELECT id, ts, phone, body, bot_reply FROM wa_incoming ORDER BY ts DESC LIMIT ? OFFSET ?`,
     args: [limit, offset],
   });
-  return r.rows.map(row => ({
-    id:        row[0],
-    ts:        row[1],
-    phone:     decryptFieldSafe(row[2], row[2]),
-    body:      decryptFieldSafe(row[3]),
-    bot_reply: decryptFieldSafe(row[4]),
-  }));
+  return r.rows.map(row => {
+    const rawReply = row[4] == null ? null : String(row[4]);
+    // Ocultar el marcador "en proceso" en el panel (es transitorio).
+    const reply = rawReply && rawReply.startsWith(PROC_PREFIX) ? null : decryptFieldSafe(row[4]);
+    return {
+      id:        row[0],
+      ts:        row[1],
+      phone:     decryptFieldSafe(row[2], row[2]),
+      body:      decryptFieldSafe(row[3]),
+      bot_reply: reply,
+    };
+  });
 }
 
 // ── Teléfonos autorizados ─────────────────────────────────────────────────────
