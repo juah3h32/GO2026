@@ -1,6 +1,14 @@
 {
   "commits": [
     {
+      "hash": "6918bb3",
+      "date": "2026-06-03",
+      "message": "asistente no enviaba — marcaba reply ANTES de enviar; ahora envia primero y reintenta si falla",
+      "rawMessage": "fix: asistente no enviaba — marcaba reply ANTES de enviar; ahora envia primero y reintenta si falla",
+      "type": "fix",
+      "area": "General"
+    },
+    {
       "hash": "4e2770d",
       "date": "2026-06-03",
       "message": "cron cada minuto para poll WhatsApp (responde 24/7 sin dashboard abierto)",
@@ -1562,32 +1570,32 @@
     }
   ],
   "stats": {
-    "total": 195,
+    "total": 196,
     "byType": {
+      "fix": 49,
       "feat": 26,
-      "fix": 48,
       "chore": 2,
       "perf": 2,
       "update": 7,
       "release": 110
     },
     "byArea": {
-      "General": 153,
+      "General": 154,
       "Media": 18,
       "Admin/API": 6,
       "i18n": 3,
       "Productos": 15
     },
     "byMonth": {
-      "2026-06": 37,
+      "2026-06": 38,
       "2026-05": 33,
       "2026-04": 29,
       "2026-03": 96
     },
     "byAreaType": {
       "General": {
+        "fix": 24,
         "feat": 15,
-        "fix": 23,
         "chore": 1,
         "update": 4,
         "release": 110
@@ -1614,5 +1622,5 @@
       }
     }
   },
-  "generatedAt": "2026-06-03T20:49:01.775Z"
+  "generatedAt": "2026-06-03T20:53:49.292Z"
 }

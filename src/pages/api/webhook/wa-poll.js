@@ -79,6 +79,10 @@ async function run(request, url) {
 
   // Jalar directo los chats de los números autorizados (endpoint /chats global de
   // WAHooks cuelga desde la red de Vercel; el de un chat puntual es liviano).
+  // Ventana configurable por query (solo para pruebas con secret)
+  const winOverride = Number(url.searchParams.get('window'));
+  const windowSec = Number.isFinite(winOverride) && winOverride > 0 ? winOverride : WINDOW_SEC;
+
   const auth = await getWAAuthorized().catch(() => []);
   const chatIds = auth
     .filter(a => a.active && a.phone)
@@ -106,7 +110,7 @@ async function run(request, url) {
       scanned++;
       if (m?.fromMe) continue;
       const ts = Number(m?.timestamp || 0);
-      if (ts > 0 && (nowSec - ts) > WINDOW_SEC) continue;
+      if (ts > 0 && (nowSec - ts) > windowSec) continue;
 
       const parsed = parseIncoming({ event: 'message', payload: m });
       if (!parsed || parsed.fromMe || !parsed.body) continue;
