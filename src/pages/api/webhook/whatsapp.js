@@ -197,11 +197,15 @@ function parseIncoming(body) {
     // WAHA formato original: payload.from, payload.body
     const text = p.body || p.text || '';
     if (!text) return null;
-    // Preservar chatId original (puede ser @lid o @c.us) para poder responder.
-    // WhatsApp NOWEB a veces usa @lid (Linked ID) en vez del número real.
+    // WhatsApp NOWEB usa @lid (Linked ID) en vez del número real.
+    // El número telefónico real viene en _data.key.remoteJidAlt.
+    const fromRaw = p.from || '';
+    const realJid = p._data?.key?.remoteJidAlt || '';
+    // phone = número real para identificar admins; chatId = @lid para responder
+    const phone = cleanPhone(realJid || fromRaw);
     return {
-      phone: cleanPhone(p.from || ''),
-      chatId: p.from || '',           // chatId completo para la respuesta
+      phone,
+      chatId: fromRaw || realJid,     // responder al @lid original
       body: String(text), fromMe: !!p.fromMe, msgId: p.id || '', timestamp: p.timestamp || 0,
     };
   }
