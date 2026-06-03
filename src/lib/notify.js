@@ -1,6 +1,10 @@
 // src/lib/notify.js
 // Notificaciones WhatsApp para nuevos candidatos — mismo estilo blanco que los reportes
 import { readCandidateNotifications, touchCandidateNotifLastSent, getWagoConfig } from './analytics-db.js';
+
+// User-Agent de navegador: el WAF de WAHooks (Cloudflare) bloquea fetch sin UA
+// desde IPs de datacenter (Vercel). Sin esto, los envíos fallan en producción.
+const BROWSER_UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36';
 import { existsSync, readFileSync } from 'fs';
 import { join }     from 'path';
 import { createHash } from 'crypto';
@@ -457,7 +461,7 @@ export async function sendTyping(phone, on = true) {
   try {
     await fetch(`${creds.url}/api/connections/${creds.connectionId}/${endpoint}`, {
       method:  'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${creds.token}` },
+      headers: { 'Content-Type': 'application/json', 'User-Agent': BROWSER_UA, 'Authorization': `Bearer ${creds.token}` },
       body:    JSON.stringify({ chatId }),
     });
   } catch { /* no crítico */ }
@@ -490,7 +494,7 @@ export async function sendWAText(phone, message) {
     `${url}/api/connections/${connectionId}/send`,
     {
       method:  'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      headers: { 'Content-Type': 'application/json', 'User-Agent': BROWSER_UA, 'Authorization': `Bearer ${token}` },
       body:    JSON.stringify({ chatId, text: message }),
     }
   );
@@ -529,7 +533,7 @@ export async function sendWAPDF(phone, pdfBuffer, filename) {
     `${url}/api/connections/${connectionId}/send-document`,
     {
       method:  'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      headers: { 'Content-Type': 'application/json', 'User-Agent': BROWSER_UA, 'Authorization': `Bearer ${token}` },
       body:    JSON.stringify({ chatId, data: pdfBuffer.toString('base64'), mimetype: 'application/pdf', filename }),
     }
   );
@@ -539,7 +543,7 @@ export async function sendWAPDF(phone, pdfBuffer, filename) {
   console.warn(`[notify] send-document falló (${res.status}) — enviando aviso de texto`);
   const resTxt = await fetch(`${url}/api/connections/${connectionId}/send`, {
     method:  'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+    headers: { 'Content-Type': 'application/json', 'User-Agent': BROWSER_UA, 'Authorization': `Bearer ${token}` },
     body:    JSON.stringify({ chatId, text: `📎 Perfil PDF disponible: ${filename}` }),
   });
   if (!resTxt.ok) {

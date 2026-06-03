@@ -1,6 +1,14 @@
 {
   "commits": [
     {
+      "hash": "ee992e2",
+      "date": "2026-06-03",
+      "message": "User-Agent navegador en llamadas WAHooks (WAF bloquea datacenters)",
+      "rawMessage": "fix: User-Agent navegador en llamadas WAHooks (WAF bloquea datacenters)",
+      "type": "fix",
+      "area": "General"
+    },
+    {
       "hash": "1d6b7f0",
       "date": "2026-06-03",
       "message": "quitar videos fallback local en home (404); poll dashboard via GET (CSRF); sonda diagnostico WAHooks",
@@ -1530,9 +1538,9 @@
     }
   ],
   "stats": {
-    "total": 191,
+    "total": 192,
     "byType": {
-      "fix": 45,
+      "fix": 46,
       "feat": 25,
       "chore": 2,
       "perf": 2,
@@ -1540,19 +1548,26 @@
       "release": 110
     },
     "byArea": {
+      "General": 150,
       "Media": 18,
       "Admin/API": 6,
-      "General": 149,
       "i18n": 3,
       "Productos": 15
     },
     "byMonth": {
-      "2026-06": 33,
+      "2026-06": 34,
       "2026-05": 33,
       "2026-04": 29,
       "2026-03": 96
     },
     "byAreaType": {
+      "General": {
+        "fix": 21,
+        "feat": 14,
+        "chore": 1,
+        "update": 4,
+        "release": 110
+      },
       "Media": {
         "fix": 14,
         "feat": 2,
@@ -1561,13 +1576,6 @@
       },
       "Admin/API": {
         "fix": 6
-      },
-      "General": {
-        "fix": 20,
-        "feat": 14,
-        "chore": 1,
-        "update": 4,
-        "release": 110
       },
       "i18n": {
         "feat": 1,
@@ -1582,5 +1590,5 @@
       }
     }
   },
-  "generatedAt": "2026-06-03T20:01:10.487Z"
+  "generatedAt": "2026-06-03T20:05:36.872Z"
 }
