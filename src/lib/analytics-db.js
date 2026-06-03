@@ -948,7 +948,7 @@ export async function saveWAIncoming({ phone, body, msgId = '' }) {
   await ensureInit();
   const r = await db.execute({
     sql:  `INSERT INTO wa_incoming (phone, body, msg_id) VALUES (?,?,?)`,
-    args: [phone, encryptField(body), msgId],
+    args: [encryptField(phone), encryptField(body), msgId],
   });
   return r.lastInsertRowid;
 }
@@ -970,7 +970,7 @@ export async function getWAIncoming({ limit = 50, offset = 0 } = {}) {
   return r.rows.map(row => ({
     id:        row[0],
     ts:        row[1],
-    phone:     row[2],
+    phone:     decryptFieldSafe(row[2], row[2]),
     body:      decryptFieldSafe(row[3]),
     bot_reply: decryptFieldSafe(row[4]),
   }));

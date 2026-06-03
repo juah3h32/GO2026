@@ -1,6 +1,22 @@
 {
   "commits": [
     {
+      "hash": "9b7fec5",
+      "date": "2026-06-03",
+      "message": "corregir .gitignore — videos no deben subirse (revive error 250MB vercel)",
+      "rawMessage": "fix: corregir .gitignore — videos no deben subirse (revive error 250MB vercel)",
+      "type": "fix",
+      "area": "Media"
+    },
+    {
+      "hash": "e82dc6b",
+      "date": "2026-06-03",
+      "message": "cifrado en reposo AES-256-GCM + webhook timing-safe y anti-replay",
+      "rawMessage": "feat: cifrado en reposo AES-256-GCM + webhook timing-safe y anti-replay",
+      "type": "feat",
+      "area": "General"
+    },
+    {
       "hash": "68f14cd",
       "date": "2026-06-03",
       "message": "ignorar .claude/scheduled_tasks.lock",
@@ -1466,32 +1482,38 @@
     }
   ],
   "stats": {
-    "total": 183,
+    "total": 185,
     "byType": {
+      "fix": 40,
+      "feat": 24,
       "chore": 2,
-      "feat": 23,
-      "fix": 39,
       "perf": 2,
       "update": 7,
       "release": 110
     },
     "byArea": {
-      "General": 146,
+      "Media": 16,
+      "General": 147,
       "i18n": 3,
-      "Media": 15,
       "Productos": 15,
       "Admin/API": 4
     },
     "byMonth": {
-      "2026-06": 25,
+      "2026-06": 27,
       "2026-05": 33,
       "2026-04": 29,
       "2026-03": 96
     },
     "byAreaType": {
+      "Media": {
+        "fix": 12,
+        "feat": 2,
+        "perf": 1,
+        "update": 1
+      },
       "General": {
+        "feat": 13,
         "chore": 1,
-        "feat": 12,
         "fix": 19,
         "update": 4,
         "release": 110
@@ -1499,12 +1521,6 @@
       "i18n": {
         "feat": 1,
         "fix": 2
-      },
-      "Media": {
-        "fix": 11,
-        "feat": 2,
-        "perf": 1,
-        "update": 1
       },
       "Productos": {
         "feat": 8,
@@ -1518,5 +1534,5 @@
       }
     }
   },
-  "generatedAt": "2026-06-03T19:07:54.450Z"
+  "generatedAt": "2026-06-03T19:16:21.131Z"
 }
