@@ -84,7 +84,7 @@ export async function POST({ request }) {
   let savedId;
   try { savedId = await saveWAIncoming(msg); } catch (e) { console.error('[webhook/wa] DB:', e.message); }
 
-  // Mostrar "escribiendo…" mientras se procesa (el usuario ve que el bot trabaja)
+  // Comportamiento humano: mostrar "escribiendo…" mientras procesa
   sendTyping(msg.chatId || msg.phone, true).catch(() => {});
 
   // Verificar si es número autorizado

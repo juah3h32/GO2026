@@ -362,6 +362,19 @@ export async function sendTyping(phone, on = true) {
   } catch { /* no crítico */ }
 }
 
+// ── Marcar mensaje como leído (visto azul) — comportamiento humano anti-spam ──
+export async function sendSeen(phone, messageId) {
+  const cfg = wahaConfig();
+  if (!cfg) return;
+  try {
+    await fetch(`${cfg.url}/api/sendSeen`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Api-Key': cfg.apiKey },
+      body:    JSON.stringify({ session: cfg.session, chatId: toWahaChatId(phone), messageId }),
+    });
+  } catch { /* no crítico */ }
+}
+
 // ── Enviar mensaje de texto — WAHA directo o WAGO/Evolution ──────────────────
 export async function sendWAText(phone, message) {
   const waha = wahaConfig();
@@ -552,10 +565,16 @@ async function notifyCategoria(categoria, buildMsg) {
   if (!subs.length) return { sent: 0 };
 
   let sent = 0;
-  for (const s of subs) {
+  for (let i = 0; i < subs.length; i++) {
+    const s = subs[i];
     try {
       await sendWAText(s.phone, buildMsg(s.name || ''));
       sent++;
+      // Anti-spam: delay aleatorio humano entre destinatarios (no ráfaga).
+      // El primero sale inmediato; entre los siguientes 1.5-3.5s.
+      if (i < subs.length - 1) {
+        await new Promise(r => setTimeout(r, 1500 + Math.floor(Math.random() * 2000)));
+      }
     } catch (e) { console.error(`[notify-cat:${categoria}] →${String(s.phone).slice(-4)}:`, e.message); }
   }
   console.log(`[notify-cat:${categoria}] enviadas ${sent}/${subs.length}`);
@@ -580,6 +599,8 @@ export async function notifyCategoriaRH(c) {
 
 // Nuevo distribuidor → categoría 'clientes'
 export async function notifyCategoriaClientes(l) {
+  const producto = l.productos || l.producto || '';
+  const prodTxt  = Array.isArray(producto) ? producto.join(', ') : producto;
   return notifyCategoria('clientes', (nombre) => {
     const saludo = nombre ? `*${nombre}*, hay` : 'Hay';
     return `${saludo} un nuevo registro de distribuidor, te comparto la info:\n\n` +
@@ -587,9 +608,10 @@ export async function notifyCategoriaClientes(l) {
       (l.empresa ? `- Empresa: ${l.empresa}\n` : '') +
       (l.whatsapp ? `- WhatsApp: ${l.whatsapp}\n` : '') +
       (l.email ? `- Email: ${l.email}\n` : '') +
-      (l.productos ? `- Interesado en: ${Array.isArray(l.productos) ? l.productos.join(', ') : l.productos}\n` : '') +
+      // Producto de interés destacado — para enrutar al asesor correcto
+      `- *Producto de interés: ${prodTxt || 'no especificado'}*\n` +
       (l.comentarios ? `- Comentario: ${String(l.comentarios).slice(0, 200)}\n` : '') +
-      `\nPuedes darle seguimiento desde el panel de Distribuidores.`;
+      `\nCanaliza este contacto con el asesor del producto. Seguimiento en el panel de Distribuidores.`;
   });
 }
 

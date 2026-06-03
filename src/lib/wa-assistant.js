@@ -334,7 +334,9 @@ async function ejecutarTool(name, args, ctx) {
       total_en_periodo: leads.length,
       filtro_status: args.filtro_status || 'ninguno',
       contactos: leads.slice(0, n).map(l => ({
-        nombre: l.nombre, empresa: l.empresa, whatsapp: l.whatsapp, estatus: l.status || 'nuevo',
+        nombre: l.nombre, empresa: l.empresa, whatsapp: l.whatsapp,
+        producto_interes: l.productos || l.producto || 'no especificado',
+        email: l.email, estatus: l.status || 'nuevo',
         fecha: fechaMX(l.ts || l.created_at),
       })),
     };
