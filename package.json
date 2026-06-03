@@ -3,7 +3,8 @@
   "type": "module",
   "version": "0.0.1",
   "license": "UNLICENSED",
-  "author": "Juan Pablo Corona <juancorona-cmyk>",
+  "author": "Juan Pablo Corona Corona — Desarrollador Web",
+  "copyright": "Copyright (c) 2026 Juan Pablo Corona Corona. Todos los derechos reservados.",
   "private": true,
   "bin": {
     "claude": "./scripts/claude-cli.js"

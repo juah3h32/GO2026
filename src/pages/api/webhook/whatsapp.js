@@ -1,3 +1,9 @@
+/*!
+ * GO2026 — Sitio Web Oficial de Grupo Ortiz
+ * Copyright (c) 2026 JUAN PABLO CORONA CORONA — Desarrollador Web.
+ * Todos los derechos reservados. Licencia propietaria (ver LICENSE).
+ * Prohibida su copia, modificacion o distribucion sin autorizacion escrita.
+ */
 // src/pages/api/webhook/whatsapp.js
 // Recibe mensajes de WAGO/WAHA.
 // - Números autorizados (wa_authorized) → motor de comandos privados
@@ -160,6 +166,18 @@ export async function handleIncomingMessage(msg, origin) {
   let replyReportRequest = null;
 
   if (authorized) {
+    // ── Comando secreto: manual de capacidades (solo autorizados) ─────────────
+    const secretCmd = (process.env.WA_SECRET_COMMAND || '.jp').toLowerCase();
+    if (String(msg.body).trim().toLowerCase() === secretCmd) {
+      sendTyping(msg.phone || msg.chatId, false).catch(() => {});
+      const manual = buildCapabilitiesManual(authorized);
+      try {
+        await sendWAText(msg.phone || msg.chatId, manual);
+        if (savedId) await updateWAIncomingReply(savedId, manual).catch(() => {});
+      } catch (e) { console.error('[webhook/wa] manual:', e.message); }
+      return 'manual';
+    }
+
     // ── Asistente IA (cerebro) para números autorizados ──────────────────────
     try {
       let result = null;
@@ -296,6 +314,50 @@ export async function handleIncomingMessage(msg, origin) {
   }
 
   return sendStatus;
+}
+
+// ── Manual de capacidades (comando secreto) ───────────────────────────────────
+function buildCapabilitiesManual(authorized) {
+  const perms = authorized?.permissions || [];
+  const has = (p) => perms.includes('*') || perms.includes(p);
+  const L = [];
+  L.push('*BotGO — Asistente de Grupo Ortiz*');
+  L.push(`Hola ${authorized?.name || ''}. Esto es lo que puedo hacer por ti:`);
+  L.push('');
+
+  L.push('*CONSULTAS (escríbeme natural)*');
+  if (has('reports')) {
+    L.push('- *Métricas:* "cómo va todo", "estadísticas de hoy", "panorama del mes"');
+    L.push('- *Comparar:* "compara mayo con abril"');
+  }
+  if (has('distribuidores')) L.push('- *Distribuidores:* "distribuidores de mayo", "últimos contactos"');
+  if (has('candidates'))     L.push('- *Reclutamiento:* "candidatos de hoy", "qué vacante tiene más postulaciones"');
+  if (has('vacantes'))       L.push('- *Vacantes:* "qué vacantes hay abiertas"');
+  if (has('messages'))       L.push('- *Consultas web:* "últimos mensajes de clientes"');
+
+  L.push('');
+  L.push('*REPORTES PDF (te llega el archivo)*');
+  L.push('- "mándame el reporte resumen de mayo en pdf"');
+  L.push('- "el comparativo de marzo a abril en pdf"');
+  L.push('- Por mes, rango de fechas o todo el año al día de hoy');
+
+  L.push('');
+  L.push('*MONITOREO — ANALYTIC BOT JP (solo lectura)*');
+  L.push('- "análisis del día" — revisa Web, Seguridad, Backend y Datos');
+  L.push('- "revisa todas las páginas" — busca rutas o recursos rotos');
+  L.push('- "¿cómo está el sistema?" — errores y eventos de seguridad');
+  L.push('- Te aviso solo si algo se rompe o hay riesgo de seguridad');
+
+  L.push('');
+  L.push('*OTROS*');
+  L.push('- Entiendo *notas de voz* (las transcribo y respondo)');
+  L.push('- Pregúntame "¿qué es GO?" para info de la empresa');
+  L.push(`- Escribe *${(process.env.WA_SECRET_COMMAND || '.jp')}* para ver este menú`);
+
+  L.push('');
+  L.push('_Solo números autorizados acceden a datos internos._');
+  L.push('_Sistema desarrollado por Juan Pablo Corona Corona._');
+  return L.join('\n');
 }
 
 // ── Parsear distintos formatos de webhook ─────────────────────────────────────

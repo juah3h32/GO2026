@@ -266,6 +266,14 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
 
     <slot />
 
+    {/* Aviso de derechos de autor en consola */}
+    <script is:inline>
+      try {
+        console.log('%cGO2026 — Grupo Ortiz', 'color:#FB670B;font-size:16px;font-weight:bold');
+        console.log('%cCopyright (c) 2026 JUAN PABLO CORONA CORONA — Desarrollador Web. Todos los derechos reservados.\nCódigo protegido bajo licencia propietaria. Prohibida su copia o distribución sin autorización.', 'color:#888;font-size:11px');
+      } catch (e) {}
+    </script>
+
     {/* Monitoreo: reporta fallas del frontend (videos, JS, recursos) a /api/logs */}
     <script is:inline>
       (function () {

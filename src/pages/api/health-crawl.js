@@ -1,3 +1,9 @@
+/*!
+ * GO2026 — Sitio Web Oficial de Grupo Ortiz
+ * Copyright (c) 2026 JUAN PABLO CORONA CORONA — Desarrollador Web.
+ * Todos los derechos reservados. Licencia propietaria (ver LICENSE).
+ * Prohibida su copia, modificacion o distribucion sin autorizacion escrita.
+ */
 // src/pages/api/health-crawl.js
 // ANALYTIC BOT JP — rastreo proactivo del sitio (SOLO LECTURA).
 // Visita cada página de grupo-ortiz.com, verifica que cargue (200) y detecta

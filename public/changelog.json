@@ -1,6 +1,14 @@
 {
   "commits": [
     {
+      "hash": "4d93ac4",
+      "date": "2026-06-03",
+      "message": "orquestador ANALYTIC BOT JP + agentes por area (analisis diario, solo lectura)",
+      "rawMessage": "feat: orquestador ANALYTIC BOT JP + agentes por area (analisis diario, solo lectura)",
+      "type": "feat",
+      "area": "Admin/API"
+    },
+    {
       "hash": "0b0600a",
       "date": "2026-06-03",
       "message": "Claude como agente de diagnostico del sistema + alertas automaticas por WhatsApp",
@@ -1642,9 +1650,9 @@
     }
   ],
   "stats": {
-    "total": 205,
+    "total": 206,
     "byType": {
-      "feat": 30,
+      "feat": 31,
       "fix": 51,
       "update": 10,
       "chore": 2,
@@ -1652,30 +1660,30 @@
       "release": 110
     },
     "byArea": {
+      "Admin/API": 12,
       "General": 158,
-      "Admin/API": 11,
       "Media": 18,
       "i18n": 3,
       "Productos": 15
     },
     "byMonth": {
-      "2026-06": 47,
+      "2026-06": 48,
       "2026-05": 33,
       "2026-04": 29,
       "2026-03": 96
     },
     "byAreaType": {
+      "Admin/API": {
+        "feat": 4,
+        "fix": 7,
+        "update": 1
+      },
       "General": {
         "feat": 16,
         "fix": 25,
         "update": 6,
         "chore": 1,
         "release": 110
-      },
-      "Admin/API": {
-        "fix": 7,
-        "feat": 3,
-        "update": 1
       },
       "Media": {
         "fix": 14,
@@ -1696,5 +1704,5 @@
       }
     }
   },
-  "generatedAt": "2026-06-03T22:42:26.418Z"
+  "generatedAt": "2026-06-03T22:47:19.241Z"
 }

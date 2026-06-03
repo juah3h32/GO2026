@@ -1,3 +1,9 @@
+/*!
+ * GO2026 — Sitio Web Oficial de Grupo Ortiz
+ * Copyright (c) 2026 JUAN PABLO CORONA CORONA — Desarrollador Web.
+ * Todos los derechos reservados. Licencia propietaria (ver LICENSE).
+ * Prohibida su copia, modificacion o distribucion sin autorizacion escrita.
+ */
 // src/pages/api/webhook/wa-poll.js
 // Fallback de entrada: jala mensajes nuevos desde WAHooks y los procesa.
 // Necesario porque la cola de webhooks (push) de WAHooks puede no entregar.

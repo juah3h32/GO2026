@@ -1,3 +1,9 @@
+/*!
+ * GO2026 — Sitio Web Oficial de Grupo Ortiz
+ * Copyright (c) 2026 JUAN PABLO CORONA CORONA — Desarrollador Web.
+ * Todos los derechos reservados. Licencia propietaria (ver LICENSE).
+ * Prohibida su copia, modificacion o distribucion sin autorizacion escrita.
+ */
 // src/lib/claude-diagnose.js
 // Diagnóstico de salud del sistema con Claude (SOLO para esta parte).
 // Toma logs + stats y devuelve un diagnóstico CORTO y DIRECTO en español.

@@ -1,3 +1,9 @@
+/*!
+ * GO2026 — Sitio Web Oficial de Grupo Ortiz
+ * Copyright (c) 2026 JUAN PABLO CORONA CORONA — Desarrollador Web.
+ * Todos los derechos reservados. Licencia propietaria (ver LICENSE).
+ * Prohibida su copia, modificacion o distribucion sin autorizacion escrita.
+ */
 // src/lib/health-alert.js
 // Alerta automática de salud: si hay errores/criticos/seguridad NUEVOS,
 // Claude los diagnostica y se envía aviso por WhatsApp a los autorizados.

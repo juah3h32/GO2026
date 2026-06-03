@@ -1,3 +1,9 @@
+/*!
+ * GO2026 — Sitio Web Oficial de Grupo Ortiz
+ * Copyright (c) 2026 JUAN PABLO CORONA CORONA — Desarrollador Web.
+ * Todos los derechos reservados. Licencia propietaria (ver LICENSE).
+ * Prohibida su copia, modificacion o distribucion sin autorizacion escrita.
+ */
 // src/lib/agents.js
 // Agentes especializados por área (SOLO LECTURA) coordinados por ANALYTIC BOT JP.
 // Cada agente: recolecta datos de su área (rápido, server-side) y produce un

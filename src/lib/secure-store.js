@@ -1,3 +1,9 @@
+/*!
+ * GO2026 — Sitio Web Oficial de Grupo Ortiz
+ * Copyright (c) 2026 JUAN PABLO CORONA CORONA — Desarrollador Web.
+ * Todos los derechos reservados. Licencia propietaria (ver LICENSE).
+ * Prohibida su copia, modificacion o distribucion sin autorizacion escrita.
+ */
 // src/lib/secure-store.js
 // Cifrado en reposo AES-256-GCM para datos sensibles en DB.
 // Formato: enc:v1:<iv_b64>:<tag_b64>:<cipher_b64>
