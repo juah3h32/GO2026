@@ -4,7 +4,26 @@
 // - Resto → chatbot BotGO de clientes
 export const prerender = false;
 
-import { createHmac } from 'node:crypto';
+import { createHmac, timingSafeEqual } from 'node:crypto';
+
+// Comparación en tiempo constante — evita timing attacks al verificar firmas.
+function safeEqual(a, b) {
+  const ba = Buffer.from(String(a));
+  const bb = Buffer.from(String(b));
+  if (ba.length !== bb.length) return false;
+  return timingSafeEqual(ba, bb);
+}
+
+// Rechaza webhooks con timestamp fuera de ±5 min (anti-replay).
+const MAX_SKEW_SEC = 300;
+function freshTimestamp(ts) {
+  const n = Number(ts);
+  if (!Number.isFinite(n) || n <= 0) return false;
+  // acepta segundos o milisegundos
+  const sec = n > 1e12 ? Math.floor(n / 1000) : n;
+  const now = Math.floor(Date.now() / 1000);
+  return Math.abs(now - sec) <= MAX_SKEW_SEC;
+}
 import { existsSync, readFileSync } from 'node:fs';
 import { join }       from 'node:path';
 import { saveWAIncoming, updateWAIncomingReply, getWAAuthorizedByPhone, getWagoConfig } from '../../../lib/analytics-db.js';
@@ -51,6 +70,9 @@ export async function POST({ request }) {
 
   if (secret && wagoSig) {
     const wagoTs = request.headers.get('x-wago-timestamp') || request.headers.get('x-wahooks-timestamp') || '';
+    // Anti-replay: exige timestamp fresco (la firma incluye el timestamp).
+    if (!freshTimestamp(wagoTs)) return new Response('Unauthorized', { status: 401 });
+
     let rawText;
     try { rawText = await request.text(); }
     catch { return new Response('Bad Request', { status: 400 }); }
@@ -59,7 +81,7 @@ export async function POST({ request }) {
       .update(`${wagoTs}.${rawText}`)
       .digest('hex');
 
-    if (wagoSig !== expected) return new Response('Unauthorized', { status: 401 });
+    if (!safeEqual(wagoSig, expected)) return new Response('Unauthorized', { status: 401 });
 
     try { body = JSON.parse(rawText); }
     catch { return new Response('Bad Request', { status: 400 }); }
@@ -74,14 +96,15 @@ export async function POST({ request }) {
     catch { return new Response('Bad Request', { status: 400 }); }
 
     const expected = createHmac(algo, secret).update(rawText).digest('hex');
-    if (wahaHmac !== expected) return new Response('Unauthorized', { status: 401 });
+    if (!safeEqual(wahaHmac, expected)) return new Response('Unauthorized', { status: 401 });
 
     try { body = JSON.parse(rawText); }
     catch { return new Response('Bad Request', { status: 400 }); }
   } else if (secret && !usingWaha) {
-    // Fallback: header simple (x-webhook-secret o authorization)
-    const hdr = request.headers.get('x-webhook-secret') || request.headers.get('authorization') || '';
-    if (!hdr.includes(secret)) return new Response('Unauthorized', { status: 401 });
+    // Fallback: header simple. Igualdad exacta en tiempo constante (no .includes — evita bypass).
+    const hdr = request.headers.get('x-webhook-secret')
+             || (request.headers.get('authorization') || '').replace(/^Bearer\s+/i, '');
+    if (!safeEqual(hdr, secret)) return new Response('Unauthorized', { status: 401 });
     try { body = await request.json(); }
     catch { return new Response('Bad Request', { status: 400 }); }
   } else {

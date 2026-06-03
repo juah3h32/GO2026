@@ -1,5 +1,6 @@
 // src/lib/analytics-db.js
 import { createClient } from '@libsql/client';
+import { encryptField, decryptFieldSafe } from './secure-store.js';
 
 const url       = process.env.TURSO_DATABASE_URL || import.meta.env.TURSO_DATABASE_URL;
 const authToken = process.env.TURSO_AUTH_TOKEN   || import.meta.env.TURSO_AUTH_TOKEN;
@@ -947,7 +948,7 @@ export async function saveWAIncoming({ phone, body, msgId = '' }) {
   await ensureInit();
   const r = await db.execute({
     sql:  `INSERT INTO wa_incoming (phone, body, msg_id) VALUES (?,?,?)`,
-    args: [phone, body, msgId],
+    args: [phone, encryptField(body), msgId],
   });
   return r.lastInsertRowid;
 }
@@ -956,7 +957,7 @@ export async function updateWAIncomingReply(id, botReply) {
   await ensureInit();
   await db.execute({
     sql:  `UPDATE wa_incoming SET bot_reply=? WHERE id=?`,
-    args: [botReply, id],
+    args: [encryptField(botReply), id],
   });
 }
 
@@ -970,8 +971,8 @@ export async function getWAIncoming({ limit = 50, offset = 0 } = {}) {
     id:        row[0],
     ts:        row[1],
     phone:     row[2],
-    body:      row[3],
-    bot_reply: row[4],
+    body:      decryptFieldSafe(row[3]),
+    bot_reply: decryptFieldSafe(row[4]),
   }));
 }
 
@@ -1069,7 +1070,12 @@ export async function getWagoConfig() {
   const r = await db.execute(`SELECT wago_url, wago_token, connection_id, webhook_secret FROM wago_config WHERE id=1`);
   if (!r.rows.length) return null;
   const row = r.rows[0];
-  return { url: row.wago_url, token: row.wago_token, connectionId: row.connection_id, webhookSecret: row.webhook_secret };
+  return {
+    url: row.wago_url,
+    token: decryptFieldSafe(row.wago_token, ''),
+    connectionId: row.connection_id,
+    webhookSecret: decryptFieldSafe(row.webhook_secret, ''),
+  };
 }
 
 export async function saveWagoConfig({ url, token, connectionId, webhookSecret }) {
@@ -1081,6 +1087,6 @@ export async function saveWagoConfig({ url, token, connectionId, webhookSecret }
             wago_url=excluded.wago_url, wago_token=excluded.wago_token,
             connection_id=excluded.connection_id, webhook_secret=excluded.webhook_secret,
             updated_at=excluded.updated_at`,
-    args: [url, token, connectionId, webhookSecret],
+    args: [url, encryptField(token), connectionId, encryptField(webhookSecret)],
   });
 }

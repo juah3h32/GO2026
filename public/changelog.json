@@ -1,6 +1,22 @@
 {
   "commits": [
     {
+      "hash": "68f14cd",
+      "date": "2026-06-03",
+      "message": "ignorar .claude/scheduled_tasks.lock",
+      "rawMessage": "chore: ignorar .claude/scheduled_tasks.lock",
+      "type": "chore",
+      "area": "General"
+    },
+    {
+      "hash": "77ecb64",
+      "date": "2026-06-03",
+      "message": "dashboard acepta credenciales WAHooks (token, connection id, signing secret)",
+      "rawMessage": "feat: dashboard acepta credenciales WAHooks (token, connection id, signing secret)",
+      "type": "feat",
+      "area": "i18n"
+    },
+    {
       "hash": "f2878dc",
       "date": "2026-06-03",
       "message": "soporte WAHooks — firma x-wahooks-signature, evento message.received, typing",
@@ -1450,34 +1466,39 @@
     }
   ],
   "stats": {
-    "total": 181,
+    "total": 183,
     "byType": {
-      "feat": 22,
+      "chore": 2,
+      "feat": 23,
       "fix": 39,
-      "chore": 1,
       "perf": 2,
       "update": 7,
       "release": 110
     },
     "byArea": {
-      "General": 145,
+      "General": 146,
+      "i18n": 3,
       "Media": 15,
       "Productos": 15,
-      "Admin/API": 4,
-      "i18n": 2
+      "Admin/API": 4
     },
     "byMonth": {
-      "2026-06": 23,
+      "2026-06": 25,
       "2026-05": 33,
       "2026-04": 29,
       "2026-03": 96
     },
     "byAreaType": {
       "General": {
+        "chore": 1,
         "feat": 12,
         "fix": 19,
         "update": 4,
         "release": 110
+      },
+      "i18n": {
+        "feat": 1,
+        "fix": 2
       },
       "Media": {
         "fix": 11,
@@ -1494,11 +1515,8 @@
       },
       "Admin/API": {
         "fix": 4
-      },
-      "i18n": {
-        "fix": 2
       }
     }
   },
-  "generatedAt": "2026-06-03T19:01:16.509Z"
+  "generatedAt": "2026-06-03T19:07:54.450Z"
 }
