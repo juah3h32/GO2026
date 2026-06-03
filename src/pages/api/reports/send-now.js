@@ -6,6 +6,7 @@ import { readAllData, readLeads, readRecruitmentLeads }      from '../../../lib/
 import { verifyAdminToken }                                  from '../../../lib/verifyAdminToken.ts';
 import { checkRateLimit, getClientIp }                       from '../../../lib/rateLimit.ts';
 
+import { uploadPDFToCloudinary }                             from '../../../lib/notify.js';
 import { existsSync, readFileSync }                          from 'fs';
 import { join }                                              from 'path';
 
@@ -346,6 +347,7 @@ export async function POST({ request }) {
       period_from  = null,
       period_to    = null,
       phones       = [],
+      deliver      = 'wago',   // 'wago' (send-document) | 'cloudinary' (sube y devuelve link)
     } = body;
 
     const periodMeta = getPeriodMeta(period, period_from, period_to);
@@ -474,6 +476,24 @@ INSTRUCCIONES:
       pdfErrMsg = String(pdfErr);
       console.error('[send-now] Error PDF:', pdfErr);
       // No abortar — si no hay Chrome intentamos fallback texto
+    }
+
+    // 3.5. Entrega por link de Cloudinary (evita send-document de pago).
+    // Sube el PDF y devuelve el link — el caller (ej. webhook WhatsApp) manda el texto.
+    if (deliver === 'cloudinary') {
+      if (!pdfBuffer) {
+        return new Response(JSON.stringify({ ok: false, error: pdfErrMsg || 'PDF no disponible (sin Chrome en este entorno)' }), {
+          status: 500, headers: { 'Content-Type': 'application/json' },
+        });
+      }
+      try {
+        const url = await uploadPDFToCloudinary(pdfBuffer, filename);
+        return new Response(JSON.stringify({ ok: true, url, filename }), { headers: { 'Content-Type': 'application/json' } });
+      } catch (e) {
+        return new Response(JSON.stringify({ ok: false, error: 'Cloudinary: ' + e.message }), {
+          status: 500, headers: { 'Content-Type': 'application/json' },
+        });
+      }
     }
 
     // 4. Enviar a cada número

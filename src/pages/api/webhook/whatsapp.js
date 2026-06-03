@@ -8,7 +8,7 @@ import { createHmac } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { join }       from 'node:path';
 import { saveWAIncoming, updateWAIncomingReply, getWAAuthorizedByPhone, getWagoConfig } from '../../../lib/analytics-db.js';
-import { sendWAText, sendWAPDF, generateReportPDF, sendTyping } from '../../../lib/notify.js';
+import { sendWAText, generateReportPDF, uploadPDFToCloudinary, sendTyping } from '../../../lib/notify.js';
 import { ejecutarComando } from '../../../lib/wa-commands.js';
 import { ejecutarAsistente } from '../../../lib/wa-assistant.js';
 
@@ -92,6 +92,7 @@ export async function POST({ request }) {
 
   let replyText = null;
   let replyPdfData = null;
+  let replyReportRequest = null;
 
   if (authorized) {
     // ── Asistente IA (cerebro) para números autorizados ──────────────────────
@@ -109,8 +110,9 @@ export async function POST({ request }) {
       }
 
       if (result && typeof result === 'object') {
-        replyText    = result.text    || null;
-        replyPdfData = result.pdfData || null;
+        replyText          = result.text          || null;
+        replyPdfData       = result.pdfData       || null;
+        replyReportRequest = result.reportRequest || null;
       } else {
         replyText = String(result || '');
       }
@@ -154,13 +156,45 @@ export async function POST({ request }) {
     } catch (e) { console.error('[webhook/wa] Send error:', e.message); }
   }
 
-  // Enviar PDF si el comando lo generó (solo para números autorizados).
-  // Si el PDF falla (sin Chrome en serverless, timeout, etc.) → reporte como texto.
-  if (replyPdfData && authorized) {
+  // ── Reporte ejecutivo COMPLETO (mismo PDF del panel) ────────────────────────
+  // Se genera vía /api/reports/send-now (buildReportHTML + Puppeteer), se sube a
+  // Cloudinary y se comparte el link. Filtra por el periodo que pidió el usuario.
+  if (replyReportRequest && authorized) {
+    try {
+      const host     = request.headers.get('host') || 'localhost:4321';
+      const protocol = host.includes('localhost') ? 'http' : 'https';
+      let   origin   = process.env.PUBLIC_SITE_URL || `${protocol}://${host}`;
+      // Self-call robusto: si el host trae puerto (dev/local, incl. host.docker.internal
+      // que el proceso node del host NO resuelve), usar loopback al mismo puerto.
+      const portMatch = host.match(/:(\d+)$/);
+      if (portMatch && !process.env.PUBLIC_SITE_URL) origin = `http://127.0.0.1:${portMatch[1]}`;
+      const secret   = process.env.CRON_SECRET_EXTERNAL || import.meta.env?.CRON_SECRET_EXTERNAL || '';
+
+      const r = await fetch(`${origin}/api/reports/send-now`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json', 'x-cron-secret': secret },
+        body:    JSON.stringify({ ...replyReportRequest, deliver: 'cloudinary', phones: [] }),
+      });
+      const d = await r.json();
+      if (d.ok && d.url) {
+        await sendWAText(msg.chatId || msg.phone, `Tu reporte en PDF:\n${d.url}`);
+      } else {
+        throw new Error(d.error || 'send-now sin url');
+      }
+    } catch (e) {
+      console.error('[webhook/wa] Reporte error:', e.message);
+      await sendWAText(msg.chatId || msg.phone, `No pude generar el PDF.\nDetalle: ${e.message}`).catch(() => {});
+    }
+  }
+
+  // Fallback simple (comando rígido sin IA): genera PDF compacto con pdf-lib → Cloudinary.
+  // Si el PDF/upload falla → reporte como texto.
+  else if (replyPdfData && authorized) {
     try {
       const logoBase64 = getLogoBase64();
       const { buffer, filename } = await generateReportPDF(replyPdfData, logoBase64);
-      await sendWAPDF(msg.chatId || msg.phone, buffer, filename);
+      const url = await uploadPDFToCloudinary(buffer, filename);
+      await sendWAText(msg.chatId || msg.phone, `*${replyPdfData.titulo || 'Reporte'}* en PDF:\n${url}`);
     } catch (e) {
       console.error('[webhook/wa] PDF error:', e.message, '— enviando reporte como texto');
       try {

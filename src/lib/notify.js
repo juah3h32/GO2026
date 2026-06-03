@@ -3,6 +3,8 @@
 import { readCandidateNotifications, touchCandidateNotifLastSent, getWagoConfig } from './analytics-db.js';
 import { existsSync, readFileSync } from 'fs';
 import { join }     from 'path';
+import { createHash } from 'crypto';
+import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 
 // ── Paleta idéntica a ReportGenerator.jsx ────────────────────────────────────
 const ORANGE      = '#FB670B';
@@ -228,63 +230,147 @@ function buildFilename(nombre, puesto) {
   return `Perfil_${safe(nombre)}_${safe(puesto)}.pdf`;
 }
 
-// ── Generar PDF de reporte BotGO ──────────────────────────────────────────────
+// ── Hex → rgb() de pdf-lib ────────────────────────────────────────────────────
+function hexRgb(h) {
+  const n = parseInt(String(h).replace('#', ''), 16);
+  return rgb(((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255);
+}
+
+// Quita caracteres fuera de WinAnsi (emoji, CJK) que romperían pdf-lib.
+function winAnsi(s) {
+  return String(s || '').replace(/[^\x09\x0A\x0D\x20-\xFF]/g, '');
+}
+
+// Ajuste de texto a un ancho máximo, respetando saltos de línea existentes.
+function wrapText(text, font, size, maxW) {
+  const out = [];
+  for (const raw of winAnsi(text).split('\n')) {
+    const words = raw.split(' ');
+    let line = '';
+    for (const w of words) {
+      const test = line ? `${line} ${w}` : w;
+      if (line && font.widthOfTextAtSize(test, size) > maxW) { out.push(line); line = w; }
+      else line = test;
+    }
+    out.push(line);
+  }
+  return out;
+}
+
+// ── Generar PDF de reporte BotGO (pdf-lib, sin Chrome → corre en serverless) ──
 export async function generateReportPDF(pdfData, logoBase64) {
   const { titulo, periodo, stats = [], extra = '', extra2 = '' } = pdfData;
-  const logoHtml = logoBase64
-    ? `<img src="${logoBase64}" alt="Logo" style="width:36px;height:36px;object-fit:contain;">`
-    : `<span style="font-family:'Barlow Condensed',Helvetica,sans-serif;font-size:22px;font-weight:900;color:${WHITE};letter-spacing:-0.05em;">GO</span>`;
 
   const now = new Date().toLocaleString('es-MX', {
     timeZone: 'America/Mexico_City', day:'2-digit', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit',
   });
 
-  const statCards = stats.map(s => `
-    <div style="background:${BG};border-radius:10px;padding:14px 16px;text-align:center;">
-      <div style="font-family:'Barlow',sans-serif;font-size:7px;font-weight:700;letter-spacing:0.20em;text-transform:uppercase;color:${GRAY_LIGHT};margin-bottom:6px;">${esc(s.label)}</div>
-      <div style="font-family:'DM Mono','Courier New',monospace;font-size:22px;font-weight:700;color:${BLACK};">${esc(s.value)}</div>
-    </div>`).join('');
+  const doc  = await PDFDocument.create();
+  const page = doc.addPage([595.28, 841.89]); // A4
+  const { width, height } = page.getSize();
+  const font = await doc.embedFont(StandardFonts.Helvetica);
+  const bold = await doc.embedFont(StandardFonts.HelveticaBold);
+  const mono = await doc.embedFont(StandardFonts.Courier);
 
-  const extraHtml = extra ? `
-    <div style="background:${WHITE};border-radius:12px;border:1px solid ${CREAM_DARK};padding:16px 20px;margin-top:12px;">
-      <div style="font-size:7px;font-weight:700;letter-spacing:0.20em;text-transform:uppercase;color:${GRAY_LIGHT};margin-bottom:10px;">Productos top</div>
-      <pre style="font-family:'Barlow',sans-serif;font-size:12px;color:${BLACK};white-space:pre-wrap;margin:0;">${esc(extra)}</pre>
-    </div>` : '';
+  const M = 40;
+  let y = height - M;
 
-  const extra2Html = extra2 ? `
-    <div style="background:${WHITE};border-radius:12px;border:1px solid ${CREAM_DARK};padding:16px 20px;margin-top:12px;">
-      <div style="font-size:7px;font-weight:700;letter-spacing:0.20em;text-transform:uppercase;color:${GRAY_LIGHT};margin-bottom:10px;">Búsquedas frecuentes</div>
-      <pre style="font-family:'Barlow',sans-serif;font-size:12px;color:${BLACK};white-space:pre-wrap;margin:0;">${esc(extra2)}</pre>
-    </div>` : '';
+  // ── Header naranja ──
+  const headH = 88;
+  page.drawRectangle({ x: M, y: y - headH, width: width - 2*M, height: headH, color: hexRgb(ORANGE) });
 
-  const html = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
-<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700;800&family=Barlow+Condensed:wght@700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>*{box-sizing:border-box;margin:0;padding:0}@page{size:A4;margin:0}body{font-family:'Barlow',Helvetica,sans-serif;background:${BG};padding:28px;}</style></head><body>
-  <div style="background:linear-gradient(135deg,${ORANGE} 0%,${ORANGE_DARK} 100%);border-radius:14px;padding:22px 24px;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;box-shadow:0 4px 20px rgba(251,103,11,0.28);">
-    <div style="display:flex;align-items:center;gap:14px;">
-      <div style="width:48px;height:48px;background:rgba(255,255,255,0.18);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;">${logoHtml}</div>
-      <div>
-        <div style="font-size:7px;font-weight:700;letter-spacing:0.25em;text-transform:uppercase;color:rgba(255,255,255,0.65);margin-bottom:3px;">BotGO · Grupo Ortiz</div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:900;color:${WHITE};letter-spacing:-0.02em;line-height:1;text-transform:uppercase;">${esc(titulo)}</div>
-        <div style="font-size:12px;color:rgba(255,255,255,0.78);font-weight:500;margin-top:2px;">${esc(periodo)}</div>
-      </div>
-    </div>
-    <div style="background:rgba(255,255,255,0.16);border:1px solid rgba(255,255,255,0.24);border-radius:18px;padding:6px 14px;">
-      <div style="font-size:8px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.85);">${esc(now)}</div>
-    </div>
-  </div>
-  <div style="display:grid;grid-template-columns:repeat(${Math.min(stats.length, 3)},1fr);gap:10px;margin-bottom:4px;">${statCards}</div>
-  ${extraHtml}${extra2Html}
-  <div style="margin-top:14px;display:flex;justify-content:space-between;padding:0 2px;">
-    <span style="font-size:7px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:${GRAY_LIGHT};">BotGO · Grupo Ortiz · Reporte automático</span>
-    <span style="font-size:7px;font-weight:600;color:${GRAY_LIGHT};">${esc(now)}</span>
-  </div>
-</body></html>`;
+  let textX = M + 18;
+  if (logoBase64 && logoBase64.startsWith('data:image/png')) {
+    try {
+      const img = await doc.embedPng(Buffer.from(logoBase64.split(',')[1], 'base64'));
+      const s = 46;
+      page.drawImage(img, { x: M + 18, y: y - headH/2 - s/2, width: s, height: s });
+      textX = M + 18 + s + 14;
+    } catch { /* sin logo */ }
+  }
 
-  const safe = s => (s||'').replace(/[^a-zA-Z0-9]/g,'_').slice(0,20);
+  page.drawText('BOTGO - GRUPO ORTIZ', { x: textX, y: y - 24, size: 7, font: bold, color: rgb(1,1,1) });
+  page.drawText(winAnsi(titulo || 'Reporte').toUpperCase(), { x: textX, y: y - 48, size: 20, font: bold, color: rgb(1,1,1) });
+  if (periodo) page.drawText(winAnsi(periodo), { x: textX, y: y - 66, size: 10, font, color: rgb(1,1,1) });
+  const dw = font.widthOfTextAtSize(winAnsi(now), 8);
+  page.drawText(winAnsi(now), { x: width - M - 14 - dw, y: y - 24, size: 8, font, color: rgb(1,1,1) });
+
+  y -= headH + 26;
+
+  // ── Tarjetas de métricas (grid hasta 3 columnas) ──
+  const cols  = Math.min(stats.length || 1, 3);
+  const gap   = 12;
+  const cardW = (width - 2*M - gap*(cols-1)) / cols;
+  const cardH = 60;
+  stats.forEach((s, i) => {
+    const col = i % cols, row = Math.floor(i / cols);
+    const cx  = M + col*(cardW+gap);
+    const cy  = y - row*(cardH+gap);
+    page.drawRectangle({ x: cx, y: cy - cardH, width: cardW, height: cardH, color: hexRgb(CREAM), borderColor: hexRgb(CREAM_DARK), borderWidth: 1 });
+    page.drawText(winAnsi(s.label).toUpperCase().slice(0,26), { x: cx + 12, y: cy - 21, size: 7, font: bold, color: hexRgb(GRAY_MID) });
+    page.drawText(winAnsi(s.value).slice(0,18),               { x: cx + 12, y: cy - 46, size: 17, font: mono, color: hexRgb(BLACK) });
+  });
+  const rows = Math.ceil((stats.length || 0) / cols) || 0;
+  y -= rows*(cardH+gap) + 14;
+
+  // ── Bloques de texto extra ──
+  const drawBlock = (title, body) => {
+    if (!body) return;
+    const lines  = wrapText(body, font, 11, width - 2*M - 28);
+    const blockH = 32 + lines.length*15 + 10;
+    page.drawRectangle({ x: M, y: y - blockH, width: width - 2*M, height: blockH, color: rgb(1,1,1), borderColor: hexRgb(CREAM_DARK), borderWidth: 1 });
+    page.drawText(winAnsi(title).toUpperCase(), { x: M + 14, y: y - 20, size: 7, font: bold, color: hexRgb(GRAY_MID) });
+    let ly = y - 38;
+    for (const ln of lines) { page.drawText(ln, { x: M + 14, y: ly, size: 11, font, color: hexRgb(GRAY_D) }); ly -= 15; }
+    y -= blockH + 12;
+  };
+  drawBlock('Productos top', extra);
+  drawBlock('Busquedas frecuentes', extra2);
+
+  // ── Footer ──
+  page.drawText('BotGO - Grupo Ortiz - Reporte automatico', { x: M, y: M, size: 7, font, color: hexRgb(GRAY_LIGHT) });
+
+  const bytes    = await doc.save();
+  const safe     = s => (s||'').replace(/[^a-zA-Z0-9]/g,'_').slice(0,20);
   const filename = `Reporte_${safe(titulo)}.pdf`;
-  const buffer   = await generatePDF(html);
-  return { buffer, filename };
+  return { buffer: Buffer.from(bytes), filename };
+}
+
+// ── Subir PDF a Cloudinary (raw) y devolver link directo ─────────────────────
+// Alternativa al envío de documento por WAGO (función de pago).
+// Requiere: PUBLIC_CLOUDINARY_CLOUD_NAME, PUBLIC_CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET.
+export async function uploadPDFToCloudinary(buffer, filename) {
+  const cloudName = process.env.PUBLIC_CLOUDINARY_CLOUD_NAME || import.meta.env?.PUBLIC_CLOUDINARY_CLOUD_NAME;
+  const apiKey    = process.env.PUBLIC_CLOUDINARY_API_KEY    || import.meta.env?.PUBLIC_CLOUDINARY_API_KEY;
+  const apiSecret = process.env.CLOUDINARY_API_SECRET        || import.meta.env?.CLOUDINARY_API_SECRET;
+  if (!cloudName || !apiKey || !apiSecret) throw new Error('Cloudinary no configurado');
+
+  const publicId  = (filename || 'reporte').replace(/\.pdf$/i, '').replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 60);
+  const folder    = 'botgo-reportes';
+  const timestamp = Math.floor(Date.now() / 1000);
+
+  // Firma: params a firmar en orden alfabético (sin file/api_key/resource_type), + api_secret → SHA1
+  const toSign    = `folder=${folder}&public_id=${publicId}&timestamp=${timestamp}`;
+  const signature = createHash('sha1').update(toSign + apiSecret).digest('hex');
+
+  const form = new FormData();
+  form.append('file', new Blob([buffer], { type: 'application/pdf' }), `${publicId}.pdf`);
+  form.append('api_key',   apiKey);
+  form.append('timestamp', String(timestamp));
+  form.append('public_id', publicId);
+  form.append('folder',    folder);
+  form.append('signature', signature);
+
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/raw/upload`, {
+    method: 'POST',
+    body:   form,
+  });
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`Cloudinary HTTP ${res.status}: ${body.slice(0, 160)}`);
+  }
+  const data = await res.json();
+  return data.secure_url;
 }
 
 // ── Resolver credenciales WAGO: DB primero, .env como fallback ───────────────

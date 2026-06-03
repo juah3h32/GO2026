@@ -218,14 +218,14 @@ const TOOLS = [
     type: 'function',
     function: {
       name: 'enviar_reporte_pdf',
-      description: 'Genera y envía un reporte PDF al usuario por WhatsApp. Usar cuando pide explícitamente un reporte, informe o documento. formato=resumen para cifras del periodo; formato=comparativo para comparar contra el periodo anterior.',
+      description: 'Genera y envía el reporte PDF ejecutivo (el mismo del panel) al usuario por WhatsApp con link de descarga. Usar cuando pide un reporte, informe o documento. formato=resumen para el panorama del periodo; formato=comparativo para comparar contra el periodo anterior. periodo=mes con mes/anio para un mes específico (ej. "el reporte de mayo" → mes=5; "del mes pasado" → el mes anterior al actual).',
       parameters: {
         type: 'object',
         properties: {
           periodo: { type: 'string', enum: ['hoy','semana','mes','historico'] },
           formato: { type: 'string', enum: ['resumen','comparativo'] },
-          mes:  { type: 'integer' },
-          anio: { type: 'integer' },
+          mes:  { type: 'integer', description: 'Número de mes 1-12 si periodo=mes' },
+          anio: { type: 'integer', description: 'Año si periodo=mes (por defecto el actual)' },
         },
         required: ['periodo','formato'],
       },
@@ -430,46 +430,31 @@ async function ejecutarTool(name, args, ctx) {
   }
 
   if (name === 'enviar_reporte_pdf') {
-    const data = await readAllData();
-    const rA = rangoPeriodo(args.periodo, args.mes, args.anio);
+    // Genera el MISMO PDF ejecutivo del panel (resumen o comparativo), filtrado por
+    // periodo. La generación real (buildReportHTML + Puppeteer) la hace /api/reports/send-now
+    // vía el webhook; aquí solo definimos qué reporte y qué rango.
+    const comparativo = args.formato === 'comparativo';
+    const report_type = comparativo ? 'comparativo' : 'resumen';
 
-    if (args.formato === 'comparativo') {
-      const rB = rangoAnterior(args.periodo === 'historico' ? 'mes' : args.periodo, args.mes, args.anio);
-      const a = sumarRango(data.daily, rA.desde, rA.hasta);
-      const b = sumarRango(data.daily, rB.desde, rB.hasta);
-      ctx.pdfData = {
-        titulo: `Comparativo ${rA.label}`,
-        periodo: `${rA.label} vs ${rB.label}`,
-        stats: [
-          { label: 'Sesiones',  value: `${fmt(a.sessions)} (${delta(a.sessions,b.sessions)})` },
-          { label: 'Mensajes',  value: `${fmt(a.messages)} (${delta(a.messages,b.messages)})` },
-          { label: 'Leads WA',  value: `${fmt(a.wa)} (${delta(a.wa,b.wa)})` },
-          { label: 'PDFs',      value: `${fmt(a.pdf)} (${delta(a.pdf,b.pdf)})` },
-          { label: `${rB.label}`, value: `${fmt(b.messages)} msgs` },
-        ],
-        extra: `Periodo actual: ${rA.label} (${a.dias} días)\nPeriodo anterior: ${rB.label} (${b.dias} días)`,
-      };
-      return { ok: true, pdf: 'comparativo generado', detalle: ctx.pdfData.periodo };
+    let period = 'all', period_from = null, period_to = null, label = 'Histórico completo';
+    if (args.periodo === 'hoy')         { period = 'today'; label = 'Hoy'; }
+    else if (args.periodo === 'semana') { period = '7d';    label = 'Últimos 7 días'; }
+    else if (args.periodo === 'mes')    {
+      const r = rangoPeriodo('mes', args.mes, args.anio);
+      period = 'custom'; period_from = r.desde; period_to = r.hasta; label = r.label;
+    } else if (comparativo) {
+      // El comparativo necesita un rango concreto para calcular el periodo anterior.
+      const r = rangoPeriodo('mes');
+      period = 'custom'; period_from = r.desde; period_to = r.hasta; label = r.label;
     }
 
-    // resumen
-    const s = args.periodo === 'historico'
-      ? { sessions: data.totalSessions, messages: data.totalMessages, wa: data.totalWhatsApp, pdf: data.totalPDFs, dias: Object.keys(data.daily).length }
-      : sumarRango(data.daily, rA.desde, rA.hasta);
-    const topProd = Object.entries(data.products).slice(0, 5).map(([n,c]) => `${n}: ${c}`).join('\n');
-    ctx.pdfData = {
-      titulo: `Reporte ${rA.label}`,
-      periodo: `${rA.label} · ${s.dias} días con actividad`,
-      stats: [
-        { label: 'Sesiones', value: fmt(s.sessions) },
-        { label: 'Mensajes', value: fmt(s.messages) },
-        { label: 'Leads WhatsApp', value: fmt(s.wa) },
-        { label: 'PDFs enviados', value: fmt(s.pdf) },
-        { label: 'Promedio diario', value: s.dias ? `${Math.round(s.messages/s.dias)} msg/día` : '0' },
-      ],
-      extra: topProd ? `Productos top:\n${topProd}` : '',
+    ctx.reportRequest = { report_type, period, period_from, period_to };
+    return {
+      ok: true,
+      generando: report_type,
+      periodo: label,
+      nota: 'El reporte PDF se está generando y se enviará por WhatsApp con su link de descarga. Confírmaselo al usuario en una línea breve.',
     };
-    return { ok: true, pdf: 'resumen generado', detalle: rA.label };
   }
 
   return { error: 'tool desconocida' };
@@ -524,7 +509,7 @@ export async function ejecutarAsistente(texto, permsArray, phone) {
   if (!apiKey) return null; // sin API key → caller usa fallback de comandos
 
   const perms = permsArray || [];
-  const ctx = { pdfData: null, perms };
+  const ctx = { pdfData: null, reportRequest: null, perms };
 
   const messages = [
     { role: 'system', content: systemPrompt(perms) },
@@ -568,11 +553,11 @@ export async function ejecutarAsistente(texto, permsArray, phone) {
 
     // Respuesta final — normalizar formato a WhatsApp (** → *, ### → nada)
     const text = waFormat((msg.content || '').trim());
-    if (!text && !ctx.pdfData) return null;
-    return { text: text || 'Aquí tienes tu reporte.', pdfData: ctx.pdfData };
+    if (!text && !ctx.pdfData && !ctx.reportRequest) return null;
+    return { text: text || 'Aquí tienes tu reporte.', pdfData: ctx.pdfData, reportRequest: ctx.reportRequest };
   }
 
-  return { text: 'No pude completar la consulta, intenta de nuevo.', pdfData: ctx.pdfData };
+  return { text: 'No pude completar la consulta, intenta de nuevo.', pdfData: ctx.pdfData, reportRequest: ctx.reportRequest };
 }
 
 // Convierte markdown estándar al formato de WhatsApp

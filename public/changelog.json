@@ -1,6 +1,134 @@
 {
   "commits": [
     {
+      "hash": "54031ed",
+      "date": "2026-06-03",
+      "message": "producto de interés en distribuidores + envío anti-spam",
+      "rawMessage": "feat: producto de interés en distribuidores + envío anti-spam",
+      "type": "feat",
+      "area": "Productos"
+    },
+    {
+      "hash": "bdd6581",
+      "date": "2026-06-03",
+      "message": "contexto Grupo Ortiz + indicador \"escribiendo…\" en el asistente",
+      "rawMessage": "feat: contexto Grupo Ortiz + indicador \"escribiendo…\" en el asistente",
+      "type": "feat",
+      "area": "General"
+    },
+    {
+      "hash": "25b2d84",
+      "date": "2026-06-03",
+      "message": "filtros de fecha en postulaciones y consistencia total",
+      "rawMessage": "feat: filtros de fecha en postulaciones y consistencia total",
+      "type": "feat",
+      "area": "General"
+    },
+    {
+      "hash": "078c5b8",
+      "date": "2026-06-03",
+      "message": "filtros de fecha exactos en consultas de registros",
+      "rawMessage": "feat: filtros de fecha exactos en consultas de registros",
+      "type": "feat",
+      "area": "General"
+    },
+    {
+      "hash": "4e09d66",
+      "date": "2026-06-03",
+      "message": "asistente con control total de métricas y postulaciones",
+      "rawMessage": "feat: asistente con control total de métricas y postulaciones",
+      "type": "feat",
+      "area": "General"
+    },
+    {
+      "hash": "e12360f",
+      "date": "2026-06-03",
+      "message": "resolver número real desde remoteJidAlt en WhatsApp NOWEB",
+      "rawMessage": "fix: resolver número real desde remoteJidAlt en WhatsApp NOWEB",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "0079795",
+      "date": "2026-06-03",
+      "message": "responder a chatId @lid de WhatsApp NOWEB",
+      "rawMessage": "fix: responder a chatId @lid de WhatsApp NOWEB",
+      "type": "fix",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "94d5daf",
+      "date": "2026-06-03",
+      "message": "soporte motor WAHA NOWEB (reemplaza Evolution por bug pre-key)",
+      "rawMessage": "feat: soporte motor WAHA NOWEB (reemplaza Evolution por bug pre-key)",
+      "type": "feat",
+      "area": "General"
+    },
+    {
+      "hash": "87f62b8",
+      "date": "2026-06-02",
+      "message": "categorías habilitan consultas + enforcement de permisos en código",
+      "rawMessage": "feat: categorías habilitan consultas + enforcement de permisos en código",
+      "type": "feat",
+      "area": "General"
+    },
+    {
+      "hash": "2175b79",
+      "date": "2026-06-02",
+      "message": "notificaciones automáticas por categoría a números autorizados",
+      "rawMessage": "feat: notificaciones automáticas por categoría a números autorizados",
+      "type": "feat",
+      "area": "General"
+    },
+    {
+      "hash": "4650650",
+      "date": "2026-06-02",
+      "message": "fallback de reporte a texto cuando el PDF falla",
+      "rawMessage": "feat: fallback de reporte a texto cuando el PDF falla",
+      "type": "feat",
+      "area": "Media"
+    },
+    {
+      "hash": "23ddc16",
+      "date": "2026-06-02",
+      "message": "fix(seguridad): bot público nunca da reportes ni datos internos",
+      "rawMessage": "fix(seguridad): bot público nunca da reportes ni datos internos",
+      "type": "fix",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "e2bb533",
+      "date": "2026-06-02",
+      "message": "consultas de admins por WhatsApp no cuentan en métricas",
+      "rawMessage": "fix: consultas de admins por WhatsApp no cuentan en métricas",
+      "type": "fix",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "8fa9f26",
+      "date": "2026-06-02",
+      "message": "normalizar números mexicanos a JID 521+10 dígitos",
+      "rawMessage": "fix: normalizar números mexicanos a JID 521+10 dígitos",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "7d40697",
+      "date": "2026-06-02",
+      "message": "asistente IA por WhatsApp para números autorizados",
+      "rawMessage": "feat: asistente IA por WhatsApp para números autorizados",
+      "type": "feat",
+      "area": "General"
+    },
+    {
+      "hash": "d32728e",
+      "date": "2026-06-02",
+      "message": "integración WAGO completa — webhook, comandos privados y config en DB",
+      "rawMessage": "feat: integración WAGO completa — webhook, comandos privados y config en DB",
+      "type": "feat",
+      "area": "General"
+    },
+    {
       "hash": "3c826bd",
       "date": "2026-05-30",
       "message": "fallback texto cuando send-document falla en NOWEB engine",
@@ -1266,54 +1394,55 @@
     }
   ],
   "stats": {
-    "total": 158,
+    "total": 174,
     "byType": {
-      "fix": 30,
-      "feat": 8,
+      "feat": 19,
+      "fix": 35,
       "chore": 1,
       "perf": 2,
       "update": 7,
       "release": 110
     },
     "byArea": {
-      "Media": 11,
-      "General": 131,
-      "Productos": 13,
-      "Admin/API": 1,
+      "Productos": 14,
+      "General": 142,
+      "Admin/API": 4,
+      "Media": 12,
       "i18n": 2
     },
     "byMonth": {
+      "2026-06": 16,
       "2026-05": 33,
       "2026-04": 29,
       "2026-03": 96
     },
     "byAreaType": {
-      "Media": {
-        "fix": 8,
-        "perf": 1,
-        "feat": 1,
-        "update": 1
-      },
-      "General": {
-        "fix": 16,
-        "update": 4,
-        "release": 110,
-        "feat": 1
-      },
       "Productos": {
-        "feat": 6,
+        "feat": 7,
         "fix": 3,
         "chore": 1,
         "perf": 1,
         "update": 2
       },
+      "General": {
+        "feat": 10,
+        "fix": 18,
+        "update": 4,
+        "release": 110
+      },
       "Admin/API": {
-        "fix": 1
+        "fix": 4
+      },
+      "Media": {
+        "feat": 2,
+        "fix": 8,
+        "perf": 1,
+        "update": 1
       },
       "i18n": {
         "fix": 2
       }
     }
   },
-  "generatedAt": "2026-06-02T17:24:06.121Z"
+  "generatedAt": "2026-06-03T17:59:27.384Z"
 }
