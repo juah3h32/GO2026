@@ -1,6 +1,14 @@
 {
   "commits": [
     {
+      "hash": "be747b4",
+      "date": "2026-06-03",
+      "message": "cifrar tambien telefono en wa_incoming; migrar 101 mensajes historicos",
+      "rawMessage": "feat: cifrar tambien telefono en wa_incoming; migrar 101 mensajes historicos",
+      "type": "feat",
+      "area": "General"
+    },
+    {
       "hash": "9b7fec5",
       "date": "2026-06-03",
       "message": "corregir .gitignore — videos no deben subirse (revive error 250MB vercel)",
@@ -1482,41 +1490,41 @@
     }
   ],
   "stats": {
-    "total": 185,
+    "total": 186,
     "byType": {
+      "feat": 25,
       "fix": 40,
-      "feat": 24,
       "chore": 2,
       "perf": 2,
       "update": 7,
       "release": 110
     },
     "byArea": {
+      "General": 148,
       "Media": 16,
-      "General": 147,
       "i18n": 3,
       "Productos": 15,
       "Admin/API": 4
     },
     "byMonth": {
-      "2026-06": 27,
+      "2026-06": 28,
       "2026-05": 33,
       "2026-04": 29,
       "2026-03": 96
     },
     "byAreaType": {
+      "General": {
+        "feat": 14,
+        "chore": 1,
+        "fix": 19,
+        "update": 4,
+        "release": 110
+      },
       "Media": {
         "fix": 12,
         "feat": 2,
         "perf": 1,
         "update": 1
-      },
-      "General": {
-        "feat": 13,
-        "chore": 1,
-        "fix": 19,
-        "update": 4,
-        "release": 110
       },
       "i18n": {
         "feat": 1,
@@ -1534,5 +1542,5 @@
       }
     }
   },
-  "generatedAt": "2026-06-03T19:16:21.131Z"
+  "generatedAt": "2026-06-03T19:38:52.722Z"
 }

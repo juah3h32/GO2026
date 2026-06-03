@@ -2240,9 +2240,22 @@ function WAWebhookTab({ P, isMobile }) {
     setAuthLoading(false);
   }
 
+  // Auto-poll: jala mensajes nuevos de WhatsApp y refresca la lista.
+  // Fallback en vivo mientras el dashboard está abierto (la cola push de WAHooks
+  // puede no entregar; este pull garantiza que el bot responda).
+  async function pollWhatsApp() {
+    try {
+      await fetch('/api/webhook/wa-poll', { method: 'POST', credentials: 'include' });
+    } catch {}
+    loadMsgs();
+  }
+
   useEffect(() => {
-    if (subTab === 'conexion') { loadMsgs(); loadAuthorized(); }
-    else if (subTab === 'numeros') loadAuthorized();
+    if (subTab === 'conexion') {
+      loadMsgs(); loadAuthorized();
+      const itv = setInterval(pollWhatsApp, 12000);
+      return () => clearInterval(itv);
+    } else if (subTab === 'numeros') loadAuthorized();
   }, [subTab]);
 
   async function handleSend(e) {

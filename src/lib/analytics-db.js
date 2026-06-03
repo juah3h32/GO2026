@@ -953,6 +953,16 @@ export async function saveWAIncoming({ phone, body, msgId = '' }) {
   return r.lastInsertRowid;
 }
 
+export async function waIncomingExistsByMsgId(msgId) {
+  if (!msgId) return false;
+  await ensureInit();
+  const r = await db.execute({
+    sql:  `SELECT 1 FROM wa_incoming WHERE msg_id=? LIMIT 1`,
+    args: [String(msgId)],
+  });
+  return r.rows.length > 0;
+}
+
 export async function updateWAIncomingReply(id, botReply) {
   await ensureInit();
   await db.execute({

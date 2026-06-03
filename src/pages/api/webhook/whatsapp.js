@@ -26,7 +26,7 @@ function freshTimestamp(ts) {
 }
 import { existsSync, readFileSync } from 'node:fs';
 import { join }       from 'node:path';
-import { saveWAIncoming, updateWAIncomingReply, getWAAuthorizedByPhone, getWagoConfig } from '../../../lib/analytics-db.js';
+import { saveWAIncoming, updateWAIncomingReply, getWAAuthorizedByPhone, getWagoConfig, waIncomingExistsByMsgId } from '../../../lib/analytics-db.js';
 import { sendWAText, generateReportPDF, uploadPDFToCloudinary, sendTyping } from '../../../lib/notify.js';
 import { ejecutarComando } from '../../../lib/wa-commands.js';
 import { ejecutarAsistente } from '../../../lib/wa-assistant.js';
@@ -117,6 +117,28 @@ export async function POST({ request }) {
     return new Response(JSON.stringify({ ok: true, ignored: true }), { headers: { 'Content-Type': 'application/json' } });
   }
 
+  const host     = request.headers.get('host') || 'localhost:4321';
+  const protocol = host.includes('localhost') ? 'http' : 'https';
+  let   origin   = process.env.PUBLIC_SITE_URL || `${protocol}://${host}`;
+  const portMatch = host.match(/:(\d+)$/);
+  if (portMatch && !process.env.PUBLIC_SITE_URL) origin = `http://127.0.0.1:${portMatch[1]}`;
+
+  await handleIncomingMessage(msg, origin);
+  return new Response(JSON.stringify({ ok: true }), { headers: { 'Content-Type': 'application/json' } });
+}
+
+// ── Procesa un mensaje entrante: guarda, responde (IA/chatbot), envía, reportes ──
+// Reutilizado por el webhook (push) y por wa-poll (pull, fallback si WAHooks no entrega).
+// Dedup por msgId: si ya se procesó, no responde de nuevo.
+export async function handleIncomingMessage(msg, origin) {
+  if (!msg || msg.fromMe || !msg.body) return;
+
+  // Dedup: evita responder dos veces el mismo mensaje (webhook + poll).
+  if (msg.msgId) {
+    const seen = await waIncomingExistsByMsgId(msg.msgId).catch(() => false);
+    if (seen) return;
+  }
+
   // Guardar mensaje entrante
   let savedId;
   try { savedId = await saveWAIncoming(msg); } catch (e) { console.error('[webhook/wa] DB:', e.message); }
@@ -160,10 +182,6 @@ export async function POST({ request }) {
   } else {
     // ── BotGO (chatbot de clientes) ──────────────────────────────────────────
     try {
-      const host     = request.headers.get('host') || 'localhost:4321';
-      const protocol = host.includes('localhost') ? 'http' : 'https';
-      const origin   = process.env.PUBLIC_SITE_URL || `${protocol}://${host}`;
-
       const chatRes = await fetch(`${origin}/api/chat`, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -198,13 +216,6 @@ export async function POST({ request }) {
   // Cloudinary y se comparte el link. Filtra por el periodo que pidió el usuario.
   if (replyReportRequest && authorized) {
     try {
-      const host     = request.headers.get('host') || 'localhost:4321';
-      const protocol = host.includes('localhost') ? 'http' : 'https';
-      let   origin   = process.env.PUBLIC_SITE_URL || `${protocol}://${host}`;
-      // Self-call robusto: si el host trae puerto (dev/local, incl. host.docker.internal
-      // que el proceso node del host NO resuelve), usar loopback al mismo puerto.
-      const portMatch = host.match(/:(\d+)$/);
-      if (portMatch && !process.env.PUBLIC_SITE_URL) origin = `http://127.0.0.1:${portMatch[1]}`;
       const secret   = process.env.CRON_SECRET_EXTERNAL || import.meta.env?.CRON_SECRET_EXTERNAL || '';
 
       const r = await fetch(`${origin}/api/reports/send-now`, {
@@ -248,12 +259,10 @@ export async function POST({ request }) {
       } catch (e2) { console.error('[webhook/wa] Fallback texto error:', e2.message); }
     }
   }
-
-  return new Response(JSON.stringify({ ok: true }), { headers: { 'Content-Type': 'application/json' } });
 }
 
 // ── Parsear distintos formatos de webhook ─────────────────────────────────────
-function parseIncoming(body) {
+export function parseIncoming(body) {
   const evt = body?.event || body?.eventType || '';
 
   // WAGA normalizado: { event:'message', payload:{ key:{remoteJid,fromMe}, message:{conversation} } }
@@ -294,6 +303,6 @@ function parseIncoming(body) {
   return { phone: cleanPhone(String(from)), body: String(text), fromMe: !!(body?.fromMe || body?.message?.fromMe), msgId: body?.id || '', timestamp: body?.timestamp || 0 };
 }
 
-function cleanPhone(raw) {
+export function cleanPhone(raw) {
   return raw.replace('@s.whatsapp.net', '').replace('@c.us', '').replace(/\D/g, '');
 }
