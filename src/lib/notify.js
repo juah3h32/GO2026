@@ -436,14 +436,29 @@ async function sendViaWaha(cfg, phone, message) {
 // ── Indicador "escribiendo…" — el usuario ve que el asistente está trabajando ─
 export async function sendTyping(phone, on = true) {
   const cfg = wahaConfig();
-  if (!cfg) return; // solo WAHA soporta presencia de forma simple
-  const chatId = toWahaChatId(phone);
-  const endpoint = on ? 'startTyping' : 'stopTyping';
+  if (cfg) {
+    const chatId = toWahaChatId(phone);
+    const endpoint = on ? 'startTyping' : 'stopTyping';
+    try {
+      await fetch(`${cfg.url}/api/${endpoint}`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Api-Key': cfg.apiKey },
+        body:    JSON.stringify({ session: cfg.session, chatId }),
+      });
+    } catch { /* no crítico */ }
+    return;
+  }
+
+  // WAHooks/WAGO: POST /api/connections/{id}/typing | /typing/stop
+  const creds = await resolveWagoCredentials();
+  if (!creds) return;
+  const chatId = String(phone).includes('@') ? String(phone) : toWhatsAppJid(phone);
+  const endpoint = on ? 'typing' : 'typing/stop';
   try {
-    await fetch(`${cfg.url}/api/${endpoint}`, {
+    await fetch(`${creds.url}/api/connections/${creds.connectionId}/${endpoint}`, {
       method:  'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Api-Key': cfg.apiKey },
-      body:    JSON.stringify({ session: cfg.session, chatId }),
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${creds.token}` },
+      body:    JSON.stringify({ chatId }),
     });
   } catch { /* no crítico */ }
 }

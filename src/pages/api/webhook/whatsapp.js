@@ -45,12 +45,12 @@ export async function POST({ request }) {
   const usingWaha = !!(process.env.WAHA_URL || import.meta.env?.WAHA_URL);
   let body;
 
-  const wagoSig  = request.headers.get('x-wago-signature');
+  // WAGO y WAHooks usan el mismo esquema: sha256=HMAC(secret, "${timestamp}.${rawBody}")
+  const wagoSig  = request.headers.get('x-wago-signature') || request.headers.get('x-wahooks-signature');
   const wahaHmac = request.headers.get('x-webhook-hmac');
 
   if (secret && wagoSig) {
-    // WAGO HMAC-SHA256: sha256=HMAC(secret, "${timestamp}.${rawBody}")
-    const wagoTs = request.headers.get('x-wago-timestamp') || '';
+    const wagoTs = request.headers.get('x-wago-timestamp') || request.headers.get('x-wahooks-timestamp') || '';
     let rawText;
     try { rawText = await request.text(); }
     catch { return new Response('Bad Request', { status: 400 }); }
@@ -235,7 +235,7 @@ function parseIncoming(body) {
 
   // WAGA normalizado: { event:'message', payload:{ key:{remoteJid,fromMe}, message:{conversation} } }
   // Formato Evolution API reescrito por WAGO events.controller
-  if ((evt === 'message' || evt === 'MESSAGES_UPSERT') && body?.payload) {
+  if ((evt === 'message' || evt === 'message.received' || evt === 'MESSAGES_UPSERT') && body?.payload) {
     const p = body.payload;
 
     // Evolution API via WAGO (rewritten payload): payload.key.remoteJid, payload.message.conversation
