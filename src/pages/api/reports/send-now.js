@@ -12,6 +12,9 @@ import { join }                                              from 'path';
 
 export const prerender = false;
 
+// User-Agent navegador: el WAF de WAHooks bloquea fetch sin UA desde Vercel.
+const BROWSER_UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36';
+
 
 // ── Filtrar datos por rango (igual que analytics.js) ─────────────────────────
 function filterByDateRange(data, from, to, leads = []) {
@@ -147,23 +150,28 @@ const LOCAL_CHROME = [
 async function getBrowserConfig() {
   const isServerless = !!(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
   if (isServerless) {
-    // chromium no disponible en este entorno
-    throw new Error("PDF generation not available in production");
+    // Chromium serverless (@sparticuz/chromium) — renderiza el MISMO HTML del panel.
+    const chromium = (await import('@sparticuz/chromium')).default;
+    return {
+      executablePath: await chromium.executablePath(),
+      args: [...chromium.args, '--no-sandbox', '--disable-setuid-sandbox'],
+      headless: chromium.headless,
+    };
   }
   const fromEnv = process.env.CHROME_PATH;
-  if (fromEnv && existsSync(fromEnv)) return { executablePath: fromEnv, args: ['--no-sandbox', '--disable-setuid-sandbox'] };
+  if (fromEnv && existsSync(fromEnv)) return { executablePath: fromEnv, args: ['--no-sandbox', '--disable-setuid-sandbox'], headless: true };
   for (const p of LOCAL_CHROME) {
-    if (existsSync(p)) return { executablePath: p, args: ['--no-sandbox', '--disable-setuid-sandbox'] };
+    if (existsSync(p)) return { executablePath: p, args: ['--no-sandbox', '--disable-setuid-sandbox'], headless: true };
   }
   throw new Error('Chrome no encontrado. Define la variable CHROME_PATH o instala Google Chrome.');
 }
 
 // ── Generar PDF con Puppeteer ─────────────────────────────────────────────────
 async function generatePDF(html) {
-  const { executablePath, args } = await getBrowserConfig();
+  const { executablePath, args, headless } = await getBrowserConfig();
   let browser;
   try {
-    const puppeteer = (await import('puppeteer-core')).default; browser = await puppeteer.launch({ executablePath, args, headless: true });
+    const puppeteer = (await import('puppeteer-core')).default; browser = await puppeteer.launch({ executablePath, args, headless });
     const page = await browser.newPage();
     await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 2 });
     // networkidle2 es más rápido que networkidle0 y suficiente para renderizar fuentes
@@ -189,7 +197,7 @@ async function sendTextViaWAGO(url, token, connectionId, chatId, text) {
   try {
     const res = await fetch(`${url}/api/connections/${connectionId}/send`, {
       method:  'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      headers: { 'Content-Type': 'application/json', 'User-Agent': BROWSER_UA, 'Authorization': `Bearer ${token}` },
       body:    JSON.stringify({ chatId, text }),
       signal:  ctrl.signal,
     });
@@ -230,7 +238,7 @@ async function sendPDFViaWAGO(phone, pdfBuffer, filename) {
     const t = setTimeout(() => ctrl.abort(), 10_000);
     const res = await fetch(`${url}/api/connections/${connectionId}/send-document`, {
       method:  'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      headers: { 'Content-Type': 'application/json', 'User-Agent': BROWSER_UA, 'Authorization': `Bearer ${token}` },
       body:    JSON.stringify({ chatId, data, mimetype: 'application/pdf', filename }),
       signal:  ctrl.signal,
     });
