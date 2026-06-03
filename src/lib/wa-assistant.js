@@ -160,6 +160,27 @@ const TOOLS = [
   {
     type: 'function',
     function: {
+      name: 'postulaciones_por_vacante',
+      description: 'Cuántas postulaciones tiene cada vacante/puesto, ordenadas de más a menos. Para "¿qué vacante tiene más postulaciones?", "¿cuál es la más solicitada?". Si se pasa puesto, lista los candidatos registrados a ese puesto.',
+      parameters: {
+        type: 'object',
+        properties: {
+          puesto: { type: 'string', description: 'Opcional: nombre del puesto para ver quiénes se registraron a esa vacante específica.' },
+        },
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'metricas_dashboard',
+      description: 'Panorama COMPLETO del dashboard: totales, productos más consultados, búsquedas frecuentes, distribución de intenciones (compra/info/pdf/empleo), horas pico de actividad, totales de candidatos y distribuidores. Para "dame el control total", "cómo va todo", "panorama general", "todas las métricas".',
+      parameters: { type: 'object', properties: {} },
+    },
+  },
+  {
+    type: 'function',
+    function: {
       name: 'enviar_reporte_pdf',
       description: 'Genera y envía un reporte PDF al usuario por WhatsApp. Usar cuando pide explícitamente un reporte, informe o documento. formato=resumen para cifras del periodo; formato=comparativo para comparar contra el periodo anterior.',
       parameters: {
@@ -182,9 +203,11 @@ const TOOL_PERMS = {
   comparar_periodos:           'reports',
   enviar_reporte_pdf:          'reports',
   obtener_candidatos:          'candidates',
+  postulaciones_por_vacante:   'candidates',
   obtener_vacantes:            'vacantes',
   obtener_distribuidores:      'distribuidores',
   obtener_consultas_recientes: 'messages',
+  metricas_dashboard:          'reports',
 };
 
 // ── Ejecución de tools ────────────────────────────────────────────────────────
@@ -282,6 +305,76 @@ async function ejecutarTool(name, args, ctx) {
     };
   }
 
+  if (name === 'postulaciones_por_vacante') {
+    const leads = (await readRecruitmentLeads()) || [];
+    // Agrupar por puesto
+    const conteo = {};
+    for (const c of leads) {
+      const p = (c.puesto || 'Sin especificar').trim();
+      if (!conteo[p]) conteo[p] = [];
+      conteo[p].push(c);
+    }
+    const ranking = Object.entries(conteo)
+      .map(([puesto, cands]) => ({ puesto, postulaciones: cands.length }))
+      .sort((a, b) => b.postulaciones - a.postulaciones);
+
+    // Si pidió un puesto específico, listar los candidatos
+    if (args.puesto) {
+      const f = String(args.puesto).toLowerCase();
+      const match = Object.entries(conteo).find(([p]) => p.toLowerCase().includes(f));
+      if (!match) return { puesto: args.puesto, postulaciones: 0, candidatos: [], nota: 'Sin postulaciones para ese puesto' };
+      return {
+        puesto: match[0],
+        postulaciones: match[1].length,
+        candidatos: match[1].slice(0, 15).map(c => ({
+          nombre: c.nombre, estatus: c.status || 'nuevo',
+          estado: c.estado_rep || c.estado, telefono: c.telefono, email: c.email,
+        })),
+      };
+    }
+
+    return {
+      total_postulaciones: leads.length,
+      vacante_mas_solicitada: ranking[0] || null,
+      ranking: ranking.slice(0, 12),
+    };
+  }
+
+  if (name === 'metricas_dashboard') {
+    const data = await readAllData();
+    const leads = (await readRecruitmentLeads()) || [];
+    const distrib = (await readLeads()) || [];
+    const vac = await readVacantes(true);
+
+    const topProd = Object.entries(data.products || {}).sort(([,a],[,b])=>b-a).slice(0,8).map(([n,c])=>`${n}: ${c}`);
+    const topKw   = Object.entries(data.keywords || {}).sort(([,a],[,b])=>b-a).slice(0,8).map(([n,c])=>`${n}: ${c}`);
+    // Hora pico
+    const horas = data.hourly || [];
+    const horaPico = horas.length ? horas.indexOf(Math.max(...horas)) : null;
+    // Postulaciones por puesto (top 3)
+    const conteoPuesto = {};
+    for (const c of leads) { const p=(c.puesto||'?').trim(); conteoPuesto[p]=(conteoPuesto[p]||0)+1; }
+    const topVacantes = Object.entries(conteoPuesto).sort(([,a],[,b])=>b-a).slice(0,3).map(([p,n])=>`${p}: ${n}`);
+    // Candidatos nuevos sin revisar
+    const nuevos = leads.filter(c => (c.status||'nuevo').toLowerCase()==='nuevo').length;
+
+    return {
+      totales: {
+        sesiones: data.totalSessions, mensajes: data.totalMessages,
+        leads_whatsapp: data.totalWhatsApp, pdfs: data.totalPDFs,
+      },
+      reclutamiento: {
+        total_candidatos: leads.length, sin_revisar: nuevos,
+        vacantes_activas: vac.length, top_vacantes_solicitadas: topVacantes,
+      },
+      distribuidores: { total: distrib.length },
+      productos_top: topProd,
+      busquedas_top: topKw,
+      intenciones: data.intents,
+      hora_pico: horaPico !== null ? `${horaPico}:00 hrs` : 'sin datos',
+    };
+  }
+
   if (name === 'enviar_reporte_pdf') {
     const data = await readAllData();
     const rA = rangoPeriodo(args.periodo, args.mes, args.anio);
@@ -354,14 +447,19 @@ Tienes acceso a los datos reales del sistema BotGO (el chatbot de la página web
 
 Permisos del usuario: ${JSON.stringify(perms)}. Si pide algo fuera de sus permisos (reports, candidates, vacantes, distribuidores, messages; * = todos), recházalo amablemente.
 
+Tienes acceso a TODO el movimiento de la página: estadísticas de uso, todas las métricas del dashboard, candidatos y postulaciones por vacante, vacantes, distribuidores y consultas de clientes. Eres el centro de control del negocio por WhatsApp.
+
 Reglas:
-- Responde natural y conciso, como un colega eficiente.
-- FORMATO WHATSAPP OBLIGATORIO: negritas con UN asterisco (*texto*), NUNCA dos (**texto** está prohibido). Listas con guion. Sin headers markdown (#).
-- USA las herramientas para responder con datos reales. Nunca inventes cifras.
-- Si piden un "reporte", "informe" o "documento" usa enviar_reporte_pdf. Pregunta el formato solo si es ambiguo; por defecto usa "resumen". "Comparativo" compara contra el periodo anterior.
-- Si piden datos puntuales (¿cuántos mensajes hoy?) responde directo con texto, sin PDF.
-- Puedes resolver dudas generales del negocio con los datos disponibles. Si no tienes el dato, dilo claro.
-- Respuestas cortas: máximo ~8 líneas salvo que pidan detalle.`;
+- Responde natural y profesional, como un analista ejecutivo de confianza.
+- FORMATO WHATSAPP OBLIGATORIO: negritas con UN asterisco (*texto*), NUNCA dos (**texto** prohibido). Listas con guion (-). Sin headers markdown (#). Usa saltos de línea para separar secciones.
+- ESTRUCTURA: empieza con la respuesta directa, luego los datos en lista clara, y cierra con una observación útil o pregunta de seguimiento. Para rankings usa numeración (1., 2., 3.).
+- USA las herramientas para responder con datos reales. JAMÁS inventes cifras.
+- "¿qué vacante tiene más postulaciones?" → postulaciones_por_vacante. "¿quiénes se registraron a X?" → postulaciones_por_vacante con ese puesto.
+- "dame el control total / panorama / cómo va todo" → metricas_dashboard.
+- "reporte/informe/documento" → enviar_reporte_pdf (resumen por defecto, comparativo si lo pide).
+- Datos puntuales (¿cuántos mensajes hoy?) → texto directo, sin PDF.
+- Si combinas varias métricas, organízalas con subtítulos en negrita (ej. *Reclutamiento:*, *Productos:*).
+- Sé conciso pero completo: si piden "todo el control", da un panorama estructurado de varias áreas.`;
 }
 
 // ── Loop principal con OpenAI ─────────────────────────────────────────────────
@@ -412,11 +510,20 @@ export async function ejecutarAsistente(texto, permsArray, phone) {
       continue; // siguiente ronda con resultados
     }
 
-    // Respuesta final
-    const text = (msg.content || '').trim();
+    // Respuesta final — normalizar formato a WhatsApp (** → *, ### → nada)
+    const text = waFormat((msg.content || '').trim());
     if (!text && !ctx.pdfData) return null;
     return { text: text || 'Aquí tienes tu reporte.', pdfData: ctx.pdfData };
   }
 
   return { text: 'No pude completar la consulta, intenta de nuevo.', pdfData: ctx.pdfData };
+}
+
+// Convierte markdown estándar al formato de WhatsApp
+function waFormat(s) {
+  return String(s)
+    .replace(/\*\*\*(.+?)\*\*\*/g, '*$1*')   // ***x*** → *x*
+    .replace(/\*\*(.+?)\*\*/g, '*$1*')        // **x**   → *x*
+    .replace(/^#{1,6}\s*/gm, '')              // headers markdown → nada
+    .replace(/__(.+?)__/g, '*$1*');           // __x__   → *x*
 }
