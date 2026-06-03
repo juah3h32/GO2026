@@ -1,6 +1,14 @@
 {
   "commits": [
     {
+      "hash": "9c80681",
+      "date": "2026-06-03",
+      "message": "polling de WhatsApp como fallback (WAHooks no entrega webhooks)",
+      "rawMessage": "fix: polling de WhatsApp como fallback (WAHooks no entrega webhooks)",
+      "type": "fix",
+      "area": "Media"
+    },
+    {
       "hash": "be747b4",
       "date": "2026-06-03",
       "message": "cifrar tambien telefono en wa_incoming; migrar 101 mensajes historicos",
@@ -1490,41 +1498,41 @@
     }
   ],
   "stats": {
-    "total": 186,
+    "total": 187,
     "byType": {
+      "fix": 41,
       "feat": 25,
-      "fix": 40,
       "chore": 2,
       "perf": 2,
       "update": 7,
       "release": 110
     },
     "byArea": {
+      "Media": 17,
       "General": 148,
-      "Media": 16,
       "i18n": 3,
       "Productos": 15,
       "Admin/API": 4
     },
     "byMonth": {
-      "2026-06": 28,
+      "2026-06": 29,
       "2026-05": 33,
       "2026-04": 29,
       "2026-03": 96
     },
     "byAreaType": {
+      "Media": {
+        "fix": 13,
+        "feat": 2,
+        "perf": 1,
+        "update": 1
+      },
       "General": {
         "feat": 14,
         "chore": 1,
         "fix": 19,
         "update": 4,
         "release": 110
-      },
-      "Media": {
-        "fix": 12,
-        "feat": 2,
-        "perf": 1,
-        "update": 1
       },
       "i18n": {
         "feat": 1,
@@ -1542,5 +1550,5 @@
       }
     }
   },
-  "generatedAt": "2026-06-03T19:38:52.722Z"
+  "generatedAt": "2026-06-03T19:43:33.811Z"
 }

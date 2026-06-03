@@ -13,7 +13,15 @@ const json = (obj, status = 200) =>
 
 // Solo mensajes de los últimos N minutos (evita responder backlog/historial viejo).
 const WINDOW_SEC = 15 * 60;
-const MAX_PER_RUN = 20;
+const MAX_PER_RUN = 5;
+
+// fetch con timeout — WAHooks es intermitente (502/lento); no colgar la función.
+async function fetchT(u, opts = {}, ms = 6000) {
+  const ac = new AbortController();
+  const t = setTimeout(() => ac.abort(), ms);
+  try { return await fetch(u, { ...opts, signal: ac.signal }); }
+  finally { clearTimeout(t); }
+}
 
 async function authOk(request, url) {
   const secret = process.env.CRON_SECRET_EXTERNAL || import.meta.env?.CRON_SECRET_EXTERNAL || '';
@@ -43,7 +51,7 @@ async function run(request, url) {
   // 1. Chats recientes
   let chats;
   try {
-    const r = await fetch(`${base}/chats?limit=20`, { headers });
+    const r = await fetchT(`${base}/chats?limit=20`, { headers });
     if (!r.ok) return json({ ok: false, error: `chats HTTP ${r.status}` }, 502);
     chats = await r.json();
   } catch (e) { return json({ ok: false, error: `chats: ${e.message}` }, 502); }
@@ -63,7 +71,7 @@ async function run(request, url) {
 
     let msgs;
     try {
-      const r = await fetch(
+      const r = await fetchT(
         `${base}/chats/${encodeURIComponent(chatId)}/messages?limit=10&downloadMedia=false`,
         { headers });
       if (!r.ok) continue;

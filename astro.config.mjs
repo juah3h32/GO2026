@@ -13,6 +13,8 @@ export default defineConfig({
   output: 'server',
   adapter: vercel({
     isr: false,
+    // Reportes (Puppeteer) y asistente IA pueden tardar; subir el limite de funcion.
+    maxDuration: 60,
   }),
 
   server: {
