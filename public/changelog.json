@@ -1,6 +1,14 @@
 {
   "commits": [
     {
+      "hash": "8953d5f",
+      "date": "2026-06-03",
+      "message": "reporte WhatsApp identico al dashboard via chromium-min + anti-duplicados",
+      "rawMessage": "feat: reporte WhatsApp identico al dashboard via chromium-min + anti-duplicados",
+      "type": "feat",
+      "area": "Admin/API"
+    },
+    {
       "hash": "f57d005",
       "date": "2026-06-03",
       "message": "reporte PDF en produccion via @sparticuz/chromium (resumen y comparativo del dashboard)",
@@ -1610,9 +1618,9 @@
     }
   ],
   "stats": {
-    "total": 201,
+    "total": 202,
     "byType": {
-      "feat": 27,
+      "feat": 28,
       "fix": 50,
       "update": 10,
       "chore": 2,
@@ -1620,21 +1628,21 @@
       "release": 110
     },
     "byArea": {
-      "Admin/API": 8,
+      "Admin/API": 9,
       "General": 157,
       "Media": 18,
       "i18n": 3,
       "Productos": 15
     },
     "byMonth": {
-      "2026-06": 43,
+      "2026-06": 44,
       "2026-05": 33,
       "2026-04": 29,
       "2026-03": 96
     },
     "byAreaType": {
       "Admin/API": {
-        "feat": 1,
+        "feat": 2,
         "update": 1,
         "fix": 6
       },
@@ -1664,5 +1672,5 @@
       }
     }
   },
-  "generatedAt": "2026-06-03T21:38:43.813Z"
+  "generatedAt": "2026-06-03T21:46:36.566Z"
 }

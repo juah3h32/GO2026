@@ -222,8 +222,8 @@ export async function handleIncomingMessage(msg, origin) {
   }
 
   // ── Reporte ejecutivo COMPLETO (mismo PDF del panel) ────────────────────────
-  // Se genera vía /api/reports/send-now (buildReportHTML + Puppeteer), se sube a
-  // Cloudinary y se comparte el link. Filtra por el periodo que pidió el usuario.
+  // Se genera vía /api/reports/send-now (mismo HTML del dashboard, render Chromium),
+  // se sube a Cloudinary y se ENVÍA EL PDF COMO ARCHIVO (no link). Por periodo pedido.
   if (replyReportRequest && authorized) {
     try {
       const secret   = process.env.CRON_SECRET_EXTERNAL || import.meta.env?.CRON_SECRET_EXTERNAL || '';
@@ -235,7 +235,15 @@ export async function handleIncomingMessage(msg, origin) {
       });
       const d = await r.json();
       if (d.ok && d.url) {
-        await sendWAText(msg.phone || msg.chatId, `Tu reporte en PDF:\n${d.url}`);
+        // Enviar el PDF como documento adjunto (igual que exportado del dashboard).
+        const fname = d.filename || `Reporte_${replyReportRequest.report_type || ''}.pdf`;
+        try {
+          await sendWADocument(msg.phone || msg.chatId, d.url, fname);
+        } catch (docErr) {
+          // Si el envío de documento falla, no perder el reporte: mandar el link.
+          console.error('[webhook/wa] send-document falló, fallback link:', docErr.message);
+          await sendWAText(msg.phone || msg.chatId, `Tu reporte en PDF:\n${d.url}`);
+        }
       } else {
         throw new Error(d.error || 'send-now sin url');
       }
@@ -252,7 +260,11 @@ export async function handleIncomingMessage(msg, origin) {
       const logoBase64 = getLogoBase64();
       const { buffer, filename } = await generateReportPDF(replyPdfData, logoBase64);
       const url = await uploadPDFToCloudinary(buffer, filename);
-      await sendWAText(msg.phone || msg.chatId, `*${replyPdfData.titulo || 'Reporte'}* en PDF:\n${url}`);
+      try {
+        await sendWADocument(msg.phone || msg.chatId, url, filename, `*${replyPdfData.titulo || 'Reporte'}*`);
+      } catch {
+        await sendWAText(msg.phone || msg.chatId, `*${replyPdfData.titulo || 'Reporte'}* en PDF:\n${url}`);
+      }
     } catch (e) {
       console.error('[webhook/wa] PDF error:', e.message, '— enviando reporte como texto');
       try {

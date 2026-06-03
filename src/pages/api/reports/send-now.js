@@ -6,7 +6,7 @@ import { readAllData, readLeads, readRecruitmentLeads }      from '../../../lib/
 import { verifyAdminToken }                                  from '../../../lib/verifyAdminToken.ts';
 import { checkRateLimit, getClientIp }                       from '../../../lib/rateLimit.ts';
 
-import { uploadPDFToCloudinary, generateExecutiveReportPDF } from '../../../lib/notify.js';
+import { uploadPDFToCloudinary }                             from '../../../lib/notify.js';
 import { existsSync, readFileSync }                          from 'fs';
 import { join }                                              from 'path';
 
@@ -483,16 +483,14 @@ INSTRUCCIONES:
     // 3. Generar PDF — Puppeteer en local; pdf-lib en serverless (Chromium no cabe en Vercel)
     let pdfBuffer = null;
     let pdfErrMsg = null;
-    try {
-      pdfBuffer = await generatePDF(html);
-    } catch (pdfErr) {
-      // Chromium falló (p.ej. descarga del pack) → fallback pdf-lib para no quedarnos sin PDF.
-      console.error('[send-now] Chromium falló, fallback pdf-lib:', String(pdfErr).slice(0, 160));
+    // SIEMPRE el reporte del dashboard (buildReportHTML + Chromium). Reintenta una vez
+    // en frío (la primera descarga del binario puede fallar). NO usar otro formato.
+    for (let attempt = 0; attempt < 2 && !pdfBuffer; attempt++) {
       try {
-        pdfBuffer = await generateExecutiveReportPDF({ report_type, periodMeta, data, prevData, scData, analysis, logoBase64 });
-      } catch (e2) {
-        pdfErrMsg = 'PDF: ' + e2.message;
-        console.error('[send-now] Error pdf-lib:', e2);
+        pdfBuffer = await generatePDF(html);
+      } catch (pdfErr) {
+        pdfErrMsg = String(pdfErr).slice(0, 160);
+        console.error(`[send-now] Error PDF (intento ${attempt + 1}):`, pdfErrMsg);
       }
     }
 

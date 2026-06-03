@@ -584,6 +584,23 @@ export async function sendTyping(phone, on = true) {
   } catch { /* no crítico */ }
 }
 
+// ── Enviar un documento PDF directo por su URL (no link de texto) ────────────
+// WAHooks /send-document descarga la URL y entrega el PDF como archivo adjunto.
+export async function sendWADocument(phone, url, filename = 'Reporte.pdf', caption = '') {
+  const creds = await resolveWagoCredentials();
+  if (!creds?.url || !creds?.token || !creds?.connectionId) throw new Error('WAGO no configurado');
+  const chatId = String(phone).includes('@') ? String(phone) : toWhatsAppJid(phone);
+  const res = await fetch(`${creds.url}/api/connections/${creds.connectionId}/send-document`, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json', 'User-Agent': BROWSER_UA, 'Authorization': `Bearer ${creds.token}` },
+    body:    JSON.stringify({ chatId, url, filename, mimetype: 'application/pdf', ...(caption ? { caption } : {}) }),
+  });
+  if (!res.ok) {
+    const b = await res.text().catch(() => '');
+    throw new Error(`send-document HTTP ${res.status}: ${b.slice(0, 120)}`);
+  }
+}
+
 // ── Marcar mensaje como leído (visto azul) — comportamiento humano anti-spam ──
 export async function sendSeen(phone, messageId) {
   const cfg = wahaConfig();
