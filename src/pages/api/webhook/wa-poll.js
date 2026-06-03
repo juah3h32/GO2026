@@ -56,6 +56,18 @@ async function run(request, url) {
 
   const base = `${cfg.url.replace(/\/$/, '')}/api/connections/${cfg.connectionId}`;
   const headers = { 'Authorization': `Bearer ${cfg.token}` };
+
+  // Sonda de diagnóstico: mide si Vercel alcanza WAHooks (endpoint liviano).
+  if (url.searchParams.get('probe') === '1') {
+    const t0 = Date.now();
+    try {
+      const r = await fetchT(`${base}`, { headers }, 14000);
+      const txt = (await r.text()).slice(0, 120);
+      return json({ ok: true, probe: { status: r.status, ms: Date.now() - t0, body: txt } });
+    } catch (e) {
+      return json({ ok: false, probe: { error: e.message, ms: Date.now() - t0 } });
+    }
+  }
   const origin = process.env.PUBLIC_SITE_URL
     || `https://${request.headers.get('host') || 'grupo-ortiz.com'}`;
   const nowSec = Math.floor(Date.now() / 1000);

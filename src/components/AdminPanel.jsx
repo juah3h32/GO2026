@@ -2244,8 +2244,9 @@ function WAWebhookTab({ P, isMobile }) {
   // Fallback en vivo mientras el dashboard está abierto (la cola push de WAHooks
   // puede no entregar; este pull garantiza que el bot responda).
   async function pollWhatsApp() {
+    // GET (no POST): evita el bloqueo CSRF de Astro; la cookie admin autentica.
     try {
-      await fetch('/api/webhook/wa-poll', { method: 'POST', credentials: 'include' });
+      await fetch('/api/webhook/wa-poll', { method: 'GET', credentials: 'include' });
     } catch {}
     loadMsgs();
   }

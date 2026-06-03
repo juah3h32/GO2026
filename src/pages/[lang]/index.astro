@@ -71,18 +71,6 @@ const poster = (src: string) =>
       preload="metadata"
       poster={poster(th.hero.video)}
     ></video>
-    <!-- Fallback local: se muestra solo si Cloudinary falla -->
-    <video
-      class="hero__video hero__video--fill"
-      src={`/videos/${th.hero.video.replace(/^GO\//, '')}.mp4`}
-      autoplay
-      muted
-      loop
-      playsinline
-      poster={poster(th.hero.video)}
-      data-role="fallback"
-      style="display:none;"
-    ></video>
   </div>
 
   <div class="hero__gradient-overlay"></div>
@@ -356,18 +344,6 @@ const poster = (src: string) =>
       playsinline
       preload="none"
       poster={poster(th.global.video)}
-    ></video>
-    <!-- Fallback local: se muestra solo si Cloudinary falla -->
-    <video
-      class="global__video"
-      src={`/videos/${th.global.video.replace(/^GO\//, '')}.mp4`}
-      autoplay
-      muted
-      loop
-      playsinline
-      poster={poster(th.global.video)}
-      data-role="fallback"
-      style="display:none;"
     ></video>
   </div>
   <div class="global__video-overlay"></div>
