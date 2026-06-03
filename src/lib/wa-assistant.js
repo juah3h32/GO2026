@@ -117,8 +117,14 @@ const TOOLS = [
     type: 'function',
     function: {
       name: 'obtener_candidatos',
-      description: 'Últimos candidatos de reclutamiento registrados por el bot (nombre, puesto, estatus).',
-      parameters: { type: 'object', properties: { limite: { type: 'integer', default: 8 } } },
+      description: 'Candidatos de reclutamiento registrados (nombre, puesto, estatus). Estatus posibles: "nuevo" (sin revisar), "visto", "contactado", "descartado". Para "¿hay nuevos?" o "¿falta alguno por revisar?" usa filtro_status="nuevo".',
+      parameters: {
+        type: 'object',
+        properties: {
+          limite: { type: 'integer', default: 10 },
+          filtro_status: { type: 'string', description: 'Filtrar por estatus: nuevo, visto, contactado, descartado. Omitir para todos.' },
+        },
+      },
     },
   },
   {
@@ -133,8 +139,14 @@ const TOOLS = [
     type: 'function',
     function: {
       name: 'obtener_distribuidores',
-      description: 'Últimos contactos/leads de distribuidores interesados.',
-      parameters: { type: 'object', properties: { limite: { type: 'integer', default: 8 } } },
+      description: 'Contactos/leads de distribuidores interesados (nombre, empresa, estatus). Para "¿hay nuevos?" o "pendientes de contactar" usa filtro_status="nuevo".',
+      parameters: {
+        type: 'object',
+        properties: {
+          limite: { type: 'integer', default: 10 },
+          filtro_status: { type: 'string', description: 'Filtrar por estatus: nuevo, contactado, cerrado. Omitir para todos.' },
+        },
+      },
     },
   },
   {
@@ -164,9 +176,27 @@ const TOOLS = [
   },
 ];
 
+// ── Permisos requeridos por tool — enforcement en CÓDIGO, no en el prompt ────
+const TOOL_PERMS = {
+  obtener_estadisticas:        'reports',
+  comparar_periodos:           'reports',
+  enviar_reporte_pdf:          'reports',
+  obtener_candidatos:          'candidates',
+  obtener_vacantes:            'vacantes',
+  obtener_distribuidores:      'distribuidores',
+  obtener_consultas_recientes: 'messages',
+};
+
 // ── Ejecución de tools ────────────────────────────────────────────────────────
 async function ejecutarTool(name, args, ctx) {
   const fmt = n => Number(n || 0).toLocaleString('es-MX');
+
+  // Validación de permisos — bloqueo duro independiente del LLM
+  const needed = TOOL_PERMS[name];
+  const perms  = ctx.perms || [];
+  if (needed && !perms.includes('*') && !perms.includes(needed)) {
+    return { error: `El usuario NO tiene permiso "${needed}" para esta consulta. Infórmale que no tiene acceso a esta información y sugiérele pedir el permiso al administrador.` };
+  }
 
   if (name === 'obtener_estadisticas') {
     const data = await readAllData();
@@ -201,11 +231,18 @@ async function ejecutarTool(name, args, ctx) {
   }
 
   if (name === 'obtener_candidatos') {
-    const leads = await readRecruitmentLeads();
-    const n = args.limite || 8;
+    let leads = (await readRecruitmentLeads()) || [];
+    const totalGeneral = leads.length;
+    if (args.filtro_status) {
+      const f = String(args.filtro_status).toLowerCase();
+      leads = leads.filter(c => (c.status || 'nuevo').toLowerCase() === f);
+    }
+    const n = args.limite || 10;
     return {
-      total: (leads || []).length,
-      candidatos: (leads || []).slice(0, n).map(c => ({
+      total_general: totalGeneral,
+      total_con_filtro: leads.length,
+      filtro: args.filtro_status || 'ninguno',
+      candidatos: leads.slice(0, n).map(c => ({
         nombre: c.nombre, puesto: c.puesto, estatus: c.status || 'nuevo',
         estado: c.estado_rep || c.estado, telefono: c.telefono,
       })),
@@ -218,12 +255,19 @@ async function ejecutarTool(name, args, ctx) {
   }
 
   if (name === 'obtener_distribuidores') {
-    const leads = await readLeads();
-    const n = args.limite || 8;
+    let leads = (await readLeads()) || [];
+    const totalGeneral = leads.length;
+    if (args.filtro_status) {
+      const f = String(args.filtro_status).toLowerCase();
+      leads = leads.filter(l => (l.status || 'nuevo').toLowerCase() === f);
+    }
+    const n = args.limite || 10;
     return {
-      total: (leads || []).length,
-      contactos: (leads || []).slice(0, n).map(l => ({
-        nombre: l.nombre, empresa: l.empresa, whatsapp: l.whatsapp, estatus: l.status,
+      total_general: totalGeneral,
+      total_con_filtro: leads.length,
+      filtro: args.filtro_status || 'ninguno',
+      contactos: leads.slice(0, n).map(l => ({
+        nombre: l.nombre, empresa: l.empresa, whatsapp: l.whatsapp, estatus: l.status || 'nuevo',
       })),
     };
   }
@@ -326,7 +370,7 @@ export async function ejecutarAsistente(texto, permsArray, phone) {
   if (!apiKey) return null; // sin API key → caller usa fallback de comandos
 
   const perms = permsArray || [];
-  const ctx = { pdfData: null };
+  const ctx = { pdfData: null, perms };
 
   const messages = [
     { role: 'system', content: systemPrompt(perms) },

@@ -1007,18 +1007,35 @@ export async function getWAAuthorizedByCategory(categoria) {
 
 export async function getWAAuthorizedByPhone(phone) {
   await ensureInit();
+  try { await db.execute(`ALTER TABLE wa_authorized ADD COLUMN categories TEXT NOT NULL DEFAULT '[]'`); } catch {}
   const clean = String(phone).replace(/\D/g, '');
   // Match flexible: WhatsApp manda 521+10 o 52+10 dígitos; el registro puede
   // tener solo los 10. Comparar por los últimos 10 dígitos de ambos lados.
   const last10 = clean.slice(-10);
   const r = await db.execute({
-    sql: `SELECT id, phone, name, permissions, active FROM wa_authorized
+    sql: `SELECT id, phone, name, permissions, active, categories FROM wa_authorized
           WHERE active=1 AND (phone=? OR substr(replace(phone,' ',''),-10)=?)`,
     args: [clean, last10],
   });
   if (!r.rows.length) return null;
   const row = r.rows[0];
-  return { id: row[0], phone: row[1], name: row[2], permissions: JSON.parse(row[3] || '[]'), active: row[4] === 1 };
+  let permissions = [];
+  let categories  = [];
+  try { permissions = JSON.parse(row[3] || '[]'); } catch {}
+  try { categories  = JSON.parse(row[5] || '[]'); } catch {}
+
+  // Las categorías de notificación implican permisos de consulta:
+  // rh → puede preguntar por candidatos y vacantes
+  // clientes → puede preguntar por distribuidores
+  if (categories.includes('rh')) {
+    if (!permissions.includes('candidates')) permissions.push('candidates');
+    if (!permissions.includes('vacantes'))   permissions.push('vacantes');
+  }
+  if (categories.includes('clientes')) {
+    if (!permissions.includes('distribuidores')) permissions.push('distribuidores');
+  }
+
+  return { id: row[0], phone: row[1], name: row[2], permissions, categories, active: row[4] === 1 };
 }
 
 export async function addWAAuthorized({ phone, name = '', permissions = [], categories = [] }) {
