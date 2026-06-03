@@ -1,6 +1,14 @@
 {
   "commits": [
     {
+      "hash": "91cb869",
+      "date": "2026-06-03",
+      "message": "quitar console.log de Search Console del dashboard (impresiones, consultas, paises)",
+      "rawMessage": "fix: quitar console.log de Search Console del dashboard (impresiones, consultas, paises)",
+      "type": "fix",
+      "area": "General"
+    },
+    {
       "hash": "c59a1fc",
       "date": "2026-06-03",
       "message": "ARQUITECTURA.md — funcionamiento completo del sitio + bot WhatsApp + monitoreo",
@@ -1666,42 +1674,42 @@
     }
   ],
   "stats": {
-    "total": 208,
+    "total": 209,
     "byType": {
+      "fix": 52,
       "docs": 1,
       "feat": 32,
-      "fix": 51,
       "update": 10,
       "chore": 2,
       "perf": 2,
       "release": 110
     },
     "byArea": {
+      "General": 159,
       "Admin/API": 14,
-      "General": 158,
       "Media": 18,
       "i18n": 3,
       "Productos": 15
     },
     "byMonth": {
-      "2026-06": 50,
+      "2026-06": 51,
       "2026-05": 33,
       "2026-04": 29,
       "2026-03": 96
     },
     "byAreaType": {
+      "General": {
+        "fix": 26,
+        "feat": 16,
+        "update": 6,
+        "chore": 1,
+        "release": 110
+      },
       "Admin/API": {
         "docs": 1,
         "feat": 5,
         "fix": 7,
         "update": 1
-      },
-      "General": {
-        "feat": 16,
-        "fix": 25,
-        "update": 6,
-        "chore": 1,
-        "release": 110
       },
       "Media": {
         "fix": 14,
@@ -1722,5 +1730,5 @@
       }
     }
   },
-  "generatedAt": "2026-06-03T23:04:31.128Z"
+  "generatedAt": "2026-06-03T23:08:07.868Z"
 }

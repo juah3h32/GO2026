@@ -2248,7 +2248,7 @@ function WAWebhookTab({ P, isMobile }) {
   useEffect(() => {
     if (subTab === 'conexion') {
       loadMsgs(); loadAuthorized();
-      const itv = setInterval(pollWhatsApp, 12000);
+      const itv = setInterval(pollWhatsApp, 6000);
       return () => clearInterval(itv);
     } else if (subTab === 'numeros') loadAuthorized();
   }, [subTab]);

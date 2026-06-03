@@ -20,9 +20,10 @@ const json = (obj, status = 200) =>
 
 // Solo mensajes de los últimos N minutos (evita responder backlog/historial viejo).
 const WINDOW_SEC = 15 * 60;
-// 1 por corrida: cada respuesta gasta ~8s IA + ~9s WAF; el cron corre cada minuto,
-// así que los mensajes en cola se atienden en corridas sucesivas sin arriesgar timeout.
-const MAX_PER_RUN = 1;
+// Procesar varios mensajes por corrida mientras quede presupuesto de tiempo.
+// Cada respuesta ~8s IA + ~9s WAF; paramos antes de ~45s para no exceder el límite (60s).
+const MAX_PER_RUN = 4;
+const TIME_BUDGET_MS = 45000;
 
 // fetch con timeout — WAHooks es intermitente (502/lento); no colgar la función.
 async function fetchT(u, opts = {}, ms = 12000) {
@@ -97,11 +98,12 @@ async function run(request, url) {
     .map(a => toWhatsAppJid(a.phone));        // {phone}@s.whatsapp.net
   if (!chatIds.length) return json({ ok: true, note: 'sin numeros autorizados', processed: 0 });
 
+  const t0 = Date.now();
   let processed = 0, scanned = 0, errors = 0;
   const errDetail = [];
   const dbg = { notFromMe: 0, inWindow: 0, parsed: 0, notReplied: 0 };
   for (const chatId of chatIds) {
-    if (processed >= MAX_PER_RUN) break;
+    if (processed >= MAX_PER_RUN || Date.now() - t0 > TIME_BUDGET_MS) break;
 
     let msgs;
     try {
@@ -115,7 +117,7 @@ async function run(request, url) {
 
     // Procesar de más viejo a más nuevo para mantener orden de conversación
     for (const m of msgs.slice().reverse()) {
-      if (processed >= MAX_PER_RUN) break;
+      if (processed >= MAX_PER_RUN || Date.now() - t0 > TIME_BUDGET_MS) break;
       scanned++;
       if (m?.fromMe) continue;
       dbg.notFromMe++;
