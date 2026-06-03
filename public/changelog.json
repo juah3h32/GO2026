@@ -1,6 +1,22 @@
 {
   "commits": [
     {
+      "hash": "4e2770d",
+      "date": "2026-06-03",
+      "message": "cron cada minuto para poll WhatsApp (responde 24/7 sin dashboard abierto)",
+      "rawMessage": "feat: cron cada minuto para poll WhatsApp (responde 24/7 sin dashboard abierto)",
+      "type": "feat",
+      "area": "General"
+    },
+    {
+      "hash": "8967a03",
+      "date": "2026-06-03",
+      "message": "timeout 20s mensajes + detalle de error en poll",
+      "rawMessage": "fix: timeout 20s mensajes + detalle de error en poll",
+      "type": "fix",
+      "area": "General"
+    },
+    {
       "hash": "2f9ed9b",
       "date": "2026-06-03",
       "message": "User-Agent navegador en notify.js (envios WhatsApp fallaban desde Vercel por WAF)",
@@ -1546,32 +1562,32 @@
     }
   ],
   "stats": {
-    "total": 193,
+    "total": 195,
     "byType": {
-      "fix": 47,
-      "feat": 25,
+      "feat": 26,
+      "fix": 48,
       "chore": 2,
       "perf": 2,
       "update": 7,
       "release": 110
     },
     "byArea": {
-      "General": 151,
+      "General": 153,
       "Media": 18,
       "Admin/API": 6,
       "i18n": 3,
       "Productos": 15
     },
     "byMonth": {
-      "2026-06": 35,
+      "2026-06": 37,
       "2026-05": 33,
       "2026-04": 29,
       "2026-03": 96
     },
     "byAreaType": {
       "General": {
-        "fix": 22,
-        "feat": 14,
+        "feat": 15,
+        "fix": 23,
         "chore": 1,
         "update": 4,
         "release": 110
@@ -1598,5 +1614,5 @@
       }
     }
   },
-  "generatedAt": "2026-06-03T20:12:14.667Z"
+  "generatedAt": "2026-06-03T20:49:01.775Z"
 }

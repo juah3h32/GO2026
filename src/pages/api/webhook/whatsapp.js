@@ -26,7 +26,7 @@ function freshTimestamp(ts) {
 }
 import { existsSync, readFileSync } from 'node:fs';
 import { join }       from 'node:path';
-import { saveWAIncoming, updateWAIncomingReply, getWAAuthorizedByPhone, getWagoConfig, waIncomingExistsByMsgId } from '../../../lib/analytics-db.js';
+import { saveWAIncoming, updateWAIncomingReply, getWAAuthorizedByPhone, getWagoConfig, getWAIncomingByMsgId } from '../../../lib/analytics-db.js';
 import { sendWAText, generateReportPDF, uploadPDFToCloudinary, sendTyping } from '../../../lib/notify.js';
 import { ejecutarComando } from '../../../lib/wa-commands.js';
 import { ejecutarAsistente } from '../../../lib/wa-assistant.js';
@@ -129,19 +129,24 @@ export async function POST({ request }) {
 
 // ── Procesa un mensaje entrante: guarda, responde (IA/chatbot), envía, reportes ──
 // Reutilizado por el webhook (push) y por wa-poll (pull, fallback si WAHooks no entrega).
-// Dedup por msgId: si ya se procesó, no responde de nuevo.
+// Dedup INTELIGENTE: salta solo si el mensaje YA tiene respuesta. Si quedó sin
+// responder (fallo/timeout previo), lo reintenta — así no se pierde ninguna respuesta.
+// Devuelve un string de estado para diagnóstico.
 export async function handleIncomingMessage(msg, origin) {
-  if (!msg || msg.fromMe || !msg.body) return;
+  if (!msg || msg.fromMe || !msg.body) return 'ignored';
 
-  // Dedup: evita responder dos veces el mismo mensaje (webhook + poll).
+  // Dedup inteligente + reintento
+  let savedId;
   if (msg.msgId) {
-    const seen = await waIncomingExistsByMsgId(msg.msgId).catch(() => false);
-    if (seen) return;
+    const row = await getWAIncomingByMsgId(msg.msgId).catch(() => null);
+    if (row?.hasReply) return 'already-replied';
+    if (row) savedId = row.id; // existe sin respuesta → reintentar sin duplicar fila
   }
 
-  // Guardar mensaje entrante
-  let savedId;
-  try { savedId = await saveWAIncoming(msg); } catch (e) { console.error('[webhook/wa] DB:', e.message); }
+  // Guardar mensaje entrante (si es nuevo)
+  if (!savedId) {
+    try { savedId = await saveWAIncoming(msg); } catch (e) { console.error('[webhook/wa] DB:', e.message); }
+  }
 
   // Comportamiento humano: mostrar "escribiendo…" mientras procesa
   sendTyping(msg.chatId || msg.phone, true).catch(() => {});
@@ -202,13 +207,19 @@ export async function handleIncomingMessage(msg, origin) {
   // Detener "escribiendo…" antes de enviar la respuesta
   sendTyping(msg.chatId || msg.phone, false).catch(() => {});
 
-  // Enviar respuesta de texto
+  // Enviar respuesta de texto.
+  // CLAVE: enviar PRIMERO y marcar en DB SOLO si el envío tuvo éxito. Si falla,
+  // bot_reply queda vacío y el siguiente poll lo reintenta (no se pierde la respuesta).
+  let sendStatus = 'no-reply';
   if (replyText) {
-    // Guardar reply en DB PRIMERO, independiente del envío
-    if (savedId) await updateWAIncomingReply(savedId, replyText).catch(() => {});
     try {
       await sendWAText(msg.chatId || msg.phone, replyText);
-    } catch (e) { console.error('[webhook/wa] Send error:', e.message); }
+      sendStatus = 'sent';
+      if (savedId) await updateWAIncomingReply(savedId, replyText).catch(() => {});
+    } catch (e) {
+      console.error('[webhook/wa] Send error:', e.message);
+      sendStatus = `send-failed: ${e.message}`;
+    }
   }
 
   // ── Reporte ejecutivo COMPLETO (mismo PDF del panel) ────────────────────────
@@ -259,6 +270,8 @@ export async function handleIncomingMessage(msg, origin) {
       } catch (e2) { console.error('[webhook/wa] Fallback texto error:', e2.message); }
     }
   }
+
+  return sendStatus;
 }
 
 // ── Parsear distintos formatos de webhook ─────────────────────────────────────

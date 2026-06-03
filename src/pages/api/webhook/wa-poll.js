@@ -4,7 +4,7 @@
 // Protegido con CRON_SECRET_EXTERNAL. Llamar cada ~1 min (cron Vercel o externo).
 export const prerender = false;
 
-import { getWagoConfig, waIncomingExistsByMsgId, getWAAuthorized } from '../../../lib/analytics-db.js';
+import { getWagoConfig, getWAIncomingByMsgId, getWAAuthorized } from '../../../lib/analytics-db.js';
 import { parseIncoming, handleIncomingMessage } from './whatsapp.js';
 import { toWhatsAppJid } from '../../../lib/notify.js';
 import { verifyAdminToken } from '../../../lib/verifyAdminToken.ts';
@@ -111,11 +111,17 @@ async function run(request, url) {
       const parsed = parseIncoming({ event: 'message', payload: m });
       if (!parsed || parsed.fromMe || !parsed.body) continue;
 
-      // Dedup antes de procesar (handleIncomingMessage también deduplica)
-      if (parsed.msgId && await waIncomingExistsByMsgId(parsed.msgId).catch(() => false)) continue;
+      // Saltar solo si YA tiene respuesta; si quedó sin responder, reintentar.
+      if (parsed.msgId) {
+        const row = await getWAIncomingByMsgId(parsed.msgId).catch(() => null);
+        if (row?.hasReply) continue;
+      }
 
-      try { await handleIncomingMessage(parsed, origin); processed++; }
-      catch (e) { console.error('[wa-poll] proceso:', e.message); }
+      try {
+        const st = await handleIncomingMessage(parsed, origin);
+        processed++;
+        if (st && st !== 'sent' && st !== 'already-replied') errDetail.push(st);
+      } catch (e) { errDetail.push(`proc: ${e.message}`); }
     }
   }
 

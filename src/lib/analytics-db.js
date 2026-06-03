@@ -963,6 +963,21 @@ export async function waIncomingExistsByMsgId(msgId) {
   return r.rows.length > 0;
 }
 
+// Devuelve { id, hasReply } del mensaje (por msg_id) o null si no existe.
+// Permite reintentar mensajes guardados que aún no recibieron respuesta.
+export async function getWAIncomingByMsgId(msgId) {
+  if (!msgId) return null;
+  await ensureInit();
+  const r = await db.execute({
+    sql:  `SELECT id, bot_reply FROM wa_incoming WHERE msg_id=? ORDER BY id DESC LIMIT 1`,
+    args: [String(msgId)],
+  });
+  if (!r.rows.length) return null;
+  const row = r.rows[0];
+  const reply = row.bot_reply == null ? '' : String(row.bot_reply);
+  return { id: row.id, hasReply: reply.length > 0 };
+}
+
 export async function updateWAIncomingReply(id, botReply) {
   await ensureInit();
   await db.execute({
