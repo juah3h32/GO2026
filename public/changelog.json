@@ -1,6 +1,14 @@
 {
   "commits": [
     {
+      "hash": "d5e7062",
+      "date": "2026-06-03",
+      "message": "fix CRITICO: bot no respondia en prod",
+      "rawMessage": "fix CRITICO: bot no respondia en prod",
+      "type": "update",
+      "area": "Admin/API"
+    },
+    {
       "hash": "1d8d581",
       "date": "2026-06-03",
       "message": "debug: contadores por etapa en poll",
@@ -1586,9 +1594,9 @@
     }
   ],
   "stats": {
-    "total": 198,
+    "total": 199,
     "byType": {
-      "update": 9,
+      "update": 10,
       "fix": 49,
       "feat": 26,
       "chore": 2,
@@ -1596,19 +1604,23 @@
       "release": 110
     },
     "byArea": {
+      "Admin/API": 7,
       "General": 156,
       "Media": 18,
-      "Admin/API": 6,
       "i18n": 3,
       "Productos": 15
     },
     "byMonth": {
-      "2026-06": 40,
+      "2026-06": 41,
       "2026-05": 33,
       "2026-04": 29,
       "2026-03": 96
     },
     "byAreaType": {
+      "Admin/API": {
+        "update": 1,
+        "fix": 6
+      },
       "General": {
         "update": 6,
         "fix": 24,
@@ -1621,9 +1633,6 @@
         "feat": 2,
         "perf": 1,
         "update": 1
-      },
-      "Admin/API": {
-        "fix": 6
       },
       "i18n": {
         "feat": 1,
@@ -1638,5 +1647,5 @@
       }
     }
   },
-  "generatedAt": "2026-06-03T21:12:46.433Z"
+  "generatedAt": "2026-06-03T21:17:58.746Z"
 }
