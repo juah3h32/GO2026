@@ -347,6 +347,21 @@ async function sendViaWaha(cfg, phone, message) {
   }
 }
 
+// ── Indicador "escribiendo…" — el usuario ve que el asistente está trabajando ─
+export async function sendTyping(phone, on = true) {
+  const cfg = wahaConfig();
+  if (!cfg) return; // solo WAHA soporta presencia de forma simple
+  const chatId = toWahaChatId(phone);
+  const endpoint = on ? 'startTyping' : 'stopTyping';
+  try {
+    await fetch(`${cfg.url}/api/${endpoint}`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Api-Key': cfg.apiKey },
+      body:    JSON.stringify({ session: cfg.session, chatId }),
+    });
+  } catch { /* no crítico */ }
+}
+
 // ── Enviar mensaje de texto — WAHA directo o WAGO/Evolution ──────────────────
 export async function sendWAText(phone, message) {
   const waha = wahaConfig();

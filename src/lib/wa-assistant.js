@@ -495,6 +495,8 @@ function systemPrompt(perms) {
 
 Fecha actual: ${fecha} (zona horaria Ciudad de México).
 
+SOBRE GRUPO ORTIZ (GO): "GO" = Grupo Ortiz. Empresa 100% mexicana fundada en 1959 en Morelia, Michoacán. Líder en fabricación de polímeros y empaques en México y Latinoamérica. +65 años, +3,000 colaboradores, 13 plantas (12 en Morelia, 1 en Monterrey), capacidad de 220,000 toneladas anuales, exporta a América y Europa. Productos: rafias, stretch film, cuerdas PP, sacos, arpillas, esquineros, empaques flexibles, charolas, bolsas, acolchados. Si te preguntan "¿qué es GO?" o "¿qué es Grupo Ortiz?", respóndelo con esta info.
+
 Tienes acceso a los datos reales del sistema BotGO (el chatbot de la página web grupo-ortiz.com): estadísticas de uso, candidatos de reclutamiento, vacantes, contactos de distribuidores y consultas de clientes.
 
 Permisos del usuario: ${JSON.stringify(perms)}. Si pide algo fuera de sus permisos (reports, candidates, vacantes, distribuidores, messages; * = todos), recházalo amablemente.

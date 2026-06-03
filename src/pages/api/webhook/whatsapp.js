@@ -8,7 +8,7 @@ import { createHmac } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { join }       from 'node:path';
 import { saveWAIncoming, updateWAIncomingReply, getWAAuthorizedByPhone, getWagoConfig } from '../../../lib/analytics-db.js';
-import { sendWAText, sendWAPDF, generateReportPDF } from '../../../lib/notify.js';
+import { sendWAText, sendWAPDF, generateReportPDF, sendTyping } from '../../../lib/notify.js';
 import { ejecutarComando } from '../../../lib/wa-commands.js';
 import { ejecutarAsistente } from '../../../lib/wa-assistant.js';
 
@@ -84,6 +84,9 @@ export async function POST({ request }) {
   let savedId;
   try { savedId = await saveWAIncoming(msg); } catch (e) { console.error('[webhook/wa] DB:', e.message); }
 
+  // Mostrar "escribiendo…" mientras se procesa (el usuario ve que el bot trabaja)
+  sendTyping(msg.chatId || msg.phone, true).catch(() => {});
+
   // Verificar si es número autorizado
   const authorized = await getWAAuthorizedByPhone(msg.phone).catch(() => null);
 
@@ -138,6 +141,9 @@ export async function POST({ request }) {
       }
     } catch (e) { console.error('[webhook/wa] Chat error:', e.message); }
   }
+
+  // Detener "escribiendo…" antes de enviar la respuesta
+  sendTyping(msg.chatId || msg.phone, false).catch(() => {});
 
   // Enviar respuesta de texto
   if (replyText) {
