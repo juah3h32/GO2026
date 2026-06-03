@@ -398,7 +398,11 @@ async function resolveWagoCredentials() {
 //   521 + 10 (13 díg) → tal cual
 //   otros países      → tal cual
 export function toWhatsAppJid(phone) {
-  let n = String(phone).replace(/\D/g, '');
+  const s = String(phone);
+  // Ya es un JID completo (@s.whatsapp.net, @c.us, @lid, @g.us) → usar tal cual.
+  // NO mangear: convertir un @lid a dígitos+@s.whatsapp.net rompe el envío.
+  if (s.includes('@')) return s;
+  let n = s.replace(/\D/g, '');
   if (n.length === 10) n = '521' + n;
   else if (n.length === 12 && n.startsWith('52') && !n.startsWith('521')) n = '521' + n.slice(2);
   return `${n}@s.whatsapp.net`;

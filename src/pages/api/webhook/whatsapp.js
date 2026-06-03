@@ -149,7 +149,7 @@ export async function handleIncomingMessage(msg, origin) {
   }
 
   // Comportamiento humano: mostrar "escribiendo…" mientras procesa
-  sendTyping(msg.chatId || msg.phone, true).catch(() => {});
+  sendTyping(msg.phone || msg.chatId, true).catch(() => {});
 
   // Verificar si es número autorizado
   const authorized = await getWAAuthorizedByPhone(msg.phone).catch(() => null);
@@ -205,7 +205,7 @@ export async function handleIncomingMessage(msg, origin) {
   }
 
   // Detener "escribiendo…" antes de enviar la respuesta
-  sendTyping(msg.chatId || msg.phone, false).catch(() => {});
+  sendTyping(msg.phone || msg.chatId, false).catch(() => {});
 
   // Enviar respuesta de texto.
   // CLAVE: enviar PRIMERO y marcar en DB SOLO si el envío tuvo éxito. Si falla,
@@ -213,7 +213,7 @@ export async function handleIncomingMessage(msg, origin) {
   let sendStatus = 'no-reply';
   if (replyText) {
     try {
-      await sendWAText(msg.chatId || msg.phone, replyText);
+      await sendWAText(msg.phone || msg.chatId, replyText);
       sendStatus = 'sent';
       if (savedId) await updateWAIncomingReply(savedId, replyText).catch(() => {});
     } catch (e) {
@@ -236,13 +236,13 @@ export async function handleIncomingMessage(msg, origin) {
       });
       const d = await r.json();
       if (d.ok && d.url) {
-        await sendWAText(msg.chatId || msg.phone, `Tu reporte en PDF:\n${d.url}`);
+        await sendWAText(msg.phone || msg.chatId, `Tu reporte en PDF:\n${d.url}`);
       } else {
         throw new Error(d.error || 'send-now sin url');
       }
     } catch (e) {
       console.error('[webhook/wa] Reporte error:', e.message);
-      await sendWAText(msg.chatId || msg.phone, `No pude generar el PDF.\nDetalle: ${e.message}`).catch(() => {});
+      await sendWAText(msg.phone || msg.chatId, `No pude generar el PDF.\nDetalle: ${e.message}`).catch(() => {});
     }
   }
 
@@ -253,7 +253,7 @@ export async function handleIncomingMessage(msg, origin) {
       const logoBase64 = getLogoBase64();
       const { buffer, filename } = await generateReportPDF(replyPdfData, logoBase64);
       const url = await uploadPDFToCloudinary(buffer, filename);
-      await sendWAText(msg.chatId || msg.phone, `*${replyPdfData.titulo || 'Reporte'}* en PDF:\n${url}`);
+      await sendWAText(msg.phone || msg.chatId, `*${replyPdfData.titulo || 'Reporte'}* en PDF:\n${url}`);
     } catch (e) {
       console.error('[webhook/wa] PDF error:', e.message, '— enviando reporte como texto');
       try {
@@ -266,7 +266,7 @@ export async function handleIncomingMessage(msg, origin) {
         ];
         if (p.extra)  lines.push('', p.extra);
         if (p.extra2) lines.push('', p.extra2);
-        await sendWAText(msg.chatId || msg.phone, lines.filter(l => l !== null).join('\n'));
+        await sendWAText(msg.phone || msg.chatId, lines.filter(l => l !== null).join('\n'));
       } catch (e2) { console.error('[webhook/wa] Fallback texto error:', e2.message); }
     }
   }
