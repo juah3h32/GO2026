@@ -1,6 +1,14 @@
 {
   "commits": [
     {
+      "hash": "2f9ed9b",
+      "date": "2026-06-03",
+      "message": "User-Agent navegador en notify.js (envios WhatsApp fallaban desde Vercel por WAF)",
+      "rawMessage": "fix: User-Agent navegador en notify.js (envios WhatsApp fallaban desde Vercel por WAF)",
+      "type": "fix",
+      "area": "General"
+    },
+    {
       "hash": "ee992e2",
       "date": "2026-06-03",
       "message": "User-Agent navegador en llamadas WAHooks (WAF bloquea datacenters)",
@@ -1538,9 +1546,9 @@
     }
   ],
   "stats": {
-    "total": 192,
+    "total": 193,
     "byType": {
-      "fix": 46,
+      "fix": 47,
       "feat": 25,
       "chore": 2,
       "perf": 2,
@@ -1548,21 +1556,21 @@
       "release": 110
     },
     "byArea": {
-      "General": 150,
+      "General": 151,
       "Media": 18,
       "Admin/API": 6,
       "i18n": 3,
       "Productos": 15
     },
     "byMonth": {
-      "2026-06": 34,
+      "2026-06": 35,
       "2026-05": 33,
       "2026-04": 29,
       "2026-03": 96
     },
     "byAreaType": {
       "General": {
-        "fix": 21,
+        "fix": 22,
         "feat": 14,
         "chore": 1,
         "update": 4,
@@ -1590,5 +1598,5 @@
       }
     }
   },
-  "generatedAt": "2026-06-03T20:05:36.872Z"
+  "generatedAt": "2026-06-03T20:12:14.667Z"
 }

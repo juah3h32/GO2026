@@ -86,6 +86,7 @@ async function run(request, url) {
   if (!chatIds.length) return json({ ok: true, note: 'sin numeros autorizados', processed: 0 });
 
   let processed = 0, scanned = 0, errors = 0;
+  const errDetail = [];
   for (const chatId of chatIds) {
     if (processed >= MAX_PER_RUN) break;
 
@@ -93,10 +94,10 @@ async function run(request, url) {
     try {
       const r = await retry(() => fetchT(
         `${base}/chats/${encodeURIComponent(chatId)}/messages?limit=10&downloadMedia=false`,
-        { headers }), 2);
-      if (!r || !r.ok) { errors++; continue; }
+        { headers }, 20000), 2);
+      if (!r || !r.ok) { errors++; errDetail.push(`HTTP ${r?.status}`); continue; }
       msgs = await r.json();
-    } catch { errors++; continue; }
+    } catch (e) { errors++; errDetail.push(e.message); continue; }
     if (!Array.isArray(msgs)) continue;
 
     // Procesar de más viejo a más nuevo para mantener orden de conversación
@@ -118,7 +119,7 @@ async function run(request, url) {
     }
   }
 
-  return json({ ok: true, chats: chatIds.length, scanned, processed, errors });
+  return json({ ok: true, chats: chatIds.length, scanned, processed, errors, errDetail: errDetail.slice(0, 3) });
 }
 
 export async function GET({ request, url }) { return run(request, url); }
