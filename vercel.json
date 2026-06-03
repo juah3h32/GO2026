@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/daily-reports",
       "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/webhook/wa-poll?secret=ortiz2026",
+      "schedule": "* * * * *"
     }
   ],
   "headers": [
