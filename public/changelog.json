@@ -1,6 +1,14 @@
 {
   "commits": [
     {
+      "hash": "02991e1",
+      "date": "2026-06-03",
+      "message": "reporte diario ANALYTIC BOT JP a las 9:10am (siempre) + rastreo 9:05am",
+      "rawMessage": "feat: reporte diario ANALYTIC BOT JP a las 9:10am (siempre) + rastreo 9:05am",
+      "type": "feat",
+      "area": "Admin/API"
+    },
+    {
       "hash": "4d93ac4",
       "date": "2026-06-03",
       "message": "orquestador ANALYTIC BOT JP + agentes por area (analisis diario, solo lectura)",
@@ -1650,9 +1658,9 @@
     }
   ],
   "stats": {
-    "total": 206,
+    "total": 207,
     "byType": {
-      "feat": 31,
+      "feat": 32,
       "fix": 51,
       "update": 10,
       "chore": 2,
@@ -1660,21 +1668,21 @@
       "release": 110
     },
     "byArea": {
-      "Admin/API": 12,
+      "Admin/API": 13,
       "General": 158,
       "Media": 18,
       "i18n": 3,
       "Productos": 15
     },
     "byMonth": {
-      "2026-06": 48,
+      "2026-06": 49,
       "2026-05": 33,
       "2026-04": 29,
       "2026-03": 96
     },
     "byAreaType": {
       "Admin/API": {
-        "feat": 4,
+        "feat": 5,
         "fix": 7,
         "update": 1
       },
@@ -1704,5 +1712,5 @@
       }
     }
   },
-  "generatedAt": "2026-06-03T22:47:19.241Z"
+  "generatedAt": "2026-06-03T22:56:55.436Z"
 }
