@@ -46,4 +46,5 @@ credentials.json
 .vercel
 
 # videos locales — servir desde Cloudinary en producción
-public/videos/.claude/scheduled_tasks.lock
+public/videos/
+.claude/scheduled_tasks.lock
