@@ -1,6 +1,14 @@
 {
   "commits": [
     {
+      "hash": "38d208f",
+      "date": "2026-06-03",
+      "message": "timeout 12s + reintentos en poll WAHooks (chats abortaba a 6s)",
+      "rawMessage": "fix: timeout 12s + reintentos en poll WAHooks (chats abortaba a 6s)",
+      "type": "fix",
+      "area": "Admin/API"
+    },
+    {
       "hash": "14663d6",
       "date": "2026-06-03",
       "message": "maxDuration 60s + timeouts en poll (WAHooks flaky, evitar 504)",
@@ -1506,9 +1514,9 @@
     }
   ],
   "stats": {
-    "total": 188,
+    "total": 189,
     "byType": {
-      "fix": 42,
+      "fix": 43,
       "feat": 25,
       "chore": 2,
       "perf": 2,
@@ -1516,19 +1524,22 @@
       "release": 110
     },
     "byArea": {
+      "Admin/API": 5,
       "General": 149,
       "Media": 17,
       "i18n": 3,
-      "Productos": 15,
-      "Admin/API": 4
+      "Productos": 15
     },
     "byMonth": {
-      "2026-06": 30,
+      "2026-06": 31,
       "2026-05": 33,
       "2026-04": 29,
       "2026-03": 96
     },
     "byAreaType": {
+      "Admin/API": {
+        "fix": 5
+      },
       "General": {
         "fix": 20,
         "feat": 14,
@@ -1552,11 +1563,8 @@
         "chore": 1,
         "perf": 1,
         "update": 2
-      },
-      "Admin/API": {
-        "fix": 4
       }
     }
   },
-  "generatedAt": "2026-06-03T19:46:54.966Z"
+  "generatedAt": "2026-06-03T19:54:30.781Z"
 }

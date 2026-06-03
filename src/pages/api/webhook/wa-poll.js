@@ -4,8 +4,9 @@
 // Protegido con CRON_SECRET_EXTERNAL. Llamar cada ~1 min (cron Vercel o externo).
 export const prerender = false;
 
-import { getWagoConfig, waIncomingExistsByMsgId } from '../../../lib/analytics-db.js';
+import { getWagoConfig, waIncomingExistsByMsgId, getWAAuthorized } from '../../../lib/analytics-db.js';
 import { parseIncoming, handleIncomingMessage } from './whatsapp.js';
+import { toWhatsAppJid } from '../../../lib/notify.js';
 import { verifyAdminToken } from '../../../lib/verifyAdminToken.ts';
 
 const json = (obj, status = 200) =>
@@ -59,35 +60,26 @@ async function run(request, url) {
     || `https://${request.headers.get('host') || 'grupo-ortiz.com'}`;
   const nowSec = Math.floor(Date.now() / 1000);
 
-  // 1. Chats recientes
-  let chats;
-  try {
-    const r = await retry(() => fetchT(`${base}/chats?limit=20`, { headers }));
-    if (!r.ok) return json({ ok: false, error: `chats HTTP ${r.status}` }, 502);
-    chats = await r.json();
-  } catch (e) { return json({ ok: false, error: `chats: ${e.message}` }, 502); }
-  if (!Array.isArray(chats)) chats = [];
+  // Jalar directo los chats de los números autorizados (endpoint /chats global de
+  // WAHooks cuelga desde la red de Vercel; el de un chat puntual es liviano).
+  const auth = await getWAAuthorized().catch(() => []);
+  const chatIds = auth
+    .filter(a => a.active && a.phone)
+    .map(a => toWhatsAppJid(a.phone));        // {phone}@s.whatsapp.net
+  if (!chatIds.length) return json({ ok: true, note: 'sin numeros autorizados', processed: 0 });
 
-  // Solo chats con actividad dentro de la ventana
-  const recent = chats.filter(c => {
-    const t = Number(c.conversationTimestamp || 0);
-    return t > 0 && (nowSec - t) <= WINDOW_SEC;
-  });
-
-  let processed = 0, scanned = 0;
-  for (const chat of recent) {
+  let processed = 0, scanned = 0, errors = 0;
+  for (const chatId of chatIds) {
     if (processed >= MAX_PER_RUN) break;
-    const chatId = chat.id;
-    if (!chatId) continue;
 
     let msgs;
     try {
       const r = await retry(() => fetchT(
         `${base}/chats/${encodeURIComponent(chatId)}/messages?limit=10&downloadMedia=false`,
         { headers }), 2);
-      if (!r || !r.ok) continue;
+      if (!r || !r.ok) { errors++; continue; }
       msgs = await r.json();
-    } catch { continue; }
+    } catch { errors++; continue; }
     if (!Array.isArray(msgs)) continue;
 
     // Procesar de más viejo a más nuevo para mantener orden de conversación
@@ -109,7 +101,7 @@ async function run(request, url) {
     }
   }
 
-  return json({ ok: true, chats: chats.length, recent: recent.length, scanned, processed });
+  return json({ ok: true, chats: chatIds.length, scanned, processed, errors });
 }
 
 export async function GET({ request, url }) { return run(request, url); }
