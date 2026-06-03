@@ -49,6 +49,7 @@ credentials.json
 # excepcion: carrusel (<10MB c/u) se sirve local
 public/videos/*
 !public/videos/carrusel/
+!public/videos/FONDOACOLCHADO.mp4
 public/videos/carrusel/rafia.mp4
 public/videos/carrusel/bolsa4.mp4
 public/videos/carrusel/raf3ia.mp4
