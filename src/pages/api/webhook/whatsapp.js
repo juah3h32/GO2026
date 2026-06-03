@@ -27,7 +27,7 @@ function freshTimestamp(ts) {
 import { existsSync, readFileSync } from 'node:fs';
 import { join }       from 'node:path';
 import { claimWAIncoming, resetWAReply, updateWAIncomingReply, getWAAuthorizedByPhone, getWagoConfig } from '../../../lib/analytics-db.js';
-import { sendWAText, generateReportPDF, uploadPDFToCloudinary, sendTyping } from '../../../lib/notify.js';
+import { sendWAText, sendWADocument, generateReportPDF, uploadPDFToCloudinary, sendTyping, transcribeAudio } from '../../../lib/notify.js';
 import { ejecutarComando } from '../../../lib/wa-commands.js';
 import { ejecutarAsistente } from '../../../lib/wa-assistant.js';
 
@@ -133,7 +133,14 @@ export async function POST({ request }) {
 // responder (fallo/timeout previo), lo reintenta — así no se pierde ninguna respuesta.
 // Devuelve un string de estado para diagnóstico.
 export async function handleIncomingMessage(msg, origin) {
-  if (!msg || msg.fromMe || !msg.body) return 'ignored';
+  if (!msg || msg.fromMe) return 'ignored';
+
+  // Nota de voz: transcribir a texto y continuar como si fuera un mensaje escrito.
+  if (!msg.body && msg.isAudio && msg.mediaUrl) {
+    const transcript = await transcribeAudio(msg.mediaUrl, msg.mediaMime).catch(() => '');
+    if (transcript) msg.body = transcript;
+  }
+  if (!msg.body) return 'ignored';
 
   // CLAIM ATÓMICO: solo UN proceso responde cada mensaje. Si otro poll/cron ya lo
   // tiene (o ya respondió), salimos sin reenviar. Elimina respuestas duplicadas.
@@ -235,15 +242,15 @@ export async function handleIncomingMessage(msg, origin) {
       });
       const d = await r.json();
       if (d.ok && d.url) {
-        // Enviar el PDF como documento adjunto (igual que exportado del dashboard).
+        // SIEMPRE enviar el PDF como ARCHIVO adjunto (idéntico al export del dashboard).
+        // NUNCA mandar el link. Reintenta hasta 3 veces si el envío de documento falla.
         const fname = d.filename || `Reporte_${replyReportRequest.report_type || ''}.pdf`;
-        try {
-          await sendWADocument(msg.phone || msg.chatId, d.url, fname);
-        } catch (docErr) {
-          // Si el envío de documento falla, no perder el reporte: mandar el link.
-          console.error('[webhook/wa] send-document falló, fallback link:', docErr.message);
-          await sendWAText(msg.phone || msg.chatId, `Tu reporte en PDF:\n${d.url}`);
+        let docOk = false;
+        for (let i = 0; i < 3 && !docOk; i++) {
+          try { await sendWADocument(msg.phone || msg.chatId, d.url, fname); docOk = true; }
+          catch (docErr) { console.error(`[webhook/wa] send-document intento ${i + 1}:`, docErr.message); }
         }
+        if (!docOk) await sendWAText(msg.phone || msg.chatId, 'No pude enviar el PDF en este momento. Pídemelo de nuevo, por favor.');
       } else {
         throw new Error(d.error || 'send-now sin url');
       }
@@ -260,11 +267,12 @@ export async function handleIncomingMessage(msg, origin) {
       const logoBase64 = getLogoBase64();
       const { buffer, filename } = await generateReportPDF(replyPdfData, logoBase64);
       const url = await uploadPDFToCloudinary(buffer, filename);
-      try {
-        await sendWADocument(msg.phone || msg.chatId, url, filename, `*${replyPdfData.titulo || 'Reporte'}*`);
-      } catch {
-        await sendWAText(msg.phone || msg.chatId, `*${replyPdfData.titulo || 'Reporte'}* en PDF:\n${url}`);
+      let docOk = false;
+      for (let i = 0; i < 3 && !docOk; i++) {
+        try { await sendWADocument(msg.phone || msg.chatId, url, filename, `*${replyPdfData.titulo || 'Reporte'}*`); docOk = true; }
+        catch (e) { console.error(`[webhook/wa] send-document(pdfData) intento ${i + 1}:`, e.message); }
       }
+      if (!docOk) await sendWAText(msg.phone || msg.chatId, 'No pude enviar el PDF. Pídemelo de nuevo, por favor.');
     } catch (e) {
       console.error('[webhook/wa] PDF error:', e.message, '— enviando reporte como texto');
       try {
@@ -306,7 +314,11 @@ export function parseIncoming(body) {
 
     // WAHA formato original: payload.from, payload.body
     const text = p.body || p.text || '';
-    if (!text) return null;
+    // Detección de nota de voz / audio (sin texto pero con media de audio).
+    const mime = p.media?.mimetype || p._data?.message?.audioMessage?.mimetype || '';
+    const isAudio = (String(p.type || '').match(/audio|ptt|voice/i) || /audio/i.test(mime)) && !p.fromMe;
+    const mediaUrl = p.media?.url || '';
+    if (!text && !isAudio) return null;
     // WhatsApp NOWEB usa @lid (Linked ID) en vez del número real.
     // El número telefónico real viene en _data.key.remoteJidAlt.
     const fromRaw = p.from || '';
@@ -317,6 +329,7 @@ export function parseIncoming(body) {
       phone,
       chatId: fromRaw || realJid,     // responder al @lid original
       body: String(text), fromMe: !!p.fromMe, msgId: p.id || '', timestamp: p.timestamp || 0,
+      isAudio: !!isAudio, mediaUrl, mediaMime: mime,
     };
   }
 

@@ -218,14 +218,16 @@ const TOOLS = [
     type: 'function',
     function: {
       name: 'enviar_reporte_pdf',
-      description: 'Genera y envía el reporte PDF ejecutivo (el mismo del panel) al usuario por WhatsApp con link de descarga. Usar cuando pide un reporte, informe o documento. formato=resumen para el panorama del periodo; formato=comparativo para comparar contra el periodo anterior. periodo=mes con mes/anio para un mes específico (ej. "el reporte de mayo" → mes=5; "del mes pasado" → el mes anterior al actual).',
+      description: 'Genera y ENVÍA el reporte PDF ejecutivo (el MISMO del panel) al usuario por WhatsApp como ARCHIVO ADJUNTO. Usar cuando pide un reporte, informe o documento. formato=resumen para el panorama del periodo; formato=comparativo para comparar contra el periodo anterior. PERIODOS: periodo=mes con mes/anio para un mes específico ("reporte de mayo" → mes=5). periodo=rango con desde/hasta (YYYY-MM-DD) para un rango exacto ("de marzo a abril" → desde=primer día de marzo, hasta=último día de abril; "del 1 al 15 de mayo" → desde=2026-05-01, hasta=2026-05-15). periodo=hasta_hoy para "de todos los meses / todo el año al día de hoy" (desde inicio de año o el más antiguo, hasta hoy). Calcula las fechas TÚ usando la fecha actual del sistema.',
       parameters: {
         type: 'object',
         properties: {
-          periodo: { type: 'string', enum: ['hoy','semana','mes','historico'] },
+          periodo: { type: 'string', enum: ['hoy','semana','mes','rango','hasta_hoy','historico'] },
           formato: { type: 'string', enum: ['resumen','comparativo'] },
           mes:  { type: 'integer', description: 'Número de mes 1-12 si periodo=mes' },
           anio: { type: 'integer', description: 'Año si periodo=mes (por defecto el actual)' },
+          desde: { type: 'string', description: 'Fecha inicio YYYY-MM-DD si periodo=rango o hasta_hoy' },
+          hasta: { type: 'string', description: 'Fecha fin YYYY-MM-DD si periodo=rango (por defecto hoy)' },
         },
         required: ['periodo','formato'],
       },
@@ -436,13 +438,25 @@ async function ejecutarTool(name, args, ctx) {
     const comparativo = args.formato === 'comparativo';
     const report_type = comparativo ? 'comparativo' : 'resumen';
 
+    const isYMD = s => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s);
+    const hoyStr = ymd(hoyMX());
+
     let period = 'all', period_from = null, period_to = null, label = 'Histórico completo';
-    if (args.periodo === 'hoy')         { period = 'today'; label = 'Hoy'; }
-    else if (args.periodo === 'semana') { period = '7d';    label = 'Últimos 7 días'; }
+    if (args.periodo === 'hoy')         { period = 'today'; period_from = hoyStr; period_to = hoyStr; label = 'Hoy'; }
+    else if (args.periodo === 'semana') { const r = rangoPeriodo('semana'); period = 'custom'; period_from = r.desde; period_to = r.hasta; label = 'Últimos 7 días'; }
     else if (args.periodo === 'mes')    {
       const r = rangoPeriodo('mes', args.mes, args.anio);
       period = 'custom'; period_from = r.desde; period_to = r.hasta; label = r.label;
-    } else if (comparativo) {
+    }
+    else if (args.periodo === 'rango' && isYMD(args.desde)) {
+      period = 'custom'; period_from = args.desde; period_to = isYMD(args.hasta) ? args.hasta : hoyStr;
+      label = `${period_from} a ${period_to}`;
+    }
+    else if (args.periodo === 'hasta_hoy') {
+      period = 'custom'; period_from = isYMD(args.desde) ? args.desde : `${hoyMX().getFullYear()}-01-01`; period_to = hoyStr;
+      label = `${period_from} a ${period_to}`;
+    }
+    else if (comparativo) {
       // El comparativo necesita un rango concreto para calcular el periodo anterior.
       const r = rangoPeriodo('mes');
       period = 'custom'; period_from = r.desde; period_to = r.hasta; label = r.label;
@@ -453,7 +467,7 @@ async function ejecutarTool(name, args, ctx) {
       ok: true,
       generando: report_type,
       periodo: label,
-      nota: 'El reporte PDF se está generando y se enviará por WhatsApp con su link de descarga. Confírmaselo al usuario en una línea breve.',
+      nota: `El reporte PDF (${report_type}, ${label}) se está generando y se ENVIARÁ como archivo adjunto por WhatsApp. Confírmaselo al usuario en UNA línea breve (ej: "Te envío el reporte ${report_type} de ${label} en PDF en un momento").`,
     };
   }
 
@@ -500,7 +514,32 @@ Reglas:
 - "reporte/informe/documento" → enviar_reporte_pdf (resumen por defecto, comparativo si lo pide).
 - Datos puntuales (¿cuántos mensajes hoy?) → texto directo, sin PDF.
 - Si combinas varias métricas, organízalas con subtítulos en negrita (ej. *Reclutamiento:*, *Productos:*).
-- Sé conciso pero completo: si piden "todo el control", da un panorama estructurado de varias áreas.`;
+- Sé conciso pero completo: si piden "todo el control", da un panorama estructurado de varias áreas.
+
+LISTAS DE CONTACTOS (distribuidores / candidatos) — formato OBLIGATORIO, MUY legible:
+- Una línea de encabezado con el total. Luego CADA contacto NUMERADO, separado por una LÍNEA EN BLANCO.
+- Cada campo en su PROPIA línea con etiqueta en negrita. No amontonar todo en un párrafo.
+- Ejemplo EXACTO de cómo se debe ver:
+
+*Distribuidores registrados en mayo: 3*
+
+*1. David López*
+- Empresa: Persona física
+- WhatsApp: +52 668 194 1877
+- Producto: Rafia
+- Estatus: Pendiente
+- Fecha: 12 may 2026
+
+*2. María Ruiz*
+- Empresa: Empaques del Norte
+- WhatsApp: +52 81 1234 5678
+- Producto: Stretch film
+- Estatus: Contactado
+- Fecha: 14 may 2026
+
+¿Quieres que te envíe el reporte en PDF?
+
+- Omite campos vacíos (no escribas "no especificado" si no aporta). Mantén los saltos de línea reales.`;
 }
 
 // ── Loop principal con OpenAI ─────────────────────────────────────────────────

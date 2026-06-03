@@ -584,6 +584,40 @@ export async function sendTyping(phone, on = true) {
   } catch { /* no crítico */ }
 }
 
+// ── Transcribir nota de voz de WhatsApp (OpenAI Whisper) ─────────────────────
+// Descarga el audio (desde la URL de media de WAHooks, con auth+UA) y lo transcribe.
+export async function transcribeAudio(mediaUrl, mimetype = 'audio/ogg') {
+  const apiKey = process.env.OPENAI_API_KEY || import.meta.env?.OPENAI_API_KEY;
+  if (!apiKey || !mediaUrl) return '';
+  const creds = await resolveWagoCredentials();
+
+  // 1. Descargar el audio. Si es URL de WAHooks usa Bearer; si es pública, sin auth.
+  const headers = { 'User-Agent': BROWSER_UA };
+  if (creds?.token && mediaUrl.includes(new URL(creds.url).host)) headers['Authorization'] = `Bearer ${creds.token}`;
+  let audioBuf;
+  try {
+    const r = await fetch(mediaUrl, { headers });
+    if (!r.ok) throw new Error(`media HTTP ${r.status}`);
+    audioBuf = Buffer.from(await r.arrayBuffer());
+  } catch (e) { console.error('[voice] descarga audio:', e.message); return ''; }
+  if (!audioBuf?.length || audioBuf.length > 24 * 1024 * 1024) return '';
+
+  // 2. Transcribir con Whisper (multipart).
+  try {
+    const ext = /opus|ogg/i.test(mimetype) ? 'ogg' : (/mp4|m4a/i.test(mimetype) ? 'm4a' : (/mpeg|mp3/i.test(mimetype) ? 'mp3' : 'ogg'));
+    const fd = new FormData();
+    fd.append('file', new Blob([audioBuf], { type: mimetype || 'audio/ogg' }), `audio.${ext}`);
+    fd.append('model', 'whisper-1');
+    fd.append('language', 'es');
+    const res = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+      method: 'POST', headers: { 'Authorization': `Bearer ${apiKey}` }, body: fd,
+    });
+    if (!res.ok) { console.error('[voice] whisper HTTP', res.status, (await res.text()).slice(0, 150)); return ''; }
+    const d = await res.json();
+    return (d.text || '').trim();
+  } catch (e) { console.error('[voice] transcripción:', e.message); return ''; }
+}
+
 // ── Enviar un documento PDF directo por su URL (no link de texto) ────────────
 // WAHooks /send-document descarga la URL y entrega el PDF como archivo adjunto.
 export async function sendWADocument(phone, url, filename = 'Reporte.pdf', caption = '') {

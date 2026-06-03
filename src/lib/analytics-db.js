@@ -66,6 +66,27 @@ async function ensureInit() {
     } catch {}
   } catch {}
 
+  // Logs de sistema — errores, advertencias, seguridad y actividad importante.
+  try {
+    await db.execute(`
+      CREATE TABLE IF NOT EXISTS system_logs (
+        id       INTEGER PRIMARY KEY AUTOINCREMENT,
+        ts       TEXT    NOT NULL DEFAULT (datetime('now')),
+        level    TEXT    NOT NULL DEFAULT 'info',   -- info | warn | error | critical | security
+        category TEXT    NOT NULL DEFAULT 'app',    -- frontend | api | security | video | auth | rate-limit ...
+        source   TEXT    NOT NULL DEFAULT '',       -- ruta/página/endpoint
+        message  TEXT    NOT NULL DEFAULT '',
+        meta     TEXT,                              -- JSON con detalle (ip, ua, etc.)
+        ip       TEXT    NOT NULL DEFAULT '',
+        seen     INTEGER NOT NULL DEFAULT 0
+      )
+    `);
+    await db.execute(`CREATE INDEX IF NOT EXISTS idx_logs_ts ON system_logs(ts DESC)`);
+    await db.execute(`CREATE INDEX IF NOT EXISTS idx_logs_level ON system_logs(level)`);
+  } catch {}
+  // limpieza: conservar últimos ~5000 logs
+  try { await db.execute(`DELETE FROM system_logs WHERE id NOT IN (SELECT id FROM system_logs ORDER BY id DESC LIMIT 5000)`); } catch {}
+
   // Configuración WAGO — credenciales almacenadas en DB (no en .env)
   try {
     await db.execute(`
@@ -1008,6 +1029,72 @@ export async function claimWAIncoming({ phone, body, msgId }) {
 export async function resetWAReply(id) {
   await ensureInit();
   await db.execute({ sql: `UPDATE wa_incoming SET bot_reply=NULL WHERE id=?`, args: [id] });
+}
+
+// ── Logs de sistema (monitoreo en tiempo real) ───────────────────────────────
+const LOG_LEVELS = ['info', 'warn', 'error', 'critical', 'security'];
+
+// Anti-spam: no repetir el mismo evento (level+source+message) en una ventana corta.
+const _logDedup = new Map();
+function _logKey(level, source, message) { return `${level}|${source}|${String(message).slice(0, 120)}`; }
+
+export async function logSystemEvent({ level = 'info', category = 'app', source = '', message = '', meta = null, ip = '' } = {}) {
+  try {
+    await ensureInit();
+    if (!LOG_LEVELS.includes(level)) level = 'info';
+    const key = _logKey(level, source, message);
+    const now = Date.now();
+    const last = _logDedup.get(key) || 0;
+    // mismo evento info/warn dentro de 30s → ignorar (los críticos/seguridad siempre pasan)
+    if (now - last < 30000 && level !== 'critical' && level !== 'security') return null;
+    _logDedup.set(key, now);
+    if (_logDedup.size > 500) _logDedup.clear();
+
+    const r = await db.execute({
+      sql: `INSERT INTO system_logs (level, category, source, message, meta, ip) VALUES (?,?,?,?,?,?)`,
+      args: [level, String(category).slice(0, 40), String(source).slice(0, 200), String(message).slice(0, 500),
+             meta ? JSON.stringify(meta).slice(0, 2000) : null, String(ip).slice(0, 60)],
+    });
+    return r.lastInsertRowid;
+  } catch { return null; }
+}
+
+export async function getSystemLogs({ level = null, category = null, limit = 100, offset = 0 } = {}) {
+  await ensureInit();
+  const where = [];
+  const args = [];
+  if (level && level !== 'all') { where.push('level = ?'); args.push(level); }
+  if (category && category !== 'all') { where.push('category = ?'); args.push(category); }
+  const sql = `SELECT id, ts, level, category, source, message, meta, ip, seen FROM system_logs
+               ${where.length ? 'WHERE ' + where.join(' AND ') : ''}
+               ORDER BY id DESC LIMIT ? OFFSET ?`;
+  args.push(limit, offset);
+  const r = await db.execute({ sql, args });
+  return r.rows.map(row => ({
+    id: row[0], ts: row[1], level: row[2], category: row[3], source: row[4],
+    message: row[5], meta: (() => { try { return row[6] ? JSON.parse(row[6]) : null; } catch { return null; } })(),
+    ip: row[7], seen: row[8] === 1,
+  }));
+}
+
+export async function getLogStats() {
+  await ensureInit();
+  const r = await db.execute(`SELECT level, COUNT(*) c FROM system_logs WHERE ts >= datetime('now','-24 hours') GROUP BY level`);
+  const stats = { info: 0, warn: 0, error: 0, critical: 0, security: 0 };
+  for (const row of r.rows) { if (stats[row[0]] != null) stats[row[0]] = Number(row[1]); }
+  const unseen = await db.execute(`SELECT COUNT(*) c FROM system_logs WHERE seen=0 AND level IN ('error','critical','security')`);
+  stats.unseenAlerts = Number(unseen.rows[0]?.[0] || 0);
+  return stats;
+}
+
+export async function markLogsSeen() {
+  await ensureInit();
+  await db.execute(`UPDATE system_logs SET seen=1 WHERE seen=0`);
+}
+
+export async function clearSystemLogs() {
+  await ensureInit();
+  await db.execute(`DELETE FROM system_logs`);
 }
 
 export async function waIncomingExistsByMsgId(msgId) {

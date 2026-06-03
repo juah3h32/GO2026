@@ -99,7 +99,7 @@ async function run(request, url) {
     let msgs;
     try {
       const r = await retry(() => fetchT(
-        `${base}/chats/${encodeURIComponent(chatId)}/messages?limit=10&downloadMedia=false`,
+        `${base}/chats/${encodeURIComponent(chatId)}/messages?limit=10&downloadMedia=true`,
         { headers }, 20000), 2);
       if (!r || !r.ok) { errors++; errDetail.push(`HTTP ${r?.status}`); continue; }
       msgs = await r.json();
