@@ -314,8 +314,41 @@ export function toWhatsAppJid(phone) {
   return `${n}@s.whatsapp.net`;
 }
 
-// ── WAGO: enviar mensaje de texto — endpoint /send con { chatId, text } ───
+// ── WAHA directo (motor NOWEB) — endpoint /api/sendText ──────────────────────
+// Si WAHA_URL está definido, se usa WAHA en vez de WAGO/Evolution.
+function wahaConfig() {
+  const url = process.env.WAHA_URL || import.meta.env?.WAHA_URL;
+  if (!url) return null;
+  const apiKey  = process.env.WAHA_API_KEY  || import.meta.env?.WAHA_API_KEY  || 'devkey';
+  const session = process.env.WAHA_SESSION  || import.meta.env?.WAHA_SESSION  || 'default';
+  return { url, apiKey, session };
+}
+
+// WAHA usa chatId formato 521...@c.us
+function toWahaChatId(phone) {
+  let n = String(phone).replace(/\D/g, '');
+  if (n.length === 10) n = '521' + n;
+  else if (n.length === 12 && n.startsWith('52') && !n.startsWith('521')) n = '521' + n.slice(2);
+  return `${n}@c.us`;
+}
+
+async function sendViaWaha(cfg, phone, message) {
+  const res = await fetch(`${cfg.url}/api/sendText`, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Api-Key': cfg.apiKey },
+    body:    JSON.stringify({ session: cfg.session, chatId: toWahaChatId(phone), text: message }),
+  });
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`WAHA texto HTTP ${res.status}: ${body.slice(0, 120)}`);
+  }
+}
+
+// ── Enviar mensaje de texto — WAHA directo o WAGO/Evolution ──────────────────
 export async function sendWAText(phone, message) {
+  const waha = wahaConfig();
+  if (waha) return sendViaWaha(waha, phone, message);
+
   const creds = await resolveWagoCredentials();
   const { url, token, connectionId } = creds || {};
   if (!url || !token || !connectionId) throw new Error('WAGO no configurado');
@@ -335,8 +368,24 @@ export async function sendWAText(phone, message) {
   }
 }
 
-// ── WAGO: enviar PDF (sin caption — el mensaje ya fue enviado antes) ───────
+// ── Enviar PDF — WAHA directo o WAGO/Evolution ───────────────────────────────
 export async function sendWAPDF(phone, pdfBuffer, filename) {
+  const waha = wahaConfig();
+  if (waha) {
+    const res = await fetch(`${waha.url}/api/sendFile`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Api-Key': waha.apiKey },
+      body:    JSON.stringify({
+        session: waha.session, chatId: toWahaChatId(phone),
+        file: { mimetype: 'application/pdf', filename, data: pdfBuffer.toString('base64') },
+      }),
+    });
+    if (res.ok) return;
+    // Fallback: aviso de texto
+    await sendViaWaha(waha, phone, `Reporte PDF disponible: ${filename}`);
+    return;
+  }
+
   const creds = await resolveWagoCredentials();
   const { url, token, connectionId } = creds || {};
   if (!url || !token || !connectionId) throw new Error('WAGO no configurado');

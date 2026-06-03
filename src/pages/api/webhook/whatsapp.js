@@ -40,9 +40,12 @@ export async function GET({ url }) {
 // POST — mensajes entrantes
 export async function POST({ request }) {
   const secret = await resolveWebhookSecret();
+  // WAHA (motor directo) no firma con HMAC. Si está configurado WAHA_URL,
+  // confiamos en el origen (red local Docker→host) y saltamos verificación.
+  const usingWaha = !!(process.env.WAHA_URL || import.meta.env?.WAHA_URL);
   let body;
 
-  if (secret) {
+  if (secret && !usingWaha) {
     const wagoSig = request.headers.get('x-wago-signature');
     const wagoTs  = request.headers.get('x-wago-timestamp') || '';
 
