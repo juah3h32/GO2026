@@ -1,6 +1,14 @@
 {
   "commits": [
     {
+      "hash": "c59a1fc",
+      "date": "2026-06-03",
+      "message": "ARQUITECTURA.md — funcionamiento completo del sitio + bot WhatsApp + monitoreo",
+      "rawMessage": "docs: ARQUITECTURA.md — funcionamiento completo del sitio + bot WhatsApp + monitoreo",
+      "type": "docs",
+      "area": "Admin/API"
+    },
+    {
       "hash": "02991e1",
       "date": "2026-06-03",
       "message": "reporte diario ANALYTIC BOT JP a las 9:10am (siempre) + rastreo 9:05am",
@@ -1658,8 +1666,9 @@
     }
   ],
   "stats": {
-    "total": 207,
+    "total": 208,
     "byType": {
+      "docs": 1,
       "feat": 32,
       "fix": 51,
       "update": 10,
@@ -1668,20 +1677,21 @@
       "release": 110
     },
     "byArea": {
-      "Admin/API": 13,
+      "Admin/API": 14,
       "General": 158,
       "Media": 18,
       "i18n": 3,
       "Productos": 15
     },
     "byMonth": {
-      "2026-06": 49,
+      "2026-06": 50,
       "2026-05": 33,
       "2026-04": 29,
       "2026-03": 96
     },
     "byAreaType": {
       "Admin/API": {
+        "docs": 1,
         "feat": 5,
         "fix": 7,
         "update": 1
@@ -1712,5 +1722,5 @@
       }
     }
   },
-  "generatedAt": "2026-06-03T22:56:55.436Z"
+  "generatedAt": "2026-06-03T23:04:31.128Z"
 }

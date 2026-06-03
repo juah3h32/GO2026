@@ -2016,16 +2016,10 @@ const isMarketing = role.name === 'Marketing';
       const endDate=to||today;
       const r=await fetch('/api/search-console',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({startDate,endDate})});
       const j=await r.json();
-      console.log('[SC] respuesta completa:', j);
       if(j.ok){
-        console.log(`[SC] ✅ Impresiones totales: ${j.totalImpressions} | Clics: ${j.totalClicks} | CTR: ${j.avgCtr}% | Pos: ${j.avgPos}`);
-        console.log('[SC] Top consultas:', j.topQueries);
-        console.log('[SC] Top países:', j.topCountries);
         setScData(j);
-      } else {
-        console.warn('[SC] ❌ Error:', j.error);
       }
-    }catch(e){console.error('[SC] excepción:', e);}
+    }catch(e){}
     setScLoading(false);
   },[]);
 
