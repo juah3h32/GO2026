@@ -1,6 +1,30 @@
 {
   "commits": [
     {
+      "hash": "f2878dc",
+      "date": "2026-06-03",
+      "message": "soporte WAHooks — firma x-wahooks-signature, evento message.received, typing",
+      "rawMessage": "feat: soporte WAHooks — firma x-wahooks-signature, evento message.received, typing",
+      "type": "feat",
+      "area": "General"
+    },
+    {
+      "hash": "7983ec2",
+      "date": "2026-06-03",
+      "message": "webhook acepta firma HMAC de WAHA (x-webhook-hmac, sha512/sha256)",
+      "rawMessage": "feat: webhook acepta firma HMAC de WAHA (x-webhook-hmac, sha512/sha256)",
+      "type": "feat",
+      "area": "General"
+    },
+    {
+      "hash": "8753850",
+      "date": "2026-06-03",
+      "message": "revertir videos a Cloudinary — funcion vercel excedia 250MB",
+      "rawMessage": "fix: revertir videos a Cloudinary — funcion vercel excedia 250MB",
+      "type": "fix",
+      "area": "Media"
+    },
+    {
       "hash": "2af2e8f",
       "date": "2026-06-03",
       "message": "video de fondo FONDOACOLCHADO local en pagina acolchado",
@@ -1426,31 +1450,37 @@
     }
   ],
   "stats": {
-    "total": 178,
+    "total": 181,
     "byType": {
-      "fix": 38,
-      "feat": 20,
+      "feat": 22,
+      "fix": 39,
       "chore": 1,
       "perf": 2,
       "update": 7,
       "release": 110
     },
     "byArea": {
-      "Media": 14,
+      "General": 145,
+      "Media": 15,
       "Productos": 15,
-      "General": 143,
       "Admin/API": 4,
       "i18n": 2
     },
     "byMonth": {
-      "2026-06": 20,
+      "2026-06": 23,
       "2026-05": 33,
       "2026-04": 29,
       "2026-03": 96
     },
     "byAreaType": {
+      "General": {
+        "feat": 12,
+        "fix": 19,
+        "update": 4,
+        "release": 110
+      },
       "Media": {
-        "fix": 10,
+        "fix": 11,
         "feat": 2,
         "perf": 1,
         "update": 1
@@ -1462,12 +1492,6 @@
         "perf": 1,
         "update": 2
       },
-      "General": {
-        "fix": 19,
-        "feat": 10,
-        "update": 4,
-        "release": 110
-      },
       "Admin/API": {
         "fix": 4
       },
@@ -1476,5 +1500,5 @@
       }
     }
   },
-  "generatedAt": "2026-06-03T18:26:07.747Z"
+  "generatedAt": "2026-06-03T19:01:16.509Z"
 }

@@ -2164,11 +2164,16 @@ function WAWebhookTab({ P, isMobile }) {
 
   const [copied, setCopied] = useState(false);
 
-  // Clave de integración WAGO
+  // Conexión WhatsApp — WAHooks (campos sueltos) o WAGO (clave wago_v1_)
   const [wagoConfig, setWagoConfig]     = useState(null);
   const [wagoKey, setWagoKey]           = useState('');
+  const [wagoConn, setWagoConn]         = useState('');
+  const [wagoSecret, setWagoSecret]     = useState('');
+  const [wagoUrl, setWagoUrl]           = useState('https://api.wahooks.com');
   const [wagoSaving, setWagoSaving]     = useState(false);
   const [wagoMsg, setWagoMsg]           = useState(null);
+
+  const isWagoV1Key = wagoKey.trim().startsWith('wago_v1_');
 
   const loadWagoConfig = async () => {
     try {
@@ -2183,15 +2188,23 @@ function WAWebhookTab({ P, isMobile }) {
   const handleSaveWagoKey = async () => {
     const key = wagoKey.trim();
     if (!key) return;
+    // wago_v1_... → clave integrada. Token wh_... → campos sueltos (WAHooks).
+    const payload = key.startsWith('wago_v1_')
+      ? { integrationKey: key }
+      : { url: wagoUrl.trim().replace(/\/$/, ''), token: key, connectionId: wagoConn.trim(), webhookSecret: wagoSecret.trim() };
+    if (!payload.integrationKey && (!payload.connectionId || !payload.webhookSecret)) {
+      setWagoMsg({ ok: false, text: 'Falta Connection ID o Signing Secret' });
+      return;
+    }
     setWagoSaving(true); setWagoMsg(null);
     try {
       const r = await fetch('/api/admin/wago-config', {
         method: 'POST', credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ integrationKey: key }),
+        body: JSON.stringify(payload),
       });
       const d = await r.json();
-      if (d.ok) { setWagoMsg({ ok: true, text: 'Conexión guardada' }); setWagoKey(''); await loadWagoConfig(); }
+      if (d.ok) { setWagoMsg({ ok: true, text: 'Conexión guardada' }); setWagoKey(''); setWagoConn(''); setWagoSecret(''); await loadWagoConfig(); }
       else setWagoMsg({ ok: false, text: d.error || 'Error al guardar' });
     } catch (e) { setWagoMsg({ ok: false, text: e.message }); }
     setWagoSaving(false);
@@ -2316,7 +2329,7 @@ function WAWebhookTab({ P, isMobile }) {
               opacity: 0.7 }}/>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
               <div>
-                <p style={{ ...LABEL, marginBottom: 2 }}>Conectar WAGO</p>
+                <p style={{ ...LABEL, marginBottom: 2 }}>Conexión WhatsApp — WAHooks / WAGO</p>
                 {wagoConfig?.configured ? (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#22C55E', display: 'inline-block', boxShadow: '0 0 6px #22C55E' }}/>
@@ -2337,22 +2350,43 @@ function WAWebhookTab({ P, isMobile }) {
             {!wagoConfig?.configured && (
               <div>
                 <div style={{ fontSize: 11, color: P.textDim, marginBottom: 10, lineHeight: 1.7, background: P.surface3, borderRadius: 8, padding: '8px 10px', border: `1px solid ${P.border}` }}>
-                  <strong style={{ color: P.textSub }}>Pasos:</strong><br/>
-                  1. Abre <strong style={{ color: P.orange }}>wago-lake.vercel.app</strong><br/>
-                  2. Tu conexión → <strong style={{ color: P.textSub }}>Credenciales</strong><br/>
-                  3. Clic en <strong style={{ color: P.orange }}>"Generar clave de integración"</strong><br/>
-                  4. Copia la clave que empieza con <code style={{ fontSize: 10, background: P.surface2, padding: '1px 5px', borderRadius: 4 }}>wago_v1_</code><br/>
-                  5. Pega aquí
+                  <strong style={{ color: P.textSub }}>WAHooks (wahooks.com):</strong><br/>
+                  1. Dashboard → <strong style={{ color: P.textSub }}>API Tokens</strong> → copia el token <code style={{ fontSize: 10, background: P.surface2, padding: '1px 5px', borderRadius: 4 }}>wh_...</code><br/>
+                  2. Tu conexión → copia el <strong style={{ color: P.textSub }}>Connection ID</strong><br/>
+                  3. Webhooks → copia el <strong style={{ color: P.textSub }}>Signing Secret</strong><br/>
+                  <span style={{ opacity: 0.7 }}>(o pega una clave WAGO <code style={{ fontSize: 10 }}>wago_v1_...</code> y listo)</span>
                 </div>
-                <div style={{ display: 'flex', gap: 8 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   <input
                     value={wagoKey}
                     onChange={e => setWagoKey(e.target.value)}
-                    placeholder="wago_v1_%7B%22url%22%3A%22https..."
-                    style={{ ...INPUT, flex: 1, fontFamily: 'monospace', fontSize: 11 }}
+                    placeholder="Token wh_...  (o clave wago_v1_...)"
+                    style={{ ...INPUT, fontFamily: 'monospace', fontSize: 11 }}
                   />
+                  {!isWagoV1Key && (
+                    <>
+                      <input
+                        value={wagoConn}
+                        onChange={e => setWagoConn(e.target.value)}
+                        placeholder="Connection ID (uuid)"
+                        style={{ ...INPUT, fontFamily: 'monospace', fontSize: 11 }}
+                      />
+                      <input
+                        value={wagoSecret}
+                        onChange={e => setWagoSecret(e.target.value)}
+                        placeholder="Webhook Signing Secret"
+                        style={{ ...INPUT, fontFamily: 'monospace', fontSize: 11 }}
+                      />
+                      <input
+                        value={wagoUrl}
+                        onChange={e => setWagoUrl(e.target.value)}
+                        placeholder="https://api.wahooks.com"
+                        style={{ ...INPUT, fontFamily: 'monospace', fontSize: 11 }}
+                      />
+                    </>
+                  )}
                   <button onClick={handleSaveWagoKey} disabled={wagoSaving || !wagoKey.trim()}
-                    style={{ padding: '8px 16px', background: P.orange, border: 'none', borderRadius: 8, color: '#fff', fontSize: 12, fontWeight: 600, cursor: (wagoSaving || !wagoKey.trim()) ? 'not-allowed' : 'pointer', opacity: (wagoSaving || !wagoKey.trim()) ? 0.6 : 1 }}>
+                    style={{ padding: '8px 16px', background: P.orange, border: 'none', borderRadius: 8, color: '#fff', fontSize: 12, fontWeight: 600, cursor: (wagoSaving || !wagoKey.trim()) ? 'not-allowed' : 'pointer', opacity: (wagoSaving || !wagoKey.trim()) ? 0.6 : 1, alignSelf: 'flex-start' }}>
                     {wagoSaving ? '...' : 'Guardar'}
                   </button>
                 </div>
@@ -2365,7 +2399,7 @@ function WAWebhookTab({ P, isMobile }) {
 
           {/* URL webhook */}
           <div style={CARD}>
-            <p style={LABEL}>URL del Webhook — pegar en WAGO</p>
+            <p style={LABEL}>URL del Webhook — pegar en WAHooks / WAGO</p>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
               <code style={{ ...INPUT, flex: 1, wordBreak: 'break-all', fontFamily: 'monospace', display: 'block' }}>{webhookUrl}</code>
               <button onClick={() => { navigator.clipboard.writeText(webhookUrl); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
