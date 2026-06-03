@@ -14,6 +14,16 @@ const { lang } = Astro.params;
 const currentLang = (lang && lang in translations) ? lang : "es";
 const t  = translations[currentLang as keyof typeof translations];
 const ti = t.impacto_social as typeof translations['es']['impacto_social'];
+
+const CLOUD = import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME;
+const cldVideo = (src?: string) =>
+  !src || src.startsWith('/') || src.startsWith('http') ? (src || '')
+  : `https://res.cloudinary.com/${CLOUD}/video/upload/q_auto:best/${src}`;
+const timelineItems = ti.timeline.items.map((it: any) => ({
+  ...it,
+  img: cldVideo(it.img),
+  poster: cldVideo(it.poster),
+}));
 ---
 
 <BaseLayout title={ti.page_title} currentLang={currentLang}>
@@ -23,7 +33,7 @@ const ti = t.impacto_social as typeof translations['es']['impacto_social'];
     <section class="hero-tesla">
       <div class="hero-tesla-bg">
         <video autoplay muted loop playsinline preload="metadata" class="hero-tesla-video">
-          <source src={ti.hero.video} type="video/mp4">
+          <source src={cldVideo(ti.hero.video)} type="video/mp4">
         </video>
         <div class="hero-tesla-overlay"></div>
       </div>
@@ -209,7 +219,7 @@ const ti = t.impacto_social as typeof translations['es']['impacto_social'];
     <section class="oceanos-section">
       <div class="oceanos-hero">
         <video autoplay muted loop playsinline preload="metadata" class="oceanos-bg-video">
-          <source src={ti.oceanos.hero_video} type="video/mp4">
+          <source src={cldVideo(ti.oceanos.hero_video)} type="video/mp4">
         </video>
         <div class="oceanos-hero-overlay"></div>
         <div class="oceanos-hero-content">
@@ -278,7 +288,7 @@ const ti = t.impacto_social as typeof translations['es']['impacto_social'];
             <div class="oceanos-partner-card">
               <div class="oceanos-partner-logo">
                 <video autoplay muted loop playsinline preload="metadata" poster={partner.poster}>
-                  <source src={partner.video} type="video/mp4">
+                  <source src={cldVideo(partner.video)} type="video/mp4">
                 </video>
               </div>
               <div class="oceanos-partner-info">
@@ -303,7 +313,7 @@ const ti = t.impacto_social as typeof translations['es']['impacto_social'];
       client:visible
       title={ti.timeline.title}
       subtitle={ti.timeline.subtitle}
-      items={ti.timeline.items as any}
+      items={timelineItems as any}
     />
 
     <!-- CTA -->

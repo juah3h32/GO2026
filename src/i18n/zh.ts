@@ -237,21 +237,21 @@ export const zh = {
       division: "缠绕膜",
       descripcion: "高光学清晰度和质量标准的拉伸薄膜。确保货物完整性和成本效益。我们的产品线包括生物降解选项，配方可加快 90% 的降解速度。",
       slug: "stretch-film",
-      video: "/videos/carrusel/stretch-film.mp4"
+      video: "GO/carrusel/stretch-film.mp4"
     },
     {
       img: "carrusel/img4.webp",
       division: "网袋",
       descripcion: "高强度耐用圆织聚丙烯拉菲草网袋。透气设计，非常适合水果和蔬菜。",
       slug: "arpillas",
-      video: "/videos/carrusel/arpillas.mp4"
+      video: "GO/carrusel/arpillas.mp4"
     },
     {
       img: "carrusel/img2.webp",
       division: "绳索",
       descripcion: "高性能聚丙烯长丝绳索（PP）。完美平衡：极轻而不牺牲断裂强度。",
       slug: "cuerdas",
-      video: "/videos/carrusel/cuerdas.mp4"
+      video: "GO/carrusel/cuerdas.mp4"
     },
     {
       img: "carrusel/img3.webp",
@@ -265,28 +265,28 @@ export const zh = {
       division: "编织袋",
       descripcion: "优质拉菲草编织袋。适用于食品、化工品和肥料的坚固包装解决方案。",
       slug: "sacos",
-      video: "/videos/carrusel/sacos.mp4"
+      video: "GO/carrusel/sacos.mp4"
     },
     {
       img: "carrusel/img6.webp",
       division: "护角",
       descripcion: "优化物流的纸板护角。结构强度更高，货物稳定性更好。",
       slug: "esquineros",
-      video: "/videos/carrusel/esquineros.mp4"
+      video: "GO/carrusel/esquineros.mp4"
     },
     {
       img: "carrusel/img7.webp",
       division: "软包装",
       descripcion: "Neo Empaques International 专注于先进的软包装解决方案，旨在优化多个行业产品的保存和展示。",
       slug: "empaques-flexibles",
-      video: "/videos/carrusel/bobina-impresa.mp4"
+      video: "GO/carrusel/bobina-impresa.mp4"
     },
     {
       img: "carrusel/nuev2a.png",
       division: "NATURIZABLE",
       descripcion: "回归大地的可持续包装。100%植物基、可回收可堆肥的食品行业解决方案。",
       slug: "naturizable",
-      video: "/videos/carrusel/charola.mp4"
+      video: "GO/carrusel/charola.mp4"
     },
     {
       img: "/images/bolsas/carruselB.webp",
@@ -300,7 +300,7 @@ export const zh = {
       division: "ACOLCHADO",
       descripcion: "农用地膜，用于覆盖农作物、菜园和果园的土壤。防治杂草、保持水分、调节土壤温度。",
       slug: "acolchado",
-      video: "/videos/carrusel/acolchadoV.mp4"
+      video: "GO/carrusel/acolchadoV.mp4"
     }
   ],
 
@@ -497,7 +497,7 @@ export const zh = {
       {
         name: '五金绳',
         img: '/images/cuerdas/CuerdaT1.webp',
-        video: "/videos/cuerdas/cuerda-1.mp4",
+        video: "GO/cuerdas/cuerda-1.mp4",
         link: '#',
         description: "采用聚丙烯和先进紫外线过滤器制成，这款绳索非常适合高阳光暴露的活动。其专业配方延缓自然磨损并延长使用寿命，在户外环境中保证更强的耐久性。是五金绳的完美选择，在一般应用和要求苛刻的工作中提供稳固、安全和可靠的性能。",
         specs_values: { load: "1,980 米", mat: "PP-UV", weight: "18 公斤", resist: "175 公斤", charge: "4-19 毫米" },
@@ -625,7 +625,7 @@ export const zh = {
       {
         name: '圆织网袋',
         img: '/images/arpillas/arpilla.webp',
-        video: "/videos/arpilla/circular.mp4",
+        video: "GO/arpillas/circular.mp4",
         link: '#',
         description: "采用 100% 原生聚丙烯和拉菲草结构制造，这款网袋在包装和存储应用中提供高强度和出色性能。其质量保证了处理各种产品时的耐久性和可靠性。",
         specs_values: {
@@ -642,7 +642,7 @@ export const zh = {
       {
         name: '圆织单丝网袋',
         img: '/images/arpillas/arpilla2.webp',
-        video: "/videos/arpilla/mono.mp4",
+        video: "GO/arpillas/mono.mp4",
         link: '#',
         description: "采用 100% 原生聚丙烯和拉菲草/单丝结构制造，这款网袋在包装和存储应用中提供高强度和出色性能。其结构为各种产品的处理和保护提供耐久性和可靠性。",
         specs_values: {
@@ -660,7 +660,7 @@ export const zh = {
       {
         name: '侧缝网袋',
         img: '/images/arpillas/arpilla3.webp',
-        video: "/videos/arpilla/costura.mp4",
+        video: "GO/arpillas/costura.mp4",
         link: '#',
         description: "采用 100% 原生聚丙烯和拉菲草/单丝结构制造，这款网袋在包装和存储应用中提供高强度和卓越性能。其结构保证了处理不同产品时的耐久性和可靠性。",
         specs_values: {
@@ -679,7 +679,7 @@ export const zh = {
       {
         name: '覆膜标签网袋',
         img: '/images/arpillas/arpilla4.webp',
-        video: "/videos/arpilla/etiqueta.mp4",
+        video: "GO/arpillas/etiqueta.mp4",
         link: '#',
         description: "采用 100% 原生聚丙烯和拉菲草/拉菲草结构制造，这款网袋在包装和存储过程中提供高强度和卓越性能。其编织保证了国内外市场苛刻应用的耐久性和可靠性。",
         specs_values: {
@@ -718,7 +718,7 @@ export const zh = {
         name: '非覆膜拉菲草编织袋',
         img: '/images/sacos/saco2.png',
         model: '/models/saco_blanco.glb',
-        video: "/videos/saco/slaminar.mp4",
+        video: "GO/sacos/slaminar.mp4",
         link: '#',
         description: "由交织聚丙烯纱线制成，非覆膜拉菲草编织袋在包装和存储应用中提供高强度和出色耐久性。其结构能够承受重载而不会破裂，在繁重工作中保证可靠性能。",
         specs_values: {
@@ -754,7 +754,7 @@ export const zh = {
       {
         name: '环保拉菲草编织袋',
         img: '/images/sacos/saco3.png',
-        video: "/videos/saco/eco.mp4",
+        video: "GO/sacos/eco.mp4",
         link: '#',
         description: "由生产过程中的边角料回收材料制成，这些袋子以更实惠的成本提供强度和良好的耐久性。其制造允许在一般包装和存储应用中实现可靠性能。",
         specs_values: {
@@ -794,7 +794,7 @@ export const zh = {
         name: "牛皮纸护角",
         description: "专为在运输和存储过程中保护边缘和角落而设计，这款护角均匀分配压力，防止货物变形和损坏。其结构在要求苛刻的包装应用中提供强度和稳定性。",
         img: "/images/esquinero/esquinero.png",
-        video: "/videos/esquinero/esquinero.mp4",
+        video: "GO/esquineros/esquinero.mp4",
         link: "#",
         specs_values: {
           tab:    "1.5 英寸",
@@ -811,7 +811,7 @@ export const zh = {
         name: "白色牛皮纸护角",
         description: "专为在运输和存储过程中保护边缘和角落而设计，这款护角均匀分配压力，防止货物变形和损坏。其结构在要求苛刻的包装应用中提供强度和稳定性。",
         img: "/images/esquinero/esquinerob.png",
-        video: "/videos/esquinero/esquinero.mp4",
+        video: "GO/esquineros/esquinero.mp4",
         link: "#",
         specs_values: {
           tab:    "1.5 英寸",
@@ -866,7 +866,7 @@ export const zh = {
         name: "自立袋",
         description: "多功能自立袋，具有复合结构和高阻湿氧性能。适用于干湿食品、粉末、液体、化妆品和化工品。提供天然、哑光和镀铝表面处理，尺寸从 150 克至 1 公斤，可选拉链封口和视窗。",
         img: "/images/flexible/standup-generica.png",
-        video: "/videos/flexible/standup.mp4",
+        video: "GO/flexible/standup.mp4",
         gallery: [
           "/images/flexible/standup-generica-2.png",
           "/images/flexible/standup-generica.png",
@@ -1268,7 +1268,7 @@ footer: {
       stat_female:      "% 女性员工",
       stat_recycled:    "回收吨数",
       stat_initiatives: "活跃举措",
-      video:            "/videos/waves2.mp4",
+      video:            "GO/home/waves2.mp4",
     },
     ods: {
       title:       "我们的指引",
@@ -1324,7 +1324,7 @@ footer: {
     oceanos: {
       hero_title:           "致力于为我们的海洋",
       hero_title_highlight: "创造更清洁的未来",
-      hero_video:           "/videos/waves.mp4",
+      hero_video:           "GO/home/waves.mp4",
       intro: "在 Grupo Ortiz，我们相信一个海洋再次闪耀的世界。通过支持 The Ocean Cleanup 和由 Lonely Whale 支持的 Tom Ford 塑料创新奖等全球倡议，我们致力于减少海洋中的塑料。您对我们的每一次购买都是迈向更清洁星球和所有人可持续未来的一步。让我们共同拯救海洋！",
       features: [
         { title: "支持全球清洁",     desc: "与 The Ocean Cleanup 等倡议合作。"           },
@@ -1338,7 +1338,7 @@ footer: {
           desc:   "这一全球倡议旨在通过奖励和推广创新解决方案来替代一次性塑料，从而彻底改变塑料行业。其重点是可持续和可扩展的替代品，以减少环境影响、保护海洋并推动向对地球更负责任的材料转变。",
           btn:    "了解更多",
           link:   "https://unwrapthefuture.org/",
-          video:  "/videos/impacto/oceancleanup.mp4",
+          video:  "GO/impacto/oceancleanup.mp4",
           poster: "/images/impacto/cultura-calidad.jpg"
         },
         {
@@ -1346,7 +1346,7 @@ footer: {
           desc:   "致力于清洁世界海洋，这个组织开发先进技术，清除海洋中积累的塑料，并通过干预主要污染来源——河流——防止其进入。其使命是恢复海洋生态系统的健康，保护生物多样性并为后代确保清洁的未来。",
           btn:    "了解更多",
           link:   "https://theoceancleanup.com/",
-          video:  "/videos/impacto/tomford.mp4",
+          video:  "GO/impacto/tomford.mp4",
           poster: "/images/impacto/tomford.webp"
         }
       ]
@@ -1366,9 +1366,9 @@ footer: {
           num: "01", title: "希望之家",
           desc:       "支持米却肯州塔坎巴罗的儿童之家。每个孩子都值得拥有一个充满爱的家园。",
           desc_short: "支持米却肯州塔坎巴罗的儿童之家。",
-          img:        "/videos/impacto/hogar.mp4",
+          img:        "GO/impacto/hogar.mp4",
           isVideo:    true,
-          poster:     "/videos/impacto/hogar.mp4"
+          poster:     "GO/impacto/hogar.mp4"
         },
         {
           num: "02", title: "GO 食品篮",

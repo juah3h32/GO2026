@@ -237,21 +237,21 @@ chatbot: {
       division: "STRETCH FILM",
       descripcion: "Película estirable de alta claridad óptica y estándares de calidad. Asegura la integridad de la carga y eficiencia en costos. Nuestra línea incluye opción Biodegradable, formulada para degradarse 90% más rápido.",
       slug: "stretch-film",
-      video: "/videos/carrusel/stretch-film.mp4"
+      video: "GO/carrusel/stretch-film.mp4"
     },
       {
       img: "carrusel/img4.webp",
       division: "ARPILLA",
       descripcion: "Sacos de malla de Rafia de Polipropileno en tejido circular de alta resistencia y durabilidad. Diseño ventilado ideal para frutas y verduras.",
       slug: "arpillas",
-      video: "/videos/carrusel/arpillas.mp4"
+      video: "GO/carrusel/arpillas.mp4"
     },
     {
       img: "carrusel/img2.webp",
       division: "CUERDA",
       descripcion: "Cuerda de Filamento de Polipropileno (PP) de alto rendimiento. Equilibrio perfecto: extrema ligereza sin sacrificar resistencia a la rotura.",
       slug: "cuerdas",
-      video: "/videos/carrusel/cuerdas.mp4"
+      video: "GO/carrusel/cuerdas.mp4"
     },
     {
       img: "carrusel/img3.webp",
@@ -266,28 +266,28 @@ chatbot: {
       division: "SACO",
       descripcion: "Sacos de Rafia de calidad superior. Solución de envasado robusta para alimentos, productos químicos y fertilizantes.",
       slug: "sacos",
-      video: "/videos/carrusel/sacos.mp4"
+      video: "GO/carrusel/sacos.mp4"
     },
     {
       img: "carrusel/img6.webp",
       division: "ESQUINERO",
       descripcion: "Esquineros de cartón para optimizar la logística. Resistencia estructural y mayor estabilidad de carga.",
       slug: "esquineros",
-      video: "/videos/carrusel/esquineros.mp4"
+      video: "GO/carrusel/esquineros.mp4"
     },
     {
       img: "carrusel/img7.webp",
       division: "FLEXIBLE",
       descripcion: "Neo Empaques International se especializa en soluciones avanzadas de empaque flexible, diseñadas para optimizar la conservación y presentación de productos en múltiples industrias.",
       slug: "empaques-flexibles",
-      video: "/videos/carrusel/bobina-impresa.mp4"
+      video: "GO/carrusel/bobina-impresa.mp4"
     },
     {
       img: "carrusel/nuev2a.png",
       division: "NATURIZABLE",
       descripcion: "Empaque sustentable que regresa a la tierra. Soluciones 100% Plant Based, reciclables y compostables para la industria alimentaria.",
       slug: "naturizable",
-      video: "/videos/carrusel/charola.mp4"
+      video: "GO/carrusel/charola.mp4"
     },
     {
       img: "/images/bolsas/carruselB.webp",
@@ -301,7 +301,7 @@ chatbot: {
       division: "ACOLCHADO",
       descripcion: "Acolchado agrícola para cubrir el suelo en siembras, cultivos y huertos. Controla malezas, conserva humedad y regula la temperatura del terreno.",
       slug: "acolchado",
-      video: "/videos/carrusel/acolchadoV.mp4"
+      video: "GO/carrusel/acolchadoV.mp4"
     }
   ],
 
@@ -498,7 +498,7 @@ gallery: [
       {
         name: 'CUERDA FERRETERA',
         img: '/images/cuerdas/CuerdaT1.webp',
-        video: "/videos/cuerdas/cuerda-1.mp4",
+        video: "GO/cuerdas/cuerda-1.mp4",
         link: '#',
         description: "Diseñado con polipropileno y un avanzado filtro UV, este cable es ideal para actividades con alta exposición solar. Su formulación especializada retarda el desgaste natural y prolonga su vida útil, garantizando mayor resistencia y durabilidad frente a la intemperie. Es la cuerda ferretera perfecta para brindar firmeza, seguridad y rendimiento confiable en aplicaciones generales y trabajos exigentes.",
         specs_values: { load: "1,980 m", mat: "PP-UV", weight: "18 kg", resist: "175 kg", charge: "4-19 mm" },
@@ -626,7 +626,7 @@ gallery: [
       {
         name: 'ARPILLA CIRCULAR',
         img: '/images/arpillas/arpilla.webp',
-        video: "/videos/arpilla/circular.mp4",
+        video: "GO/arpillas/circular.mp4",
         link: '#',
         description: "Fabricada con polipropileno 100% virgen y construcción rafia, esta arpilla ofrece alta resistencia y excelente rendimiento en aplicaciones de empaque y almacenamiento. Su calidad garantiza durabilidad y un desempeño confiable en el manejo de diversos productos.",
         specs_values: {
@@ -643,7 +643,7 @@ gallery: [
       {
         name: 'ARPILLA MONOFILAMENTO CIRCULAR',
         img: '/images/arpillas/arpilla2.webp',
-        video: "/videos/arpilla/mono.mp4",
+        video: "GO/arpillas/mono.mp4",
         link: '#',
         description: "Fabricada con polipropileno 100% virgen y construcción rafia/monofilamento, esta arpilla ofrece alta resistencia y excelente rendimiento en aplicaciones de empaque y almacenamiento. Su estructura proporciona durabilidad y desempeño confiable en el manejo y protección de diversos productos.",
         specs_values: {
@@ -661,7 +661,7 @@ gallery: [
       {
         name: 'ARPILLA COSTURA LATERAL',
         img: '/images/arpillas/arpilla3.webp',
-        video: "/videos/arpilla/costura.mp4",
+        video: "GO/arpillas/costura.mp4",
         link: '#',
         description: "Fabricada con polipropileno 100% virgen y construcción rafia/monofilamento, esta arpilla ofrece alta resistencia y excelente desempeño en aplicaciones de empaque y almacenamiento. Su estructura garantiza durabilidad y confiabilidad en el manejo de distintos productos.",
         specs_values: {
@@ -680,7 +680,7 @@ gallery: [
       {
         name: 'ARPILLA ETIQUETA LAMINADA',
         img: '/images/arpillas/arpilla4.webp',
-        video: "/videos/arpilla/etiqueta.mp4",
+        video: "GO/arpillas/etiqueta.mp4",
         link: '#',
         description: "Fabricada con polipropileno 100% virgen y construcción rafia/rafia, esta arpilla ofrece alta resistencia y excelente desempeño en procesos de empaque y almacenamiento. Su tejido garantiza durabilidad y confiabilidad para aplicaciones exigentes tanto en el mercado nacional como de exportación.",
         specs_values: {
@@ -719,7 +719,7 @@ gallery: [
         name: 'SACO DE RAFIA SIN LAMINAR',
         img: '/images/sacos/saco2.png',
         model: '/models/saco_blanco.glb',
-        video: "/videos/saco/slaminar.mp4",
+        video: "GO/sacos/slaminar.mp4",
         link: '#',
         description: "Fabricados con cintas de polipropileno entrelazadas, los sacos de rafia sin laminar ofrecen gran resistencia y excelente durabilidad en aplicaciones de empaque y almacenamiento. Su estructura permite soportar cargas pesadas sin romperse, garantizando un desempeño confiable en trabajos exigentes.",
         specs_values: {
@@ -755,7 +755,7 @@ gallery: [
       {
         name: 'SACO DE RAFIA ECOLÓGICO',
         img: '/images/sacos/saco3.png',
-        video: "/videos/saco/eco.mp4",
+        video: "GO/sacos/eco.mp4",
         link: '#',
         description: "Fabricados con material reciclado proveniente de la merma del mismo proceso de producción, estos sacos ofrecen resistencia y buena durabilidad a un costo más accesible. Su fabricación permite un desempeño confiable en aplicaciones generales de empaque y almacenamiento.",
         specs_values: {
@@ -795,7 +795,7 @@ gallery: [
         name: "ESQUINERO KRAFT CAFÉ",
         description: "Fabricado para proteger bordes y esquinas durante el transporte y almacenamiento, este esquinero distribuye la presión de manera uniforme, evitando deformaciones y daños en la mercancía. Su estructura ofrece resistencia y estabilidad en aplicaciones de embalaje exigentes.",
         img: "/images/esquinero/esquinero.png",
-        video: "/videos/esquinero/esquinero.mp4",
+        video: "GO/esquineros/esquinero.mp4",
         link: "#",
         specs_values: {
           tab:    "1.5 pulg",
@@ -812,7 +812,7 @@ gallery: [
         name: "ESQUINERO KRAFT BLANCO",
         description: "Fabricado para proteger bordes y esquinas durante el transporte y almacenamiento, este esquinero distribuye la presión de manera uniforme, evitando deformaciones y daños en la mercancía. Su estructura ofrece resistencia y estabilidad en aplicaciones de embalaje exigentes.",
         img: "/images/esquinero/esquinerob.png",
-        video: "/videos/esquinero/esquinero.mp4",
+        video: "GO/esquineros/esquinero.mp4",
         link: "#",
         specs_values: {
           tab:    "1.5 pulg",
@@ -867,7 +867,7 @@ gallery: [
         name: "BOLSA STAND UP",
         description: "Bolsas stand-up pouch versátiles con estructura laminada y alta barrera contra humedad y oxígeno. Ideales para alimentos secos o húmedos, polvos, líquidos, cosméticos y químicos. Disponibles en acabados Natural, Mate y Metalizado, en tamaños de 150 g hasta 1 kg, con opción de cierre zipper y ventana.",
         img: "/images/flexible/standup-generica.png",
-        video: "/videos/flexible/standup.mp4",
+        video: "GO/flexible/standup.mp4",
         gallery: [
           "/images/flexible/standup-generica-2.png",
           "/images/flexible/standup-generica.png",
@@ -1268,7 +1268,7 @@ footer: {
       stat_female:      "% Plantilla Femenina",
       stat_recycled:    "Toneladas Recicladas",
       stat_initiatives: "Iniciativas Activas",
-      video:            "/videos/waves2.mp4",
+      video:            "GO/home/waves2.mp4",
     },
     ods: {
       title:       "NUESTRO NORTE",
@@ -1324,7 +1324,7 @@ footer: {
     oceanos: {
       hero_title:           "Comprometidos con un futuro",
       hero_title_highlight: "más limpio para nuestros océanos",
-      hero_video:           "/videos/waves.mp4",
+      hero_video:           "GO/home/waves.mp4",
       intro: "En Grupo Ortiz, creemos en un mundo donde los océanos vuelvan a brillar. Al apoyar iniciativas globales como The Ocean Cleanup y el Tom Ford Plastic Innovation Prize powered by Lonely Whale, trabajamos para reducir el plástico en nuestros mares. Cada compra que haces con nosotros es un paso hacia un planeta más limpio y un futuro sostenible para todos. ¡Juntos salvamos los océanos!",
       features: [
         { title: "Apoyamos la limpieza global",         desc: "Colaborando con iniciativas como The Ocean Cleanup."                         },
@@ -1338,7 +1338,7 @@ footer: {
           desc:   "Esta iniciativa global busca revolucionar la industria del plástico al premiar y promover soluciones innovadoras que reemplacen los plásticos desechables. Su enfoque está en alternativas sostenibles y escalables que reduzcan el impacto ambiental, protejan los océanos y fomenten un cambio hacia materiales más responsables para el planeta.",
           btn:    "CONOCE MÁS",
           link:   "https://unwrapthefuture.org/",
-          video:  "/videos/impacto/oceancleanup.mp4",
+          video:  "GO/impacto/oceancleanup.mp4",
           poster: "/images/impacto/cultura-calidad.jpg"
         },
         {
@@ -1346,7 +1346,7 @@ footer: {
           desc:   "Dedicada a limpiar los océanos del mundo, esta organización desarrolla tecnología avanzada para eliminar plásticos acumulados en los mares y prevenir su llegada mediante la intervención en los ríos, principales fuentes de contaminación. Su misión es restaurar la salud de los ecosistemas marinos, protegiendo la biodiversidad y asegurando un futuro limpio para las próximas generaciones.",
           btn:    "CONOCE MÁS",
           link:   "https://theoceancleanup.com/",
-          video:  "/videos/impacto/tomford.mp4",
+          video:  "GO/impacto/tomford.mp4",
           poster: "/images/impacto/tomford.webp"
         }
       ]
@@ -1366,9 +1366,9 @@ footer: {
           num: "01", title: "HOGAR DE ESPERANZA",
           desc:       "Apoyo a Casa Hogar en Tacámbaro, Michoacán. Cada niño merece un hogar lleno de amor.",
           desc_short: "Apoyo a Casa Hogar en Tacámbaro, Michoacán.",
-          img:        "/videos/impacto/hogar.mp4",
+          img:        "GO/impacto/hogar.mp4",
           isVideo:    true,
-          poster:     "/videos/impacto/hogar.mp4"
+          poster:     "GO/impacto/hogar.mp4"
         },
         {
           num: "02", title: "DESPENSA GO",

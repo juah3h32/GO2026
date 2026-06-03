@@ -237,21 +237,21 @@ export const ar = {
       division: "ستريتش فيلم",
       descripcion: "فيلم تمدد بوضوح بصري عالٍ ومعايير جودة مميزة. يضمن سلامة الحمولة وكفاءة التكاليف. تشمل مجموعتنا خياراً قابلاً للتحلل البيولوجي، مُصمَّماً للتحلل بنسبة 90% أسرع.",
       slug: "stretch-film",
-      video: "/videos/carrusel/stretch-film.mp4"
+      video: "GO/carrusel/stretch-film.mp4"
     },
     {
       img: "carrusel/img4.webp",
       division: "أكياس الشبك",
       descripcion: "أكياس شبكية من رافيا البولي بروبيلين بنسيج دائري عالي المقاومة والمتانة. تصميم مهوّى مثالي للفواكه والخضروات.",
       slug: "arpillas",
-      video: "/videos/carrusel/arpillas.mp4"
+      video: "GO/carrusel/arpillas.mp4"
     },
     {
       img: "carrusel/img2.webp",
       division: "الحبال",
       descripcion: "حبال من خيوط البولي بروبيلين عالية الأداء. توازن مثالي بين الخفة الفائقة والمقاومة العالية للكسر.",
       slug: "cuerdas",
-      video: "/videos/carrusel/cuerdas.mp4"
+      video: "GO/carrusel/cuerdas.mp4"
     },
     {
       img: "carrusel/img3.webp",
@@ -265,28 +265,28 @@ export const ar = {
       division: "الأكياس",
       descripcion: "أكياس رافيا بجودة فائقة. حل تعبئة متين للأغذية والمواد الكيميائية والأسمدة.",
       slug: "sacos",
-      video: "/videos/carrusel/sacos.mp4"
+      video: "GO/carrusel/sacos.mp4"
     },
     {
       img: "carrusel/img6.webp",
       division: "حواف الحماية",
       descripcion: "حواف كرتونية لتحسين اللوجستيات. مقاومة هيكلية واستقرار أكبر للأحمال.",
       slug: "esquineros",
-      video: "/videos/carrusel/esquineros.mp4"
+      video: "GO/carrusel/esquineros.mp4"
     },
     {
       img: "carrusel/img7.webp",
       division: "التغليف المرن",
       descripcion: "تتخصص Neo Empaques International في حلول التغليف المرن المتقدمة، المصمّمة لتحسين الحفظ وتقديم المنتجات في صناعات متعددة.",
       slug: "empaques-flexibles",
-      video: "/videos/carrusel/bobina-impresa.mp4"
+      video: "GO/carrusel/bobina-impresa.mp4"
     },
     {
       img: "carrusel/nuev2a.png",
       division: "NATURIZABLE",
       descripcion: "تغليف مستدام يعود إلى الأرض. حلول 100% نباتية، قابلة لإعادة التدوير والتسميد لصناعة الأغذية.",
       slug: "naturizable",
-      video: "/videos/carrusel/charola.mp4"
+      video: "GO/carrusel/charola.mp4"
     },
     {
       img: "/images/bolsas/carruselB.webp",
@@ -300,7 +300,7 @@ export const ar = {
       division: "ACOLCHADO",
       descripcion: "غطاء زراعي لتغطية التربة في الزراعة والحدائق. يكافح الأعشاب الضارة، يحافظ على الرطوبة وينظّم درجة حرارة التربة.",
       slug: "acolchado",
-      video: "/videos/carrusel/acolchadoV.mp4"
+      video: "GO/carrusel/acolchadoV.mp4"
     }
   ],
 
@@ -497,7 +497,7 @@ export const ar = {
       {
         name: 'حبل الأدوات',
         img: '/images/cuerdas/CuerdaT1.webp',
-        video: "/videos/cuerdas/cuerda-1.mp4",
+        video: "GO/cuerdas/cuerda-1.mp4",
         link: '#',
         description: "مصنوع من البولي بروبيلين وفلتر UV متقدم، هذا الحبل مثالي للأنشطة ذات التعرض الشمسي العالي. تركيبته المتخصصة تبطّئ التآكل الطبيعي وتطيل عمره الافتراضي، مما يضمن مقاومة ومتانة أكبر في الهواء الطلق. إنه الحبل المثالي للصلابة والأمان والأداء الموثوق في التطبيقات العامة والأعمال الشاقة.",
         specs_values: { load: "1,980 م", mat: "PP-UV", weight: "18 كجم", resist: "175 كجم", charge: "4-19 مم" },
@@ -625,7 +625,7 @@ export const ar = {
       {
         name: 'كيس شبكي دائري (ARPILLA CIRCULAR)',
         img: '/images/arpillas/arpilla.webp',
-        video: "/videos/arpilla/circular.mp4",
+        video: "GO/arpillas/circular.mp4",
         link: '#',
         description: "مصنوع من البولي بروبيلين البكر بنسبة 100% وبنية من الرافيا، يوفر هذا الكيس الشبكي مقاومة عالية وأداءً ممتازاً في تطبيقات التعبئة والتخزين. تضمن جودته المتانة والأداء الموثوق في التعامل مع المنتجات المختلفة.",
         specs_values: {
@@ -642,7 +642,7 @@ export const ar = {
       {
         name: 'كيس شبكي دائري أحادي الخيط (ARPILLA MONOFILAMENTO CIRCULAR)',
         img: '/images/arpillas/arpilla2.webp',
-        video: "/videos/arpilla/mono.mp4",
+        video: "GO/arpillas/mono.mp4",
         link: '#',
         description: "مصنوع من البولي بروبيلين البكر بنسبة 100% وبنية من الرافيا/خيط أحادي، يوفر هذا الكيس الشبكي مقاومة عالية وأداءً ممتازاً في تطبيقات التعبئة والتخزين. يوفر هيكله المتانة والأداء الموثوق في التعامل مع المنتجات المختلفة وحمايتها.",
         specs_values: {
@@ -660,7 +660,7 @@ export const ar = {
       {
         name: 'كيس شبكي بخياطة جانبية (ARPILLA COSTURA LATERAL)',
         img: '/images/arpillas/arpilla3.webp',
-        video: "/videos/arpilla/costura.mp4",
+        video: "GO/arpillas/costura.mp4",
         link: '#',
         description: "مصنوع من البولي بروبيلين البكر بنسبة 100% وبنية من الرافيا/خيط أحادي، يوفر هذا الكيس الشبكي مقاومة عالية وأداءً ممتازاً في تطبيقات التعبئة والتخزين. يضمن هيكله المتانة والموثوقية في التعامل مع المنتجات المختلفة.",
         specs_values: {
@@ -679,7 +679,7 @@ export const ar = {
       {
         name: 'كيس شبكي بملصق مصفح (ARPILLA ETIQUETA LAMINADA)',
         img: '/images/arpillas/arpilla4.webp',
-        video: "/videos/arpilla/etiqueta.mp4",
+        video: "GO/arpillas/etiqueta.mp4",
         link: '#',
         description: "مصنوع من البولي بروبيلين البكر بنسبة 100% وبنية من الرافيا/الرافيا، يوفر هذا الكيس الشبكي مقاومة عالية وأداءً ممتازاً في عمليات التعبئة والتخزين. يضمن نسيجه المتانة والموثوقية للتطبيقات الصعبة في كل من الأسواق المحلية وأسواق التصدير.",
         specs_values: {
@@ -718,7 +718,7 @@ export const ar = {
         name: 'كيس رافيا غير مُطلَّى',
         img: '/images/sacos/saco2.png',
         model: '/models/saco_blanco.glb',
-        video: "/videos/saco/slaminar.mp4",
+        video: "GO/sacos/slaminar.mp4",
         link: '#',
         description: "مصنوعة من شرائط بولي بروبيلين متشابكة، توفّر أكياس الرافيا غير المُطلَّاة مقاومة كبيرة ومتانة ممتازة في تطبيقات التعبئة والتخزين. هيكلها يتحمّل الأحمال الثقيلة دون تمزق، مما يضمن أداءً موثوقاً في الأعمال الشاقة.",
         specs_values: {
@@ -754,7 +754,7 @@ export const ar = {
       {
         name: 'كيس رافيا بيئي',
         img: '/images/sacos/saco3.png',
-        video: "/videos/saco/eco.mp4",
+        video: "GO/sacos/eco.mp4",
         link: '#',
         description: "مصنوعة من مواد معاد تدويرها من نفايات عملية الإنتاج، توفّر هذه الأكياس مقاومة ومتانة جيدة بتكلفة أكثر اقتصادية. تصنيعها يتيح أداءً موثوقاً في تطبيقات التعبئة والتخزين العامة.",
         specs_values: {
@@ -794,7 +794,7 @@ export const ar = {
         name: "حافة كرافت بنية",
         description: "مصنوعة لحماية الحواف والزوايا أثناء النقل والتخزين، توزّع هذه الحافة الضغط بالتساوي، مما يمنع التشوه والأضرار في البضاعة. هيكلها يوفر المقاومة والاستقرار في تطبيقات التغليف الصعبة.",
         img: "/images/esquinero/esquinero.png",
-        video: "/videos/esquinero/esquinero.mp4",
+        video: "GO/esquineros/esquinero.mp4",
         link: "#",
         specs_values: {
           tab:    "1.5 بوصة",
@@ -811,7 +811,7 @@ export const ar = {
         name: "حافة كرافت بيضاء",
         description: "مصنوعة لحماية الحواف والزوايا أثناء النقل والتخزين، توزّع هذه الحافة الضغط بالتساوي، مما يمنع التشوه والأضرار في البضاعة. هيكلها يوفر المقاومة والاستقرار في تطبيقات التغليف الصعبة.",
         img: "/images/esquinero/esquinerob.png",
-        video: "/videos/esquinero/esquinero.mp4",
+        video: "GO/esquineros/esquinero.mp4",
         link: "#",
         specs_values: {
           tab:    "1.5 بوصة",
@@ -866,7 +866,7 @@ export const ar = {
         name: "كيس قائم",
         description: "أكياس قائمة متعددة الاستخدامات ببنية مُطلَّاة وحاجز عالٍ ضد الرطوبة والأكسجين. مثالية للأغذية الجافة أو الرطبة والمساحيق والسوائل ومستحضرات التجميل والمواد الكيميائية. متاحة بتشطيبات طبيعية ومطفأة ومعدنية، بأحجام من 150 جم حتى 1 كجم، مع خيار سحاب ونافذة.",
         img: "/images/flexible/standup-generica.png",
-        video: "/videos/flexible/standup.mp4",
+        video: "GO/flexible/standup.mp4",
         gallery: [
           "/images/flexible/standup-generica-2.png",
           "/images/flexible/standup-generica.png",
@@ -1268,7 +1268,7 @@ footer: {
       stat_female:      "% نسبة الموظفات",
       stat_recycled:    "طن مُعاد تدويره",
       stat_initiatives: "مبادرة نشطة",
-      video:            "/videos/waves2.mp4",
+      video:            "GO/home/waves2.mp4",
     },
 
     ods: {
@@ -1325,7 +1325,7 @@ footer: {
     oceanos: {
       hero_title:           "ملتزمون بمستقبل",
       hero_title_highlight: "أنظف لمحيطاتنا",
-      hero_video:           "/videos/waves.mp4",
+      hero_video:           "GO/home/waves.mp4",
       intro: "في Grupo Ortiz، نؤمن بعالم تعود فيه المحيطات للتألق. من خلال دعم مبادرات عالمية كـ The Ocean Cleanup وجائزة Tom Ford للابتكار في البلاستيك بدعم من Lonely Whale، نعمل على تقليل البلاستيك في بحارنا. كل عملية شراء تقوم بها معنا هي خطوة نحو كوكب أنظف ومستقبل مستدام للجميع. معاً ننقذ المحيطات!",
       features: [
         { title: "ندعم التنظيف العالمي",               desc: "بالتعاون مع مبادرات كـ The Ocean Cleanup."                              },
@@ -1339,7 +1339,7 @@ footer: {
           desc:   "تسعى هذه المبادرة العالمية إلى إحداث ثورة في صناعة البلاستيك من خلال تكريم وتعزيز الحلول المبتكرة التي تحلّ محل البلاستيك أحادي الاستخدام. يركّز نهجها على بدائل مستدامة وقابلة للتوسع تقلّل الأثر البيئي وتحمي المحيطات وتشجّع التحوّل نحو مواد أكثر مسؤولية.",
           btn:    "اعرف المزيد",
           link:   "https://unwrapthefuture.org/",
-          video:  "/videos/impacto/oceancleanup.mp4",
+          video:  "GO/impacto/oceancleanup.mp4",
           poster: "/images/impacto/cultura-calidad.jpg"
         },
         {
@@ -1347,7 +1347,7 @@ footer: {
           desc:   "تكرّس هذه المنظمة جهودها لتنظيف محيطات العالم، وتطوّر تقنيات متقدمة لإزالة البلاستيك المتراكم في البحار ومنع وصوله عبر التدخل في الأنهار، المصادر الرئيسية للتلوث. مهمتها استعادة صحة النظم البيئية البحرية وحماية التنوع البيولوجي وضمان مستقبل نظيف للأجيال القادمة.",
           btn:    "اعرف المزيد",
           link:   "https://theoceancleanup.com/",
-          video:  "/videos/impacto/tomford.mp4",
+          video:  "GO/impacto/tomford.mp4",
           poster: "/images/impacto/tomford.webp"
         }
       ]
@@ -1367,9 +1367,9 @@ footer: {
           num: "01", title: "بيت الأمل",
           desc:       "دعم دار الأيتام في تاكامبارو، ميتشواكان. كل طفل يستحق منزلاً مليئاً بالحب.",
           desc_short: "دعم دار الأيتام في تاكامبارو، ميتشواكان.",
-          img:        "/videos/impacto/hogar.mp4",
+          img:        "GO/impacto/hogar.mp4",
           isVideo:    true,
-          poster:     "/videos/impacto/hogar.mp4"
+          poster:     "GO/impacto/hogar.mp4"
         },
         {
           num: "02", title: "سلة GO",

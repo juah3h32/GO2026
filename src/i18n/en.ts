@@ -237,21 +237,21 @@ export const en = {
       division: "STRETCH FILM",
       descripcion: "High optical clarity stretch film meeting strict quality standards. Ensures load integrity and cost efficiency. Our line includes a Biodegradable option, formulated to degrade 90% faster.",
       slug: "stretch-film",
-      video: "/videos/carrusel/stretch-film.mp4"
+      video: "GO/carrusel/stretch-film.mp4"
     },
     {
       img: "carrusel/img4.webp",
       division: "MESH BAG",
       descripcion: "High-resistance, durable circular-woven polypropylene raffia mesh bags. Ventilated design ideal for fruits and vegetables.",
       slug: "arpillas",
-      video: "/videos/carrusel/arpillas.mp4"
+      video: "GO/carrusel/arpillas.mp4"
     },
     {
       img: "carrusel/img2.webp",
       division: "ROPE",
       descripcion: "High-performance polypropylene filament (PP) rope. The perfect balance: extreme lightness without sacrificing breaking resistance.",
       slug: "cuerdas",
-      video: "/videos/carrusel/cuerdas.mp4"
+      video: "GO/carrusel/cuerdas.mp4"
     },
     {
       img: "carrusel/img3.webp",
@@ -265,28 +265,28 @@ export const en = {
       division: "WOVEN SACK",
       descripcion: "Premium quality raffia sacks. Robust packaging solution for food, chemicals and fertilizers.",
       slug: "sacos",
-      video: "/videos/carrusel/sacos.mp4"
+      video: "GO/carrusel/sacos.mp4"
     },
     {
       img: "carrusel/img6.webp",
       division: "EDGE PROTECTOR",
       descripcion: "Cardboard edge protectors to optimize logistics. Structural resistance and greater load stability.",
       slug: "esquineros",
-      video: "/videos/carrusel/esquineros.mp4"
+      video: "GO/carrusel/esquineros.mp4"
     },
     {
       img: "carrusel/img7.webp",
       division: "FLEXIBLE",
       descripcion: "Neo Empaques International specializes in advanced flexible packaging solutions, designed to optimize the preservation and presentation of products in multiple industries.",
       slug: "empaques-flexibles",
-      video: "/videos/carrusel/bobina-impresa.mp4"
+      video: "GO/carrusel/bobina-impresa.mp4"
     },
     {
       img: "carrusel/nuev2a.png",
       division: "NATURIZABLE",
       descripcion: "Sustainable packaging that returns to the earth. 100% Plant Based, recyclable and compostable solutions for the food industry.",
       slug: "naturizable",
-      video: "/videos/carrusel/charola.mp4"
+      video: "GO/carrusel/charola.mp4"
     },
     {
       img: "/images/bolsas/carruselB.webp",
@@ -300,7 +300,7 @@ export const en = {
       division: "ACOLCHADO",
       descripcion: "Agricultural mulch film for covering soil in crops, gardens and orchards. Controls weeds, retains moisture and regulates soil temperature.",
       slug: "acolchado",
-      video: "/videos/carrusel/acolchadoV.mp4"
+      video: "GO/carrusel/acolchadoV.mp4"
     }
     ],
 
@@ -497,7 +497,7 @@ export const en = {
       {
         name: 'HARDWARE ROPE',
         img: '/images/cuerdas/CuerdaT1.webp',
-        video: "/videos/cuerdas/cuerda-1.mp4",
+        video: "GO/cuerdas/cuerda-1.mp4",
         link: '#',
         description: "Made with polypropylene and an advanced UV filter, this rope is ideal for activities with high sun exposure. Its specialized formulation slows natural wear and extends service life, guaranteeing greater resistance and durability against the elements. It is the perfect hardware rope for providing firmness, safety and reliable performance in general applications and demanding work.",
         specs_values: { load: "1,980 m", mat: "PP-UV", weight: "18 kg", resist: "175 kg", charge: "4-19 mm" },
@@ -625,7 +625,7 @@ arpillas: {
       {
         name: 'CIRCULAR MESH BAG',
         img: '/images/arpillas/arpilla.webp',
-        video: "/videos/arpilla/circular.mp4",
+        video: "GO/arpillas/circular.mp4",
         link: '#',
         description: "Manufactured with 100% virgin polypropylene and raffia construction, this mesh bag offers high resistance and excellent performance in packaging and storage applications. Its quality guarantees durability and reliable performance in handling various products.",
         specs_values: {
@@ -642,7 +642,7 @@ arpillas: {
       {
         name: 'CIRCULAR MONOFILAMENT MESH BAG',
         img: '/images/arpillas/arpilla2.webp',
-        video: "/videos/arpilla/mono.mp4",
+        video: "GO/arpillas/mono.mp4",
         link: '#',
         description: "Manufactured with 100% virgin polypropylene and raffia/monofilament construction, this mesh bag offers high resistance and excellent performance in packaging and storage applications. Its structure provides durability and reliable performance in the handling and protection of various products.",
         specs_values: {
@@ -660,7 +660,7 @@ arpillas: {
       {
         name: 'SIDE SEAM MESH BAG',
         img: '/images/arpillas/arpilla3.webp',
-        video: "/videos/arpilla/costura.mp4",
+        video: "GO/arpillas/costura.mp4",
         link: '#',
         description: "Manufactured with 100% virgin polypropylene and raffia/monofilament construction, this mesh bag offers high resistance and excellent performance in packaging and storage applications. Its structure guarantees durability and reliability in the handling of different products.",
         specs_values: {
@@ -679,7 +679,7 @@ arpillas: {
       {
         name: 'LAMINATED LABEL MESH BAG',
         img: '/images/arpillas/arpilla4.webp',
-        video: "/videos/arpilla/etiqueta.mp4",
+        video: "GO/arpillas/etiqueta.mp4",
         link: '#',
         description: "Manufactured with 100% virgin polypropylene and raffia/raffia construction, this mesh bag offers high resistance and excellent performance in packaging and storage processes. Its weave guarantees durability and reliability for demanding applications in both the domestic and export markets.",
         specs_values: {
@@ -717,7 +717,7 @@ arpillas: {
         name: 'UNLAMINATED WOVEN SACK',
         img: '/images/sacos/saco2.png',
         model: '/models/saco_blanco.glb',
-        video: "/videos/saco/slaminar.mp4",
+        video: "GO/sacos/slaminar.mp4",
         link: '#',
         description: "Made with interlaced polypropylene tapes, unlaminated woven sacks offer great resistance and excellent durability in packaging and storage applications. Their structure can withstand heavy loads without tearing, guaranteeing reliable performance in demanding work.",
         specs_values: {
@@ -753,7 +753,7 @@ arpillas: {
       {
         name: 'ECO WOVEN SACK',
         img: '/images/sacos/saco3.png',
-        video: "/videos/saco/eco.mp4",
+        video: "GO/sacos/eco.mp4",
         link: '#',
         description: "Made with recycled material from the waste of the same production process, these sacks offer resistance and good durability at a more accessible cost. Their manufacture allows reliable performance in general packaging and storage applications.",
         specs_values: {
@@ -793,7 +793,7 @@ arpillas: {
         name: "BROWN KRAFT EDGE PROTECTOR",
         description: "Designed to protect edges and corners during transport and storage, this edge protector distributes pressure evenly, preventing deformation and damage to merchandise. Its structure offers resistance and stability in demanding packaging applications.",
         img: "/images/esquinero/esquinero.png",
-        video: "/videos/esquinero/esquinero.mp4",
+        video: "GO/esquineros/esquinero.mp4",
         link: "#",
         specs_values: {
           tab:    "1.5 in",
@@ -810,7 +810,7 @@ arpillas: {
         name: "WHITE KRAFT EDGE PROTECTOR",
         description: "Designed to protect edges and corners during transport and storage, this edge protector distributes pressure evenly, preventing deformation and damage to merchandise. Its structure offers resistance and stability in demanding packaging applications.",
         img: "/images/esquinero/esquinerob.png",
-        video: "/videos/esquinero/esquinero.mp4",
+        video: "GO/esquineros/esquinero.mp4",
         link: "#",
         specs_values: {
           tab:    "1.5 in",
@@ -865,7 +865,7 @@ arpillas: {
         name: "STAND UP POUCH",
         description: "Versatile stand-up pouch bags with laminated structure and high moisture and oxygen barrier. Ideal for dry or wet foods, powders, liquids, cosmetics and chemicals. Available in Natural, Matte and Metallic finishes, in sizes from 150 g to 1 kg, with optional zipper closure and window.",
         img: "/images/flexible/standup-generica.png",
-        video: "/videos/flexible/standup.mp4",
+        video: "GO/flexible/standup.mp4",
         gallery: [
           "/images/flexible/standup-generica-2.png",
           "/images/flexible/standup-generica.png",
@@ -1267,7 +1267,7 @@ footer: {
       stat_female:      "% Female Workforce",
       stat_recycled:    "Tonnes Recycled",
       stat_initiatives: "Active Initiatives",
-      video:            "/videos/waves2.mp4",
+      video:            "GO/home/waves2.mp4",
     },
 
     ods: {
@@ -1324,7 +1324,7 @@ footer: {
     oceanos: {
       hero_title:           "Committed to a cleaner",
       hero_title_highlight: "future for our oceans",
-      hero_video:           "/videos/waves.mp4",
+      hero_video:           "GO/home/waves.mp4",
       intro: "At Grupo Ortiz, we believe in a world where the oceans shine again. By supporting global initiatives like The Ocean Cleanup and the Tom Ford Plastic Innovation Prize powered by Lonely Whale, we work to reduce plastic in our seas. Every purchase you make with us is a step toward a cleaner planet and a sustainable future for all. Together we save the oceans!",
       features: [
         { title: "We support global clean-up",       desc: "Collaborating with initiatives such as The Ocean Cleanup."                          },
@@ -1338,7 +1338,7 @@ footer: {
           desc:   "This global initiative seeks to revolutionize the plastics industry by rewarding and promoting innovative solutions that replace single-use plastics. Its focus is on sustainable and scalable alternatives that reduce environmental impact, protect the oceans and drive a shift toward more responsible materials for the planet.",
           btn:    "LEARN MORE",
           link:   "https://unwrapthefuture.org/",
-          video:  "/videos/impacto/oceancleanup.mp4",
+          video:  "GO/impacto/oceancleanup.mp4",
           poster: "/images/impacto/cultura-calidad.jpg"
         },
         {
@@ -1346,7 +1346,7 @@ footer: {
           desc:   "Dedicated to cleaning the world's oceans, this organization develops advanced technology to remove accumulated plastics from the seas and prevent new plastic from entering through rivers, the main source of pollution. Its mission is to restore the health of marine ecosystems, protecting biodiversity and ensuring a clean future for coming generations.",
           btn:    "LEARN MORE",
           link:   "https://theoceancleanup.com/",
-          video:  "/videos/impacto/tomford.mp4",
+          video:  "GO/impacto/tomford.mp4",
           poster: "/images/impacto/tomford.webp"
         }
       ]
@@ -1366,9 +1366,9 @@ footer: {
           num: "01", title: "HOPE HOME",
           desc:       "Support for Casa Hogar in Tacámbaro, Michoacán. Every child deserves a home full of love.",
           desc_short: "Support for Casa Hogar in Tacámbaro, Michoacán.",
-          img:        "/videos/impacto/hogar.mp4",
+          img:        "GO/impacto/hogar.mp4",
           isVideo:    true,
-          poster:     "/videos/impacto/hogar.mp4"
+          poster:     "GO/impacto/hogar.mp4"
         },
         {
           num: "02", title: "GO PANTRY",

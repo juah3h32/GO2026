@@ -33,6 +33,9 @@ const specs = [
 const CLOUD = import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME;
 const videoPoster = (src: string) =>
   CLOUD ? `https://res.cloudinary.com/${CLOUD}/video/upload/f_jpg,q_auto,so_0/${src.replace(/^\//, "").replace(/\.mp4$/, "")}.jpg` : '';
+const videoSrc = (src: string) =>
+  !src || src.startsWith('/') || src.startsWith('http') ? src
+  : `https://res.cloudinary.com/${CLOUD}/video/upload/q_auto:best/${src}`;
 ---
 
 <BaseLayout
@@ -53,7 +56,7 @@ const videoPoster = (src: string) =>
       <video
         class={`video-bg ${index === 0 ? 'visible' : ''}`}
         data-video-index={index}
-        src={prod.video || ''}
+        src={videoSrc(prod.video || '')}
         autoplay muted playsinline
         preload={index === 0 ? 'metadata' : 'none'}
         poster={index === 0 ? videoPoster(prod.video || '') : undefined}

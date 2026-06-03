@@ -1,6 +1,14 @@
 {
   "commits": [
     {
+      "hash": "15680c8",
+      "date": "2026-06-03",
+      "message": "agregar dependencia three + mejoras webhook whatsapp",
+      "rawMessage": "fix: agregar dependencia three + mejoras webhook whatsapp",
+      "type": "fix",
+      "area": "General"
+    },
+    {
       "hash": "54031ed",
       "date": "2026-06-03",
       "message": "producto de interés en distribuidores + envío anti-spam",
@@ -1394,41 +1402,41 @@
     }
   ],
   "stats": {
-    "total": 174,
+    "total": 175,
     "byType": {
+      "fix": 36,
       "feat": 19,
-      "fix": 35,
       "chore": 1,
       "perf": 2,
       "update": 7,
       "release": 110
     },
     "byArea": {
+      "General": 143,
       "Productos": 14,
-      "General": 142,
       "Admin/API": 4,
       "Media": 12,
       "i18n": 2
     },
     "byMonth": {
-      "2026-06": 16,
+      "2026-06": 17,
       "2026-05": 33,
       "2026-04": 29,
       "2026-03": 96
     },
     "byAreaType": {
+      "General": {
+        "fix": 19,
+        "feat": 10,
+        "update": 4,
+        "release": 110
+      },
       "Productos": {
         "feat": 7,
         "fix": 3,
         "chore": 1,
         "perf": 1,
         "update": 2
-      },
-      "General": {
-        "feat": 10,
-        "fix": 18,
-        "update": 4,
-        "release": 110
       },
       "Admin/API": {
         "fix": 4
@@ -1444,5 +1452,5 @@
       }
     }
   },
-  "generatedAt": "2026-06-03T17:59:27.384Z"
+  "generatedAt": "2026-06-03T18:15:21.419Z"
 }
