@@ -2,7 +2,7 @@
 // Cerebro IA del bot privado de WhatsApp — números autorizados.
 // Entiende lenguaje natural, consulta los datos reales del sistema y
 // genera reportes (resumen o comparativo) con PDF.
-import { readAllData, readRecruitmentLeads, readVacantes, readLeads, getWAIncoming } from './analytics-db.js';
+import { readAllData, readRecruitmentLeads, readVacantes, readLeads, getWAIncoming, getSystemLogs, getLogStats } from './analytics-db.js';
 
 const MODEL = 'gpt-4o-mini';
 
@@ -233,6 +233,20 @@ const TOOLS = [
       },
     },
   },
+  {
+    type: 'function',
+    function: {
+      name: 'revisar_sistema',
+      description: 'Revisa el estado de salud de la página/sistema: errores, advertencias, fallas (videos que no cargan, animaciones, endpoints), y eventos de seguridad (posible extracción de datos, accesos sospechosos). Usar cuando el usuario pregunta "¿cómo está el sistema?", "¿hay algún error/falla?", "¿algo que cambiar?", "¿qué está fallando?", "revisa la página", "¿hay alguna vulnerabilidad?". Devuelve conteos por severidad y los eventos recientes para que diagnostiques y sugieras correcciones.',
+      parameters: {
+        type: 'object',
+        properties: {
+          nivel: { type: 'string', enum: ['todos','error','critical','security','warn'], description: 'Filtrar por severidad (por defecto: errores y peores)' },
+          limite: { type: 'integer', description: 'Cuántos eventos recientes traer (default 25)' },
+        },
+      },
+    },
+  },
 ];
 
 // ── Permisos requeridos por tool — enforcement en CÓDIGO, no en el prompt ────
@@ -246,6 +260,7 @@ const TOOL_PERMS = {
   obtener_distribuidores:      'distribuidores',
   obtener_consultas_recientes: 'messages',
   metricas_dashboard:          'reports',
+  revisar_sistema:             '*',
 };
 
 // ── Ejecución de tools ────────────────────────────────────────────────────────
@@ -471,6 +486,46 @@ async function ejecutarTool(name, args, ctx) {
     };
   }
 
+  if (name === 'revisar_sistema') {
+    const nivel = args.nivel && args.nivel !== 'todos' ? args.nivel : null;
+    const limite = Math.min(args.limite || 25, 60);
+    const [stats, logs] = await Promise.all([
+      getLogStats().catch(() => ({})),
+      getSystemLogs({ level: nivel, limit: limite }).catch(() => []),
+    ]);
+
+    // Diagnóstico con CLAUDE (especialista en analizar fallas/seguridad).
+    // Devuelve texto corto y directo, listo para WhatsApp.
+    try {
+      const { diagnoseSystem } = await import('./claude-diagnose.js');
+      const d = await diagnoseSystem({ stats, logs });
+      if (d.ok && d.text) {
+        return {
+          diagnostico_experto: d.text,
+          instruccion: 'Entrega al usuario EXACTAMENTE el texto de diagnostico_experto, sin reescribirlo ni resumirlo. Es el diagnóstico oficial del agente de monitoreo.',
+        };
+      }
+    } catch (e) { console.error('[wa-assistant] claude-diagnose:', e.message); }
+
+    // Fallback (sin Claude): datos crudos para que el LLM principal diagnostique.
+    const total = (stats.error || 0) + (stats.critical || 0) + (stats.security || 0) + (stats.warn || 0);
+    return {
+      resumen_24h: {
+        criticos:   stats.critical || 0,
+        errores:    stats.error || 0,
+        seguridad:  stats.security || 0,
+        advertencias: stats.warn || 0,
+        alertas_sin_ver: stats.unseenAlerts || 0,
+      },
+      salud: total === 0 ? 'todo en orden' : (stats.critical || stats.security ? 'requiere atención URGENTE' : 'con incidencias'),
+      eventos_recientes: logs.slice(0, limite).map(l => ({
+        cuando: fechaMX(l.ts), nivel: l.level, area: l.category,
+        donde: l.source, detalle: l.message,
+      })),
+      instruccion: 'Diagnostica en lenguaje claro y CORTO: di si todo está bien o qué falla, agrupa por área, sugiere la corrección concreta. Seguridad primero. Si no hay nada, confírmalo en una línea.',
+    };
+  }
+
   return { error: 'tool desconocida' };
 }
 
@@ -512,6 +567,7 @@ Reglas:
 - "¿qué vacante tiene más postulaciones?" → postulaciones_por_vacante. "¿quiénes se registraron a X?" → postulaciones_por_vacante con ese puesto.
 - "dame el control total / panorama / cómo va todo" → metricas_dashboard.
 - "reporte/informe/documento" → enviar_reporte_pdf (resumen por defecto, comparativo si lo pide).
+- "¿cómo está el sistema/la página?", "¿hay errores/fallas?", "¿algo que cambiar/corregir?", "¿hay vulnerabilidades?", "revisa la página" → revisar_sistema. Diagnostica claro y sugiere correcciones; resalta primero lo de seguridad.
 - Datos puntuales (¿cuántos mensajes hoy?) → texto directo, sin PDF.
 - Si combinas varias métricas, organízalas con subtítulos en negrita (ej. *Reclutamiento:*, *Productos:*).
 - Sé conciso pero completo: si piden "todo el control", da un panorama estructurado de varias áreas.

@@ -1,4 +1,14 @@
 import { defineMiddleware } from 'astro:middleware';
+import { logSystemEvent } from './lib/analytics-db.js';
+
+// Registra un golpe de rate-limit (posible scraping/extracción) sin bloquear la respuesta.
+function logAbuse(bucket: string, ip: string, path: string) {
+  logSystemEvent({
+    level: 'security', category: 'rate-limit',
+    source: path, message: `Límite de peticiones superado (${bucket}) — posible extracción de datos`,
+    ip,
+  }).catch(() => {});
+}
 
 // ── Rate limiter en memoria (sliding window por IP) ───────────────────────────
 // Nota: en Vercel serverless cada instancia tiene su propio Map.
@@ -64,34 +74,13 @@ export const onRequest = defineMiddleware(async (context, next) => {
     const IP_RE = /^[\d.:a-fA-F]+$/;
     const ip = rawIp && IP_RE.test(rawIp) ? rawIp : 'unknown';
 
-    if (isChat) {
-      if (isRateLimited(`chat:${ip}`, 20, 60_000)) {
-        return new Response(JSON.stringify({ ok: false, error: 'Demasiadas solicitudes. Intenta en un momento.' }), {
-          status: 429,
-          headers: { 'Content-Type': 'application/json', 'Retry-After': '60' },
-        });
-      }
-    } else if (isLead) {
-      if (isRateLimited(`lead:${ip}`, 15, 60_000)) {
-        return new Response(JSON.stringify({ ok: false, error: 'Demasiadas solicitudes.' }), {
-          status: 429,
-          headers: { 'Content-Type': 'application/json', 'Retry-After': '60' },
-        });
-      }
-    } else if (isAdmin) {
-      if (isRateLimited(`admin:${ip}`, 60, 60_000)) {
-        return new Response(JSON.stringify({ ok: false, error: 'Demasiadas solicitudes.' }), {
-          status: 429,
-          headers: { 'Content-Type': 'application/json', 'Retry-After': '60' },
-        });
-      }
-    } else {
-      if (isRateLimited(`api:${ip}`, 30, 60_000)) {
-        return new Response(JSON.stringify({ ok: false, error: 'Demasiadas solicitudes.' }), {
-          status: 429,
-          headers: { 'Content-Type': 'application/json', 'Retry-After': '60' },
-        });
-      }
+    const bucket = isChat ? ['chat', 20] : isLead ? ['lead', 15] : isAdmin ? ['admin', 60] : ['api', 30];
+    if (isRateLimited(`${bucket[0]}:${ip}`, bucket[1] as number, 60_000)) {
+      logAbuse(bucket[0] as string, ip, url.pathname);
+      return new Response(JSON.stringify({ ok: false, error: 'Demasiadas solicitudes. Intenta en un momento.' }), {
+        status: 429,
+        headers: { 'Content-Type': 'application/json', 'Retry-After': '60' },
+      });
     }
   }
 

@@ -266,6 +266,42 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
 
     <slot />
 
+    {/* Monitoreo: reporta fallas del frontend (videos, JS, recursos) a /api/logs */}
+    <script is:inline>
+      (function () {
+        var sent = {};
+        function report(level, category, message, meta) {
+          try {
+            var key = category + '|' + String(message).slice(0, 80);
+            if (sent[key]) return; sent[key] = 1;            // dedup por sesión
+            navigator.sendBeacon
+              ? navigator.sendBeacon('/api/logs', new Blob([JSON.stringify({
+                  level: level, category: category, message: String(message).slice(0, 400),
+                  source: location.pathname, meta: meta || {}
+                })], { type: 'application/json' }))
+              : fetch('/api/logs', { method: 'POST', headers: { 'Content-Type': 'application/json' }, keepalive: true,
+                  body: JSON.stringify({ level: level, category: category, message: String(message).slice(0, 400), source: location.pathname, meta: meta || {} }) });
+          } catch (e) {}
+        }
+        // Errores JS
+        window.addEventListener('error', function (e) {
+          var t = e.target;
+          if (t && (t.tagName === 'VIDEO' || t.tagName === 'IMG' || t.tagName === 'SOURCE' || t.tagName === 'SCRIPT')) {
+            report('error', t.tagName === 'VIDEO' || t.tagName === 'SOURCE' ? 'video' : 'resource',
+              'No cargó ' + t.tagName.toLowerCase() + ': ' + (t.currentSrc || t.src || ''),
+              { tag: t.tagName, src: (t.currentSrc || t.src || '').slice(0, 200) });
+            return;
+          }
+          if (e.message) report('error', 'js-error', e.message, { file: (e.filename || '').slice(0, 120), line: e.lineno });
+        }, true);
+        // Promesas sin catch
+        window.addEventListener('unhandledrejection', function (e) {
+          var m = (e.reason && (e.reason.message || e.reason)) || 'unhandledrejection';
+          report('error', 'js-error', 'Promesa sin manejar: ' + String(m).slice(0, 200), {});
+        });
+      })();
+    </script>
+
     <VideoFallbackGuard />
 
     <div id="dock-menu-wrapper">

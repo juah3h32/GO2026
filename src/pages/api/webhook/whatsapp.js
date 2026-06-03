@@ -26,7 +26,7 @@ function freshTimestamp(ts) {
 }
 import { existsSync, readFileSync } from 'node:fs';
 import { join }       from 'node:path';
-import { claimWAIncoming, resetWAReply, updateWAIncomingReply, getWAAuthorizedByPhone, getWagoConfig } from '../../../lib/analytics-db.js';
+import { claimWAIncoming, resetWAReply, updateWAIncomingReply, getWAAuthorizedByPhone, getWagoConfig, logSystemEvent } from '../../../lib/analytics-db.js';
 import { sendWAText, sendWADocument, generateReportPDF, uploadPDFToCloudinary, sendTyping, transcribeAudio } from '../../../lib/notify.js';
 import { ejecutarComando } from '../../../lib/wa-commands.js';
 import { ejecutarAsistente } from '../../../lib/wa-assistant.js';
@@ -220,6 +220,7 @@ export async function handleIncomingMessage(msg, origin) {
     } catch (e) {
       console.error('[webhook/wa] Send error:', e.message);
       sendStatus = `send-failed: ${e.message}`;
+      logSystemEvent({ level: 'error', category: 'whatsapp', source: 'webhook/send', message: `Fallo al enviar respuesta WhatsApp: ${e.message}` }).catch(() => {});
       // Liberar el claim para reintentar en el siguiente poll.
       if (savedId) await resetWAReply(savedId).catch(() => {});
     }
@@ -256,6 +257,7 @@ export async function handleIncomingMessage(msg, origin) {
       }
     } catch (e) {
       console.error('[webhook/wa] Reporte error:', e.message);
+      logSystemEvent({ level: 'error', category: 'reportes', source: 'webhook/reporte', message: `Fallo al generar/enviar reporte PDF: ${e.message}` }).catch(() => {});
       await sendWAText(msg.phone || msg.chatId, `No pude generar el PDF.\nDetalle: ${e.message}`).catch(() => {});
     }
   }

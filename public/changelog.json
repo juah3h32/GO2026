@@ -1,6 +1,14 @@
 {
   "commits": [
     {
+      "hash": "bc977c0",
+      "date": "2026-06-03",
+      "message": "reporte SIEMPRE como PDF adjunto, NUNCA url (reintenta 3x) + voz, rangos, formato",
+      "rawMessage": "fix: reporte SIEMPRE como PDF adjunto, NUNCA url (reintenta 3x) + voz, rangos, formato",
+      "type": "fix",
+      "area": "Admin/API"
+    },
+    {
       "hash": "3f49f80",
       "date": "2026-06-03",
       "message": "enviar el PDF como archivo adjunto (no link) — mismo reporte exacto del dashboard",
@@ -1626,33 +1634,33 @@
     }
   ],
   "stats": {
-    "total": 203,
+    "total": 204,
     "byType": {
+      "fix": 51,
       "feat": 29,
-      "fix": 50,
       "update": 10,
       "chore": 2,
       "perf": 2,
       "release": 110
     },
     "byArea": {
-      "Admin/API": 10,
+      "Admin/API": 11,
       "General": 157,
       "Media": 18,
       "i18n": 3,
       "Productos": 15
     },
     "byMonth": {
-      "2026-06": 45,
+      "2026-06": 46,
       "2026-05": 33,
       "2026-04": 29,
       "2026-03": 96
     },
     "byAreaType": {
       "Admin/API": {
+        "fix": 7,
         "feat": 3,
-        "update": 1,
-        "fix": 6
+        "update": 1
       },
       "General": {
         "fix": 25,
@@ -1680,5 +1688,5 @@
       }
     }
   },
-  "generatedAt": "2026-06-03T22:04:48.356Z"
+  "generatedAt": "2026-06-03T22:23:17.171Z"
 }

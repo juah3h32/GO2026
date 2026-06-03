@@ -135,6 +135,13 @@ async function run(request, url) {
     }
   }
 
+  // Monitoreo: si hay fallas críticas/seguridad nuevas, Claude diagnostica y
+  // avisa por WhatsApp a los admins (anti-spam 30 min). No bloquea la respuesta.
+  try {
+    const { checkAndAlert } = await import('../../../lib/health-alert.js');
+    await checkAndAlert();
+  } catch {}
+
   return json({ ok: true, chats: chatIds.length, scanned, processed, errors, dbg, errDetail: errDetail.slice(0, 3) });
 }
 
