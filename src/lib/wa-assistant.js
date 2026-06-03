@@ -14,6 +14,36 @@ function hoyMX() {
 }
 function ymd(d) { return d.toISOString().split('T')[0]; }
 
+// Convierte un timestamp de Turso (UTC, "2026-06-02 21:16:00") a fecha 'YYYY-MM-DD'
+// en zona horaria de México. Devuelve '' si no parsea.
+function fechaMX(ts) {
+  if (!ts) return '';
+  try {
+    const iso = String(ts).trim().replace(' ', 'T') + (String(ts).includes('Z') ? '' : 'Z');
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    // en-CA da formato YYYY-MM-DD
+    return d.toLocaleDateString('en-CA', { timeZone: 'America/Mexico_City' });
+  } catch { return ''; }
+}
+
+// ¿La fecha del registro cae dentro del rango [desde, hasta] (inclusive)?
+function enRango(ts, desde, hasta) {
+  const f = fechaMX(ts);
+  if (!f) return false;
+  return f >= desde && f <= hasta;
+}
+
+// Filtra una lista de registros por periodo usando su campo de fecha (ts/created_at)
+function filtrarPorPeriodo(lista, periodo, mes, anio) {
+  if (!periodo || periodo === 'todos' || periodo === 'historico') {
+    return { items: lista, rango: { label: 'Histórico completo' } };
+  }
+  const r = rangoPeriodo(periodo, mes, anio);
+  const items = lista.filter(x => enRango(x.ts || x.created_at, r.desde, r.hasta));
+  return { items, rango: r };
+}
+
 function sumarRango(daily, desde, hasta) {
   // desde/hasta: 'YYYY-MM-DD' inclusive
   let s = { sessions: 0, messages: 0, wa: 0, pdf: 0, dias: 0 };
@@ -117,12 +147,14 @@ const TOOLS = [
     type: 'function',
     function: {
       name: 'obtener_candidatos',
-      description: 'Candidatos de reclutamiento registrados (nombre, puesto, estatus). Estatus posibles: "nuevo" (sin revisar), "visto", "contactado", "descartado". Para "¿hay nuevos?" o "¿falta alguno por revisar?" usa filtro_status="nuevo".',
+      description: 'Candidatos de reclutamiento registrados (nombre, puesto, estatus, fecha). Estatus: "nuevo" (sin revisar), "visto", "contactado", "descartado". Para "¿registros de hoy?" usa periodo="hoy". "¿los de ayer?" periodo="ayer". "¿esta semana?" periodo="semana".',
       parameters: {
         type: 'object',
         properties: {
           limite: { type: 'integer', default: 10 },
           filtro_status: { type: 'string', description: 'Filtrar por estatus: nuevo, visto, contactado, descartado. Omitir para todos.' },
+          periodo: { type: 'string', enum: ['hoy','ayer','semana','mes','todos'], description: 'Filtrar por fecha de registro. Omitir = todos.' },
+          mes: { type: 'integer' }, anio: { type: 'integer' },
         },
       },
     },
@@ -139,12 +171,14 @@ const TOOLS = [
     type: 'function',
     function: {
       name: 'obtener_distribuidores',
-      description: 'Contactos/leads de distribuidores interesados (nombre, empresa, estatus). Para "¿hay nuevos?" o "pendientes de contactar" usa filtro_status="nuevo".',
+      description: 'Contactos/leads de distribuidores interesados (nombre, empresa, estatus, fecha). Para "¿registros de hoy?" usa periodo="hoy", "¿de ayer?" periodo="ayer".',
       parameters: {
         type: 'object',
         properties: {
           limite: { type: 'integer', default: 10 },
           filtro_status: { type: 'string', description: 'Filtrar por estatus: nuevo, contactado, cerrado. Omitir para todos.' },
+          periodo: { type: 'string', enum: ['hoy','ayer','semana','mes','todos'], description: 'Filtrar por fecha de registro. Omitir = todos.' },
+          mes: { type: 'integer' }, anio: { type: 'integer' },
         },
       },
     },
@@ -256,18 +290,23 @@ async function ejecutarTool(name, args, ctx) {
   if (name === 'obtener_candidatos') {
     let leads = (await readRecruitmentLeads()) || [];
     const totalGeneral = leads.length;
+    // Filtro de fecha exacto (hoy/ayer/semana/mes)
+    const { items, rango } = filtrarPorPeriodo(leads, args.periodo, args.mes, args.anio);
+    leads = items;
     if (args.filtro_status) {
       const f = String(args.filtro_status).toLowerCase();
       leads = leads.filter(c => (c.status || 'nuevo').toLowerCase() === f);
     }
     const n = args.limite || 10;
     return {
-      total_general: totalGeneral,
-      total_con_filtro: leads.length,
-      filtro: args.filtro_status || 'ninguno',
+      periodo: rango.label || 'Histórico completo',
+      total_general_historico: totalGeneral,
+      total_en_periodo: leads.length,
+      filtro_status: args.filtro_status || 'ninguno',
       candidatos: leads.slice(0, n).map(c => ({
         nombre: c.nombre, puesto: c.puesto, estatus: c.status || 'nuevo',
         estado: c.estado_rep || c.estado, telefono: c.telefono,
+        fecha: fechaMX(c.ts || c.created_at),
       })),
     };
   }
@@ -280,17 +319,21 @@ async function ejecutarTool(name, args, ctx) {
   if (name === 'obtener_distribuidores') {
     let leads = (await readLeads()) || [];
     const totalGeneral = leads.length;
+    const { items, rango } = filtrarPorPeriodo(leads, args.periodo, args.mes, args.anio);
+    leads = items;
     if (args.filtro_status) {
       const f = String(args.filtro_status).toLowerCase();
       leads = leads.filter(l => (l.status || 'nuevo').toLowerCase() === f);
     }
     const n = args.limite || 10;
     return {
-      total_general: totalGeneral,
-      total_con_filtro: leads.length,
-      filtro: args.filtro_status || 'ninguno',
+      periodo: rango.label || 'Histórico completo',
+      total_general_historico: totalGeneral,
+      total_en_periodo: leads.length,
+      filtro_status: args.filtro_status || 'ninguno',
       contactos: leads.slice(0, n).map(l => ({
         nombre: l.nombre, empresa: l.empresa, whatsapp: l.whatsapp, estatus: l.status || 'nuevo',
+        fecha: fechaMX(l.ts || l.created_at),
       })),
     };
   }
