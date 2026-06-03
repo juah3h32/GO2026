@@ -16,11 +16,22 @@ const WINDOW_SEC = 15 * 60;
 const MAX_PER_RUN = 5;
 
 // fetch con timeout — WAHooks es intermitente (502/lento); no colgar la función.
-async function fetchT(u, opts = {}, ms = 6000) {
+async function fetchT(u, opts = {}, ms = 12000) {
   const ac = new AbortController();
   const t = setTimeout(() => ac.abort(), ms);
   try { return await fetch(u, { ...opts, signal: ac.signal }); }
   finally { clearTimeout(t); }
+}
+
+// reintenta una operación flaky (WAHooks 502/abort) hasta n veces
+async function retry(fn, n = 3) {
+  let last;
+  for (let i = 0; i < n; i++) {
+    try { const r = await fn(); if (r && r.ok) return r; last = r; }
+    catch (e) { last = e; }
+  }
+  if (last instanceof Error) throw last;
+  return last;
 }
 
 async function authOk(request, url) {
@@ -51,7 +62,7 @@ async function run(request, url) {
   // 1. Chats recientes
   let chats;
   try {
-    const r = await fetchT(`${base}/chats?limit=20`, { headers });
+    const r = await retry(() => fetchT(`${base}/chats?limit=20`, { headers }));
     if (!r.ok) return json({ ok: false, error: `chats HTTP ${r.status}` }, 502);
     chats = await r.json();
   } catch (e) { return json({ ok: false, error: `chats: ${e.message}` }, 502); }
@@ -71,10 +82,10 @@ async function run(request, url) {
 
     let msgs;
     try {
-      const r = await fetchT(
+      const r = await retry(() => fetchT(
         `${base}/chats/${encodeURIComponent(chatId)}/messages?limit=10&downloadMedia=false`,
-        { headers });
-      if (!r.ok) continue;
+        { headers }), 2);
+      if (!r || !r.ok) continue;
       msgs = await r.json();
     } catch { continue; }
     if (!Array.isArray(msgs)) continue;

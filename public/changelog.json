@@ -1,6 +1,14 @@
 {
   "commits": [
     {
+      "hash": "14663d6",
+      "date": "2026-06-03",
+      "message": "maxDuration 60s + timeouts en poll (WAHooks flaky, evitar 504)",
+      "rawMessage": "fix: maxDuration 60s + timeouts en poll (WAHooks flaky, evitar 504)",
+      "type": "fix",
+      "area": "General"
+    },
+    {
       "hash": "9c80681",
       "date": "2026-06-03",
       "message": "polling de WhatsApp como fallback (WAHooks no entrega webhooks)",
@@ -1498,9 +1506,9 @@
     }
   ],
   "stats": {
-    "total": 187,
+    "total": 188,
     "byType": {
-      "fix": 41,
+      "fix": 42,
       "feat": 25,
       "chore": 2,
       "perf": 2,
@@ -1508,31 +1516,31 @@
       "release": 110
     },
     "byArea": {
+      "General": 149,
       "Media": 17,
-      "General": 148,
       "i18n": 3,
       "Productos": 15,
       "Admin/API": 4
     },
     "byMonth": {
-      "2026-06": 29,
+      "2026-06": 30,
       "2026-05": 33,
       "2026-04": 29,
       "2026-03": 96
     },
     "byAreaType": {
+      "General": {
+        "fix": 20,
+        "feat": 14,
+        "chore": 1,
+        "update": 4,
+        "release": 110
+      },
       "Media": {
         "fix": 13,
         "feat": 2,
         "perf": 1,
         "update": 1
-      },
-      "General": {
-        "feat": 14,
-        "chore": 1,
-        "fix": 19,
-        "update": 4,
-        "release": 110
       },
       "i18n": {
         "feat": 1,
@@ -1550,5 +1558,5 @@
       }
     }
   },
-  "generatedAt": "2026-06-03T19:43:33.811Z"
+  "generatedAt": "2026-06-03T19:46:54.966Z"
 }
