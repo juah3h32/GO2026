@@ -237,21 +237,21 @@ export const pt = {
       division: "STRETCH FILM",
       descripcion: "Filme extensível de alta clareza óptica e padrões de qualidade. Garante a integridade da carga e eficiência em custos. Nossa linha inclui opção Biodegradável, formulada para se degradar 90% mais rápido.",
       slug: "stretch-film",
-      video: "/videos/carrusel/stretch-film.mp4"
+      video: "GO/carrusel/stretch-film.mp4"
     },
     {
       img: "carrusel/img4.webp",
       division: "SACO DE REDE",
       descripcion: "Sacos de malha de Rafia de Polipropileno em tecido circular de alta resistência e durabilidade. Design ventilado ideal para frutas e verduras.",
       slug: "arpillas",
-      video: "/videos/carrusel/arpillas.mp4"
+      video: "GO/carrusel/arpillas.mp4"
     },
     {
       img: "carrusel/img2.webp",
       division: "CORDA",
       descripcion: "Corda de Filamento de Polipropileno (PP) de alto desempenho. Equilíbrio perfeito: extrema leveza sem sacrificar resistência à ruptura.",
       slug: "cuerdas",
-      video: "/videos/carrusel/cuerdas.mp4"
+      video: "GO/carrusel/cuerdas.mp4"
     },
     {
       img: "carrusel/img3.webp",
@@ -265,28 +265,28 @@ export const pt = {
       division: "SACO",
       descripcion: "Sacos de Rafia de qualidade superior. Solução de embalagem robusta para alimentos, produtos químicos e fertilizantes.",
       slug: "sacos",
-      video: "/videos/carrusel/sacos.mp4"
+      video: "GO/carrusel/sacos.mp4"
     },
     {
       img: "carrusel/img6.webp",
       division: "CANTONEIRA",
       descripcion: "Cantoneiras de papelão para otimizar a logística. Resistência estrutural e maior estabilidade de carga.",
       slug: "esquineros",
-      video: "/videos/carrusel/esquineros.mp4"
+      video: "GO/carrusel/esquineros.mp4"
     },
     {
       img: "carrusel/img7.webp",
       division: "FLEXÍVEL",
       descripcion: "A Neo Empaques International é especializada em soluções avançadas de embalagem flexível, projetadas para otimizar a conservação e apresentação de produtos em múltiplas indústrias.",
       slug: "empaques-flexibles",
-      video: "/videos/carrusel/bobina-impresa.mp4"
+      video: "GO/carrusel/bobina-impresa.mp4"
     },
     {
       img: "carrusel/nuev2a.png",
       division: "NATURIZABLE",
       descripcion: "Embalagem sustentável que retorna à terra. Soluções 100% Plant Based, recicláveis e compostáveis para a indústria alimentar.",
       slug: "naturizable",
-      video: "/videos/carrusel/charola.mp4"
+      video: "GO/carrusel/charola.mp4"
     },
     {
       img: "/images/bolsas/carruselB.webp",
@@ -300,7 +300,7 @@ export const pt = {
       division: "ACOLCHADO",
       descripcion: "Mulch agrícola para cobrir o solo em cultivos, hortas e jardins. Controla ervas daninhas, conserva a humidade e regula a temperatura do solo.",
       slug: "acolchado",
-      video: "/videos/carrusel/acolchadoV.mp4"
+      video: "GO/carrusel/acolchadoV.mp4"
     }
   ],
 
@@ -324,7 +324,7 @@ export const pt = {
         name: "BANDEJA 855",
         description: "Embalagem que sustenta a comida com dignidade. Serve ao taqueiro, ao açougueiro, ao feirante, ao chef — e quando termina, retorna à terra sem pedir permissão. Sustentamos o mundo. Uma bandeja de cada vez.",
         img: "/images/divisiones/detallec.webp",
-        video: "/videos/carrusel/charola.mp4",
+        video: "GO/carrusel/charola.mp4",
         specs_values: {
           material: "Cartão Kraft",
           usage: "Alimentos",
@@ -342,7 +342,7 @@ export const pt = {
         soon: true,
         description: "Copos de celulose biodegradáveis de alta qualidade. Uma solução sustentável e elegante para o serviço de bebidas, comprometida com o meio ambiente sem comprometer a funcionalidade.",
         img: "/images/divisiones/vaso.webp",
-        video: "/videos/carrusel/charola.mp4",
+        video: "GO/carrusel/charola.mp4",
         specs_values: {
           material: "Celulose",
           usage: "Bebidas / Eventos",
@@ -358,7 +358,7 @@ export const pt = {
         soon: true,
         description: "Contentores especializados para diversas aplicações industriais e comerciais. Projetados para máxima durabilidade e eficiência no armazenamento e transporte.",
         img: "/images/divisiones/contenedor.webp",
-        video: "/videos/carrusel/charola.mp4",
+        video: "GO/carrusel/charola.mp4",
         specs_values: {
           material: "Polímeros",
           usage: "Multiusos",

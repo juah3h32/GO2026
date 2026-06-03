@@ -237,21 +237,21 @@ export const ar = {
       division: "ستريتش فيلم",
       descripcion: "فيلم تمدد بوضوح بصري عالٍ ومعايير جودة مميزة. يضمن سلامة الحمولة وكفاءة التكاليف. تشمل مجموعتنا خياراً قابلاً للتحلل البيولوجي، مُصمَّماً للتحلل بنسبة 90% أسرع.",
       slug: "stretch-film",
-      video: "/videos/carrusel/stretch-film.mp4"
+      video: "GO/carrusel/stretch-film.mp4"
     },
     {
       img: "carrusel/img4.webp",
       division: "أكياس الشبك",
       descripcion: "أكياس شبكية من رافيا البولي بروبيلين بنسيج دائري عالي المقاومة والمتانة. تصميم مهوّى مثالي للفواكه والخضروات.",
       slug: "arpillas",
-      video: "/videos/carrusel/arpillas.mp4"
+      video: "GO/carrusel/arpillas.mp4"
     },
     {
       img: "carrusel/img2.webp",
       division: "الحبال",
       descripcion: "حبال من خيوط البولي بروبيلين عالية الأداء. توازن مثالي بين الخفة الفائقة والمقاومة العالية للكسر.",
       slug: "cuerdas",
-      video: "/videos/carrusel/cuerdas.mp4"
+      video: "GO/carrusel/cuerdas.mp4"
     },
     {
       img: "carrusel/img3.webp",
@@ -265,28 +265,28 @@ export const ar = {
       division: "الأكياس",
       descripcion: "أكياس رافيا بجودة فائقة. حل تعبئة متين للأغذية والمواد الكيميائية والأسمدة.",
       slug: "sacos",
-      video: "/videos/carrusel/sacos.mp4"
+      video: "GO/carrusel/sacos.mp4"
     },
     {
       img: "carrusel/img6.webp",
       division: "حواف الحماية",
       descripcion: "حواف كرتونية لتحسين اللوجستيات. مقاومة هيكلية واستقرار أكبر للأحمال.",
       slug: "esquineros",
-      video: "/videos/carrusel/esquineros.mp4"
+      video: "GO/carrusel/esquineros.mp4"
     },
     {
       img: "carrusel/img7.webp",
       division: "التغليف المرن",
       descripcion: "تتخصص Neo Empaques International في حلول التغليف المرن المتقدمة، المصمّمة لتحسين الحفظ وتقديم المنتجات في صناعات متعددة.",
       slug: "empaques-flexibles",
-      video: "/videos/carrusel/bobina-impresa.mp4"
+      video: "GO/carrusel/bobina-impresa.mp4"
     },
     {
       img: "carrusel/nuev2a.png",
       division: "NATURIZABLE",
       descripcion: "تغليف مستدام يعود إلى الأرض. حلول 100% نباتية، قابلة لإعادة التدوير والتسميد لصناعة الأغذية.",
       slug: "naturizable",
-      video: "/videos/carrusel/charola.mp4"
+      video: "GO/carrusel/charola.mp4"
     },
     {
       img: "/images/bolsas/carruselB.webp",
@@ -300,7 +300,7 @@ export const ar = {
       division: "ACOLCHADO",
       descripcion: "غطاء زراعي لتغطية التربة في الزراعة والحدائق. يكافح الأعشاب الضارة، يحافظ على الرطوبة وينظّم درجة حرارة التربة.",
       slug: "acolchado",
-      video: "/videos/carrusel/acolchadoV.mp4"
+      video: "GO/carrusel/acolchadoV.mp4"
     }
   ],
 
@@ -324,7 +324,7 @@ export const ar = {
         name: "طبق 855",
         description: "تغليف يحمل الطعام بكرامة. يخدم الطاهي والجزار والبائع والشيف — وعند انتهاء عمره، يعود إلى الأرض دون استئذان. ندعم العالم. طبق واحد في كل مرة.",
         img: "/images/divisiones/detallec.webp",
-        video: "/videos/carrusel/charola.mp4",
+        video: "GO/carrusel/charola.mp4",
         specs_values: {
           material: "كرافت كارتون",
           usage: "أغذية",
@@ -342,7 +342,7 @@ export const ar = {
         soon: true,
         description: "أكواب سيليلوز قابلة للتحلل الحيوي عالية الجودة. حل مستدام وأنيق لخدمة المشروبات، ملتزم بالبيئة دون المساومة على الوظيفية.",
         img: "/images/divisiones/vaso.webp",
-        video: "/videos/carrusel/charola.mp4",
+        video: "GO/carrusel/charola.mp4",
         specs_values: {
           material: "سيليلوز",
           usage: "مشروبات / فعاليات",
@@ -358,7 +358,7 @@ export const ar = {
         soon: true,
         description: "حاويات متخصصة لتطبيقات صناعية وتجارية متنوعة. مصممة لأقصى قدر من المتانة والكفاءة في التخزين والنقل.",
         img: "/images/divisiones/contenedor.webp",
-        video: "/videos/carrusel/charola.mp4",
+        video: "GO/carrusel/charola.mp4",
         specs_values: {
           material: "بوليمرات",
           usage: "متعدد الاستخدامات",

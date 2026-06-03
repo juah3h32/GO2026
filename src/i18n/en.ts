@@ -237,21 +237,21 @@ export const en = {
       division: "STRETCH FILM",
       descripcion: "High optical clarity stretch film meeting strict quality standards. Ensures load integrity and cost efficiency. Our line includes a Biodegradable option, formulated to degrade 90% faster.",
       slug: "stretch-film",
-      video: "/videos/carrusel/stretch-film.mp4"
+      video: "GO/carrusel/stretch-film.mp4"
     },
     {
       img: "carrusel/img4.webp",
       division: "MESH BAG",
       descripcion: "High-resistance, durable circular-woven polypropylene raffia mesh bags. Ventilated design ideal for fruits and vegetables.",
       slug: "arpillas",
-      video: "/videos/carrusel/arpillas.mp4"
+      video: "GO/carrusel/arpillas.mp4"
     },
     {
       img: "carrusel/img2.webp",
       division: "ROPE",
       descripcion: "High-performance polypropylene filament (PP) rope. The perfect balance: extreme lightness without sacrificing breaking resistance.",
       slug: "cuerdas",
-      video: "/videos/carrusel/cuerdas.mp4"
+      video: "GO/carrusel/cuerdas.mp4"
     },
     {
       img: "carrusel/img3.webp",
@@ -265,28 +265,28 @@ export const en = {
       division: "WOVEN SACK",
       descripcion: "Premium quality raffia sacks. Robust packaging solution for food, chemicals and fertilizers.",
       slug: "sacos",
-      video: "/videos/carrusel/sacos.mp4"
+      video: "GO/carrusel/sacos.mp4"
     },
     {
       img: "carrusel/img6.webp",
       division: "EDGE PROTECTOR",
       descripcion: "Cardboard edge protectors to optimize logistics. Structural resistance and greater load stability.",
       slug: "esquineros",
-      video: "/videos/carrusel/esquineros.mp4"
+      video: "GO/carrusel/esquineros.mp4"
     },
     {
       img: "carrusel/img7.webp",
       division: "FLEXIBLE",
       descripcion: "Neo Empaques International specializes in advanced flexible packaging solutions, designed to optimize the preservation and presentation of products in multiple industries.",
       slug: "empaques-flexibles",
-      video: "/videos/carrusel/bobina-impresa.mp4"
+      video: "GO/carrusel/bobina-impresa.mp4"
     },
     {
       img: "carrusel/nuev2a.png",
       division: "NATURIZABLE",
       descripcion: "Sustainable packaging that returns to the earth. 100% Plant Based, recyclable and compostable solutions for the food industry.",
       slug: "naturizable",
-      video: "/videos/carrusel/charola.mp4"
+      video: "GO/carrusel/charola.mp4"
     },
     {
       img: "/images/bolsas/carruselB.webp",
@@ -300,7 +300,7 @@ export const en = {
       division: "ACOLCHADO",
       descripcion: "Agricultural mulch film for covering soil in crops, gardens and orchards. Controls weeds, retains moisture and regulates soil temperature.",
       slug: "acolchado",
-      video: "/videos/carrusel/acolchadoV.mp4"
+      video: "GO/carrusel/acolchadoV.mp4"
     }
     ],
 
@@ -324,7 +324,7 @@ export const en = {
         name: "CHAROLA 855",
         description: "Packaging that holds food with dignity. It serves the taquero, the butcher, the greengrocer, the chef — and when it's done, it returns to the earth without asking permission. We sustain the world. One tray at a time.",
         img: "/images/divisiones/detallec.webp",
-        video: "/videos/carrusel/charola.mp4",
+        video: "GO/carrusel/charola.mp4",
         specs_values: {
           material: "Kraft Cardboard",
           usage: "Food",
@@ -342,7 +342,7 @@ export const en = {
         soon: true,
         description: "High-quality biodegradable cellulose cups. A sustainable and elegant solution for beverage service, committed to the environment without compromising functionality.",
         img: "/images/divisiones/vaso.webp",
-        video: "/videos/carrusel/charola.mp4",
+        video: "GO/carrusel/charola.mp4",
         specs_values: {
           material: "Cellulose",
           usage: "Drinks / Events",
@@ -358,7 +358,7 @@ export const en = {
         soon: true,
         description: "Specialized containers for various industrial and commercial applications. Designed for maximum durability and efficiency in storage and transport.",
         img: "/images/divisiones/contenedor.webp",
-        video: "/videos/carrusel/charola.mp4",
+        video: "GO/carrusel/charola.mp4",
         specs_values: {
           material: "Polymers",
           usage: "Multi-purpose",

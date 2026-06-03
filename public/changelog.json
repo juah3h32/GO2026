@@ -1,6 +1,22 @@
 {
   "commits": [
     {
+      "hash": "2af2e8f",
+      "date": "2026-06-03",
+      "message": "video de fondo FONDOACOLCHADO local en pagina acolchado",
+      "rawMessage": "fix: video de fondo FONDOACOLCHADO local en pagina acolchado",
+      "type": "fix",
+      "area": "Media"
+    },
+    {
+      "hash": "d5b0124",
+      "date": "2026-06-03",
+      "message": "videos del carrusel servidos local (<10MB c/u); rafia y bolsa4 quedan en Cloudinary",
+      "rawMessage": "feat: videos del carrusel servidos local (<10MB c/u); rafia y bolsa4 quedan en Cloudinary",
+      "type": "feat",
+      "area": "Productos"
+    },
+    {
       "hash": "ea675f6",
       "date": "2026-06-03",
       "message": "videos desde Cloudinary en produccion (estaban gitignored, 404 en vercel)",
@@ -1410,47 +1426,47 @@
     }
   ],
   "stats": {
-    "total": 176,
+    "total": 178,
     "byType": {
-      "fix": 37,
-      "feat": 19,
+      "fix": 38,
+      "feat": 20,
       "chore": 1,
       "perf": 2,
       "update": 7,
       "release": 110
     },
     "byArea": {
-      "Media": 13,
+      "Media": 14,
+      "Productos": 15,
       "General": 143,
-      "Productos": 14,
       "Admin/API": 4,
       "i18n": 2
     },
     "byMonth": {
-      "2026-06": 18,
+      "2026-06": 20,
       "2026-05": 33,
       "2026-04": 29,
       "2026-03": 96
     },
     "byAreaType": {
       "Media": {
-        "fix": 9,
+        "fix": 10,
         "feat": 2,
         "perf": 1,
         "update": 1
+      },
+      "Productos": {
+        "feat": 8,
+        "fix": 3,
+        "chore": 1,
+        "perf": 1,
+        "update": 2
       },
       "General": {
         "fix": 19,
         "feat": 10,
         "update": 4,
         "release": 110
-      },
-      "Productos": {
-        "feat": 7,
-        "fix": 3,
-        "chore": 1,
-        "perf": 1,
-        "update": 2
       },
       "Admin/API": {
         "fix": 4
@@ -1460,5 +1476,5 @@
       }
     }
   },
-  "generatedAt": "2026-06-03T18:22:17.433Z"
+  "generatedAt": "2026-06-03T18:26:07.747Z"
 }

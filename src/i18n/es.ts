@@ -237,21 +237,21 @@ chatbot: {
       division: "STRETCH FILM",
       descripcion: "Película estirable de alta claridad óptica y estándares de calidad. Asegura la integridad de la carga y eficiencia en costos. Nuestra línea incluye opción Biodegradable, formulada para degradarse 90% más rápido.",
       slug: "stretch-film",
-      video: "/videos/carrusel/stretch-film.mp4"
+      video: "GO/carrusel/stretch-film.mp4"
     },
       {
       img: "carrusel/img4.webp",
       division: "ARPILLA",
       descripcion: "Sacos de malla de Rafia de Polipropileno en tejido circular de alta resistencia y durabilidad. Diseño ventilado ideal para frutas y verduras.",
       slug: "arpillas",
-      video: "/videos/carrusel/arpillas.mp4"
+      video: "GO/carrusel/arpillas.mp4"
     },
     {
       img: "carrusel/img2.webp",
       division: "CUERDA",
       descripcion: "Cuerda de Filamento de Polipropileno (PP) de alto rendimiento. Equilibrio perfecto: extrema ligereza sin sacrificar resistencia a la rotura.",
       slug: "cuerdas",
-      video: "/videos/carrusel/cuerdas.mp4"
+      video: "GO/carrusel/cuerdas.mp4"
     },
     {
       img: "carrusel/img3.webp",
@@ -266,28 +266,28 @@ chatbot: {
       division: "SACO",
       descripcion: "Sacos de Rafia de calidad superior. Solución de envasado robusta para alimentos, productos químicos y fertilizantes.",
       slug: "sacos",
-      video: "/videos/carrusel/sacos.mp4"
+      video: "GO/carrusel/sacos.mp4"
     },
     {
       img: "carrusel/img6.webp",
       division: "ESQUINERO",
       descripcion: "Esquineros de cartón para optimizar la logística. Resistencia estructural y mayor estabilidad de carga.",
       slug: "esquineros",
-      video: "/videos/carrusel/esquineros.mp4"
+      video: "GO/carrusel/esquineros.mp4"
     },
     {
       img: "carrusel/img7.webp",
       division: "FLEXIBLE",
       descripcion: "Neo Empaques International se especializa en soluciones avanzadas de empaque flexible, diseñadas para optimizar la conservación y presentación de productos en múltiples industrias.",
       slug: "empaques-flexibles",
-      video: "/videos/carrusel/bobina-impresa.mp4"
+      video: "GO/carrusel/bobina-impresa.mp4"
     },
     {
       img: "carrusel/nuev2a.png",
       division: "NATURIZABLE",
       descripcion: "Empaque sustentable que regresa a la tierra. Soluciones 100% Plant Based, reciclables y compostables para la industria alimentaria.",
       slug: "naturizable",
-      video: "/videos/carrusel/charola.mp4"
+      video: "GO/carrusel/charola.mp4"
     },
     {
       img: "/images/bolsas/carruselB.webp",
@@ -301,7 +301,7 @@ chatbot: {
       division: "ACOLCHADO",
       descripcion: "Acolchado agrícola para cubrir el suelo en siembras, cultivos y huertos. Controla malezas, conserva humedad y regula la temperatura del terreno.",
       slug: "acolchado",
-      video: "/videos/carrusel/acolchadoV.mp4"
+      video: "GO/carrusel/acolchadoV.mp4"
     }
   ],
 
@@ -325,7 +325,7 @@ chatbot: {
         name: "CHAROLA 855",
         description: "Empaque que sostiene la comida con dignidad. Sirve al taquero, al carnicero, al frutero, al chef — y cuando termina, regresa a la tierra sin pedir permiso. Sostenemos al mundo. Una charola a la vez.",
         img: "/images/divisiones/detallec.webp",
-        video: "/videos/carrusel/charola.mp4",
+        video: "GO/carrusel/charola.mp4",
         specs_values: {
           material: "Cartón Kraft",
           usage: "Alimentos",
@@ -343,7 +343,7 @@ chatbot: {
         soon: true,
         description: "Vasos de celulosa biodegradables de alta calidad. Una solución sostenible y elegante para el servicio de bebidas, comprometida con el medio ambiente sin comprometer la funcionalidad.",
         img: "/images/divisiones/vaso.webp",
-        video: "/videos/carrusel/charola.mp4",
+        video: "GO/carrusel/charola.mp4",
         specs_values: {
           material: "Celulosa",
           usage: "Bebidas / Eventos",
@@ -359,7 +359,7 @@ chatbot: {
         soon: true,
         description: "Contenedores especializados para diversas aplicaciones industriales y comerciales. Diseñados para máxima durabilidad y eficiencia en el almacenamiento y transporte.",
         img: "/images/divisiones/contenedor.webp",
-        video: "/videos/carrusel/charola.mp4",
+        video: "GO/carrusel/charola.mp4",
         specs_values: {
           material: "Polímeros",
           usage: "Multiusos",
