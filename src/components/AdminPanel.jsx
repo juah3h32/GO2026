@@ -2584,6 +2584,7 @@ const PERM_OPTIONS = [
   { id: 'vacantes',      label: 'Vacantes' },
   { id: 'distribuidores',label: 'Distribuidores' },
   { id: 'messages',      label: 'Mensajes bot' },
+  { id: 'mantenimiento', label: 'Mantenimiento (subir/bajar paginas)' },
   { id: '*',             label: 'Acceso total' },
 ];
 

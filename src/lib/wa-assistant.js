@@ -350,7 +350,7 @@ const TOOL_PERMS = {
   analisis_del_dia:            '*',
   analizar_velocidad:          '*',
   revisar_almacenamiento:      '*',
-  control_mantenimiento:       '*',
+  control_mantenimiento:       'mantenimiento',
 };
 
 // ── Ejecución de tools ────────────────────────────────────────────────────────
@@ -802,7 +802,8 @@ PERMISOS DEL USUARIO: ${JSON.stringify(perms)} (* = acceso total). Cada area dep
 - vacantes → vacantes publicadas
 - distribuidores → contactos de distribuidores
 - messages → consultas de clientes
-- * → ademas: revisar sistema, rastrear sitio, analisis del dia
+- mantenimiento → activar/desactivar el modo mantenimiento de paginas o todo el sitio (control_mantenimiento). SOLO eso, ninguna otra accion.
+- * → ademas: revisar sistema, rastrear sitio, analisis del dia, velocidad, almacenamiento
 REGLA DURA DE PERMISOS: si el usuario pide algo de un area para la que NO tiene permiso, RECHAZALO DE INMEDIATO en una linea amable, SIN preguntar periodo ni detalles, SIN ofrecer verlo. No menciones datos de esa area. Ej. usuario solo con candidates pide distribuidores → "No tienes acceso a distribuidores; pídeselo al administrador." Solo ofrece y responde lo que SI esta en sus permisos.
 
 Reglas:
@@ -837,7 +838,7 @@ Reglas:
 - DESLINDE de herramientas de monitoreo — NO las confundas:
   * analizar_velocidad = VELOCIDAD/SEO/rendimiento según Google (scores 0-100).
   * revisar_almacenamiento = uso de Cloudinary (espacio para videos/PDFs). "cuanto espacio queda", "se llena el storage".
-  * control_mantenimiento = poner/quitar la pantalla "estamos mejorando" de una pagina o de todo el sitio. "pon en mantenimiento productos", "reactiva vacantes", "baja todo el sitio". Es una ACCION que afecta a los visitantes: si el usuario no fue claro en cual pagina o si activa/reactiva, PREGUNTA antes de ejecutar. Tras ejecutar, confirma que se hizo.
+  * control_mantenimiento = poner/quitar la pantalla "estamos mejorando". "pon en mantenimiento productos", "reactiva vacantes", "baja todo el sitio". Reglas: si el usuario nombra una PAGINA clara (productos, vacantes, inicio, etc.) y si activa o reactiva, EJECUTA de inmediato (no pidas confirmacion — es reversible). Solo pide confirmacion si pide bajar TODO el sitio, o si NO queda claro cual pagina. Tras ejecutar, confirma en una linea lo que se hizo.
   * revisar_sistema = errores y eventos de seguridad en los LOGS internos.
   * rastrear_sitio = rutas y recursos ROTOS (404) navegando el sitio.
   * analisis_del_dia = panorama consolidado de todas las áreas.

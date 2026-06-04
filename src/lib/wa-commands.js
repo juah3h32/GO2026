@@ -6,6 +6,7 @@ import { readAllData, readRecruitmentLeads, readVacantes, readLeads, getWAIncomi
 export const PERMISSIONS = {
   reports:      'Reportes y estadísticas',
   candidates:   'Candidatos y reclutamiento',
+  mantenimiento:'Activar/desactivar mantenimiento de páginas',
   vacantes:     'Vacantes publicadas',
   distribuidores: 'Contactos distribuidores',
   messages:     'Historial de mensajes del bot',
