@@ -39,6 +39,9 @@ Astro.response.headers.set('Retry-After', '120');
         return m ? (m[2] || 'home') : null;
       }
       function chequear() {
+        // Solo auto-retorna si REALMENTE vino de una pagina en mantenimiento.
+        // Si entro directo (sin origen), no redirige aqui: manda el contador.
+        if (!origen) return;
         fetch('/api/maintenance-status', { cache: 'no-store' })
           .then(function (r) { return r.json(); })
           .then(function (m) {
@@ -46,14 +49,13 @@ Astro.response.headers.set('Retry-After', '120');
             var slug = slugDe(origen);
             var sigueAbajo = m.all || (slug && m.slugs && m.slugs.indexOf(slug) >= 0);
             if (!sigueAbajo) {
-              // Reactivado → volver a la pagina de origen o al inicio.
-              location.replace(origen || '/');
+              // La pagina de origen ya se reactivo → volver a ella.
+              location.replace(origen);
             }
           })
           .catch(function () {});
       }
-      setInterval(chequear, 8000);
-      setTimeout(chequear, 3000);
+      if (origen) { setInterval(chequear, 8000); setTimeout(chequear, 5000); }
 
       // Cuenta regresiva visible de 40s: al llegar a 0 va al inicio.
       var restante = 40;
