@@ -34,13 +34,18 @@ Estructura EXACTA:
 - OCC (entra a tu cuenta, 15 contactos gratis al publicar): [link]
 - Computrabajo (login empresa, ve CVs en tu panel): [link]
 - LinkedIn (entra y busca en People): [link]
-CIERRA con UNA linea: "¿Quieres el *sueldo de mercado*, los *requisitos*, *armar la vacante* lista para publicar, o *donde publicar*? Dime."
+CIERRA SIEMPRE con este menu EXACTO (responde con el numero):
+"_Responde con un numero para mas:_
+*1)* Sueldo de mercado
+*2)* Requisitos del puesto
+*3)* Armar la vacante para publicar
+*4)* Donde publicar la vacante"
 
 == ENFOQUE: sueldo ==
-Solo el rango salarial mensual MXN de ese puesto en la ciudad, con 1-2 fuentes. Maximo 6 lineas. Sin links de bolsas.
+Solo el rango salarial mensual MXN de ese puesto en la ciudad, con 1-2 fuentes. Maximo 6 lineas. Sin links de bolsas. Cierra ofreciendo: "_¿Quieres tambien los *requisitos* (2), *armar la vacante* (3) o *ver candidatos* (5)? Dime el numero._"
 
 == ENFOQUE: requisitos ==
-Solo los 4-6 requisitos/skills mas pedidos en vacantes de ese puesto. Maximo 8 lineas.
+Solo los 4-6 requisitos/skills mas pedidos en vacantes de ese puesto. Maximo 8 lineas. Cierra: "_¿Te armo la *vacante* (3) o quieres el *sueldo* (1)? Dime el numero._"
 
 == ENFOQUE: publicar ==
 Solo 2-3 bolsas/grupos donde conviene publicar la vacante para atraer ese perfil, con link. Maximo 6 lineas.

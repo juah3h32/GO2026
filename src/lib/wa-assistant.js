@@ -739,7 +739,12 @@ Reglas:
 - "análisis del día", "cómo amaneció la página", "revisa todas las áreas", "reporte de salud", "qué dicen los agentes" → analisis_del_dia (orquesta a todos los agentes por área). Tarda unos segundos.
 - "analiza la velocidad", "qué tan rápido carga", "cómo está el SEO", "pagespeed", "rendimiento del sitio", "puntaje de Google", "qué mejorar de la página" → analizar_velocidad (Google PageSpeed Insights). Tarda 30-60 seg; avisa que estás analizando.
 - "busca candidatos para X", "busca en el mercado X", "necesito un X", "solicito la vacante X" → buscar_mercado_vacante (enfoque=candidatos: donde ver CVs y contactar). Tarda ~1 min.
-- SEGUIMIENTO tras un SCOUT (mismo puesto del mensaje anterior): "el sueldo de mercado"/"qué pagan" → enfoque=sueldo; "qué requisitos/experiencia piden" → enfoque=requisitos; "dónde publico" → enfoque=publicar; "ármame/créame la vacante", "hazme el borrador" → enfoque=vacante. Reutiliza el puesto previo del historial.
+- SEGUIMIENTO tras un SCOUT (reutiliza SIEMPRE el mismo puesto y ciudad del mensaje anterior del historial):
+  * Sueldo → enfoque=sueldo. Dispara con CUALQUIERA de: "sueldo", "salario", "cuánto pagan", "cuánto cuesta", "cuánto cobran", "en qué precio ronda", "qué precio", "rango salarial", "cuánto gana".
+  * Requisitos → enfoque=requisitos: "requisitos", "qué piden", "qué experiencia", "qué necesita".
+  * Vacante → enfoque=vacante: "ármame/créame la vacante", "hazme el borrador", "la vacante".
+  * Publicar → enfoque=publicar: "dónde publico", "dónde la subo".
+- MENU NUMERADO: si el mensaje anterior del bot mostró un menú con números y el usuario responde SOLO un número (o "opción 2", "el 3"), interpreta: *1*=sueldo, *2*=requisitos, *3*=vacante, *4*=publicar, *5*=candidatos. Llama buscar_mercado_vacante con ese enfoque y el puesto del historial. NUNCA repitas el mismo enfoque anterior si el usuario pide algo distinto.
 - OJO: candidatos YA registrados en el sistema → obtener_candidatos; mercado externo → buscar_mercado_vacante.
 - DESLINDE de herramientas de monitoreo — NO las confundas:
   * analizar_velocidad = VELOCIDAD/SEO/rendimiento según Google (scores 0-100).
