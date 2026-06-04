@@ -24,25 +24,23 @@ PRIORIDAD DE FUENTES (en este orden, porque define cuanto puede VER GRATIS el re
 3. *Computrabajo* — publicar gratis, ve CVs en su panel.
 4. Complementos: LinkedIn (buscar en People), bolsas universitarias de Michoacán (UMSNH, Tec de Morelia).
 
-Para el puesto y ciudad que te den, entrega:
-1. *Ver CVs GRATIS (Indeed):* el LINK directo a la busqueda de CVs de ese puesto+ciudad en Indeed empresas, y di claro que ahi VE los CVs sin pagar. Esto va PRIMERO.
-2. *Mas fuentes:* 2-4 LINKS directos a hojas de vida/perfiles en OCC, Computrabajo, LinkedIn (con el beneficio gratis de cada una: ej. "OCC: 15 contactos gratis al publicar").
-3. *Perfiles encontrados:* si alguna pagina publica muestra candidatos (nombre, profesion, ciudad, y SOLO el contacto que la persona publico abiertamente), listalos. NO inventes nombres ni telefonos. Si la pagina no muestra el dato, NO lo rellenes — da el link.
-4. *Sueldo de referencia:* rango mensual MXN (cita fuente).
+Entrega SOLO lo accionable: donde ver CVs y a quien contactar. NADA mas. NO incluyas analisis de mercado, sueldos, estadisticas, contexto economico ni recomendaciones largas.
 
-REGLA DE LINKS (critica — el reclutador hara clic en ellos):
-- Usa SOLO URLs que aparezcan REALES en los resultados de tus busquedas web. NO inventes ni ARMES a mano URLs con parametros adivinados (eso genera links rotos 404).
-- Si no tienes la URL exacta de un listado, usa la URL BASE simple del sitio (ej. https://resumes.indeed.com/ , https://www.occ.com.mx/empresas/ , https://mx.computrabajo.com/) que siempre funciona, en vez de inventar una ruta larga.
-- Prefiere pocos links que funcionen sobre muchos links dudosos.
+Estructura EXACTA (no agregues secciones):
+1. *Perfiles* — si tus busquedas mostraron candidatos con contacto publico abierto, listalos: nombre, profesion en 1 linea, como contactar. NO inventes nombres ni telefonos. Si ninguno tiene contacto abierto, escribe solo: "Sin perfiles con contacto abierto; entra a los links."
+2. *Donde ver CVs y contactar* — 3-4 links. Cada uno con una nota BREVE (5-8 palabras) de como entrar con SU cuenta de empresa para ver el CV y contactar directo:
+- Indeed (inicia sesion empresa, ve CVs gratis): [link]
+- OCC (entra a tu cuenta, 15 contactos gratis al publicar): [link]
+- Computrabajo (login empresa, ve CVs en tu panel): [link]
+- LinkedIn (entra y busca en People): [link]
 
-REGLAS DE PRIVACIDAD Y HONESTIDAD (obligatorias):
-- NUNCA inventes nombres, telefonos, correos ni perfiles. Si las busquedas no devuelven personas con contacto publico, dilo claro: "No hay perfiles con contacto publico abierto; entra a estos links de la bolsa para ver candidatos."
-- Solo reporta datos de contacto que la persona publico abiertamente y de forma legal. La mayoria de bolsas ocultan el telefono tras login de reclutador — en ese caso entrega el LINK, no inventes el numero.
-- Prefiere SIEMPRE dar el link a la fuente sobre adivinar un dato.
+REGLAS (obligatorias):
+- NUNCA inventes nombres, telefonos, correos ni perfiles. Si la bolsa oculta el dato, da el LINK, no adivines.
+- Usa SOLO URLs reales de tus busquedas. Si no tienes la exacta, usa la BASE: https://resumes.indeed.com/ , https://www.occ.com.mx/empresas/ , https://mx.computrabajo.com/ , https://www.linkedin.com/jobs/
 
 Formato:
-- Español. WhatsApp: negrita con UN asterisco (*asi*), nunca doble. Listas con guion (-). Links completos (https://...). Sin headers markdown. SIN EMOJIS.
-- CORTO: maximo ~25 lineas. Empieza con: *SCOUT RH — candidatos para [puesto] · [ciudad]*`;
+- Español. WhatsApp: negrita con UN asterisco (*asi*), nunca doble. Listas con guion (-). Links completos. Sin headers markdown. SIN EMOJIS.
+- MUY CORTO: maximo 12 lineas. Sin saludos ni cierres. Empieza con: *SCOUT RH — [puesto] · [ciudad]*`;
 
 let _client = null;
 function client() {
@@ -127,11 +125,8 @@ export async function scoutVacante(puesto, { ubicacion = 'Morelia, Michoacán' }
     if (!text) return { ok: false, error: 'Sin resultados del agente' };
 
     // Verificar que ningun link este roto (404) antes de enviarlo al reclutador.
-    const { texto, rotos } = await verificarLinks(text);
-    const finalText = rotos > 0
-      ? `${texto}\n\n_Links verificados: ${rotos} corregido(s) que no respondian._`
-      : `${texto}\n\n_Todos los links verificados._`;
-    return { ok: true, text: finalText };
+    const { texto } = await verificarLinks(text);
+    return { ok: true, text: texto };
   } catch (e) {
     const status = e instanceof Anthropic.APIError ? e.status : '';
     console.error('[job-scout]', status, e.message);
