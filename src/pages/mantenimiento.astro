@@ -43,7 +43,7 @@ Astro.response.headers.set('Retry-After', '120');
         // Solo auto-retorna si REALMENTE vino de una pagina en mantenimiento.
         // Si entro directo (sin origen), no redirige aqui: manda el contador.
         if (!origen) return;
-        fetch('/api/maintenance-status', { cache: 'no-store' })
+        fetch('/api/maintenance-status?t=' + Date.now(), { cache: 'no-store' })
           .then(function (r) { return r.json(); })
           .then(function (m) {
             if (!m) return;

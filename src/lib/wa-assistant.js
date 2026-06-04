@@ -683,7 +683,14 @@ async function ejecutarTool(name, args, ctx) {
     const SLUGS = ['home','about','acolchado','arpillas','bolsas','catalogo','cuerdas','distribuidor','empaques-flexibles','esquineros','naturizable','productos','rafias','sacos','social','stretch-film','vacantes'];
     const parse = (raw) => { if (raw === '1') return { all:true, slugs:[] }; if (!raw || raw === '0') return { all:false, slugs:[] }; try { const o = JSON.parse(raw); return { all:!!o.all, slugs:Array.isArray(o.slugs)?o.slugs:[] }; } catch { return { all:false, slugs:[] }; } };
     const cur = parse(await getConfig('maintenance').catch(() => null));
-    const obj = String(args.objetivo || '').toLowerCase().trim().replace(/^inicio$/, 'home');
+    let obj = String(args.objetivo || '').toLowerCase().trim().replace(/^inicio$/, 'home');
+    // Normaliza variantes (plural/singular, sinonimos) al slug real de la pagina.
+    const ALIAS = { distribuidores: 'distribuidor', contacto: 'distribuidor', empaques: 'empaques-flexibles', flexibles: 'empaques-flexibles', stretch: 'stretch-film', 'stretch film': 'stretch-film' };
+    if (obj && !['todo','sitio','todo el sitio','mantenimiento'].includes(obj) && !SLUGS.includes(obj)) {
+      if (ALIAS[obj]) obj = ALIAS[obj];
+      else if (SLUGS.includes(obj.replace(/s$/, ''))) obj = obj.replace(/s$/, '');
+      else if (SLUGS.includes(obj + 's')) obj = obj + 's';
+    }
     const activar = !!args.activar;
 
     // "todo" / generico ("quita el mantenimiento", "reactiva", "elimina mantenimiento").

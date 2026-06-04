@@ -63,7 +63,7 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
         try {
           var p = location.pathname;
           if (p === '/mantenimiento' || p.indexOf('/stats') === 0) return;
-          fetch('/api/maintenance-status', { cache: 'no-store' })
+          fetch('/api/maintenance-status?t=' + Date.now(), { cache: 'no-store' })
             .then(function (r) { return r.json(); })
             .then(function (m) {
               if (!m) return;
