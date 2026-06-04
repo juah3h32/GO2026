@@ -102,6 +102,16 @@ const {
     width: clamp(64px, 14vw, 96px);
     height: auto;
     filter: drop-shadow(0 6px 18px rgba(251,103,11,0.25));
+    transform-origin: 50% 50%;
+    animation: mnt-wrench 2.4s ease-in-out infinite;
+  }
+  /* Llave "reparando": balanceo suave continuo */
+  @keyframes mnt-wrench {
+    0%, 100% { transform: rotate(-12deg); }
+    50%      { transform: rotate(12deg); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mnt-art { animation: none; }
   }
   .mnt-title {
     font-family: 'Morganite', 'Arial Narrow', sans-serif;
