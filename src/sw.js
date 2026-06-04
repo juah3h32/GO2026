@@ -5,7 +5,14 @@ import { NetworkFirst, NetworkOnly } from 'workbox-strategies';
 
 // Activar inmediatamente sin esperar que se cierren otras pestañas
 self.skipWaiting();
-self.addEventListener('activate', e => e.waitUntil(clients.claim()));
+self.addEventListener('activate', e => e.waitUntil(
+  Promise.all([
+    // Borra el cache de paginas del SW anterior, que pudo guardar respuestas
+    // viejas de /api (estado de mantenimiento). Garantiza estado en vivo.
+    caches.delete('pages-cache'),
+    clients.claim(),
+  ])
+));
 
 cleanupOutdatedCaches();
 precacheAndRoute(self.__WB_MANIFEST || []);
