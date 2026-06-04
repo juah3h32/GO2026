@@ -18,10 +18,12 @@ const {
 } = Astro.props;
 ---
 <div class="mnt-wrap">
-  <div class="mnt-box">
-    <div class="mnt-code">{codigo}</div>
+  <!-- Número gigante de fondo (marca de agua) -->
+  <span class="mnt-bgcode" aria-hidden="true">{codigo}</span>
 
-    <svg class="mnt-art" width="120" height="120" viewBox="0 0 24 24" fill="none"
+  <!-- Contenido centrado encima -->
+  <div class="mnt-box">
+    <svg class="mnt-art" viewBox="0 0 24 24" fill="none"
       stroke="#FB670B" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
     </svg>
@@ -42,67 +44,94 @@ const {
 
 <style>
   .mnt-wrap {
+    position: relative;
     min-height: 100vh;
     min-height: 100dvh;
+    width: 100%;
     background: #ffffff;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 24px;
+    overflow: hidden;
     font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
   }
-  .mnt-box {
-    text-align: center;
-    max-width: 520px;
-    width: 100%;
-  }
-  .mnt-code {
-    font-size: clamp(72px, 18vw, 140px);
-    font-weight: 800;
+
+  /* Numero gigante de fondo, centrado, detras de todo */
+  .mnt-bgcode {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 46vw;
+    font-weight: 900;
     line-height: 1;
-    letter-spacing: -0.04em;
-    color: #ECECEC;
-    margin-bottom: 8px;
+    letter-spacing: -0.05em;
+    color: #F4F4F5;
+    z-index: 0;
+    user-select: none;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  /* Contenido encima */
+  .mnt-box {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    max-width: 540px;
+    width: 100%;
+    padding: 24px;
   }
   .mnt-art {
     display: block;
-    margin: 0 auto 18px;
-    width: clamp(80px, 22vw, 120px);
+    margin: 0 auto 22px;
+    width: clamp(64px, 14vw, 96px);
     height: auto;
+    filter: drop-shadow(0 6px 18px rgba(251,103,11,0.25));
   }
   .mnt-title {
-    font-size: clamp(20px, 5vw, 28px);
-    font-weight: 700;
+    font-size: clamp(24px, 5.5vw, 34px);
+    font-weight: 800;
     color: #18181B;
-    margin: 0 0 10px;
+    margin: 0 0 12px;
     letter-spacing: -0.02em;
+    line-height: 1.15;
   }
   .mnt-text {
-    font-size: clamp(14px, 3.5vw, 16px);
+    font-size: clamp(14px, 3.5vw, 17px);
     color: #71717A;
-    margin: 0 0 28px;
+    margin: 0 0 30px;
     line-height: 1.6;
   }
   .mnt-btn {
     display: inline-block;
-    padding: 12px 28px;
-    border-radius: 10px;
+    padding: 13px 32px;
+    border-radius: 12px;
     border: none;
     background: #FB670B;
     color: #ffffff;
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 700;
     cursor: pointer;
     text-decoration: none;
-    transition: background 0.15s ease, transform 0.15s ease;
+    box-shadow: 0 8px 24px rgba(251,103,11,0.30);
+    transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
   }
-  .mnt-btn:hover { background: #E25A09; transform: translateY(-1px); }
+  .mnt-btn:hover {
+    background: #E25A09;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(251,103,11,0.40);
+  }
   .mnt-brand {
-    margin-top: 36px;
+    margin-top: 40px;
     font-size: 12px;
     font-weight: 600;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
     color: #C4C4C4;
+  }
+
+  @media (max-width: 640px) {
+    .mnt-bgcode { font-size: 62vw; }
   }
 </style>
