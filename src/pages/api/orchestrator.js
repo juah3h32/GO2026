@@ -31,7 +31,10 @@ async function run(request, url) {
   const notify = url.searchParams.get('notify') !== '0';
   let sent = 0;
   if (notify && (always || report.severity !== 'ok')) {
-    const auth = (await getWAAuthorized().catch(() => [])).filter(a => a.active && a.phone);
+    // SOLO admins totales (permiso '*') reciben el analisis del sistema.
+    // RH u otros permisos limitados NO reciben monitoreo.
+    const auth = (await getWAAuthorized().catch(() => []))
+      .filter(a => a.active && a.phone && (a.permissions || []).includes('*'));
     for (const a of auth.slice(0, 5)) {
       try { await sendWAText(a.phone, report.text); sent++; } catch {}
     }

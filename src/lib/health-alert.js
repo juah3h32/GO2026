@@ -32,8 +32,10 @@ export async function checkAndAlert() {
       ? `*ANALYTIC BOT JP* — alerta\ngrupo-ortiz.com\n\n${d.text}`
       : `*ANALYTIC BOT JP*: hay ${stats.unseenAlerts} eventos nuevos (errores/seguridad). Revisa el panel.`;
 
-    // Avisar a los números autorizados (admins)
-    const auth = (await getWAAuthorized().catch(() => [])).filter(a => a.active && a.phone);
+    // Avisar SOLO a admins totales (permiso '*'). Permisos limitados (RH, etc.)
+    // no reciben alertas de sistema.
+    const auth = (await getWAAuthorized().catch(() => []))
+      .filter(a => a.active && a.phone && (a.permissions || []).includes('*'));
     let sent = 0;
     for (const a of auth.slice(0, 5)) {
       try { await sendWAText(a.phone, texto); sent++; } catch (e) { console.error('[health-alert] envio:', e.message); }

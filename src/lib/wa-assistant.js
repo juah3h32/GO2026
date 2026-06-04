@@ -268,7 +268,7 @@ const TOOLS = [
     type: 'function',
     function: {
       name: 'buscar_mercado_vacante',
-      description: 'SCOUT RH: investiga en la WEB (busquedas reales) el mercado laboral para un puesto: sueldos ofrecidos, vacantes similares de la competencia en bolsas de trabajo (OCC, Computrabajo, Indeed, LinkedIn) y donde encontrar candidatos. Usar para: "busca en el mercado X", "qué están pagando por X", "monitorea la vacante X", "solicito la vacante X", "investiga el puesto X", "estudio de mercado de X". Tarda 30-60 segundos. NO es para candidatos YA registrados en el sistema (eso es obtener_candidatos).',
+      description: 'SCOUT RH: busca en la WEB (busquedas reales) DONDE hay candidatos contactables para un puesto — links directos a hojas de vida/perfiles publicos en bolsas (Computrabajo, OCC, Indeed, LinkedIn, bolsas universitarias), perfiles encontrados con su contacto publico, y sueldo de referencia. Usar para: "busca candidatos para X", "encuentra perfiles de X", "donde hay gente para X", "busca en el mercado X", "necesito un X", "solicito la vacante X". Tarda 30-60 segundos. NO es para candidatos YA registrados en el sistema (eso es obtener_candidatos).',
       parameters: {
         type: 'object',
         properties: {
