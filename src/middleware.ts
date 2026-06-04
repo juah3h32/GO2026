@@ -1,5 +1,26 @@
 import { defineMiddleware } from 'astro:middleware';
-import { logSystemEvent } from './lib/analytics-db.js';
+import { logSystemEvent, getConfig } from './lib/analytics-db.js';
+
+// ── Modo mantenimiento (por pagina o completo): config cacheada 30s ──
+let _maintCache: { val: { all: boolean; slugs: string[] }; exp: number } = { val: { all: false, slugs: [] }, exp: 0 };
+async function getMaint(): Promise<{ all: boolean; slugs: string[] }> {
+  const now = Date.now();
+  if (now < _maintCache.exp) return _maintCache.val;
+  let val = { all: false, slugs: [] as string[] };
+  try {
+    const raw = await getConfig('maintenance');
+    if (raw === '1') val = { all: true, slugs: [] };
+    else if (raw && raw !== '0') { const o = JSON.parse(raw); val = { all: !!o.all, slugs: Array.isArray(o.slugs) ? o.slugs : [] }; }
+  } catch { /* default: sin mantenimiento */ }
+  _maintCache = { val, exp: now + 30_000 };
+  return val;
+}
+// Extrae el slug de una ruta publica /{lang}/{slug}; portada = 'home'.
+function slugDeRuta(path: string): string | null {
+  const m = path.match(/^\/(es|en|pt|ar|zh)(?:\/([^/?#]+))?/);
+  if (!m) return null;
+  return m[2] || 'home';
+}
 
 // Registra un golpe de rate-limit (posible scraping/extracción) sin bloquear la respuesta.
 function logAbuse(bucket: string, ip: string, path: string) {
@@ -55,6 +76,22 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   // Bloquear service worker de desarrollo
   if (path === '/dev-sw.js') return new Response(null, { status: 404 });
+
+  // ── Gate de mantenimiento: si el sitio esta "bajado", los visitantes ven la
+  // pantalla de mantenimiento. Se excluyen /stats (panel), /api (admin reactiva)
+  // y assets, para poder reactivar y no romper estilos de la propia pantalla.
+  const exentoMant = path.startsWith('/api/') || path.startsWith('/stats')
+    || path === '/mantenimiento' || path.startsWith('/_astro/')
+    || path.startsWith('/fonts/') || path.startsWith('/images/') || path.startsWith('/styles/')
+    || /\.(css|js|mjs|png|jpg|jpeg|webp|svg|gif|ico|woff2?|mp4|webm|json|txt|xml)$/i.test(path);
+  if (!exentoMant) {
+    const mant = await getMaint();
+    const slug = slugDeRuta(path);
+    // Mantenimiento si: todo el sitio, o esta pagina especifica esta marcada.
+    if (mant.all || (slug && mant.slugs.includes(slug))) {
+      return new Response(null, { status: 307, headers: { Location: '/mantenimiento', 'Retry-After': '120' } });
+    }
+  }
 
   // ── Rate limiting por tipo de ruta ─────────────────────────────────────────
   const isChat  = CHAT_PATHS.some(p => path.startsWith(p));

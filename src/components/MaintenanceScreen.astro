@@ -1,0 +1,108 @@
+---
+/*!
+ * GO2026 — Sitio Web Oficial de Grupo Ortiz
+ * Copyright (c) 2026 JUAN PABLO CORONA CORONA — Desarrollador Web.
+ * Pantalla blanca reutilizable para mantenimiento / error 500 / 404.
+ */
+interface Props {
+  codigo?: string;
+  titulo?: string;
+  mensaje?: string;
+  accion?: 'reintentar' | 'inicio' | 'none';
+}
+const {
+  codigo = '502',
+  titulo = 'Estamos mejorando esta sección',
+  mensaje = 'Volvemos pronto. Gracias por tu paciencia.',
+  accion = 'reintentar',
+} = Astro.props;
+---
+<div class="mnt-wrap">
+  <div class="mnt-box">
+    <div class="mnt-code">{codigo}</div>
+
+    <svg class="mnt-art" width="120" height="120" viewBox="0 0 24 24" fill="none"
+      stroke="#FB670B" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+    </svg>
+
+    <h1 class="mnt-title">{titulo}</h1>
+    <p class="mnt-text">{mensaje}</p>
+
+    {accion === 'reintentar' && (
+      <button class="mnt-btn" onclick="location.reload()">Reintentar</button>
+    )}
+    {accion === 'inicio' && (
+      <a class="mnt-btn" href="/">Ir al inicio</a>
+    )}
+
+    <div class="mnt-brand">Grupo Ortiz</div>
+  </div>
+</div>
+
+<style>
+  .mnt-wrap {
+    min-height: 100vh;
+    min-height: 100dvh;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+  }
+  .mnt-box {
+    text-align: center;
+    max-width: 520px;
+    width: 100%;
+  }
+  .mnt-code {
+    font-size: clamp(72px, 18vw, 140px);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    color: #ECECEC;
+    margin-bottom: 8px;
+  }
+  .mnt-art {
+    display: block;
+    margin: 0 auto 18px;
+    width: clamp(80px, 22vw, 120px);
+    height: auto;
+  }
+  .mnt-title {
+    font-size: clamp(20px, 5vw, 28px);
+    font-weight: 700;
+    color: #18181B;
+    margin: 0 0 10px;
+    letter-spacing: -0.02em;
+  }
+  .mnt-text {
+    font-size: clamp(14px, 3.5vw, 16px);
+    color: #71717A;
+    margin: 0 0 28px;
+    line-height: 1.6;
+  }
+  .mnt-btn {
+    display: inline-block;
+    padding: 12px 28px;
+    border-radius: 10px;
+    border: none;
+    background: #FB670B;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s ease, transform 0.15s ease;
+  }
+  .mnt-btn:hover { background: #E25A09; transform: translateY(-1px); }
+  .mnt-brand {
+    margin-top: 36px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #C4C4C4;
+  }
+</style>

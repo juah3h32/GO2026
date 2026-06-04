@@ -5,10 +5,17 @@
 export const prerender = false;
 
 import { logSystemEvent, getSystemLogs, getLogStats, markLogsSeen, clearSystemLogs } from '../../lib/analytics-db.js';
+import { notifyAdmins } from '../../lib/health-alert.js';
 import { verifyAdminToken } from '../../lib/verifyAdminToken.ts';
 import { getClientIp } from '../../lib/rateLimit.ts';
 
 const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { 'Content-Type': 'application/json' } });
+
+// Categorias de falla del frontend que ameritan aviso urgente al celular.
+const ALERT_CATEGORIES = ['video', 'js-error', 'resource', 'network'];
+const ETIQUETA_CAT = { video: 'Un video', 'js-error': 'El código (JS)', resource: 'Un recurso', network: 'La red' };
+// Anti-spam: una alerta por (categoria+ruta) cada 10 min.
+const _alertedAt = new Map();
 
 // Niveles que un cliente NO autenticado puede registrar (evita que falseen "security").
 const CLIENT_LEVELS = ['info', 'warn', 'error'];
@@ -52,5 +59,18 @@ export async function POST({ request }) {
   };
 
   const id = await logSystemEvent({ level, category, source, message, meta, ip });
+
+  // Aviso urgente al celular si es una falla real del sitio (no bloquea la respuesta).
+  if (level === 'error' && ALERT_CATEGORIES.includes(category)) {
+    const key = `${category}|${source}`;
+    const now = Date.now();
+    const last = _alertedAt.get(key) || 0;
+    if (now - last > 600000) { // 10 min
+      _alertedAt.set(key, now);
+      if (_alertedAt.size > 300) _alertedAt.clear();
+      notifyAdmins(`*FALLA EN EL SITIO*\n${ETIQUETA_CAT[category] || 'Algo'} no funciona en:\n${source || '/'}\nDetalle: ${message.slice(0, 120)}\nRevisa.`).catch(() => {});
+    }
+  }
+
   return json({ ok: true, id });
 }

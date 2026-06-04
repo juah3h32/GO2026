@@ -6,7 +6,7 @@
     },
     {
       "path": "/api/health-crawl?secret=ortiz2026",
-      "schedule": "5 15 * * *"
+      "schedule": "0 */6 * * *"
     },
     {
       "path": "/api/orchestrator?secret=ortiz2026&always=1",
@@ -15,6 +15,10 @@
     {
       "path": "/api/cron/pagespeed-report?secret=ortiz2026",
       "schedule": "0 15 * * 1"
+    },
+    {
+      "path": "/api/cron/storage-check?secret=ortiz2026",
+      "schedule": "20 15 * * *"
     }
   ],
   "headers": [

@@ -1,0 +1,27 @@
+---
+// src/pages/mantenimiento.astro — pantalla mostrada en modo mantenimiento (503).
+import MaintenanceScreen from '../components/MaintenanceScreen.astro';
+export const prerender = false;
+Astro.response.status = 503;
+Astro.response.headers.set('Retry-After', '120');
+---
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <meta http-equiv="refresh" content="30" />
+  <title>Estamos mejorando · Grupo Ortiz</title>
+  <link rel="icon" href="/favicon.svg" />
+  <style>*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}</style>
+</head>
+<body>
+  <MaintenanceScreen
+    codigo="502"
+    titulo="Estamos mejorando esta sección"
+    mensaje="Volvemos muy pronto. Gracias por tu paciencia."
+    accion="reintentar"
+  />
+</body>
+</html>

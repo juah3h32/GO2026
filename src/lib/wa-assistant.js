@@ -245,7 +245,7 @@ const TOOLS = [
     type: 'function',
     function: {
       name: 'rastrear_sitio',
-      description: 'ANALYTIC BOT JP recorre TODAS las páginas del sitio grupo-ortiz.com en vivo y revisa si alguna ruta no carga o si hay recursos rotos (videos, imágenes, links que dan 404). Usar cuando el usuario pide "revisa todas las páginas", "checa el sitio completo", "navega la página y dime si algo falla", "hay alguna ruta caída". Tarda algunos segundos. Es SOLO LECTURA.',
+      description: 'Recorre TODAS las páginas del sitio grupo-ortiz.com en vivo y verifica que cada una ABRA y se vea correcta (sin imágenes rotas, videos caídos, CSS/JS roto o páginas que no cargan). Devuelve qué página tiene problema y cuál. Usar cuando el usuario pide: "revisa todas las páginas", "que todas abran y se vean correctas", "checa el sitio completo", "navega la página y dime si algo falla", "hay alguna página que no se vea bien", "revisa que todo cargue". Tarda algunos segundos. SOLO LECTURA.',
       parameters: { type: 'object', properties: {} },
     },
   },
@@ -296,6 +296,29 @@ const TOOLS = [
   {
     type: 'function',
     function: {
+      name: 'control_mantenimiento',
+      description: 'Pone o quita el modo mantenimiento ("estamos mejorando") de una PAGINA del sitio o de TODO el sitio. Usar cuando el usuario pide: "pon en mantenimiento productos", "baja la pagina de vacantes", "activa mantenimiento del inicio", "reactiva productos", "quita el mantenimiento", "baja todo el sitio", "reactiva todo el sitio". Paginas validas: home (inicio), about, acolchado, arpillas, bolsas, catalogo, cuerdas, distribuidor, empaques-flexibles, esquineros, naturizable, productos, rafias, sacos, social, stretch-film, vacantes.',
+      parameters: {
+        type: 'object',
+        properties: {
+          objetivo: { type: 'string', description: 'Slug de la pagina (ej. "productos", "home") o "todo" para el sitio completo.' },
+          activar: { type: 'boolean', description: 'true = poner en mantenimiento; false = reactivar.' },
+        },
+        required: ['objetivo', 'activar'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'revisar_almacenamiento',
+      description: 'Revisa el uso del almacenamiento de Cloudinary (donde viven los videos y PDFs del sitio). Da el porcentaje usado y si hay riesgo de que se llene. Usar para: "cuanto espacio/almacenamiento queda", "como va Cloudinary", "se esta llenando el storage", "cuanto llevamos de almacenamiento".',
+      parameters: { type: 'object', properties: {} },
+    },
+  },
+  {
+    type: 'function',
+    function: {
       name: 'revisar_sistema',
       description: 'Revisa el estado de salud de la página/sistema: errores, advertencias, fallas (videos que no cargan, animaciones, endpoints), y eventos de seguridad (posible extracción de datos, accesos sospechosos). Usar cuando el usuario pregunta "¿cómo está el sistema?", "¿hay algún error/falla?", "¿algo que cambiar?", "¿qué está fallando?", "revisa la página", "¿hay alguna vulnerabilidad?". Devuelve conteos por severidad y los eventos recientes para que diagnostiques y sugieras correcciones.',
       parameters: {
@@ -326,6 +349,8 @@ const TOOL_PERMS = {
   rastrear_sitio:              '*',
   analisis_del_dia:            '*',
   analizar_velocidad:          '*',
+  revisar_almacenamiento:      '*',
+  control_mantenimiento:       '*',
 };
 
 // ── Ejecución de tools ────────────────────────────────────────────────────────
@@ -566,15 +591,25 @@ async function ejecutarTool(name, args, ctx) {
     const origin = process.env.PUBLIC_SITE_URL || import.meta.env?.PUBLIC_SITE_URL || 'https://grupo-ortiz.com';
     const secret = process.env.CRON_SECRET_EXTERNAL || import.meta.env?.CRON_SECRET_EXTERNAL || '';
     try {
-      const r = await fetch(`${origin}/api/health-crawl?secret=${encodeURIComponent(secret)}`, {
+      // notify=0: revision manual, NO dispara alertas a todos (eso lo hace el cron).
+      const r = await fetch(`${origin}/api/health-crawl?secret=${encodeURIComponent(secret)}&notify=0`, {
         headers: { 'x-cron-secret': secret },
       });
       const d = await r.json();
       if (!d.ok) return { error: d.error || 'no se pudo rastrear' };
+      // Normalizar fallas a lenguaje claro y por pagina (quitar el origin de las URLs).
+      const corto = (u) => String(u || '').replace(origin, '') || '/';
+      const ETI = { imagen: 'una imagen no se ve', video: 'un video no carga', estilo: 'el diseño (CSS) falla', script: 'un script (JS) falla', recurso: 'un recurso no carga', pagina: 'la pagina no abre' };
+      const fallas = (d.findings || []).slice(0, 25).map(f => ({
+        pagina: corto(f.en || f.url),
+        problema: ETI[f.tipo] || 'falla',
+        que: corto(f.url),
+        codigo: f.status,
+      }));
       return {
         resumen: d.resumen,
-        fallas: (d.findings || []).slice(0, 20),
-        instruccion: 'Eres ANALYTIC BOT JP. Reporta CORTO: si todo cargó bien dilo en una línea. Si hay rutas caídas o recursos rotos, lístalos por tipo (ruta/video/recurso) con la URL y el código, y sugiere la corrección. Seguridad/errores primero.',
+        fallas,
+        instruccion: 'Eres el monitor del sitio. Si TODO cargo bien (sin fallas), dilo en UNA linea: "Revise todas las paginas y abren y se ven correctas." Si hay fallas, repórtalas AGRUPADAS POR PAGINA, claro y humano, ej: "*Productos*: una imagen no se ve" / "*Vacantes*: la pagina no abre (404)". Una linea por pagina con problema. Cierra sugiriendo revisar las marcadas. Nada de URLs largas; usa el nombre de la pagina.',
       };
     } catch (e) {
       return { error: `No pude rastrear el sitio: ${e.message}` };
@@ -640,6 +675,45 @@ async function ejecutarTool(name, args, ctx) {
       sitio: siteUrl,
       resultados,
       instruccion: 'Reporta los scores con semáforo textual: >=90 OK, 50-89 ATENCION, <50 MAL. Estructura: scores por dispositivo (Performance, SEO, Accesibilidad, Best Practices), luego Core Web Vitals (LCP, CLS, TBT), luego la lista "A mejorar" con los issues. Cierra con la recomendación más importante en una línea. Datos de Google PageSpeed Insights, no los inventes ni los modifiques.',
+    };
+  }
+
+  if (name === 'control_mantenimiento') {
+    const { getConfig, setConfig, logSystemEvent } = await import('./analytics-db.js');
+    const SLUGS = ['home','about','acolchado','arpillas','bolsas','catalogo','cuerdas','distribuidor','empaques-flexibles','esquineros','naturizable','productos','rafias','sacos','social','stretch-film','vacantes'];
+    const parse = (raw) => { if (raw === '1') return { all:true, slugs:[] }; if (!raw || raw === '0') return { all:false, slugs:[] }; try { const o = JSON.parse(raw); return { all:!!o.all, slugs:Array.isArray(o.slugs)?o.slugs:[] }; } catch { return { all:false, slugs:[] }; } };
+    const cur = parse(await getConfig('maintenance').catch(() => null));
+    const obj = String(args.objetivo || '').toLowerCase().trim().replace(/^inicio$/, 'home');
+    const activar = !!args.activar;
+
+    if (obj === 'todo' || obj === 'sitio' || obj === 'todo el sitio') {
+      const next = { all: activar, slugs: activar ? [] : cur.slugs };
+      await setConfig('maintenance', JSON.stringify(next));
+      await logSystemEvent({ level:'warn', category:'mantenimiento', source:'whatsapp', message: activar ? 'Todo el sitio en mantenimiento (via WhatsApp)' : 'Sitio reactivado (via WhatsApp)' }).catch(()=>{});
+      return { ok:true, resultado: activar ? 'Todo el sitio quedo en mantenimiento.' : 'Todo el sitio fue reactivado.', instruccion:'Confirma al usuario en una linea.' };
+    }
+    if (!SLUGS.includes(obj)) {
+      return { error: `No reconozco la pagina "${args.objetivo}". Validas: ${SLUGS.join(', ')}.` };
+    }
+    const set = new Set(cur.slugs);
+    if (activar) set.add(obj); else set.delete(obj);
+    const next = { all: cur.all, slugs: [...set] };
+    await setConfig('maintenance', JSON.stringify(next));
+    await logSystemEvent({ level:'warn', category:'mantenimiento', source:'whatsapp', message: `Pagina ${obj} ${activar?'en mantenimiento':'reactivada'} (via WhatsApp)` }).catch(()=>{});
+    return { ok:true, resultado: activar ? `La pagina "${obj}" quedo en mantenimiento; el resto del sitio sigue normal.` : `La pagina "${obj}" fue reactivada.`, instruccion:'Confirma al usuario en una linea, claro y breve.' };
+  }
+
+  if (name === 'revisar_almacenamiento') {
+    const { getCloudinaryUsage } = await import('./cloudinary-usage.js');
+    const u = await getCloudinaryUsage();
+    if (!u.ok) return { error: `No pude leer el almacenamiento: ${u.error}` };
+    if (u.usedPercent == null) return { detalle: u.detalle, nota: 'El plan de Cloudinary no expone limite; no hay % medible.' };
+    return {
+      uso_porcentaje: u.usedPercent,
+      queda_porcentaje: 100 - u.usedPercent,
+      detalle: u.detalle,
+      estado: u.usedPercent >= 90 ? 'CRITICO' : u.usedPercent >= 75 ? 'ATENCION' : 'OK',
+      instruccion: 'Di el % usado y el estado en pocas palabras. Si es ATENCION/CRITICO, sugiere liberar espacio en console.cloudinary.com.',
     };
   }
 
@@ -742,6 +816,7 @@ Reglas:
 - FORMATO WHATSAPP OBLIGATORIO: negritas con UN asterisco (*texto*), NUNCA dos (**texto** prohibido). Listas con guion (-). Sin headers markdown (#). Usa saltos de línea para separar secciones.
 - ESTRUCTURA (solo cuando entregas datos): empieza con la respuesta directa, luego los datos en lista clara, y cierra con una observación útil o pregunta de seguimiento. Para rankings usa numeración (1., 2., 3.).
 - Para CONSULTAS DE DATOS usa SIEMPRE las herramientas. JAMÁS inventes cifras.
+- EJECUTA, no prometas: si una consulta requiere una herramienta (revisar paginas, velocidad, mercado, reporte, etc.), LLAMALA de inmediato en este turno. NUNCA respondas solo "voy a revisar", "un momento" o "enseguida" sin ejecutarla — deja al usuario esperando sin respuesta. La herramienta puede tardar; el sistema ya muestra "escribiendo".
 - "¿qué vacante tiene más postulaciones?" → postulaciones_por_vacante. "¿quiénes se registraron a X?" → postulaciones_por_vacante con ese puesto.
 - "dame el control total / panorama / cómo va todo" → metricas_dashboard.
 - "¿qué PDF se envió más?", "¿qué catálogo descargan más?", "ranking de pdfs" → pdfs_mas_enviados (acepta periodo).
@@ -761,6 +836,8 @@ Reglas:
 - OJO: candidatos YA registrados en el sistema → obtener_candidatos; mercado externo → buscar_mercado_vacante.
 - DESLINDE de herramientas de monitoreo — NO las confundas:
   * analizar_velocidad = VELOCIDAD/SEO/rendimiento según Google (scores 0-100).
+  * revisar_almacenamiento = uso de Cloudinary (espacio para videos/PDFs). "cuanto espacio queda", "se llena el storage".
+  * control_mantenimiento = poner/quitar la pantalla "estamos mejorando" de una pagina o de todo el sitio. "pon en mantenimiento productos", "reactiva vacantes", "baja todo el sitio". Es una ACCION que afecta a los visitantes: si el usuario no fue claro en cual pagina o si activa/reactiva, PREGUNTA antes de ejecutar. Tras ejecutar, confirma que se hizo.
   * revisar_sistema = errores y eventos de seguridad en los LOGS internos.
   * rastrear_sitio = rutas y recursos ROTOS (404) navegando el sitio.
   * analisis_del_dia = panorama consolidado de todas las áreas.
@@ -809,16 +886,21 @@ export async function ejecutarAsistente(texto, permsArray, phone) {
     { role: 'user', content: String(texto).slice(0, 1000) },
   ];
 
-  // Hasta 4 rondas de tool-calling. tool_choice='auto' SIEMPRE: el modelo decide
-  // si charla (saludos, risas, emojis) o usa herramienta para consultas de datos.
-  // Antes se forzaba 'required' en ronda 0 y eso buggeaba con mensajes casuales.
+  // Detecta respuestas-promesa ("voy a revisar", "un momento") sin acción real.
+  const esPromesaVacia = (t) => /\b(voy a|déjame|dejame|permíteme|permiteme|un momento|enseguida|ahora (te|lo|mismo)|en un momento|dame un|estoy (revisando|analizando|buscando)|reviso (ahora|el)|lo reviso)\b/i.test(t || '');
+
+  // Hasta 4 rondas de tool-calling. tool_choice='auto': el modelo decide si charla
+  // (saludos, risas) o usa herramienta. Salvaguarda: si responde una PROMESA vacía
+  // ("voy a revisar…") sin llamar tool, se reintenta forzando la herramienta para
+  // que EJECUTE y el usuario reciba el reporte (no solo "un momento").
+  let forzado = false;
   for (let round = 0; round < 4; round++) {
     const res = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
       body: JSON.stringify({
         model: MODEL, messages, tools: TOOLS,
-        tool_choice: 'auto',
+        tool_choice: forzado ? 'required' : 'auto',
         max_tokens: 700, temperature: 0.3,
       }),
     });
@@ -841,11 +923,20 @@ export async function ejecutarAsistente(texto, permsArray, phone) {
         catch (e) { result = { error: e.message }; }
         messages.push({ role: 'tool', tool_call_id: tc.id, content: JSON.stringify(result).slice(0, 4000) });
       }
+      forzado = false;
       continue; // siguiente ronda con resultados
     }
 
     // Respuesta final — normalizar formato a WhatsApp (** → *, ### → nada)
     const text = waFormat((msg.content || '').trim());
+
+    // Si prometió actuar sin ejecutar herramienta, forzar una ronda con tool.
+    if (!forzado && esPromesaVacia(text) && !ctx.pdfData && !ctx.reportRequest) {
+      forzado = true;
+      messages.push({ role: 'system', content: 'No anuncies que vas a hacerlo: EJECUTA la herramienta apropiada AHORA y entrega el resultado.' });
+      continue;
+    }
+
     if (!text && !ctx.pdfData && !ctx.reportRequest) return null;
     return { text: text || 'Aquí tienes tu reporte.', pdfData: ctx.pdfData, reportRequest: ctx.reportRequest };
   }

@@ -104,6 +104,27 @@ export const POST: APIRoute = async ({ request }) => {
     // ── Login normal ──────────────────────────────────────────────────────
     const { password } = body as { password: string };
 
+    // IP, ubicacion (geo de Vercel) y dispositivo (user-agent) del solicitante
+    const h = request.headers;
+    const ip = (h.get('x-forwarded-for') || '').split(',')[0].trim()
+            || h.get('x-real-ip') || h.get('x-vercel-forwarded-for') || 'desconocida';
+    // Geo aproximada que inyecta Vercel en el edge
+    const ciudad = decodeURIComponent(h.get('x-vercel-ip-city') || '').trim();
+    const region = h.get('x-vercel-ip-country-region') || '';
+    const pais   = h.get('x-vercel-ip-country') || '';
+    const ubicacion = [ciudad, region, pais].filter(Boolean).join(', ') || 'ubicación desconocida';
+    // Dispositivo a partir del user-agent
+    const ua = h.get('user-agent') || '';
+    const esMovil = /Mobi|Android|iPhone|iPad|iPod/i.test(ua);
+    const so = /Windows/i.test(ua) ? 'Windows' : /iPhone|iPad|iPod/i.test(ua) ? 'iOS'
+             : /Android/i.test(ua) ? 'Android' : /Mac OS X|Macintosh/i.test(ua) ? 'Mac'
+             : /Linux/i.test(ua) ? 'Linux' : 'SO desconocido';
+    const nav = /Edg\//i.test(ua) ? 'Edge' : /OPR\/|Opera/i.test(ua) ? 'Opera'
+             : /Chrome\//i.test(ua) ? 'Chrome' : /Firefox\//i.test(ua) ? 'Firefox'
+             : /Safari\//i.test(ua) ? 'Safari' : 'navegador desconocido';
+    const dispositivo = `${esMovil ? 'Móvil' : 'Escritorio'} · ${so} · ${nav}`;
+    const horaMX = new Date().toLocaleString('es-MX', { timeZone: 'America/Mexico_City', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+
     if (!password) {
       return new Response(JSON.stringify({ ok: false, error: 'Sin contraseña' }), { status: 400 });
     }
@@ -140,6 +161,13 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     if (!matchedRow) {
+      // Log + alerta de intento fallido (posible intruso)
+      try {
+        const { logSystemEvent } = await import('../../lib/analytics-db.js');
+        const { notifyAdmins }   = await import('../../lib/health-alert.js');
+        await logSystemEvent({ level: 'security', category: 'auth', source: 'login', message: `Intento de acceso FALLIDO al panel — ${dispositivo} — ${ubicacion}`, ip, meta: { ubicacion, dispositivo, ua: ua.slice(0, 200) } }).catch(() => {});
+        notifyAdmins(`*ALERTA DE ACCESO*\nIntento FALLIDO al panel BotGO.\nDispositivo: ${dispositivo}\nUbicación: ${ubicacion}\nIP: ${ip}\n${horaMX} (CDMX)`).catch(() => {});
+      } catch { /* no bloquear el login por el aviso */ }
       await new Promise(r => setTimeout(r, 400));
       return new Response(JSON.stringify({ ok: false, error: 'Contraseña incorrecta' }), { status: 401 });
     }
@@ -170,7 +198,14 @@ const row      = result.rows[0];
 
     console.log(`✅ Login exitoso — rol: ${role.name} | canDelete: ${role.canDelete}`);
 
-    
+    // Log + aviso de acceso correcto
+    try {
+      const { logSystemEvent } = await import('../../lib/analytics-db.js');
+      const { notifyAdmins }   = await import('../../lib/health-alert.js');
+      await logSystemEvent({ level: 'info', category: 'auth', source: 'login', message: `Acceso correcto — ${role.name} — ${dispositivo} — ${ubicacion}`, ip, meta: { ubicacion, dispositivo, ua: ua.slice(0, 200) } }).catch(() => {});
+      notifyAdmins(`*Acceso al panel BotGO*\nRol: ${role.name}\nDispositivo: ${dispositivo}\nUbicación: ${ubicacion}\nIP: ${ip}\n${horaMX} (CDMX)`).catch(() => {});
+    } catch { /* no bloquear el login por el aviso */ }
+
     const token = await new SignJWT({ role })
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt()

@@ -15,6 +15,20 @@ import { sendWAText } from './notify.js';
 const MIN_INTERVAL_MS = 30 * 60 * 1000;
 let _lastAlertAt = 0; // por instancia; el flag `seen` en DB es el control real
 
+// Envia un aviso por WhatsApp a los admins totales (permiso '*'). Reusable para
+// alertas de login, almacenamiento, etc. Fire-and-forget; no lanza.
+export async function notifyAdmins(text) {
+  try {
+    const auth = (await getWAAuthorized().catch(() => []))
+      .filter(a => a.active && a.phone && (a.permissions || []).includes('*'));
+    let sent = 0;
+    for (const a of auth.slice(0, 5)) {
+      try { await sendWAText(a.phone, text); sent++; } catch { /* ignora envio individual */ }
+    }
+    return sent;
+  } catch { return 0; }
+}
+
 export async function checkAndAlert() {
   try {
     const stats = await getLogStats();

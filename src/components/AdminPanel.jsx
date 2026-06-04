@@ -1163,6 +1163,200 @@ function NotifyConfigSection({ theme, P }) {
   );
 }
 
+// ── SITE MONITOR SECTION — alertas de imagenes/videos/paginas rotas ───────────
+function SiteMonitorSection({ theme, P }) {
+  const [cfg,     setCfg]     = useState({ activo: true, imagen: true, video: true, pagina: true, estilo: true });
+  const [fallas,  setFallas]  = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [saving,  setSaving]  = useState(false);
+  const [running, setRunning] = useState(false);
+  const [toast,   setToast]   = useState(null);
+  const [maintAll,   setMaintAll]   = useState(false);
+  const [maintSlugs, setMaintSlugs] = useState([]);
+  const [maintPages, setMaintPages] = useState([]);
+  const [maintBusy,  setMaintBusy]  = useState(false);
+
+  const showToast = (msg, ok = true) => { setToast({ msg, ok }); setTimeout(() => setToast(null), 3000); };
+
+  const load = async () => {
+    try {
+      const r = await fetch('/api/admin/site-monitor-config', { credentials:'include' });
+      const j = await r.json();
+      if (j.ok) { setCfg(c => ({ ...c, ...j.config })); setFallas(j.fallas || []); }
+    } catch {}
+    try {
+      const m = await fetch('/api/admin/maintenance', { credentials:'include' });
+      const mj = await m.json();
+      if (mj.ok) { setMaintAll(!!mj.all); setMaintSlugs(mj.slugs || []); setMaintPages(mj.paginas || []); }
+    } catch {}
+    setLoading(false);
+  };
+  useEffect(() => { load(); }, []);
+
+  const setMaintAllFn = async (next) => {
+    if (next && !window.confirm('¿Bajar TODO el sitio a mantenimiento? Todos los visitantes verán "estamos mejorando".')) return;
+    setMaintBusy(true);
+    try {
+      const r = await fetch('/api/admin/maintenance', {
+        method: 'POST', credentials:'include', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ all: next }),
+      });
+      const j = await r.json();
+      if (j.ok) { setMaintAll(!!j.all); setMaintSlugs(j.slugs || []); showToast(j.all ? 'Todo el sitio en mantenimiento' : 'Sitio reactivado'); }
+      else showToast(j.error || 'Error', false);
+    } catch (e) { showToast(e.message, false); }
+    setMaintBusy(false);
+  };
+
+  const togglePage = async (slug) => {
+    const activo = !maintSlugs.includes(slug);
+    setMaintBusy(true);
+    try {
+      const r = await fetch('/api/admin/maintenance', {
+        method: 'POST', credentials:'include', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug, activo }),
+      });
+      const j = await r.json();
+      if (j.ok) { setMaintAll(!!j.all); setMaintSlugs(j.slugs || []); showToast(activo ? `Página "${slug}" en mantenimiento` : `Página "${slug}" reactivada`); }
+      else showToast(j.error || 'Error', false);
+    } catch (e) { showToast(e.message, false); }
+    setMaintBusy(false);
+  };
+
+  const save = async (next) => {
+    setSaving(true);
+    try {
+      const r = await fetch('/api/admin/site-monitor-config', {
+        method: 'POST', credentials:'include', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'save', config: next }),
+      });
+      const j = await r.json();
+      if (j.ok) { setCfg(next); showToast('Guardado'); } else showToast(j.error || 'Error', false);
+    } catch (e) { showToast(e.message, false); }
+    setSaving(false);
+  };
+  const toggle = (k) => save({ ...cfg, [k]: !cfg[k] });
+
+  const handleRun = async () => {
+    setRunning(true);
+    try {
+      const r = await fetch('/api/admin/site-monitor-config', {
+        method: 'POST', credentials:'include', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'run' }),
+      });
+      const j = await r.json();
+      if (j.ok) {
+        const s = j.resumen || {};
+        showToast(`${s.recursos_rotos || 0} rotos · ${s.paginas_con_falla || 0} páginas`, (s.recursos_rotos||0)+(s.paginas_con_falla||0) === 0);
+        await load();
+      } else showToast(j.error || 'Error al revisar', false);
+    } catch (e) { showToast(e.message, false); }
+    setRunning(false);
+  };
+
+  const TIPOS = [
+    { k: 'imagen', label: 'Imágenes' },
+    { k: 'video',  label: 'Videos' },
+    { k: 'pagina', label: 'Páginas' },
+    { k: 'estilo', label: 'CSS/JS' },
+  ];
+
+  const pill = (active) => ({
+    padding: '5px 13px', borderRadius: 20, fontSize: 11, fontWeight: active ? 700 : 500,
+    cursor: 'pointer', background: active ? P.orange : 'transparent',
+    color: active ? '#fff' : P.textDim, border: `1px solid ${active ? P.orange : P.border}`,
+    transition: 'all 0.13s ease',
+  });
+
+  return (
+    <div style={{ background: P.surface, border: `1px solid ${P.border}`, borderRadius: 12,
+      padding: '18px 20px', position: 'relative', overflow: 'hidden',
+      boxShadow: `0 2px 16px rgba(0,0,0,0.35)` }}>
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2.5,
+        background: 'linear-gradient(90deg,#EF4444,#DC2626,transparent)', opacity: 0.7 }}/>
+      {toast && (
+        <div style={{ position: 'absolute', top: 14, right: 14, zIndex: 10, padding: '7px 14px',
+          borderRadius: 8, background: toast.ok ? '#16A34A' : '#DC2626', color: '#fff',
+          fontSize: 11, fontWeight: 600, boxShadow: '0 4px 16px rgba(0,0,0,0.4)' }}>{toast.msg}</div>
+      )}
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+        <div style={{ width: 28, height: 28, borderRadius: 7, background: 'rgba(239,68,68,0.1)',
+          border: '1px solid rgba(239,68,68,0.25)', display: 'flex', alignItems: 'center',
+          justifyContent: 'center', flexShrink: 0, color: '#EF4444' }}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontWeight: 700, fontSize: 13, color: P.text, letterSpacing: '-0.01em' }}>Monitoreo del Sitio</div>
+          <div style={{ fontSize: 10, color: P.textDim, marginTop: 1 }}>Alerta urgente por WhatsApp si algo del sitio no carga · revisa cada 6 h</div>
+        </div>
+        <button onClick={() => toggle('activo')} disabled={saving || loading}
+          style={pill(cfg.activo)}>{cfg.activo ? 'Activo' : 'Inactivo'}</button>
+      </div>
+
+      <div style={{ fontSize: 10, color: P.textDim, marginBottom: 6 }}>Avisarme cuando falle:</div>
+      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 14 }}>
+        {TIPOS.map(t => (
+          <button key={t.k} onClick={() => toggle(t.k)} disabled={saving || loading || !cfg.activo}
+            style={{ ...pill(cfg.activo && cfg[t.k]), opacity: cfg.activo ? 1 : 0.5 }}>{t.label}</button>
+        ))}
+      </div>
+
+      {fallas.length > 0 && (
+        <div style={{ marginBottom: 14 }}>
+          <div style={{ fontSize: 10, color: P.textDim, marginBottom: 5 }}>Últimas fallas detectadas:</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            {fallas.map((f, i) => (
+              <div key={i} style={{ fontSize: 10.5, color: P.textSub, background: P.surface2,
+                borderRadius: 7, padding: '6px 10px', border: `1px solid ${P.border}` }}>
+                {String(f.detalle).slice(0, 90)}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <button onClick={handleRun} disabled={running}
+        style={{ padding: '8px 16px', borderRadius: 8, border: `1px solid rgba(239,68,68,0.35)`,
+          background: 'rgba(239,68,68,0.08)', color: '#EF4444', fontSize: 11, fontWeight: 700,
+          cursor: running ? 'not-allowed' : 'pointer', marginBottom: 16 }}>
+        {running ? 'Revisando el sitio…' : 'Revisar ahora'}
+      </button>
+
+      {/* ── Mantenimiento por pagina o completo ── */}
+      <div style={{ borderTop: `1px solid ${P.border}`, paddingTop: 14 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 4, flexWrap: 'wrap' }}>
+          <div style={{ fontSize: 11.5, fontWeight: 700, color: P.text }}>Modo mantenimiento</div>
+          <button onClick={() => setMaintAllFn(!maintAll)} disabled={maintBusy || loading}
+            style={{ padding: '5px 13px', borderRadius: 20, fontSize: 11, fontWeight: maintAll ? 700 : 500,
+              cursor: 'pointer', background: maintAll ? '#EF4444' : 'transparent',
+              color: maintAll ? '#fff' : P.textDim, border: `1px solid ${maintAll ? '#EF4444' : P.border}` }}>
+            {maintAll ? 'TODO el sitio abajo' : 'Bajar todo el sitio'}
+          </button>
+        </div>
+        <div style={{ fontSize: 10, color: P.textDim, marginBottom: 8 }}>
+          {maintAll ? 'Todo el sitio muestra "estamos mejorando".' : 'Baja solo la página afectada — el resto del sitio sigue normal.'}
+        </div>
+        <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', opacity: maintAll ? 0.4 : 1, pointerEvents: maintAll ? 'none' : 'auto' }}>
+          {maintPages.map(slug => {
+            const on = maintSlugs.includes(slug);
+            return (
+              <button key={slug} onClick={() => togglePage(slug)} disabled={maintBusy || loading}
+                style={{ padding: '4px 10px', borderRadius: 7, fontSize: 10.5, fontWeight: on ? 700 : 500,
+                  cursor: 'pointer', background: on ? 'rgba(239,68,68,0.12)' : P.surface2,
+                  color: on ? '#EF4444' : P.textSub, border: `1px solid ${on ? '#EF444455' : P.border}` }}>
+                {slug === 'home' ? 'Inicio' : slug}{on ? ' ·  abajo' : ''}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── PAGESPEED CONFIG SECTION — notificaciones de sistema ──────────────────────
 function PagespeedSection({ theme, P }) {
   const [cfg,      setCfg]      = useState({ phones: [], active: false, last_sent: null });
@@ -4086,6 +4280,8 @@ const ALL_TABS=[
                 <PagespeedSection theme={theme} P={P}/>
               </div>
             )}
+
+            {isAdmin && <SiteMonitorSection theme={theme} P={P}/>}
 
             {isAdmin && (
               <div style={{ background:P.surface, border:`1px solid ${P.border}`,

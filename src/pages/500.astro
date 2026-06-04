@@ -1,0 +1,40 @@
+---
+// src/pages/500.astro — Astro la sirve automaticamente en errores SSR (500).
+import MaintenanceScreen from '../components/MaintenanceScreen.astro';
+export const prerender = false;
+
+// Aviso al admin (server-side) con anti-spam por ruta — sin exponer el stack al publico.
+const ruta = (() => { try { return new URL(Astro.request.url).pathname; } catch { return '?'; } })();
+try {
+  const { notifyAdmins } = await import('../lib/health-alert.js');
+  const { logSystemEvent } = await import('../lib/analytics-db.js');
+  // dedup en memoria: una alerta por ruta cada 10 min
+  const g = globalThis as any;
+  g.__err500 = g.__err500 || new Map();
+  const now = Date.now();
+  if (!g.__err500.get(ruta) || now - g.__err500.get(ruta) > 600000) {
+    g.__err500.set(ruta, now);
+    await logSystemEvent({ level: 'critical', category: 'crawl', source: ruta, message: `Error 500 (servidor) en ${ruta}` }).catch(() => {});
+    notifyAdmins(`*ERROR EN EL SITIO*\nEl sitio arrojó un error 500 en:\n${ruta}\nRevisa de inmediato.`).catch(() => {});
+  }
+} catch { /* nunca dejar que el aviso rompa la pagina de error */ }
+---
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>Tuvimos un problema · Grupo Ortiz</title>
+  <link rel="icon" href="/favicon.svg" />
+  <style>*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}</style>
+</head>
+<body>
+  <MaintenanceScreen
+    codigo="500"
+    titulo="Tuvimos un problema"
+    mensaje="Ya estamos trabajando en ello. Intenta de nuevo en un momento."
+    accion="reintentar"
+  />
+</body>
+</html>

@@ -1,0 +1,23 @@
+---
+// src/pages/404.astro — pagina no encontrada, mismo estilo blanco.
+import MaintenanceScreen from '../components/MaintenanceScreen.astro';
+---
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>Página no encontrada · Grupo Ortiz</title>
+  <link rel="icon" href="/favicon.svg" />
+  <style>*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}</style>
+</head>
+<body>
+  <MaintenanceScreen
+    codigo="404"
+    titulo="Página no encontrada"
+    mensaje="La página que buscas no existe o cambió de lugar."
+    accion="inicio"
+  />
+</body>
+</html>
