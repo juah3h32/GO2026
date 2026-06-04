@@ -71,6 +71,8 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
               var slug = mm ? (mm[2] || 'home') : null;
               if (m.all || (slug && m.slugs && m.slugs.indexOf(slug) >= 0)) {
                 try { sessionStorage.setItem('mnt_origen', p); } catch (e) {}
+                // Ocultar la pagina antes de saltar para no mostrar un parpadeo.
+                try { document.documentElement.style.visibility = 'hidden'; } catch (e) {}
                 location.replace('/mantenimiento');
               }
             })
