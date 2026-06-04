@@ -268,12 +268,13 @@ const TOOLS = [
     type: 'function',
     function: {
       name: 'buscar_mercado_vacante',
-      description: 'SCOUT RH: busca en la WEB (busquedas reales) DONDE hay candidatos contactables para un puesto — links directos a hojas de vida/perfiles publicos en bolsas (Computrabajo, OCC, Indeed, LinkedIn, bolsas universitarias), perfiles encontrados con su contacto publico, y sueldo de referencia. Usar para: "busca candidatos para X", "encuentra perfiles de X", "donde hay gente para X", "busca en el mercado X", "necesito un X", "solicito la vacante X". Tarda 30-60 segundos. NO es para candidatos YA registrados en el sistema (eso es obtener_candidatos).',
+      description: 'SCOUT RH: busca en la WEB DONDE hay candidatos contactables para un puesto (links a CVs en Indeed/OCC/Computrabajo/LinkedIn) y, segun el enfoque, tambien sueldo de mercado, requisitos o donde publicar. Usar para: "busca candidatos para X", "encuentra perfiles de X", "busca en el mercado X", "necesito un X", "solicito la vacante X". Y para SEGUIMIENTOS del mismo puesto recien consultado: "el sueldo de mercado" (enfoque=sueldo), "que requisitos piden / que experiencia" (enfoque=requisitos), "donde publico la vacante" (enfoque=publicar). En seguimientos reutiliza el MISMO puesto del mensaje anterior. NO es para candidatos YA registrados en el sistema (eso es obtener_candidatos).',
       parameters: {
         type: 'object',
         properties: {
-          puesto: { type: 'string', description: 'Puesto a investigar, ej: "gerente de planta", "operador de telares"' },
+          puesto: { type: 'string', description: 'Puesto a investigar, ej: "gerente de planta". En seguimientos, el puesto del mensaje anterior.' },
           ubicacion: { type: 'string', description: 'Ciudad. Default: Morelia, Michoacán' },
+          enfoque: { type: 'string', enum: ['candidatos','sueldo','requisitos','publicar','vacante'], description: 'candidatos=donde ver CVs y contactar (default). sueldo=rango salarial. requisitos=skills mas pedidos. publicar=donde publicar. vacante=borrador de vacante listo para publicar (titulo, descripcion, requisitos, sueldo, prestaciones segun mercado).' },
         },
         required: ['puesto'],
       },
@@ -600,7 +601,7 @@ async function ejecutarTool(name, args, ctx) {
 
   if (name === 'buscar_mercado_vacante') {
     const { scoutVacante } = await import('./job-scout.js');
-    const r = await scoutVacante(args.puesto, { ubicacion: args.ubicacion || 'Morelia, Michoacán' });
+    const r = await scoutVacante(args.puesto, { ubicacion: args.ubicacion || 'Morelia, Michoacán', enfoque: args.enfoque || 'candidatos' });
     if (!r.ok) return { error: `SCOUT RH no pudo investigar: ${r.error}` };
     return {
       reporte_mercado: r.text,
@@ -719,10 +720,16 @@ Permisos del usuario: ${JSON.stringify(perms)}. Si pide algo fuera de sus permis
 Tienes acceso a TODO el movimiento de la página: estadísticas de uso, todas las métricas del dashboard, candidatos y postulaciones por vacante, vacantes, distribuidores y consultas de clientes. Eres el centro de control del negocio por WhatsApp.
 
 Reglas:
-- Responde natural y profesional, como un analista ejecutivo de confianza.
+- Responde natural y profesional, como un analista ejecutivo de confianza. Habla como HUMANO, cálido pero directo.
+- TRATO HUMANO Y CHARLA (MUY IMPORTANTE): NO toda frase es una consulta de datos.
+  * Saludo ("hola", "buenas", "qué tal", "buen día") → saluda breve y pregunta en qué puedes ayudar. NO uses herramientas.
+  * Charla o reacción ("jaja", "ok", "va", "sale", "gracias", "perfecto", "👍", un emoji solo) → responde corto y natural (ej. "¡A la orden!" o "¿Te ayudo con algo más?"). NO uses herramientas.
+  * Si el mensaje es confuso, incompleto o no lo entiendes → pregunta amablemente qué necesita. NUNCA te quedes sin responder, NUNCA inventes, y NUNCA metas la charla en una herramienta a la fuerza.
+  * Solo usa herramientas cuando hay una CONSULTA REAL de datos o una acción clara.
+- SIN EMOJIS en tus respuestas (se consistente y profesional), aunque el usuario use emojis.
 - FORMATO WHATSAPP OBLIGATORIO: negritas con UN asterisco (*texto*), NUNCA dos (**texto** prohibido). Listas con guion (-). Sin headers markdown (#). Usa saltos de línea para separar secciones.
-- ESTRUCTURA: empieza con la respuesta directa, luego los datos en lista clara, y cierra con una observación útil o pregunta de seguimiento. Para rankings usa numeración (1., 2., 3.).
-- USA las herramientas para responder con datos reales. JAMÁS inventes cifras.
+- ESTRUCTURA (solo cuando entregas datos): empieza con la respuesta directa, luego los datos en lista clara, y cierra con una observación útil o pregunta de seguimiento. Para rankings usa numeración (1., 2., 3.).
+- Para CONSULTAS DE DATOS usa SIEMPRE las herramientas. JAMÁS inventes cifras.
 - "¿qué vacante tiene más postulaciones?" → postulaciones_por_vacante. "¿quiénes se registraron a X?" → postulaciones_por_vacante con ese puesto.
 - "dame el control total / panorama / cómo va todo" → metricas_dashboard.
 - "¿qué PDF se envió más?", "¿qué catálogo descargan más?", "ranking de pdfs" → pdfs_mas_enviados (acepta periodo).
@@ -731,7 +738,9 @@ Reglas:
 - "revisa todas las páginas", "checa el sitio completo", "navega la página y dime si algo falla", "hay alguna ruta caída/recurso roto" → rastrear_sitio (recorre el sitio en vivo). Tarda unos segundos; avisa que estás revisando.
 - "análisis del día", "cómo amaneció la página", "revisa todas las áreas", "reporte de salud", "qué dicen los agentes" → analisis_del_dia (orquesta a todos los agentes por área). Tarda unos segundos.
 - "analiza la velocidad", "qué tan rápido carga", "cómo está el SEO", "pagespeed", "rendimiento del sitio", "puntaje de Google", "qué mejorar de la página" → analizar_velocidad (Google PageSpeed Insights). Tarda 30-60 seg; avisa que estás analizando.
-- "busca en el mercado X", "qué pagan por X", "monitorea/solicito la vacante X", "investiga el puesto X" → buscar_mercado_vacante (SCOUT RH investiga la web: sueldos, vacantes de la competencia, candidatos). Tarda ~1 min. OJO: candidatos YA registrados en el sistema → obtener_candidatos; mercado externo → buscar_mercado_vacante.
+- "busca candidatos para X", "busca en el mercado X", "necesito un X", "solicito la vacante X" → buscar_mercado_vacante (enfoque=candidatos: donde ver CVs y contactar). Tarda ~1 min.
+- SEGUIMIENTO tras un SCOUT (mismo puesto del mensaje anterior): "el sueldo de mercado"/"qué pagan" → enfoque=sueldo; "qué requisitos/experiencia piden" → enfoque=requisitos; "dónde publico" → enfoque=publicar; "ármame/créame la vacante", "hazme el borrador" → enfoque=vacante. Reutiliza el puesto previo del historial.
+- OJO: candidatos YA registrados en el sistema → obtener_candidatos; mercado externo → buscar_mercado_vacante.
 - DESLINDE de herramientas de monitoreo — NO las confundas:
   * analizar_velocidad = VELOCIDAD/SEO/rendimiento según Google (scores 0-100).
   * revisar_sistema = errores y eventos de seguridad en los LOGS internos.
@@ -782,16 +791,17 @@ export async function ejecutarAsistente(texto, permsArray, phone) {
     { role: 'user', content: String(texto).slice(0, 1000) },
   ];
 
-  // Hasta 4 rondas de tool-calling.
-  // Ronda 0 fuerza el uso de herramientas — evita que el modelo invente cifras.
+  // Hasta 4 rondas de tool-calling. tool_choice='auto' SIEMPRE: el modelo decide
+  // si charla (saludos, risas, emojis) o usa herramienta para consultas de datos.
+  // Antes se forzaba 'required' en ronda 0 y eso buggeaba con mensajes casuales.
   for (let round = 0; round < 4; round++) {
     const res = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
       body: JSON.stringify({
         model: MODEL, messages, tools: TOOLS,
-        tool_choice: round === 0 ? 'required' : 'auto',
-        max_tokens: 700, temperature: 0.15,
+        tool_choice: 'auto',
+        max_tokens: 700, temperature: 0.3,
       }),
     });
     if (!res.ok) {

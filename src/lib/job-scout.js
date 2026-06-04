@@ -24,23 +24,43 @@ PRIORIDAD DE FUENTES (en este orden, porque define cuanto puede VER GRATIS el re
 3. *Computrabajo* — publicar gratis, ve CVs en su panel.
 4. Complementos: LinkedIn (buscar en People), bolsas universitarias de Michoacán (UMSNH, Tec de Morelia).
 
-Entrega SOLO lo accionable: donde ver CVs y a quien contactar. NADA mas. NO incluyas analisis de mercado, sueldos, estadisticas, contexto economico ni recomendaciones largas.
+Respondes SEGUN el ENFOQUE que te pidan. Por defecto (enfoque=candidatos) das donde ver CVs y a quien contactar. Si piden otro enfoque, das SOLO eso. Siempre corto.
 
-Estructura EXACTA (no agregues secciones):
-1. *Perfiles* — si tus busquedas mostraron candidatos con contacto publico abierto, listalos: nombre, profesion en 1 linea, como contactar. NO inventes nombres ni telefonos. Si ninguno tiene contacto abierto, escribe solo: "Sin perfiles con contacto abierto; entra a los links."
-2. *Donde ver CVs y contactar* — 3-4 links. Cada uno con una nota BREVE (5-8 palabras) de como entrar con SU cuenta de empresa para ver el CV y contactar directo:
+== ENFOQUE: candidatos (default) ==
+Estructura EXACTA:
+1. *Perfiles* — si tus busquedas mostraron candidatos con contacto publico abierto, listalos: nombre, profesion en 1 linea, como contactar. NO inventes. Si ninguno tiene contacto abierto: "Sin perfiles con contacto abierto; entra a los links."
+2. *Donde ver CVs y contactar* — 3-4 links con nota BREVE de como entrar con SU cuenta de empresa:
 - Indeed (inicia sesion empresa, ve CVs gratis): [link]
 - OCC (entra a tu cuenta, 15 contactos gratis al publicar): [link]
 - Computrabajo (login empresa, ve CVs en tu panel): [link]
 - LinkedIn (entra y busca en People): [link]
+CIERRA con UNA linea: "¿Quieres el *sueldo de mercado*, los *requisitos*, *armar la vacante* lista para publicar, o *donde publicar*? Dime."
+
+== ENFOQUE: sueldo ==
+Solo el rango salarial mensual MXN de ese puesto en la ciudad, con 1-2 fuentes. Maximo 6 lineas. Sin links de bolsas.
+
+== ENFOQUE: requisitos ==
+Solo los 4-6 requisitos/skills mas pedidos en vacantes de ese puesto. Maximo 8 lineas.
+
+== ENFOQUE: publicar ==
+Solo 2-3 bolsas/grupos donde conviene publicar la vacante para atraer ese perfil, con link. Maximo 6 lineas.
+
+== ENFOQUE: vacante ==
+Arma un BORRADOR de vacante LISTO para publicar, basado en lo que pide el mercado real (busca vacantes similares). Estructura:
+*Titulo del puesto*
+*Descripcion:* 2-3 lineas de las funciones tipicas.
+*Requisitos:* 4-6 vinetas (escolaridad, experiencia, skills) — los que mas se repiten en el mercado.
+*Sueldo sugerido:* rango mensual MXN competitivo segun mercado.
+*Prestaciones tipicas:* 2-3 que ofrece la competencia.
+Maximo 16 lineas. El reclutador lo copia y publica.
 
 REGLAS (obligatorias):
-- NUNCA inventes nombres, telefonos, correos ni perfiles. Si la bolsa oculta el dato, da el LINK, no adivines.
+- NUNCA inventes nombres, telefonos, correos, perfiles ni cifras. Si la bolsa oculta el dato, da el LINK. Si no encuentras sueldo, dilo.
 - Usa SOLO URLs reales de tus busquedas. Si no tienes la exacta, usa la BASE: https://resumes.indeed.com/ , https://www.occ.com.mx/empresas/ , https://mx.computrabajo.com/ , https://www.linkedin.com/jobs/
 
 Formato:
-- Español. WhatsApp: negrita con UN asterisco (*asi*), nunca doble. Listas con guion (-). Links completos. Sin headers markdown. SIN EMOJIS.
-- MUY CORTO: maximo 12 lineas. Sin saludos ni cierres. Empieza con: *SCOUT RH — [puesto] · [ciudad]*`;
+- Español. WhatsApp: negrita con UN asterisco (*asi*), nunca doble. Listas con guion (-). Links completos. Sin headers markdown. SIN EMOJIS. Sin saludos.
+- Empieza con: *SCOUT RH — [puesto] · [ciudad]*`;
 
 let _client = null;
 function client() {
@@ -97,11 +117,14 @@ async function verificarLinks(texto) {
   return { texto: out, rotos };
 }
 
+// enfoque: 'candidatos' (default) | 'sueldo' | 'requisitos' | 'publicar'
 // Devuelve { ok, text } o { ok:false, error }.
-export async function scoutVacante(puesto, { ubicacion = 'Morelia, Michoacán' } = {}) {
+export async function scoutVacante(puesto, { ubicacion = 'Morelia, Michoacán', enfoque = 'candidatos' } = {}) {
   const anthropic = client();
   if (!anthropic) return { ok: false, error: 'ANTHROPIC_API_KEY no configurada' };
   if (!puesto || !String(puesto).trim()) return { ok: false, error: 'Puesto requerido' };
+
+  const enf = ['candidatos', 'sueldo', 'requisitos', 'publicar', 'vacante'].includes(enfoque) ? enfoque : 'candidatos';
 
   try {
     const response = await anthropic.messages.create({
@@ -112,7 +135,7 @@ export async function scoutVacante(puesto, { ubicacion = 'Morelia, Michoacán' }
       tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: 6 }],
       messages: [{
         role: 'user',
-        content: `Puesto: ${String(puesto).slice(0, 120)}. Ubicacion: ${String(ubicacion).slice(0, 80)}. Investiga el mercado ahora.`,
+        content: `Puesto: ${String(puesto).slice(0, 120)}. Ubicacion: ${String(ubicacion).slice(0, 80)}. ENFOQUE: ${enf}. Investiga ahora y responde SOLO ese enfoque.`,
       }],
     });
 
