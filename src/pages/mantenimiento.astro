@@ -26,6 +26,7 @@ Astro.response.headers.set('Retry-After', '120');
     accion="inicio"
     recargar={true}
     anim={true}
+    contador={40}
   />
   <script is:inline>
     // Auto-retorno: revisa cada 8s si ya se reactivo. Cuando la pagina de origen
@@ -53,8 +54,15 @@ Astro.response.headers.set('Retry-After', '120');
       }
       setInterval(chequear, 8000);
       setTimeout(chequear, 3000);
-      // Auto-redirige al inicio a los 30s aunque siga en mantenimiento.
-      setTimeout(function () { location.replace('/'); }, 30000);
+
+      // Cuenta regresiva visible de 40s: al llegar a 0 va al inicio.
+      var restante = 40;
+      var elNum = document.getElementById('mnt-count-n');
+      var tic = setInterval(function () {
+        restante--;
+        if (elNum) elNum.textContent = restante;
+        if (restante <= 0) { clearInterval(tic); location.replace('/'); }
+      }, 1000);
     })();
   </script>
 </body>

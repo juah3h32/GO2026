@@ -11,6 +11,7 @@ interface Props {
   accion?: 'reintentar' | 'inicio' | 'none';
   recargar?: boolean;
   anim?: boolean;
+  contador?: number;
 }
 const {
   codigo = '502',
@@ -19,6 +20,7 @@ const {
   accion = 'reintentar',
   recargar = false,
   anim = false,
+  contador = 0,
 } = Astro.props;
 ---
 <div class={`mnt-wrap${anim ? ' has-anim' : ''}`}>
@@ -50,6 +52,10 @@ const {
         <button class="mnt-btn mnt-btn-2" onclick="location.reload()">Recargar</button>
       )}
     </div>
+
+    {contador > 0 && (
+      <p class="mnt-count">Te llevamos al inicio en <b id="mnt-count-n">{contador}</b> s</p>
+    )}
 
     <div class="mnt-brand">Grupo Ortiz</div>
   </div>
@@ -185,8 +191,15 @@ const {
     background: rgba(251,103,11,0.08);
     box-shadow: none;
   }
+  .mnt-count {
+    margin: 20px 0 0;
+    font-size: 12.5px;
+    color: #A1A1AA;
+    font-weight: 500;
+  }
+  .mnt-count b { color: #FB670B; font-weight: 800; }
   .mnt-brand {
-    margin-top: 40px;
+    margin-top: 24px;
     font-size: 12px;
     font-weight: 600;
     letter-spacing: 0.22em;
