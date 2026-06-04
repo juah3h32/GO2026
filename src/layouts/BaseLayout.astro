@@ -55,6 +55,28 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
       name="viewport"
       content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
+
+    {/* Gate de mantenimiento (las paginas son estaticas, no pasan por middleware):
+        consulta el estado y, si esta pagina esta en mantenimiento, redirige. */}
+    <script is:inline>
+      (function () {
+        try {
+          var p = location.pathname;
+          if (p === '/mantenimiento' || p.indexOf('/stats') === 0) return;
+          fetch('/api/maintenance-status', { cache: 'no-store' })
+            .then(function (r) { return r.json(); })
+            .then(function (m) {
+              if (!m) return;
+              var mm = p.match(/^\/(es|en|pt|ar|zh)(?:\/([^\/?#]+))?/);
+              var slug = mm ? (mm[2] || 'home') : null;
+              if (m.all || (slug && m.slugs && m.slugs.indexOf(slug) >= 0)) {
+                location.replace('/mantenimiento');
+              }
+            })
+            .catch(function () {});
+        } catch (e) {}
+      })();
+    </script>
     <meta name="theme-color" content="#ffffff" />
     <meta name="google-site-verification" content="rOmVFzyWzonDprnnaI7IaKK0inenxoZB4zXYCa7R5GU" />
 
