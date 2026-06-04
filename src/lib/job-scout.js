@@ -29,6 +29,9 @@ Respondes SEGUN el ENFOQUE que te pidan. Por defecto (enfoque=candidatos) das do
 == ENFOQUE: candidatos (default) ==
 Estructura EXACTA, LIMPIA y espaciada (deja una linea en blanco entre secciones):
 
+*Disponibilidad por fuente*
+Para CADA bolsa, di cuantos perfiles/CVs o vacantes activas detectaste en tus busquedas para ese puesto y ciudad. Formato: "- LinkedIn: ~50 perfiles" / "- OCC: 12 vacantes activas" / "- Indeed: 42 resultados" / "- Computrabajo: 8". Usa SOLO numeros reales de tus busquedas; si una fuente no muestra el conteo publico, escribe "requiere login empresa". Cierra esta seccion con UNA linea de conclusion: donde hay mas oferta y donde conviene empezar a buscar.
+
 *Candidatos contactables*
 Si tus busquedas mostraron personas con contacto publico abierto, listalas (nombre + profesion + como contactar). NO inventes. Si ninguna lo tiene abierto, escribe una sola linea: "Las bolsas ocultan el contacto; usa los links de abajo, entra como empresa y contactas directo."
 
