@@ -1130,7 +1130,18 @@ html.dark .botgo-tooltip-card  { background:rgba(242,79,19,0.08); border-color:r
     border: 2.5px solid rgba(255,255,255,0.9);
     border-right: none;
     box-shadow: -4px 4px 18px rgba(242,79,19,0.5);
+    background: linear-gradient(135deg, #FB670B, #d63f0a);
+    overflow: hidden;
   }
+  /* En movil: naranja solido con logo blanco (igual que el pill).
+     Quita el anillo giratorio y el circulo negro interior del estilo desktop. */
+  .botgo-launcher .botgo-button::before { display: none !important; }
+  .botgo-launcher .botgo-button::after {
+    inset: 0;
+    border-radius: 14px 0 0 14px;
+    background: linear-gradient(135deg, #FB670B, #d63f0a) !important;
+  }
+  .botgo-launcher .botgo-button .botgo-btn-icon { color: #ffffff; position: relative; z-index: 2; }
 
   .botgo-container {
     right: 0; left: auto; bottom: 0;

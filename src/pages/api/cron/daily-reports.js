@@ -119,8 +119,15 @@ async function runCron({ forceAll = false, baseUrl = 'https://grupo-ortiz.com' }
 
     console.log(`[cron/daily-reports] Fin. ${results.filter(r=>r.sent).length} enviados, ${results.filter(r=>r.skipped).length} saltados`);
 
+    // Resumen diario de fallas menores acumuladas (imagenes/videos/recursos sueltos).
+    let resumen = null;
+    try {
+      const { enviarResumenDiario } = await import('../../../lib/alert-center.js');
+      resumen = await enviarResumenDiario();
+    } catch (e) { console.error('[cron/daily-reports] resumen diario:', e.message); }
+
     return new Response(
-      JSON.stringify({ ok: true, ran: results.length, results, ts: nowUTC, total: allRows.length, active: rows.length }),
+      JSON.stringify({ ok: true, ran: results.length, results, ts: nowUTC, total: allRows.length, active: rows.length, resumen }),
       { headers: { 'Content-Type': 'application/json' } }
     );
   } catch (err) {

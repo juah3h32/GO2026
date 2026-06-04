@@ -12,7 +12,7 @@ export const prerender = false;
 
 import { getCloudinaryUsage } from '../../../lib/cloudinary-usage.js';
 import { getConfig, setConfig, logSystemEvent } from '../../../lib/analytics-db.js';
-import { notifyAdmins } from '../../../lib/health-alert.js';
+import { alertaUrgente, acumularResumen } from '../../../lib/alert-center.js';
 import { verifyAdminToken } from '../../../lib/verifyAdminToken.ts';
 
 const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { 'Content-Type': 'application/json' } });
@@ -33,15 +33,16 @@ export async function runStorageCheck({ notify = true } = {}) {
 
   let alerted = false;
   if (notify && bucket > prev) {
-    // Cruzó hacia arriba un umbral nuevo → avisar una sola vez.
-    const urgente = bucket >= 90;
-    const texto = `*ALMACENAMIENTO CLOUDINARY ${urgente ? 'CRITICO' : 'EN ALERTA'}*\n`
-      + `Uso al *${pct}%* (${usage.detalle}).\n`
-      + `${urgente ? 'Riesgo de que se caigan videos y PDFs.' : 'Queda poco margen.'}\n`
-      + `Revisa y libera espacio: console.cloudinary.com`;
-    await notifyAdmins(texto);
-    alerted = true;
-    await logSystemEvent({ level: urgente ? 'critical' : 'warn', category: 'storage', source: 'storage-check', message: `Cloudinary al ${pct}% — alerta enviada (umbral ${bucket})` }).catch(() => {});
+    // Cruzó hacia arriba un umbral nuevo. 90% = URGENTE (instantaneo);
+    // 75% = al RESUMEN diario (no interrumpe).
+    if (bucket >= 90) {
+      const n = await alertaUrgente('cloudinary:90', `*ALMACENAMIENTO CLOUDINARY CRITICO*\nUso al *${pct}%* (${usage.detalle}).\nRiesgo de que se caigan videos y PDFs.\nLibera espacio: console.cloudinary.com`, { ventanaMin: 720 });
+      alerted = n > 0;
+    } else {
+      await acumularResumen({ tipo: 'storage', detalle: `Cloudinary al ${pct}% (${usage.detalle}) — conviene liberar espacio` });
+      alerted = true;
+    }
+    await logSystemEvent({ level: bucket >= 90 ? 'critical' : 'warn', category: 'storage', source: 'storage-check', message: `Cloudinary al ${pct}% (umbral ${bucket})` }).catch(() => {});
   }
 
   // Persistir SOLO si se avisó (sube el umbral) o si bajó (se liberó espacio → resetea

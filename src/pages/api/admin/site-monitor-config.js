@@ -27,10 +27,18 @@ export async function GET({ request }) {
     const adminRole = await verifyAdminToken(request);
     if (!adminRole) return json({ ok: false, error: 'No autorizado' }, 401);
     const config = readCfg(await getConfig('site_monitor').catch(() => null));
-    const fallas = (await getSystemLogs({ limit: 40 }).catch(() => []))
-      .filter(l => ['crawl', 'video', 'imagen', 'recurso'].includes(l.category) && (l.level === 'error' || l.level === 'critical'))
-      .slice(0, 8)
-      .map(l => ({ cuando: l.ts, nivel: l.level, area: l.category, detalle: l.message }));
+    // Deduplicar por mensaje (los mismos errores se repiten) y limitar a 5.
+    const vistos = new Set();
+    const fallas = [];
+    for (const l of (await getSystemLogs({ limit: 60 }).catch(() => []))) {
+      if (!['crawl', 'video', 'imagen', 'recurso'].includes(l.category)) continue;
+      if (l.level !== 'error' && l.level !== 'critical') continue;
+      const k = String(l.message || '').slice(0, 80);
+      if (vistos.has(k)) continue;
+      vistos.add(k);
+      fallas.push({ cuando: l.ts, nivel: l.level, area: l.category, detalle: l.message });
+      if (fallas.length >= 5) break;
+    }
     return json({ ok: true, config, fallas });
   } catch (err) {
     console.error('[site-monitor-config GET]', err);

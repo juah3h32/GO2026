@@ -35,12 +35,19 @@ export async function checkAndAlert() {
     if (!stats.unseenAlerts) return { alerted: false, reason: 'sin alertas nuevas' };
     if (Date.now() - _lastAlertAt < MIN_INTERVAL_MS) return { alerted: false, reason: 'anti-spam' };
 
-    // Alertar solo por fallas que importan: críticos o seguridad (no errores sueltos del frontend).
+    // Estas categorias YA avisan por su cuenta (alert-center). checkAndAlert NO
+    // debe reenviarlas o llegarian DUPLICADAS. Solo cubre criticos/seguridad
+    // "huerfanos" (ej. un throw inesperado de backend sin alerta propia).
+    const YA_AVISADAS = new Set(['auth', 'crawl', 'video', 'imagen', 'recurso', 'mantenimiento', 'storage', 'backend']);
     const criticalLogs = await getSystemLogs({ limit: 30 });
-    const hayGrave = criticalLogs.some(l => (l.level === 'critical' || l.level === 'security') && !l.seen);
-    if (!hayGrave) return { alerted: false, reason: 'sin eventos graves nuevos' };
+    const graves = criticalLogs.filter(l => (l.level === 'critical' || l.level === 'security') && !l.seen && !YA_AVISADAS.has(l.category));
+    if (!graves.length) {
+      // Marcar como vistos para que no se acumulen, pero sin reenviar.
+      if (criticalLogs.some(l => !l.seen)) await markLogsSeen().catch(() => {});
+      return { alerted: false, reason: 'sin eventos huerfanos nuevos' };
+    }
 
-    const logs = criticalLogs;
+    const logs = graves;
     const d = await diagnoseSystem({ stats, logs });
     const texto = d.ok && d.text
       ? `*ANALYTIC BOT JP* — alerta\ngrupo-ortiz.com\n\n${d.text}`

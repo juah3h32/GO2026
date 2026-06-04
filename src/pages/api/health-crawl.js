@@ -13,7 +13,7 @@
 export const prerender = false;
 
 import { logSystemEvent, getConfig, setConfig } from '../../lib/analytics-db.js';
-import { notifyAdmins } from '../../lib/health-alert.js';
+import { alertaUrgente, acumularResumen } from '../../lib/alert-center.js';
 import { verifyAdminToken } from '../../lib/verifyAdminToken.ts';
 
 const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { 'Content-Type': 'application/json' } });
@@ -153,25 +153,21 @@ export async function runHealthCrawl({ origin, notify = true } = {}) {
     const nuevas = activas.filter(f => !seen.has(f.url));
 
     if (notify && activo && nuevas.length) {
-      // Agrupar por pagina (slug) para el mensaje
-      const porPagina = {};
-      for (const f of nuevas) { const s = slugDe(f.en || f.url) || 'sitio'; (porPagina[s] ||= []).push(f); }
-      const lineas = ['*FALLA EN EL SITIO — grupo-ortiz.com*', ''];
-      for (const [pag, arr] of Object.entries(porPagina)) {
-        const tipos = [...new Set(arr.map(f => ETIQUETA[f.tipo]))].join(', ');
-        lineas.push(`*${pag === 'home' ? 'Inicio' : pag}*: ${arr.length} problema(s) — ${tipos}`);
-      }
-      // Sugerir mantenimiento de las paginas que NO abren
+      // URGENTE: paginas que NO abren (grave). Recursos sueltos → resumen diario.
       const paginasNuevasCaidas = [...new Set(nuevas.filter(f => f.tipo === 'pagina').map(f => slugDe(f.url)).filter(Boolean))];
       if (paginasNuevasCaidas.length) {
-        lineas.push('', 'Estas paginas NO abren:');
+        const lineas = ['*PAGINAS CAIDAS — grupo-ortiz.com*', '', 'Estas paginas NO abren:'];
         for (const p of paginasNuevasCaidas) lineas.push(`- ${p === 'home' ? 'Inicio' : p}`);
         lineas.push('', `Para protegerlas responde: *pon en mantenimiento ${paginasNuevasCaidas[0]}*`);
-      } else {
-        lineas.push('', 'Revisa de inmediato.');
+        // dedup por conjunto de paginas caidas (no re-avisa las mismas en 60 min)
+        alertSent = await alertaUrgente(`crawl-pages:${paginasNuevasCaidas.sort().join(',')}`, lineas.join('\n'), { ventanaMin: 60 });
       }
-      alertSent = await notifyAdmins(lineas.join('\n'));
-      await logSystemEvent({ level: 'critical', category: 'crawl', source: 'health-crawl', message: `ALERTA enviada: ${nuevas.length} falla(s) nueva(s) en el sitio` }).catch(() => {});
+      // Recursos sueltos (imagen/video/css/js) → cola del resumen diario.
+      for (const f of nuevas.filter(f => f.tipo !== 'pagina')) {
+        await acumularResumen({ tipo: f.tipo === 'estilo' || f.tipo === 'script' ? 'estilo' : f.tipo,
+          detalle: `${ETIQUETA[f.tipo]} en ${slugDe(f.en || f.url) || 'sitio'}: ${String(f.url).replace(origin, '').slice(0, 70)}` }).catch(() => {});
+      }
+      await logSystemEvent({ level: paginasNuevasCaidas.length ? 'critical' : 'warn', category: 'crawl', source: 'health-crawl', message: `${nuevas.length} falla(s) nueva(s) — ${paginasNuevasCaidas.length} pagina(s) caida(s)` }).catch(() => {});
     }
 
     // Guardar el set de lo roto AHORA (solo tipos monitoreables) → si algo se reparó, sale del set.

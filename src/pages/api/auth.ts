@@ -164,9 +164,10 @@ export const POST: APIRoute = async ({ request }) => {
       // Log + alerta de intento fallido (posible intruso)
       try {
         const { logSystemEvent } = await import('../../lib/analytics-db.js');
-        const { notifyAdmins }   = await import('../../lib/health-alert.js');
+        const { alertaUrgente }  = await import('../../lib/alert-center.js');
         await logSystemEvent({ level: 'security', category: 'auth', source: 'login', message: `Intento de acceso FALLIDO al panel — ${dispositivo} — ${ubicacion}`, ip, meta: { ubicacion, dispositivo, ua: ua.slice(0, 200) } }).catch(() => {});
-        notifyAdmins(`*ALERTA DE ACCESO*\nIntento FALLIDO al panel BotGO.\nDispositivo: ${dispositivo}\nUbicación: ${ubicacion}\nIP: ${ip}\n${horaMX} (CDMX)`).catch(() => {});
+        // URGENTE (seguridad). Dedup por IP: no spamea si alguien insiste; 15 min.
+        alertaUrgente(`login-fail:${ip}`, `*ALERTA DE ACCESO*\nIntento FALLIDO al panel BotGO.\nDispositivo: ${dispositivo}\nUbicación: ${ubicacion}\nIP: ${ip}\n${horaMX} (CDMX)`, { ventanaMin: 15 }).catch(() => {});
       } catch { /* no bloquear el login por el aviso */ }
       await new Promise(r => setTimeout(r, 400));
       return new Response(JSON.stringify({ ok: false, error: 'Contraseña incorrecta' }), { status: 401 });
@@ -198,13 +199,11 @@ const row      = result.rows[0];
 
     console.log(`✅ Login exitoso — rol: ${role.name} | canDelete: ${role.canDelete}`);
 
-    // Log + aviso de acceso correcto
+    // Acceso correcto: solo queda en el LOG (sin WhatsApp, evita ruido).
     try {
       const { logSystemEvent } = await import('../../lib/analytics-db.js');
-      const { notifyAdmins }   = await import('../../lib/health-alert.js');
       await logSystemEvent({ level: 'info', category: 'auth', source: 'login', message: `Acceso correcto — ${role.name} — ${dispositivo} — ${ubicacion}`, ip, meta: { ubicacion, dispositivo, ua: ua.slice(0, 200) } }).catch(() => {});
-      notifyAdmins(`*Acceso al panel BotGO*\nRol: ${role.name}\nDispositivo: ${dispositivo}\nUbicación: ${ubicacion}\nIP: ${ip}\n${horaMX} (CDMX)`).catch(() => {});
-    } catch { /* no bloquear el login por el aviso */ }
+    } catch { /* no bloquear el login por el log */ }
 
     const token = await new SignJWT({ role })
       .setProtectedHeader({ alg: 'HS256' })

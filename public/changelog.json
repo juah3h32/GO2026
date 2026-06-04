@@ -1,6 +1,142 @@
 {
   "commits": [
     {
+      "hash": "050ea04",
+      "date": "2026-06-04",
+      "message": "monitoreo del sitio, pantalla 502/mantenimiento, alertas login y Cloudinary",
+      "rawMessage": "feat: monitoreo del sitio, pantalla 502/mantenimiento, alertas login y Cloudinary",
+      "type": "feat",
+      "area": "Media"
+    },
+    {
+      "hash": "31ef6b0",
+      "date": "2026-06-04",
+      "message": "permisos — rechazo inmediato de areas sin acceso, sin ofrecer datos ajenos",
+      "rawMessage": "fix: permisos — rechazo inmediato de areas sin acceso, sin ofrecer datos ajenos",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "b04e48f",
+      "date": "2026-06-04",
+      "message": "chatbot clientes BOTGO conversa natural — saludo, anti-repeticion",
+      "rawMessage": "feat: chatbot clientes BOTGO conversa natural — saludo, anti-repeticion",
+      "type": "feat",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "651bfa8",
+      "date": "2026-06-04",
+      "message": "change: el asistente es \"Asistente Virtual de BotGO\", no Elina",
+      "rawMessage": "change: el asistente es \"Asistente Virtual de BotGO\", no Elina",
+      "type": "update",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "dea7529",
+      "date": "2026-06-04",
+      "message": "asistente Elina — conversacion natural, memoria del hilo, anti-repeticion",
+      "rawMessage": "feat: asistente Elina — conversacion natural, memoria del hilo, anti-repeticion",
+      "type": "feat",
+      "area": "General"
+    },
+    {
+      "hash": "8e8abd0",
+      "date": "2026-06-04",
+      "message": "SCOUT muestra disponibilidad por fuente (cuantos perfiles donde)",
+      "rawMessage": "feat: SCOUT muestra disponibilidad por fuente (cuantos perfiles donde)",
+      "type": "feat",
+      "area": "Performance"
+    },
+    {
+      "hash": "454f96e",
+      "date": "2026-06-04",
+      "message": "SCOUT cierra solo con menu, prohibido preguntas abiertas",
+      "rawMessage": "fix: SCOUT cierra solo con menu, prohibido preguntas abiertas",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "0677d54",
+      "date": "2026-06-04",
+      "message": "bot entraba en bucle al confirmar \"si\" tras una oferta",
+      "rawMessage": "fix: bot entraba en bucle al confirmar \"si\" tras una oferta",
+      "type": "fix",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "c78a131",
+      "date": "2026-06-04",
+      "message": "bot duplicaba respuesta en mensajes sin msg_id (ej. \"1\")",
+      "rawMessage": "fix: bot duplicaba respuesta en mensajes sin msg_id (ej. \"1\")",
+      "type": "fix",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "6f14f88",
+      "date": "2026-06-04",
+      "message": "SCOUT candidatos estructura mas limpia + links de contacto empresa",
+      "rawMessage": "style: SCOUT candidatos estructura mas limpia + links de contacto empresa",
+      "type": "style",
+      "area": "General"
+    },
+    {
+      "hash": "b6e6f09",
+      "date": "2026-06-04",
+      "message": "SCOUT menu numerado + detecta seguimientos de sueldo",
+      "rawMessage": "fix: SCOUT menu numerado + detecta seguimientos de sueldo",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "87c2ac9",
+      "date": "2026-06-04",
+      "message": "SCOUT arma vacante + fix bot se buggeaba con charla casual",
+      "rawMessage": "feat: SCOUT arma vacante + fix bot se buggeaba con charla casual",
+      "type": "feat",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "65f0e10",
+      "date": "2026-06-04",
+      "message": "SCOUT RH reporte corto — solo perfiles + links de acceso directo",
+      "rawMessage": "feat: SCOUT RH reporte corto — solo perfiles + links de acceso directo",
+      "type": "feat",
+      "area": "Performance"
+    },
+    {
+      "hash": "1e55311",
+      "date": "2026-06-04",
+      "message": "SCOUT RH prioriza ver CVs gratis (Indeed) + verifica links",
+      "rawMessage": "feat: SCOUT RH prioriza ver CVs gratis (Indeed) + verifica links",
+      "type": "feat",
+      "area": "General"
+    },
+    {
+      "hash": "9c7552f",
+      "date": "2026-06-04",
+      "message": "permisos de monitoreo + SCOUT RH enfocado a candidatos contactables",
+      "rawMessage": "fix: permisos de monitoreo + SCOUT RH enfocado a candidatos contactables",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "4da01ab",
+      "date": "2026-06-04",
+      "message": "PageSpeed semanal + SCOUT RH mercado laboral + dashboard consolidado",
+      "rawMessage": "feat: PageSpeed semanal + SCOUT RH mercado laboral + dashboard consolidado",
+      "type": "feat",
+      "area": "Performance"
+    },
+    {
+      "hash": "684cc30",
+      "date": "2026-06-03",
+      "message": "bot responde mas rapido — dashboard poll 6s, hasta 4 msgs/corrida con limite 45s",
+      "rawMessage": "perf: bot responde mas rapido — dashboard poll 6s, hasta 4 msgs/corrida con limite 45s",
+      "type": "perf",
+      "area": "Performance"
+    },
+    {
       "hash": "91cb869",
       "date": "2026-06-03",
       "message": "quitar console.log de Search Console del dashboard (impresiones, consultas, paises)",
@@ -1674,48 +1810,55 @@
     }
   ],
   "stats": {
-    "total": 209,
+    "total": 226,
     "byType": {
-      "fix": 52,
+      "feat": 40,
+      "fix": 58,
+      "update": 11,
+      "style": 1,
+      "perf": 3,
       "docs": 1,
-      "feat": 32,
-      "update": 10,
       "chore": 2,
-      "perf": 2,
       "release": 110
     },
     "byArea": {
-      "General": 159,
-      "Admin/API": 14,
-      "Media": 18,
+      "Media": 19,
+      "General": 166,
+      "Admin/API": 19,
+      "Performance": 4,
       "i18n": 3,
       "Productos": 15
     },
     "byMonth": {
-      "2026-06": 51,
+      "2026-06": 68,
       "2026-05": 33,
       "2026-04": 29,
       "2026-03": 96
     },
     "byAreaType": {
+      "Media": {
+        "feat": 3,
+        "fix": 14,
+        "perf": 1,
+        "update": 1
+      },
       "General": {
-        "fix": 26,
-        "feat": 16,
+        "fix": 30,
+        "feat": 18,
+        "style": 1,
         "update": 6,
         "chore": 1,
         "release": 110
       },
       "Admin/API": {
-        "docs": 1,
-        "feat": 5,
-        "fix": 7,
-        "update": 1
+        "feat": 7,
+        "update": 2,
+        "fix": 9,
+        "docs": 1
       },
-      "Media": {
-        "fix": 14,
-        "feat": 2,
-        "perf": 1,
-        "update": 1
+      "Performance": {
+        "feat": 3,
+        "perf": 1
       },
       "i18n": {
         "feat": 1,
@@ -1730,5 +1873,5 @@
       }
     }
   },
-  "generatedAt": "2026-06-03T23:08:07.868Z"
+  "generatedAt": "2026-06-04T20:05:05.306Z"
 }
