@@ -92,8 +92,8 @@ const {
     position: relative;
     z-index: 1;
     text-align: center;
-    max-width: 540px;
     width: 100%;
+    max-width: 96vw;
     padding: 24px;
   }
   .mnt-art {
@@ -105,13 +105,16 @@ const {
   }
   .mnt-title {
     font-family: 'Morganite', 'Arial Narrow', sans-serif;
-    font-size: clamp(44px, 10vw, 72px);
+    font-size: clamp(28px, 7vw, 64px);
     font-weight: 800;
     text-transform: uppercase;
     color: #18181B;
-    margin: 0 0 14px;
+    margin: 0 auto 14px;
     letter-spacing: 0.01em;
-    line-height: 0.95;
+    line-height: 1;
+    white-space: nowrap;       /* todo en una sola linea */
+    width: max-content;        /* la caja se ajusta al texto y se centra */
+    max-width: 96vw;
   }
   .mnt-text {
     font-size: clamp(14px, 3.5vw, 17px);
