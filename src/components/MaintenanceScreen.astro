@@ -87,16 +87,17 @@ const {
     line-height: 1;
     letter-spacing: -0.05em;
     color: #F4F4F5;
-    z-index: 0;
     user-select: none;
     pointer-events: none;
     white-space: nowrap;
   }
 
-  /* Contenido encima */
+  /* Contenido encima. SIN z-index: asi el mix-blend-mode del gif se mezcla
+     con el numero de fondo (un z-index aqui aislaria la mezcla y el gif
+     mostraria su rectangulo blanco solido tapando el numero). El orden del
+     DOM (bgcode primero) ya deja este contenido pintado encima. */
   .mnt-box {
     position: relative;
-    z-index: 1;
     text-align: center;
     width: 100%;
     max-width: 96vw;
