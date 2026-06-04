@@ -1,7 +1,7 @@
 // src/sw.js — Service Worker personalizado (injectManifest strategy)
 import { cleanupOutdatedCaches, precacheAndRoute } from 'workbox-precaching';
 import { registerRoute } from 'workbox-routing';
-import { NetworkFirst } from 'workbox-strategies';
+import { NetworkFirst, NetworkOnly } from 'workbox-strategies';
 
 // Activar inmediatamente sin esperar que se cierren otras pestañas
 self.skipWaiting();
@@ -10,8 +10,16 @@ self.addEventListener('activate', e => e.waitUntil(clients.claim()));
 cleanupOutdatedCaches();
 precacheAndRoute(self.__WB_MANIFEST || []);
 
+// APIs: SIEMPRE a la red, NUNCA cache. El estado de mantenimiento debe ser en
+// vivo; antes NetworkFirst lo cacheaba y el sitio no reflejaba los cambios.
 registerRoute(
-  ({ url }) => url.origin === 'https://grupo-ortiz.com',
+  ({ url }) => url.pathname.startsWith('/api/'),
+  new NetworkOnly()
+);
+
+// Paginas (excepto /api, ya capturado arriba): NetworkFirst.
+registerRoute(
+  ({ url }) => url.origin === 'https://grupo-ortiz.com' && !url.pathname.startsWith('/api/'),
   new NetworkFirst({
     cacheName: 'pages-cache',
     plugins: [],
