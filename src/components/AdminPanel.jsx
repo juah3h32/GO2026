@@ -3336,7 +3336,9 @@ const ALL_TABS=[
                 letterSpacing:'-0.01em' }}>
               {t.label}
               {t.id==='distribuidores'&&leads.length>0&&(
-                <span style={{ marginLeft:5, background:P.okDim, color:P.orange,
+                <span style={{ marginLeft:5,
+                  background: tab===t.id ? 'rgba(255,255,255,0.28)' : P.okDim,
+                  color: tab===t.id ? '#fff' : P.orange,
                   borderRadius:10, padding:'1px 7px', fontSize:9, fontWeight:700 }}>{leads.length}</span>
               )}
             </button>
@@ -3366,7 +3368,9 @@ const ALL_TABS=[
                     fontWeight:tab===t.id?600:400, cursor:'pointer', textAlign:'left' }}>
                   {t.label}
                   {t.id==='distribuidores'&&leads.length>0&&(
-                    <span style={{ background:P.okDim, color:P.orange, borderRadius:10, padding:'1px 7px', fontSize:9 }}>{leads.length}</span>
+                    <span style={{ background: tab===t.id ? P.orange : P.okDim,
+                      color: tab===t.id ? '#fff' : P.orange,
+                      borderRadius:10, padding:'1px 7px', fontSize:9, fontWeight:700 }}>{leads.length}</span>
                   )}
                 </button>
               ))}
