@@ -1008,9 +1008,13 @@ export async function claimWAIncoming({ phone, body, msgId }) {
   const encBody  = encryptField(body);
 
   if (!msgId) {
-    // Sin msg_id no se puede deduplicar atómicamente → insertar y procesar.
-    const r = await db.execute({ sql: `INSERT INTO wa_incoming (phone, body, msg_id) VALUES (?,?,?)`, args: [encPhone, encBody, ''] });
-    return { id: r.lastInsertRowid, claimed: true };
+    // Sin msg_id (mensajes cortos como "1", o formatos de WAHooks sin id): generamos
+    // un id SINTETICO determinista por ventana de 12s a partir de phone+body. Asi, si el
+    // MISMO mensaje llega por push y por poll casi a la vez, ambos generan el mismo id y
+    // el indice unico + claim atomico evitan la doble respuesta.
+    let h = 0; const s = `${phone}|${body}`;
+    for (let i = 0; i < s.length; i++) { h = ((h << 5) - h + s.charCodeAt(i)) | 0; }
+    msgId = `syn_${(h >>> 0).toString(36)}_${Math.floor(Date.now() / 12000)}`;
   }
 
   const mid = String(msgId);
