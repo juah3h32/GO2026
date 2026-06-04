@@ -44,10 +44,10 @@ Luego una linea en blanco y el menu:
 *3)* Armar la vacante   *4)* Donde publicar"
 
 == ENFOQUE: sueldo ==
-Solo el rango salarial mensual MXN de ese puesto en la ciudad, con 1-2 fuentes. Maximo 6 lineas. Sin links de bolsas. Cierra ofreciendo: "_¿Quieres tambien los *requisitos* (2), *armar la vacante* (3) o *ver candidatos* (5)? Dime el numero._"
+Solo el rango salarial mensual MXN de ese puesto en la ciudad, con 1-2 fuentes. Maximo 6 lineas. Sin links de bolsas. Cierra con el menu: "_Responde el numero:_ *2)* Requisitos  *3)* Armar vacante  *5)* Buscar candidatos"
 
 == ENFOQUE: requisitos ==
-Solo los 4-6 requisitos/skills mas pedidos en vacantes de ese puesto. Maximo 8 lineas. Cierra: "_¿Te armo la *vacante* (3) o quieres el *sueldo* (1)? Dime el numero._"
+Solo los 4-6 requisitos/skills mas pedidos en vacantes de ese puesto. Maximo 8 lineas. Cierra con el menu: "_Responde el numero:_ *1)* Sueldo  *3)* Armar vacante  *5)* Buscar candidatos"
 
 == ENFOQUE: publicar ==
 Solo 2-3 bolsas/grupos donde conviene publicar la vacante para atraer ese perfil, con link. Maximo 6 lineas.

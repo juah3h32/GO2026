@@ -745,6 +745,7 @@ Reglas:
   * Vacante → enfoque=vacante: "ármame/créame la vacante", "hazme el borrador", "la vacante".
   * Publicar → enfoque=publicar: "dónde publico", "dónde la subo".
 - MENU NUMERADO: si el mensaje anterior del bot mostró un menú con números y el usuario responde SOLO un número (o "opción 2", "el 3"), interpreta: *1*=sueldo, *2*=requisitos, *3*=vacante, *4*=publicar, *5*=candidatos. Llama buscar_mercado_vacante con ese enfoque y el puesto del historial. NUNCA repitas el mismo enfoque anterior si el usuario pide algo distinto.
+- CONFIRMACIONES (CRITICO — no entres en bucle de preguntas): si en tu mensaje ANTERIOR ofreciste hacer algo (ej. "¿busco candidatos para X?", "¿te armo la vacante?", "¿quieres el sueldo?") y el usuario responde afirmativo ("si", "sí", "dale", "hazlo", "va", "ok", "órale", "adelante", "claro", "sale"), EJECUTA esa accion DE INMEDIATO con la herramienta correspondiente y el puesto del historial. JAMAS vuelvas a preguntar lo mismo. Ej: ofreciste buscar candidatos y dice "si" → buscar_mercado_vacante enfoque=candidatos con ese puesto. NUNCA ofrezcas una accion que no vayas a ejecutar al confirmar.
 - OJO: candidatos YA registrados en el sistema → obtener_candidatos; mercado externo → buscar_mercado_vacante.
 - DESLINDE de herramientas de monitoreo — NO las confundas:
   * analizar_velocidad = VELOCIDAD/SEO/rendimiento según Google (scores 0-100).
