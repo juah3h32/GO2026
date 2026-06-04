@@ -9,12 +9,14 @@ interface Props {
   titulo?: string;
   mensaje?: string;
   accion?: 'reintentar' | 'inicio' | 'none';
+  recargar?: boolean;
 }
 const {
   codigo = '502',
   titulo = 'Estamos mejorando esta sección',
   mensaje = 'Volvemos pronto. Gracias por tu paciencia.',
   accion = 'reintentar',
+  recargar = false,
 } = Astro.props;
 ---
 <div class="mnt-wrap">
@@ -31,18 +33,30 @@ const {
     <h1 class="mnt-title">{titulo}</h1>
     <p class="mnt-text">{mensaje}</p>
 
-    {accion === 'reintentar' && (
-      <button class="mnt-btn" onclick="location.reload()">Reintentar</button>
-    )}
-    {accion === 'inicio' && (
-      <a class="mnt-btn" href="/">Ir al inicio</a>
-    )}
+    <div class="mnt-actions">
+      {accion === 'reintentar' && (
+        <button class="mnt-btn" onclick="location.reload()">Reintentar</button>
+      )}
+      {accion === 'inicio' && (
+        <a class="mnt-btn" href="/">Ir al inicio</a>
+      )}
+      {recargar && (
+        <button class="mnt-btn mnt-btn-2" onclick="location.reload()">Recargar</button>
+      )}
+    </div>
 
     <div class="mnt-brand">Grupo Ortiz</div>
   </div>
 </div>
 
 <style>
+  @font-face {
+    font-family: 'Morganite';
+    src: url('/fonts/Morganite-ExtraBold.ttf') format('truetype');
+    font-weight: 800;
+    font-display: swap;
+  }
+
   .mnt-wrap {
     position: relative;
     min-height: 100vh;
@@ -90,18 +104,27 @@ const {
     filter: drop-shadow(0 6px 18px rgba(251,103,11,0.25));
   }
   .mnt-title {
-    font-size: clamp(24px, 5.5vw, 34px);
+    font-family: 'Morganite', 'Arial Narrow', sans-serif;
+    font-size: clamp(44px, 10vw, 72px);
     font-weight: 800;
+    text-transform: uppercase;
     color: #18181B;
-    margin: 0 0 12px;
-    letter-spacing: -0.02em;
-    line-height: 1.15;
+    margin: 0 0 14px;
+    letter-spacing: 0.01em;
+    line-height: 0.95;
   }
   .mnt-text {
     font-size: clamp(14px, 3.5vw, 17px);
     color: #71717A;
-    margin: 0 0 30px;
-    line-height: 1.6;
+    margin: 0 auto 30px;
+    max-width: 460px;
+    line-height: 1.65;
+  }
+  .mnt-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
   }
   .mnt-btn {
     display: inline-block;
@@ -121,6 +144,17 @@ const {
     background: #E25A09;
     transform: translateY(-2px);
     box-shadow: 0 12px 30px rgba(251,103,11,0.40);
+  }
+  /* Boton secundario (Recargar): contorno naranja */
+  .mnt-btn-2 {
+    background: transparent;
+    color: #FB670B;
+    border: 2px solid #FB670B;
+    box-shadow: none;
+  }
+  .mnt-btn-2:hover {
+    background: rgba(251,103,11,0.08);
+    box-shadow: none;
   }
   .mnt-brand {
     margin-top: 40px;

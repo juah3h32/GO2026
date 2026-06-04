@@ -22,8 +22,9 @@ Astro.response.headers.set('Retry-After', '120');
   <MaintenanceScreen
     codigo="502"
     titulo="Estamos mejorando esta sección"
-    mensaje="Volvemos muy pronto. Gracias por tu paciencia."
+    mensaje="Estamos realizando mejoras en esta parte del sitio para ofrecerte una mejor experiencia. Volvemos en unos momentos. Puedes recargar para ver si ya está lista, o ir al inicio mientras tanto. Gracias por tu paciencia."
     accion="inicio"
+    recargar={true}
   />
   <script is:inline>
     // Auto-retorno: revisa cada 8s si ya se reactivo. Cuando la pagina de origen
