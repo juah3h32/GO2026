@@ -20,8 +20,9 @@ export async function GET() {
     status: 200,
     headers: {
       'Content-Type': 'application/json',
-      // Cache corto en CDN: respuesta casi instantanea, refleja cambios en ~30s.
-      'Cache-Control': 'public, max-age=30, s-maxage=30',
+      // Sin cache: al activar/reactivar desde WhatsApp o panel, el cambio se
+      // refleja de inmediato (antes el CDN cacheaba 30s y parecia no reactivar).
+      'Cache-Control': 'no-store, no-cache, must-revalidate',
     },
   });
 }

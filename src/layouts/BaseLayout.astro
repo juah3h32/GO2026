@@ -70,6 +70,7 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
               var mm = p.match(/^\/(es|en|pt|ar|zh)(?:\/([^\/?#]+))?/);
               var slug = mm ? (mm[2] || 'home') : null;
               if (m.all || (slug && m.slugs && m.slugs.indexOf(slug) >= 0)) {
+                try { sessionStorage.setItem('mnt_origen', p); } catch (e) {}
                 location.replace('/mantenimiento');
               }
             })
