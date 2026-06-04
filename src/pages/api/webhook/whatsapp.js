@@ -166,9 +166,14 @@ export async function handleIncomingMessage(msg, origin) {
   let replyReportRequest = null;
 
   if (authorized) {
-    // ── Comando secreto: manual de capacidades (solo autorizados) ─────────────
+    // ── Menu de funciones: directo, sin pasar por la IA ───────────────────────
+    // "menu", "ayuda", "comandos", "que puedes hacer" → manual completo.
     const secretCmd = (process.env.WA_SECRET_COMMAND || '.jp').toLowerCase();
-    if (String(msg.body).trim().toLowerCase() === secretCmd) {
+    const bodyNorm  = String(msg.body).trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/^[¿¡\s]+/, '');
+    const esMenu    = bodyNorm === secretCmd
+      || /^(menu|ayuda|help|comandos|funciones|opciones)[?!.]*$/.test(bodyNorm)
+      || /^(que puedes hacer|que sabes hacer|que puedo pedirte|que haces)[?!.]*$/.test(bodyNorm);
+    if (esMenu) {
       sendTyping(msg.phone || msg.chatId, false).catch(() => {});
       const manual = buildCapabilitiesManual(authorized);
       try {
@@ -329,9 +334,11 @@ function buildCapabilitiesManual(authorized) {
   if (has('reports')) {
     L.push('- *Métricas:* "cómo va todo", "estadísticas de hoy", "panorama del mes"');
     L.push('- *Comparar:* "compara mayo con abril"');
+    L.push('- *PDFs:* "qué pdf se envió más", "ranking de catálogos del mes"');
   }
   if (has('distribuidores')) L.push('- *Distribuidores:* "distribuidores de mayo", "últimos contactos"');
   if (has('candidates'))     L.push('- *Reclutamiento:* "candidatos de hoy", "qué vacante tiene más postulaciones"');
+  if (has('candidates'))     L.push('- *Mercado laboral:* "busca en el mercado gerente de planta" — sueldos, vacantes similares y dónde hay candidatos');
   if (has('vacantes'))       L.push('- *Vacantes:* "qué vacantes hay abiertas"');
   if (has('messages'))       L.push('- *Consultas web:* "últimos mensajes de clientes"');
 
@@ -346,13 +353,14 @@ function buildCapabilitiesManual(authorized) {
   L.push('- "análisis del día" — revisa Web, Seguridad, Backend y Datos');
   L.push('- "revisa todas las páginas" — busca rutas o recursos rotos');
   L.push('- "¿cómo está el sistema?" — errores y eventos de seguridad');
+  L.push('- "analiza la velocidad" — PageSpeed de Google: rendimiento, SEO y qué mejorar');
   L.push('- Te aviso solo si algo se rompe o hay riesgo de seguridad');
 
   L.push('');
   L.push('*OTROS*');
   L.push('- Entiendo *notas de voz* (las transcribo y respondo)');
   L.push('- Pregúntame "¿qué es GO?" para info de la empresa');
-  L.push(`- Escribe *${(process.env.WA_SECRET_COMMAND || '.jp')}* para ver este menú`);
+  L.push(`- Escribe *menu* o *${(process.env.WA_SECRET_COMMAND || '.jp')}* para ver este menú`);
 
   L.push('');
   L.push('_Solo números autorizados acceden a datos internos._');

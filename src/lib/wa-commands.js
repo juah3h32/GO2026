@@ -61,6 +61,15 @@ function detectarComando(texto) {
 
   if (/ayuda|comandos|help|que puedes|que puedo/.test(t)) return { cmd: 'ayuda' };
 
+  if (/velocidad|pagespeed|page speed|rendimiento|performance|lighthouse|\bseo\b/.test(t)) return { cmd: 'velocidad' };
+
+  // Ranking de PDFs — patron estricto para no robar "resumen en pdf" (eso es reporte)
+  if (/(que|cual).*pdf|pdf.*(mas|ranking)|ranking.*(pdf|catalogo)|catalogo.*mas/.test(t)) return { cmd: 'pdfs' };
+
+  // Estudio de mercado laboral — "busca en el mercado gerente de planta"
+  const mMercado = t.match(/busca(?:r)?(?: en)?(?: el)? mercado (.+)/);
+  if (mMercado) return { cmd: 'mercado', puesto: mMercado[1].trim() };
+
   if (/candidato|reclutamiento|postulante|cv|solicitud/.test(t)) return { cmd: 'candidatos' };
   if (/vacante|empleo|puesto|trabajo|plaza/.test(t)) return { cmd: 'vacantes' };
   if (/distribuidor|lead|contacto|cliente/.test(t)) return { cmd: 'distribuidores' };
@@ -95,6 +104,9 @@ function tienePermiso(perms, cmd) {
     vacantes:     'vacantes',
     distribuidores: 'distribuidores',
     mensajes:     'messages',
+    pdfs:         'reports',
+    mercado:      'candidates',
+    velocidad:    '*', // monitoreo — solo admins totales
     ayuda:        null, // siempre permitido
   };
   const needed = MAP[cmd];
@@ -108,7 +120,7 @@ function tienePermiso(perms, cmd) {
 // ── Ejecutar comando y generar respuesta ──────────────────────────────────────
 export async function ejecutarComando(texto, permsArray) {
   const perms = permsArray || [];
-  const { cmd, mes, anio } = detectarComando(texto);
+  const { cmd, mes, anio, puesto } = detectarComando(texto);
 
   if (!tienePermiso(perms, cmd)) {
     return { text: `No tienes permiso para ese comando.\nEscribe *ayuda* para ver los disponibles.` };
@@ -123,10 +135,47 @@ export async function ejecutarComando(texto, permsArray) {
       lineas.push('📋 *resumen* → totales históricos + PDF');
     }
     if (perms.includes('candidates') || perms.includes('*')) lineas.push('👥 *candidatos* → últimos postulantes');
+    if (perms.includes('candidates') || perms.includes('*')) lineas.push('*busca en el mercado [puesto]* → estudio de mercado laboral');
     if (perms.includes('vacantes') || perms.includes('*')) lineas.push('💼 *vacantes* → vacantes activas');
     if (perms.includes('distribuidores') || perms.includes('*')) lineas.push('🏢 *distribuidores* → últimos contactos');
     if (perms.includes('messages') || perms.includes('*')) lineas.push('💬 *mensajes* → últimas consultas del bot');
+    if (perms.includes('*')) lineas.push('*velocidad* → PageSpeed del sitio (SEO y rendimiento)');
     return { text: lineas.join('\n') };
+  }
+
+  if (cmd === 'mercado') {
+    if (!puesto) return { text: 'Dime el puesto. Ej: *busca en el mercado gerente de planta*' };
+    try {
+      const { scoutVacante } = await import('./job-scout.js');
+      const r = await scoutVacante(puesto);
+      if (!r.ok) return { text: `SCOUT RH no pudo investigar.\nError: ${String(r.error).slice(0, 120)}` };
+      return { text: r.text };
+    } catch (e) {
+      return { text: `SCOUT RH no disponible: ${String(e.message).slice(0, 120)}` };
+    }
+  }
+
+  if (cmd === 'pdfs') {
+    const { pdfsEnviadosPorProducto } = await import('./analytics-db.js');
+    const ranking = await pdfsEnviadosPorProducto({ limit: 10 });
+    if (!ranking.length) return { text: 'Sin envíos de PDF registrados.' };
+    const total = ranking.reduce((s, x) => s + x.enviados, 0);
+    const lineas = [`*PDFs más enviados* (histórico, total ${fmt(total)}):`, ''];
+    ranking.forEach((x, i) => lineas.push(`${i + 1}. *${x.producto}* — ${fmt(x.enviados)}`));
+    return { text: lineas.join('\n') };
+  }
+
+  if (cmd === 'velocidad') {
+    try {
+      const { runPagespeed, buildWAReport } = await import('./pagespeed.js');
+      const { savePagespeedResult } = await import('./analytics-db.js');
+      const siteUrl = process.env.PUBLIC_SITE_URL || import.meta.env?.PUBLIC_SITE_URL || 'https://grupo-ortiz.com';
+      const mobile = await runPagespeed(siteUrl, 'mobile');
+      await savePagespeedResult(mobile).catch(() => {});
+      return { text: buildWAReport({ mobile, siteUrl }) };
+    } catch (e) {
+      return { text: `No pude analizar la velocidad ahora.\nError: ${String(e.message).slice(0, 120)}\nIntenta de nuevo en unos minutos.` };
+    }
   }
 
   if (cmd === 'hoy') {

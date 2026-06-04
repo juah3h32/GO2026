@@ -252,6 +252,49 @@ const TOOLS = [
   {
     type: 'function',
     function: {
+      name: 'pdfs_mas_enviados',
+      description: 'Ranking de PDFs/catálogos de producto que el chatbot envió a clientes, agrupado por producto y ordenado de más a menos. Usar para: "¿qué PDF se envió más?", "¿qué catálogo descargan más?", "ranking de pdfs", "¿cuál es el pdf más pedido?". Acepta periodo (hoy/ayer/semana/mes/todos).',
+      parameters: {
+        type: 'object',
+        properties: {
+          periodo: { type: 'string', enum: ['hoy','ayer','semana','mes','todos'], description: 'Filtrar por fecha de envío. Omitir = histórico.' },
+          mes: { type: 'integer' }, anio: { type: 'integer' },
+          limite: { type: 'integer', default: 10 },
+        },
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'buscar_mercado_vacante',
+      description: 'SCOUT RH: investiga en la WEB (busquedas reales) el mercado laboral para un puesto: sueldos ofrecidos, vacantes similares de la competencia en bolsas de trabajo (OCC, Computrabajo, Indeed, LinkedIn) y donde encontrar candidatos. Usar para: "busca en el mercado X", "qué están pagando por X", "monitorea la vacante X", "solicito la vacante X", "investiga el puesto X", "estudio de mercado de X". Tarda 30-60 segundos. NO es para candidatos YA registrados en el sistema (eso es obtener_candidatos).',
+      parameters: {
+        type: 'object',
+        properties: {
+          puesto: { type: 'string', description: 'Puesto a investigar, ej: "gerente de planta", "operador de telares"' },
+          ubicacion: { type: 'string', description: 'Ciudad. Default: Morelia, Michoacán' },
+        },
+        required: ['puesto'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'analizar_velocidad',
+      description: 'Analiza la VELOCIDAD y rendimiento de grupo-ortiz.com con Google PageSpeed Insights: scores de Performance, SEO, Accesibilidad y Best Practices (0-100), Core Web Vitals (LCP, CLS, TBT) y los problemas a mejorar. Usar para: "analiza la velocidad", "qué tan rápido carga la página", "cómo está el SEO", "pagespeed", "rendimiento del sitio", "puntaje de Google", "qué mejorar de la página". Tarda 30-60 segundos. NO es para errores del sistema (eso es revisar_sistema) ni para rutas/recursos rotos (eso es rastrear_sitio).',
+      parameters: {
+        type: 'object',
+        properties: {
+          estrategia: { type: 'string', enum: ['mobile','desktop','ambas'], description: 'Dispositivo a analizar. Default mobile. "ambas" solo si lo pide explícito (tarda el doble).' },
+        },
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
       name: 'revisar_sistema',
       description: 'Revisa el estado de salud de la página/sistema: errores, advertencias, fallas (videos que no cargan, animaciones, endpoints), y eventos de seguridad (posible extracción de datos, accesos sospechosos). Usar cuando el usuario pregunta "¿cómo está el sistema?", "¿hay algún error/falla?", "¿algo que cambiar?", "¿qué está fallando?", "revisa la página", "¿hay alguna vulnerabilidad?". Devuelve conteos por severidad y los eventos recientes para que diagnostiques y sugieras correcciones.',
       parameters: {
@@ -276,9 +319,12 @@ const TOOL_PERMS = {
   obtener_distribuidores:      'distribuidores',
   obtener_consultas_recientes: 'messages',
   metricas_dashboard:          'reports',
+  pdfs_mas_enviados:           'reports',
+  buscar_mercado_vacante:      'candidates',
   revisar_sistema:             '*',
   rastrear_sitio:              '*',
   analisis_del_dia:            '*',
+  analizar_velocidad:          '*',
 };
 
 // ── Ejecución de tools ────────────────────────────────────────────────────────
@@ -534,6 +580,68 @@ async function ejecutarTool(name, args, ctx) {
     }
   }
 
+  if (name === 'pdfs_mas_enviados') {
+    const { pdfsEnviadosPorProducto } = await import('./analytics-db.js');
+    let desde = null, hasta = null, label = 'Histórico completo';
+    if (args.periodo && args.periodo !== 'todos') {
+      const r = rangoPeriodo(args.periodo, args.mes, args.anio);
+      desde = r.desde; hasta = r.hasta; label = r.label;
+    }
+    const ranking = await pdfsEnviadosPorProducto({ desde, hasta, limit: Math.min(args.limite || 10, 20) });
+    const total = ranking.reduce((s, x) => s + x.enviados, 0);
+    return {
+      periodo: label,
+      total_pdfs_enviados: total,
+      pdf_mas_enviado: ranking[0] || null,
+      ranking,
+      nota: ranking.length ? 'Producto = nombre del PDF/catálogo enviado por el chatbot.' : 'Sin envíos de PDF en el periodo.',
+    };
+  }
+
+  if (name === 'buscar_mercado_vacante') {
+    const { scoutVacante } = await import('./job-scout.js');
+    const r = await scoutVacante(args.puesto, { ubicacion: args.ubicacion || 'Morelia, Michoacán' });
+    if (!r.ok) return { error: `SCOUT RH no pudo investigar: ${r.error}` };
+    return {
+      reporte_mercado: r.text,
+      instruccion: 'Entrega al usuario EXACTAMENTE el texto de reporte_mercado, sin reescribirlo ni resumirlo. Es el estudio oficial de *SCOUT RH* con datos reales de la web.',
+    };
+  }
+
+  if (name === 'analizar_velocidad') {
+    const { runPagespeed } = await import('./pagespeed.js');
+    const { savePagespeedResult, readPagespeedHistory } = await import('./analytics-db.js');
+    const siteUrl = process.env.PUBLIC_SITE_URL || import.meta.env?.PUBLIC_SITE_URL || 'https://grupo-ortiz.com';
+    const estrategias = args.estrategia === 'ambas' ? ['mobile', 'desktop']
+                      : args.estrategia === 'desktop' ? ['desktop'] : ['mobile'];
+    const resultados = [];
+    const fallas = [];
+    for (const st of estrategias) {
+      try {
+        const r = await runPagespeed(siteUrl, st);
+        await savePagespeedResult(r).catch(() => {});
+        resultados.push(r);
+      } catch (e) { fallas.push(`${st}: ${e.message}`); }
+    }
+    if (!resultados.length) {
+      // Fallback: último análisis guardado en historial
+      const hist = await readPagespeedHistory(2).catch(() => []);
+      if (hist.length) {
+        return {
+          nota: 'PageSpeed no respondió ahora. Esto es el ÚLTIMO análisis guardado — indica al usuario la fecha.',
+          error_actual: fallas.join(' | '),
+          ultimo_analisis: hist,
+        };
+      }
+      return { error: `No pude analizar la velocidad: ${fallas.join(' | ')}` };
+    }
+    return {
+      sitio: siteUrl,
+      resultados,
+      instruccion: 'Reporta los scores con semáforo textual: >=90 OK, 50-89 ATENCION, <50 MAL. Estructura: scores por dispositivo (Performance, SEO, Accesibilidad, Best Practices), luego Core Web Vitals (LCP, CLS, TBT), luego la lista "A mejorar" con los issues. Cierra con la recomendación más importante en una línea. Datos de Google PageSpeed Insights, no los inventes ni los modifiques.',
+    };
+  }
+
   if (name === 'revisar_sistema') {
     const nivel = args.nivel && args.nivel !== 'todos' ? args.nivel : null;
     const limite = Math.min(args.limite || 25, 60);
@@ -617,10 +725,19 @@ Reglas:
 - USA las herramientas para responder con datos reales. JAMÁS inventes cifras.
 - "¿qué vacante tiene más postulaciones?" → postulaciones_por_vacante. "¿quiénes se registraron a X?" → postulaciones_por_vacante con ese puesto.
 - "dame el control total / panorama / cómo va todo" → metricas_dashboard.
+- "¿qué PDF se envió más?", "¿qué catálogo descargan más?", "ranking de pdfs" → pdfs_mas_enviados (acepta periodo).
 - "reporte/informe/documento" → enviar_reporte_pdf (resumen por defecto, comparativo si lo pide).
 - "¿cómo está el sistema/la página?", "¿hay errores/fallas?", "¿algo que cambiar/corregir?", "¿hay vulnerabilidades?", "revisa el sistema" → revisar_sistema (lee los logs/errores ya capturados). Diagnostica claro y sugiere correcciones; resalta primero lo de seguridad.
 - "revisa todas las páginas", "checa el sitio completo", "navega la página y dime si algo falla", "hay alguna ruta caída/recurso roto" → rastrear_sitio (recorre el sitio en vivo). Tarda unos segundos; avisa que estás revisando.
 - "análisis del día", "cómo amaneció la página", "revisa todas las áreas", "reporte de salud", "qué dicen los agentes" → analisis_del_dia (orquesta a todos los agentes por área). Tarda unos segundos.
+- "analiza la velocidad", "qué tan rápido carga", "cómo está el SEO", "pagespeed", "rendimiento del sitio", "puntaje de Google", "qué mejorar de la página" → analizar_velocidad (Google PageSpeed Insights). Tarda 30-60 seg; avisa que estás analizando.
+- "busca en el mercado X", "qué pagan por X", "monitorea/solicito la vacante X", "investiga el puesto X" → buscar_mercado_vacante (SCOUT RH investiga la web: sueldos, vacantes de la competencia, candidatos). Tarda ~1 min. OJO: candidatos YA registrados en el sistema → obtener_candidatos; mercado externo → buscar_mercado_vacante.
+- DESLINDE de herramientas de monitoreo — NO las confundas:
+  * analizar_velocidad = VELOCIDAD/SEO/rendimiento según Google (scores 0-100).
+  * revisar_sistema = errores y eventos de seguridad en los LOGS internos.
+  * rastrear_sitio = rutas y recursos ROTOS (404) navegando el sitio.
+  * analisis_del_dia = panorama consolidado de todas las áreas.
+  Si el usuario dice "velocidad", "lento", "SEO" o "rendimiento" JAMÁS uses revisar_sistema ni rastrear_sitio: usa analizar_velocidad. Si la petición es ambigua (ej. "analiza la página"), pregunta en UNA línea qué quiere: velocidad/SEO, errores del sistema, o rutas rotas.
 - Datos puntuales (¿cuántos mensajes hoy?) → texto directo, sin PDF.
 - Si combinas varias métricas, organízalas con subtítulos en negrita (ej. *Reclutamiento:*, *Productos:*).
 - Sé conciso pero completo: si piden "todo el control", da un panorama estructurado de varias áreas.

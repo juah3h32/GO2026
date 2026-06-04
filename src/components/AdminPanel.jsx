@@ -824,13 +824,13 @@ function DonutChart({ intents }) {
 }
 
 // ── LEADS LINE + BAR CHART ────────────────────────────────────────────────────
-function LeadsLineChart({ leads }) {
+function LeadsLineChart({ leads = [], byDay: byDayProp = null }) {
   const P = useP();
-  if (!leads.length) return null;
+  if (!byDayProp && !leads.length) return null;
 
-  // Parseo correcto de fechas (igual que parseTursoDate)
-  const byDay = {};
-  leads.forEach(l => {
+  // byDay puede venir precalculado (ej. data.daily) o derivarse de leads con .ts
+  const byDay = byDayProp || {};
+  if (!byDayProp) leads.forEach(l => {
     if (!l.ts) return;
     const iso = String(l.ts).trim().replace(' ', 'T') + (String(l.ts).includes('Z') ? '' : 'Z');
     const d = new Date(iso);
@@ -1065,7 +1065,8 @@ function NotifyConfigSection({ theme, P }) {
 
   return (
     <div style={{ background: P.surface, border: `1px solid ${P.border}`, borderRadius: 12,
-      padding: '18px 20px', position: 'relative', overflow: 'hidden',
+      padding: '18px 20px', position: 'relative', overflow: 'hidden', height: '100%',
+      display: 'flex', flexDirection: 'column',
       boxShadow: `0 2px 16px rgba(0,0,0,0.35)` }}>
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2.5,
         background: 'linear-gradient(90deg,#22C55E,#16A34A,transparent)', opacity: 0.7 }}/>
@@ -1092,6 +1093,9 @@ function NotifyConfigSection({ theme, P }) {
           </div>
           <div style={{ fontSize: 10, color: P.textDim, marginTop: 1 }}>
             WhatsApp con PDF del perfil al registrarse un nuevo candidato
+          </div>
+          <div style={{ fontSize: 9.5, color: '#22C55E', marginTop: 3, fontWeight: 600 }}>
+            Envío: inmediato, al momento del registro · 24/7
           </div>
         </div>
       </div>
@@ -1139,7 +1143,7 @@ function NotifyConfigSection({ theme, P }) {
       )}
 
       {/* Agregar nuevo */}
-      <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginTop: 'auto' }}>
         <input placeholder="Nombre (ej: Sandra RH)" value={newName}
           onChange={e => setNewName(e.target.value)} style={{ ...inp, flex: '1 1 140px', minWidth: 120 }}
           onFocus={e => e.target.style.borderColor = P.orange}
@@ -1155,6 +1159,207 @@ function NotifyConfigSection({ theme, P }) {
           {saving ? 'Guardando…' : '+ Agregar'}
         </button>
       </div>
+    </div>
+  );
+}
+
+// ── PAGESPEED CONFIG SECTION — notificaciones de sistema ──────────────────────
+function PagespeedSection({ theme, P }) {
+  const [cfg,      setCfg]      = useState({ phones: [], active: false, last_sent: null });
+  const [history,  setHistory]  = useState([]);
+  const [loading,  setLoading]  = useState(true);
+  const [saving,   setSaving]   = useState(false);
+  const [running,  setRunning]  = useState(false);
+  const [newPhone, setNewPhone] = useState('');
+  const [toast,    setToast]    = useState(null);
+
+  const showToast = (msg, ok = true) => {
+    setToast({ msg, ok });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  const load = async () => {
+    try {
+      const r = await fetch('/api/admin/pagespeed-config', { credentials:'include' });
+      const j = await r.json();
+      if (j.ok) { setCfg(j.config || { phones: [], active: false }); setHistory(j.history || []); }
+    } catch {}
+    setLoading(false);
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const save = async (next) => {
+    setSaving(true);
+    try {
+      const r = await fetch('/api/admin/pagespeed-config', {
+        method: 'POST', credentials:'include', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'save', phones: next.phones, active: next.active }),
+      });
+      const j = await r.json();
+      if (j.ok) { setCfg(c => ({ ...c, ...next })); showToast('Configuración guardada'); }
+      else showToast(j.error || 'Error al guardar', false);
+    } catch (e) { showToast(e.message, false); }
+    setSaving(false);
+  };
+
+  const handleAddPhone = () => {
+    const phone = newPhone.trim().replace(/\D/g, '');
+    if (!phone) return;
+    if (cfg.phones.some(p => (typeof p === 'string' ? p : p?.phone) === phone)) { setNewPhone(''); return; }
+    setNewPhone('');
+    save({ phones: [...cfg.phones, phone], active: cfg.active });
+  };
+
+  const handleRemovePhone = (phone) => {
+    save({ phones: cfg.phones.filter(p => (typeof p === 'string' ? p : p?.phone) !== phone), active: cfg.active });
+  };
+
+  const handleToggle = () => save({ phones: cfg.phones, active: !cfg.active });
+
+  const handleRun = async () => {
+    setRunning(true);
+    try {
+      const r = await fetch('/api/admin/pagespeed-config', {
+        method: 'POST', credentials:'include', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'run' }),
+      });
+      const j = await r.json();
+      if (j.ok) { showToast(j.sent ? `Análisis enviado a ${j.sent} número(s)` : 'Análisis completado'); await load(); }
+      else showToast(j.error || 'Error en análisis', false);
+    } catch (e) { showToast(e.message, false); }
+    setRunning(false);
+  };
+
+  const scoreColor = (s) => s == null ? P.textDim : s >= 90 ? '#22C55E' : s >= 50 ? '#F59E0B' : '#EF4444';
+
+  const inp = {
+    background: P.surface2, border: `1px solid ${P.border}`, borderRadius: 8,
+    color: P.text, fontSize: 12, padding: '7px 10px', outline: 'none',
+    fontFamily: "'DM Sans', sans-serif", transition: 'border-color 0.13s ease',
+  };
+
+  const latest = { mobile: history.find(h => h.strategy === 'mobile'), desktop: history.find(h => h.strategy === 'desktop') };
+
+  return (
+    <div style={{ background: P.surface, border: `1px solid ${P.border}`, borderRadius: 12,
+      padding: '18px 20px', position: 'relative', overflow: 'hidden', height: '100%',
+      display: 'flex', flexDirection: 'column',
+      boxShadow: `0 2px 16px rgba(0,0,0,0.35)` }}>
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2.5,
+        background: 'linear-gradient(90deg,#3B82F6,#2563EB,transparent)', opacity: 0.7 }}/>
+      {toast && (
+        <div style={{ position: 'absolute', top: 14, right: 14, zIndex: 10, padding: '7px 14px',
+          borderRadius: 8, background: toast.ok ? '#16A34A' : '#DC2626', color: '#fff',
+          fontSize: 11, fontWeight: 600, boxShadow: '0 4px 16px rgba(0,0,0,0.4)' }}>
+          {toast.msg}
+        </div>
+      )}
+
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+        <div style={{ width: 28, height: 28, borderRadius: 7, background: 'rgba(59,130,246,0.1)',
+          border: '1px solid rgba(59,130,246,0.25)', display: 'flex', alignItems: 'center',
+          justifyContent: 'center', flexShrink: 0, color: '#3B82F6' }}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/>
+          </svg>
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontWeight: 700, fontSize: 13, color: P.text, letterSpacing: '-0.01em' }}>
+            Notificaciones de Sistema — PageSpeed
+          </div>
+          <div style={{ fontSize: 10, color: P.textDim, marginTop: 1 }}>
+            Análisis de SEO y rendimiento del sitio con reporte por WhatsApp
+          </div>
+          <div style={{ fontSize: 9.5, color: '#3B82F6', marginTop: 3, fontWeight: 600 }}>
+            Envío programado: lunes 9:00 AM (CDMX) · semanal
+          </div>
+        </div>
+        <button onClick={handleToggle} disabled={saving || loading}
+          style={{ padding: '4px 9px', borderRadius: 6, border: `1px solid ${cfg.active ? '#22C55E40' : P.border}`,
+            background: cfg.active ? 'rgba(34,197,94,0.08)' : 'transparent',
+            color: cfg.active ? '#22C55E' : P.textDim, fontSize: 10, cursor: 'pointer', flexShrink: 0 }}>
+          {cfg.active ? 'Activo' : 'Inactivo'}
+        </button>
+      </div>
+
+      {/* Ultimos scores */}
+      {!loading && (latest.mobile || latest.desktop) && (
+        <div style={{ display: 'flex', gap: 6, marginBottom: 14, flexWrap: 'wrap' }}>
+          {['mobile', 'desktop'].map(st => latest[st] && (
+            <div key={st} style={{ flex: '1 1 180px', background: P.surface2, borderRadius: 9,
+              padding: '9px 12px', border: `1px solid ${P.border}` }}>
+              <div style={{ fontSize: 9.5, color: P.textDim, textTransform: 'uppercase',
+                letterSpacing: '0.08em', fontWeight: 600, marginBottom: 5 }}>
+                {st === 'mobile' ? 'Móvil' : 'Escritorio'} · {(latest[st].created_at || '').slice(0, 10)}
+              </div>
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                {[['Perf', latest[st].performance], ['SEO', latest[st].seo],
+                  ['Acc', latest[st].accessibility], ['BP', latest[st].best_practices]].map(([lbl, sc]) => (
+                  <div key={lbl} style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: scoreColor(sc) }}>{sc ?? '-'}</div>
+                    <div style={{ fontSize: 8.5, color: P.textDim }}>{lbl}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Telefonos configurados */}
+      {loading ? (
+        <div style={{ color: P.textDim, fontSize: 11, padding: '8px 0' }}>Cargando…</div>
+      ) : cfg.phones.length === 0 ? (
+        <div style={{ color: P.textDim, fontSize: 11, padding: '8px 0 12px', opacity: 0.6 }}>
+          Sin números configurados. Agrega uno abajo para recibir el reporte.
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 14 }}>
+          {cfg.phones.map(p => {
+            const phone = typeof p === 'string' ? p : p?.phone;
+            return (
+              <div key={phone} style={{ display: 'flex', alignItems: 'center', gap: 8,
+                background: P.surface2, borderRadius: 9, padding: '9px 12px',
+                border: `1px solid ${cfg.active ? P.border : P.border2}`, opacity: cfg.active ? 1 : 0.55 }}>
+                <div style={{ flex: 1, fontSize: 12, fontWeight: 600, color: P.text }}>{phone}</div>
+                <button onClick={() => handleRemovePhone(phone)}
+                  style={{ width: 24, height: 24, borderRadius: 6, border: `1px solid rgba(239,68,68,0.25)`,
+                    background: 'rgba(239,68,68,0.07)', color: '#EF4444', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Agregar numero + analizar ahora */}
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginTop: 'auto' }}>
+        <input placeholder="Teléfono (10 dígitos)" value={newPhone}
+          onChange={e => setNewPhone(e.target.value)} style={{ ...inp, flex: '1 1 140px', minWidth: 120 }}
+          onFocus={e => e.target.style.borderColor = P.orange}
+          onBlur={e  => e.target.style.borderColor = P.border}/>
+        <button onClick={handleAddPhone} disabled={saving || !newPhone.trim()}
+          style={{ padding: '7px 16px', borderRadius: 8, border: 'none',
+            background: saving ? P.surface3 : P.orange, color: '#fff',
+            fontSize: 11, fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer' }}>
+          {saving ? 'Guardando…' : '+ Agregar'}
+        </button>
+        <button onClick={handleRun} disabled={running}
+          style={{ padding: '7px 16px', borderRadius: 8, border: `1px solid rgba(59,130,246,0.35)`,
+            background: 'rgba(59,130,246,0.08)', color: '#3B82F6',
+            fontSize: 11, fontWeight: 700, cursor: running ? 'not-allowed' : 'pointer' }}>
+          {running ? 'Analizando… (~1 min)' : 'Analizar ahora'}
+        </button>
+      </div>
+      {cfg.last_sent && (
+        <div style={{ fontSize: 9.5, color: P.textDim, marginTop: 8 }}>
+          Último envío: {String(cfg.last_sent).slice(0, 16).replace('T', ' ')} UTC
+        </div>
+      )}
     </div>
   );
 }
@@ -1947,14 +2152,20 @@ const SC_METRICS = [
 ];
 
 // ── DASH ──────────────────────────────────────────────────────────────────────
+// Tabs fusionadas: ids viejos de permisos (DB) → tab consolidada que los contiene
+const TAB_ALIAS = { keywords:'products', messages:'conversations', llamadas:'conversations', vacantes:'recruitment' };
+
 function Dash({ onClose, role, theme='dark', toggleTheme, fullscreen=false }) {
   const P = useP();
   const w=useWindowWidth(), isMobile=w<640, isTablet=w<900;
   const [data,setData]=useState(null), [loading,setLoading]=useState(true);
   const [summary,setSummary]=useState(''), [genAI,setGenAI]=useState(false);
-  const [tab,setTab]=useState(role.tabs[0]), [last,setLast]=useState(null);
+  const [tab,setTab]=useState(TAB_ALIAS[role.tabs[0]]||role.tabs[0]), [last,setLast]=useState(null);
+  // Sub-pestañas de tabs fusionadas — default según primer permiso disponible
+  const [convSub,setConvSub]=useState(()=> role.tabs.includes('conversations')?'chats':role.tabs.includes('messages')?'mensajes':'llamadas');
+  const [recSub,setRecSub]=useState(()=> role.tabs.includes('recruitment')?'candidatos':'vacantes');
   const [auto,setAuto]=useState(true), [menuOpen,setMenuOpen]=useState(false);
-  const itvRef=useRef(null);
+  const itvRef=useRef(null), scrollRef=useRef(null);
   const _defPreset = role.name==='Marketing' ? 'all' : '28d';
   const [activePresetId,setActivePresetId]=useState(_defPreset);
   const [activePeriod,setActivePeriod]=useState(()=>PERIOD_PRESETS.find(p=>p.id===_defPreset).getRange());
@@ -2050,12 +2261,40 @@ const isMarketing = role.name === 'Marketing';
 
   useEffect(()=>{ if(tab==='distribuidores')loadLeads(); },[tab]);
   useEffect(()=>{ if(tab==='overview'||tab==='console')loadSC(activePeriod?.from,activePeriod?.to); },[tab]);
-  useEffect(()=>{ if(tab==='conversations'){setSelectedConv(null);setConvMessages([]);loadConversations();} },[tab]);
-  useEffect(()=>{ if(tab==='llamadas'){setSelectedCall(null);loadVoiceCalls();} },[tab]);
+  // Rueda del mouse: garantizar scroll del contenedor principal.
+  // Si un scrolleable interno (listas, transcripciones) puede consumir el delta, se respeta.
+  useEffect(()=>{
+    const el=scrollRef.current; if(!el) return;
+    const onWheel=e=>{
+      if(e.ctrlKey) return; // zoom del navegador
+      const dy=e.deltaMode===1?e.deltaY*16:e.deltaY;
+      let n=e.target;
+      while(n&&n!==el){
+        if(n.scrollHeight>n.clientHeight+1){
+          const ov=getComputedStyle(n).overflowY;
+          if(ov==='auto'||ov==='scroll'){
+            const up=dy<0;
+            if((up&&n.scrollTop>0)||(!up&&n.scrollTop+n.clientHeight<n.scrollHeight-1)){
+              e.preventDefault(); n.scrollTop+=dy; return; // scroll forzado del interno (listas, chats)
+            }
+          }
+        }
+        n=n.parentElement;
+      }
+      if(el.scrollHeight<=el.clientHeight+1) return;
+      e.preventDefault();
+      el.scrollTop+=dy;
+    };
+    el.addEventListener('wheel',onWheel,{passive:false});
+    return()=>el.removeEventListener('wheel',onWheel);
+  },[tab]);
+
+  useEffect(()=>{ if(tab==='conversations'&&convSub==='chats'){setSelectedConv(null);setConvMessages([]);loadConversations();} },[tab,convSub]);
+  useEffect(()=>{ if(tab==='conversations'&&convSub==='llamadas'){setSelectedCall(null);loadVoiceCalls();} },[tab,convSub]);
   useEffect(()=>{
     clearInterval(itvRef.current);
     // No hacer polling cuando el usuario está en tabs de interacción (whatsapp, users, etc.)
-    const noPollingTabs = ['whatsapp','users','recruitment','vacantes','reportes','changelog'];
+    const noPollingTabs = ['whatsapp','users','recruitment','reportes','changelog'];
     if(auto && !noPollingTabs.includes(tab)) {
       itvRef.current=setInterval(()=>load(true,activePeriod?.from,activePeriod?.to),10000);
     }
@@ -2298,8 +2537,9 @@ function WAWebhookTab({ P, isMobile }) {
     setArr(arr.includes(id) ? arr.filter(x => x !== id) : [...arr.filter(x => x !== '*'), id]);
   }
 
-  const CARD = { background: P.surface, border: `1px solid ${P.border}`, borderRadius: 12, padding: '18px 20px', marginBottom: 14 };
-  const LABEL = { fontSize: 11, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: P.textDim, marginBottom: 10 };
+  const CARD = { background: P.surface, border: `1px solid ${P.border}`, borderRadius: 12, padding: '18px 20px', marginBottom: 14,
+    position: 'relative', overflow: 'hidden', boxShadow: '0 2px 16px rgba(0,0,0,0.25)' };
+  const LABEL = { fontSize: 10.5, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: P.textDim, marginBottom: 10 };
   const INPUT = { background: P.surface2, border: `1px solid ${P.border}`, borderRadius: 8, padding: '8px 11px', color: P.text, fontSize: 12, outline: 'none' };
   const BTN_SM = { padding: '5px 10px', background: P.surface2, border: `1px solid ${P.border}`, borderRadius: 7, color: P.textSub, fontSize: 11, cursor: 'pointer' };
   const fmtTs = ts => {
@@ -2317,21 +2557,27 @@ function WAWebhookTab({ P, isMobile }) {
   return (
     <div>
       {/* Sub-tabs */}
-      <div style={{ display: 'flex', gap: 4, marginBottom: 16, background: P.surface2, borderRadius: 9, padding: 4, width: 'fit-content' }}>
-        {SUB_TABS.map(t => (
-          <button key={t.id} onClick={() => setSubTab(t.id)}
-            style={{ padding: '6px 14px', borderRadius: 7, border: 'none', background: subTab === t.id ? P.surface : 'transparent',
-              color: subTab === t.id ? P.text : P.textDim, fontSize: 11, fontWeight: subTab === t.id ? 600 : 400, cursor: 'pointer', whiteSpace: 'nowrap' }}>
-            {t.label}
-          </button>
-        ))}
+      <div style={{ display: 'flex', gap: 5, marginBottom: 16, flexWrap: 'wrap' }}>
+        {SUB_TABS.map(t => {
+          const active = subTab === t.id;
+          return (
+            <button key={t.id} onClick={() => setSubTab(t.id)}
+              style={{ padding: '5px 14px', borderRadius: 20, fontSize: 11, fontWeight: active ? 700 : 500,
+                cursor: 'pointer', background: active ? P.orange : 'transparent',
+                color: active ? '#fff' : P.textDim, border: `1px solid ${active ? P.orange : P.border}`,
+                transition: 'all 0.13s ease', whiteSpace: 'nowrap' }}>
+              {t.label}
+            </button>
+          );
+        })}
       </div>
 
       {/* ── CONEXION Y MENSAJES ── */}
       {subTab === 'conexion' && (
-        <div>
+        <div style={{ display: isMobile ? 'block' : 'grid', gridTemplateColumns: isMobile ? undefined : '5fr 6fr', gap: 14, alignItems: 'stretch' }}>
+        <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column' }}>
           {/* Clave de integración WAGO */}
-          <div style={{ ...CARD, borderColor: wagoConfig?.configured ? '#22c55e40' : P.border, position: 'relative', overflow: 'hidden' }}>
+          <div className="card-hover" style={{ ...CARD, borderColor: wagoConfig?.configured ? '#22c55e40' : P.border }}>
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2.5,
               background: wagoConfig?.configured ? 'linear-gradient(90deg,#22C55E,#16A34A,transparent)' : `linear-gradient(90deg,${P.orange},transparent)`,
               opacity: 0.7 }}/>
@@ -2406,7 +2652,9 @@ function WAWebhookTab({ P, isMobile }) {
           </div>
 
           {/* URL webhook */}
-          <div style={CARD}>
+          <div className="card-hover" style={CARD}>
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2.5,
+              background: `linear-gradient(90deg,${P.orange},${P.orange}50,transparent)`, opacity: 0.55 }}/>
             <p style={LABEL}>URL del Webhook — pegar en WAHooks / WAGO</p>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
               <code style={{ ...INPUT, flex: 1, wordBreak: 'break-all', fontFamily: 'monospace', display: 'block' }}>{webhookUrl}</code>
@@ -2421,13 +2669,15 @@ function WAWebhookTab({ P, isMobile }) {
           </div>
 
           {/* Enviar mensaje manual */}
-          <div style={CARD}>
+          <div className="card-hover" style={CARD}>
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2.5,
+              background: `linear-gradient(90deg,${P.orange},${P.orangeWarm},transparent)`, opacity: 0.55 }}/>
             <p style={LABEL}>Enviar mensaje manual</p>
             <form onSubmit={handleSend} style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               <input value={sPhone} onChange={e => setSPhone(e.target.value)} placeholder="Telefono (521234567890)"
-                style={{ ...INPUT, flex: '0 0 180px' }}/>
+                style={{ ...INPUT, flex: '1 1 150px', minWidth: 120 }}/>
               <input value={sText} onChange={e => setSText(e.target.value)} placeholder="Mensaje..."
-                style={{ ...INPUT, flex: 1, minWidth: 120 }}/>
+                style={{ ...INPUT, flex: '2 1 160px', minWidth: 120 }}/>
               <button type="submit" disabled={sending}
                 style={{ padding: '8px 16px', background: P.orange, border: 'none', borderRadius: 8, color: '#fff', fontSize: 12, fontWeight: 600, cursor: sending ? 'not-allowed' : 'pointer', opacity: sending ? 0.7 : 1 }}>
                 {sending ? '...' : 'Enviar'}
@@ -2436,30 +2686,81 @@ function WAWebhookTab({ P, isMobile }) {
             {sendErr && <p style={{ fontSize: 11, color: '#f87171', marginTop: 6 }}>{sendErr}</p>}
           </div>
 
-          {/* Mensajes entrantes */}
-          <div style={CARD}>
+          {/* Actividad WhatsApp — mensajes entrantes por dia */}
+          {(()=>{
+            const _bd={};
+            msgs.forEach(m=>{
+              if(!m.ts) return;
+              const iso=String(m.ts).trim().replace(' ','T')+(String(m.ts).includes('Z')?'':'Z');
+              const d=new Date(iso); if(isNaN(d.getTime())) return;
+              const k=d.toLocaleDateString('en-CA',{ timeZone:'America/Mexico_City' });
+              if(k) _bd[k]=(_bd[k]||0)+1;
+            });
+            if(!Object.keys(_bd).length) return null;
+            const _peak=Math.max(...Object.values(_bd));
+            return (
+              <div className="card-hover" style={{ ...CARD, flex: 1, marginBottom: 0, display: 'flex', flexDirection: 'column' }}>
+                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2.5,
+                  background: `linear-gradient(90deg,${P.orange},${P.orange}50,transparent)`, opacity: 0.55 }}/>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, flexWrap: 'wrap', gap: 6 }}>
+                  <p style={{ ...LABEL, marginBottom: 0 }}>Actividad WhatsApp — mensajes por dia</p>
+                  {_peak>0&&<span style={{ fontSize: 9, color: P.orange, border: `1px solid ${P.orange}30`,
+                    background: `${P.orange}10`, borderRadius: 10, padding: '2px 8px', fontWeight: 700 }}>pico: {_peak} en un dia</span>}
+                </div>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                  <LeadsLineChart byDay={_bd}/>
+                </div>
+              </div>
+            );
+          })()}
+        </div>
+
+        {/* Columna derecha: mensajes entrantes en vivo */}
+        <div style={{ minWidth: 0 }}>
+          <div className="card-hover" style={{ ...CARD, marginBottom: 0 }}>
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2.5,
+              background: 'linear-gradient(90deg,#22C55E,#16A34A,transparent)', opacity: 0.55 }}/>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-              <p style={{ ...LABEL, marginBottom: 0 }}>Mensajes entrantes</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <p style={{ ...LABEL, marginBottom: 0 }}>Mensajes entrantes</p>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#22C55E',
+                  display: 'inline-block', boxShadow: '0 0 6px #22C55E', animation: 'pulse 2s ease infinite' }}/>
+                <span style={{ fontSize: 9, color: P.textDim }}>en vivo</span>
+              </div>
               <button onClick={loadMsgs} style={BTN_SM}>{msgsLoading ? '...' : 'Actualizar'}</button>
             </div>
             {msgsLoading && <p style={{ fontSize: 12, color: P.textDim, textAlign: 'center', padding: '24px 0' }}>Cargando...</p>}
             {!msgsLoading && msgs.length === 0 && <p style={{ fontSize: 12, color: P.textDim, textAlign: 'center', padding: '32px 0' }}>Sin mensajes</p>}
-            {!msgsLoading && msgs.map(m => (
-              <div key={m.id} style={{ borderBottom: `1px solid ${P.border2}`, paddingBottom: 10, marginBottom: 10 }}>
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 3 }}>
-                  <span style={{ fontSize: 11, fontWeight: 600, color: P.orange }}>{m.phone}</span>
-                  <span style={{ fontSize: 10, color: P.textDim }}>{fmtTs(m.ts)}</span>
-                  {authorized.find(a => a.phone === m.phone) && (
-                    <span style={{ fontSize: 9, background: P.okDim, color: P.orange, borderRadius: 6, padding: '1px 6px', fontWeight: 700 }}>Admin</span>
-                  )}
-                </div>
-                <p style={{ fontSize: 12, color: P.text, margin: 0, lineHeight: 1.5 }}>{m.body}</p>
-                {m.bot_reply && (
-                  <p style={{ fontSize: 11, color: P.textSub, margin: '4px 0 0', paddingLeft: 10, borderLeft: `2px solid ${P.border}`, whiteSpace: 'pre-wrap' }}>{m.bot_reply}</p>
-                )}
+            {!msgsLoading && msgs.length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: isMobile ? 480 : 620, overflowY: 'auto', paddingRight: 4 }} className="adash-scroll">
+                {msgs.map(m => (
+                  <div key={m.id}>
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 5 }}>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: P.orange }}>{m.phone}</span>
+                      <span className="mono" style={{ fontSize: 9.5, color: P.textDim }}>{fmtTs(m.ts)}</span>
+                      {authorized.find(a => a.phone === m.phone) && (
+                        <span style={{ fontSize: 8.5, background: P.okDim, color: P.orange, borderRadius: 6, padding: '1px 7px', fontWeight: 700, letterSpacing: '0.04em' }}>ADMIN</span>
+                      )}
+                    </div>
+                    <div style={{ background: P.surface2, border: `1px solid ${P.border}`,
+                      borderRadius: '3px 11px 11px 11px', padding: '8px 12px', maxWidth: '92%' }}>
+                      <p style={{ fontSize: 12, color: P.text, margin: 0, lineHeight: 1.55, wordBreak: 'break-word' }}>{m.body}</p>
+                    </div>
+                    {m.bot_reply && (
+                      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 6 }}>
+                        <div style={{ background: `${P.orange}10`, border: `1px solid ${P.orange}25`,
+                          borderRadius: '11px 3px 11px 11px', padding: '8px 12px', maxWidth: '92%' }}>
+                          <div style={{ fontSize: 8.5, color: P.orange, fontWeight: 700, letterSpacing: '0.06em', marginBottom: 3 }}>BOTGO</div>
+                          <p style={{ fontSize: 11.5, color: P.textSub, margin: 0, lineHeight: 1.55, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{m.bot_reply}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
-            ))}
+            )}
           </div>
+        </div>
         </div>
       )}
 
@@ -2626,14 +2927,10 @@ const ALL_TABS=[
     {id:'console', label:'Console',        icon:'◌'},
     {id:'activity',label:'Actividad',      icon:'◈'},
     {id:'products',label:'Productos',      icon:'◆'},
-    {id:'keywords',label:'Búsquedas',      icon:'◎'},
-    {id:'messages',label:'Mensajes',       icon:'◐'},
     {id:'conversations',label:'Conversaciones',icon:'◧'},
-    {id:'llamadas',     label:'Llamadas IA',   icon:'◉'},
     {id:'distribuidores',label:'Distribuidores',icon:'◑'},
     {id:'whatsapp',label:'WhatsApp',       icon:'◬'},
     {id:'recruitment',label:'Reclutamiento',icon:'◒'},
-    {id:'vacantes', label:'Vacantes', icon:'◓'},
     {id:'ai',label:'Análisis IA',          icon:'✦'},
     {id:'reportes',label:'Reportes',       icon:'◫'},
     {id:'changelog',label:'Historial',     icon:'◭'},
@@ -2649,6 +2946,10 @@ const ALL_TABS=[
     if (t.id === 'reportes')  return canSeeReportes;
     if (t.id === 'changelog') return canSeeChangelog;
     if (t.id === 'whatsapp')  return canSeeWhatsapp;
+    // Tabs fusionadas: visibles si el usuario tiene CUALQUIER permiso interno
+    if (t.id === 'products')      return canSee('products')||canSee('keywords');
+    if (t.id === 'conversations') return canSee('conversations')||canSee('messages')||canSee('llamadas');
+    if (t.id === 'recruitment')   return canSee('recruitment')||canSee('vacantes');
     return canSee(t.id);
   });
   // Shared card style
@@ -2850,7 +3151,7 @@ const ALL_TABS=[
       )}
 
       {/* ── CONTENT ── */}
-      <div className="adash-scroll"
+      <div className="adash-scroll" ref={scrollRef}
         style={{
           flex:1, minHeight:0,
           overflowY: (tab==='overview'||tab==='console') ? 'hidden' : 'auto',
@@ -3155,43 +3456,63 @@ const ALL_TABS=[
           </div>
         )}
 
-        {/* ── PRODUCTS ── */}
-        {!loading&&data&&tab==='products'&&canSee('products')&&(
+        {/* ── PRODUCTS (incluye Búsquedas) ── */}
+        {!loading&&data&&tab==='products'&&(canSee('products')||canSee('keywords'))&&(
           <div className="tab-content" key="pr">
-            <div className="card-hover" style={CARD}>
-              <CardTopBar/>
-              <p style={ST}>Productos más consultados</p>
-              <BarChart data={prodD} color={P.orange} max={10}/>
-              {prodD.length>0&&(()=>{ const top=[...prodD].sort((a,b)=>b.value-a.value)[0]; return (
-                <div style={{ marginTop:20, padding:'14px 16px',
-                  background:`linear-gradient(135deg,${P.surface2},${P.surface3})`,
-                  borderRadius:10, border:`1px solid ${P.orange}28`,
-                  borderLeft:`3px solid ${P.orange}`,
-                  display:'flex', alignItems:'center', gap:14,
-                  boxShadow:`0 0 20px ${P.orange}10` }}>
-                  <div>
-                    <span style={{ color:P.textDim, fontSize:10, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.08em' }}>⭐ Producto estrella</span>
-                    <p style={{ margin:'5px 0 0', fontWeight:700, fontSize:16, color:P.text, letterSpacing:'-0.01em' }}>
-                      {top?.label}
-                      <span className="mono" style={{ color:P.orange, marginLeft:10, fontWeight:500, fontSize:14 }}>×{top?.value}</span>
-                    </p>
+            {(()=>{ // Consultas diarias — misma grafica que Distribuidores, fuente data.daily
+              const _bd={}; Object.entries(data.daily||{}).forEach(([d,v])=>{ if(v?.messages) _bd[d]=v.messages; });
+              const _days=Object.keys(_bd); if(!_days.length) return null;
+              const _peak=Math.max(...Object.entries(_bd).sort(([a],[b])=>a.localeCompare(b)).slice(-14).map(([,v])=>v));
+              return (
+                <div className="card-hover" style={CARD}>
+                  <CardTopBar/>
+                  <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:16, flexWrap:'wrap', gap:6 }}>
+                    <p style={{ ...ST, marginBottom:0 }}>Consultas diarias — 14 días</p>
+                    {_peak>0&&<Tag color={P.orange} size={9}>pico: {_peak} en un día</Tag>}
                   </div>
+                  <LeadsLineChart byDay={_bd}/>
                 </div>
-              ); })()}
+              );
+            })()}
+            <div style={{ display:'grid', gridTemplateColumns:(isMobile||!(canSee('keywords')&&canSee('products')))?'1fr':'1fr 1fr', gap:12 }}>
+              {canSee('keywords')&&(
+                <div className="card-hover" style={CARD}><CardTopBar/><p style={ST}>Palabras clave</p><BarChart data={kwD} color={P.orange} max={12}/></div>
+              )}
+              {canSee('products')&&(
+                <div className="card-hover" style={CARD}><CardTopBar color={P.grayLight}/><p style={ST}>Productos más consultados</p><BarChart data={prodD} color={P.grayLight} max={10}/></div>
+              )}
             </div>
           </div>
         )}
 
-        {/* ── KEYWORDS ── */}
-        {!loading&&data&&tab==='keywords'&&canSee('keywords')&&(
-          <div className="tab-content" key="kw" style={{ display:'grid', gridTemplateColumns:isMobile?'1fr':'1fr 1fr', gap:12 }}>
-            <div className="card-hover" style={CARD}><CardTopBar/><p style={ST}>Palabras clave</p><BarChart data={kwD} color={P.orange} max={12}/></div>
-            <div className="card-hover" style={CARD}><CardTopBar color={P.grayLight}/><p style={ST}>Productos mencionados</p><BarChart data={prodD} color={P.grayLight} max={8}/></div>
-          </div>
-        )}
+        {/* ── CONVERSACIONES: sub-pestañas (Chats | Mensajes | Llamadas) ── */}
+        {tab==='conversations'&&(()=>{
+          const SUBS=[
+            canSee('conversations')&&{id:'chats',   label:'Chats'},
+            canSee('messages')     &&{id:'mensajes',label:'Mensajes'},
+            canSee('llamadas')     &&{id:'llamadas',label:'Llamadas IA'},
+          ].filter(Boolean);
+          if(SUBS.length<2) return null;
+          return (
+            <div style={{ display:'flex', gap:5, marginBottom:12, flexWrap:'wrap' }}>
+              {SUBS.map(s=>{
+                const active=convSub===s.id;
+                return (
+                  <button key={s.id} onClick={()=>setConvSub(s.id)}
+                    style={{ padding:'5px 14px', borderRadius:20, fontSize:11, fontWeight:active?700:500,
+                      cursor:'pointer', background:active?P.orange:'transparent',
+                      color:active?'#fff':P.textDim, border:`1px solid ${active?P.orange:P.border}`,
+                      transition:'all 0.13s ease' }}>
+                    {s.label}
+                  </button>
+                );
+              })}
+            </div>
+          );
+        })()}
 
-        {/* ── MESSAGES ── */}
-        {!loading&&data&&tab==='messages'&&canSee('messages')&&(
+        {/* ── MESSAGES (sub de Conversaciones) ── */}
+        {!loading&&data&&tab==='conversations'&&convSub==='mensajes'&&canSee('messages')&&(
           <div className="tab-content" key="ms">
             <div className="card-hover" style={CARD}>
               <CardTopBar/>
@@ -3223,8 +3544,8 @@ const ALL_TABS=[
           </div>
         )}
 
-        {/* ── CONVERSACIONES ── */}
-        {tab==='conversations'&&canSee('conversations')&&(
+        {/* ── CONVERSACIONES: chats ── */}
+        {tab==='conversations'&&convSub==='chats'&&canSee('conversations')&&(
           <div className="tab-content" key="conv">
             <div style={{ display:'flex', gap:12, alignItems:'flex-start', flexWrap:isMobile?'wrap':'nowrap' }}>
 
@@ -3320,8 +3641,8 @@ const ALL_TABS=[
           </div>
         )}
 
-        {/* ── LLAMADAS IA ── */}
-        {tab==='llamadas'&&canSee('llamadas')&&(
+        {/* ── LLAMADAS IA (sub de Conversaciones) ── */}
+        {tab==='conversations'&&convSub==='llamadas'&&canSee('llamadas')&&(
           <div className="tab-content" key="llamadas">
             <div style={{ display:'flex', gap:12, alignItems:'flex-start', flexWrap:isMobile?'wrap':'nowrap' }}>
 
@@ -3612,12 +3933,30 @@ const ALL_TABS=[
           </div>
         )}
 
-        {/* ── RECRUITMENT ── */}
-        
-        {tab==='recruitment'&&canSee('recruitment')&&(
-          <div className="tab-content" key="rc"><RecruitmentTab canDelete={isOnlyAdmin || role.name === 'RH'} theme={theme}/></div>
+        {/* ── RECRUITMENT (incluye Vacantes) ── */}
+        {tab==='recruitment'&&(canSee('recruitment')||canSee('vacantes'))&&(
+          <div className="tab-content" key="rc">
+            {canSee('recruitment')&&canSee('vacantes')&&(
+              <div style={{ display:'flex', gap:5, marginBottom:12, flexWrap:'wrap' }}>
+                {[{id:'candidatos',label:'Candidatos'},{id:'vacantes',label:'Vacantes'}].map(s=>{
+                  const active=recSub===s.id;
+                  return (
+                    <button key={s.id} onClick={()=>setRecSub(s.id)}
+                      style={{ padding:'5px 14px', borderRadius:20, fontSize:11, fontWeight:active?700:500,
+                        cursor:'pointer', background:active?P.orange:'transparent',
+                        color:active?'#fff':P.textDim, border:`1px solid ${active?P.orange:P.border}`,
+                        transition:'all 0.13s ease' }}>
+                      {s.label}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+            {recSub==='candidatos'&&canSee('recruitment')&&<RecruitmentTab canDelete={isOnlyAdmin || role.name === 'RH'} theme={theme}/>}
+            {recSub==='vacantes'&&canSee('vacantes')&&<VacantesTab theme={theme}/>}
+          </div>
         )}
-        
+
 
         {/* ── AI ── */}
         {!loading&&data&&tab==='ai'&&canSee('ai')&&(
@@ -3741,7 +4080,12 @@ const ALL_TABS=[
             </div>
 
             {/* Notificaciones y envíos — solo con permiso canDownload */}
-            {isAdmin && <NotifyConfigSection theme={theme} P={P}/>}
+            {isAdmin && (
+              <div style={{ display:'grid', gridTemplateColumns:isMobile?'1fr':'1fr 1fr', gap:12, alignItems:'stretch' }}>
+                <NotifyConfigSection theme={theme} P={P}/>
+                <PagespeedSection theme={theme} P={P}/>
+              </div>
+            )}
 
             {isAdmin && (
               <div style={{ background:P.surface, border:`1px solid ${P.border}`,
@@ -3759,13 +4103,6 @@ const ALL_TABS=[
         {tab==='users'&&canSee('users')&&(
           <div className="tab-content" key="us"><UsersTab/></div>
         )}
-              {/* ── VACANTES ── */}
-        {tab==='vacantes'&&canSee('vacantes')&&(
-          <div className="tab-content" key="vac">
-            <VacantesTab theme={theme}/>
-          </div>
-        )}
-
         {/* ── WHATSAPP WEBHOOK ── */}
         {canSeeWhatsapp&&(
           <div className="tab-content" key="wa" style={{ display: tab==='whatsapp' ? undefined : 'none' }}>

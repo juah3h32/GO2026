@@ -203,6 +203,20 @@ export async function logInteraction({
   await db.batch(stmts, 'write');
 }
 
+// ── Ranking de PDFs enviados por producto (intent='pdf' en messages) ──────────
+// Fechas en zona MX: ts es UTC, CDMX es UTC-6 fijo (sin horario de verano).
+export async function pdfsEnviadosPorProducto({ desde = null, hasta = null, limit = 10 } = {}) {
+  await ensureInit();
+  let sql = `SELECT product, COUNT(*) AS c FROM messages WHERE intent='pdf' AND product IS NOT NULL AND product != ''`;
+  const args = [];
+  if (desde) { sql += ` AND date(ts, '-6 hours') >= ?`; args.push(desde); }
+  if (hasta) { sql += ` AND date(ts, '-6 hours') <= ?`; args.push(hasta); }
+  sql += ` GROUP BY product ORDER BY c DESC LIMIT ?`;
+  args.push(limit);
+  const r = await db.execute({ sql, args });
+  return r.rows.map(x => ({ producto: x.product, enviados: Number(x.c) }));
+}
+
 // ─── RESET ───────────────────────────────────────────────────────────────────
 export async function resetData() {
   await ensureInit();
@@ -1265,4 +1279,107 @@ export async function saveWagoConfig({ url, token, connectionId, webhookSecret }
             updated_at=excluded.updated_at`,
     args: [url, encryptField(token), connectionId, encryptField(webhookSecret)],
   });
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  PAGESPEED — config de notificaciones de sistema + historial de analisis
+// ════════════════════════════════════════════════════════════════════════════
+
+let pagespeedReady = false;
+
+async function ensurePagespeedTables() {
+  if (pagespeedReady) return;
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS pagespeed_config (
+      id         INTEGER PRIMARY KEY CHECK (id = 1),
+      phones     TEXT    NOT NULL DEFAULT '[]',
+      active     INTEGER NOT NULL DEFAULT 0,
+      last_sent  TEXT,
+      updated_at TEXT    NOT NULL DEFAULT (datetime('now'))
+    )
+  `);
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS pagespeed_history (
+      id             INTEGER PRIMARY KEY AUTOINCREMENT,
+      strategy       TEXT    NOT NULL DEFAULT 'mobile',
+      performance    INTEGER,
+      seo            INTEGER,
+      accessibility  INTEGER,
+      best_practices INTEGER,
+      lcp            TEXT,
+      cls            TEXT,
+      tbt            TEXT,
+      issues         TEXT    NOT NULL DEFAULT '[]',
+      created_at     TEXT    NOT NULL DEFAULT (datetime('now'))
+    )
+  `);
+  pagespeedReady = true;
+}
+
+export async function getPagespeedConfig() {
+  await ensureInit();
+  await ensurePagespeedTables();
+  const r = await db.execute(`SELECT phones, active, last_sent, updated_at FROM pagespeed_config WHERE id=1`);
+  if (!r.rows.length) return { phones: [], active: false, last_sent: null, updated_at: null };
+  const row = r.rows[0];
+  return {
+    phones:     (() => { try { return JSON.parse(row.phones); } catch { return []; } })(),
+    active:     !!row.active,
+    last_sent:  row.last_sent,
+    updated_at: row.updated_at,
+  };
+}
+
+export async function savePagespeedConfig({ phones = [], active = false }) {
+  await ensureInit();
+  await ensurePagespeedTables();
+  await db.execute({
+    sql: `INSERT INTO pagespeed_config (id, phones, active, updated_at)
+          VALUES (1, ?, ?, datetime('now'))
+          ON CONFLICT(id) DO UPDATE SET
+            phones=excluded.phones, active=excluded.active, updated_at=excluded.updated_at`,
+    args: [JSON.stringify(phones), active ? 1 : 0],
+  });
+}
+
+export async function touchPagespeedLastSent() {
+  await ensureInit();
+  await ensurePagespeedTables();
+  await db.execute({
+    sql:  `UPDATE pagespeed_config SET last_sent=? WHERE id=1`,
+    args: [new Date().toISOString()],
+  });
+}
+
+export async function savePagespeedResult({ strategy, performance, seo, accessibility, best_practices, lcp, cls, tbt, issues = [] }) {
+  await ensureInit();
+  await ensurePagespeedTables();
+  await db.execute({
+    sql:  `INSERT INTO pagespeed_history (strategy, performance, seo, accessibility, best_practices, lcp, cls, tbt, issues)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    args: [strategy, performance, seo, accessibility, best_practices, lcp ?? null, cls ?? null, tbt ?? null, JSON.stringify(issues)],
+  });
+}
+
+export async function readPagespeedHistory(limit = 20) {
+  await ensureInit();
+  await ensurePagespeedTables();
+  const r = await db.execute({
+    sql:  `SELECT id, strategy, performance, seo, accessibility, best_practices, lcp, cls, tbt, issues, created_at
+           FROM pagespeed_history ORDER BY id DESC LIMIT ?`,
+    args: [limit],
+  });
+  return r.rows.map(row => ({
+    id:             row.id,
+    strategy:       row.strategy,
+    performance:    row.performance,
+    seo:            row.seo,
+    accessibility:  row.accessibility,
+    best_practices: row.best_practices,
+    lcp:            row.lcp,
+    cls:            row.cls,
+    tbt:            row.tbt,
+    issues:         (() => { try { return JSON.parse(row.issues); } catch { return []; } })(),
+    created_at:     row.created_at,
+  }));
 }
