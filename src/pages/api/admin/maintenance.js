@@ -44,7 +44,9 @@ export async function POST({ request }) {
   let next = cur, aviso = '';
 
   if (typeof body.all === 'boolean') {
-    next = { all: body.all, slugs: body.all ? [] : cur.slugs };
+    // Reactivar "todo" limpia tambien las paginas individuales: el sitio queda
+    // 100% normal (antes quedaban slugs activos y seguian en mantenimiento).
+    next = { all: body.all, slugs: [] };
     aviso = body.all
       ? '*SITIO EN MANTENIMIENTO (completo)*\nTodo el sitio publico muestra "estamos mejorando".'
       : '*SITIO REACTIVADO (completo)*\nEl sitio publico volvio a la normalidad.';

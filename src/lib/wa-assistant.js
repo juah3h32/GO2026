@@ -686,11 +686,14 @@ async function ejecutarTool(name, args, ctx) {
     const obj = String(args.objetivo || '').toLowerCase().trim().replace(/^inicio$/, 'home');
     const activar = !!args.activar;
 
-    if (obj === 'todo' || obj === 'sitio' || obj === 'todo el sitio') {
-      const next = { all: activar, slugs: activar ? [] : cur.slugs };
+    // "todo" / generico ("quita el mantenimiento", "reactiva", "elimina mantenimiento").
+    if (obj === 'todo' || obj === 'sitio' || obj === 'todo el sitio' || obj === '' || obj === 'mantenimiento') {
+      // Activar todo: all=true. Reactivar todo: LIMPIA TODO (all=false Y slugs=[])
+      // — antes dejaba los slugs activos y la pagina seguia en mantenimiento.
+      const next = activar ? { all: true, slugs: [] } : { all: false, slugs: [] };
       await setConfig('maintenance', JSON.stringify(next));
-      await logSystemEvent({ level:'warn', category:'mantenimiento', source:'whatsapp', message: activar ? 'Todo el sitio en mantenimiento (via WhatsApp)' : 'Sitio reactivado (via WhatsApp)' }).catch(()=>{});
-      return { ok:true, resultado: activar ? 'Todo el sitio quedo en mantenimiento.' : 'Todo el sitio fue reactivado.', instruccion:'Confirma al usuario en una linea.' };
+      await logSystemEvent({ level:'warn', category:'mantenimiento', source:'whatsapp', message: activar ? 'Todo el sitio en mantenimiento (via WhatsApp)' : 'Mantenimiento eliminado de todo el sitio (via WhatsApp)' }).catch(()=>{});
+      return { ok:true, resultado: activar ? 'Todo el sitio quedo en mantenimiento.' : 'Listo, quite el mantenimiento de todo el sitio. Todo vuelve a la normalidad.', instruccion:'Confirma al usuario en una linea.' };
     }
     if (!SLUGS.includes(obj)) {
       return { error: `No reconozco la pagina "${args.objetivo}". Validas: ${SLUGS.join(', ')}.` };
@@ -838,7 +841,12 @@ Reglas:
 - DESLINDE de herramientas de monitoreo — NO las confundas:
   * analizar_velocidad = VELOCIDAD/SEO/rendimiento según Google (scores 0-100).
   * revisar_almacenamiento = uso de Cloudinary (espacio para videos/PDFs). "cuanto espacio queda", "se llena el storage".
-  * control_mantenimiento = poner/quitar la pantalla "estamos mejorando". "pon en mantenimiento productos", "reactiva vacantes", "baja todo el sitio". Reglas: si el usuario nombra una PAGINA clara (productos, vacantes, inicio, etc.) y si activa o reactiva, EJECUTA de inmediato (no pidas confirmacion — es reversible). Solo pide confirmacion si pide bajar TODO el sitio, o si NO queda claro cual pagina. Tras ejecutar, confirma en una linea lo que se hizo.
+  * control_mantenimiento = poner/quitar la pantalla "estamos mejorando".
+    - "pon en mantenimiento productos" → objetivo=productos, activar=true.
+    - "reactiva productos" / "quita mantenimiento de productos" → objetivo=productos, activar=false.
+    - "baja todo el sitio" → objetivo=todo, activar=true.
+    - "quita el mantenimiento" / "elimina el mantenimiento" / "reactiva" / "reactiva todo" / "ya quita el mantenimiento" (SIN nombrar una pagina) → objetivo=todo, activar=false (limpia TODO, deja el sitio normal).
+    EJECUTA de inmediato (es reversible), no pidas confirmacion salvo para BAJAR todo el sitio. Tras ejecutar, confirma en una linea.
   * revisar_sistema = errores y eventos de seguridad en los LOGS internos.
   * rastrear_sitio = rutas y recursos ROTOS (404) navegando el sitio.
   * analisis_del_dia = panorama consolidado de todas las áreas.
