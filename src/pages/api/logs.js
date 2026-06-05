@@ -55,5 +55,7 @@ export async function POST({ request }) {
   // sueltos (img/video/css) quedan visibles en Monitoreo del Sitio, no molestan
   // por WhatsApp. Solo las paginas que NO abren alertan (lo hace health-crawl).
   const id = await logSystemEvent({ level, category, source, message, meta, ip });
-  return json({ ok: true, id });
+  // id puede ser BigInt (lastInsertRowid) — JSON.stringify(BigInt) lanza y daba
+  // 500. Convertir a Number para serializar bien.
+  return json({ ok: true, id: id == null ? null : Number(id) });
 }
