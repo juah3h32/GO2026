@@ -119,15 +119,11 @@ async function runCron({ forceAll = false, baseUrl = 'https://grupo-ortiz.com' }
 
     console.log(`[cron/daily-reports] Fin. ${results.filter(r=>r.sent).length} enviados, ${results.filter(r=>r.skipped).length} saltados`);
 
-    // Resumen diario de fallas menores acumuladas (imagenes/videos/recursos sueltos).
-    let resumen = null;
-    try {
-      const { enviarResumenDiario } = await import('../../../lib/alert-center.js');
-      resumen = await enviarResumenDiario();
-    } catch (e) { console.error('[cron/daily-reports] resumen diario:', e.message); }
+    // (Se elimino el resumen diario por WhatsApp: generaba ruido. Las fallas de
+    // recursos sueltos quedan en el panel; solo paginas caidas alertan al momento.)
 
     return new Response(
-      JSON.stringify({ ok: true, ran: results.length, results, ts: nowUTC, total: allRows.length, active: rows.length, resumen }),
+      JSON.stringify({ ok: true, ran: results.length, results, ts: nowUTC, total: allRows.length, active: rows.length }),
       { headers: { 'Content-Type': 'application/json' } }
     );
   } catch (err) {

@@ -3,15 +3,19 @@
 import MaintenanceScreen from '../components/MaintenanceScreen.astro';
 export const prerender = false;
 
-// Aviso al admin (server-side) con anti-spam por ruta — sin exponer el stack al publico.
 const ruta = (() => { try { return new URL(Astro.request.url).pathname; } catch { return '?'; } })();
+// Solo alerta si el error es en una PAGINA publica (lo que ve el visitante).
+// Errores en endpoints internos /api/* NO alertan (no afectan la navegacion y
+// generaban spam, ej. "error 500 en /api/logs"). Solo se registran en el panel.
+const esPaginaPublica = !ruta.startsWith('/api/') && !ruta.startsWith('/stats');
 try {
-  const { alertaUrgente } = await import('../lib/alert-center.js');
   const { logSystemEvent } = await import('../lib/analytics-db.js');
-  // Categoria 'backend' (no 'crawl') para que checkAndAlert no la re-avise.
-  await logSystemEvent({ level: 'critical', category: 'backend', source: ruta, message: `Error 500 (servidor) en ${ruta}` }).catch(() => {});
-  // URGENTE con dedup persistente: 1 alerta por ruta cada 30 min.
-  alertaUrgente(`500:${ruta}`, `*ERROR EN EL SITIO*\nEl sitio arrojó un error 500 en:\n${ruta}\nRevisa de inmediato.`, { ventanaMin: 30 }).catch(() => {});
+  await logSystemEvent({ level: esPaginaPublica ? 'critical' : 'warn', category: 'backend', source: ruta, message: `Error 500 en ${ruta}` }).catch(() => {});
+  if (esPaginaPublica) {
+    const { alertaUrgente } = await import('../lib/alert-center.js');
+    // URGENTE, dedup 60 min por ruta. Solo paginas que el cliente no puede ver.
+    alertaUrgente(`500:${ruta}`, `*ERROR EN EL SITIO*\nEsta pagina no carga:\n${ruta}\nRevisa de inmediato.`, { ventanaMin: 60 }).catch(() => {});
+  }
 } catch { /* nunca dejar que el aviso rompa la pagina de error */ }
 ---
 <!DOCTYPE html>

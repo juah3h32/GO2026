@@ -5,15 +5,10 @@
 export const prerender = false;
 
 import { logSystemEvent, getSystemLogs, getLogStats, markLogsSeen, clearSystemLogs } from '../../lib/analytics-db.js';
-import { acumularResumen } from '../../lib/alert-center.js';
 import { verifyAdminToken } from '../../lib/verifyAdminToken.ts';
 import { getClientIp } from '../../lib/rateLimit.ts';
 
 const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { 'Content-Type': 'application/json' } });
-
-// Categorias de falla del frontend que se acumulan al RESUMEN DIARIO (no urgente).
-const RESUMEN_CATEGORIES = ['video', 'js-error', 'resource', 'network'];
-const TIPO_CAT = { video: 'video', 'js-error': 'recurso', resource: 'recurso', network: 'recurso' };
 
 // Niveles que un cliente NO autenticado puede registrar (evita que falseen "security").
 const CLIENT_LEVELS = ['info', 'warn', 'error'];
@@ -56,13 +51,9 @@ export async function POST({ request }) {
     ...(body.meta && typeof body.meta === 'object' ? body.meta : {}),
   };
 
+  // Solo REGISTRA en el panel (sin alertas WhatsApp). Las fallas de recursos
+  // sueltos (img/video/css) quedan visibles en Monitoreo del Sitio, no molestan
+  // por WhatsApp. Solo las paginas que NO abren alertan (lo hace health-crawl).
   const id = await logSystemEvent({ level, category, source, message, meta, ip });
-
-  // Falla de frontend → al RESUMEN DIARIO (no urgente). El centro de alertas
-  // deduplica el mismo detalle y manda 1 resumen al dia. Sin spam instantaneo.
-  if (level === 'error' && RESUMEN_CATEGORIES.includes(category)) {
-    acumularResumen({ tipo: TIPO_CAT[category] || 'recurso', detalle: `${message.slice(0, 100)} (${source || '/'})` }).catch(() => {});
-  }
-
   return json({ ok: true, id });
 }
