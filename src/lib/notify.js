@@ -490,6 +490,51 @@ export async function uploadPDFToCloudinary(buffer, filename) {
   return data.secure_url;
 }
 
+// ── Subir IMAGEN (PNG) a Cloudinary y devolver link ──────────────────────────
+export async function uploadImageToCloudinary(buffer, filename = 'imagen') {
+  const cloudName = process.env.PUBLIC_CLOUDINARY_CLOUD_NAME || import.meta.env?.PUBLIC_CLOUDINARY_CLOUD_NAME;
+  const apiKey    = process.env.PUBLIC_CLOUDINARY_API_KEY    || import.meta.env?.PUBLIC_CLOUDINARY_API_KEY;
+  const apiSecret = process.env.CLOUDINARY_API_SECRET        || import.meta.env?.CLOUDINARY_API_SECRET;
+  if (!cloudName || !apiKey || !apiSecret) throw new Error('Cloudinary no configurado');
+
+  const publicId  = (filename || 'imagen').replace(/\.(png|jpe?g)$/i, '').replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 60);
+  const folder    = 'botgo-img';
+  const timestamp = Math.floor(Date.now() / 1000);
+  const toSign    = `folder=${folder}&public_id=${publicId}&timestamp=${timestamp}`;
+  const signature = createHash('sha1').update(toSign + apiSecret).digest('hex');
+
+  const form = new FormData();
+  form.append('file', new Blob([buffer], { type: 'image/png' }), `${publicId}.png`);
+  form.append('api_key',   apiKey);
+  form.append('timestamp', String(timestamp));
+  form.append('public_id', publicId);
+  form.append('folder',    folder);
+  form.append('signature', signature);
+
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, { method: 'POST', body: form });
+  if (!res.ok) { const b = await res.text(); throw new Error(`Cloudinary img HTTP ${res.status}: ${b.slice(0, 160)}`); }
+  const data = await res.json();
+  return data.secure_url;
+}
+
+// ── Enviar IMAGEN por WhatsApp (foto inline si el proveedor lo soporta) ───────
+export async function sendWAImage(phone, url, caption = '') {
+  const creds = await resolveWagoCredentials();
+  if (!creds?.url || !creds?.token || !creds?.connectionId) throw new Error('WAGO no configurado');
+  const chatId = String(phone).includes('@') ? String(phone) : toWhatsAppJid(phone);
+  // Intenta enviar como imagen (foto inline).
+  try {
+    const res = await fetch(`${creds.url}/api/connections/${creds.connectionId}/send-image`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'User-Agent': BROWSER_UA, 'Authorization': `Bearer ${creds.token}` },
+      body:    JSON.stringify({ chatId, url, ...(caption ? { caption } : {}) }),
+    });
+    if (res.ok) return;
+  } catch { /* cae a documento */ }
+  // Fallback: como documento (archivo imagen) si send-image no esta disponible.
+  await sendWADocument(phone, url, 'historial.png', caption);
+}
+
 // ── Resolver credenciales WAGO: DB primero, .env como fallback ───────────────
 async function resolveWagoCredentials() {
   try {

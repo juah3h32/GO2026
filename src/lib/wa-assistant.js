@@ -3,6 +3,7 @@
 // Entiende lenguaje natural, consulta los datos reales del sistema y
 // genera reportes (resumen o comparativo) con PDF.
 import { readAllData, readRecruitmentLeads, readVacantes, readLeads, getWAIncoming, getSystemLogs, getLogStats, markLogsSeen } from './analytics-db.js';
+import { getTurso } from './turso';
 
 const MODEL = 'gpt-4o-mini';
 
@@ -218,7 +219,7 @@ const TOOLS = [
     type: 'function',
     function: {
       name: 'enviar_reporte_pdf',
-      description: 'Genera y ENVÍA el reporte PDF ejecutivo (el MISMO del panel) al usuario por WhatsApp como ARCHIVO ADJUNTO. Usar cuando pide un reporte, informe o documento. formato=resumen para el panorama del periodo; formato=comparativo para comparar contra el periodo anterior. PERIODOS: periodo=mes con mes/anio para un mes específico ("reporte de mayo" → mes=5). periodo=rango con desde/hasta (YYYY-MM-DD) para un rango exacto ("de marzo a abril" → desde=primer día de marzo, hasta=último día de abril; "del 1 al 15 de mayo" → desde=2026-05-01, hasta=2026-05-15). periodo=hasta_hoy para "de todos los meses / todo el año al día de hoy" (desde inicio de año o el más antiguo, hasta hoy). Calcula las fechas TÚ usando la fecha actual del sistema.',
+      description: 'Genera y ENVÍA el reporte PDF ejecutivo (el MISMO del panel) al usuario por WhatsApp como ARCHIVO ADJUNTO. Usar cuando pide un reporte, informe o documento. formato=resumen para el panorama del periodo; formato=comparativo para comparar contra el periodo anterior. PERIODOS: periodo=hoy para "de hoy". periodo=semana para "últimos 7 días", "esta semana", "la semana", "semanal", "los 7 días" (SIEMPRE usa semana cuando pidan 7 días o semana, NUNCA mes). periodo=mes con mes/anio para un mes específico ("reporte de mayo" → mes=5). periodo=rango con desde/hasta (YYYY-MM-DD) para un rango exacto ("de marzo a abril" → desde=primer día de marzo, hasta=último día de abril; "del 1 al 15 de mayo" → desde=2026-05-01, hasta=2026-05-15). periodo=hasta_hoy para "de todos los meses / todo el año al día de hoy" (desde inicio de año o el más antiguo, hasta hoy). Calcula las fechas TÚ usando la fecha actual del sistema.',
       parameters: {
         type: 'object',
         properties: {
@@ -230,6 +231,45 @@ const TOOLS = [
           hasta: { type: 'string', description: 'Fecha fin YYYY-MM-DD si periodo=rango (por defecto hoy)' },
         },
         required: ['periodo','formato'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'programar_reporte',
+      description: 'PROGRAMA el envío AUTOMÁTICO y recurrente de un reporte PDF a ESTE usuario por WhatsApp a una hora fija. Usar cuando pide "programa", "agenda", "envíame cada semana/mes", "todos los lunes a las 9", "manda el reporte mensual el día 1". frecuencia=semanal (un día de la semana) o mensual (un día del mes). hora 0-23 y minuto en hora de México. formato=resumen (default) o comparativo. dia_semana solo si semanal (0=Domingo,1=Lunes,...,6=Sábado; default 1=Lunes). dia_mes solo si mensual (1-28; default 1). El reporte semanal cubre los últimos 7 días; el mensual cubre el mes en curso.',
+      parameters: {
+        type: 'object',
+        properties: {
+          frecuencia:  { type: 'string', enum: ['semanal','mensual'] },
+          hora:        { type: 'integer', description: 'Hora 0-23 (México)' },
+          minuto:      { type: 'integer', description: 'Minuto 0-59, default 0' },
+          formato:     { type: 'string', enum: ['resumen','comparativo'], description: 'default resumen' },
+          dia_semana:  { type: 'integer', description: '0=Dom..6=Sab, solo si frecuencia=semanal' },
+          dia_mes:     { type: 'integer', description: '1-28, solo si frecuencia=mensual' },
+        },
+        required: ['frecuencia','hora'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'listar_programados',
+      description: 'Lista los reportes automáticos YA programados para ESTE usuario (frecuencia, día, hora, formato). Usar para "qué reportes tengo programados", "mis envíos automáticos", "qué tengo agendado".',
+      parameters: { type: 'object', properties: {} },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'cancelar_programado',
+      description: 'Cancela/elimina un reporte automático programado de ESTE usuario por su id (el que muestra listar_programados). Usar para "cancela el reporte programado", "quita el envío automático", "ya no me mandes el semanal".',
+      parameters: {
+        type: 'object',
+        properties: { id: { type: 'integer', description: 'id del programado a cancelar' } },
+        required: ['id'],
       },
     },
   },
@@ -337,6 +377,9 @@ const TOOL_PERMS = {
   obtener_estadisticas:        'reports',
   comparar_periodos:           'reports',
   enviar_reporte_pdf:          'reports',
+  programar_reporte:           'reports',
+  listar_programados:          'reports',
+  cancelar_programado:         'reports',
   obtener_candidatos:          'candidates',
   postulaciones_por_vacante:   'candidates',
   obtener_vacantes:            'vacantes',
@@ -573,6 +616,73 @@ async function ejecutarTool(name, args, ctx) {
       generando: report_type,
       periodo: label,
       nota: `El reporte PDF (${report_type}, ${label}) se está generando y se ENVIARÁ como archivo adjunto por WhatsApp. Confírmaselo al usuario en UNA línea breve (ej: "Te envío el reporte ${report_type} de ${label} en PDF en un momento").`,
+    };
+  }
+
+  if (name === 'programar_reporte' || name === 'listar_programados' || name === 'cancelar_programado') {
+    const DOW = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+    const miPhone = String(ctx.phone || '').replace(/\D/g, '');
+    if (!miPhone) return { error: 'No identifico tu número para programar el envío.' };
+    const db = getTurso();
+    await db.execute(`CREATE TABLE IF NOT EXISTS report_schedules (
+      id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL,
+      report_type TEXT NOT NULL DEFAULT 'general', frequency TEXT NOT NULL DEFAULT 'weekly',
+      day_of_week INTEGER DEFAULT 1, day_of_month INTEGER DEFAULT 1,
+      hour INTEGER DEFAULT 9, minute INTEGER DEFAULT 0,
+      phones TEXT NOT NULL DEFAULT '[]', period TEXT NOT NULL DEFAULT '7d',
+      active INTEGER DEFAULT 1, last_sent TEXT, created_at TEXT DEFAULT (datetime('now')),
+      period_from TEXT, period_to TEXT )`);
+
+    const mios = async () => {
+      const { rows } = await db.execute('SELECT * FROM report_schedules ORDER BY id DESC');
+      return rows.filter(r => { try { return JSON.parse(r.phones || '[]').includes(miPhone); } catch { return false; } });
+    };
+
+    if (name === 'listar_programados') {
+      const rows = await mios();
+      if (!rows.length) return { programados: [], nota: 'No tienes reportes automáticos programados.' };
+      return {
+        programados: rows.map(r => ({
+          id: r.id,
+          formato: r.report_type,
+          cuando: r.frequency === 'monthly' ? `cada mes el día ${r.day_of_month}` : `cada ${DOW[r.day_of_week] || '?'}`,
+          hora: `${String(r.hour).padStart(2,'0')}:${String(r.minute ?? 0).padStart(2,'0')}`,
+          activo: r.active === 1,
+        })),
+        instruccion: 'Lista cada programado con su id, formato, cuándo y hora. El id sirve para cancelar.',
+      };
+    }
+
+    if (name === 'cancelar_programado') {
+      const rows = await mios();
+      const target = rows.find(r => r.id === Number(args.id));
+      if (!target) return { error: `No encontré un reporte programado tuyo con id ${args.id}. Pídeme "lista mis programados".` };
+      await db.execute({ sql: 'DELETE FROM report_schedules WHERE id=?', args: [target.id] });
+      return { ok: true, cancelado: target.id, instruccion: 'Confirma en una línea que cancelaste ese envío automático.' };
+    }
+
+    // programar_reporte
+    const semanal = args.frecuencia !== 'mensual';
+    const hour = Math.max(0, Math.min(23, Number(args.hora ?? 9)));
+    const minute = Math.max(0, Math.min(59, Number(args.minuto ?? 0)));
+    const report_type = args.formato === 'comparativo' ? 'comparativo' : 'resumen';
+    const frequency = semanal ? 'weekly' : 'monthly';
+    const period = semanal ? '7d' : 'month';
+    const dow = semanal ? Math.max(0, Math.min(6, Number(args.dia_semana ?? 1))) : 1;
+    const dom = !semanal ? Math.max(1, Math.min(28, Number(args.dia_mes ?? 1))) : 1;
+    const cuando = semanal ? `cada ${DOW[dow]}` : `cada mes el día ${dom}`;
+    const hhmm = `${String(hour).padStart(2,'0')}:${String(minute).padStart(2,'0')}`;
+    const name2 = `WA ${report_type} ${semanal ? DOW[dow] : 'día '+dom} ${hhmm}`;
+
+    await db.execute({
+      sql: `INSERT INTO report_schedules (name, report_type, frequency, day_of_week, day_of_month, hour, minute, phones, period, active)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
+      args: [name2, report_type, frequency, dow, dom, hour, minute, JSON.stringify([miPhone]), period],
+    });
+    return {
+      ok: true,
+      programado: { formato: report_type, cuando, hora: hhmm },
+      instruccion: `Confirma al usuario en UNA línea que quedó programado: te enviaré el reporte ${report_type} ${cuando} a las ${hhmm} por WhatsApp. (zona México)`,
     };
   }
 
@@ -831,7 +941,8 @@ Reglas:
 - "¿qué vacante tiene más postulaciones?" → postulaciones_por_vacante. "¿quiénes se registraron a X?" → postulaciones_por_vacante con ese puesto.
 - "dame el control total / panorama / cómo va todo" → metricas_dashboard.
 - "¿qué PDF se envió más?", "¿qué catálogo descargan más?", "ranking de pdfs" → pdfs_mas_enviados (acepta periodo).
-- "reporte/informe/documento" → enviar_reporte_pdf (resumen por defecto, comparativo si lo pide).
+- "reporte/informe/documento" → enviar_reporte_pdf (resumen por defecto, comparativo si lo pide). PERIODO OBLIGATORIO segun lo que pida: "7 dias"/"ultimos 7 dias"/"esta semana"/"la semana"/"semanal" → periodo=semana (JAMAS mes). "hoy" → periodo=hoy. "mayo"/un mes → periodo=mes con mes/anio. "del X al Y" → periodo=rango. NUNCA mandes el mes cuando pidieron la semana o 7 dias.
+- "programa/agenda el reporte", "envíame cada semana/mes", "todos los lunes a las 9", "manda el resumen mensual el día 1" → programar_reporte (envío automático recurrente a este usuario). Pide la hora si no la dan. "qué tengo programado" → listar_programados. "cancela el programado" → cancelar_programado (necesita el id de la lista). OJO: programar_reporte = envío FUTURO recurrente; enviar_reporte_pdf = mándalo AHORA una vez. No los confundas.
 - "¿cómo está el sistema/la página?", "¿hay errores/fallas?", "¿algo que cambiar/corregir?", "¿hay vulnerabilidades?", "revisa el sistema" → revisar_sistema (lee los logs/errores ya capturados). Diagnostica claro y sugiere correcciones; resalta primero lo de seguridad.
 - "revisa todas las páginas", "checa el sitio completo", "navega la página y dime si algo falla", "hay alguna ruta caída/recurso roto" → rastrear_sitio (recorre el sitio en vivo). Tarda unos segundos; avisa que estás revisando.
 - "análisis del día", "cómo amaneció la página", "revisa todas las áreas", "reporte de salud", "qué dicen los agentes" → analisis_del_dia (orquesta a todos los agentes por área). Tarda unos segundos.
@@ -899,7 +1010,7 @@ export async function ejecutarAsistente(texto, permsArray, phone) {
   if (!apiKey) return null; // sin API key → caller usa fallback de comandos
 
   const perms = permsArray || [];
-  const ctx = { pdfData: null, reportRequest: null, perms };
+  const ctx = { pdfData: null, reportRequest: null, perms, phone };
 
   const messages = [
     { role: 'system', content: systemPrompt(perms) },
