@@ -905,6 +905,11 @@ export async function ejecutarAsistente(texto, permsArray, phone) {
   // Detecta respuestas-promesa ("voy a revisar", "un momento") sin acción real.
   const esPromesaVacia = (t) => /\b(voy a|déjame|dejame|permíteme|permiteme|un momento|enseguida|ahora (te|lo|mismo)|en un momento|dame un|estoy (revisando|analizando|buscando)|reviso (ahora|el)|lo reviso)\b/i.test(t || '');
 
+  // Orden de mantenimiento (activar/quitar). Debe SIEMPRE ejecutar la herramienta:
+  // el bot a veces respondia "ya lo quite" sin ejecutar y el config no cambiaba.
+  const esOrdenMant = /manten|reactiv|baja(r)?\s+(el|la|todo|esta|la pagina|el sitio)|quita(r)?\s|desactiv|activa(r)?\s+(el\s+)?(modo|mantenim)/i.test(texto || '');
+  let usoMantTool = false;
+
   // Hasta 4 rondas de tool-calling. tool_choice='auto': el modelo decide si charla
   // (saludos, risas) o usa herramienta. Salvaguarda: si responde una PROMESA vacía
   // ("voy a revisar…") sin llamar tool, se reintenta forzando la herramienta para
@@ -937,6 +942,7 @@ export async function ejecutarAsistente(texto, permsArray, phone) {
         let result;
         try { result = await ejecutarTool(tc.function.name, args, ctx); }
         catch (e) { result = { error: e.message }; }
+        if (tc.function.name === 'control_mantenimiento') usoMantTool = true;
         messages.push({ role: 'tool', tool_call_id: tc.id, content: JSON.stringify(result).slice(0, 4000) });
       }
       forzado = false;
@@ -950,6 +956,13 @@ export async function ejecutarAsistente(texto, permsArray, phone) {
     if (!forzado && esPromesaVacia(text) && !ctx.pdfData && !ctx.reportRequest) {
       forzado = true;
       messages.push({ role: 'system', content: 'No anuncies que vas a hacerlo: EJECUTA la herramienta apropiada AHORA y entrega el resultado.' });
+      continue;
+    }
+
+    // Orden de mantenimiento que el modelo "confirmo" SIN ejecutar la tool → forzar.
+    if (!forzado && esOrdenMant && !usoMantTool) {
+      forzado = true;
+      messages.push({ role: 'system', content: 'NO confirmes cambios de mantenimiento sin ejecutarlos: llama control_mantenimiento AHORA con el objetivo y activar correctos, y recien entonces confirma.' });
       continue;
     }
 
