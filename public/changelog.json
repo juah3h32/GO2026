@@ -1,6 +1,206 @@
 {
   "commits": [
     {
+      "hash": "ee5ca9c",
+      "date": "2026-06-05",
+      "message": "menos alertas — solo paginas caidas; arregla 500 de /api/logs",
+      "rawMessage": "fix: menos alertas — solo paginas caidas; arregla 500 de /api/logs",
+      "type": "fix",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "d7ec4a3",
+      "date": "2026-06-04",
+      "message": "quitar mantenimiento por WhatsApp ahora SI ejecuta la herramienta",
+      "rawMessage": "fix: quitar mantenimiento por WhatsApp ahora SI ejecuta la herramienta",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "e0bf1eb",
+      "date": "2026-06-04",
+      "message": "mantenimiento de pagina no se reflejaba en movil (SW viejo cacheaba)",
+      "rawMessage": "fix: mantenimiento de pagina no se reflejaba en movil (SW viejo cacheaba)",
+      "type": "fix",
+      "area": "Performance"
+    },
+    {
+      "hash": "5ce4556",
+      "date": "2026-06-04",
+      "message": "\"quita/reactiva mantenimiento\" por WhatsApp ahora limpia las paginas",
+      "rawMessage": "fix: \"quita/reactiva mantenimiento\" por WhatsApp ahora limpia las paginas",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "517a694",
+      "date": "2026-06-04",
+      "message": "limpiar cache viejo del SW para reflejar reactivacion de mantenimiento",
+      "rawMessage": "fix: limpiar cache viejo del SW para reflejar reactivacion de mantenimiento",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "585e54b",
+      "date": "2026-06-04",
+      "message": "mantenimiento no se reflejaba — el Service Worker cacheaba /api",
+      "rawMessage": "fix: mantenimiento no se reflejaba — el Service Worker cacheaba /api",
+      "type": "fix",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "aa6e068",
+      "date": "2026-06-04",
+      "message": "eliminar flasheo al entrar a mantenimiento y FOUT del titulo",
+      "rawMessage": "fix: eliminar flasheo al entrar a mantenimiento y FOUT del titulo",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "2cb8869",
+      "date": "2026-06-04",
+      "message": "502 ya no redirige antes de los 40s",
+      "rawMessage": "fix: 502 ya no redirige antes de los 40s",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "642b5ac",
+      "date": "2026-06-04",
+      "message": "contador visible de 40s en mantenimiento, al llegar a 0 va al inicio",
+      "rawMessage": "feat: contador visible de 40s en mantenimiento, al llegar a 0 va al inicio",
+      "type": "feat",
+      "area": "General"
+    },
+    {
+      "hash": "aad161d",
+      "date": "2026-06-04",
+      "message": "pantalla mantenimiento redirige al inicio automaticamente a los 30s",
+      "rawMessage": "feat: pantalla mantenimiento redirige al inicio automaticamente a los 30s",
+      "type": "feat",
+      "area": "General"
+    },
+    {
+      "hash": "0d95f9e",
+      "date": "2026-06-04",
+      "message": "el fondo blanco del gif ya no tapa el numero (502/404)",
+      "rawMessage": "fix: el fondo blanco del gif ya no tapa el numero (502/404)",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "e7174ae",
+      "date": "2026-06-04",
+      "message": "animacion mas grande + quitar choque con el numero de fondo",
+      "rawMessage": "style: animacion mas grande + quitar choque con el numero de fondo",
+      "type": "style",
+      "area": "UI"
+    },
+    {
+      "hash": "2d12f7e",
+      "date": "2026-06-04",
+      "message": "animacion (cavernicola enchufando cables) en pantallas 404/mantenimiento",
+      "rawMessage": "style: animacion (cavernicola enchufando cables) en pantallas 404/mantenimiento",
+      "type": "style",
+      "area": "UI"
+    },
+    {
+      "hash": "bb7eda9",
+      "date": "2026-06-04",
+      "message": "mantenimiento — descripcion mas breve + icono llave animado",
+      "rawMessage": "style: mantenimiento — descripcion mas breve + icono llave animado",
+      "type": "style",
+      "area": "General"
+    },
+    {
+      "hash": "87f01de",
+      "date": "2026-06-04",
+      "message": "titulo de mantenimiento en una sola linea (sin salto)",
+      "rawMessage": "style: titulo de mantenimiento en una sola linea (sin salto)",
+      "type": "style",
+      "area": "General"
+    },
+    {
+      "hash": "ae6cb65",
+      "date": "2026-06-04",
+      "message": "pantalla 502 — fuente Morganite, boton Recargar y descripcion mas larga",
+      "rawMessage": "style: pantalla 502 — fuente Morganite, boton Recargar y descripcion mas larga",
+      "type": "style",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "5b4005e",
+      "date": "2026-06-04",
+      "message": "reactivar mantenimiento desde WhatsApp ahora surte efecto al instante",
+      "rawMessage": "fix: reactivar mantenimiento desde WhatsApp ahora surte efecto al instante",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "910976b",
+      "date": "2026-06-04",
+      "message": "permiso granular 'mantenimiento' para control por WhatsApp",
+      "rawMessage": "feat: permiso granular 'mantenimiento' para control por WhatsApp",
+      "type": "feat",
+      "area": "General"
+    },
+    {
+      "hash": "774d165",
+      "date": "2026-06-04",
+      "message": "favicon del sitio en pantallas 404/500/mantenimiento",
+      "rawMessage": "style: favicon del sitio en pantallas 404/500/mantenimiento",
+      "type": "style",
+      "area": "General"
+    },
+    {
+      "hash": "6c0b2c3",
+      "date": "2026-06-04",
+      "message": "boton \"Ir al inicio\" en pantallas de mantenimiento y error 500",
+      "rawMessage": "style: boton \"Ir al inicio\" en pantallas de mantenimiento y error 500",
+      "type": "style",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "0c42661",
+      "date": "2026-06-04",
+      "message": "pantalla mantenimiento/error — codigo gigante de fondo + contenido centrado",
+      "rawMessage": "style: pantalla mantenimiento/error — codigo gigante de fondo + contenido centrado",
+      "type": "style",
+      "area": "General"
+    },
+    {
+      "hash": "35b420b",
+      "date": "2026-06-04",
+      "message": "video bolsas a Cloudinary + badge Distribuidores visible en tab activa",
+      "rawMessage": "fix: video bolsas a Cloudinary + badge Distribuidores visible en tab activa",
+      "type": "fix",
+      "area": "Productos"
+    },
+    {
+      "hash": "e99d4a3",
+      "date": "2026-06-04",
+      "message": "centro unico de alertas (sin duplicados) + UI Reportes + bot movil",
+      "rawMessage": "feat: centro unico de alertas (sin duplicados) + UI Reportes + bot movil",
+      "type": "feat",
+      "area": "Performance"
+    },
+    {
+      "hash": "89d8dd4",
+      "date": "2026-06-04",
+      "message": "mantenimiento no se activaba — paginas estaticas no pasan por middleware",
+      "rawMessage": "fix: mantenimiento no se activaba — paginas estaticas no pasan por middleware",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "a38fa70",
+      "date": "2026-06-04",
+      "message": "deploy Vercel — health-crawl diario (Hobby no permite crons cada 6h)",
+      "rawMessage": "fix: deploy Vercel — health-crawl diario (Hobby no permite crons cada 6h)",
+      "type": "fix",
+      "area": "General"
+    },
+    {
       "hash": "050ea04",
       "date": "2026-06-04",
       "message": "monitoreo del sitio, pantalla 502/mantenimiento, alertas login y Cloudinary",
@@ -1810,68 +2010,74 @@
     }
   ],
   "stats": {
-    "total": 226,
+    "total": 251,
     "byType": {
-      "feat": 40,
-      "fix": 58,
+      "fix": 71,
+      "feat": 44,
+      "style": 9,
       "update": 11,
-      "style": 1,
       "perf": 3,
       "docs": 1,
       "chore": 2,
       "release": 110
     },
     "byArea": {
+      "Admin/API": 23,
+      "General": 182,
+      "Performance": 6,
+      "UI": 2,
+      "Productos": 16,
       "Media": 19,
-      "General": 166,
-      "Admin/API": 19,
-      "Performance": 4,
-      "i18n": 3,
-      "Productos": 15
+      "i18n": 3
     },
     "byMonth": {
-      "2026-06": 68,
+      "2026-06": 93,
       "2026-05": 33,
       "2026-04": 29,
       "2026-03": 96
     },
     "byAreaType": {
+      "Admin/API": {
+        "fix": 11,
+        "style": 2,
+        "feat": 7,
+        "update": 2,
+        "docs": 1
+      },
+      "General": {
+        "fix": 39,
+        "feat": 21,
+        "style": 5,
+        "update": 6,
+        "chore": 1,
+        "release": 110
+      },
+      "Performance": {
+        "fix": 1,
+        "feat": 4,
+        "perf": 1
+      },
+      "UI": {
+        "style": 2
+      },
+      "Productos": {
+        "fix": 4,
+        "feat": 8,
+        "chore": 1,
+        "perf": 1,
+        "update": 2
+      },
       "Media": {
         "feat": 3,
         "fix": 14,
         "perf": 1,
         "update": 1
       },
-      "General": {
-        "fix": 30,
-        "feat": 18,
-        "style": 1,
-        "update": 6,
-        "chore": 1,
-        "release": 110
-      },
-      "Admin/API": {
-        "feat": 7,
-        "update": 2,
-        "fix": 9,
-        "docs": 1
-      },
-      "Performance": {
-        "feat": 3,
-        "perf": 1
-      },
       "i18n": {
         "feat": 1,
         "fix": 2
-      },
-      "Productos": {
-        "feat": 8,
-        "fix": 3,
-        "chore": 1,
-        "perf": 1,
-        "update": 2
       }
     }
   },
-  "generatedAt": "2026-06-04T20:05:05.306Z"
+  "generatedAt": "2026-06-05T15:16:09.416Z"
 }
