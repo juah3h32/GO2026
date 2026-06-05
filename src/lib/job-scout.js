@@ -130,10 +130,30 @@ async function verificarLinks(texto) {
 
 // enfoque: 'candidatos' (default) | 'sueldo' | 'requisitos' | 'publicar'
 // Devuelve { ok, text } o { ok:false, error }.
+// Fallback SIN IA: arma los links de busqueda en las bolsas (lo esencial del
+// scout) cuando Claude no esta disponible (sin creditos). Siempre funciona.
+function scoutFallback(puesto, ubicacion) {
+  const q = encodeURIComponent(String(puesto).trim());
+  const l = encodeURIComponent(String(ubicacion).trim());
+  return {
+    ok: true,
+    text: `*SCOUT RH — ${puesto} · ${ubicacion}*
+
+*Donde ver CVs y contactar* (entra con tu cuenta de empresa):
+- Indeed (CVs gratis): https://resumes.indeed.com/search?q=${q}&l=${l}
+- OCC (15 contactos gratis al publicar): https://www.occ.com.mx/empresas/
+- Computrabajo (CVs en tu panel): https://mx.computrabajo.com/empleos/?q=${q}
+- LinkedIn (busca en Personas): https://www.linkedin.com/search/results/people/?keywords=${q}
+
+_Busqueda directa lista. (El analisis con IA esta temporalmente sin servicio.)_`,
+  };
+}
+
 export async function scoutVacante(puesto, { ubicacion = 'Morelia, Michoacán', enfoque = 'candidatos' } = {}) {
   const anthropic = client();
-  if (!anthropic) return { ok: false, error: 'ANTHROPIC_API_KEY no configurada' };
   if (!puesto || !String(puesto).trim()) return { ok: false, error: 'Puesto requerido' };
+  // Sin Claude configurado → fallback de links directos.
+  if (!anthropic) return scoutFallback(puesto, ubicacion);
 
   const enf = ['candidatos', 'sueldo', 'requisitos', 'publicar', 'vacante'].includes(enfoque) ? enfoque : 'candidatos';
 
@@ -162,8 +182,9 @@ export async function scoutVacante(puesto, { ubicacion = 'Morelia, Michoacán', 
     const { texto } = await verificarLinks(text);
     return { ok: true, text: texto };
   } catch (e) {
+    // Sin creditos / rate limit / error → fallback de links directos (no falla feo).
     const status = e instanceof Anthropic.APIError ? e.status : '';
-    console.error('[job-scout]', status, e.message);
-    return { ok: false, error: `Claude ${status || ''}: ${e.message}`.trim() };
+    console.error('[job-scout] Claude fallo, usando fallback de links:', status, e.message);
+    return scoutFallback(puesto, ubicacion);
   }
 }

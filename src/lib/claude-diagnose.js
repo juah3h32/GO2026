@@ -51,57 +51,83 @@ function client() {
   return _client;
 }
 
+// ── Fallback OpenAI: cuando Claude falla (sin creditos, rate limit, etc.) ──────
+// Genera el mismo texto con GPT. Devuelve { ok, text } o { ok:false, error }.
+async function diagnoseConOpenAI(systemPrompt, userContent, maxTokens = 400) {
+  const apiKey = process.env.OPENAI_API_KEY || import.meta.env?.OPENAI_API_KEY;
+  if (!apiKey) return { ok: false, error: 'OPENAI_API_KEY no configurada' };
+  try {
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        max_tokens: maxTokens,
+        temperature: 0.2,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: String(userContent).slice(0, 6000) },
+        ],
+      }),
+    });
+    if (!res.ok) { const b = await res.text().catch(() => ''); return { ok: false, error: `OpenAI ${res.status}: ${b.slice(0, 120)}` }; }
+    const data = await res.json();
+    const text = (data.choices?.[0]?.message?.content || '').trim();
+    return text ? { ok: true, text } : { ok: false, error: 'OpenAI sin respuesta' };
+  } catch (e) { return { ok: false, error: `OpenAI: ${e.message}` }; }
+}
+
 // Diagnóstico genérico con un ROL específico (para agentes por área).
 // systemPrompt define la especialidad; userContent son los datos a analizar.
 export async function diagnoseWithRole(systemPrompt, userContent, maxTokens = 280) {
   const anthropic = client();
-  if (!anthropic) return { ok: false, error: 'ANTHROPIC_API_KEY no configurada' };
-  try {
-    const response = await anthropic.messages.create({
-      model: MODEL,
-      max_tokens: maxTokens,
-      thinking: { type: 'disabled' },
-      system: [{ type: 'text', text: systemPrompt, cache_control: { type: 'ephemeral' } }],
-      messages: [{ role: 'user', content: String(userContent).slice(0, 6000) }],
-    });
-    const text = response.content.filter(b => b.type === 'text').map(b => b.text).join('').trim();
-    return { ok: true, text };
-  } catch (e) {
-    const status = e instanceof Anthropic.APIError ? e.status : '';
-    console.error('[claude-diagnose role]', status, e.message);
-    return { ok: false, error: `Claude ${status || ''}: ${e.message}`.trim() };
+  if (anthropic) {
+    try {
+      const response = await anthropic.messages.create({
+        model: MODEL,
+        max_tokens: maxTokens,
+        thinking: { type: 'disabled' },
+        system: [{ type: 'text', text: systemPrompt, cache_control: { type: 'ephemeral' } }],
+        messages: [{ role: 'user', content: String(userContent).slice(0, 6000) }],
+      });
+      const text = response.content.filter(b => b.type === 'text').map(b => b.text).join('').trim();
+      if (text) return { ok: true, text };
+    } catch (e) {
+      const status = e instanceof Anthropic.APIError ? e.status : '';
+      console.error('[claude-diagnose role] Claude fallo, usando OpenAI:', status, e.message);
+    }
   }
+  // Fallback a OpenAI si Claude no esta disponible o fallo.
+  return await diagnoseConOpenAI(systemPrompt, userContent, maxTokens);
 }
 
 // Devuelve { ok, text } o { ok:false, error } si no hay key o falla.
 export async function diagnoseSystem({ stats, logs } = {}) {
   const anthropic = client();
-  if (!anthropic) return { ok: false, error: 'ANTHROPIC_API_KEY no configurada' };
-
-  try {
-    const response = await anthropic.messages.create({
-      model: MODEL,
-      max_tokens: 400,
-      thinking: { type: 'disabled' }, // diagnóstico rápido y conciso
-      system: [
-        { type: 'text', text: SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } },
-      ],
-      messages: [
-        { role: 'user', content: buildUserContent(stats, logs) },
-      ],
-    });
-
-    const text = response.content
-      .filter(b => b.type === 'text')
-      .map(b => b.text)
-      .join('')
-      .trim();
-
-    return { ok: true, text: text || '*Todo en orden*. Sin datos relevantes.' };
-  } catch (e) {
-    // 401/permiso/clave inválida, rate limit, etc. — degradar con elegancia.
-    const status = e instanceof Anthropic.APIError ? e.status : '';
-    console.error('[claude-diagnose]', status, e.message);
-    return { ok: false, error: `Claude ${status || ''}: ${e.message}`.trim() };
+  const userContent = buildUserContent(stats, logs);
+  if (anthropic) {
+    try {
+      const response = await anthropic.messages.create({
+        model: MODEL,
+        max_tokens: 400,
+        thinking: { type: 'disabled' }, // diagnóstico rápido y conciso
+        system: [
+          { type: 'text', text: SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } },
+        ],
+        messages: [
+          { role: 'user', content: userContent },
+        ],
+      });
+      const text = response.content.filter(b => b.type === 'text').map(b => b.text).join('').trim();
+      if (text) return { ok: true, text };
+    } catch (e) {
+      // Sin creditos / rate limit / clave invalida → caer a OpenAI.
+      const status = e instanceof Anthropic.APIError ? e.status : '';
+      console.error('[claude-diagnose] Claude fallo, usando OpenAI:', status, e.message);
+    }
   }
+  // Fallback a OpenAI.
+  const r = await diagnoseConOpenAI(SYSTEM_PROMPT, userContent, 400);
+  if (r.ok) return r;
+  return { ok: true, text: '*Todo en orden*. Sin datos relevantes.' };
 }
