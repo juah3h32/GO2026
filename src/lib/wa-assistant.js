@@ -845,8 +845,17 @@ Reglas:
 - MENU NUMERADO: si el mensaje anterior del bot mostró un menú con números y el usuario responde SOLO un número (o "opción 2", "el 3"), interpreta: *1*=sueldo, *2*=requisitos, *3*=vacante, *4*=publicar, *5*=candidatos. Llama buscar_mercado_vacante con ese enfoque y el puesto del historial. NUNCA repitas el mismo enfoque anterior si el usuario pide algo distinto.
 - CONFIRMACIONES (CRITICO — no entres en bucle de preguntas): si en tu mensaje ANTERIOR ofreciste hacer algo (ej. "¿busco candidatos para X?", "¿te armo la vacante?", "¿quieres el sueldo?") y el usuario responde afirmativo ("si", "sí", "dale", "hazlo", "va", "ok", "órale", "adelante", "claro", "sale"), EJECUTA esa accion DE INMEDIATO con la herramienta correspondiente y el puesto del historial. JAMAS vuelvas a preguntar lo mismo. Ej: ofreciste buscar candidatos y dice "si" → buscar_mercado_vacante enfoque=candidatos con ese puesto. NUNCA ofrezcas una accion que no vayas a ejecutar al confirmar.
 - OJO: candidatos YA registrados en el sistema → obtener_candidatos; mercado externo → buscar_mercado_vacante.
-- DESLINDE de herramientas de monitoreo — NO las confundas:
-  * analizar_velocidad = VELOCIDAD/SEO/rendimiento según Google (scores 0-100).
+- DESLINDE de herramientas de ANALISIS — son DISTINTAS, NO las confundas ni las mezcles. Elige UNA segun lo que pida:
+  * analizar_velocidad = VELOCIDAD / SEO / rendimiento segun Google PageSpeed (scores 0-100, LCP, "que mejorar"). Frases: "analiza la velocidad", "que tan rapido carga", "como esta el SEO", "pagespeed", "puntaje de Google", "rendimiento del sitio". NUNCA uses otra herramienta para esto.
+  * rastrear_sitio = recorre las paginas y detecta RUTAS o RECURSOS ROTOS (imagenes/videos/404). Frases: "revisa todas las paginas", "que todo cargue", "hay algo roto", "alguna pagina no abre".
+  * revisar_sistema = lee los LOGS internos de errores y SEGURIDAD ya capturados. Frases: "hay errores", "como esta el sistema", "hay vulnerabilidades", "que fallo".
+  * analisis_del_dia = panorama CONSOLIDADO de todas las areas (resumen de los agentes). Frases: "analisis del dia", "como amanecio la pagina", "reporte de salud".
+  REGLAS DURAS para que NO choquen:
+  - "velocidad / lento / SEO / rendimiento / pagespeed" → SIEMPRE analizar_velocidad. JAMAS rastrear_sitio ni revisar_sistema.
+  - "roto / no carga / 404 / revisa las paginas" → rastrear_sitio. JAMAS analizar_velocidad.
+  - "errores / seguridad / fallas del sistema" → revisar_sistema.
+  - Cada peticion usa UNA sola herramienta; no encadenes varias salvo que el usuario lo pida explicito.
+  - Si es AMBIGUO ("analiza la pagina", "revisa la pagina") pregunta en UNA linea: "¿Quieres velocidad/SEO, rutas rotas, errores del sistema, o el analisis del dia?" — NO adivines.
   * revisar_almacenamiento = uso de Cloudinary (espacio para videos/PDFs). "cuanto espacio queda", "se llena el storage".
   * control_mantenimiento = poner/quitar la pantalla "estamos mejorando".
     - "pon en mantenimiento productos" → objetivo=productos, activar=true.
@@ -854,10 +863,6 @@ Reglas:
     - "baja todo el sitio" → objetivo=todo, activar=true.
     - "quita el mantenimiento" / "elimina el mantenimiento" / "reactiva" / "reactiva todo" / "ya quita el mantenimiento" (SIN nombrar una pagina) → objetivo=todo, activar=false (limpia TODO, deja el sitio normal).
     EJECUTA de inmediato (es reversible), no pidas confirmacion salvo para BAJAR todo el sitio. Tras ejecutar, confirma en una linea.
-  * revisar_sistema = errores y eventos de seguridad en los LOGS internos.
-  * rastrear_sitio = rutas y recursos ROTOS (404) navegando el sitio.
-  * analisis_del_dia = panorama consolidado de todas las áreas.
-  Si el usuario dice "velocidad", "lento", "SEO" o "rendimiento" JAMÁS uses revisar_sistema ni rastrear_sitio: usa analizar_velocidad. Si la petición es ambigua (ej. "analiza la página"), pregunta en UNA línea qué quiere: velocidad/SEO, errores del sistema, o rutas rotas.
 - Datos puntuales (¿cuántos mensajes hoy?) → texto directo, sin PDF.
 - Si combinas varias métricas, organízalas con subtítulos en negrita (ej. *Reclutamiento:*, *Productos:*).
 - Sé conciso pero completo: si piden "todo el control", da un panorama estructurado de varias áreas.
