@@ -31,27 +31,47 @@ export async function getCloudinaryUsage() {
     return { ok: false, error: e.message };
   }
 
-  // Cloudinary devuelve, segun el plan: credits.used_percent (planes con creditos)
-  // o recursos sueltos storage/bandwidth/transformations con usage+limit.
-  const pcts = [];
-  const detalle = [];
-  const pushRes = (label, usage, limit, usedPct) => {
-    let p = null;
-    if (typeof usedPct === 'number') p = usedPct;
-    else if (typeof usage === 'number' && typeof limit === 'number' && limit > 0) p = (usage / limit) * 100;
-    if (p != null) { pcts.push(p); detalle.push(`${label}: ${p.toFixed(0)}%`); }
+  // Cloudinary devuelve, segun el plan: credits.used_percent (planes con creditos,
+  // incluido Free y PAYG) o recursos sueltos storage/bandwidth/transformations.
+  const gb = (bytes) => (Number(bytes) / 1e9).toFixed(bytes >= 1e10 ? 0 : 1) + ' GB';
+  const pctDe = (m) => {
+    if (!m) return null;
+    if (typeof m.used_percent === 'number') return m.used_percent;
+    if (typeof m.usage === 'number' && typeof m.limit === 'number' && m.limit > 0) return (m.usage / m.limit) * 100;
+    return null;
   };
 
-  if (data.credits) pushRes('creditos', data.credits.usage, data.credits.limit, data.credits.used_percent);
-  if (data.storage) pushRes('almacenamiento', data.storage.usage, data.storage.limit, data.storage.used_percent);
-  if (data.bandwidth) pushRes('ancho de banda', data.bandwidth.usage, data.bandwidth.limit, data.bandwidth.used_percent);
-  if (data.transformations) pushRes('transformaciones', data.transformations.usage, data.transformations.limit, data.transformations.used_percent);
+  const pCreditos = pctDe(data.credits);
 
-  if (!pcts.length) {
-    // Plan sin used_percent ni limits expuestos: no se puede calcular %.
-    return { ok: true, usedPercent: null, detalle: 'Cloudinary no expone limite en este plan; uso no medible por %.', plan: data.plan || '' };
+  // Desglose informativo SIEMPRE (aunque no haya % por falta de limite): muestra el
+  // consumo real en unidades para saber QUE gasta los creditos (ancho de banda, etc.).
+  const detalle = [];
+  if (data.credits && typeof data.credits.usage === 'number') {
+    const lim = data.credits.limit ? `/${data.credits.limit}` : '';
+    detalle.push(`creditos ${data.credits.usage.toFixed(1)}${lim}${pCreditos != null ? ` (${pCreditos.toFixed(0)}%)` : ''}`);
+  }
+  if (data.storage?.usage)         detalle.push(`almacenamiento ${gb(data.storage.usage)}`);
+  if (data.bandwidth?.usage)       detalle.push(`ancho de banda ${gb(data.bandwidth.usage)}/mes`);
+  if (data.transformations?.usage) detalle.push(`transformaciones ${data.transformations.usage}/mes`);
+
+  // PAYG = pago por uso: pasar el 100% NO tira el sitio, solo cobra excedente.
+  // Free / planes con limite duro: al agotarse, se deja de servir contenido.
+  const plan = data.plan || '';
+  const isPayg = /payg|pay.?as.?you.?go/i.test(plan);
+
+  // NUMERO REAL DE LA CUENTA = creditos (lo que muestra el dashboard y lo que
+  // determina overage/bloqueo). NO mezclar sub-metricas: tomar el max inflaba el
+  // total con picos de banda mensual y daba falsas alarmas.
+  let usedPercent;
+  if (pCreditos != null) {
+    usedPercent = Math.round(pCreditos);
+  } else {
+    const otros = [pctDe(data.storage), pctDe(data.bandwidth), pctDe(data.transformations)].filter(p => typeof p === 'number');
+    if (!otros.length) {
+      return { ok: true, usedPercent: null, detalle: detalle.join(' | ') || 'Cloudinary no expone limite en este plan; uso no medible por %.', plan, isPayg };
+    }
+    usedPercent = Math.round(Math.max(...otros));
   }
 
-  const usedPercent = Math.round(Math.max(...pcts));
-  return { ok: true, usedPercent, detalle: detalle.join(' | '), plan: data.plan || '' };
+  return { ok: true, usedPercent, detalle: detalle.join(' | '), plan, isPayg };
 }

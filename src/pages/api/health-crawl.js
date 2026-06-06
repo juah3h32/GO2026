@@ -73,6 +73,26 @@ async function checkResource(url) {
   } catch { return 0; } // 0 = no respondió / timeout
 }
 
+// Verifica que una PAGINA cargue. REINTENTA para descartar timeouts transitorios
+// (cold start, lentitud de red del worker) que causaban falsas "paginas caidas".
+// 2xx y 3xx = la pagina responde (OK). Solo 4xx/5xx es falla real.
+// 4xx no se reintenta (no cambia); 5xx y timeout si (pueden ser transitorios).
+async function probePage(url, intentos = 3) {
+  let last = { ok: false, status: 0 };
+  for (let i = 0; i < intentos; i++) {
+    try {
+      const r = await fetchT(url, { redirect: 'follow' }, 15000);
+      if (r.status < 400) return { ok: true, status: r.status, res: r };
+      last = { ok: false, status: r.status, res: r };
+      if (r.status < 500) return last; // 4xx: no reintentar
+    } catch (e) {
+      last = { ok: false, status: 0, error: e.message };
+    }
+    if (i < intentos - 1) await new Promise(res => setTimeout(res, 1500 * (i + 1)));
+  }
+  return last;
+}
+
 // ── Lógica reutilizable (sin request) — llamada por el endpoint y por el panel ──
 // origin = sitio a revisar; notify = enviar alerta WhatsApp de fallas nuevas.
 export async function runHealthCrawl({ origin, notify = true } = {}) {
@@ -88,22 +108,16 @@ export async function runHealthCrawl({ origin, notify = true } = {}) {
     for (const route of ROUTES) {
       const pageUrl = `${origin}/${lang}${route ? '/' + route : ''}`;
       let html = '';
-      try {
-        const r = await fetchT(pageUrl, {}, 14000);
-        if (!r.ok) {
-          pagesBad++;
-          findings.push({ level: r.status === 404 ? 'error' : 'warn', tipo: 'pagina', url: pageUrl, status: r.status });
-          await logSystemEvent({ level: r.status === 404 ? 'error' : 'warn', category: 'crawl', source: pageUrl, message: `Página devolvió HTTP ${r.status}` }).catch(() => {});
-          continue;
-        }
-        pagesOk++;
-        html = await r.text();
-      } catch (e) {
+      const probe = await probePage(pageUrl);
+      if (!probe.ok) {
         pagesBad++;
-        findings.push({ level: 'error', tipo: 'pagina', url: pageUrl, status: 'timeout' });
-        await logSystemEvent({ level: 'error', category: 'crawl', source: pageUrl, message: `Página no respondió: ${e.message}` }).catch(() => {});
+        const st = probe.status || 'timeout';
+        findings.push({ level: st === 404 ? 'error' : 'warn', tipo: 'pagina', url: pageUrl, status: st });
+        await logSystemEvent({ level: st === 404 ? 'error' : 'warn', category: 'crawl', source: pageUrl, message: `Página falló tras reintentos: HTTP ${st}` }).catch(() => {});
         continue;
       }
+      pagesOk++;
+      try { html = await probe.res.text(); } catch { html = ''; }
 
       // Revisar recursos propios (videos, imágenes, css, links internos) — acotado para no exceder tiempo.
       const resources = extractResources(html, pageUrl, origin)
@@ -152,23 +166,48 @@ export async function runHealthCrawl({ origin, notify = true } = {}) {
     const seen = new Set(JSON.parse((await getConfig('site_broken_seen').catch(() => null)) || '[]'));
     const nuevas = activas.filter(f => !seen.has(f.url));
 
-    if (notify && activo && nuevas.length) {
+    // GUARDA ANTI-FALSA-ALARMA: si >=50% de las paginas "fallan" a la vez casi
+    // siempre es problema de RED del monitor (timeout/cold start), no del sitio.
+    // Lo confirmamos volviendo a probar la home; si abre, fue falsa alarma.
+    const totalPaginas = LANGS.length * ROUTES.length;
+    const fallaMasiva = pagesBad >= Math.max(3, Math.ceil(totalPaginas * 0.5));
+    let falsaAlarmaMasiva = false;
+    if (fallaMasiva) {
+      const home = await probePage(`${origin}/${LANGS[0]}`, 3);
+      falsaAlarmaMasiva = home.ok; // la home SI abre → el monitor se equivoco
+    }
+
+    if (notify && activo && nuevas.length && !falsaAlarmaMasiva) {
       // SOLO alerta lo que AFECTA al visitante: paginas que NO abren.
       // Recursos sueltos (imagen/video/css/js) solo se registran en el panel
       // (Monitoreo del Sitio) — sin WhatsApp, para no saturar de notificaciones.
       const paginasNuevasCaidas = [...new Set(nuevas.filter(f => f.tipo === 'pagina').map(f => slugDe(f.url)).filter(Boolean))];
       if (paginasNuevasCaidas.length) {
-        const lineas = ['*PAGINAS CAIDAS — grupo-ortiz.com*', '', 'Estas paginas NO abren:'];
-        for (const p of paginasNuevasCaidas) lineas.push(`- ${p === 'home' ? 'Inicio' : p}`);
-        lineas.push('', `Para protegerlas responde: *pon en mantenimiento ${paginasNuevasCaidas[0]}*`);
-        // dedup por conjunto de paginas caidas (no re-avisa las mismas en 6 h)
-        alertSent = await alertaUrgente(`crawl-pages:${paginasNuevasCaidas.sort().join(',')}`, lineas.join('\n'), { ventanaMin: 360 });
-        await logSystemEvent({ level: 'critical', category: 'crawl', source: 'health-crawl', message: `${paginasNuevasCaidas.length} pagina(s) caida(s): ${paginasNuevasCaidas.join(', ')}` }).catch(() => {});
+        if (fallaMasiva) {
+          // Caida REAL del sitio completo (home tampoco abrio) → UNA alerta clara,
+          // no una lista de 17 paginas.
+          const txt = ['*SITIO CAIDO — grupo-ortiz.com*', '', `El sitio no responde (${pagesBad}/${totalPaginas} paginas fallaron).`, 'La pagina de inicio tampoco abre.', '', 'Revisa el deploy / hosting de inmediato.'].join('\n');
+          alertSent = await alertaUrgente('crawl-site-down', txt, { ventanaMin: 60 });
+          await logSystemEvent({ level: 'critical', category: 'crawl', source: 'health-crawl', message: `SITIO CAIDO confirmado: ${pagesBad}/${totalPaginas} paginas` }).catch(() => {});
+        } else {
+          // Caida parcial (1-2 paginas): alerta normal por pagina.
+          const lineas = ['*PAGINAS CAIDAS — grupo-ortiz.com*', '', 'Estas paginas NO abren:'];
+          for (const p of paginasNuevasCaidas) lineas.push(`- ${p === 'home' ? 'Inicio' : p}`);
+          lineas.push('', `Para protegerlas responde: *pon en mantenimiento ${paginasNuevasCaidas[0]}*`);
+          // dedup por conjunto de paginas caidas (no re-avisa las mismas en 6 h)
+          alertSent = await alertaUrgente(`crawl-pages:${paginasNuevasCaidas.sort().join(',')}`, lineas.join('\n'), { ventanaMin: 360 });
+          await logSystemEvent({ level: 'critical', category: 'crawl', source: 'health-crawl', message: `${paginasNuevasCaidas.length} pagina(s) caida(s): ${paginasNuevasCaidas.join(', ')}` }).catch(() => {});
+        }
       }
+    } else if (falsaAlarmaMasiva) {
+      // No se envia WhatsApp. Se registra para diagnostico.
+      await logSystemEvent({ level: 'warn', category: 'crawl', source: 'health-crawl', message: `Falsa alarma descartada: la home responde, probable timeout de red del monitor (${pagesBad}/${totalPaginas} fallaron)` }).catch(() => {});
     }
 
     // Guardar el set de lo roto AHORA (solo tipos monitoreables) → si algo se reparó, sale del set.
-    const rotasAhora = activas.map(f => f.url);
+    // En falsa alarma masiva NO persistimos las paginas (son bogus) para no
+    // contaminar el estado ni silenciar una caida real posterior.
+    const rotasAhora = (falsaAlarmaMasiva ? activas.filter(f => f.tipo !== 'pagina') : activas).map(f => f.url);
     await setConfig('site_broken_seen', JSON.stringify([...new Set(rotasAhora)].slice(0, 200))).catch(() => {});
   } catch (e) { console.error('[health-crawl] alerta:', e.message); }
 

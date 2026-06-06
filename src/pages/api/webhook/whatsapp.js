@@ -33,7 +33,7 @@ function freshTimestamp(ts) {
 import { existsSync, readFileSync } from 'node:fs';
 import { join }       from 'node:path';
 import { claimWAIncoming, resetWAReply, updateWAIncomingReply, getWAAuthorizedByPhone, getWagoConfig, logSystemEvent } from '../../../lib/analytics-db.js';
-import { sendWAText, sendWADocument, generateReportPDF, uploadPDFToCloudinary, sendTyping, transcribeAudio } from '../../../lib/notify.js';
+import { sendWAText, sendWAPDF, generateReportPDF, sendTyping, transcribeAudio } from '../../../lib/notify.js';
 import { ejecutarComando } from '../../../lib/wa-commands.js';
 import { ejecutarAsistente } from '../../../lib/wa-assistant.js';
 
@@ -256,30 +256,22 @@ export async function handleIncomingMessage(msg, origin) {
   }
 
   // ── Reporte ejecutivo COMPLETO (mismo PDF del panel) ────────────────────────
-  // Se genera vía /api/reports/send-now (mismo HTML del dashboard, render Chromium),
-  // se sube a Cloudinary y se ENVÍA EL PDF COMO ARCHIVO (no link). Por periodo pedido.
+  // Se genera vía /api/reports/send-now (mismo HTML del dashboard, render Chromium)
+  // y se ENVÍA EL PDF COMO ARCHIVO directo por WhatsApp (base64). SIN Cloudinary.
   if (replyReportRequest && authorized) {
     try {
       const secret   = process.env.CRON_SECRET_EXTERNAL || import.meta.env?.CRON_SECRET_EXTERNAL || '';
 
+      // send-now genera el PDF y lo manda como documento (base64) a este número.
       const r = await fetch(`${origin}/api/reports/send-now`, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json', 'x-cron-secret': secret },
-        body:    JSON.stringify({ ...replyReportRequest, deliver: 'cloudinary', phones: [] }),
+        body:    JSON.stringify({ ...replyReportRequest, phones: [msg.phone || msg.chatId] }),
       });
       const d = await r.json();
-      if (d.ok && d.url) {
-        // SIEMPRE enviar el PDF como ARCHIVO adjunto (idéntico al export del dashboard).
-        // NUNCA mandar el link. Reintenta hasta 3 veces si el envío de documento falla.
-        const fname = d.filename || `Reporte_${replyReportRequest.report_type || ''}.pdf`;
-        let docOk = false;
-        for (let i = 0; i < 3 && !docOk; i++) {
-          try { await sendWADocument(msg.phone || msg.chatId, d.url, fname); docOk = true; }
-          catch (docErr) { console.error(`[webhook/wa] send-document intento ${i + 1}:`, docErr.message); }
-        }
-        if (!docOk) await sendWAText(msg.phone || msg.chatId, 'No pude enviar el PDF en este momento. Pídemelo de nuevo, por favor.');
-      } else {
-        throw new Error(d.error || 'send-now sin url');
+      const enviado = d.ok && Array.isArray(d.results) && d.results.some(x => x.ok);
+      if (!enviado) {
+        throw new Error(d.error || d.results?.find(x => !x.ok)?.error || 'no se pudo enviar el PDF');
       }
     } catch (e) {
       console.error('[webhook/wa] Reporte error:', e.message);
@@ -288,17 +280,16 @@ export async function handleIncomingMessage(msg, origin) {
     }
   }
 
-  // Fallback simple (comando rígido sin IA): genera PDF compacto con pdf-lib → Cloudinary.
-  // Si el PDF/upload falla → reporte como texto.
+  // Fallback simple (comando rígido sin IA): genera PDF compacto con pdf-lib y lo
+  // manda directo por WhatsApp (base64). SIN Cloudinary. Si falla → reporte como texto.
   else if (replyPdfData && authorized) {
     try {
       const logoBase64 = getLogoBase64();
       const { buffer, filename } = await generateReportPDF(replyPdfData, logoBase64);
-      const url = await uploadPDFToCloudinary(buffer, filename);
       let docOk = false;
       for (let i = 0; i < 3 && !docOk; i++) {
-        try { await sendWADocument(msg.phone || msg.chatId, url, filename, `*${replyPdfData.titulo || 'Reporte'}*`); docOk = true; }
-        catch (e) { console.error(`[webhook/wa] send-document(pdfData) intento ${i + 1}:`, e.message); }
+        try { await sendWAPDF(msg.phone || msg.chatId, buffer, filename); docOk = true; }
+        catch (e) { console.error(`[webhook/wa] sendWAPDF(pdfData) intento ${i + 1}:`, e.message); }
       }
       if (!docOk) await sendWAText(msg.phone || msg.chatId, 'No pude enviar el PDF. Pídemelo de nuevo, por favor.');
     } catch (e) {

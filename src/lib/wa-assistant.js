@@ -832,8 +832,12 @@ async function ejecutarTool(name, args, ctx) {
       uso_porcentaje: u.usedPercent,
       queda_porcentaje: 100 - u.usedPercent,
       detalle: u.detalle,
+      plan: u.plan,
+      pago_por_uso: !!u.isPayg,
       estado: u.usedPercent >= 90 ? 'CRITICO' : u.usedPercent >= 75 ? 'ATENCION' : 'OK',
-      instruccion: 'Di el % usado y el estado en pocas palabras. Si es ATENCION/CRITICO, sugiere liberar espacio en console.cloudinary.com.',
+      instruccion: u.isPayg
+        ? 'Di el % de creditos usados y el desglose en pocas palabras. Es plan de pago por uso: aclara que pasar el limite NO tira el sitio, solo se cobra el excedente. No digas que se libere espacio.'
+        : 'Di el % usado y el estado en pocas palabras. Si es ATENCION/CRITICO, sugiere liberar espacio en console.cloudinary.com.',
     };
   }
 

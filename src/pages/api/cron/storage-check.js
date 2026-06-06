@@ -36,10 +36,16 @@ export async function runStorageCheck({ notify = true } = {}) {
     // Cruzó hacia arriba un umbral nuevo. 90% = URGENTE (instantaneo);
     // 75% = al RESUMEN diario (no interrumpe).
     if (bucket >= 90) {
-      const n = await alertaUrgente('cloudinary:90', `*ALMACENAMIENTO CLOUDINARY CRITICO*\nUso al *${pct}%* (${usage.detalle}).\nRiesgo de que se caigan videos y PDFs.\nLibera espacio: console.cloudinary.com`, { ventanaMin: 720 });
+      // PAYG: pasar el limite NO tira el sitio, solo cobra el excedente. Free/limite
+      // duro: al agotarse se dejan de servir videos/PDFs. Mensaje segun el caso.
+      const cuerpo = usage.isPayg
+        ? `*CLOUDINARY — CREDITOS AL ${pct}%*\n${usage.detalle}.\nVas a superar los creditos incluidos del plan ${usage.plan}; el excedente se cobra (el sitio NO se cae).\nRevisa consumo: console.cloudinary.com`
+        : `*ALMACENAMIENTO CLOUDINARY CRITICO*\nUso al *${pct}%* (${usage.detalle}).\nRiesgo de que se caigan videos y PDFs.\nLibera espacio: console.cloudinary.com`;
+      const n = await alertaUrgente('cloudinary:90', cuerpo, { ventanaMin: 720 });
       alerted = n > 0;
     } else {
-      await acumularResumen({ tipo: 'storage', detalle: `Cloudinary al ${pct}% (${usage.detalle}) — conviene liberar espacio` });
+      const nota = usage.isPayg ? 'cerca del limite incluido; el excedente se cobra' : 'conviene liberar espacio';
+      await acumularResumen({ tipo: 'storage', detalle: `Cloudinary al ${pct}% (${usage.detalle}) — ${nota}` });
       alerted = true;
     }
     await logSystemEvent({ level: bucket >= 90 ? 'critical' : 'warn', category: 'storage', source: 'storage-check', message: `Cloudinary al ${pct}% (umbral ${bucket})` }).catch(() => {});

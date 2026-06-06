@@ -6,7 +6,6 @@ import { readAllData, readLeads, readRecruitmentLeads }      from '../../../lib/
 import { verifyAdminToken }                                  from '../../../lib/verifyAdminToken.ts';
 import { checkRateLimit, getClientIp }                       from '../../../lib/rateLimit.ts';
 
-import { uploadPDFToCloudinary }                             from '../../../lib/notify.js';
 import { existsSync, readFileSync }                          from 'fs';
 import { join }                                              from 'path';
 
@@ -237,10 +236,11 @@ async function sendPDFViaWAGO(phone, pdfBuffer, filename) {
 
   console.log(`[send-now] enviando a chatId=${chatId}`);
 
-  // Intenta enviar como documento
+  // Envía el PDF como documento (base64, directo) — SIN Cloudinary.
+  // 30s: el PDF del dashboard en base64 es pesado y puede tardar en subir.
   try {
     const ctrl = new AbortController();
-    const t = setTimeout(() => ctrl.abort(), 10_000);
+    const t = setTimeout(() => ctrl.abort(), 30_000);
     const res = await fetch(`${url}/api/connections/${connectionId}/send-document`, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json', 'User-Agent': BROWSER_UA, 'Authorization': `Bearer ${token}` },
@@ -250,14 +250,13 @@ async function sendPDFViaWAGO(phone, pdfBuffer, filename) {
     clearTimeout(t);
     if (res.ok) return { ok: true };
     const errBody = await res.text().catch(() => '');
-    console.warn(`[send-now] send-document falló (${res.status}): ${errBody.slice(0, 200)} — fallback texto`);
+    console.warn(`[send-now] send-document falló (${res.status}): ${errBody.slice(0, 200)}`);
+    return { ok: false, error: `send-document HTTP ${res.status}` };
   } catch (err) {
-    const msg = err.name === 'AbortError' ? 'timeout 10s' : err.message;
-    console.warn(`[send-now] send-document error: ${msg} — fallback texto`);
+    const msg = err.name === 'AbortError' ? 'timeout 30s' : err.message;
+    console.warn(`[send-now] send-document error: ${msg}`);
+    return { ok: false, error: `send-document: ${msg}` };
   }
-
-  // NOWEB free no soporta send-document — requiere WAHA Plus o engine WEBJS
-  return { ok: false, error: 'send-document requiere WAHA Plus o engine WEBJS' };
 }
 
 // ── Nombre del archivo PDF ────────────────────────────────────────────────────
@@ -360,7 +359,6 @@ export async function POST({ request }) {
       period_from  = null,
       period_to    = null,
       phones       = [],
-      deliver      = 'wago',   // 'wago' (send-document) | 'cloudinary' (sube y devuelve link)
     } = body;
 
     const periodMeta = getPeriodMeta(period, period_from, period_to);
@@ -494,25 +492,7 @@ INSTRUCCIONES:
       }
     }
 
-    // 3.5. Entrega por link de Cloudinary (evita send-document de pago).
-    // Sube el PDF y devuelve el link — el caller (ej. webhook WhatsApp) manda el texto.
-    if (deliver === 'cloudinary') {
-      if (!pdfBuffer) {
-        return new Response(JSON.stringify({ ok: false, error: pdfErrMsg || 'PDF no disponible (sin Chrome en este entorno)' }), {
-          status: 500, headers: { 'Content-Type': 'application/json' },
-        });
-      }
-      try {
-        const url = await uploadPDFToCloudinary(pdfBuffer, filename);
-        return new Response(JSON.stringify({ ok: true, url, filename }), { headers: { 'Content-Type': 'application/json' } });
-      } catch (e) {
-        return new Response(JSON.stringify({ ok: false, error: 'Cloudinary: ' + e.message }), {
-          status: 500, headers: { 'Content-Type': 'application/json' },
-        });
-      }
-    }
-
-    // 4. Enviar a cada número
+    // 4. Enviar a cada número — SIEMPRE PDF directo por WhatsApp (base64). SIN Cloudinary.
     const results = [];
     for (const entry of phones) {
       const phone = typeof entry === 'string' ? entry : entry?.phone;
