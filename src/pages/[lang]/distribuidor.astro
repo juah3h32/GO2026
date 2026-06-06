@@ -519,9 +519,23 @@ const errorMsg = currentLang === 'en' ? 'Could not send. Please try again.'
   }
 
   // ─────────────────────────────────────────────────────────────
-  // ARRANQUE — compatible con carga normal + SPA (View Transitions)
+  // ARRANQUE — robusto: carga normal (DOMContentLoaded) + SPA si hubiera
+  // ViewTransitions (astro:page-load) + bfcache (pageshow).
+  // BUG previo: solo escuchaba astro:page-load, que NO dispara sin ViewTransitions
+  // → el handler del form nunca se enganchaba → submit GET nativo (recarga sin registro).
   // ─────────────────────────────────────────────────────────────
-  document.addEventListener("astro:page-load", initDistribuidor);
+  function bootDistribuidor() {
+    // GSAP en su propio try: si una animacion falla, NO debe tumbar el form.
+    try { initDistribuidor(); } catch (e) { console.warn("init distribuidor:", e); }
+    // Garantiza el handler del form pase lo que pase (idempotente: clona el form).
+    try { setupFormSubmission(); } catch (e) { console.warn("form distribuidor:", e); }
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", bootDistribuidor, { once: true });
+  } else {
+    bootDistribuidor();
+  }
+  document.addEventListener("astro:page-load", bootDistribuidor);
   </script>
 
   <Footer currentLang={currentLang} />
