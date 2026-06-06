@@ -1097,7 +1097,7 @@ gallery: [
       },
       products_list: ["Sacos", "Flexibles", "Rafia", "Esquinero", "Cuerdas", "Stretch", "Otro", "Todos"],
       btn:         "ENVIAR SOLICITUD",
-      success_msg: "Solicitud Enviada"
+      success_msg: "¡Gracias por tu registro!"
     }
   },
 

@@ -1095,7 +1095,7 @@ arpillas: {
       },
       products_list: ["Sacks", "Flexible", "Raffia", "Edge Protector", "Ropes", "Stretch", "Other", "All"],
       btn:         "SEND REQUEST",
-      success_msg: "Request Sent"
+      success_msg: "Thank you for registering!"
     }
   },
 

@@ -207,6 +207,22 @@
   .reveal-container.active .reveal-content img { transform: scale(1.1); opacity: 1; }
   .reveal-container.active .reveal-text { opacity: 1; transform: translateY(0); }
 
+  /* Spinner de carga (mientras se envia el registro) */
+  .reveal-spinner {
+    position: absolute; top: 50%; left: 50%;
+    width: 64px; height: 64px; margin: -32px 0 0 -32px;
+    border-radius: 50%;
+    border: 5px solid rgba(251, 103, 11, 0.22);
+    border-top-color: #fb670b;
+    opacity: 0; display: none;
+    animation: revealSpin 0.8s linear infinite;
+  }
+  @keyframes revealSpin { to { transform: rotate(360deg); } }
+
+  /* En estado de carga: muestra spinner, oculta la imagen de exito */
+  .reveal-container.loading .reveal-spinner { display: block; opacity: 1; }
+  .reveal-container.loading .reveal-content img { opacity: 0; transform: scale(0.8); }
+
   /* =========================================
      HERO
      ========================================= */

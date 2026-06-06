@@ -76,6 +76,18 @@ const metaDesc     = pageData.meta_description || "";
 
 const placeholderImg =
   "https://placehold.co/600x900/111/fb670b?text=App+Distribuidor&font=roboto";
+
+// Textos del overlay (carga / error) por idioma.
+const sendingMsg = currentLang === 'en' ? 'Sending...'
+  : currentLang === 'pt' ? 'Enviando...'
+  : currentLang === 'ar' ? 'جار الإرسال...'
+  : currentLang === 'zh' ? '提交中...'
+  : 'Enviando...';
+const errorMsg = currentLang === 'en' ? 'Could not send. Please try again.'
+  : currentLang === 'pt' ? 'Não foi possível enviar. Tente novamente.'
+  : currentLang === 'ar' ? 'تعذر الإرسال. حاول مرة أخرى.'
+  : currentLang === 'zh' ? '发送失败，请重试。'
+  : 'No se pudo enviar. Intenta de nuevo.';
 ---
 
 <BaseLayout title={metaTitle} description={metaDesc} canonicalSlug="distribuidor/" currentLang={currentLang}>
@@ -99,12 +111,20 @@ const placeholderImg =
   <div class="reveal-container" id="revealEffect">
     <div class="reveal-bg"></div>
     <div class="reveal-content">
+      <div class="reveal-spinner" id="revealSpinner" aria-hidden="true"></div>
       <img
+        id="revealImg"
         src="/assets/cel.png"
         alt="Éxito"
         onerror={`this.src='${placeholderImg}'`}
       />
-      <div class="reveal-text">{form.success_msg}</div>
+      <div
+        class="reveal-text"
+        id="revealText"
+        data-success={form.success_msg}
+        data-sending={sendingMsg}
+        data-error={errorMsg}
+      >{form.success_msg}</div>
     </div>
   </div>
 
@@ -453,26 +473,48 @@ const placeholderImg =
         comentarios: (newForm.querySelector('[name="comentarios"]') ? newForm.querySelector('[name="comentarios"]').value : ''),
       };
 
-      var btn = newForm.querySelector(".submit-btn");
+      var btn  = newForm.querySelector(".submit-btn");
+      var txt  = document.getElementById("revealText");
+      var d    = txt ? txt.dataset : {};
       if (btn) btn.disabled = true;
 
+      // 1) Pantalla de carga
+      if (txt) txt.textContent = d.sending || "Enviando...";
+      reveal.classList.add("active", "loading");
+
+      // 2) Enviar y VERIFICAR la respuesta (antes mostraba exito aunque fallara)
+      var ok = false, msg = "";
       try {
-        await fetch("/api/analytics", {
+        var res  = await fetch("/api/analytics", {
           method : "POST",
           headers: { "Content-Type": "application/json" },
           body   : JSON.stringify(payload),
         });
+        var data = await res.json().catch(function () { return {}; });
+        ok  = res.ok && data.ok !== false;
+        msg = data.error || "";
       } catch (err) {
         console.warn("Error guardando lead:", err);
       }
 
-      reveal.classList.add("active");
+      reveal.classList.remove("loading");
 
-      setTimeout(function () {
-        reveal.classList.remove("active");
-        newForm.reset();
-        if (btn) btn.disabled = false;
-      }, 3500);
+      if (ok) {
+        // 3a) Exito → "Gracias por tu registro"
+        if (txt) txt.textContent = d.success || "Gracias por tu registro";
+        setTimeout(function () {
+          reveal.classList.remove("active");
+          newForm.reset();
+          if (btn) btn.disabled = false;
+        }, 3000);
+      } else {
+        // 3b) Error → no resetea, deja reintentar
+        if (txt) txt.textContent = msg || d.error || "No se pudo enviar. Intenta de nuevo.";
+        setTimeout(function () {
+          reveal.classList.remove("active");
+          if (btn) btn.disabled = false;
+        }, 2800);
+      }
     });
   }
 

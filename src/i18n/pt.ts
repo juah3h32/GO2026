@@ -1096,7 +1096,7 @@ export const pt = {
       },
       products_list: ["Sacos", "Flexíveis", "Rafia", "Cantoneira", "Cordas", "Stretch", "Outro", "Todos"],
       btn:         "ENVIAR SOLICITAÇÃO",
-      success_msg: "Solicitação Enviada"
+      success_msg: "Obrigado pelo seu registro!"
     }
   },
 
