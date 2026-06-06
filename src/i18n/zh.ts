@@ -1096,7 +1096,7 @@ export const zh = {
       },
       products_list: ["编织袋", "软包装", "拉菲草", "护角", "绳索", "缠绕膜", "其他", "全部"],
       btn:         "提交申请",
-      success_msg: "感谢您的注册!"
+      success_msg: "注册成功!"
     }
   },
 

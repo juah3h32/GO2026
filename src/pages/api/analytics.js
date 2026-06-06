@@ -136,11 +136,16 @@ export async function POST({ request }) {
       if (empresa    && String(empresa).length > 120)    return json({ ok: false, error: 'Empresa muy larga' }, 400);
       if (comentarios && String(comentarios).length > 500) return json({ ok: false, error: 'Comentario muy largo' }, 400);
 
+      // 1) Guardar SIEMPRE primero (es lo que confirma el "registro exitoso").
       await saveLead({ nombre, empresa, whatsapp, email, productos, comentarios });
 
-      console.log('📲 Enviando notificación distribuidor para:', nombre);
-      await notifyNewDistribuidor({ nombre, empresa, whatsapp, productos });
-      console.log('✅ Notificación distribuidor enviada');
+      // 2) Notificar con TOPE de 4s: el registro ya quedo guardado, no debemos
+      //    colgar al usuario en "Enviando" esperando ntfy/WhatsApp (sin timeout
+      //    podian tardar mucho). Si tarda mas, responde igual y la notif sigue.
+      console.log('📲 Notificando distribuidor:', nombre);
+      const notifP = notifyNewDistribuidor({ nombre, empresa, whatsapp, productos })
+        .catch((e) => console.error('notif distribuidor:', e?.message || e));
+      await Promise.race([notifP, new Promise((r) => setTimeout(r, 4000))]);
 
       return json({ ok: true });
     }

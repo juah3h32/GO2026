@@ -237,9 +237,9 @@
 
   .reveal-text {
     font-family    : 'Montserrat', system-ui, -apple-system, sans-serif;
-    font-size      : clamp(1.05rem, 0.95rem + 0.7vw, 1.4rem);
+    font-size      : clamp(1.15rem, 1rem + 0.8vw, 1.5rem);
     font-weight    : 800;
-    line-height    : 1.25;
+    line-height    : 1.2;
     letter-spacing : 0.01em;
     color: #111111;
     margin: 0;
@@ -247,6 +247,19 @@
     text-wrap: balance;
   }
   html.dark .reveal-text { color: #ffffff; }
+
+  .reveal-sub {
+    font-family    : 'Montserrat', system-ui, -apple-system, sans-serif;
+    font-size      : 0.9rem;
+    font-weight    : 500;
+    line-height    : 1.45;
+    color: #6b7280;
+    margin: -6px 0 0;
+    max-width: 18em;
+    text-wrap: balance;
+  }
+  html.dark .reveal-sub { color: #9ca3af; }
+  .reveal-sub:empty { display: none; }
 
   /* ── Estados ── */
   .reveal-container.active { pointer-events: all; }

@@ -709,6 +709,7 @@ export async function sendWAText(phone, message) {
       method:  'POST',
       headers: { 'Content-Type': 'application/json', 'User-Agent': BROWSER_UA, 'Authorization': `Bearer ${token}` },
       body:    JSON.stringify({ chatId, text: message }),
+      signal:  AbortSignal.timeout(8000),
     }
   );
   if (!res.ok) {

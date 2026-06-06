@@ -43,6 +43,7 @@ async function notifyNtfyDistribuidor(token: string, topic: string) {
       'Authorization': `Bearer ${token}`,
     },
     body: '🔔 Nuevo distribuidor registrado. Revisa BD GO y el WhatsApp para los datos.',
+    signal: AbortSignal.timeout(6000),
   });
 
   if (!res.ok) {
@@ -67,6 +68,7 @@ async function sendEvolutionMessage(phone: string, text: string): Promise<void> 
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'apikey': apiKey },
     body: JSON.stringify({ number: cleanPhone, text }),
+    signal: AbortSignal.timeout(6000),
   });
 
   if (!res.ok) {

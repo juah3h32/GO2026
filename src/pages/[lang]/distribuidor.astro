@@ -88,6 +88,11 @@ const errorMsg = currentLang === 'en' ? 'Could not send. Please try again.'
   : currentLang === 'ar' ? 'تعذر الإرسال. حاول مرة أخرى.'
   : currentLang === 'zh' ? '发送失败，请重试。'
   : 'No se pudo enviar. Intenta de nuevo.';
+const successSub = currentLang === 'en' ? 'We received your info. We will contact you soon.'
+  : currentLang === 'pt' ? 'Recebemos seus dados. Entraremos em contato em breve.'
+  : currentLang === 'ar' ? 'تم استلام بياناتك. سنتواصل معك قريبا.'
+  : currentLang === 'zh' ? '我们已收到您的信息，会尽快与您联系。'
+  : 'Recibimos tus datos. Pronto nos pondremos en contacto contigo.';
 ---
 
 <BaseLayout title={metaTitle} description={metaDesc} canonicalSlug="distribuidor/" currentLang={currentLang}>
@@ -137,6 +142,7 @@ const errorMsg = currentLang === 'en' ? 'Could not send. Please try again.'
         data-sending={sendingMsg}
         data-error={errorMsg}
       >{form.success_msg}</div>
+      <p class="reveal-sub" id="revealSub" data-sub={successSub}></p>
     </div>
   </div>
 
@@ -487,11 +493,13 @@ const errorMsg = currentLang === 'en' ? 'Could not send. Please try again.'
 
       var btn  = newForm.querySelector(".submit-btn");
       var txt  = document.getElementById("revealText");
+      var sub  = document.getElementById("revealSub");
       var d    = txt ? txt.dataset : {};
       if (btn) btn.disabled = true;
 
       // 1) Pantalla de carga
       if (txt) txt.textContent = d.sending || "Enviando...";
+      if (sub) sub.textContent = "";
       reveal.classList.remove("error");
       reveal.classList.add("active", "loading");
 
@@ -513,18 +521,20 @@ const errorMsg = currentLang === 'en' ? 'Could not send. Please try again.'
       reveal.classList.remove("loading");
 
       if (ok) {
-        // 3a) Exito → "Gracias por tu registro"
+        // 3a) Exito → "¡Registro exitoso!" + subtitulo de confirmacion
         reveal.classList.remove("error");
-        if (txt) txt.textContent = d.success || "Gracias por tu registro";
+        if (txt) txt.textContent = d.success || "¡Registro exitoso!";
+        if (sub) sub.textContent = sub.dataset.sub || "Recibimos tus datos. Pronto te contactamos.";
         setTimeout(function () {
           reveal.classList.remove("active");
           newForm.reset();
           if (btn) btn.disabled = false;
-        }, 3000);
+        }, 4200);
       } else {
         // 3b) Error → no resetea, deja reintentar
         reveal.classList.add("error");
         if (txt) txt.textContent = msg || d.error || "No se pudo enviar. Intenta de nuevo.";
+        if (sub) sub.textContent = "";
         setTimeout(function () {
           reveal.classList.remove("active", "error");
           if (btn) btn.disabled = false;
