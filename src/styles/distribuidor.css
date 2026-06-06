@@ -164,64 +164,119 @@
   /* =========================================
      REVEAL ANIMATION
      ========================================= */
+  /* ── Overlay de envio: tarjeta centrada, elegante, sin chocar con nada ── */
   .reveal-container {
-    position: fixed; top: 0; left: 0;
-    width: 100%; height: 100%;
+    position: fixed; inset: 0;
     z-index: 9999; pointer-events: none;
     display: flex; align-items: center; justify-content: center;
+    padding: 24px;
   }
   .reveal-bg {
     position: absolute; inset: 0;
-    background: #ffffff;
+    background: rgba(17, 17, 17, 0.55);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
     opacity: 0;
     transition: opacity 0.35s ease;
   }
-  html.dark .reveal-bg { background: #262626; }
 
-  .reveal-content {
+  .reveal-card {
     position: relative; z-index: 2;
-    width: 300px; height: 300px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 22px;
+    width: min(90vw, 360px);
+    padding: 44px 36px;
+    background: #ffffff;
+    border-radius: 24px;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+    text-align: center;
+    opacity: 0; transform: translateY(16px) scale(0.96);
+    transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  html.dark .reveal-card {
+    background: #1f1f1f;
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .reveal-icon {
+    position: relative;
+    width: 72px; height: 72px;
     display: flex; align-items: center; justify-content: center;
   }
-  .reveal-content img {
-    width: 100%; height: 100%; object-fit: contain;
-    transform: scale(0.8); opacity: 0;
-    filter: drop-shadow(0 20px 30px rgba(0,0,0,0.2));
-    transition: opacity 0.3s ease 0.2s, transform 0.4s ease 0.2s;
-  }
-  .reveal-text {
-    position: absolute; bottom: -50px; width: 100%; text-align: center;
-    opacity: 0; transform: translateY(20px);
-    transition: opacity 0.4s ease 0.35s, transform 0.4s ease 0.35s;
-    font-family    : var(--font-display);
-    font-size      : var(--fs-display-md);
-    font-weight    : var(--fw-display);
-    text-transform : uppercase;
-    letter-spacing : var(--ls-subtitle);
-    color: #000000;
-  }
-  html.dark .reveal-text { color: #ffffff; }
 
-  .reveal-container.active { pointer-events: all; }
-  .reveal-container.active .reveal-bg { opacity: 1; }
-  .reveal-container.active .reveal-content img { transform: scale(1.1); opacity: 1; }
-  .reveal-container.active .reveal-text { opacity: 1; transform: translateY(0); }
-
-  /* Spinner de carga (mientras se envia el registro) */
+  /* Spinner (estado carga) */
   .reveal-spinner {
-    position: absolute; top: 50%; left: 50%;
-    width: 64px; height: 64px; margin: -32px 0 0 -32px;
+    position: absolute;
+    width: 64px; height: 64px;
     border-radius: 50%;
-    border: 5px solid rgba(251, 103, 11, 0.22);
+    border: 5px solid rgba(251, 103, 11, 0.18);
     border-top-color: #fb670b;
-    opacity: 0; display: none;
+    opacity: 0;
     animation: revealSpin 0.8s linear infinite;
   }
   @keyframes revealSpin { to { transform: rotate(360deg); } }
 
-  /* En estado de carga: muestra spinner, oculta la imagen de exito */
-  .reveal-container.loading .reveal-spinner { display: block; opacity: 1; }
-  .reveal-container.loading .reveal-content img { opacity: 0; transform: scale(0.8); }
+  /* Check animado (estado exito) */
+  .reveal-check {
+    position: absolute;
+    width: 72px; height: 72px;
+    opacity: 0; transform: scale(0.6);
+    transition: opacity 0.3s ease, transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .reveal-check-circle {
+    stroke: #fb670b; stroke-width: 3;
+    stroke-dasharray: 150; stroke-dashoffset: 150;
+  }
+  .reveal-check-mark {
+    stroke: #fb670b; stroke-width: 4;
+    stroke-linecap: round; stroke-linejoin: round;
+    stroke-dasharray: 40; stroke-dashoffset: 40;
+  }
+
+  .reveal-text {
+    font-family    : 'Montserrat', system-ui, -apple-system, sans-serif;
+    font-size      : clamp(1.05rem, 0.95rem + 0.7vw, 1.4rem);
+    font-weight    : 800;
+    line-height    : 1.25;
+    letter-spacing : 0.01em;
+    color: #111111;
+    margin: 0;
+    max-width: 14em;
+    text-wrap: balance;
+  }
+  html.dark .reveal-text { color: #ffffff; }
+
+  /* ── Estados ── */
+  .reveal-container.active { pointer-events: all; }
+  .reveal-container.active .reveal-bg   { opacity: 1; }
+  .reveal-container.active .reveal-card { opacity: 1; transform: translateY(0) scale(1); }
+
+  /* Carga: spinner visible, check oculto */
+  .reveal-container.loading .reveal-spinner { opacity: 1; }
+  .reveal-container.loading .reveal-check   { opacity: 0; transform: scale(0.6); }
+
+  /* Exito (active y NO loading y NO error): check dibujado */
+  .reveal-container.active:not(.loading):not(.error) .reveal-check {
+    opacity: 1; transform: scale(1);
+    animation: revealCheckPop 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .reveal-container.active:not(.loading):not(.error) .reveal-check-circle {
+    animation: revealDraw 0.5s ease forwards;
+  }
+  .reveal-container.active:not(.loading):not(.error) .reveal-check-mark {
+    animation: revealDraw 0.35s ease 0.35s forwards;
+  }
+  @keyframes revealDraw { to { stroke-dashoffset: 0; } }
+  @keyframes revealCheckPop { 0% { transform: scale(0.6); } 60% { transform: scale(1.08); } 100% { transform: scale(1); } }
+
+  /* Error: icono rojo, texto rojo */
+  .reveal-container.error .reveal-spinner { opacity: 0; }
+  .reveal-container.error .reveal-check   { opacity: 1; transform: scale(1); }
+  .reveal-container.error .reveal-check-circle,
+  .reveal-container.error .reveal-check-mark { stroke: #dc2626; stroke-dashoffset: 0; }
+  .reveal-container.error .reveal-text { color: #dc2626; }
 
   /* =========================================
      HERO
