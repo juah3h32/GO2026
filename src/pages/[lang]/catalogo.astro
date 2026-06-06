@@ -19,6 +19,11 @@ const { lang } = Astro.params;
 const currentLang = (lang && lang in translations) ? lang : 'es';
 const t = translations[currentLang as keyof typeof translations] as typeof es;
 
+// Video hero desde Cloudinary (public/videos/ esta en .gitignore → no se deploya).
+const CLOUD = import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME;
+const heroVideo  = `https://res.cloudinary.com/${CLOUD}/video/upload/q_auto:best/GO/catalogo/hero.mp4`;
+const heroPoster = `https://res.cloudinary.com/${CLOUD}/video/upload/f_jpg,q_auto,so_0/GO/catalogo/hero.jpg`;
+
 const generalCatalog = {
   es: "https://drive.google.com/file/d/100HDnibFYDgG3gYL9zfta0slSpMjbw-d/view?usp=sharing",
   en: "https://drive.google.com/file/d/1OcXZGR5adoeyIW1Tspsaa7BVv0Lx1bLC/view?usp=sharing",
@@ -275,8 +280,8 @@ const firstCatalogImg = catalogsData.length > 0 ? catalogsData[0].image : null;
     <section class="hero-section">
       <div class="hero-video-container">
         <div class="video-wrapper">
-          <video autoplay muted loop playsinline preload="none">
-            <source src="/videos/catalog-hero.mp4" type="video/mp4">
+          <video autoplay muted loop playsinline preload="metadata" poster={heroPoster}>
+            <source src={heroVideo} type="video/mp4">
           </video>
           <div class="hero-overlay"></div>
         </div>
