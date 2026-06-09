@@ -2,8 +2,25 @@
 // Cerebro IA del bot privado de WhatsApp — números autorizados.
 // Entiende lenguaje natural, consulta los datos reales del sistema y
 // genera reportes (resumen o comparativo) con PDF.
-import { readAllData, readRecruitmentLeads, readVacantes, readLeads, getWAIncoming, getSystemLogs, getLogStats, markLogsSeen } from './analytics-db.js';
+import { readAllData, readRecruitmentLeads, readVacantes, readLeads, getWAIncoming, getSystemLogs, getLogStats, markLogsSeen, saveVacante, updateVacante, deleteVacante, toggleVacante, getConfig, setConfig, updateRecruitmentStatus, updateLeadStatus, logSystemEvent } from './analytics-db.js';
 import { getTurso } from './turso';
+
+// Normaliza texto para comparaciones (minusculas, sin acentos).
+function norm(s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim(); }
+
+// Busca un registro por nombre/titulo dentro de una lista. Devuelve
+// { match } (uno solo), { varios } (ambiguo) o { ninguno: true }.
+function buscarPorNombre(lista, texto, campos = ['nombre']) {
+  const q = norm(texto);
+  if (!q) return { ninguno: true };
+  const hits = lista.filter(x => campos.some(c => {
+    const v = norm(x[c]);
+    return v && (v.includes(q) || q.includes(v));
+  }));
+  if (!hits.length) return { ninguno: true };
+  if (hits.length === 1) return { match: hits[0] };
+  return { varios: hits };
+}
 
 const MODEL = 'gpt-4o-mini';
 
@@ -370,6 +387,133 @@ const TOOLS = [
       },
     },
   },
+  // ── ACCIONES QUE ESCRIBEN (modifican la pagina) ─────────────────────────────
+  {
+    type: 'function',
+    function: {
+      name: 'crear_vacante',
+      description: 'Crea una nueva vacante de empleo como BORRADOR (queda INACTIVA, NO visible en la pagina ni manda avisos). Usar para "crea/registra/da de alta una vacante", "abre una plaza de X". Pide al usuario los datos que falten (al menos el titulo). Despues de crearla, ofrece publicarla con activar_vacante.',
+      parameters: {
+        type: 'object',
+        properties: {
+          titulo: { type: 'string', description: 'Nombre del puesto. OBLIGATORIO.' },
+          area: { type: 'string', description: 'Area/departamento, ej. Produccion, Mantenimiento.' },
+          tipo: { type: 'string', description: 'Tipo de contrato, ej. Tiempo completo.' },
+          ubicacion: { type: 'string', description: 'Ciudad/planta. Default Morelia.' },
+          horario: { type: 'string' },
+          salario: { type: 'string', description: 'Texto del sueldo, ej. "$12,000 mensuales".' },
+          descripcion: { type: 'string' },
+          requisitos: { type: 'string', description: 'Requisitos del puesto.' },
+          empresa: { type: 'string' },
+          multiples: { type: 'boolean', description: 'true si hay varias plazas del mismo puesto.' },
+        },
+        required: ['titulo'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'activar_vacante',
+      description: 'PUBLICA una vacante (la pone ACTIVA y visible en la pagina). OJO: al publicarla se ENVIA una notificacion push a TODOS los suscriptores y WhatsApp a los candidatos en lista de espera (IRREVERSIBLE). Usar para "publica/activa la vacante X", "saca la plaza X". Identifica la vacante por su titulo. REQUIERE confirmacion: llama con confirmado=true SOLO despues de que el usuario confirme.',
+      parameters: {
+        type: 'object',
+        properties: {
+          titulo: { type: 'string', description: 'Titulo (o parte) de la vacante a publicar.' },
+          confirmado: { type: 'boolean', description: 'true solo si el usuario YA confirmo (porque manda avisos a todos).' },
+        },
+        required: ['titulo'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'cerrar_vacante',
+      description: 'Cierra/oculta una vacante (la pone INACTIVA, deja de verse en la pagina). Es reversible (se puede reactivar). NO manda avisos. Usar para "cierra/baja/oculta/desactiva la vacante X", "ya no busco X". Identifica por titulo.',
+      parameters: {
+        type: 'object',
+        properties: { titulo: { type: 'string', description: 'Titulo (o parte) de la vacante a cerrar.' } },
+        required: ['titulo'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'borrar_vacante',
+      description: 'ELIMINA permanentemente una vacante (no se puede recuperar). Usar para "borra/elimina la vacante X". Identifica por titulo. REQUIERE confirmacion: llama con confirmado=true SOLO despues de que el usuario confirme.',
+      parameters: {
+        type: 'object',
+        properties: {
+          titulo: { type: 'string', description: 'Titulo (o parte) de la vacante a borrar.' },
+          confirmado: { type: 'boolean', description: 'true solo si el usuario YA confirmo el borrado definitivo.' },
+        },
+        required: ['titulo'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'editar_beneficios',
+      description: 'Reemplaza la lista de beneficios/prestaciones que se muestran en la seccion de vacantes. Usar para "cambia los beneficios", "pon estos beneficios", "agrega/quita un beneficio". Pasa la lista COMPLETA y final de beneficios (no solo el cambio). Para agregar/quitar uno, primero pide la lista actual y reenvia la lista resultante.',
+      parameters: {
+        type: 'object',
+        properties: {
+          beneficios: { type: 'array', items: { type: 'string' }, description: 'Lista completa y final de beneficios.' },
+        },
+        required: ['beneficios'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'enviar_push',
+      description: 'Envia una notificacion push a TODOS los suscriptores del sitio (clientes que activaron avisos). IRREVERSIBLE y masivo. Usar para "avisa a todos de X", "manda una notificacion que diga X", "notifica que hay vacante nueva". REQUIERE confirmacion: llama con confirmado=true SOLO despues de que el usuario confirme el envio masivo.',
+      parameters: {
+        type: 'object',
+        properties: {
+          titulo: { type: 'string', description: 'Titulo corto de la notificacion.' },
+          mensaje: { type: 'string', description: 'Cuerpo del mensaje.' },
+          url: { type: 'string', description: 'Ruta a abrir, ej. /es/vacantes. Default /es/vacantes.' },
+          confirmado: { type: 'boolean', description: 'true solo si el usuario YA confirmo el envio a todos.' },
+        },
+        required: ['titulo', 'mensaje'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'cambiar_estatus_candidato',
+      description: 'Cambia el estatus de un candidato de reclutamiento ya registrado. Estatus validos: nuevo, visto, contactado, descartado, contratado. Usar para "marca a Juan como contactado", "pon a Maria como descartada", "ya contrate a X". Identifica al candidato por su nombre.',
+      parameters: {
+        type: 'object',
+        properties: {
+          nombre: { type: 'string', description: 'Nombre (o parte) del candidato.' },
+          estatus: { type: 'string', enum: ['nuevo','visto','contactado','descartado','contratado'] },
+        },
+        required: ['nombre', 'estatus'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'cambiar_estatus_distribuidor',
+      description: 'Cambia el estatus de un contacto/lead de distribuidor. Estatus validos: pendiente, revisado, enviado. Usar para "marca a David como revisado", "pon el contacto de X como enviado". Identifica por nombre o empresa.',
+      parameters: {
+        type: 'object',
+        properties: {
+          nombre: { type: 'string', description: 'Nombre o empresa (o parte) del contacto.' },
+          estatus: { type: 'string', enum: ['pendiente','revisado','enviado'] },
+        },
+        required: ['nombre', 'estatus'],
+      },
+    },
+  },
 ];
 
 // ── Permisos requeridos por tool — enforcement en CÓDIGO, no en el prompt ────
@@ -394,6 +538,14 @@ const TOOL_PERMS = {
   analizar_velocidad:          '*',
   revisar_almacenamiento:      '*',
   control_mantenimiento:       'mantenimiento',
+  crear_vacante:               'vacantes_write',
+  activar_vacante:             'vacantes_write',
+  cerrar_vacante:              'vacantes_write',
+  borrar_vacante:              'vacantes_write',
+  editar_beneficios:           'vacantes_write',
+  enviar_push:                 'vacantes_write',
+  cambiar_estatus_candidato:   'candidates_write',
+  cambiar_estatus_distribuidor:'distribuidores_write',
 };
 
 // ── Ejecución de tools ────────────────────────────────────────────────────────
@@ -884,6 +1036,109 @@ async function ejecutarTool(name, args, ctx) {
     };
   }
 
+  // ── ACCIONES QUE ESCRIBEN ───────────────────────────────────────────────────
+  if (name === 'crear_vacante') {
+    if (!args.titulo || !String(args.titulo).trim()) return { error: 'Falta el titulo de la vacante. Pideselo al usuario.' };
+    const r = await saveVacante({
+      titulo: args.titulo, area: args.area, tipo: args.tipo, ubicacion: args.ubicacion || 'Morelia',
+      horario: args.horario, salario: args.salario, descripcion: args.descripcion, requisitos: args.requisitos,
+      activa: false, multiples: !!args.multiples, empresa: args.empresa,
+    });
+    await logSystemEvent({ level:'warn', category:'vacantes', source:'whatsapp', message:`Vacante creada (borrador): ${args.titulo} (via WhatsApp)` }).catch(()=>{});
+    return {
+      ok: true, id: r?.id, titulo: args.titulo,
+      instruccion: `Confirma en UNA linea que la vacante "${args.titulo}" quedo creada como BORRADOR (aun NO visible). Pregunta si quiere publicarla ahora (eso mandara avisos a todos).`,
+    };
+  }
+
+  if (name === 'activar_vacante' || name === 'cerrar_vacante' || name === 'borrar_vacante') {
+    const vacantes = await readVacantes(false);
+    const b = buscarPorNombre(vacantes, args.titulo, ['titulo']);
+    if (b.ninguno) return { error: `No encontre una vacante que coincida con "${args.titulo}". Pide el titulo exacto o muestra las vacantes.` };
+    if (b.varios) return { ambiguo: true, opciones: b.varios.map(v => v.titulo), instruccion: 'Hay varias vacantes que coinciden. Pide al usuario que especifique cual (lista los titulos).' };
+    const v = b.match;
+
+    if (name === 'cerrar_vacante') {
+      await toggleVacante(v.id, false);
+      await logSystemEvent({ level:'warn', category:'vacantes', source:'whatsapp', message:`Vacante cerrada: ${v.titulo} (via WhatsApp)` }).catch(()=>{});
+      return { ok: true, instruccion: `Confirma en una linea que la vacante "${v.titulo}" quedo cerrada (ya no se ve en la pagina). Es reversible.` };
+    }
+
+    if (name === 'borrar_vacante') {
+      if (!args.confirmado) return { requiere_confirmacion: true, instruccion: `Pide confirmacion EXPLICITA antes de borrar: avisa que eliminar "${v.titulo}" es PERMANENTE y no se recupera. Cuando el usuario confirme, vuelve a llamar borrar_vacante con confirmado=true.` };
+      await deleteVacante(v.id);
+      await logSystemEvent({ level:'warn', category:'vacantes', source:'whatsapp', message:`Vacante BORRADA: ${v.titulo} (via WhatsApp)` }).catch(()=>{});
+      return { ok: true, instruccion: `Confirma en una linea que la vacante "${v.titulo}" fue eliminada permanentemente.` };
+    }
+
+    // activar_vacante — publica + push + lista de espera
+    if (v.activa) return { ok: true, ya_activa: true, instruccion: `La vacante "${v.titulo}" ya esta publicada. Diselo en una linea, sin reenviar avisos.` };
+    if (!args.confirmado) return { requiere_confirmacion: true, instruccion: `Pide confirmacion antes de publicar: avisa que publicar "${v.titulo}" enviara una notificacion push a TODOS los suscriptores y WhatsApp a la lista de espera. Cuando confirme, vuelve a llamar activar_vacante con confirmado=true.` };
+
+    await toggleVacante(v.id, true);
+    let avisos = { push: 'enviado', espera: 0 };
+    try {
+      const { sendPushToAll } = await import('./push.js');
+      await sendPushToAll({ title: `Nueva vacante: ${v.titulo}`, body: `Grupo Ortiz tiene una nueva oportunidad en ${v.area || 'Morelia'}. ¡Aplica ahora!`, url: '/es/vacantes' }).catch(()=>{ avisos.push = 'no se pudo'; });
+      const { asignarEsperaAVacante, markNotificadosVacante } = await import('./analytics-db.js');
+      const { notifyEsperaVacante } = await import('./notify.js');
+      const candidatos = await asignarEsperaAVacante(v.titulo).catch(() => []);
+      if (candidatos.length) {
+        const results = await notifyEsperaVacante({ candidatos, vacante: v, urlVacantes: 'https://grupo-ortiz.com/es/vacantes' });
+        const enviados = results.filter(r => r.ok).map(r => r.id);
+        if (enviados.length) await markNotificadosVacante(enviados);
+        avisos.espera = enviados.length;
+      }
+    } catch (e) { console.error('[wa-assistant] activar_vacante avisos:', e.message); }
+    await logSystemEvent({ level:'warn', category:'vacantes', source:'whatsapp', message:`Vacante PUBLICADA: ${v.titulo} (via WhatsApp)` }).catch(()=>{});
+    return { ok: true, avisos, instruccion: `Confirma en una linea que "${v.titulo}" quedo publicada. Si avisos.espera>0, menciona que se notifico a ${avisos.espera} candidato(s) en lista de espera.` };
+  }
+
+  if (name === 'editar_beneficios') {
+    if (!Array.isArray(args.beneficios) || !args.beneficios.length) return { error: 'Pasa la lista completa de beneficios (al menos uno).' };
+    const limpios = args.beneficios.map(s => String(s).trim()).filter(Boolean).slice(0, 30);
+    await setConfig('beneficios', JSON.stringify(limpios));
+    await logSystemEvent({ level:'warn', category:'vacantes', source:'whatsapp', message:`Beneficios de vacantes actualizados (via WhatsApp)` }).catch(()=>{});
+    return { ok: true, beneficios: limpios, instruccion: 'Confirma que actualizaste los beneficios y lista los que quedaron.' };
+  }
+
+  if (name === 'enviar_push') {
+    if (!args.confirmado) return { requiere_confirmacion: true, instruccion: `Pide confirmacion: avisa que esto enviara una notificacion a TODOS los suscriptores (es masivo e irreversible). Muestra el titulo y el mensaje. Cuando confirme, vuelve a llamar enviar_push con confirmado=true.` };
+    const { sendPushToAll } = await import('./push.js');
+    const r = await sendPushToAll({ title: args.titulo, body: args.mensaje, url: args.url || '/es/vacantes' }).catch(e => ({ error: e.message }));
+    if (r?.error) return { error: `No se pudo enviar el push: ${r.error}` };
+    await logSystemEvent({ level:'warn', category:'push', source:'whatsapp', message:`Push masivo enviado: "${args.titulo}" (via WhatsApp)` }).catch(()=>{});
+    return { ok: true, resultado: r, instruccion: 'Confirma en una linea que la notificacion se envio a los suscriptores.' };
+  }
+
+  if (name === 'cambiar_estatus_candidato') {
+    const VALID = ['nuevo','visto','contactado','descartado','contratado'];
+    const st = norm(args.estatus);
+    if (!VALID.includes(st)) return { error: `Estatus invalido. Usa: ${VALID.join(', ')}.` };
+    const leads = (await readRecruitmentLeads()) || [];
+    const b = buscarPorNombre(leads, args.nombre, ['nombre']);
+    if (b.ninguno) return { error: `No encontre un candidato llamado "${args.nombre}".` };
+    if (b.varios) return { ambiguo: true, opciones: b.varios.map(c => `${c.nombre} (${c.puesto || 's/puesto'})`), instruccion: 'Hay varios candidatos que coinciden. Pide al usuario que especifique cual.' };
+    const ok = await updateRecruitmentStatus(b.match.id, st);
+    if (!ok) return { error: 'No pude actualizar el estatus (candidato no encontrado).' };
+    await logSystemEvent({ level:'warn', category:'reclutamiento', source:'whatsapp', message:`Candidato ${b.match.nombre} → ${st} (via WhatsApp)` }).catch(()=>{});
+    return { ok: true, candidato: b.match.nombre, estatus: st, instruccion: `Confirma en una linea que ${b.match.nombre} quedo como "${st}".` };
+  }
+
+  if (name === 'cambiar_estatus_distribuidor') {
+    const VALID = ['pendiente','revisado','enviado'];
+    const st = norm(args.estatus);
+    if (!VALID.includes(st)) return { error: `Estatus invalido. Usa: ${VALID.join(', ')}.` };
+    const leads = (await readLeads()) || [];
+    const b = buscarPorNombre(leads, args.nombre, ['nombre','empresa']);
+    if (b.ninguno) return { error: `No encontre un contacto que coincida con "${args.nombre}".` };
+    if (b.varios) return { ambiguo: true, opciones: b.varios.map(l => `${l.nombre || '?'} (${l.empresa || 's/empresa'})`), instruccion: 'Hay varios contactos que coinciden. Pide al usuario que especifique cual.' };
+    try { await updateLeadStatus(b.match.id, st); }
+    catch (e) { return { error: `No pude actualizar: ${e.message}` }; }
+    await logSystemEvent({ level:'warn', category:'distribuidores', source:'whatsapp', message:`Distribuidor ${b.match.nombre || b.match.empresa} → ${st} (via WhatsApp)` }).catch(()=>{});
+    return { ok: true, contacto: b.match.nombre || b.match.empresa, estatus: st, instruccion: `Confirma en una linea que el contacto quedo como "${st}".` };
+  }
+
   return { error: 'tool desconocida' };
 }
 
@@ -927,6 +1182,9 @@ PERMISOS DEL USUARIO: ${JSON.stringify(perms)} (* = acceso total). Cada area dep
 - distribuidores → contactos de distribuidores
 - messages → consultas de clientes
 - mantenimiento → activar/desactivar el modo mantenimiento de paginas o todo el sitio (control_mantenimiento). SOLO eso, ninguna otra accion.
+- vacantes_write → crear, publicar, cerrar, borrar vacantes, editar beneficios y enviar push masivo
+- candidates_write → cambiar el estatus de candidatos
+- distribuidores_write → cambiar el estatus de contactos de distribuidores
 - * → ademas: revisar sistema, rastrear sitio, analisis del dia, velocidad, almacenamiento
 REGLA DURA DE PERMISOS: si el usuario pide algo de un area para la que NO tiene permiso, RECHAZALO DE INMEDIATO en una linea amable, SIN preguntar periodo ni detalles, SIN ofrecer verlo. No menciones datos de esa area. Ej. usuario solo con candidates pide distribuidores → "No tienes acceso a distribuidores; pídeselo al administrador." Solo ofrece y responde lo que SI esta en sus permisos.
 
@@ -978,6 +1236,16 @@ Reglas:
     - "baja todo el sitio" → objetivo=todo, activar=true.
     - "quita el mantenimiento" / "elimina el mantenimiento" / "reactiva" / "reactiva todo" / "ya quita el mantenimiento" (SIN nombrar una pagina) → objetivo=todo, activar=false (limpia TODO, deja el sitio normal).
     EJECUTA de inmediato (es reversible), no pidas confirmacion salvo para BAJAR todo el sitio. Tras ejecutar, confirma en una linea.
+- ACCIONES QUE ESCRIBEN (modifican la pagina) — usa la herramienta correcta y EJECUTA, no solo prometas:
+  * "crea/registra/abre una vacante de X" → crear_vacante (queda como BORRADOR inactivo). Pide los datos que falten; minimo el titulo. Al terminar, ofrece publicarla.
+  * "publica/activa/saca la vacante X" → activar_vacante. OJO: publicar manda push a TODOS y WhatsApp a la lista de espera. PRIMERO confirma con el usuario; al confirmar, llama con confirmado=true.
+  * "cierra/baja/oculta/desactiva la vacante X" → cerrar_vacante (reversible, sin avisos, no requiere confirmacion).
+  * "borra/elimina la vacante X" → borrar_vacante. Es PERMANENTE: confirma primero; al confirmar, confirmado=true.
+  * "cambia/pon estos beneficios" → editar_beneficios con la lista COMPLETA final. Para agregar/quitar uno, primero lee los actuales (obtener_vacantes trae los beneficios) y reenvia la lista resultante.
+  * "avisa a todos / manda notificacion que diga X" → enviar_push. Es masivo e irreversible: confirma primero; al confirmar, confirmado=true.
+  * "marca a [nombre] como contactado/descartado/contratado/visto" → cambiar_estatus_candidato (candidato YA registrado).
+  * "marca a [nombre/empresa] como revisado/enviado/pendiente" → cambiar_estatus_distribuidor.
+  * Si una herramienta devuelve requiere_confirmacion=true: NO la repitas aun; pregunta al usuario en una linea y espera su "si". Si devuelve ambiguo=true: lista las opciones y pide que elija. NUNCA inventes ids ni titulos.
 - Datos puntuales (¿cuántos mensajes hoy?) → texto directo, sin PDF.
 - Si combinas varias métricas, organízalas con subtítulos en negrita (ej. *Reclutamiento:*, *Productos:*).
 - Sé conciso pero completo: si piden "todo el control", da un panorama estructurado de varias áreas.

@@ -333,6 +333,19 @@ function buildCapabilitiesManual(authorized) {
   if (has('vacantes'))       L.push('- *Vacantes:* "qué vacantes hay abiertas"');
   if (has('messages'))       L.push('- *Consultas web:* "últimos mensajes de clientes"');
 
+  if (has('vacantes_write') || has('candidates_write') || has('distribuidores_write')) {
+    L.push('');
+    L.push('*ACCIONES (modifican la pagina)*');
+    if (has('vacantes_write')) {
+      L.push('- *Vacantes:* "crea una vacante de operador", "publica la vacante X", "cierra la vacante X", "borra la vacante X"');
+      L.push('- *Beneficios:* "cambia los beneficios de vacantes"');
+      L.push('- *Push:* "avisa a todos que hay vacante nueva" (notificacion masiva)');
+    }
+    if (has('candidates_write'))     L.push('- *Candidatos:* "marca a Juan como contactado"');
+    if (has('distribuidores_write')) L.push('- *Distribuidores:* "marca a David como revisado"');
+    L.push('_Publicar, borrar y push piden tu confirmacion._');
+  }
+
   L.push('');
   L.push('*REPORTES PDF (te llega el archivo)*');
   L.push('- "mándame el reporte resumen de mayo en pdf"');

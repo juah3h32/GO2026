@@ -10,6 +10,9 @@ export const PERMISSIONS = {
   vacantes:     'Vacantes publicadas',
   distribuidores: 'Contactos distribuidores',
   messages:     'Historial de mensajes del bot',
+  vacantes_write: 'Crear/publicar/cerrar vacantes, beneficios y push',
+  candidates_write: 'Cambiar estatus de candidatos',
+  distribuidores_write: 'Cambiar estatus de distribuidores',
 };
 
 // ── Meses en español → número ─────────────────────────────────────────────────
