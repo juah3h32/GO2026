@@ -679,6 +679,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       var wlock = false;
       function onWheel(e) {
         if (!deckOn) return;
+        if (editMode) return; // en edicion no navegar por scroll: usar botones Prev/Next
         var s = slides[idx];
         var atTop = s.scrollTop <= 0;
         var atBot = s.scrollTop + s.clientHeight >= s.scrollHeight - 1;
@@ -731,6 +732,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       function onTS(e) { ty = e.touches[0].clientY; }
       function onTE(e) {
         if (!deckOn) return;
+        if (editMode) return; // en edicion no navegar por gesto: usar botones Prev/Next
         var dy = ty - e.changedTouches[0].clientY;
         if (Math.abs(dy) < 60) return;
         var s = slides[idx];
@@ -847,6 +849,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
         document.removeEventListener('touchmove', edMove); document.removeEventListener('touchend', edEnd);
         if (was) edCommit();
       }
+      var edClipVisual = null; // posicion copiada (escala/offset/rotacion) para pegar en otra slide
       var edWheelT = 0;
       function edWheel(e) {
         e.preventDefault(); e.stopPropagation();
@@ -1219,6 +1222,25 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
           col.appendChild(lab); col.appendChild(inp); grid.appendChild(col);
           edFields[k] = { input: inp, val: l2 };
         });
+        // Copiar / Pegar posicion (misma escala/offset/rotacion en otra slide)
+        var posRow = document.createElement('div'); posRow.style.cssText = 'grid-column:1 / -1;display:flex;gap:10px;';
+        var bCopy = document.createElement('button'); bCopy.type = 'button'; bCopy.textContent = '⧉ Copiar posicion';
+        bCopy.style.cssText = 'flex:1;background:transparent;color:#60A5FA;border:1px solid rgba(96,165,250,.5);padding:8px;border-radius:8px;cursor:pointer;font-weight:700;font-size:12px;';
+        bCopy.onclick = function () {
+          var v = edVisual(); if (!v) return;
+          edClipVisual = { scale: v.scale, offsetX: v.offsetX, offsetY: v.offsetY, rotate: v.rotate || 0 };
+          if (edFields.msg) { edFields.msg.style.color = '#60A5FA'; edFields.msg.textContent = 'Posicion copiada'; setTimeout(function () { if (edFields.msg) edFields.msg.textContent = ''; }, 1800); }
+        };
+        var bPaste = document.createElement('button'); bPaste.type = 'button'; bPaste.textContent = '⧉ Pegar posicion';
+        bPaste.style.cssText = 'flex:1;background:transparent;color:#60A5FA;border:1px solid rgba(96,165,250,.5);padding:8px;border-radius:8px;cursor:pointer;font-weight:700;font-size:12px;';
+        bPaste.onclick = function () {
+          if (!edClipVisual) { if (edFields.msg) { edFields.msg.style.color = '#f87171'; edFields.msg.textContent = 'Primero copia una posicion'; } return; }
+          var v = edVisual(); if (!v) return;
+          v.scale = edClipVisual.scale; v.offsetX = edClipVisual.offsetX; v.offsetY = edClipVisual.offsetY; v.rotate = edClipVisual.rotate;
+          edApply(); edSync(); edCommit();
+          if (edFields.msg) { edFields.msg.style.color = '#10B981'; edFields.msg.textContent = 'Posicion pegada'; setTimeout(function () { if (edFields.msg) edFields.msg.textContent = ''; }, 1800); }
+        };
+        posRow.appendChild(bCopy); posRow.appendChild(bPaste); grid.appendChild(posRow);
         edBar.appendChild(grid);
 
         // Grupo TEXTO

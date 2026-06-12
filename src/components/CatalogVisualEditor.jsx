@@ -26,7 +26,7 @@ export default function CatalogVisualEditor({ P }) {
   const [err, setErr] = useState('');
   const [mode, setMode] = useState('gallery'); // gallery | edit | translate
   const [selected, setSelected] = useState(null);
-  const [lang, setLang] = useState('en');
+  const [lang, setLang] = useState('es');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 

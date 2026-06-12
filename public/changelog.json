@@ -1,6 +1,14 @@
 {
   "commits": [
     {
+      "hash": "cf1938f",
+      "date": "2026-06-12",
+      "message": "feat(catalogo): fichas tecnicas de cuerda, rafia, saco, flexible desde PDF + traduccion IA 5 idiomas",
+      "rawMessage": "feat(catalogo): fichas tecnicas de cuerda, rafia, saco, flexible desde PDF + traduccion IA 5 idiomas",
+      "type": "feat",
+      "area": "Productos"
+    },
+    {
       "hash": "2ea6caf",
       "date": "2026-06-12",
       "message": "fix(navbar): texto blanco en portada de catalogo (hero oscuro), negro en detalle",
@@ -2154,10 +2162,10 @@
     }
   ],
   "stats": {
-    "total": 269,
+    "total": 270,
     "byType": {
+      "feat": 48,
       "fix": 81,
-      "feat": 47,
       "update": 12,
       "chore": 6,
       "style": 9,
@@ -2166,22 +2174,29 @@
       "release": 110
     },
     "byArea": {
+      "Productos": 17,
       "General": 192,
       "Reclutamiento": 2,
       "i18n": 4,
       "Media": 22,
       "Admin/API": 25,
       "Performance": 6,
-      "UI": 2,
-      "Productos": 16
+      "UI": 2
     },
     "byMonth": {
-      "2026-06": 111,
+      "2026-06": 112,
       "2026-05": 33,
       "2026-04": 29,
       "2026-03": 96
     },
     "byAreaType": {
+      "Productos": {
+        "feat": 9,
+        "fix": 4,
+        "chore": 1,
+        "perf": 1,
+        "update": 2
+      },
       "General": {
         "fix": 44,
         "update": 7,
@@ -2218,15 +2233,8 @@
       },
       "UI": {
         "style": 2
-      },
-      "Productos": {
-        "fix": 4,
-        "feat": 8,
-        "chore": 1,
-        "perf": 1,
-        "update": 2
       }
     }
   },
-  "generatedAt": "2026-06-12T18:12:33.965Z"
+  "generatedAt": "2026-06-12T18:21:33.933Z"
 }
