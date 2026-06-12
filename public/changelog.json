@@ -1,6 +1,14 @@
 {
   "commits": [
     {
+      "hash": "99d180d",
+      "date": "2026-06-12",
+      "message": "fix(navbar): texto blanco en vacantes sobre hero oscuro (force-white)",
+      "rawMessage": "fix(navbar): texto blanco en vacantes sobre hero oscuro (force-white)",
+      "type": "fix",
+      "area": "Reclutamiento"
+    },
+    {
       "hash": "37c0020",
       "date": "2026-06-12",
       "message": "feat(catalogo): catalogos digitales por division, edicion en vivo y traduccion 5 idiomas",
@@ -2138,10 +2146,10 @@
     }
   ],
   "stats": {
-    "total": 267,
+    "total": 268,
     "byType": {
+      "fix": 80,
       "feat": 47,
-      "fix": 79,
       "update": 12,
       "chore": 6,
       "style": 9,
@@ -2150,8 +2158,8 @@
       "release": 110
     },
     "byArea": {
+      "Reclutamiento": 2,
       "i18n": 4,
-      "Reclutamiento": 1,
       "General": 191,
       "Media": 22,
       "Admin/API": 25,
@@ -2160,18 +2168,19 @@
       "Productos": 16
     },
     "byMonth": {
-      "2026-06": 109,
+      "2026-06": 110,
       "2026-05": 33,
       "2026-04": 29,
       "2026-03": 96
     },
     "byAreaType": {
+      "Reclutamiento": {
+        "fix": 1,
+        "feat": 1
+      },
       "i18n": {
         "feat": 2,
         "fix": 2
-      },
-      "Reclutamiento": {
-        "feat": 1
       },
       "General": {
         "fix": 43,
@@ -2211,5 +2220,5 @@
       }
     }
   },
-  "generatedAt": "2026-06-12T17:46:14.331Z"
+  "generatedAt": "2026-06-12T17:47:51.023Z"
 }
