@@ -67,9 +67,27 @@
     }
   ],
   "cover": {
-    "t1": { "es": "STRETCH", "en": "STRETCH", "pt": "STRETCH", "zh": "拉伸", "ar": "ستريتش" },
-    "t2": { "es": "FILM", "en": "FILM", "pt": "FILM", "zh": "薄膜", "ar": "فيلم" },
-    "division": { "es": "DIVISIÓN STRETCH", "en": "STRETCH DIVISION", "pt": "DIVISÃO STRETCH", "zh": "拉伸部门", "ar": "قسم الستريتش" }
+    "t1": {
+      "es": "STRETCH",
+      "en": "STRETCH",
+      "pt": "STRETCH",
+      "zh": "拉伸",
+      "ar": "ستريتش"
+    },
+    "t2": {
+      "es": "FILM",
+      "en": "FILM",
+      "pt": "FILM",
+      "zh": "薄膜",
+      "ar": "فيلم"
+    },
+    "division": {
+      "es": "DIVISIÓN STRETCH",
+      "en": "STRETCH DIVISION",
+      "pt": "DIVISÃO STRETCH",
+      "zh": "拉伸部门",
+      "ar": "قسم الستريتش"
+    }
   },
   "coverImg": "stretch-portada.png",
   "fichas": [
@@ -92,41 +110,187 @@
       },
       "specs": [
         {
-          "c": { "es": "Amplitud", "en": "Width", "pt": "Largura", "zh": "宽度", "ar": "العرض" },
-          "min": "19", "max": "30", "tol": { "es": "±1/8", "en": "±1/8", "pt": "±1/8", "zh": "±1/8", "ar": "±1/8" }, "uni": "In", "met": "—", "hl": false
+          "c": {
+            "es": "Amplitud",
+            "en": "Width",
+            "pt": "Largura",
+            "zh": "宽度",
+            "ar": "العرض"
+          },
+          "min": "19",
+          "max": "30",
+          "tol": {
+            "es": "±1/8",
+            "en": "±1/8",
+            "pt": "±1/8",
+            "zh": "±1/8",
+            "ar": "±1/8"
+          },
+          "uni": "In",
+          "met": "—",
+          "hl": false
         },
         {
-          "c": { "es": "Grosor", "en": "Thickness", "pt": "Espessura", "zh": "厚度", "ar": "السماكة" },
-          "min": "50", "max": "90", "tol": { "es": "±5", "en": "±5", "pt": "±5", "zh": "±5", "ar": "±5" }, "uni": "Gauges", "met": "—", "hl": false
+          "c": {
+            "es": "Grosor",
+            "en": "Thickness",
+            "pt": "Espessura",
+            "zh": "厚度",
+            "ar": "السماكة"
+          },
+          "min": "50",
+          "max": "90",
+          "tol": {
+            "es": "±5",
+            "en": "±5",
+            "pt": "±5",
+            "zh": "±5",
+            "ar": "±5"
+          },
+          "uni": "Gauges",
+          "met": "—",
+          "hl": false
         },
         {
-          "c": { "es": "Largo", "en": "Length", "pt": "Comprimento", "zh": "长度", "ar": "الطول" },
-          "min": "3000", "max": "15000", "tol": { "es": "±50", "en": "±50", "pt": "±50", "zh": "±50", "ar": "±50" }, "uni": "Ft", "met": "—", "hl": false
+          "c": {
+            "es": "Largo",
+            "en": "Length",
+            "pt": "Comprimento",
+            "zh": "长度",
+            "ar": "الطول"
+          },
+          "min": "3000",
+          "max": "15000",
+          "tol": {
+            "es": "±50",
+            "en": "±50",
+            "pt": "±50",
+            "zh": "±50",
+            "ar": "±50"
+          },
+          "uni": "Ft",
+          "met": "—",
+          "hl": false
         },
         {
-          "c": { "es": "Peso neto", "en": "Net weight", "pt": "Peso líquido", "zh": "净重", "ar": "الوزن الصافي" },
-          "min": "5.18", "max": "39.2", "tol": { "es": "± 2%", "en": "± 2%", "pt": "± 2%", "zh": "± 2%", "ar": "± 2%" }, "uni": "Lb", "met": "—", "hl": false
+          "c": {
+            "es": "Peso neto",
+            "en": "Net weight",
+            "pt": "Peso líquido",
+            "zh": "净重",
+            "ar": "الوزن الصافي"
+          },
+          "min": "5.18",
+          "max": "39.2",
+          "tol": {
+            "es": "± 2%",
+            "en": "± 2%",
+            "pt": "± 2%",
+            "zh": "± 2%",
+            "ar": "± 2%"
+          },
+          "uni": "Lb",
+          "met": "—",
+          "hl": false
         },
         {
-          "c": { "es": "Elongación", "en": "Elongation", "pt": "Alongamento", "zh": "伸长率", "ar": "الاستطالة" },
-          "min": "270", "max": "280", "tol": { "es": "Mínimo", "en": "Minimum", "pt": "Mínimo", "zh": "最小值", "ar": "الحد الأدنى" }, "uni": "%", "met": "NOM-002", "hl": true
+          "c": {
+            "es": "Elongación",
+            "en": "Elongation",
+            "pt": "Alongamento",
+            "zh": "伸长率",
+            "ar": "الاستطالة"
+          },
+          "min": "270",
+          "max": "280",
+          "tol": {
+            "es": "Mínimo",
+            "en": "Minimum",
+            "pt": "Mínimo",
+            "zh": "最小值",
+            "ar": "الحد الأدنى"
+          },
+          "uni": "%",
+          "met": "NOM-002",
+          "hl": true
         },
         {
-          "c": { "es": "Adherencia", "en": "Adhesion", "pt": "Aderência", "zh": "粘附力", "ar": "الالتصاق" },
-          "min": "12", "max": "60", "tol": { "es": "Mínimo", "en": "Minimum", "pt": "Mínimo", "zh": "最小值", "ar": "الحد الأدنى" }, "uni": "Gfr", "met": "NMX-E-003", "hl": true
+          "c": {
+            "es": "Adherencia",
+            "en": "Adhesion",
+            "pt": "Aderência",
+            "zh": "粘附力",
+            "ar": "الالتصاق"
+          },
+          "min": "12",
+          "max": "60",
+          "tol": {
+            "es": "Mínimo",
+            "en": "Minimum",
+            "pt": "Mínimo",
+            "zh": "最小值",
+            "ar": "الحد الأدنى"
+          },
+          "uni": "Gfr",
+          "met": "NMX-E-003",
+          "hl": true
         },
         {
-          "c": { "es": "Resistencia de carga", "en": "Load resistance", "pt": "Resistência de carga", "zh": "承载强度", "ar": "مقاومة الحمل" },
-          "min": "3.45", "max": "4.73", "tol": { "es": "Mínimo", "en": "Minimum", "pt": "Mínimo", "zh": "最小值", "ar": "الحد الأدنى" }, "uni": "Lbf", "met": "NMX-E-002", "hl": true
+          "c": {
+            "es": "Resistencia de carga",
+            "en": "Load resistance",
+            "pt": "Resistência de carga",
+            "zh": "承载强度",
+            "ar": "مقاومة الحمل"
+          },
+          "min": "3.45",
+          "max": "4.73",
+          "tol": {
+            "es": "Mínimo",
+            "en": "Minimum",
+            "pt": "Mínimo",
+            "zh": "最小值",
+            "ar": "الحد الأدنى"
+          },
+          "uni": "Lbf",
+          "met": "NMX-E-002",
+          "hl": true
         },
         {
-          "c": { "es": "Resistencia", "en": "Resistance", "pt": "Resistência", "zh": "抗拉强度", "ar": "المقاومة" },
-          "min": "3", "max": "4.49", "tol": { "es": "Mínimo", "en": "Minimum", "pt": "Mínimo", "zh": "最小值", "ar": "الحد الأدنى" }, "uni": "Lbf", "met": "NMX-E-002", "hl": true
+          "c": {
+            "es": "Resistencia",
+            "en": "Resistance",
+            "pt": "Resistência",
+            "zh": "抗拉强度",
+            "ar": "المقاومة"
+          },
+          "min": "3",
+          "max": "4.49",
+          "tol": {
+            "es": "Mínimo",
+            "en": "Minimum",
+            "pt": "Mínimo",
+            "zh": "最小值",
+            "ar": "الحد الأدنى"
+          },
+          "uni": "Lbf",
+          "met": "NMX-E-002",
+          "hl": true
         }
       ],
-      "visual": { "scale": 2.5, "offsetX": 19.9, "offsetY": 2.3, "rotate": -90 }
+      "visual": {
+        "scale": 2.5,
+        "offsetX": 19.9,
+        "offsetY": 2.3,
+        "rotate": -90
+      }
     }
   ],
-  "visualCover": { "scale": 1.75, "offsetX": -18.3, "offsetY": 13.5, "rotate": 0 },
+  "visualCover": {
+    "scale": 1.75,
+    "offsetX": -18.3,
+    "offsetY": 13.5,
+    "rotate": 0
+  },
   "styles": {}
 }

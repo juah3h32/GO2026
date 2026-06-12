@@ -26,23 +26,37 @@
     {
       "es": "CUERDA FERRETERA",
       "en": "HARDWARE ROPE",
-      "pt": "CORDA FERAGEM",
+      "pt": "CORDÃO DE FERRETERIA",
       "zh": "五金绳",
-      "ar": "حبل الأدوات"
+      "ar": "حبل أدوات"
     },
     {
       "es": "CUERDA INVERNADERO",
       "en": "GREENHOUSE ROPE",
-      "pt": "CORDA ESTUFA",
+      "pt": "CORDÃO DE ESTUFA",
       "zh": "温室绳",
-      "ar": "حبل البيوت المحمية"
+      "ar": "حبل الدفيئة"
     },
     {
       "es": "CUERDA ECOLÓGICA",
-      "en": "ECO ROPE",
-      "pt": "CORDA ECOLÓGICA",
-      "zh": "环保绳",
-      "ar": "الحبل البيئي"
+      "en": "ECOLOGICAL ROPE",
+      "pt": "CORDÃO ECOLÓGICO",
+      "zh": "生态绳",
+      "ar": "حبل بيئي"
+    },
+    {
+      "es": "CUERDA REFORZADA",
+      "en": "REINFORCED ROPE",
+      "pt": "CORDÃO REFORÇADO",
+      "zh": "加固绳",
+      "ar": "حبل معزز"
+    },
+    {
+      "es": "CUERDA NEGRA COLORIDA",
+      "en": "COLORFUL BLACK ROPE",
+      "pt": "CORDÃO PRETO COLORIDO",
+      "zh": "彩色黑绳",
+      "ar": "حبل أسود ملون"
     }
   ],
   "cover": {
@@ -74,156 +88,141 @@
       "nombre": {
         "es": "CUERDA FERRETERA",
         "en": "HARDWARE ROPE",
-        "pt": "CORDA FERAGEM",
+        "pt": "CORDÃO DE FERRETERIA",
         "zh": "五金绳",
-        "ar": "حبل الأدوات"
+        "ar": "حبل أدوات"
       },
       "img": "/images/cuerdas/CuerdaT1.webp",
       "lado": "",
       "desc": {
-        "es": "Diseñado con polipropileno y un avanzado filtro UV, este cable es ideal para actividades con alta exposición solar. Su formulación especializada retarda el desgaste natural y prolonga su vida útil, garantizando mayor resistencia y durabilidad frente a la intemperie. Es la cuerda ferretera perfecta para brindar firmeza, seguridad y rendimiento confiable en aplicaciones generales y trabajos exigentes.",
-        "en": "Made with polypropylene and an advanced UV filter, this rope is ideal for activities with high sun exposure. Its specialized formulation slows natural wear and extends service life, guaranteeing greater resistance and durability against the elements. It is the perfect hardware rope for providing firmness, safety and reliable performance in general applications and demanding work.",
-        "pt": "Desenvolvido com polipropileno e um avançado filtro UV, este cabo é ideal para atividades com alta exposição solar. Sua formulação especializada retarda o desgaste natural e prolonga sua vida útil, garantindo maior resistência e durabilidade frente às intempéries. É a corda perfeita para feragens, proporcionando firmeza, segurança e desempenho confiável em aplicações gerais e trabalhos exigentes.",
-        "zh": "采用聚丙烯和先进紫外线过滤器制成，这款绳索非常适合高阳光暴露的活动。其专业配方延缓自然磨损并延长使用寿命，在户外环境中保证更强的耐久性。是五金绳的完美选择，在一般应用和要求苛刻的工作中提供稳固、安全和可靠的性能。",
-        "ar": "مصنوع من البولي بروبيلين وفلتر UV متقدم، هذا الحبل مثالي للأنشطة ذات التعرض الشمسي العالي. تركيبته المتخصصة تبطّئ التآكل الطبيعي وتطيل عمره الافتراضي، مما يضمن مقاومة ومتانة أكبر في الهواء الطلق. إنه الحبل المثالي للصلابة والأمان والأداء الموثوق في التطبيقات العامة والأعمال الشاقة."
+        "es": "Cuerda de polipropileno 100% virgen, amplia variedad de presentaciones, calibres y colores (sólidos o combinados), reforzadas o personalizadas. Para manufactura, almacenes, ferreterías, talleres y maquinado.",
+        "en": "100% virgin polypropylene rope, wide variety of presentations, gauges, and colors (solid or combined), reinforced or customized. For manufacturing, warehouses, hardware stores, workshops, and machining.",
+        "pt": "Corda de polipropileno 100% virgem, ampla variedade de apresentações, calibres e cores (sólidos ou combinados), reforçadas ou personalizadas. Para manufatura, armazéns, lojas de ferragens, oficinas e usinagem.",
+        "zh": "100% 原生聚丙烯绳，提供多种规格、厚度和颜色（单色或组合），可加固或定制。适用于制造、仓库、五金店、车间和机械加工。",
+        "ar": "حبل بولي بروبيلين 100% عذراء، مجموعة واسعة من العروض، المقاييس والألوان (صلبة أو مركبة)، معززة أو مخصصة. للاستخدام في التصنيع، المستودعات، متاجر الأدوات، ورش العمل والآلات."
       },
-      "specs": [
-        {
-          "c": {
-            "es": "Rendimiento",
-            "en": "Yield",
-            "pt": "Rendimento",
-            "zh": "米数",
-            "ar": "المردود"
-          },
-          "min": {
-            "es": "1,980 m",
-            "en": "1,980 m",
-            "pt": "1.980 m",
-            "zh": "1,980 米",
-            "ar": "1,980 م"
-          },
-          "max": "",
-          "tol": {
-            "es": "",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "",
-          "met": "",
-          "hl": false
+      "specs": [],
+      "matrix": {
+        "title": {
+          "es": "ESPECIFICACIONES",
+          "en": "SPECIFICATIONS",
+          "pt": "ESPECIFICAÇÕES",
+          "zh": "规格",
+          "ar": "المواصفات"
         },
-        {
-          "c": {
-            "es": "Material",
-            "en": "Material",
-            "pt": "Material",
-            "zh": "材料",
-            "ar": "المادة"
-          },
-          "min": {
-            "es": "PP-UV",
-            "en": "PP-UV",
-            "pt": "PP-UV",
-            "zh": "PP-UV",
-            "ar": "PP-UV"
-          },
-          "max": "",
-          "tol": {
-            "es": "",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Peso",
-            "en": "Weight",
-            "pt": "Peso",
-            "zh": "重量",
-            "ar": "الوزن"
-          },
-          "min": {
-            "es": "18 kg",
-            "en": "18 kg",
-            "pt": "18 kg",
-            "zh": "18 公斤",
-            "ar": "18 كجم"
-          },
-          "max": "",
-          "tol": {
-            "es": "",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Resistencia",
-            "en": "Resistance",
-            "pt": "Resistência",
-            "zh": "强度",
-            "ar": "المقاومة"
-          },
-          "min": {
-            "es": "175 kg",
-            "en": "175 kg",
-            "pt": "175 kg",
-            "zh": "175 公斤",
-            "ar": "175 كجم"
-          },
-          "max": "",
-          "tol": {
-            "es": "",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Presentación",
-            "en": "Presentation",
-            "pt": "Apresentação",
+        "headers": [
+          {
+            "es": "Calibre",
+            "en": "Gauge",
+            "pt": "Calibre",
             "zh": "规格",
-            "ar": "التقديم"
+            "ar": "المقياس"
           },
-          "min": {
-            "es": "4-19 mm",
-            "en": "4-19 mm",
-            "pt": "4-19 mm",
-            "zh": "4-19 毫米",
-            "ar": "4-19 مم"
+          "0.12 in",
+          "0.16 in",
+          "0.24 in",
+          "0.31 in",
+          "0.39 in",
+          "0.43 in",
+          "0.51 in",
+          "0.63 in",
+          "0.75 in",
+          "0.98 in"
+        ],
+        "rows": [
+          {
+            "label": {
+              "es": "Rendimiento por rollo ±10%",
+              "en": "Yield per roll ±10%",
+              "pt": "Rendimento por rolo ±10%",
+              "zh": "每卷产量 ±10%",
+              "ar": "العائد لكل لفة ±10%"
+            },
+            "cells": [
+              "124,015.75 in\n3,444.87 yd",
+              "77,952.76 in\n2,165.34 yd",
+              "36,969.33 in\n1,027.51 yd",
+              "24,685.99 in\n685.87 yd",
+              "20,078.43 in\n558.38 yd",
+              "15,354.33 in\n426.63 yd",
+              "10,590.49 in\n294.07 yd",
+              "8,031.50 in\n223.17 yd",
+              "5,826.76 in\n161.93 yd",
+              "3,267.71 in\n90.77 yd"
+            ]
           },
-          "max": "",
-          "tol": {
-            "es": "",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
+          {
+            "label": {
+              "es": "Unidades por paquete",
+              "en": "Units per package",
+              "pt": "Unidades por pacote",
+              "zh": "每包单位",
+              "ar": "الوحدات لكل حزمة"
+            },
+            "cells": [
+              "3",
+              "3",
+              "1",
+              "1",
+              "1",
+              "1",
+              "1",
+              "1",
+              "1",
+              "1"
+            ]
           },
-          "uni": "",
-          "met": "",
-          "hl": false
+          {
+            "label": {
+              "es": "Peso promedio ±10%",
+              "en": "Average weight ±10%",
+              "pt": "Peso médio ±10%",
+              "zh": "平均重量 ±10%",
+              "ar": "الوزن المتوسط ±10%"
+            },
+            "cells": [
+              "39.68 lb",
+              "39.68 lb",
+              "46.30 lb",
+              "52.91 lb",
+              "55.12 lb",
+              "55.12 lb",
+              "68.34 lb",
+              "79.37 lb",
+              "99.21 lb",
+              "112.44 lb"
+            ]
+          },
+          {
+            "label": {
+              "es": "Resistencia a la tracción ±10%",
+              "en": "Tensile strength ±10%",
+              "pt": "Resistência à tração ±10%",
+              "zh": "抗拉强度 ±10%",
+              "ar": "قوة الشد ±10%"
+            },
+            "cells": [
+              "242.51 lb/f",
+              "374.79 lb/f",
+              "859.80 lb/f",
+              "1,543.24 lb/f",
+              "1,763.70 lb/f",
+              "2,204.62 lb/f",
+              "3,086.47 lb/f",
+              "4,409.24 lb/f",
+              "5,511.56 lb/f",
+              "6,392.40 lb/f"
+            ]
+          }
+        ],
+        "note": {
+          "es": "Calibres de 0.12 in / 0.003 yd a 0.98 in / 0.027 yd. Opciones de 3 o 4 hebras.",
+          "en": "Gauges from 0.12 in / 0.003 yd to 0.98 in / 0.027 yd. Options of 3 or 4 strands.",
+          "pt": "Calibres de 0.12 in / 0.003 yd a 0.98 in / 0.027 yd. Opções de 3 ou 4 fios.",
+          "zh": "规格从 0.12 in / 0.003 yd 到 0.98 in / 0.027 yd。可选择 3 或 4 股。",
+          "ar": "المقاييس من 0.12 in / 0.003 yd إلى 0.98 in / 0.027 yd. خيارات من 3 أو 4 خيوط."
         }
-      ],
+      },
       "visual": {
         "scale": 1,
         "offsetX": 0,
@@ -235,156 +234,111 @@
       "nombre": {
         "es": "CUERDA INVERNADERO",
         "en": "GREENHOUSE ROPE",
-        "pt": "CORDA ESTUFA",
+        "pt": "CORDÃO DE ESTUFA",
         "zh": "温室绳",
-        "ar": "حبل البيوت المحمية"
+        "ar": "حبل الدفيئة"
       },
       "img": "/images/cuerdas/CuerdaNegra.webp",
       "lado": "",
       "desc": {
-        "es": "Diseñado con polipropileno (PP) y estabilizador UV, este cable es ideal para el sector marítimo y actividades con alta exposición solar. Su formulación especializada retarda el desgaste provocado por la radiación ultravioleta, prolongando su vida útil y garantizando mayor resistencia a la intemperie. Es la solución perfecta para brindar firmeza y estabilidad en macrotúneles agrícolas.",
-        "en": "Made with polypropylene (PP) and a UV stabilizer, this rope is ideal for the maritime sector and activities with high sun exposure. Its specialized formulation slows UV-induced degradation, extending service life and guaranteeing greater weather resistance. It is the perfect solution for providing firmness and stability in agricultural macro-tunnels.",
-        "pt": "Desenvolvido com polipropileno (PP) e estabilizador UV, este cabo é ideal para o setor marítimo e atividades com alta exposição solar. Sua formulação especializada retarda o desgaste provocado pela radiação ultravioleta, prolongando sua vida útil e garantindo maior resistência às intempéries. É a solução perfeita para proporcionar firmeza e estabilidade em macrotúneis agrícolas.",
-        "zh": "采用聚丙烯（PP）和紫外线稳定剂制成，这款绳索非常适合海洋行业和高阳光暴露的活动。其专业配方延缓紫外线辐射造成的磨损，延长使用寿命并保证更强的耐候性。是为农业大棚提供稳固性和稳定性的完美解决方案。",
-        "ar": "مصنوع من البولي بروبيلين (PP) ومثبّت UV، هذا الحبل مثالي للقطاع البحري والأنشطة ذات التعرض الشمسي العالي. تركيبته المتخصصة تبطّئ التلف الناجم عن الأشعة فوق البنفسجية، مما يطيل عمره الافتراضي ويضمن مقاومة أكبر للعوامل الجوية. إنه الحل المثالي للصلابة والاستقرار في الأنفاق الزراعية الكبيرة."
+        "es": "Cable de polipropileno con filtro UV para sector marítimo o alta exposición solar. Prolonga vida útil; resistencia y durabilidad para macrotúneles. Ideal para fresas, zarzamoras, arándanos, pimientos y tomates.",
+        "en": "Polypropylene cable with UV filter for maritime sector or high solar exposure. Extends lifespan; strength and durability for macro tunnels. Ideal for strawberries, blackberries, blueberries, peppers, and tomatoes.",
+        "pt": "Cabo de polipropileno com filtro UV para o setor marítimo ou alta exposição solar. Prolonga a vida útil; resistência e durabilidade para macrotúneis. Ideal para morangos, amoras, mirtilos, pimentões e tomates.",
+        "zh": "带有 UV 过滤器的聚丙烯电缆，适用于海洋行业或高太阳暴露。延长使用寿命；适用于大隧道的强度和耐用性。非常适合草莓、黑莓、蓝莓、辣椒和西红柿。",
+        "ar": "كابل بولي بروبيلين مع فلتر UV لقطاع البحر أو التعرض الشمسي العالي. يمدد العمر الافتراضي؛ القوة والمتانة للأنفاق الكبيرة. مثالي للفراولة، التوت الأسود، التوت الأزرق، الفلفل والطماطم."
       },
-      "specs": [
-        {
-          "c": {
-            "es": "Rendimiento",
-            "en": "Yield",
-            "pt": "Rendimento",
-            "zh": "米数",
-            "ar": "المردود"
-          },
-          "min": {
-            "es": "3,240 m",
-            "en": "3,240 m",
-            "pt": "3.240 m",
-            "zh": "3,240 米",
-            "ar": "3,240 م"
-          },
-          "max": "",
-          "tol": {
-            "es": "",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "",
-          "met": "",
-          "hl": false
+      "specs": [],
+      "matrix": {
+        "title": {
+          "es": "ESPECIFICACIONES",
+          "en": "SPECIFICATIONS",
+          "pt": "ESPECIFICAÇÕES",
+          "zh": "规格",
+          "ar": "المواصفات"
         },
-        {
-          "c": {
-            "es": "Material",
-            "en": "Material",
-            "pt": "Material",
-            "zh": "材料",
-            "ar": "المادة"
-          },
-          "min": {
-            "es": "PP-UV",
-            "en": "PP-UV",
-            "pt": "PP-UV",
-            "zh": "PP-UV",
-            "ar": "PP-UV"
-          },
-          "max": "",
-          "tol": {
-            "es": "",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Peso",
-            "en": "Weight",
-            "pt": "Peso",
-            "zh": "重量",
-            "ar": "الوزن"
-          },
-          "min": {
-            "es": "18 kg",
-            "en": "18 kg",
-            "pt": "18 kg",
-            "zh": "18 公斤",
-            "ar": "18 كجم"
-          },
-          "max": "",
-          "tol": {
-            "es": "",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Resistencia",
-            "en": "Resistance",
-            "pt": "Resistência",
-            "zh": "强度",
-            "ar": "المقاومة"
-          },
-          "min": {
-            "es": "105 kg",
-            "en": "105 kg",
-            "pt": "105 kg",
-            "zh": "105 公斤",
-            "ar": "105 كجم"
-          },
-          "max": "",
-          "tol": {
-            "es": "",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Presentación",
-            "en": "Presentation",
-            "pt": "Apresentação",
+        "headers": [
+          {
+            "es": "Calibre",
+            "en": "Gauge",
+            "pt": "Calibre",
             "zh": "规格",
-            "ar": "التقديم"
+            "ar": "المقياس"
           },
-          "min": {
-            "es": "3-8 mm",
-            "en": "3-8 mm",
-            "pt": "3-8 mm",
-            "zh": "3-8 毫米",
-            "ar": "3-8 مم"
+          "0.12 in",
+          "0.16 in",
+          "0.24 in",
+          "0.31 in"
+        ],
+        "rows": [
+          {
+            "label": {
+              "es": "Rendimiento por rollo ±10%",
+              "en": "Yield per roll ±10%",
+              "pt": "Rendimento por rolo ±10%",
+              "zh": "每卷产量 ±10%",
+              "ar": "العائد لكل لفة ±10%"
+            },
+            "cells": [
+              "127,559.06 in\n3,544.30 yd",
+              "70,866.14 in\n1,968.50 yd",
+              "33,267.72 in\n924.30 yd",
+              "25,393.70 in\n705.88 yd"
+            ]
           },
-          "max": "",
-          "tol": {
-            "es": "",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
+          {
+            "label": {
+              "es": "Unidades por paquete",
+              "en": "Units per package",
+              "pt": "Unidades por pacote",
+              "zh": "每包单位",
+              "ar": "الوحدات لكل حزمة"
+            },
+            "cells": [
+              "3",
+              "3",
+              "1",
+              "1"
+            ]
           },
-          "uni": "",
-          "met": "",
-          "hl": false
+          {
+            "label": {
+              "es": "Peso promedio ±10%",
+              "en": "Average weight ±10%",
+              "pt": "Peso médio ±10%",
+              "zh": "平均重量 ±10%",
+              "ar": "الوزن المتوسط ±10%"
+            },
+            "cells": [
+              "39.68 lb",
+              "39.68 lb",
+              "46.30 lb",
+              "52.91 lb"
+            ]
+          },
+          {
+            "label": {
+              "es": "Resistencia a la tracción ±10%",
+              "en": "Tensile strength ±10%",
+              "pt": "Resistência à tração ±10%",
+              "zh": "抗拉强度 ±10%",
+              "ar": "قوة الشد ±10%"
+            },
+            "cells": [
+              "231.49 lb/f",
+              "352.74 lb/f",
+              "661.39 lb/f",
+              "1,212.54 lb/f"
+            ]
+          }
+        ],
+        "note": {
+          "es": "Calibres de 0.12 in / 0.003 yd a 0.31 in / 0.009 yd.",
+          "en": "Gauges from 0.12 in / 0.003 yd to 0.31 in / 0.009 yd.",
+          "pt": "Calibres de 0.12 in / 0.003 yd a 0.31 in / 0.009 yd.",
+          "zh": "规格从 0.12 in / 0.003 yd 到 0.31 in / 0.009 yd。",
+          "ar": "المقاييس من 0.12 in / 0.003 yd إلى 0.31 in / 0.009 yd."
         }
-      ],
+      },
       "visual": {
         "scale": 1,
         "offsetX": 0,
@@ -395,157 +349,404 @@
     {
       "nombre": {
         "es": "CUERDA ECOLÓGICA",
-        "en": "ECO ROPE",
-        "pt": "CORDA ECOLÓGICA",
-        "zh": "环保绳",
-        "ar": "الحبل البيئي"
+        "en": "ECOLOGICAL ROPE",
+        "pt": "CORDÃO ECOLÓGICO",
+        "zh": "生态绳",
+        "ar": "حبل بيئي"
       },
       "img": "/images/cuerdas/CuerdaEco.png",
       "lado": "",
       "desc": {
-        "es": "Fabricada con polipropileno (PP) de alta calidad, esta cuerda ofrece una amplia variedad de presentaciones, calibres y colores, disponibles en versiones lisas o combinadas, con refuerzo o con marca. Su versatilidad y resistencia la convierten en una opción confiable para múltiples aplicaciones, para uso en industrias, fábricas, bodegas, mercados de abasto, ferreterías, tlapalerías, talleres y áreas de maquinado.",
-        "en": "Made with high-quality polypropylene (PP), this rope is available in a wide variety of presentations, gauges and colors, in plain or combined versions, reinforced or branded. Its versatility and resistance make it a reliable option for multiple applications in industries, factories, warehouses, wholesale markets, hardware stores, and machining areas.",
-        "pt": "Fabricada com polipropileno (PP) de alta qualidade, esta corda oferece uma ampla variedade de apresentações, calibres e cores, disponíveis em versões lisas ou combinadas, com reforço ou com marca. Sua versatilidade e resistência a tornam uma opção confiável para múltiplas aplicações, para uso em indústrias, fábricas, armazéns, mercados, ferragens, lojas de materiais e oficinas.",
-        "zh": "采用优质聚丙烯（PP）制造，这款绳索提供多种规格、粗细和颜色，有光面或组合版本，带加强或带标记版本。其多功能性和耐久性使其成为多种应用的可靠选择，适用于工业、工厂、仓库、批发市场、五金店和加工区域。",
-        "ar": "مصنوع من البولي بروبيلين (PP) عالي الجودة، يوفر هذا الحبل مجموعة واسعة من التقديمات والمقاسات والألوان، متاح بإصدارات ملساء أو مجمّعة، مع تعزيز أو بعلامة. تنوّعه ومقاومته يجعلانه خياراً موثوقاً للتطبيقات المتعددة في الصناعات والمصانع والمستودعات والأسواق والأعمال العامة."
+        "es": "Cuerda de polipropileno, amplia variedad de presentaciones, calibres y colores (sólidos o combinados), con refuerzo o personalización. Para industrias, almacenes, centrales de abasto, ferreterías y talleres.",
+        "en": "Polypropylene rope, wide variety of presentations, gauges, and colors (solid or combined), with reinforcement or customization. For industries, warehouses, supply centers, hardware stores, and workshops.",
+        "pt": "Corda de polipropileno, ampla variedade de apresentações, calibres e cores (sólidos ou combinados), com reforço ou personalização. Para indústrias, armazéns, centros de abastecimento, lojas de ferragens e oficinas.",
+        "zh": "聚丙烯绳，提供多种规格、厚度和颜色（单色或组合），可加固或定制。适用于工业、仓库、供应中心、五金店和车间。",
+        "ar": "حبل بولي بروبيلين، مجموعة واسعة من العروض، المقاييس والألوان (صلبة أو مركبة)، مع تعزيز أو تخصيص. للصناعات، المستودعات، مراكز الإمداد، متاجر الأدوات وورش العمل."
       },
-      "specs": [
-        {
-          "c": {
-            "es": "Rendimiento",
-            "en": "Yield",
-            "pt": "Rendimento",
-            "zh": "米数",
-            "ar": "المردود"
-          },
-          "min": {
-            "es": "3,240 m",
-            "en": "3,240 m",
-            "pt": "3.240 m",
-            "zh": "3,240 米",
-            "ar": "3,240 م"
-          },
-          "max": "",
-          "tol": {
-            "es": "",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "",
-          "met": "",
-          "hl": false
+      "specs": [],
+      "matrix": {
+        "title": {
+          "es": "ESPECIFICACIONES",
+          "en": "SPECIFICATIONS",
+          "pt": "ESPECIFICAÇÕES",
+          "zh": "规格",
+          "ar": "المواصفات"
         },
-        {
-          "c": {
-            "es": "Material",
-            "en": "Material",
-            "pt": "Material",
-            "zh": "材料",
-            "ar": "المادة"
-          },
-          "min": {
-            "es": "PP-UV",
-            "en": "PP-UV",
-            "pt": "PP-UV",
-            "zh": "PP-UV",
-            "ar": "PP-UV"
-          },
-          "max": "",
-          "tol": {
-            "es": "",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Peso",
-            "en": "Weight",
-            "pt": "Peso",
-            "zh": "重量",
-            "ar": "الوزن"
-          },
-          "min": {
-            "es": "18 kg",
-            "en": "18 kg",
-            "pt": "18 kg",
-            "zh": "18 公斤",
-            "ar": "18 كجم"
-          },
-          "max": "",
-          "tol": {
-            "es": "",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Resistencia",
-            "en": "Resistance",
-            "pt": "Resistência",
-            "zh": "强度",
-            "ar": "المقاومة"
-          },
-          "min": {
-            "es": "105 kg",
-            "en": "105 kg",
-            "pt": "105 kg",
-            "zh": "105 公斤",
-            "ar": "105 كجم"
-          },
-          "max": "",
-          "tol": {
-            "es": "",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Presentación",
-            "en": "Presentation",
-            "pt": "Apresentação",
+        "headers": [
+          {
+            "es": "Calibre",
+            "en": "Gauge",
+            "pt": "Calibre",
             "zh": "规格",
-            "ar": "التقديم"
+            "ar": "المقياس"
           },
-          "min": {
-            "es": "3-8 mm",
-            "en": "3-8 mm",
-            "pt": "3-8 mm",
-            "zh": "3-8 毫米",
-            "ar": "3-8 مم"
+          "0.24 in",
+          "0.31 in",
+          "0.39 in",
+          "0.43 in",
+          "0.51 in",
+          "0.63 in",
+          "0.75 in",
+          "0.98 in"
+        ],
+        "rows": [
+          {
+            "label": {
+              "es": "Rendimiento por rollo ±10%",
+              "en": "Yield per roll ±10%",
+              "pt": "Rendimento por rolo ±10%",
+              "zh": "每卷产量 ±10%",
+              "ar": "العائد لكل لفة ±10%"
+            },
+            "cells": [
+              "33,267.72 in\n924.30 yd",
+              "25,393.70 in\n705.88 yd",
+              "19,881.89 in\n552.87 yd",
+              "17,716.54 in\n492.12 yd",
+              "13,779.53 in\n382.76 yd",
+              "11,417.32 in\n317.15 yd",
+              "10,393.70 in\n288.71 yd",
+              "6,850.39 in\n190.28 yd"
+            ]
           },
-          "max": "",
-          "tol": {
-            "es": "",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
+          {
+            "label": {
+              "es": "Unidades por paquete",
+              "en": "Units per package",
+              "pt": "Unidades por pacote",
+              "zh": "每包单位",
+              "ar": "الوحدات لكل حزمة"
+            },
+            "cells": [
+              "1",
+              "1",
+              "1",
+              "1",
+              "1",
+              "1",
+              "1",
+              "1"
+            ]
           },
-          "uni": "",
-          "met": "",
-          "hl": false
+          {
+            "label": {
+              "es": "Peso promedio ±10%",
+              "en": "Average weight ±10%",
+              "pt": "Peso médio ±10%",
+              "zh": "平均重量 ±10%",
+              "ar": "الوزن المتوسط ±10%"
+            },
+            "cells": [
+              "26.46 lb",
+              "52.91 lb",
+              "52.91 lb",
+              "52.91 lb",
+              "52.91 lb",
+              "79.37 lb",
+              "99.21 lb",
+              "112.44 lb"
+            ]
+          },
+          {
+            "label": {
+              "es": "Resistencia a la tracción ±10%",
+              "en": "Tensile strength ±10%",
+              "pt": "Resistência à tração ±10%",
+              "zh": "抗拉强度 ±10%",
+              "ar": "قوة الشد ±10%"
+            },
+            "cells": [
+              "661.39 lb/f",
+              "1,212.54 lb/f",
+              "1,322.77 lb/f",
+              "1,587.32 lb/f",
+              "1,763.70 lb/f",
+              "2,645.55 lb/f",
+              "3,968.31 lb/f",
+              "4,850.17 lb/f"
+            ]
+          }
+        ],
+        "note": {
+          "es": "Calibres de 0.24 in / 0.007 yd a 0.98 in / 0.027 yd.",
+          "en": "Gauges from 0.24 in / 0.007 yd to 0.98 in / 0.027 yd.",
+          "pt": "Calibres de 0.24 in / 0.007 yd a 0.98 in / 0.027 yd.",
+          "zh": "规格从 0.24 in / 0.007 yd 到 0.98 in / 0.027 yd。",
+          "ar": "المقاييس من 0.24 in / 0.007 yd إلى 0.98 in / 0.027 yd."
         }
-      ],
+      },
+      "visual": {
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "rotate": 0
+      }
+    },
+    {
+      "nombre": {
+        "es": "CUERDA REFORZADA",
+        "en": "REINFORCED ROPE",
+        "pt": "CORDÃO REFORÇADO",
+        "zh": "加固绳",
+        "ar": "حبل معزز"
+      },
+      "img": "",
+      "lado": "",
+      "desc": {
+        "es": "Cable de polipropileno con filtro UV para actividades de alta exposición solar. Prolonga su vida útil; el filtro UV garantiza durabilidad y mayor resistencia.",
+        "en": "Polypropylene cable with UV filter for high solar exposure activities. Extends its lifespan; the UV filter ensures durability and greater resistance.",
+        "pt": "Cabo de polipropileno com filtro UV para atividades de alta exposição solar. Prolonga sua vida útil; o filtro UV garante durabilidade e maior resistência.",
+        "zh": "带有 UV 过滤器的聚丙烯电缆，适用于高太阳暴露活动。延长其使用寿命；UV 过滤器确保耐用性和更强的抗性。",
+        "ar": "كابل بولي بروبيلين مع فلتر UV للأنشطة ذات التعرض الشمسي العالي. يمدد عمره الافتراضي؛ يضمن فلتر UV المتانة ومقاومة أكبر."
+      },
+      "specs": [],
+      "matrix": {
+        "title": {
+          "es": "ESPECIFICACIONES",
+          "en": "SPECIFICATIONS",
+          "pt": "ESPECIFICAÇÕES",
+          "zh": "规格",
+          "ar": "المواصفات"
+        },
+        "headers": [
+          {
+            "es": "Calibre",
+            "en": "Gauge",
+            "pt": "Calibre",
+            "zh": "规格",
+            "ar": "المقياس"
+          },
+          "0.16 in",
+          "0.24 in",
+          "0.31 in",
+          "0.39 in",
+          "0.43 in",
+          "0.51 in",
+          "0.63 in",
+          "0.75 in"
+        ],
+        "rows": [
+          {
+            "label": {
+              "es": "Rendimiento por rollo ±10%",
+              "en": "Yield per roll ±10%",
+              "pt": "Rendimento por rolo ±10%",
+              "zh": "每卷产量 ±10%",
+              "ar": "العائد لكل لفة ±10%"
+            },
+            "cells": [
+              "77,952.76 in\n2,165.34 yd",
+              "32,283.46 in\n896.76 yd",
+              "24,606.30 in\n683.51 yd",
+              "19,291.30 in\n535.87 yd",
+              "15,354.33 in\n426.63 yd",
+              "13,464.57 in\n373.85 yd",
+              "11,417.32 in\n317.15 yd",
+              "10,590.49 in\n294.07 yd"
+            ]
+          },
+          {
+            "label": {
+              "es": "Unidades por paquete",
+              "en": "Units per package",
+              "pt": "Unidades por pacote",
+              "zh": "每包单位",
+              "ar": "الوحدات لكل حزمة"
+            },
+            "cells": [
+              "1",
+              "1",
+              "1",
+              "1",
+              "1",
+              "1",
+              "1",
+              "1"
+            ]
+          },
+          {
+            "label": {
+              "es": "Peso promedio ±10%",
+              "en": "Average weight ±10%",
+              "pt": "Peso médio ±10%",
+              "zh": "平均重量 ±10%",
+              "ar": "الوزن المتوسط ±10%"
+            },
+            "cells": [
+              "39.68 lb",
+              "52.91 lb",
+              "52.91 lb",
+              "52.91 lb",
+              "55.12 lb",
+              "68.34 lb",
+              "79.37 lb",
+              "99.21 lb"
+            ]
+          },
+          {
+            "label": {
+              "es": "Resistencia a la tracción ±10%",
+              "en": "Tensile strength ±10%",
+              "pt": "Resistência à tração ±10%",
+              "zh": "抗拉强度 ±10%",
+              "ar": "قوة الشد ±10%"
+            },
+            "cells": [
+              "385.81 lb/f",
+              "963.42 lb/f",
+              "1,322.77 lb/f",
+              "1,792.08 lb/f",
+              "2,248.71 lb/f",
+              "3,113.12 lb/f",
+              "4,299.00 lb/f",
+              "5,291.09 lb/f"
+            ]
+          }
+        ],
+        "note": {
+          "es": "Calibres de 0.16 in / 0.004 yd a 0.75 in / 0.021 yd.",
+          "en": "Gauges from 0.16 in / 0.004 yd to 0.75 in / 0.021 yd.",
+          "pt": "Calibres de 0.16 in / 0.004 yd a 0.75 in / 0.021 yd.",
+          "zh": "规格从 0.16 in / 0.004 yd 到 0.75 in / 0.021 yd。",
+          "ar": "المقاييس من 0.16 in / 0.004 yd إلى 0.75 in / 0.021 yd."
+        }
+      },
+      "visual": {
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "rotate": 0
+      }
+    },
+    {
+      "nombre": {
+        "es": "CUERDA NEGRA COLORIDA",
+        "en": "COLORFUL BLACK ROPE",
+        "pt": "CORDÃO PRETO COLORIDO",
+        "zh": "彩色黑绳",
+        "ar": "حبل أسود ملون"
+      },
+      "img": "",
+      "lado": "",
+      "desc": {
+        "es": "Amplia variedad de presentaciones, calibres y colores (sólidos o combinados), reforzadas, personalizadas o rígidas. Alta resistencia y rendimiento; suave para nudos. Ideal para sujeción de cargas ligeras y pesadas.",
+        "en": "Wide variety of presentations, gauges, and colors (solid or combined), reinforced, customized, or rigid. High strength and performance; soft for knots. Ideal for securing light and heavy loads.",
+        "pt": "Ampla variedade de apresentações, calibres e cores (sólidos ou combinados), reforçadas, personalizadas ou rígidas. Alta resistência e desempenho; suave para nós. Ideal para a fixação de cargas leves e pesadas.",
+        "zh": "提供多种规格、厚度和颜色（单色或组合），可加固、定制或刚性。高强度和性能；柔软以便打结。非常适合固定轻重负载。",
+        "ar": "مجموعة واسعة من العروض، المقاييس والألوان (صلبة أو مركبة)، معززة، مخصصة أو صلبة. قوة وأداء عالي؛ ناعمة للعقد. مثالية لتأمين الأحمال الخفيفة والثقيلة."
+      },
+      "specs": [],
+      "matrix": {
+        "title": {
+          "es": "ESPECIFICACIONES",
+          "en": "SPECIFICATIONS",
+          "pt": "ESPECIFICAÇÕES",
+          "zh": "规格",
+          "ar": "المواصفات"
+        },
+        "headers": [
+          {
+            "es": "Calibre",
+            "en": "Gauge",
+            "pt": "Calibre",
+            "zh": "规格",
+            "ar": "المقياس"
+          },
+          "0.24 in",
+          "0.31 in",
+          "0.39 in",
+          "0.47 in",
+          "0.51 in",
+          "0.63 in",
+          "0.75 in",
+          "0.98 in"
+        ],
+        "rows": [
+          {
+            "label": {
+              "es": "Rendimiento por rollo ±10%",
+              "en": "Yield per roll ±10%",
+              "pt": "Rendimento por rolo ±10%",
+              "zh": "每卷产量 ±10%",
+              "ar": "العائد لكل لفة ±10%"
+            },
+            "cells": [
+              "33,267.72 in\n924.30 yd",
+              "25,393.70 in\n705.88 yd",
+              "17,716.54 in\n492.12 yd",
+              "13,779.53 in\n382.76 yd",
+              "15,354.33 in\n426.63 yd",
+              "11,417.32 in\n317.15 yd",
+              "10,393.70 in\n288.71 yd",
+              "6,850.39 in\n90.28 yd"
+            ]
+          },
+          {
+            "label": {
+              "es": "Unidades por paquete",
+              "en": "Units per package",
+              "pt": "Unidades por pacote",
+              "zh": "每包单位",
+              "ar": "الوحدات لكل حزمة"
+            },
+            "cells": [
+              "1",
+              "1",
+              "1",
+              "1",
+              "1",
+              "1",
+              "1",
+              "1"
+            ]
+          },
+          {
+            "label": {
+              "es": "Peso promedio ±10%",
+              "en": "Average weight ±10%",
+              "pt": "Peso médio ±10%",
+              "zh": "平均重量 ±10%",
+              "ar": "الوزن المتوسط ±10%"
+            },
+            "cells": [
+              "46.30 lb",
+              "52.91 lb",
+              "52.91 lb",
+              "52.91 lb",
+              "55.12 lb",
+              "79.37 lb",
+              "99.21 lb",
+              "112.44 lb"
+            ]
+          },
+          {
+            "label": {
+              "es": "Resistencia a la tracción ±10%",
+              "en": "Tensile strength ±10%",
+              "pt": "Resistência à tração ±10%",
+              "zh": "抗拉强度 ±10%",
+              "ar": "قوة الشد ±10%"
+            },
+            "cells": [
+              "749.57 lb/f",
+              "1,234.59 lb/f",
+              "1,433.00 lb/f",
+              "1,719.60 lb/f",
+              "1,984.16 lb/f",
+              "2,976.24 lb/f",
+              "4,232.87 lb/f",
+              "5,026.53 lb/f"
+            ]
+          }
+        ],
+        "note": {
+          "es": "Calibres de 6, 8, 10, 11, 13, 16, 19 y 25 mm. Opciones de 3 o 4 hebras.",
+          "en": "Calibers of 6, 8, 10, 11, 13, 16, 19, and 25 mm. Options of 3 or 4 strands.",
+          "pt": "Calibres de 6, 8, 10, 11, 13, 16, 19 e 25 mm. Opções de 3 ou 4 fios.",
+          "zh": "6、8、10、11、13、16、19 和 25 毫米的规格。选项为 3 或 4 根线。",
+          "ar": "أقطار 6 و 8 و 10 و 11 و 13 و 16 و 19 و 25 مم. خيارات من 3 أو 4 خيوط."
+        }
+      },
       "visual": {
         "scale": 1,
         "offsetX": 0,

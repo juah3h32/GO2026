@@ -1,8 +1,26 @@
 {
   "cover": {
-    "t1": { "es": "ACOLCHADO", "en": "AGRICULTURAL", "pt": "ACOLCHOADO", "zh": "农用", "ar": "تغطية" },
-    "t2": { "es": "AGRÍCOLA", "en": "MULCH", "pt": "AGRÍCOLA", "zh": "地膜", "ar": "زراعية" },
-    "division": { "es": "DIVISIÓN AGRÍCOLA", "en": "AGRICULTURAL DIVISION", "pt": "DIVISÃO AGRÍCOLA", "zh": "农业部门", "ar": "قسم الزراعة" }
+    "t1": {
+      "es": "ACOLCHADO",
+      "en": "AGRICULTURAL",
+      "pt": "ACOLCHOADO",
+      "zh": "农用",
+      "ar": "تغطية"
+    },
+    "t2": {
+      "es": "AGRÍCOLA",
+      "en": "MULCH",
+      "pt": "AGRÍCOLA",
+      "zh": "地膜",
+      "ar": "زراعية"
+    },
+    "division": {
+      "es": "DIVISIÓN AGRÍCOLA",
+      "en": "AGRICULTURAL DIVISION",
+      "pt": "DIVISÃO AGRÍCOLA",
+      "zh": "农业部门",
+      "ar": "قسم الزراعة"
+    }
   },
   "coverImg": "acolachad1.webp",
   "visualCover": {
@@ -53,7 +71,11 @@
         "ar": "تغطية زراعية"
       },
       "img": "acolachad2.webp",
-      "gallery": ["acolachad1.webp", "acolachad2.webp", "acolachad3.webp"],
+      "gallery": [
+        "acolachad1.webp",
+        "acolachad2.webp",
+        "acolachad3.webp"
+      ],
       "lado": "left",
       "desc": {
         "es": "Lámina plástica de alta tecnología disponible en diferentes configuraciones (Negro/Negro, Plata/Negro, Blanco/Negro) para adaptarse a las necesidades específicas de cada cultivo y clima. Garantiza un control total de malezas y optimización de recursos hídricos.",
@@ -64,46 +86,106 @@
       },
       "specs": [
         {
-          "c": { "es": "Ancho", "en": "Width", "pt": "Largura", "zh": "宽度", "ar": "العرض" },
+          "c": {
+            "es": "Ancho",
+            "en": "Width",
+            "pt": "Largura",
+            "zh": "宽度",
+            "ar": "العرض"
+          },
           "min": "0.60",
           "max": "2.40",
-          "tol": { "es": "±0.02", "en": "±0.02", "pt": "±0.02", "zh": "±0.02", "ar": "±0.02" },
+          "tol": {
+            "es": "±0.02",
+            "en": "±0.02",
+            "pt": "±0.02",
+            "zh": "±0.02",
+            "ar": "±0.02"
+          },
           "uni": "m",
           "met": "—",
           "hl": false
         },
         {
-          "c": { "es": "Espesor", "en": "Thickness", "pt": "Espessura", "zh": "厚度", "ar": "السماكة" },
+          "c": {
+            "es": "Espesor",
+            "en": "Thickness",
+            "pt": "Espessura",
+            "zh": "厚度",
+            "ar": "السماكة"
+          },
           "min": "0.6",
           "max": "1.5",
-          "tol": { "es": "±5%", "en": "±5%", "pt": "±5%", "zh": "±5%", "ar": "±5%" },
+          "tol": {
+            "es": "±5%",
+            "en": "±5%",
+            "pt": "±5%",
+            "zh": "±5%",
+            "ar": "±5%"
+          },
           "uni": "mil",
           "met": "NMX-E-093",
           "hl": false
         },
         {
-          "c": { "es": "Largo", "en": "Length", "pt": "Comprimento", "zh": "长度", "ar": "الطول" },
+          "c": {
+            "es": "Largo",
+            "en": "Length",
+            "pt": "Comprimento",
+            "zh": "长度",
+            "ar": "الطول"
+          },
           "min": "500",
           "max": "2000",
-          "tol": { "es": "±2%", "en": "±2%", "pt": "±2%", "zh": "±2%", "ar": "±2%" },
+          "tol": {
+            "es": "±2%",
+            "en": "±2%",
+            "pt": "±2%",
+            "zh": "±2%",
+            "ar": "±2%"
+          },
           "uni": "m",
           "met": "—",
           "hl": false
         },
         {
-          "c": { "es": "Protección UV", "en": "UV Protection", "pt": "Proteção UV", "zh": "紫外线防护", "ar": "حماية من الأشعة فوق البنفسجية" },
+          "c": {
+            "es": "Protección UV",
+            "en": "UV Protection",
+            "pt": "Proteção UV",
+            "zh": "紫外线防护",
+            "ar": "حماية من الأشعة فوق البنفسجية"
+          },
           "min": "12",
           "max": "24",
-          "tol": { "es": "Meses", "en": "Months", "pt": "Meses", "zh": "月", "ar": "شهور" },
+          "tol": {
+            "es": "Meses",
+            "en": "Months",
+            "pt": "Meses",
+            "zh": "月",
+            "ar": "شهور"
+          },
           "uni": "m",
           "met": "ASTM D-4329",
           "hl": true
         },
         {
-          "c": { "es": "Opacidad", "en": "Opacity", "pt": "Opacidade", "zh": "不透明度", "ar": "العتمة" },
+          "c": {
+            "es": "Opacidad",
+            "en": "Opacity",
+            "pt": "Opacidade",
+            "zh": "不透明度",
+            "ar": "العتمة"
+          },
           "min": "99.9",
           "max": "100",
-          "tol": { "es": "Mínimo", "en": "Minimum", "pt": "Mínimo", "zh": "最小", "ar": "الحد الأدنى" },
+          "tol": {
+            "es": "Mínimo",
+            "en": "Minimum",
+            "pt": "Mínimo",
+            "zh": "最小",
+            "ar": "الحد الأدنى"
+          },
           "uni": "%",
           "met": "—",
           "hl": true

@@ -1,6 +1,14 @@
 {
   "commits": [
     {
+      "hash": "2ea6caf",
+      "date": "2026-06-12",
+      "message": "fix(navbar): texto blanco en portada de catalogo (hero oscuro), negro en detalle",
+      "rawMessage": "fix(navbar): texto blanco en portada de catalogo (hero oscuro), negro en detalle",
+      "type": "fix",
+      "area": "General"
+    },
+    {
       "hash": "99d180d",
       "date": "2026-06-12",
       "message": "fix(navbar): texto blanco en vacantes sobre hero oscuro (force-white)",
@@ -2146,9 +2154,9 @@
     }
   ],
   "stats": {
-    "total": 268,
+    "total": 269,
     "byType": {
-      "fix": 80,
+      "fix": 81,
       "feat": 47,
       "update": 12,
       "chore": 6,
@@ -2158,9 +2166,9 @@
       "release": 110
     },
     "byArea": {
+      "General": 192,
       "Reclutamiento": 2,
       "i18n": 4,
-      "General": 191,
       "Media": 22,
       "Admin/API": 25,
       "Performance": 6,
@@ -2168,12 +2176,20 @@
       "Productos": 16
     },
     "byMonth": {
-      "2026-06": 110,
+      "2026-06": 111,
       "2026-05": 33,
       "2026-04": 29,
       "2026-03": 96
     },
     "byAreaType": {
+      "General": {
+        "fix": 44,
+        "update": 7,
+        "chore": 5,
+        "feat": 21,
+        "style": 5,
+        "release": 110
+      },
       "Reclutamiento": {
         "fix": 1,
         "feat": 1
@@ -2181,14 +2197,6 @@
       "i18n": {
         "feat": 2,
         "fix": 2
-      },
-      "General": {
-        "fix": 43,
-        "update": 7,
-        "chore": 5,
-        "feat": 21,
-        "style": 5,
-        "release": 110
       },
       "Media": {
         "fix": 16,
@@ -2220,5 +2228,5 @@
       }
     }
   },
-  "generatedAt": "2026-06-12T17:47:51.023Z"
+  "generatedAt": "2026-06-12T18:12:33.965Z"
 }

@@ -25,24 +25,31 @@
   "productos": [
     {
       "es": "RAFIA DE ATAR",
-      "en": "TYING RAFFIA",
-      "pt": "RAFIA DE AMARRAR",
-      "zh": "捆扎拉菲草",
-      "ar": "رافيا الربط"
+      "en": "JUTE TWINE",
+      "pt": "CORDÃO DE JUTA",
+      "zh": "黄麻绳",
+      "ar": "خيط الجوت"
     },
     {
       "es": "RAFIA ECOLÓGICA",
-      "en": "ECO RAFFIA",
-      "pt": "RAFIA ECOLÓGICA",
-      "zh": "环保拉菲草",
-      "ar": "الرافيا البيئية"
+      "en": "ECOLOGICAL JUTE",
+      "pt": "JUTA ECOLÓGICA",
+      "zh": "生态黄麻",
+      "ar": "جوت بيئي"
     },
     {
       "es": "RAFIA FIBRILADA NEGRA",
       "en": "BLACK FIBRILLATED RAFFIA",
       "pt": "RAFIA FIBRILADA PRETA",
-      "zh": "黑色原纤化拉菲草",
+      "zh": "黑色纤维拉菲",
       "ar": "رافيا ليفية سوداء"
+    },
+    {
+      "es": "RAFIA SOPLADA",
+      "en": "BLOWN RAFFIA",
+      "pt": "RAFIA SOPRADA",
+      "zh": "吹塑拉菲",
+      "ar": "رافيا منفوخة"
     }
   ],
   "cover": {
@@ -73,130 +80,94 @@
     {
       "nombre": {
         "es": "RAFIA DE ATAR",
-        "en": "TYING RAFFIA",
-        "pt": "RAFIA DE AMARRAR",
-        "zh": "捆扎拉菲草",
-        "ar": "رافيا الربط"
+        "en": "JUTE TWINE",
+        "pt": "CORDÃO DE JUTA",
+        "zh": "黄麻绳",
+        "ar": "خيط الجوت"
       },
       "img": "/images/rafias/atar.png",
       "lado": "",
       "desc": {
-        "es": "Fabricada con polipropileno 100% virgen, esta rafia ofrece alta resistencia y excelente rendimiento, manteniendo sus propiedades físicas aun en condiciones de intemperie. Su calidad garantiza durabilidad y desempeño confiable en aplicaciones exigentes. Es ampliamente utilizada en los sectores agrícola, avícola y de horticultura.",
-        "en": "Made with 100% virgin polypropylene, this raffia offers high resistance and excellent yield, maintaining its physical properties even in outdoor conditions. Its quality guarantees durability and reliable performance in demanding applications. It is widely used in the agricultural, poultry and horticultural sectors.",
-        "pt": "Fabricada com polipropileno 100% virgem, esta rafia oferece alta resistência e excelente rendimento, mantendo suas propriedades físicas mesmo em condições de intempérie. Sua qualidade garante durabilidade e desempenho confiável em aplicações exigentes. É amplamente utilizada nos setores agrícola, avícola e de horticultura.",
-        "zh": "采用 100% 原生聚丙烯制造，这款拉菲草提供高强度和出色性能，即使在户外条件下也能保持其物理特性。其质量保证了在要求苛刻的应用中的耐久性和可靠性。广泛应用于农业、禽类养殖和园艺行业。",
-        "ar": "مصنوعة من بولي بروبيلين 100% بكر، تقدّم هذه الرافيا مقاومة عالية وأداءً ممتازاً مع الحفاظ على خصائصها الفيزيائية حتى في الظروف الجوية القاسية. جودتها تضمن المتانة والأداء الموثوق في التطبيقات الصعبة. تُستخدم على نطاق واسع في القطاعات الزراعية والدواجن والبستنة."
+        "es": "Rafia fibrilada T1 de polipropileno 100% virgen, sin alteraciones físicas ante los elementos. Gran resistencia y rendimiento para agrícola, avícola y horticultura. Variedad de colores y opción filtro UV.",
+        "en": "100% virgin polypropylene fibrillated T1 raffia, with no physical alterations against the elements. Great strength and performance for agriculture, poultry, and horticulture. Variety of colors and UV filter option.",
+        "pt": "RAFIA fibrilada T1 de polipropileno 100% virgem, sem alterações físicas diante dos elementos. Grande resistência e desempenho para agricultura, avicultura e horticultura. Variedade de cores e opção de filtro UV.",
+        "zh": "100% 原生聚丙烯纤维拉菲 T1，面对元素没有物理变化。对农业、家禽和园艺具有很强的强度和性能。多种颜色和 UV 过滤选项。",
+        "ar": "رافيا ليفية T1 من بولي بروبيلين 100% عذراء، دون أي تغييرات فيزيائية أمام العناصر. قوة وأداء كبيرين للزراعة والدواجن والبستنة. مجموعة متنوعة من الألوان وخيار فلتر UV."
       },
-      "specs": [
-        {
-          "c": {
-            "es": "Calibre",
-            "en": "Gauge",
-            "pt": "Calibre",
-            "zh": "规格",
-            "ar": "المعيار"
-          },
-          "min": {
-            "es": "2-8 mm",
-            "en": "2-8 mm",
-            "pt": "2-8 mm",
-            "zh": "2-8 毫米",
-            "ar": "2-8 مم"
-          },
-          "max": "",
-          "tol": {
-            "es": "",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "",
-          "met": "",
-          "hl": false
+      "specs": [],
+      "matrix": {
+        "title": {
+          "es": "ESPECIFICACIONES",
+          "en": "SPECIFICATIONS",
+          "pt": "ESPECIFICAÇÕES",
+          "zh": "规格",
+          "ar": "المواصفات"
         },
-        {
-          "c": {
-            "es": "Rendimiento m",
-            "en": "Yield (m)",
-            "pt": "Rendimento m",
-            "zh": "米数",
-            "ar": "المردود بالمتر"
+        "headers": [
+          {
+            "es": "Presentación",
+            "en": "Presentation",
+            "pt": "Apresentação",
+            "zh": "演示",
+            "ar": "عرض"
           },
-          "min": {
-            "es": "90 kg",
-            "en": "90 kg",
-            "pt": "90 kg",
-            "zh": "90 公斤",
-            "ar": "90 كجم"
+          "Gauge 2",
+          "Gauge 3",
+          "Gauge 4",
+          "Gauge 4 Forrajera",
+          "Gauge 4 Bananera",
+          "Gauge 6",
+          "Gauge 8",
+          "Gauge 8 Reinforced"
+        ],
+        "rows": [
+          {
+            "label": {
+              "es": "Rendimiento (m/kg) ±10%",
+              "en": "Performance (m/kg) ±10%",
+              "pt": "Desempenho (m/kg) ±10%",
+              "zh": "性能 (m/kg) ±10%",
+              "ar": "الأداء (م/كجم) ±10%"
+            },
+            "cells": [
+              "500",
+              "333",
+              "250",
+              "250",
+              "250",
+              "166",
+              "125",
+              "90"
+            ]
           },
-          "max": "",
-          "tol": {
-            "es": "",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Resistencia kg",
-            "en": "Resistance (kg)",
-            "pt": "Resistência kg",
-            "zh": "强度（公斤）",
-            "ar": "المقاومة بالكجم"
-          },
-          "min": {
-            "es": "60-320 f",
-            "en": "60-320 f",
-            "pt": "60-320 f",
-            "zh": "60-320 磅",
-            "ar": "60-320 f"
-          },
-          "max": "",
-          "tol": {
-            "es": "",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Material",
-            "en": "Material",
-            "pt": "Material",
-            "zh": "材料",
-            "ar": "المادة"
-          },
-          "min": {
-            "es": "PP-UV",
-            "en": "PP-UV",
-            "pt": "PP-UV",
-            "zh": "PP-UV",
-            "ar": "PP-UV"
-          },
-          "max": "",
-          "tol": {
-            "es": "",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "",
-          "met": "",
-          "hl": false
+          {
+            "label": {
+              "es": "Resistencia a la tracción ±10%",
+              "en": "Tensile strength ±10%",
+              "pt": "Resistência à tração ±10%",
+              "zh": "抗拉强度 ±10%",
+              "ar": "قوة الشد ±10%"
+            },
+            "cells": [
+              "132.28 lb/f",
+              "196.2 lb/f",
+              "216.1 lb/f",
+              "231.5 lb/f",
+              "264.6 lb/f",
+              "310.9 lb/f",
+              "476.2 lb/f",
+              "705.5 lb/f"
+            ]
+          }
+        ],
+        "note": {
+          "es": "Calibres de 2, 3, 4, 6 y 8 gramos.",
+          "en": "Calibers of 2, 3, 4, 6, and 8 grams.",
+          "pt": "Calibres de 2, 3, 4, 6 e 8 gramas.",
+          "zh": "2、3、4、6 和 8 克的口径。",
+          "ar": "أقطار 2 و 3 و 4 و 6 و 8 جرام."
         }
-      ],
+      },
       "visual": {
         "scale": 1,
         "offsetX": 0,
@@ -207,130 +178,91 @@
     {
       "nombre": {
         "es": "RAFIA ECOLÓGICA",
-        "en": "ECO RAFFIA",
-        "pt": "RAFIA ECOLÓGICA",
-        "zh": "环保拉菲草",
-        "ar": "الرافيا البيئية"
+        "en": "ECOLOGICAL JUTE",
+        "pt": "JUTA ECOLÓGICA",
+        "zh": "生态黄麻",
+        "ar": "جوت بيئي"
       },
       "img": "/images/rafias/Eco.png",
       "lado": "",
       "desc": {
-        "es": "Fabricada con polipropileno de alta calidad, esta rafia ofrece excelente resistencia y mantiene sus propiedades físicas aun en condiciones de intemperie. Su rendimiento confiable la convierte en una opción ideal para aplicaciones agrícolas, avícolas y de horticultura.",
-        "en": "Made with high-quality polypropylene, this raffia offers excellent resistance and maintains its physical properties even in outdoor conditions. Its reliable yield makes it an ideal option for agricultural, poultry and horticultural applications.",
-        "pt": "Fabricada com polipropileno de alta qualidade, esta rafia oferece excelente resistência e mantém suas propriedades físicas mesmo em condições de intempérie. Seu rendimento confiável a torna uma opção ideal para aplicações agrícolas, avícolas e de horticultura.",
-        "zh": "采用优质聚丙烯制造，这款拉菲草提供出色的强度，即使在户外条件下也能保持其物理特性。其可靠的性能使其成为农业、禽类养殖和园艺应用的理想选择。",
-        "ar": "مصنوعة من بولي بروبيلين عالي الجودة، تقدّم هذه الرافيا مقاومة ممتازة وتحافظ على خصائصها الفيزيائية حتى في الظروف الجوية القاسية. أداؤها الموثوق يجعلها خياراً مثالياً للتطبيقات الزراعية والدواجن والبستنة."
+        "es": "Rafia ECO de polipropileno 100% virgen, enfoque ecológico. Excelente resistencia y durabilidad, resistente a la intemperie. Para agrícola, avícola y horticultura. Variedad de colores y opción filtro UV.",
+        "en": "ECO raffia made of 100% virgin polypropylene, eco-friendly approach. Excellent strength and durability, weather resistant. For agriculture, poultry, and horticulture. Variety of colors and UV filter option.",
+        "pt": "RAFIA ECO de polipropileno 100% virgem, abordagem ecológica. Excelente resistência e durabilidade, resistente às intempéries. Para agricultura, avicultura e horticultura. Variedade de cores e opção de filtro UV.",
+        "zh": "100% 原生聚丙烯环保拉菲，环保理念。出色的强度和耐用性，耐候性。适用于农业、家禽和园艺。多种颜色和 UV 过滤选项。",
+        "ar": "رافيا ECO من بولي بروبيلين 100% عذراء، نهج صديق للبيئة. قوة ومتانة ممتازة، مقاومة للعوامل الجوية. للزراعة والدواجن والبستنة. مجموعة متنوعة من الألوان وخيار فلتر UV."
       },
-      "specs": [
-        {
-          "c": {
-            "es": "Calibre",
-            "en": "Gauge",
-            "pt": "Calibre",
-            "zh": "规格",
-            "ar": "المعيار"
-          },
-          "min": {
-            "es": "2-8",
-            "en": "2-8",
-            "pt": "2-8",
-            "zh": "2-8",
-            "ar": "2-8"
-          },
-          "max": "",
-          "tol": {
-            "es": "",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "",
-          "met": "",
-          "hl": false
+      "specs": [],
+      "matrix": {
+        "title": {
+          "es": "ESPECIFICACIONES",
+          "en": "SPECIFICATIONS",
+          "pt": "ESPECIFICAÇÕES",
+          "zh": "规格",
+          "ar": "المواصفات"
         },
-        {
-          "c": {
-            "es": "Rendimiento m",
-            "en": "Yield (m)",
-            "pt": "Rendimento m",
-            "zh": "米数",
-            "ar": "المردود بالمتر"
+        "headers": [
+          {
+            "es": "Presentación",
+            "en": "Presentation",
+            "pt": "Apresentação",
+            "zh": "演示",
+            "ar": "عرض"
           },
-          "min": {
-            "es": "90-500 kg",
-            "en": "90-500 kg",
-            "pt": "90-500 kg",
-            "zh": "90-500 公斤",
-            "ar": "90-500 كجم"
+          "Gauge 2",
+          "Gauge 3",
+          "Gauge 4",
+          "Gauge 4 Forrajera",
+          "Gauge 6",
+          "Gauge 8",
+          "Gauge 8 Reinforced"
+        ],
+        "rows": [
+          {
+            "label": {
+              "es": "Rendimiento (m/kg) ±10%",
+              "en": "Performance (m/kg) ±10%",
+              "pt": "Desempenho (m/kg) ±10%",
+              "zh": "性能 (m/kg) ±10%",
+              "ar": "الأداء (م/كجم) ±10%"
+            },
+            "cells": [
+              "500",
+              "333",
+              "250",
+              "250",
+              "166",
+              "125",
+              "90"
+            ]
           },
-          "max": "",
-          "tol": {
-            "es": "",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Resistencia kg",
-            "en": "Resistance (kg)",
-            "pt": "Resistência kg",
-            "zh": "强度（公斤）",
-            "ar": "المقاومة بالكجم"
-          },
-          "min": {
-            "es": "59-255 f",
-            "en": "59-255 f",
-            "pt": "59-255 f",
-            "zh": "59-255 磅",
-            "ar": "59-255 f"
-          },
-          "max": "",
-          "tol": {
-            "es": "",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Material",
-            "en": "Material",
-            "pt": "Material",
-            "zh": "材料",
-            "ar": "المادة"
-          },
-          "min": {
-            "es": "PP-UV",
-            "en": "PP-UV",
-            "pt": "PP-UV",
-            "zh": "PP-UV",
-            "ar": "PP-UV"
-          },
-          "max": "",
-          "tol": {
-            "es": "",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "",
-          "met": "",
-          "hl": false
+          {
+            "label": {
+              "es": "Resistencia a la tracción ±10%",
+              "en": "Tensile strength ±10%",
+              "pt": "Resistência à tração ±10%",
+              "zh": "抗拉强度 ±10%",
+              "ar": "قوة الشد ±10%"
+            },
+            "cells": [
+              "130.07 lb/f",
+              "141.10 lb/f",
+              "182.98 lb/f",
+              "198.42 lb/f",
+              "286.60 lb/f",
+              "440.92 lb/f",
+              "562.17 lb/f"
+            ]
+          }
+        ],
+        "note": {
+          "es": "Calibres de 2, 3, 4, 6 y 8 gramos.",
+          "en": "Calibers of 2, 3, 4, 6, and 8 grams.",
+          "pt": "Calibres de 2, 3, 4, 6 e 8 gramas.",
+          "zh": "2、3、4、6 和 8 克的口径。",
+          "ar": "أقطار 2 و 3 و 4 و 6 و 8 جرام."
         }
-      ],
+      },
       "visual": {
         "scale": 1,
         "offsetX": 0,
@@ -343,128 +275,178 @@
         "es": "RAFIA FIBRILADA NEGRA",
         "en": "BLACK FIBRILLATED RAFFIA",
         "pt": "RAFIA FIBRILADA PRETA",
-        "zh": "黑色原纤化拉菲草",
+        "zh": "黑色纤维拉菲",
         "ar": "رافيا ليفية سوداء"
       },
       "img": "/images/rafias/negra.png",
       "lado": "",
       "desc": {
-        "es": "Fabricada con polipropileno de alta calidad, esta rafia ofrece gran resistencia y mantiene sus propiedades físicas aun en condiciones de intemperie. Su excelente rendimiento la hace ideal para aplicaciones industriales, ferreteras y de empaque, así como para los sectores agrícola, avícola y de horticultura.",
-        "en": "Made with high-quality polypropylene, this raffia offers great resistance and maintains its physical properties even in outdoor conditions. Its excellent yield makes it ideal for industrial, hardware and packaging applications, as well as for the agricultural, poultry and horticultural sectors.",
-        "pt": "Fabricada com polipropileno de alta qualidade, esta rafia oferece grande resistência e mantém suas propriedades físicas mesmo em condições de intempérie. Seu excelente rendimento a torna ideal para aplicações industriais, de ferragem e embalagem, bem como para os setores agrícola, avícola e de horticultura.",
-        "zh": "采用优质聚丙烯制造，这款拉菲草提供高强度，即使在户外条件下也能保持其物理特性。其出色的性能使其非常适合工业、五金和包装应用，以及农业、禽类养殖和园艺行业。",
-        "ar": "مصنوعة من بولي بروبيلين عالي الجودة، تقدّم هذه الرافيا مقاومة كبيرة وتحافظ على خصائصها الفيزيائية حتى في الظروف الجوية. أداؤها الممتاز يجعلها مثالية للتطبيقات الصناعية والأدوات والتغليف، فضلاً عن القطاعات الزراعية والدواجن والبستنة."
+        "es": "Hilo fibrilado de polipropileno 100% virgen, durabilidad y resistencia incluso en exteriores. Adecuado para agrícola, avícola y hortícola. Color negro con opción de filtro UV.",
+        "en": "Fibrillated polypropylene thread 100% virgin, durability and strength even outdoors. Suitable for agriculture, poultry, and horticulture. Black color with UV filter option.",
+        "pt": "Fio fibrilado de polipropileno 100% virgem, durabilidade e resistência mesmo ao ar livre. Adequado para agricultura, avicultura e horticultura. Cor preta com opção de filtro UV.",
+        "zh": "100% 原生聚丙烯纤维线，耐用性和强度即使在户外也能保持。适用于农业、家禽和园艺。黑色，带有 UV 过滤选项。",
+        "ar": "خيط بولي بروبيلين ليفي 100% عذراء، متانة وقوة حتى في الهواء الطلق. مناسب للزراعة والدواجن والبستنة. لون أسود مع خيار فلتر UV."
       },
-      "specs": [
-        {
-          "c": {
-            "es": "Calibre",
-            "en": "Gauge",
-            "pt": "Calibre",
-            "zh": "规格",
-            "ar": "المعيار"
-          },
-          "min": {
-            "es": "2-8",
-            "en": "2-8",
-            "pt": "2-8",
-            "zh": "2-8",
-            "ar": "2-8"
-          },
-          "max": "",
-          "tol": {
-            "es": "",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "",
-          "met": "",
-          "hl": false
+      "specs": [],
+      "matrix": {
+        "title": {
+          "es": "ESPECIFICACIONES",
+          "en": "SPECIFICATIONS",
+          "pt": "ESPECIFICAÇÕES",
+          "zh": "规格",
+          "ar": "المواصفات"
         },
-        {
-          "c": {
-            "es": "Rendimiento m",
-            "en": "Yield (m)",
-            "pt": "Rendimento m",
-            "zh": "米数",
-            "ar": "المردود بالمتر"
+        "headers": [
+          {
+            "es": "Presentación",
+            "en": "Presentation",
+            "pt": "Apresentação",
+            "zh": "演示",
+            "ar": "عرض"
           },
-          "min": {
-            "es": "90-500 kg",
-            "en": "90-500 kg",
-            "pt": "90-500 kg",
-            "zh": "90-500 公斤",
-            "ar": "90-500 كجم"
+          "Gauge 2",
+          "Gauge 3",
+          "Gauge 4",
+          "Gauge 6",
+          "Gauge 8",
+          "Gauge 8 Reinforced"
+        ],
+        "rows": [
+          {
+            "label": {
+              "es": "Rendimiento (m/kg) ±10%",
+              "en": "Performance (m/kg) ±10%",
+              "pt": "Desempenho (m/kg) ±10%",
+              "zh": "性能 (m/kg) ±10%",
+              "ar": "الأداء (م/كجم) ±10%"
+            },
+            "cells": [
+              "500",
+              "333",
+              "250",
+              "166",
+              "125",
+              "90"
+            ]
           },
-          "max": "",
-          "tol": {
-            "es": "",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Resistencia kg",
-            "en": "Resistance (kg)",
-            "pt": "Resistência kg",
-            "zh": "强度（公斤）",
-            "ar": "المقاومة بالكجم"
-          },
-          "min": {
-            "es": "59-255 f",
-            "en": "59-255 f",
-            "pt": "59-255 f",
-            "zh": "59-255 磅",
-            "ar": "59-255 f"
-          },
-          "max": "",
-          "tol": {
-            "es": "",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Material",
-            "en": "Material",
-            "pt": "Material",
-            "zh": "材料",
-            "ar": "المادة"
-          },
-          "min": {
-            "es": "PP-UV",
-            "en": "PP-UV",
-            "pt": "PP-UV",
-            "zh": "PP-UV",
-            "ar": "PP-UV"
-          },
-          "max": "",
-          "tol": {
-            "es": "",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "",
-          "met": "",
-          "hl": false
+          {
+            "label": {
+              "es": "Resistencia a la tracción ±10%",
+              "en": "Tensile strength ±10%",
+              "pt": "Resistência à tração ±10%",
+              "zh": "抗拉强度 ±10%",
+              "ar": "قوة الشد ±10%"
+            },
+            "cells": [
+              "130.07 lb/f",
+              "141.10 lb/f",
+              "182.98 lb/f",
+              "286.60 lb/f",
+              "440.92 lb/f",
+              "562.17 lb/f"
+            ]
+          }
+        ],
+        "note": {
+          "es": "Calibres de 2, 3, 4, 6 y 8 gramos.",
+          "en": "Calibers of 2, 3, 4, 6, and 8 grams.",
+          "pt": "Calibres de 2, 3, 4, 6 e 8 gramas.",
+          "zh": "2、3、4、6 和 8 克的口径。",
+          "ar": "أقطار 2 و 3 و 4 و 6 و 8 جرام."
         }
-      ],
+      },
+      "visual": {
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "rotate": 0
+      }
+    },
+    {
+      "nombre": {
+        "es": "RAFIA SOPLADA",
+        "en": "BLOWN RAFFIA",
+        "pt": "RAFIA SOPRADA",
+        "zh": "吹塑拉菲",
+        "ar": "رافيا منفوخة"
+      },
+      "img": "",
+      "lado": "",
+      "desc": {
+        "es": "Diseñada para aplicaciones de alto rendimiento; resistencia y versatilidad. Para sectores industriales, agrícolas y de empaque: almacenes, fábricas, ferreterías y talleres. Disponible con protección UV.",
+        "en": "Designed for high-performance applications; strength and versatility. For industrial, agricultural, and packaging sectors: warehouses, factories, hardware stores, and workshops. Available with UV protection.",
+        "pt": "Projetado para aplicações de alto desempenho; resistência e versatilidade. Para setores industriais, agrícolas e de embalagem: armazéns, fábricas, lojas de ferragens e oficinas. Disponível com proteção UV.",
+        "zh": "专为高性能应用而设计；强度和多功能性。适用于工业、农业和包装行业：仓库、工厂、五金店和车间。可提供 UV 保护。",
+        "ar": "مصمم لتطبيقات عالية الأداء؛ القوة والمرونة. للقطاعات الصناعية والزراعية والتعبئة: المستودعات والمصانع ومتاجر الأدوات وورش العمل. متوفر مع حماية من الأشعة فوق البنفسجية."
+      },
+      "specs": [],
+      "matrix": {
+        "title": {
+          "es": "ESPECIFICACIONES",
+          "en": "SPECIFICATIONS",
+          "pt": "ESPECIFICAÇÕES",
+          "zh": "规格",
+          "ar": "المواصفات"
+        },
+        "headers": [
+          {
+            "es": "Presentación",
+            "en": "Presentation",
+            "pt": "Apresentação",
+            "zh": "演示",
+            "ar": "عرض"
+          },
+          "Gauge 0.70",
+          "Gauge 1.0",
+          "Gauge 1.5",
+          "Gauge 2.0",
+          "Gauge 1.2 Flat",
+          "Gauge 2.2 Ribbon"
+        ],
+        "rows": [
+          {
+            "label": {
+              "es": "Rendimiento (m/kg) ±10%",
+              "en": "Performance (m/kg) ±10%",
+              "pt": "Desempenho (m/kg) ±10%",
+              "zh": "性能 (m/kg) ±10%",
+              "ar": "الأداء (م/كجم) ±10%"
+            },
+            "cells": [
+              "1428",
+              "1000",
+              "666",
+              "500",
+              "454",
+              "454"
+            ]
+          },
+          {
+            "label": {
+              "es": "Resistencia a la tracción ±10%",
+              "en": "Tensile strength ±10%",
+              "pt": "Resistência à tração ±10%",
+              "zh": "抗拉强度 ±10%",
+              "ar": "قوة الشد ±10%"
+            },
+            "cells": [
+              "59.52 lb/f",
+              "83.78 lb/f",
+              "138.89 lb/f",
+              "196.23 lb/f",
+              "77.16 lb/f",
+              "53 kg/f"
+            ]
+          }
+        ],
+        "note": {
+          "es": "Calibres de 0.70, 1.0, 1.5, 2 y 2.2 gramos.",
+          "en": "Calibers of 0.70, 1.0, 1.5, 2, and 2.2 grams.",
+          "pt": "Calibres de 0,70, 1,0, 1,5, 2 e 2,2 gramas.",
+          "zh": "0.70、1.0、1.5、2 和 2.2 克的口径。",
+          "ar": "أقطار 0.70 و 1.0 و 1.5 و 2 و 2.2 جرام."
+        }
+      },
       "visual": {
         "scale": 1,
         "offsetX": 0,
