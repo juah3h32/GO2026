@@ -24,45 +24,45 @@
   },
   "productos": [
     {
-      "es": "Stretch Premium",
-      "en": "Premium Stretch",
-      "pt": "Stretch Premium",
-      "zh": "高级拉伸膜",
-      "ar": "ستريتش بريميوم"
+      "es": "STRETCH PREMIUM",
+      "en": "STRETCH PREMIUM",
+      "pt": "STRETCH PREMIUM",
+      "zh": "高档拉伸膜",
+      "ar": "سترتش بريميوم"
     },
     {
-      "es": "Automático",
-      "en": "Automatic",
-      "pt": "Automático",
-      "zh": "自动型",
-      "ar": "أوتوماتيكي"
+      "es": "AUTOMÁTICO",
+      "en": "AUTOMATIC",
+      "pt": "AUTOMÁTICO",
+      "zh": "自动",
+      "ar": "تلقائي"
     },
     {
-      "es": "Manual Preestirado",
-      "en": "Pre-Stretched Manual",
-      "pt": "Manual Pré-esticado",
-      "zh": "手动预拉伸型",
+      "es": "MANUAL PREESTIRADO",
+      "en": "MANUAL PRE-STRETCHED",
+      "pt": "MANUAL PREESTIRADO",
+      "zh": "手动预拉伸",
       "ar": "يدوي مسبق الشد"
     },
     {
-      "es": "Manual Banding",
-      "en": "Manual Banding",
-      "pt": "Cintagem Manual",
-      "zh": "手动捆扎型",
-      "ar": "الربط اليدوي"
+      "es": "MANUAL BANDING",
+      "en": "MANUAL BANDING",
+      "pt": "MANUAL BANDING",
+      "zh": "手动捆绑",
+      "ar": "ربط يدوي"
     },
     {
-      "es": "Coreles",
-      "en": "Coreless",
-      "pt": "Sem Núcleo",
-      "zh": "无纸芯型",
-      "ar": "بدون لب"
+      "es": "CORELES",
+      "en": "CORELES",
+      "pt": "CORELES",
+      "zh": "核心",
+      "ar": "كورليس"
     },
     {
-      "es": "Manual Rígido",
-      "en": "Rigid Manual",
-      "pt": "Manual Rígido",
-      "zh": "手动硬质型",
+      "es": "MANUAL RÍGIDO",
+      "en": "MANUAL RIGID",
+      "pt": "MANUAL RÍGIDO",
+      "zh": "手动刚性",
       "ar": "يدوي صلب"
     }
   ],
@@ -96,87 +96,87 @@
         "es": "STRETCH PREMIUM",
         "en": "STRETCH PREMIUM",
         "pt": "STRETCH PREMIUM",
-        "zh": "高级拉伸膜",
-        "ar": "ستريتش بريميوم"
+        "zh": "高档拉伸膜",
+        "ar": "سترتش بريميوم"
       },
       "img": "premium.png",
-      "lado": "left",
+      "lado": "",
       "desc": {
-        "es": "Film estirable automático diseñado para máquinas de envoltura de baja y media velocidad, con elongaciones que no exceden el 280%. Ideal para su uso con equipos de brazo giratorio y plato giratorio.",
-        "en": "Automatic stretch film designed for low- and medium-speed wrapping machines, with elongation not exceeding 280%. Ideal for use with rotary arm and turntable equipment.",
-        "pt": "Filme estirável automático projetado para máquinas de embalagem de baixa e média velocidade, com alongamentos que não excedem 280%. Ideal para uso com equipamentos de braço giratório e mesa giratória.",
-        "zh": "自动拉伸膜，专为中低速缠绕包装机设计，伸长率不超过280%。适用于旋转臂和转盘设备。",
-        "ar": "فيلم تمدد أوتوماتيكي مصمم لآلات التغليف ذات السرعة المنخفضة والمتوسطة، باستطالة لا تتجاوز 280%. مثالي للاستخدام مع معدات الذراع الدوار والطاولة الدوارة."
+        "es": "Film automatico para maquinas de baja y media velocidad, con elongaciones que no exceden el 280%. Ideal para equipos de brazo giratorio y plato giratorio.",
+        "en": "Automatic film for low and medium speed machines, with elongations not exceeding 280%. Ideal for rotating arm and rotating plate equipment.",
+        "pt": "Filme automático para máquinas de baixa e média velocidade, com elongações que não excedem 280%. Ideal para equipamentos de braço giratório e prato giratório.",
+        "zh": "适用于低速和中速机器的自动薄膜，延伸率不超过280%。非常适合旋转臂和旋转盘设备。",
+        "ar": "فيلم تلقائي للآلات ذات السرعة المنخفضة والمتوسطة، مع إطالات لا تتجاوز 280%. مثالي لمعدات الذراع الدوارة واللوحة الدوارة."
       },
       "specs": [
         {
           "c": {
             "es": "Amplitud",
-            "en": "Width",
-            "pt": "Largura",
-            "zh": "宽度",
-            "ar": "العرض"
+            "en": "Amplitude",
+            "pt": "Amplitude",
+            "zh": "幅度",
+            "ar": "سعة"
           },
           "min": "19",
           "max": "30",
           "tol": {
             "es": "±1/8",
-            "en": "±1/8",
-            "pt": "±1/8",
-            "zh": "±1/8",
-            "ar": "±1/8"
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
           },
           "uni": "In",
-          "met": "—",
+          "met": "NMX-E-002",
           "hl": false
         },
         {
           "c": {
             "es": "Grosor",
             "en": "Thickness",
-            "pt": "Espessura",
+            "pt": "Grosor",
             "zh": "厚度",
-            "ar": "السماكة"
+            "ar": "سمك"
           },
           "min": "50",
           "max": "90",
           "tol": {
             "es": "±5",
-            "en": "±5",
-            "pt": "±5",
-            "zh": "±5",
-            "ar": "±5"
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
           },
           "uni": "Gauges",
-          "met": "—",
+          "met": "NMX-E-003",
           "hl": false
         },
         {
           "c": {
             "es": "Largo",
             "en": "Length",
-            "pt": "Comprimento",
+            "pt": "Largo",
             "zh": "长度",
-            "ar": "الطول"
+            "ar": "طول"
           },
           "min": "3000",
           "max": "15000",
           "tol": {
             "es": "±50",
-            "en": "±50",
-            "pt": "±50",
-            "zh": "±50",
-            "ar": "±50"
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
           },
           "uni": "Ft",
-          "met": "—",
-          "hl": false
+          "met": "",
+          "hl": true
         },
         {
           "c": {
             "es": "Peso neto",
             "en": "Net weight",
-            "pt": "Peso líquido",
+            "pt": "Peso neto",
             "zh": "净重",
             "ar": "الوزن الصافي"
           },
@@ -184,22 +184,22 @@
           "max": "39.2",
           "tol": {
             "es": "± 2%",
-            "en": "± 2%",
-            "pt": "± 2%",
-            "zh": "± 2%",
-            "ar": "± 2%"
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
           },
           "uni": "Lb",
-          "met": "—",
+          "met": "NOM-002",
           "hl": false
         },
         {
           "c": {
             "es": "Elongación",
             "en": "Elongation",
-            "pt": "Alongamento",
-            "zh": "伸长率",
-            "ar": "الاستطالة"
+            "pt": "Elongación",
+            "zh": "延伸率",
+            "ar": "إطالة"
           },
           "min": "270",
           "max": "280",
@@ -208,19 +208,19 @@
             "en": "Minimum",
             "pt": "Mínimo",
             "zh": "最小值",
-            "ar": "الحد الأدنى"
+            "ar": "حد أدنى"
           },
           "uni": "%",
-          "met": "NOM-002",
+          "met": "",
           "hl": true
         },
         {
           "c": {
             "es": "Adherencia",
             "en": "Adhesion",
-            "pt": "Aderência",
-            "zh": "粘附力",
-            "ar": "الالتصاق"
+            "pt": "Adherencia",
+            "zh": "粘附性",
+            "ar": "التصاق"
           },
           "min": "12",
           "max": "60",
@@ -229,18 +229,18 @@
             "en": "Minimum",
             "pt": "Mínimo",
             "zh": "最小值",
-            "ar": "الحد الأدنى"
+            "ar": "حد أدنى"
           },
           "uni": "Gfr",
-          "met": "NMX-E-003",
+          "met": "",
           "hl": true
         },
         {
           "c": {
             "es": "Resistencia de carga",
             "en": "Load resistance",
-            "pt": "Resistência de carga",
-            "zh": "承载强度",
+            "pt": "Resistencia de carga",
+            "zh": "负载抗力",
             "ar": "مقاومة الحمل"
           },
           "min": "3.45",
@@ -250,19 +250,19 @@
             "en": "Minimum",
             "pt": "Mínimo",
             "zh": "最小值",
-            "ar": "الحد الأدنى"
+            "ar": "حد أدنى"
           },
           "uni": "Lbf",
-          "met": "NMX-E-002",
+          "met": "",
           "hl": true
         },
         {
           "c": {
             "es": "Resistencia",
             "en": "Resistance",
-            "pt": "Resistência",
-            "zh": "抗拉强度",
-            "ar": "المقاومة"
+            "pt": "Resistencia",
+            "zh": "抵抗力",
+            "ar": "مقاومة"
           },
           "min": "3",
           "max": "4.49",
@@ -271,18 +271,988 @@
             "en": "Minimum",
             "pt": "Mínimo",
             "zh": "最小值",
-            "ar": "الحد الأدنى"
+            "ar": "حد أدنى"
           },
           "uni": "Lbf",
-          "met": "NMX-E-002",
+          "met": "",
           "hl": true
         }
       ],
       "visual": {
-        "scale": 2.5,
-        "offsetX": 19.9,
-        "offsetY": 2.3,
-        "rotate": -90
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "rotate": 0
+      }
+    },
+    {
+      "nombre": {
+        "es": "AUTOMÁTICO",
+        "en": "AUTOMATIC",
+        "pt": "AUTOMÁTICO",
+        "zh": "自动",
+        "ar": "تلقائي"
+      },
+      "img": "",
+      "lado": "",
+      "desc": {
+        "es": "Para maquinas de envoltura de baja y media velocidad. Estiramiento de hasta 250%, mayor eficiencia y menor costo por pallet. Garantizada para elongaciones que no excedan el 250%.",
+        "en": "For low and medium speed wrapping machines. Stretching up to 250%, greater efficiency and lower cost per pallet. Guaranteed for elongations not exceeding 250%.",
+        "pt": "Para máquinas de envoltura de baixa e média velocidade. Estiramento de até 250%, maior eficiência e menor custo por pallet. Garantida para elongações que não excedam 250%.",
+        "zh": "适用于低速和中速包装机。拉伸可达250%，效率更高，每个托盘成本更低。保证延伸率不超过250%。",
+        "ar": "للآلات التغليف ذات السرعة المنخفضة والمتوسطة. تمتد حتى 250%، كفاءة أكبر وتكلفة أقل لكل منصة. مضمونة للإطالات التي لا تتجاوز 250%."
+      },
+      "specs": [
+        {
+          "c": {
+            "es": "Amplitud",
+            "en": "Amplitude",
+            "pt": "Amplitude",
+            "zh": "幅度",
+            "ar": "سعة"
+          },
+          "min": "18",
+          "max": "30",
+          "tol": {
+            "es": "±1/8",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "In",
+          "met": "NMX-E-002",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Grosor",
+            "en": "Thickness",
+            "pt": "Grosor",
+            "zh": "厚度",
+            "ar": "سمك"
+          },
+          "min": "50",
+          "max": "110",
+          "tol": {
+            "es": "±5",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "Gauges",
+          "met": "NMX-E-003",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Largo",
+            "en": "Length",
+            "pt": "Largo",
+            "zh": "长度",
+            "ar": "طول"
+          },
+          "min": "2000",
+          "max": "15000",
+          "tol": {
+            "es": "±50",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "Ft",
+          "met": "",
+          "hl": true
+        },
+        {
+          "c": {
+            "es": "Peso neto",
+            "en": "Net weight",
+            "pt": "Peso neto",
+            "zh": "净重",
+            "ar": "الوزن الصافي"
+          },
+          "min": "3.27",
+          "max": "39.2",
+          "tol": {
+            "es": "± 2%",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "Lb",
+          "met": "NOM-002",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Elongación",
+            "en": "Elongation",
+            "pt": "Elongación",
+            "zh": "延伸率",
+            "ar": "إطالة"
+          },
+          "min": "230",
+          "max": "250",
+          "tol": {
+            "es": "Mínimo",
+            "en": "Minimum",
+            "pt": "Mínimo",
+            "zh": "最小值",
+            "ar": "حد أدنى"
+          },
+          "uni": "%",
+          "met": "",
+          "hl": true
+        },
+        {
+          "c": {
+            "es": "Adherencia",
+            "en": "Adhesion",
+            "pt": "Adherencia",
+            "zh": "粘附性",
+            "ar": "التصاق"
+          },
+          "min": "12",
+          "max": "60",
+          "tol": {
+            "es": "Mínimo",
+            "en": "Minimum",
+            "pt": "Mínimo",
+            "zh": "最小值",
+            "ar": "حد أدنى"
+          },
+          "uni": "Gfr",
+          "met": "",
+          "hl": true
+        },
+        {
+          "c": {
+            "es": "Resistencia de carga",
+            "en": "Load resistance",
+            "pt": "Resistencia de carga",
+            "zh": "负载抗力",
+            "ar": "مقاومة الحمل"
+          },
+          "min": "3.4",
+          "max": "5.95",
+          "tol": {
+            "es": "Mínimo",
+            "en": "Minimum",
+            "pt": "Mínimo",
+            "zh": "最小值",
+            "ar": "حد أدنى"
+          },
+          "uni": "Lbf",
+          "met": "",
+          "hl": true
+        },
+        {
+          "c": {
+            "es": "Resistencia",
+            "en": "Resistance",
+            "pt": "Resistencia",
+            "zh": "抵抗力",
+            "ar": "مقاومة"
+          },
+          "min": "2.5",
+          "max": "5.35",
+          "tol": {
+            "es": "Mínimo",
+            "en": "Minimum",
+            "pt": "Mínimo",
+            "zh": "最小值",
+            "ar": "حد أدنى"
+          },
+          "uni": "Lbf",
+          "met": "",
+          "hl": true
+        }
+      ],
+      "visual": {
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "rotate": 0
+      }
+    },
+    {
+      "nombre": {
+        "es": "MANUAL PREESTIRADO",
+        "en": "MANUAL PRE-STRETCHED",
+        "pt": "MANUAL PREESTIRADO",
+        "zh": "手动预拉伸",
+        "ar": "يدوي مسبق الشد"
+      },
+      "img": "",
+      "lado": "",
+      "desc": {
+        "es": "Pelicula de aplicacion manual de alto rendimiento y el menor calibre del mercado. Viene preestirada y lista para usar, sin requerir fuerza del usuario; mayor eficiencia y desempeno.",
+        "en": "High-performance manual application film and the lowest gauge on the market. Comes pre-stretched and ready to use, requiring no user force; greater efficiency and performance.",
+        "pt": "Película de aplicação manual de alto desempenho e o menor calibre do mercado. Vem pré-estirada e pronta para usar, sem requerer força do usuário; maior eficiência e desempenho.",
+        "zh": "高性能手动应用薄膜，市场上最薄的规格。预拉伸并准备使用，无需用户施力；更高的效率和性能。",
+        "ar": "فيلم تطبيق يدوي عالي الأداء وأدنى قياس في السوق. يأتي مسبق الشد وجاهز للاستخدام، دون الحاجة إلى قوة من المستخدم؛ كفاءة وأداء أعلى."
+      },
+      "specs": [
+        {
+          "c": {
+            "es": "Amplitud",
+            "en": "Amplitude",
+            "pt": "Amplitude",
+            "zh": "幅度",
+            "ar": "سعة"
+          },
+          "min": "16",
+          "max": "17",
+          "tol": {
+            "es": "±1/4",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "In",
+          "met": "NMX-E-002",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Grosor",
+            "en": "Thickness",
+            "pt": "Grosor",
+            "zh": "厚度",
+            "ar": "سمك"
+          },
+          "min": "25",
+          "max": "35",
+          "tol": {
+            "es": "±5",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "Gauges",
+          "met": "NMX-E-003",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Largo",
+            "en": "Length",
+            "pt": "Largo",
+            "zh": "长度",
+            "ar": "طول"
+          },
+          "min": "1000",
+          "max": "5000",
+          "tol": {
+            "es": "±66",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "Ft",
+          "met": "",
+          "hl": true
+        },
+        {
+          "c": {
+            "es": "Peso neto",
+            "en": "Net weight",
+            "pt": "Peso neto",
+            "zh": "净重",
+            "ar": "الوزن الصافي"
+          },
+          "min": "0.73",
+          "max": "4.3",
+          "tol": {
+            "es": "± 2%",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "Lb",
+          "met": "NOM-002",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Elongación",
+            "en": "Elongation",
+            "pt": "Elongación",
+            "zh": "延伸率",
+            "ar": "إطالة"
+          },
+          "min": "10",
+          "max": "20",
+          "tol": {
+            "es": "Mínimo",
+            "en": "Minimum",
+            "pt": "Mínimo",
+            "zh": "最小值",
+            "ar": "حد أدنى"
+          },
+          "uni": "%",
+          "met": "",
+          "hl": true
+        },
+        {
+          "c": {
+            "es": "Adherencia",
+            "en": "Adhesion",
+            "pt": "Adherencia",
+            "zh": "粘附性",
+            "ar": "التصاق"
+          },
+          "min": "12",
+          "max": "20",
+          "tol": {
+            "es": "Mínimo",
+            "en": "Minimum",
+            "pt": "Mínimo",
+            "zh": "最小值",
+            "ar": "حد أدنى"
+          },
+          "uni": "Gfr",
+          "met": "",
+          "hl": true
+        },
+        {
+          "c": {
+            "es": "Resistencia de carga",
+            "en": "Load resistance",
+            "pt": "Resistencia de carga",
+            "zh": "负载抗力",
+            "ar": "مقاومة الحمل"
+          },
+          "min": "1.2",
+          "max": "2.2",
+          "tol": {
+            "es": "Mínimo",
+            "en": "Minimum",
+            "pt": "Mínimo",
+            "zh": "最小值",
+            "ar": "حد أدنى"
+          },
+          "uni": "Lbf",
+          "met": "",
+          "hl": true
+        },
+        {
+          "c": {
+            "es": "Resistencia",
+            "en": "Resistance",
+            "pt": "Resistencia",
+            "zh": "抵抗力",
+            "ar": "مقاومة"
+          },
+          "min": "1",
+          "max": "1.7",
+          "tol": {
+            "es": "Mínimo",
+            "en": "Minimum",
+            "pt": "Mínimo",
+            "zh": "最小值",
+            "ar": "حد أدنى"
+          },
+          "uni": "Lbf",
+          "met": "",
+          "hl": true
+        }
+      ],
+      "visual": {
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "rotate": 0
+      }
+    },
+    {
+      "nombre": {
+        "es": "MANUAL BANDING",
+        "en": "MANUAL BANDING",
+        "pt": "MANUAL BANDING",
+        "zh": "手动捆绑",
+        "ar": "ربط يدوي"
+      },
+      "img": "",
+      "lado": "",
+      "desc": {
+        "es": "Pelicula stretch de alto rendimiento para aplicaciones manuales. Rollos de 3 a 12 pulgadas para manejo agil y preciso; alternativa tecnica superior al amarre tradicional. Sujecion segura, excelente estiramiento y proteccion contra polvo y humedad.",
+        "en": "High-performance stretch film for manual applications. Rolls from 3 to 12 inches for agile and precise handling; superior technical alternative to traditional tying. Secure hold, excellent stretch, and protection against dust and moisture.",
+        "pt": "Película stretch de alto desempenho para aplicações manuais. Rolos de 3 a 12 polegadas para manuseio ágil e preciso; alternativa técnica superior ao amarre tradicional. Sucção segura, excelente estiramento e proteção contra poeira e umidade.",
+        "zh": "高性能拉伸膜用于手动应用。卷筒从3到12英寸，便于灵活和精确的操作；优于传统捆绑的技术替代品。安全的抓握，出色的拉伸和防尘防潮。",
+        "ar": "فيلم تمدد عالي الأداء للتطبيقات اليدوية. لفات من 3 إلى 12 بوصة للتعامل السريع والدقيق؛ بديل تقني متفوق للربط التقليدي. تثبيت آمن، تمدد ممتاز، وحماية ضد الغبار والرطوبة."
+      },
+      "specs": [
+        {
+          "c": {
+            "es": "Amplitud",
+            "en": "Amplitude",
+            "pt": "Amplitude",
+            "zh": "幅度",
+            "ar": "سعة"
+          },
+          "min": "3",
+          "max": "12",
+          "tol": {
+            "es": "±1/4",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "In",
+          "met": "NMX-E-002",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Grosor",
+            "en": "Thickness",
+            "pt": "Grosor",
+            "zh": "厚度",
+            "ar": "سمك"
+          },
+          "min": "40",
+          "max": "120",
+          "tol": {
+            "es": "±5",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "Gauges",
+          "met": "NMX-E-003",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Largo",
+            "en": "Length",
+            "pt": "Largo",
+            "zh": "长度",
+            "ar": "طول"
+          },
+          "min": "7000",
+          "max": "2500",
+          "tol": {
+            "es": "±50",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "Ft",
+          "met": "",
+          "hl": true
+        },
+        {
+          "c": {
+            "es": "Peso neto",
+            "en": "Net weight",
+            "pt": "Peso neto",
+            "zh": "净重",
+            "ar": "الوزن الصافي"
+          },
+          "min": "0.45",
+          "max": "4.9",
+          "tol": {
+            "es": "± 2%",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "Lb",
+          "met": "NOM-002",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Elongación",
+            "en": "Elongation",
+            "pt": "Elongación",
+            "zh": "延伸率",
+            "ar": "إطالة"
+          },
+          "min": "180",
+          "max": "200",
+          "tol": {
+            "es": "Mínimo",
+            "en": "Minimum",
+            "pt": "Mínimo",
+            "zh": "最小值",
+            "ar": "حد أدنى"
+          },
+          "uni": "%",
+          "met": "",
+          "hl": true
+        },
+        {
+          "c": {
+            "es": "Adherencia",
+            "en": "Adhesion",
+            "pt": "Adherencia",
+            "zh": "粘附性",
+            "ar": "التصاق"
+          },
+          "min": "12",
+          "max": "60",
+          "tol": {
+            "es": "Mínimo",
+            "en": "Minimum",
+            "pt": "Mínimo",
+            "zh": "最小值",
+            "ar": "حد أدنى"
+          },
+          "uni": "Gfr",
+          "met": "",
+          "hl": true
+        },
+        {
+          "c": {
+            "es": "Resistencia de la carga",
+            "en": "Load resistance",
+            "pt": "Resistencia de la carga",
+            "zh": "负载抗力",
+            "ar": "مقاومة الحمل"
+          },
+          "min": "3.39",
+          "max": "4.54",
+          "tol": {
+            "es": "Mínimo",
+            "en": "Minimum",
+            "pt": "Mínimo",
+            "zh": "最小值",
+            "ar": "حد أدنى"
+          },
+          "uni": "Lbf",
+          "met": "",
+          "hl": true
+        },
+        {
+          "c": {
+            "es": "Resistencia",
+            "en": "Resistance",
+            "pt": "Resistencia",
+            "zh": "抵抗力",
+            "ar": "مقاومة"
+          },
+          "min": "1.85",
+          "max": "4.28",
+          "tol": {
+            "es": "Mínimo",
+            "en": "Minimum",
+            "pt": "Mínimo",
+            "zh": "最小值",
+            "ar": "حد أدنى"
+          },
+          "uni": "Lbf",
+          "met": "",
+          "hl": true
+        }
+      ],
+      "visual": {
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "rotate": 0
+      }
+    },
+    {
+      "nombre": {
+        "es": "CORELES",
+        "en": "CORELES",
+        "pt": "CORELES",
+        "zh": "核心",
+        "ar": "كورليس"
+      },
+      "img": "",
+      "lado": "",
+      "desc": {
+        "es": "Pelicula de envoltura manual con estiramiento moderado; el usuario la aplica sin equipo automatico. Rollos muy ligeros, faciles de aplicar en pallets.",
+        "en": "Manual stretch wrap film; the user applies it without automatic equipment. Very lightweight rolls, easy to apply on pallets.",
+        "pt": "Filme de envoltura manual com estiramento moderado; o usuário o aplica sem equipamento automático. Rolos muito leves, fáceis de aplicar em paletes.",
+        "zh": "手动拉伸包装膜；用户在没有自动设备的情况下应用。非常轻便的卷，易于在托盘上应用。",
+        "ar": "فيلم تغليف يدوي مع تمدد معتدل؛ يقوم المستخدم بتطبيقه بدون معدات أوتوماتيكية. لفات خفيفة جدًا، سهلة التطبيق على المنصات."
+      },
+      "specs": [
+        {
+          "c": {
+            "es": "Amplitud",
+            "en": "Amplitude",
+            "pt": "Amplitude",
+            "zh": "幅度",
+            "ar": "سعة"
+          },
+          "min": "17",
+          "max": "30",
+          "tol": {
+            "es": "±1/8",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "In",
+          "met": "NMX-E-002",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Grosor",
+            "en": "Thickness",
+            "pt": "Grosor",
+            "zh": "厚度",
+            "ar": "سمك"
+          },
+          "min": "50",
+          "max": "90",
+          "tol": {
+            "es": "±5",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "Gauges",
+          "met": "NMX-E-003",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Largo",
+            "en": "Length",
+            "pt": "Largo",
+            "zh": "长度",
+            "ar": "طول"
+          },
+          "min": "1000",
+          "max": "15000",
+          "tol": {
+            "es": "±19",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "Ft",
+          "met": "",
+          "hl": true
+        },
+        {
+          "c": {
+            "es": "Peso neto",
+            "en": "Net weight",
+            "pt": "Peso neto",
+            "zh": "净重",
+            "ar": "الوزن الصافي"
+          },
+          "min": "1.54",
+          "max": "4.9",
+          "tol": {
+            "es": "± 2%",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "Lb",
+          "met": "NOM-002",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Elongación",
+            "en": "Elongation",
+            "pt": "Elongación",
+            "zh": "延伸率",
+            "ar": "إطالة"
+          },
+          "min": "180",
+          "max": "200",
+          "tol": {
+            "es": "Mínimo",
+            "en": "Minimum",
+            "pt": "Mínimo",
+            "zh": "最小值",
+            "ar": "حد أدنى"
+          },
+          "uni": "%",
+          "met": "",
+          "hl": true
+        },
+        {
+          "c": {
+            "es": "Adherencia",
+            "en": "Adhesion",
+            "pt": "Adherencia",
+            "zh": "粘附性",
+            "ar": "التصاق"
+          },
+          "min": "12",
+          "max": "60",
+          "tol": {
+            "es": "Mínimo",
+            "en": "Minimum",
+            "pt": "Mínimo",
+            "zh": "最小值",
+            "ar": "حد أدنى"
+          },
+          "uni": "Gfr",
+          "met": "",
+          "hl": true
+        },
+        {
+          "c": {
+            "es": "Resistencia de la carga",
+            "en": "Load resistance",
+            "pt": "Resistencia de la carga",
+            "zh": "负载抗力",
+            "ar": "مقاومة الحمل"
+          },
+          "min": "3.39",
+          "max": "4.54",
+          "tol": {
+            "es": "Mínimo",
+            "en": "Minimum",
+            "pt": "Mínimo",
+            "zh": "最小值",
+            "ar": "حد أدنى"
+          },
+          "uni": "Lbf",
+          "met": "",
+          "hl": true
+        },
+        {
+          "c": {
+            "es": "Resistencia",
+            "en": "Resistance",
+            "pt": "Resistencia",
+            "zh": "抵抗力",
+            "ar": "مقاومة"
+          },
+          "min": "1.85",
+          "max": "4.28",
+          "tol": {
+            "es": "Mínimo",
+            "en": "Minimum",
+            "pt": "Mínimo",
+            "zh": "最小值",
+            "ar": "حد أدنى"
+          },
+          "uni": "Lbf",
+          "met": "",
+          "hl": true
+        }
+      ],
+      "visual": {
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "rotate": 0
+      }
+    },
+    {
+      "nombre": {
+        "es": "MANUAL RÍGIDO",
+        "en": "MANUAL RIGID",
+        "pt": "MANUAL RÍGIDO",
+        "zh": "手动刚性",
+        "ar": "يدوي صلب"
+      },
+      "img": "",
+      "lado": "",
+      "desc": {
+        "es": "Formulado para envoltura manual con estiramiento limitado. Excepcional retencion de carga y resistencia a perforaciones; solucion de empaque innovadora.",
+        "en": "Formulated for manual wrapping with limited stretch. Exceptional load retention and puncture resistance; innovative packaging solution.",
+        "pt": "Formulado para envoltura manual com estiramento limitado. Retenção de carga excepcional e resistência a perfurações; solução de embalagem inovadora.",
+        "zh": "配方用于有限拉伸的手动包装。卓越的负载保持力和抗穿刺性；创新的包装解决方案。",
+        "ar": "مصنوع للتغليف اليدوي مع تمدد محدود. احتفاظ استثنائي بالحمل ومقاومة للثقب؛ حل تعبئة مبتكر."
+      },
+      "specs": [
+        {
+          "c": {
+            "es": "Amplitud",
+            "en": "Amplitude",
+            "pt": "Amplitude",
+            "zh": "幅度",
+            "ar": "سعة"
+          },
+          "min": "17",
+          "max": "30",
+          "tol": {
+            "es": "±1/4",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "In",
+          "met": "NMX-E-002",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Grosor",
+            "en": "Thickness",
+            "pt": "Grosor",
+            "zh": "厚度",
+            "ar": "سمك"
+          },
+          "min": "40",
+          "max": "90",
+          "tol": {
+            "es": "±5",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "Gauges",
+          "met": "NMX-E-003",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Largo",
+            "en": "Length",
+            "pt": "Largo",
+            "zh": "长度",
+            "ar": "طول"
+          },
+          "min": "1000",
+          "max": "1500",
+          "tol": {
+            "es": "±66",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "Ft",
+          "met": "",
+          "hl": true
+        },
+        {
+          "c": {
+            "es": "Peso neto",
+            "en": "Net weight",
+            "pt": "Peso neto",
+            "zh": "净重",
+            "ar": "الوزن الصافي"
+          },
+          "min": "1.54",
+          "max": "4.9",
+          "tol": {
+            "es": "± 2%",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "Lb",
+          "met": "NOM-002",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Elongación",
+            "en": "Elongation",
+            "pt": "Elongación",
+            "zh": "延伸率",
+            "ar": "إطالة"
+          },
+          "min": "160",
+          "max": "260",
+          "tol": {
+            "es": "Mínimo",
+            "en": "Minimum",
+            "pt": "Mínimo",
+            "zh": "最小值",
+            "ar": "حد أدنى"
+          },
+          "uni": "%",
+          "met": "",
+          "hl": true
+        },
+        {
+          "c": {
+            "es": "Adherencia",
+            "en": "Adhesion",
+            "pt": "Adherencia",
+            "zh": "粘附性",
+            "ar": "التصاق"
+          },
+          "min": "12",
+          "max": "60",
+          "tol": {
+            "es": "Mínimo",
+            "en": "Minimum",
+            "pt": "Mínimo",
+            "zh": "最小值",
+            "ar": "حد أدنى"
+          },
+          "uni": "Gfr",
+          "met": "",
+          "hl": true
+        },
+        {
+          "c": {
+            "es": "Resistencia de carga",
+            "en": "Load resistance",
+            "pt": "Resistencia de carga",
+            "zh": "负载抗力",
+            "ar": "مقاومة الحمل"
+          },
+          "min": "3.85",
+          "max": "4.95",
+          "tol": {
+            "es": "Mínimo",
+            "en": "Minimum",
+            "pt": "Mínimo",
+            "zh": "最小值",
+            "ar": "حد أدنى"
+          },
+          "uni": "Lbf",
+          "met": "",
+          "hl": true
+        },
+        {
+          "c": {
+            "es": "Resistencia",
+            "en": "Resistance",
+            "pt": "Resistencia",
+            "zh": "抵抗力",
+            "ar": "مقاومة"
+          },
+          "min": "1.85",
+          "max": "4.28",
+          "tol": {
+            "es": "Mínimo",
+            "en": "Minimum",
+            "pt": "Mínimo",
+            "zh": "最小值",
+            "ar": "حد أدنى"
+          },
+          "uni": "Lbf",
+          "met": "",
+          "hl": true
+        }
+      ],
+      "visual": {
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "rotate": 0
       }
     }
   ],

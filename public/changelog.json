@@ -1,6 +1,14 @@
 {
   "commits": [
     {
+      "hash": "b999e44",
+      "date": "2026-06-12",
+      "message": "fix(editor): abre en español (no ingles); navegacion estable al escalar; copiar/pegar posicion de imagen",
+      "rawMessage": "fix(editor): abre en español (no ingles); navegacion estable al escalar; copiar/pegar posicion de imagen",
+      "type": "fix",
+      "area": "Media"
+    },
+    {
       "hash": "cf1938f",
       "date": "2026-06-12",
       "message": "feat(catalogo): fichas tecnicas de cuerda, rafia, saco, flexible desde PDF + traduccion IA 5 idiomas",
@@ -2162,10 +2170,10 @@
     }
   ],
   "stats": {
-    "total": 270,
+    "total": 271,
     "byType": {
+      "fix": 82,
       "feat": 48,
-      "fix": 81,
       "update": 12,
       "chore": 6,
       "style": 9,
@@ -2174,22 +2182,28 @@
       "release": 110
     },
     "byArea": {
+      "Media": 23,
       "Productos": 17,
       "General": 192,
       "Reclutamiento": 2,
       "i18n": 4,
-      "Media": 22,
       "Admin/API": 25,
       "Performance": 6,
       "UI": 2
     },
     "byMonth": {
-      "2026-06": 112,
+      "2026-06": 113,
       "2026-05": 33,
       "2026-04": 29,
       "2026-03": 96
     },
     "byAreaType": {
+      "Media": {
+        "fix": 17,
+        "feat": 4,
+        "perf": 1,
+        "update": 1
+      },
       "Productos": {
         "feat": 9,
         "fix": 4,
@@ -2213,12 +2227,6 @@
         "feat": 2,
         "fix": 2
       },
-      "Media": {
-        "fix": 16,
-        "feat": 4,
-        "perf": 1,
-        "update": 1
-      },
       "Admin/API": {
         "fix": 13,
         "style": 2,
@@ -2236,5 +2244,5 @@
       }
     }
   },
-  "generatedAt": "2026-06-12T18:21:33.933Z"
+  "generatedAt": "2026-06-12T18:35:26.191Z"
 }

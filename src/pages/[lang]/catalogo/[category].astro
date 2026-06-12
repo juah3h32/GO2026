@@ -55,7 +55,7 @@ const fichasTr = fichas.map(f => ({
   ...f,
   nombre: T(f.nombre),
   desc: T(f.desc),
-  specs: f.specs.map(s => ({ ...s, c: T(s.c), tol: T(s.tol) }))
+  specs: f.specs.map(s => ({ ...s, c: T(s.c), tol: T(s.tol), min: T(s.min), max: T(s.max), uni: T(s.uni), met: T(s.met) }))
 }));
 
 const dc: any = (translations[currentLang] as any)?.digital_catalog || {};
