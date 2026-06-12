@@ -1040,6 +1040,10 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
         var tg = e.target;
         if (edBar && edBar.contains(tg)) return;
         if (edNav && edNav.contains(tg)) return;
+        if (edNav && edNav.__list) { // click fuera: cierra el menu de divisiones
+          edNav.__list.style.display = 'none';
+          var ch = edNav.__btn && edNav.__btn.querySelector('.cdNavChev'); if (ch) ch.style.transform = 'none';
+        }
         if (tg.closest && tg.closest('.cd-ed-h, [data-cd-edit], .cd-h2, .cd-p, .cd-table tbody td, .cd-hero-copy p')) return;
         if (boundEl && boundEl.contains(tg)) return;
         edDeselect();
@@ -1439,29 +1443,61 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
         document.body.appendChild(edBar);
       }
 
-      // ── Menu lateral de divisiones (solo edicion admin): saltar a otro catalogo ──
+      // ── Menu de divisiones (solo edicion admin): boton flotante + popover grid ──
       function edBuildNav() {
+        var cats = window.__cdCats || [], lang = window.__cdLang || 'es';
+        var current = (cats.filter(function (c) { return c.slug === window.__cdSlug; })[0] || {}).title || 'Division';
+        var GRID = 'rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"';
+
         edNav = document.createElement('div');
         edNav.id = 'cdEdNav';
-        edNav.style.cssText = 'position:fixed;top:50%;left:0;transform:translateY(-50%);z-index:9998;background:#161616;border:1px solid rgba(255,255,255,.12);border-left:none;border-radius:0 14px 14px 0;padding:12px 10px;display:flex;flex-direction:column;gap:5px;box-shadow:0 20px 60px rgba(0,0,0,.5);font-family:system-ui;max-height:84vh;overflow:auto;width:196px;';
-        var ti = document.createElement('div');
-        ti.textContent = 'DIVISIONES';
-        ti.style.cssText = 'color:#fb670b;font-weight:800;font-size:11px;letter-spacing:.5px;padding:2px 8px 8px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:4px;';
-        edNav.appendChild(ti);
-        var cats = window.__cdCats || [], lang = window.__cdLang || 'es';
+        edNav.style.cssText = 'position:fixed;left:0;top:0;z-index:9998;'; // wrapper invisible (para el guard de click)
+
+        // Pildora flotante abajo-izquierda (mismo lenguaje que la barra de edicion)
+        var btn = document.createElement('button'); btn.type = 'button'; btn.title = 'Cambiar de division';
+        btn.style.cssText = 'position:fixed;left:20px;bottom:20px;height:48px;padding:0 8px 0 8px;border-radius:999px;background:#1b1b1c;color:#fff;border:1px solid rgba(255,255,255,.12);cursor:pointer;box-shadow:0 10px 30px rgba(0,0,0,.5);display:flex;align-items:center;gap:11px;z-index:9999;font-family:system-ui;font-weight:700;font-size:13.5px;transition:border-color .18s,box-shadow .18s;';
+        btn.onmouseenter = function () { btn.style.borderColor = 'rgba(251,103,11,.6)'; };
+        btn.onmouseleave = function () { btn.style.borderColor = 'rgba(255,255,255,.12)'; };
+        var chev = '<svg class="cdNavChev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8a8a8e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:none;margin-right:8px;transition:transform .2s;"><polyline points="18 15 12 9 6 15"/></svg>';
+        btn.innerHTML = '<span style="display:flex;width:32px;height:32px;border-radius:50%;background:#fb670b;align-items:center;justify-content:center;flex:none;box-shadow:0 4px 12px rgba(251,103,11,.45);">'
+          + '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><' + GRID + '/></svg></span>'
+          + '<span style="display:flex;flex-direction:column;align-items:flex-start;line-height:1.1;">'
+          +   '<span style="font-size:8.5px;letter-spacing:.7px;color:#fb670b;font-weight:800;">DIVISION</span>'
+          +   '<span style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + current + '</span>'
+          + '</span>' + chev;
+
+        // Popover: tarjeta oscura, grid 2 columnas (abre hacia arriba)
+        var list = document.createElement('div');
+        list.style.cssText = 'position:fixed;left:20px;bottom:78px;background:#1b1b1c;border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:14px;display:none;grid-template-columns:1fr 1fr;gap:7px;box-shadow:0 24px 70px rgba(0,0,0,.6);font-family:system-ui;width:316px;z-index:9999;';
+        var head = document.createElement('div');
+        head.style.cssText = 'grid-column:1 / -1;display:flex;align-items:center;justify-content:space-between;padding:0 2px 10px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:4px;';
+        head.innerHTML = '<span style="color:#fb670b;font-weight:800;font-size:10px;letter-spacing:.7px;">CAMBIAR DE DIVISION</span>'
+          + '<span style="color:#8a8a8e;font-weight:700;font-size:10px;">' + cats.length + '</span>';
+        list.appendChild(head);
         cats.forEach(function (c) {
           var active = c.slug === window.__cdSlug;
           var a = document.createElement('a');
           a.href = '/' + lang + '/catalogo/' + c.slug + '?edit=1';
-          a.textContent = c.title;
-          a.style.cssText = 'display:block;padding:8px 10px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:700;cursor:pointer;'
-            + (active ? 'background:#fb670b;color:#fff;' : 'color:#cfcfcf;background:transparent;');
+          a.style.cssText = 'display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:10px;text-decoration:none;font-size:12.5px;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;transition:background .15s,transform .15s;'
+            + (active ? 'background:#fb670b;color:#fff;' : 'color:#dcdcdc;background:rgba(255,255,255,.05);');
+          a.innerHTML = (active
+              ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="flex:none;"><polyline points="20 6 9 17 4 12"/></svg>'
+              : '<span style="width:5px;height:5px;border-radius:50%;background:#6a6a6e;flex:none;"></span>')
+            + '<span style="overflow:hidden;text-overflow:ellipsis;">' + c.title + '</span>';
           if (!active) {
-            a.onmouseenter = function () { a.style.background = 'rgba(255,255,255,.08)'; };
-            a.onmouseleave = function () { a.style.background = 'transparent'; };
+            a.onmouseenter = function () { a.style.background = 'rgba(251,103,11,.16)'; a.style.transform = 'translateX(2px)'; };
+            a.onmouseleave = function () { a.style.background = 'rgba(255,255,255,.05)'; a.style.transform = 'none'; };
           }
-          edNav.appendChild(a);
+          list.appendChild(a);
         });
+        btn.onclick = function (e) {
+          e.stopPropagation();
+          var open = list.style.display !== 'grid';
+          list.style.display = open ? 'grid' : 'none';
+          var ch = btn.querySelector('.cdNavChev'); if (ch) ch.style.transform = open ? 'rotate(180deg)' : 'none';
+        };
+        edNav.__list = list; edNav.__btn = btn;
+        edNav.appendChild(btn); edNav.appendChild(list);
         document.body.appendChild(edNav);
       }
 
@@ -1474,7 +1510,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
           edTextStyle();
           main.setAttribute('data-cd-editing', '');
           edBar.style.display = 'flex';
-          if (edNav) edNav.style.display = 'flex';
+          if (edNav) { edNav.style.display = 'block'; if (edNav.__list) edNav.__list.style.display = 'none'; }
           if (edBtn) edBtn.style.display = 'none';
           edBind(); edBindText(); edSync(); edBarMode('none');
           document.addEventListener('mousedown', edDocDown);
