@@ -1244,10 +1244,11 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
           var file = inp.files && inp.files[0]; if (!file) return;
           // Captura el destino al momento del click (no al resolver la promesa)
           var curIdx = idx, curBound = boundEl;
+          var imgFolder = window.__cdImgFolder || 'stretch'; // viene del define:vars; no esta en este scope
           var fd = new FormData();
           fd.append('file', file);
           fd.append('target', curIdx === 0 ? 'cover' : String(curIdx - 1));
-          fd.append('category', imgFolder || 'stretch');
+          fd.append('category', imgFolder);
           if (edFields.msg) { edFields.msg.style.color = '#9CA3AF'; edFields.msg.textContent = 'Subiendo...'; }
           fetch('/api/admin/catalog-image', { method: 'POST', body: fd })
             .then(function (r) { return r.ok ? r.json() : r.json().then(function (j) { throw new Error(j.error || 'Error'); }); })
