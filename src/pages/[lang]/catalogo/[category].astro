@@ -1255,8 +1255,12 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
               // Prefiere URL de Cloudinary (persiste en prod); si no, ruta local (dev).
               var src = d.cloudUrl || ((curIdx === 0 ? '/images/catalogos/' : '/images/' + (imgFolder || 'stretch') + '/') + d.filename);
               if (curIdx === 0) editData.coverImg = src; else editData.fichas[curIdx - 1].img = src;
-              var imgEl = curBound ? curBound.querySelector('img') : null;
-              if (imgEl) imgEl.src = /^https?:\/\//.test(src) ? src : src + '?t=' + Date.now();
+              // Reemplazo visual robusto: ubica el <img> real aunque boundEl este desfasado
+              var mediaEl = curIdx === 0
+                ? document.querySelector('.cd-hero-media')
+                : document.querySelectorAll('.cd-ficha-media-inner')[curIdx - 1];
+              var imgEl = (mediaEl && mediaEl.querySelector('img')) || (curBound && curBound.querySelector('img'));
+              if (imgEl) imgEl.src = src + (src.indexOf('?') < 0 ? '?t=' : '&t=') + Date.now(); // cache-buster: fuerza la nueva
               edCommit();
               var donde = d.cloudUrl ? (d.localOk ? 'Cloudinary + local' : 'Cloudinary') : (d.localOk ? 'local' : 'subida');
               if (edFields.msg) { edFields.msg.style.color = '#9CA3AF'; edFields.msg.textContent = 'Guardando...'; }
