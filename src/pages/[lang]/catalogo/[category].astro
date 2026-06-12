@@ -9,7 +9,7 @@ import BaseLayout from "../../../layouts/BaseLayout.astro";
 import Footer from "../../../components/Footer.astro";
 import { translations } from "../../../i18n";
 import { getCatalog } from "../../../lib/catalog-store.js";
-import { getCatalogMeta } from "../../../lib/catalogs.js";
+import { getCatalogMeta, listCatalogsMeta } from "../../../lib/catalogs.js";
 
 const { lang, category } = Astro.params;
 const currentLang = (lang as string) || "es";
@@ -667,11 +667,13 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
     :global(html[data-cd-shot]) .reveal { opacity: 1 !important; transform: none !important; }
   </style>
 
-  <script is:inline define:vars={{ catalogStyles, slug, imgFolder, title: meta.title }}>
+  <script is:inline define:vars={{ catalogStyles, slug, imgFolder, title: meta.title, cats: listCatalogsMeta(), lang: currentLang }}>
     window.__cdStyles = catalogStyles;
     window.__cdSlug = slug;
     window.__cdImgFolder = imgFolder;
     window.__cdTitle = title;
+    window.__cdCats = cats;   // [{slug,title,division,products}] para el menu de divisiones (solo edicion)
+    window.__cdLang = lang;
   </script>
 
   <script is:inline>
@@ -893,7 +895,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       // Detecta admin con GET /api/admin/catalog (200 = autorizado).
       // Arrastra = mover, rueda = escalar, handles = girar/escalar.
       // ════════════════════════════════════════════════════════
-      var editData = null, editMode = false, boundEl = null, edDrag = null, edBar = null, edFields = {}, edBtn = null;
+      var editData = null, editMode = false, boundEl = null, edDrag = null, edBar = null, edFields = {}, edBtn = null, edNav = null;
       var boundTextEls = [], edStyleAdded = false, edHist = [];
       var cdLang = (location.pathname.split('/')[1] || 'es');
       if (['es','en','pt','zh','ar'].indexOf(cdLang) === -1) cdLang = 'es';
@@ -1037,6 +1039,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
         if (!editMode) return;
         var tg = e.target;
         if (edBar && edBar.contains(tg)) return;
+        if (edNav && edNav.contains(tg)) return;
         if (tg.closest && tg.closest('.cd-ed-h, [data-cd-edit], .cd-h2, .cd-p, .cd-table tbody td, .cd-hero-copy p')) return;
         if (boundEl && boundEl.contains(tg)) return;
         edDeselect();
@@ -1436,20 +1439,49 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
         document.body.appendChild(edBar);
       }
 
+      // ── Menu lateral de divisiones (solo edicion admin): saltar a otro catalogo ──
+      function edBuildNav() {
+        edNav = document.createElement('div');
+        edNav.id = 'cdEdNav';
+        edNav.style.cssText = 'position:fixed;top:50%;left:0;transform:translateY(-50%);z-index:9998;background:#161616;border:1px solid rgba(255,255,255,.12);border-left:none;border-radius:0 14px 14px 0;padding:12px 10px;display:flex;flex-direction:column;gap:5px;box-shadow:0 20px 60px rgba(0,0,0,.5);font-family:system-ui;max-height:84vh;overflow:auto;width:196px;';
+        var ti = document.createElement('div');
+        ti.textContent = 'DIVISIONES';
+        ti.style.cssText = 'color:#fb670b;font-weight:800;font-size:11px;letter-spacing:.5px;padding:2px 8px 8px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:4px;';
+        edNav.appendChild(ti);
+        var cats = window.__cdCats || [], lang = window.__cdLang || 'es';
+        cats.forEach(function (c) {
+          var active = c.slug === window.__cdSlug;
+          var a = document.createElement('a');
+          a.href = '/' + lang + '/catalogo/' + c.slug + '?edit=1';
+          a.textContent = c.title;
+          a.style.cssText = 'display:block;padding:8px 10px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:700;cursor:pointer;'
+            + (active ? 'background:#fb670b;color:#fff;' : 'color:#cfcfcf;background:transparent;');
+          if (!active) {
+            a.onmouseenter = function () { a.style.background = 'rgba(255,255,255,.08)'; };
+            a.onmouseleave = function () { a.style.background = 'transparent'; };
+          }
+          edNav.appendChild(a);
+        });
+        document.body.appendChild(edNav);
+      }
+
       function edToggle(on) {
         editMode = on;
         if (on) {
           if (!deckOn) { alert('El editor visual funciona en escritorio (vista diapositivas).'); editMode = false; return; }
           if (!edBar) edBuildBar();
+          if (!edNav) edBuildNav();
           edTextStyle();
           main.setAttribute('data-cd-editing', '');
           edBar.style.display = 'flex';
+          if (edNav) edNav.style.display = 'flex';
           if (edBtn) edBtn.style.display = 'none';
           edBind(); edBindText(); edSync(); edBarMode('none');
           document.addEventListener('mousedown', edDocDown);
           document.addEventListener('keydown', edKeyUndo, true);
         } else {
           if (edBar) edBar.style.display = 'none';
+          if (edNav) edNav.style.display = 'none';
           if (edBtn) edBtn.style.display = 'flex';
           main.removeAttribute('data-cd-editing');
           edDeselect(); edUnbind(); edUnbindText();
