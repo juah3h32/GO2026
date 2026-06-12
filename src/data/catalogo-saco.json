@@ -1,25 +1,25 @@
 {
   "intro": {
     "p1": {
-      "es": "Fabricados con cintas de polipropileno entrelazadas, los sacos de rafia sin laminar ofrecen gran resistencia y excelente durabilidad en aplicaciones de empaque y almacenamiento. Su estructura permite soportar cargas pesadas sin romperse, garantizando un desempeño confiable en trabajos exigentes.",
-      "en": "Made with interlaced polypropylene tapes, unlaminated woven sacks offer great resistance and excellent durability in packaging and storage applications. Their structure can withstand heavy loads without tearing, guaranteeing reliable performance in demanding work.",
-      "pt": "Fabricados com fitas de polipropileno entrelaçadas, os sacos de rafia sem laminação oferecem grande resistência e excelente durabilidade em aplicações de embalagem e armazenamento. Sua estrutura suporta cargas pesadas sem romper, garantindo desempenho confiável em trabalhos exigentes.",
-      "zh": "由交织聚丙烯纱线制成，非覆膜拉菲草编织袋在包装和存储应用中提供高强度和出色耐久性。其结构能够承受重载而不会破裂，在繁重工作中保证可靠性能。",
-      "ar": "مصنوعة من شرائط بولي بروبيلين متشابكة، توفّر أكياس الرافيا غير المُطلَّاة مقاومة كبيرة ومتانة ممتازة في تطبيقات التعبئة والتخزين. هيكلها يتحمّل الأحمال الثقيلة دون تمزق، مما يضمن أداءً موثوقاً في الأعمال الشاقة."
+      "es": "Los sacos de polipropileno de Grupo Ortiz® son una solución de alta resistencia para el envasado masivo y transporte de productos industriales y agrícolas, maximizando la seguridad de la carga en uso intensivo.",
+      "en": "Grupo Ortiz® polypropylene sacks are a high-resistance solution for mass packaging and transport of industrial and agricultural products, maximizing cargo security under intensive use.",
+      "pt": "Os sacos de polipropileno da Grupo Ortiz® são uma solução de alta resistência para a embalagem em massa e transporte de produtos industriais e agrícolas, maximizando a segurança da carga em uso intensivo.",
+      "zh": "Grupo Ortiz® 聚丙烯编织袋是一种高强度解决方案，专为工业和农产品的大宗包装和运输而设计，在密集使用条件下最大限度地提高货物安全性。",
+      "ar": "تعد أكياس البولي بروبيلين من Grupo Ortiz® حلاً عالي المقاومة للتغليف الشامل ونقل المنتجات الصناعية والزراعية، مما يزيد من أمان الشحنة في الاستخدام المكثف."
     },
     "bioTitle": {
-      "es": "",
-      "en": "",
-      "pt": "",
-      "zh": "",
-      "ar": ""
+      "es": "Resistencia Industrial",
+      "en": "Industrial Strength",
+      "pt": "Resistência Industrial",
+      "zh": "工业级强度",
+      "ar": "قوة صناعية"
     },
     "p2": {
-      "es": "",
-      "en": "",
-      "pt": "",
-      "zh": "",
-      "ar": ""
+      "es": "Fabricados con cintas de polipropileno entrelazadas de máxima tenacidad, nuestros sacos ofrecen una durabilidad excepcional. Soportan grandes volúmenes y pesos sin comprometer su integridad, garantizando un desempeño confiable en la cadena logística.",
+      "en": "Manufactured with maximum-tenacity interlaced polypropylene tapes, our sacks offer exceptional durability. They withstand large volumes and weights without compromising their integrity, guaranteeing reliable performance in the logistics chain.",
+      "pt": "Fabricados com fitas de polipropileno entrelaçadas de máxima tenacidade, nossos sacos oferecem uma durabilidade excepcional. Suportam grandes volumes e pesos sem comprometer sua integridade, garantindo um desempenho confiável na cadeia logística.",
+      "zh": "我们的编织袋由具有最大韧性的交织聚丙烯扁丝制成，具有卓越的耐久性。它们能够承受大体积和重物而不损害其完整性，确保物流链中的可靠性能。",
+      "ar": "أكياسنا، المصنعة من أشرطة بولي بروبيلين متشابكة ذات متانة قصوى، توفر متانة استثنائية. تتحمل أحجاماً وأوزاناً كبيرة دون المساس بسلامتها، مما يضمن أداءً موثوقاً في السلسلة اللوجستية."
     }
   },
   "productos": [
@@ -49,54 +49,61 @@
       "en": "LAMINATED RAFFIA BAG MICROPERFORATION",
       "pt": "SACO DE RAFIA LAMINADO MICROPERFURAÇÃO",
       "zh": "层压拉菲袋微穿孔",
-      "ar": "كيس رافيا مغلف مثقب"
+      "ar": "كيس رافيا مصفح بفتحات دقيقة"
     },
     {
-      "es": "SACO DE RAFIA LAMINADO BOPP",
-      "en": "LAMINATED RAFFIA BAG BOPP",
-      "pt": "SACO DE RAFIA LAMINADO BOPP",
-      "zh": "层压拉菲袋 BOPP",
-      "ar": "كيس رافيا مغلف BOPP"
+      "es": "SACO LAMINADO",
+      "en": "LAMINATED BAG",
+      "pt": "SACO LAMINADO",
+      "zh": "编织袋层压",
+      "ar": "كيس مغلف"
     },
     {
-      "es": "SACO DE RAFIA FONDO PLANO",
-      "en": "FLAT BOTTOM RAFFIA BAG",
-      "pt": "SACO DE RAFIA COM FUNDO PLANO",
-      "zh": "平底拉菲袋",
-      "ar": "كيس رافيا ذو قاع مسطح"
+      "es": "SACO CON FUELLE",
+      "en": "GUSSETED BAG",
+      "pt": "SACO COM FUELLE",
+      "zh": "侧褶袋",
+      "ar": "كيس مع طية"
     },
     {
-      "es": "SACO DE RAFIA VALVULADO",
-      "en": "VALVED RAFFIA BAG",
-      "pt": "SACO DE RAFIA VALVULADO",
-      "zh": "阀门拉菲袋",
-      "ar": "كيس رافيا مزود بصمام"
+      "es": "SACO CON VÁLVULA",
+      "en": "VALVE BAG",
+      "pt": "SACO COM VÁLVULA",
+      "zh": "阀口袋",
+      "ar": "كيس بصمام"
+    },
+    {
+      "es": "SACO JUMBO",
+      "en": "JUMBO BAG",
+      "pt": "SACO JUMBO",
+      "zh": "大袋子",
+      "ar": "حقيبة ضخمة"
     }
   ],
   "cover": {
     "t1": {
       "es": "SACO",
-      "en": "WOVEN SACK",
+      "en": "SACK",
       "pt": "SACO",
-      "zh": "编织袋",
-      "ar": "كيس"
+      "zh": "SACO",
+      "ar": "SACO"
     },
     "t2": {
-      "es": "",
-      "en": "",
-      "pt": "",
-      "zh": "",
-      "ar": ""
+      "es": "INDUSTRIAL",
+      "en": "INDUSTRIAL",
+      "pt": "INDUSTRIAL",
+      "zh": "INDUSTRIAL",
+      "ar": "INDUSTRIAL"
     },
     "division": {
       "es": "DIVISIÓN SACO",
-      "en": "WOVEN SACK DIVISION",
-      "pt": "DIVISÃO SACO",
+      "en": "SACK DIVISION",
+      "pt": "DIVISÃO DE SACOS",
       "zh": "编织袋部门",
-      "ar": "قسم كيس"
+      "ar": "قسم الأكياس"
     }
   },
-  "coverImg": "/images/sacos/saco2.png",
+  "coverImg": "portada.webp",
   "fichas": [
     {
       "nombre": {
@@ -106,202 +113,121 @@
         "zh": "未层压拉菲袋",
         "ar": "كيس رافيا غير مغلف"
       },
-      "img": "/images/sacos/saco2.png",
+      "img": "sacos-de-rafia.webp",
       "lado": "",
       "desc": {
-        "es": "Las bolsas de polipropileno tejido sin laminar se encuentran entre las mas utilizadas por su alta resistencia y durabilidad. Fabricadas con hilos de polipropileno entrelazados, ofrecen excelente capacidad de carga sin romperse.",
-        "en": "Woven polypropylene bags without lamination are among the most used due to their high strength and durability. Made with interwoven polypropylene threads, they offer excellent load capacity without breaking.",
-        "pt": "As bolsas de polipropileno tecido sem laminar estão entre as mais utilizadas devido à sua alta resistência e durabilidade. Fabricadas com fios de polipropileno entrelaçados, oferecem excelente capacidade de carga sem se romper.",
-        "zh": "无层压的编织聚丙烯袋因其高强度和耐用性而被广泛使用。由交织的聚丙烯纱线制成，提供出色的承载能力而不会破裂。",
-        "ar": "تعتبر الأكياس المصنوعة من البولي بروبيلين المنسوج غير المغلف من بين الأكثر استخدامًا بسبب قوتها العالية ومتانتها. مصنوعة من خيوط بولي بروبيلين متشابكة، توفر قدرة تحميل ممتازة دون أن تنكسر."
+        "es": "Nuestros sacos de rafia sin laminar son la opción más versátil y económica para el envasado de granos, harinas y productos químicos. Su tejido de polipropileno de alta densidad ofrece una ventilación natural y una resistencia superior al desgarre.",
+        "en": "Our unlaminated raffia bags are the most versatile and economical option for packaging grains, flours, and chemical products. Its high-density polypropylene fabric offers natural ventilation and superior tear resistance.",
+        "pt": "Nossos sacos de ráfia sem laminar são a opção mais versátil e econômica para a embalagem de grãos, farinhas e produtos químicos. Seu tecido de polipropileno de alta densidade oferece ventilação natural e uma resistência superior ao rasgo.",
+        "zh": "我们的未覆膜拉菲草编织袋是谷物、面粉和化学产品包装中最通用且最经济的选择。其高密度聚丙烯织物提供自然通风和卓越的抗撕裂性。",
+        "ar": "تعد أكياس الرافيا غير المصفحة لدينا الخيار الأكثر تنوعاً واقتصاداً لتعبئة الحبوب والدقيق والمنتجات الكيميائية. يوفر نسيج البولي بروبيلين عالي الكثافة تهوية طبيعية ومقاومة فائقة للتمزق."
       },
       "specs": [
         {
           "c": {
-            "es": "Ancho",
-            "en": "Width",
-            "pt": "Largura",
-            "zh": "宽度",
-            "ar": "عرض"
+            "es": "Material",
+            "en": "Material",
+            "pt": "Material",
+            "zh": "材料",
+            "ar": "المادة"
           },
-          "min": "13.78",
-          "max": "31.5",
+          "min": {
+            "es": "Polipropileno Virgen",
+            "en": "Virgin Polypropylene",
+            "pt": "Polipropileno Virgem",
+            "zh": "原生聚丙烯",
+            "ar": "بولي بروبيلين بكر"
+          },
+          "max": "",
           "tol": {
-            "es": "±1",
+            "es": "",
             "en": "",
             "pt": "",
             "zh": "",
             "ar": ""
           },
-          "uni": "In",
+          "uni": "",
           "met": "",
           "hl": false
         },
         {
           "c": {
-            "es": "Largo",
-            "en": "Length",
-            "pt": "Comprimento",
-            "zh": "长度",
-            "ar": "طول"
+            "es": "Resistencia",
+            "en": "Strength",
+            "pt": "Resistência",
+            "zh": "强度",
+            "ar": "المقاومة"
           },
-          "min": "19.29",
-          "max": "45.28",
+          "min": {
+            "es": "Alta Tenacidad",
+            "en": "High Tenacity",
+            "pt": "Alta Tenacidade",
+            "zh": "高韧性",
+            "ar": "متانة عالية"
+          },
+          "max": "",
           "tol": {
-            "es": "±1",
+            "es": "",
             "en": "",
             "pt": "",
             "zh": "",
             "ar": ""
           },
-          "uni": "In",
+          "uni": "",
           "met": "",
           "hl": false
         },
         {
           "c": {
-            "es": "Peso del tejido",
-            "en": "Fabric weight",
-            "pt": "Peso do tecido",
-            "zh": "织物重量",
-            "ar": "وزن القماش"
+            "es": "Uso",
+            "en": "Usage",
+            "pt": "Uso",
+            "zh": "用途",
+            "ar": "الاستخدام"
           },
-          "min": "48",
-          "max": "100",
+          "min": {
+            "es": "Multiusos",
+            "en": "Multi-purpose",
+            "pt": "Multiuso",
+            "zh": "多用途",
+            "ar": "متعدد الاستخدامات"
+          },
+          "max": "",
           "tol": {
-            "es": "±2",
+            "es": "",
             "en": "",
             "pt": "",
             "zh": "",
             "ar": ""
           },
-          "uni": "G/m2",
+          "uni": "",
           "met": "",
           "hl": false
         },
         {
           "c": {
-            "es": "Peso del laminado",
-            "en": "Laminated weight",
-            "pt": "Peso do laminado",
-            "zh": "层压重量",
-            "ar": "وزن اللaminado"
+            "es": "Ventilación",
+            "en": "Ventilation",
+            "pt": "Ventilação",
+            "zh": "透气性",
+            "ar": "التهوية"
           },
-          "min": "14",
-          "max": "35",
+          "min": {
+            "es": "Natural / Tejido",
+            "en": "Natural / Woven",
+            "pt": "Natural / Tecido",
+            "zh": "自然 / 编织",
+            "ar": "طبيعي / منسوج"
+          },
+          "max": "",
           "tol": {
-            "es": "±2",
+            "es": "",
             "en": "",
             "pt": "",
             "zh": "",
             "ar": ""
           },
-          "uni": "G/m2",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Costura",
-            "en": "Stitching",
-            "pt": "Costura",
-            "zh": "缝合",
-            "ar": "خياطة"
-          },
-          "min": "13",
-          "max": "16",
-          "tol": {
-            "es": "±1",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "Puntadas",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Dobladillo",
-            "en": "Hem",
-            "pt": "Dobradura",
-            "zh": "边缘",
-            "ar": "حاشية"
-          },
-          "min": "0.79",
-          "max": "1.18",
-          "tol": {
-            "es": "±0.5",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "In",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Fuelles",
-            "en": "Pleats",
-            "pt": "Pregas",
-            "zh": "褶皱",
-            "ar": "طيات"
-          },
-          "min": "2.76",
-          "max": "7.87",
-          "tol": {
-            "es": "±0.5",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "In",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Resistencia del tejido",
-            "en": "Fabric strength",
-            "pt": "Resistência do tecido",
-            "zh": "织物强度",
-            "ar": "قوة القماش"
-          },
-          "min": "264.55",
-          "max": "440.92",
-          "tol": {
-            "es": "±20%",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "lbf",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Tinta",
-            "en": "Ink",
-            "pt": "Tinta",
-            "zh": "墨水",
-            "ar": "حبر"
-          },
-          "min": "1",
-          "max": "12",
-          "tol": {
-            "es": "N/A",
-            "en": "N/A",
-            "pt": "N/A",
-            "zh": "不适用",
-            "ar": "غير متوفر"
-          },
-          "uni": "Pzas",
+          "uni": "",
           "met": "",
           "hl": false
         }
@@ -321,202 +247,121 @@
         "zh": "透明袋",
         "ar": "كيس شفاف"
       },
-      "img": "/images/sacos/saco.png",
+      "img": "saco-transparente.webp",
       "lado": "",
       "desc": {
-        "es": "Bolsas de polipropileno tejido laminado: alta resistencia y preservan las caracteristicas del producto envasado. Impermeables gracias a su laminacion exterior.",
-        "en": "Laminated polypropylene bags: high strength and preserve the characteristics of the packaged product. Waterproof due to their exterior lamination.",
-        "pt": "Bolsas de polipropileno laminado: alta resistência e preservam as características do produto embalado. Impermeáveis graças à sua laminação exterior.",
-        "zh": "层压聚丙烯袋：高强度并保持包装产品的特性。由于其外部层压而防水。",
-        "ar": "أكياس بولي بروبيلين مغلفة: عالية القوة وتحافظ على خصائص المنتج المعبأ. مقاومة للماء بفضل تغليفها الخارجي."
+        "es": "Ideal para productos que requieren inspección visual inmediata. Nuestros sacos transparentes combinan la resistencia del polipropileno con una claridad óptima, permitiendo identificar el contenido sin abrir el empaque.",
+        "en": "Ideal for products that require immediate visual inspection. Our transparent sacks combine the strength of polypropylene with optimal clarity, allowing content identification without opening the package.",
+        "pt": "Ideal para produtos que requerem inspeção visual imediata. Nossos sacos transparentes combinam a resistência do polipropileno com uma clareza ideal, permitindo identificar o conteúdo sem abrir a embalagem.",
+        "zh": "需要立即进行目视检查的产品的理想选择。我们的透明编织袋结合了聚丙烯的强度和最佳的清晰度，无需打开包装即可识别内容物。",
+        "ar": "مثالي للمنتجات التي تتطلب فحصاً بصرياً فورياً. تجمع أكياسنا الشفافة بين قوة البولي بروبيلين والوضوح الأمثل، مما يسمح بتحديد المحتوى دون فتح العبوة."
       },
       "specs": [
         {
           "c": {
-            "es": "Ancho",
-            "en": "Width",
-            "pt": "Largura",
-            "zh": "宽度",
-            "ar": "عرض"
+            "es": "Transparencia",
+            "en": "Transparency",
+            "pt": "Transparência",
+            "zh": "透明度",
+            "ar": "الشفافية"
           },
-          "min": "13.78",
-          "max": "31.5",
+          "min": {
+            "es": "Alta Claridad",
+            "en": "High Clarity",
+            "pt": "Alta Clareza",
+            "zh": "高透明度",
+            "ar": "وضوح عالٍ"
+          },
+          "max": "",
           "tol": {
-            "es": "±1",
+            "es": "",
             "en": "",
             "pt": "",
             "zh": "",
             "ar": ""
           },
-          "uni": "In",
+          "uni": "",
           "met": "",
           "hl": false
         },
         {
           "c": {
-            "es": "Largo",
-            "en": "Length",
-            "pt": "Comprimento",
-            "zh": "长度",
-            "ar": "طول"
+            "es": "Inspección",
+            "en": "Inspection",
+            "pt": "Inspeção",
+            "zh": "检查",
+            "ar": "الفحص"
           },
-          "min": "19.29",
-          "max": "45.28",
+          "min": {
+            "es": "Visual Directa",
+            "en": "Direct Visual",
+            "pt": "Visual Direta",
+            "zh": "直接目视",
+            "ar": "بصري مباشر"
+          },
+          "max": "",
           "tol": {
-            "es": "±1",
+            "es": "",
             "en": "",
             "pt": "",
             "zh": "",
             "ar": ""
           },
-          "uni": "In",
+          "uni": "",
           "met": "",
           "hl": false
         },
         {
           "c": {
-            "es": "Peso del tejido",
-            "en": "Fabric weight",
-            "pt": "Peso do tecido",
-            "zh": "织物重量",
-            "ar": "وزن القماش"
+            "es": "Acabado",
+            "en": "Finish",
+            "pt": "Acabamento",
+            "zh": "表面处理",
+            "ar": "التشطيب"
           },
-          "min": "48",
-          "max": "100",
+          "min": {
+            "es": "Brillante",
+            "en": "Glossy",
+            "pt": "Brilhante",
+            "zh": "亮光",
+            "ar": "لامع"
+          },
+          "max": "",
           "tol": {
-            "es": "±2",
+            "es": "",
             "en": "",
             "pt": "",
             "zh": "",
             "ar": ""
           },
-          "uni": "G/m2",
+          "uni": "",
           "met": "",
           "hl": false
         },
         {
           "c": {
-            "es": "Peso del laminado",
-            "en": "Laminated weight",
-            "pt": "Peso do laminado",
-            "zh": "层压重量",
-            "ar": "وزن اللaminado"
+            "es": "Resistencia",
+            "en": "Strength",
+            "pt": "Resistência",
+            "zh": "强度",
+            "ar": "المقاومة"
           },
-          "min": "14",
-          "max": "35",
+          "min": {
+            "es": "Estructural",
+            "en": "Structural",
+            "pt": "Estrutural",
+            "zh": "结构级",
+            "ar": "هيكلي"
+          },
+          "max": "",
           "tol": {
-            "es": "±2",
+            "es": "",
             "en": "",
             "pt": "",
             "zh": "",
             "ar": ""
           },
-          "uni": "G/m2",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Costura",
-            "en": "Stitching",
-            "pt": "Costura",
-            "zh": "缝合",
-            "ar": "خياطة"
-          },
-          "min": "13",
-          "max": "16",
-          "tol": {
-            "es": "±1",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "Puntadas",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Dobladillo",
-            "en": "Hem",
-            "pt": "Dobradura",
-            "zh": "边缘",
-            "ar": "حاشية"
-          },
-          "min": "0.79",
-          "max": "1.18",
-          "tol": {
-            "es": "±0.5",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "In",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Fuelles",
-            "en": "Pleats",
-            "pt": "Pregas",
-            "zh": "褶皱",
-            "ar": "طيات"
-          },
-          "min": "2.76",
-          "max": "7.87",
-          "tol": {
-            "es": "±0.5",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "In",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Resistencia del tejido",
-            "en": "Fabric strength",
-            "pt": "Resistência do tecido",
-            "zh": "织物强度",
-            "ar": "قوة القماش"
-          },
-          "min": "264.55",
-          "max": "440.92",
-          "tol": {
-            "es": "±20%",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "lbf",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Tinta",
-            "en": "Ink",
-            "pt": "Tinta",
-            "zh": "墨水",
-            "ar": "حبر"
-          },
-          "min": "1",
-          "max": "12",
-          "tol": {
-            "es": "N/A",
-            "en": "N/A",
-            "pt": "N/A",
-            "zh": "不适用",
-            "ar": "غير متوفر"
-          },
-          "uni": "Pzas",
+          "uni": "",
           "met": "",
           "hl": false
         }
@@ -536,202 +381,121 @@
         "zh": "生态拉菲袋",
         "ar": "كيس رافيا بيئي"
       },
-      "img": "/images/sacos/saco3.png",
+      "img": "saco-ecologico.webp",
       "lado": "",
       "desc": {
-        "es": "Hechas de material reciclado derivado de retales de produccion. Duraderas, muy resistentes y mas economicas. Tela tejida con cintas multicolores.",
-        "en": "Made from recycled material derived from production scraps. Durable, very strong, and more economical. Woven fabric with multicolored ribbons.",
-        "pt": "Feitas de material reciclado derivado de retalhos de produção. Duráveis, muito resistentes e mais econômicas. Tecido tecido com fitas multicoloridas.",
-        "zh": "由生产废料回收材料制成。耐用、非常坚固且更经济。用多色带子编织的织物。",
-        "ar": "مصنوعة من مواد معاد تدويرها مشتقة من قصاصات الإنتاج. متينة، قوية جداً وأكثر اقتصادية. قماش منسوج بأشرطة ملونة متعددة."
+        "es": "Comprometidos con la sostenibilidad. Nuestros sacos ecológicos están fabricados con materiales reciclados de alta calidad, ofreciendo una alternativa responsable para el empaque industrial sin sacrificar la resistencia y durabilidad necesarias.",
+        "en": "Committed to sustainability. Our eco-friendly bags are made from high-quality recycled materials, offering a responsible alternative for industrial packaging without sacrificing the necessary strength and durability.",
+        "pt": "Comprometidos com a sustentabilidade. Nossos sacos ecológicos são fabricados com materiais reciclados de alta qualidade, oferecendo uma alternativa responsável para a embalagem industrial sem sacrificar a resistência e durabilidade necessárias.",
+        "zh": "致力于可持续发展。我们的环保袋由高质量回收材料制成，为工业包装提供了一种负责任的替代方案，同时又不牺牲所需的强度和耐久性。",
+        "ar": "ملتزمون بالاستدامة. يتم تصنيع أكياسنا الصديقة للبيئة من مواد معاد تدويرها عالية الجودة، مما يوفر بديلاً مسؤولاً للتغليف الصناعي دون التضحية بالقوة والمتانة اللازمتين."
       },
       "specs": [
         {
           "c": {
-            "es": "Ancho",
-            "en": "Width",
-            "pt": "Largura",
-            "zh": "宽度",
-            "ar": "عرض"
+            "es": "Origen",
+            "en": "Origin",
+            "pt": "Origem",
+            "zh": "来源",
+            "ar": "الأصل"
           },
-          "min": "13.78",
-          "max": "31.5",
+          "min": {
+            "es": "Reciclado / Sustentable",
+            "en": "Recycled / Sustainable",
+            "pt": "Reciclado / Sustentável",
+            "zh": "回收 / 可持续",
+            "ar": "معاد تدويره / مستدام"
+          },
+          "max": "",
           "tol": {
-            "es": "±1",
+            "es": "",
             "en": "",
             "pt": "",
             "zh": "",
             "ar": ""
           },
-          "uni": "In",
+          "uni": "",
           "met": "",
           "hl": false
         },
         {
           "c": {
-            "es": "Largo",
-            "en": "Length",
-            "pt": "Comprimento",
-            "zh": "长度",
-            "ar": "طول"
+            "es": "Sustentabilidad",
+            "en": "Sustainability",
+            "pt": "Sustentabilidade",
+            "zh": "可持续性",
+            "ar": "الاستدامة"
           },
-          "min": "19.29",
-          "max": "45.28",
+          "min": {
+            "es": "Economía Circular",
+            "en": "Circular Economy",
+            "pt": "Economia Circular",
+            "zh": "循环经济",
+            "ar": "اقتصاد دائري"
+          },
+          "max": "",
           "tol": {
-            "es": "±1",
+            "es": "",
             "en": "",
             "pt": "",
             "zh": "",
             "ar": ""
           },
-          "uni": "In",
+          "uni": "",
           "met": "",
           "hl": false
         },
         {
           "c": {
-            "es": "Peso del tejido",
-            "en": "Fabric weight",
-            "pt": "Peso do tecido",
-            "zh": "织物重量",
-            "ar": "وزن القماش"
+            "es": "Impacto",
+            "en": "Impact",
+            "pt": "Impacto",
+            "zh": "影响",
+            "ar": "الأثر"
           },
-          "min": "48",
-          "max": "100",
+          "min": {
+            "es": "Reducción Huella",
+            "en": "Footprint Reduction",
+            "pt": "Redução de Pegada",
+            "zh": "减少碳足迹",
+            "ar": "تقليل البصمة"
+          },
+          "max": "",
           "tol": {
-            "es": "±2",
+            "es": "",
             "en": "",
             "pt": "",
             "zh": "",
             "ar": ""
           },
-          "uni": "G/m2",
+          "uni": "",
           "met": "",
           "hl": false
         },
         {
           "c": {
-            "es": "Peso del laminado",
-            "en": "Laminated weight",
-            "pt": "Peso do laminado",
-            "zh": "层压重量",
-            "ar": "وزن اللaminado"
+            "es": "Durabilidad",
+            "en": "Durability",
+            "pt": "Durabilidade",
+            "zh": "耐久性",
+            "ar": "المتانة"
           },
-          "min": "14",
-          "max": "35",
+          "min": {
+            "es": "Alta / Reciclada",
+            "en": "High / Recycled",
+            "pt": "Alta / Reciclada",
+            "zh": "高 / 回收",
+            "ar": "عالية / معاد تدويرها"
+          },
+          "max": "",
           "tol": {
-            "es": "±2",
+            "es": "",
             "en": "",
             "pt": "",
             "zh": "",
             "ar": ""
           },
-          "uni": "G/m2",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Costura",
-            "en": "Stitching",
-            "pt": "Costura",
-            "zh": "缝合",
-            "ar": "خياطة"
-          },
-          "min": "13",
-          "max": "16",
-          "tol": {
-            "es": "±1",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "Puntadas",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Dobladillo",
-            "en": "Hem",
-            "pt": "Dobradura",
-            "zh": "边缘",
-            "ar": "حاشية"
-          },
-          "min": "0.79",
-          "max": "1.18",
-          "tol": {
-            "es": "±0.5",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "In",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Fuelles",
-            "en": "Pleats",
-            "pt": "Pregas",
-            "zh": "褶皱",
-            "ar": "طيات"
-          },
-          "min": "2.76",
-          "max": "7.87",
-          "tol": {
-            "es": "±0.5",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "In",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Resistencia del tejido",
-            "en": "Fabric strength",
-            "pt": "Resistência do tecido",
-            "zh": "织物强度",
-            "ar": "قوة القماش"
-          },
-          "min": "264.55",
-          "max": "440.92",
-          "tol": {
-            "es": "±20%",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "lbf",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Tinta",
-            "en": "Ink",
-            "pt": "Tinta",
-            "zh": "墨水",
-            "ar": "حبر"
-          },
-          "min": "1",
-          "max": "12",
-          "tol": {
-            "es": "N/A",
-            "en": "N/A",
-            "pt": "N/A",
-            "zh": "不适用",
-            "ar": "غير متوفر"
-          },
-          "uni": "Pzas",
+          "uni": "",
           "met": "",
           "hl": false
         }
@@ -749,204 +513,123 @@
         "en": "LAMINATED RAFFIA BAG MICROPERFORATION",
         "pt": "SACO DE RAFIA LAMINADO MICROPERFURAÇÃO",
         "zh": "层压拉菲袋微穿孔",
-        "ar": "كيس رافيا مغلف مثقب"
+        "ar": "كيس رافيا مصفح بفتحات دقيقة"
       },
-      "img": "",
+      "img": "saco-laminado-perforado.webp",
       "lado": "",
       "desc": {
-        "es": "Laminado con microperforaciones: pequenos orificios que permiten la circulacion del aire, utiles para productos que requieren ventilacion. Impermeable por su laminacion exterior.",
-        "en": "Laminated with micro-perforations: small holes that allow air circulation, useful for products that require ventilation. Waterproof due to its exterior lamination.",
-        "pt": "Laminado com microperforações: pequenos orifícios que permitem a circulação de ar, úteis para produtos que requerem ventilação. Impermeável devido à sua laminação exterior.",
-        "zh": "带有微孔的层压：小孔允许空气循环，适用于需要通风的产品。由于其外部层压而防水。",
-        "ar": "مغلف بميكرو ثقوب: ثقوب صغيرة تسمح بدوران الهواء، مفيدة للمنتجات التي تتطلب التهوية. مقاوم للماء بفضل تغليفه الخارجي."
+        "es": "La combinación perfecta de protección y respiración. El laminado exterior protege contra la humedad externa, mientras que la microperforación permite que el producto interior respire, ideal para harinas y polvos finos.",
+        "en": "The perfect combination of protection and breathability. The outer lamination protects against external moisture, while the microperforation allows the inner product to breathe, ideal for flours and fine powders.",
+        "pt": "A combinação perfeita de proteção e respiração. O laminado externo protege contra a umidade externa, enquanto a microperfuração permite que o produto interno respire, ideal para farinhas e pós finos.",
+        "zh": "保护与透气的完美结合。外部层压可防止外部受潮，而微穿孔可让内部产品呼吸，是面粉和细粉的理想选择。",
+        "ar": "المزيج المثالي بين الحماية والتنفس. يحمي التصفيف الخارجي من الرطوبة الخارجية، بينما تتيح الفتحات الدقيقة للمنتج الداخلي بالتنفس، مما يجعله مثالياً للدقيق والمساحيق الناعمة."
       },
       "specs": [
         {
           "c": {
-            "es": "Ancho",
-            "en": "Width",
-            "pt": "Largura",
-            "zh": "宽度",
-            "ar": "عرض"
+            "es": "Protección",
+            "en": "Protection",
+            "pt": "Proteção",
+            "zh": "保护",
+            "ar": "الحماية"
           },
-          "min": "13.78",
-          "max": "31.5",
+          "min": {
+            "es": "Laminado / Barrera",
+            "en": "Laminated / Barrier",
+            "pt": "Laminado / Barreira",
+            "zh": "层压 / 阻隔",
+            "ar": "مصفح / حاجز"
+          },
+          "max": "",
           "tol": {
-            "es": "±1",
+            "es": "",
             "en": "",
             "pt": "",
             "zh": "",
             "ar": ""
           },
-          "uni": "In",
+          "uni": "",
           "met": "",
           "hl": false
         },
         {
           "c": {
-            "es": "Largo",
-            "en": "Length",
-            "pt": "Comprimento",
-            "zh": "长度",
-            "ar": "طول"
+            "es": "Respiración",
+            "en": "Breathability",
+            "pt": "Respiração",
+            "zh": "透气性",
+            "ar": "التنفس"
           },
-          "min": "19.29",
-          "max": "45.28",
+          "min": {
+            "es": "Microperforación",
+            "en": "Micro-perforation",
+            "pt": "Microperfuração",
+            "zh": "微穿孔",
+            "ar": "فتحات دقيقة"
+          },
+          "max": "",
           "tol": {
-            "es": "±1",
+            "es": "",
             "en": "",
             "pt": "",
             "zh": "",
             "ar": ""
           },
-          "uni": "In",
+          "uni": "",
           "met": "",
           "hl": false
         },
         {
           "c": {
-            "es": "Peso del tejido",
-            "en": "Fabric weight",
-            "pt": "Peso do tecido",
-            "zh": "织物重量",
-            "ar": "وزن القماش"
+            "es": "Contención",
+            "en": "Containment",
+            "pt": "Contenção",
+            "zh": "密封性",
+            "ar": "الاحتواء"
           },
-          "min": "48",
-          "max": "100",
+          "min": {
+            "es": "Polvos Finos",
+            "en": "Fine Powders",
+            "pt": "Pós Finos",
+            "zh": "细粉",
+            "ar": "مساحيق ناعمة"
+          },
+          "max": "",
           "tol": {
-            "es": "±2",
+            "es": "",
             "en": "",
             "pt": "",
             "zh": "",
             "ar": ""
           },
-          "uni": "G/m2",
+          "uni": "",
           "met": "",
           "hl": false
         },
         {
           "c": {
-            "es": "Peso del laminado",
-            "en": "Laminated weight",
-            "pt": "Peso do laminado",
-            "zh": "层压重量",
-            "ar": "وزن اللaminado"
+            "es": "Barrera",
+            "en": "Barrier",
+            "pt": "Barreira",
+            "zh": "阻隔性",
+            "ar": "الحاجز"
           },
-          "min": "14",
-          "max": "35",
+          "min": {
+            "es": "Humedad Externa",
+            "en": "External Moisture",
+            "pt": "Umidade Externa",
+            "zh": "外部湿度",
+            "ar": "الرطوبة الخارجية"
+          },
+          "max": "",
           "tol": {
-            "es": "±2",
+            "es": "",
             "en": "",
             "pt": "",
             "zh": "",
             "ar": ""
           },
-          "uni": "G/m2",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Costura",
-            "en": "Stitching",
-            "pt": "Costura",
-            "zh": "缝合",
-            "ar": "خياطة"
-          },
-          "min": "13",
-          "max": "16",
-          "tol": {
-            "es": "±1",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "Puntadas",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Dobladillo",
-            "en": "Hem",
-            "pt": "Dobradura",
-            "zh": "边缘",
-            "ar": "حاشية"
-          },
-          "min": "0.79",
-          "max": "1.18",
-          "tol": {
-            "es": "±0.5",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "In",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Fuelles",
-            "en": "Pleats",
-            "pt": "Pregas",
-            "zh": "褶皱",
-            "ar": "طيات"
-          },
-          "min": "2.76",
-          "max": "7.87",
-          "tol": {
-            "es": "±0.5",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "In",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Resistencia del tejido",
-            "en": "Fabric strength",
-            "pt": "Resistência do tecido",
-            "zh": "织物强度",
-            "ar": "قوة القماش"
-          },
-          "min": "264.55",
-          "max": "440.92",
-          "tol": {
-            "es": "±20%",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "lbf",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Tinta",
-            "en": "Ink",
-            "pt": "Tinta",
-            "zh": "墨水",
-            "ar": "حبر"
-          },
-          "min": "1",
-          "max": "12",
-          "tol": {
-            "es": "N/A",
-            "en": "N/A",
-            "pt": "N/A",
-            "zh": "不适用",
-            "ar": "غير متوفر"
-          },
-          "uni": "Pzas",
+          "uni": "",
           "met": "",
           "hl": false
         }
@@ -960,250 +643,127 @@
     },
     {
       "nombre": {
-        "es": "SACO DE RAFIA LAMINADO BOPP",
-        "en": "LAMINATED RAFFIA BAG BOPP",
-        "pt": "SACO DE RAFIA LAMINADO BOPP",
-        "zh": "层压拉菲袋 BOPP",
-        "ar": "كيس رافيا مغلف BOPP"
+        "es": "SACO LAMINADO",
+        "en": "LAMINATED BAG",
+        "pt": "SACO LAMINADO",
+        "zh": "编织袋层压",
+        "ar": "كيس مغلف"
       },
-      "img": "",
+      "img": "saco-laminado.webp",
       "lado": "",
       "desc": {
-        "es": "Proteccion superior con impresion monocromatica de alta definicion. Solucion de embalaje eficiente para alimento de caballos y mascotas.",
-        "en": "Superior protection with high-definition monochromatic printing. Efficient packaging solution for horse and pet food.",
-        "pt": "Proteção superior com impressão monocromática de alta definição. Solução de embalagem eficiente para alimentos de cavalos e animais de estimação.",
-        "zh": "具有高清单色印刷的优越保护。马和宠物食品的高效包装解决方案。",
-        "ar": "حماية فائقة مع طباعة أحادية اللون عالية الدقة. حل تعبئة فعال لطعام الخيول والحيوانات الأليفة."
+        "es": "Máxima impermeabilidad para productos delicados. El recubrimiento de polietileno laminado proporciona una barrera total contra la humedad y el polvo, garantizando que el contenido permanezca seco y limpio durante su almacenamiento.",
+        "en": "Maximum impermeability for delicate products. The laminated polyethylene coating provides a total barrier against moisture and dust, guaranteeing that the content remains dry and clean during storage.",
+        "pt": "Máxima impermeabilidade para produtos delicados. O revestimento de polietileno laminado proporciona uma barreira total contra a umidade e o pó, garantindo que o conteúdo permaneça seco e limpo durante o seu armazenamento.",
+        "zh": "为精细产品提供最高防水性。层压聚乙烯涂层提供了防潮和防尘的全方位屏障，确保内容物在储存期间保持干燥清洁。",
+        "ar": "أقصى درجات عدم النفاذية للمنتجات الحساسة. يوفر طلاء البولي إيثيلين المصفح حاجزاً كاملاً ضد الرطوبة والغبار، مما يضمن بقاء المحتوى جافاً ونظيفاً أثناء التخزين."
       },
       "specs": [
         {
           "c": {
-            "es": "Ancho",
-            "en": "Width",
-            "pt": "Largura",
-            "zh": "宽度",
-            "ar": "عرض"
+            "es": "Acabado",
+            "en": "Finish",
+            "pt": "Acabamento",
+            "zh": "表面处理",
+            "ar": "التشطيب"
           },
-          "min": "13.78",
-          "max": "31.5",
+          "min": {
+            "es": "Laminado / Brillante",
+            "en": "Laminated / Glossy",
+            "pt": "Laminado / Brilhante",
+            "zh": "层压 / 亮光",
+            "ar": "مصفح / لامع"
+          },
+          "max": "",
           "tol": {
-            "es": "±1",
+            "es": "",
             "en": "",
             "pt": "",
             "zh": "",
             "ar": ""
           },
-          "uni": "In",
+          "uni": "",
           "met": "",
           "hl": false
         },
         {
           "c": {
-            "es": "Largo",
-            "en": "Length",
-            "pt": "Comprimento",
-            "zh": "长度",
-            "ar": "طول"
+            "es": "Impermeabilidad",
+            "en": "Impermeability",
+            "pt": "Impermeabilidade",
+            "zh": "不透水性",
+            "ar": "عدم النفاذية"
           },
-          "min": "18.9",
-          "max": "44.88",
+          "min": {
+            "es": "Alta",
+            "en": "High",
+            "pt": "Alta",
+            "zh": "高",
+            "ar": "عالية"
+          },
+          "max": "",
           "tol": {
-            "es": "±1",
+            "es": "",
             "en": "",
             "pt": "",
             "zh": "",
             "ar": ""
           },
-          "uni": "In",
+          "uni": "",
           "met": "",
           "hl": false
         },
         {
           "c": {
-            "es": "Peso de la tela",
-            "en": "Fabric weight",
-            "pt": "Peso do tecido",
-            "zh": "织物重量",
-            "ar": "وزن القماش"
+            "es": "Protección",
+            "en": "Protection",
+            "pt": "Proteção",
+            "zh": "保护",
+            "ar": "الحماية"
           },
-          "min": "57",
-          "max": "100",
+          "min": {
+            "es": "Humedad / Polvo",
+            "en": "Moisture / Dust",
+            "pt": "Umidade / Pó",
+            "zh": "防潮 / 防尘",
+            "ar": "رطوبة / غبار"
+          },
+          "max": "",
           "tol": {
-            "es": "±2",
+            "es": "",
             "en": "",
             "pt": "",
             "zh": "",
             "ar": ""
           },
-          "uni": "G/m2",
+          "uni": "",
           "met": "",
           "hl": false
         },
         {
           "c": {
-            "es": "Peso laminado",
-            "en": "Laminated weight",
-            "pt": "Peso laminado",
-            "zh": "层压重量",
-            "ar": "وزن اللaminado"
+            "es": "Sellado",
+            "en": "Sealing",
+            "pt": "Selagem",
+            "zh": "密封性",
+            "ar": "الختم"
           },
-          "min": "20",
-          "max": "35",
+          "min": {
+            "es": "Hermético",
+            "en": "Hermetic",
+            "pt": "Hermético",
+            "zh": "气密性",
+            "ar": "محكم"
+          },
+          "max": "",
           "tol": {
-            "es": "±2",
+            "es": "",
             "en": "",
             "pt": "",
             "zh": "",
             "ar": ""
           },
-          "uni": "G/m2",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Puntadas",
-            "en": "Stitches",
-            "pt": "Pontos",
-            "zh": "缝合",
-            "ar": "غرز"
-          },
-          "min": "13",
-          "max": "16",
-          "tol": {
-            "es": "±1",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "Puntadas",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Refuerzo de bordes",
-            "en": "Edge reinforcement",
-            "pt": "Reforço de bordas",
-            "zh": "边缘加固",
-            "ar": "تعزيز الحواف"
-          },
-          "min": "0.79",
-          "max": "1.18",
-          "tol": {
-            "es": "±0.5",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "In",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Fuelles",
-            "en": "Pleats",
-            "pt": "Pregas",
-            "zh": "褶皱",
-            "ar": "طيات"
-          },
-          "min": "2.79",
-          "max": "7.87",
-          "tol": {
-            "es": "±0.5",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "In",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Peso del BOPP",
-            "en": "BOPP weight",
-            "pt": "Peso do BOPP",
-            "zh": "BOPP重量",
-            "ar": "وزن BOPP"
-          },
-          "min": "15",
-          "max": "35",
-          "tol": {
-            "es": "±2",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "G/m2",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Calidad de impresion",
-            "en": "Print quality",
-            "pt": "Qualidade de impressão",
-            "zh": "印刷质量",
-            "ar": "جودة الطباعة"
-          },
-          "min": "120",
-          "max": "150",
-          "tol": {
-            "es": "±0.5%",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "Lpi",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Resistencia del tejido",
-            "en": "Fabric strength",
-            "pt": "Resistência do tecido",
-            "zh": "织物强度",
-            "ar": "قوة القماش"
-          },
-          "min": "264.55",
-          "max": "440.92",
-          "tol": {
-            "es": "±20%",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "lbf",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Tinta",
-            "en": "Ink",
-            "pt": "Tinta",
-            "zh": "墨水",
-            "ar": "حبر"
-          },
-          "min": "1",
-          "max": "10",
-          "tol": {
-            "es": "N/A",
-            "en": "N/A",
-            "pt": "N/A",
-            "zh": "不适用",
-            "ar": "غير متوفر"
-          },
-          "uni": "Pzas",
+          "uni": "",
           "met": "",
           "hl": false
         }
@@ -1217,166 +777,127 @@
     },
     {
       "nombre": {
-        "es": "SACO DE RAFIA FONDO PLANO",
-        "en": "FLAT BOTTOM RAFFIA BAG",
-        "pt": "SACO DE RAFIA COM FUNDO PLANO",
-        "zh": "平底拉菲袋",
-        "ar": "كيس رافيا ذو قاع مسطح"
+        "es": "SACO CON FUELLE",
+        "en": "GUSSETED BAG",
+        "pt": "SACO COM FUELLE",
+        "zh": "侧褶袋",
+        "ar": "كيس مع طية"
       },
-      "img": "",
+      "img": "saco-fuelle.webp",
       "lado": "",
       "desc": {
-        "es": "Laminadas, con o sin microperforaciones, sin costuras gracias al cierre hermetico de la base. Base imprimible; paletizado y almacenamiento mas estables.",
-        "en": "Laminated, with or without micro-perforations, seamless due to the hermetic closure of the base. Printable base; more stable palletizing and storage.",
-        "pt": "Laminadas, com ou sem microperforações, sem costuras graças ao fechamento hermético da base. Base imprimível; paletização e armazenamento mais estáveis.",
-        "zh": "层压，无论是否有微孔，由于底部的密封闭合而无缝。可打印底座；更稳定的托盘堆放和存储。",
-        "ar": "مغلفة، مع أو بدون ثقوب دقيقة، بدون خياطة بفضل الإغلاق المحكم للقاعدة. قاعدة قابلة للطباعة؛ تكديس وتخزين أكثر استقرارًا."
+        "es": "Optimización del espacio y paletizado. El diseño con fuelle lateral permite que el saco adopte una forma cuadrada al llenarse, facilitando el estibado estable y aprovechando al máximo el volumen de carga.",
+        "en": "Space and palletizing optimization. The side gusset design allows the bag to take a square shape when filled, facilitating stable stacking and making the most of the load volume.",
+        "pt": "Otimização de espaço e paletização. O design com fole lateral permite que o saco adote uma forma quadrada ao ser preenchido, facilitando o empilhamento estável e aproveitando ao máximo o volume de carga.",
+        "zh": "空间和码垛优化。侧褶设计使袋子在填充时呈现方形，有利于稳定堆叠并充分利用装载量。",
+        "ar": "تحسين المساحة والتحميل على المنصات. يتيح تصميم الطيات الجانبية للكيس اتخاذ شكل مربع عند امتلائه، مما يسهل التراص المستقر والاستفادة القصوى من حجم الحمولة."
       },
       "specs": [
         {
           "c": {
-            "es": "Ancho",
-            "en": "Width",
-            "pt": "Largura",
-            "zh": "宽度",
-            "ar": "عرض"
+            "es": "Forma",
+            "en": "Shape",
+            "pt": "Forma",
+            "zh": "形状",
+            "ar": "الشكل"
           },
-          "min": "13.78",
-          "max": "31.5",
+          "min": {
+            "es": "Cuadrada (Lleno)",
+            "en": "Square (Filled)",
+            "pt": "Quadrada (Cheio)",
+            "zh": "方形（填充后）",
+            "ar": "مربع (ممتلئ)"
+          },
+          "max": "",
           "tol": {
-            "es": "±1",
+            "es": "",
             "en": "",
             "pt": "",
             "zh": "",
             "ar": ""
           },
-          "uni": "In",
+          "uni": "",
           "met": "",
           "hl": false
         },
         {
           "c": {
-            "es": "Largo",
-            "en": "Length",
-            "pt": "Comprimento",
-            "zh": "长度",
-            "ar": "طول"
+            "es": "Estibado",
+            "en": "Stacking",
+            "pt": "Empilhamento",
+            "zh": "码垛",
+            "ar": "التراص"
           },
-          "min": "19.29",
-          "max": "45.28",
+          "min": {
+            "es": "Máxima Estabilidad",
+            "en": "Maximum Stability",
+            "pt": "Máxima Estabilidade",
+            "zh": "最大稳定性",
+            "ar": "أقصى استقرار"
+          },
+          "max": "",
           "tol": {
-            "es": "±1",
+            "es": "",
             "en": "",
             "pt": "",
             "zh": "",
             "ar": ""
           },
-          "uni": "In",
+          "uni": "",
           "met": "",
           "hl": false
         },
         {
           "c": {
-            "es": "Ancho de fondo",
-            "en": "Background width",
-            "pt": "Largura de fundo",
-            "zh": "背景宽度",
-            "ar": "عرض الخلفية"
+            "es": "Volumen",
+            "en": "Volume",
+            "pt": "Volume",
+            "zh": "容积",
+            "ar": "الحجم"
           },
-          "min": "3.94",
-          "max": "7.87",
+          "min": {
+            "es": "Optimizado",
+            "en": "Optimized",
+            "pt": "Otimizado",
+            "zh": "优化",
+            "ar": "محسن"
+          },
+          "max": "",
           "tol": {
-            "es": "±1",
+            "es": "",
             "en": "",
             "pt": "",
             "zh": "",
             "ar": ""
           },
-          "uni": "In",
+          "uni": "",
           "met": "",
           "hl": false
         },
         {
           "c": {
-            "es": "Peso del tejido",
-            "en": "Fabric weight",
-            "pt": "Peso do tecido",
-            "zh": "织物重量",
-            "ar": "وزن القماش"
+            "es": "Estructura",
+            "en": "Structure",
+            "pt": "Estrutura",
+            "zh": "结构",
+            "ar": "الهيكل"
           },
-          "min": "60",
-          "max": "100",
+          "min": {
+            "es": "Fuelle Lateral",
+            "en": "Side Gusset",
+            "pt": "Fole Lateral",
+            "zh": "侧褶",
+            "ar": "طية جانبية"
+          },
+          "max": "",
           "tol": {
-            "es": "±2",
+            "es": "",
             "en": "",
             "pt": "",
             "zh": "",
             "ar": ""
           },
-          "uni": "G/m2",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Peso del laminado",
-            "en": "Laminated weight",
-            "pt": "Peso do laminado",
-            "zh": "层压重量",
-            "ar": "وزن اللaminado"
-          },
-          "min": "20",
-          "max": "35",
-          "tol": {
-            "es": "±2",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "G/m2",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Resistencia del tejido",
-            "en": "Fabric strength",
-            "pt": "Resistência do tecido",
-            "zh": "织物强度",
-            "ar": "قوة القماش"
-          },
-          "min": "264.55",
-          "max": "440.92",
-          "tol": {
-            "es": "±20%",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "lbf",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Tinta",
-            "en": "Ink",
-            "pt": "Tinta",
-            "zh": "墨水",
-            "ar": "حبر"
-          },
-          "min": "1",
-          "max": "12",
-          "tol": {
-            "es": "N/A",
-            "en": "N/A",
-            "pt": "N/A",
-            "zh": "不适用",
-            "ar": "غير متوفر"
-          },
-          "uni": "Pzas",
+          "uni": "",
           "met": "",
           "hl": false
         }
@@ -1390,166 +911,261 @@
     },
     {
       "nombre": {
-        "es": "SACO DE RAFIA VALVULADO",
-        "en": "VALVED RAFFIA BAG",
-        "pt": "SACO DE RAFIA VALVULADO",
-        "zh": "阀门拉菲袋",
-        "ar": "كيس رافيا مزود بصمام"
+        "es": "SACO CON VÁLVULA",
+        "en": "VALVE BAG",
+        "pt": "SACO COM VÁLVULA",
+        "zh": "阀口袋",
+        "ar": "كيس بصمام"
       },
-      "img": "",
+      "img": "saco-valvula.webp",
       "lado": "",
       "desc": {
-        "es": "Saco laminado con valvula, con o sin microperforacion. Sin costuras; sello en base y valvula de llenado automatico para mayor eficiencia. Hermetico.",
-        "en": "Laminated bag with valve, with or without microperforation. Seamless; seal at the base and automatic filling valve for greater efficiency. Hermetic.",
-        "pt": "Saco laminado com válvula, com ou sem microperforação. Sem costuras; selo na base e válvula de enchimento automático para maior eficiência. Hermético.",
-        "zh": "带阀的层压袋，带或不带微穿孔。无缝；底部密封和自动填充阀以提高效率。密封。",
-        "ar": "كيس مغلف بصمام، مع أو بدون ثقب دقيق. بدون خياطة؛ ختم في القاعدة وصمام تعبئة تلقائي لزيادة الكفاءة. محكم."
+        "es": "Especializados para llenado automático. El sistema de válvula interna permite un envasado rápido y un cierre automático por presión, ideal para cementos, morteros y productos pulverulentos que requieren alta velocidad de producción.",
+        "en": "Specialized for automatic filling. The internal valve system allows fast packaging and automatic pressure closure, ideal for cements, mortars and powdery products that require high production speed.",
+        "pt": "Especializados para envase automático. O sistema de válvula interna permite uma embalagem rápida e um fechamento automático por pressão, ideal para cimentos, argamassas e produtos pulverulentos que requerem alta velocidade de produção.",
+        "zh": "专为自动灌装而设计。内部阀门系统可实现快速包装和自动压力封闭，非常适合需要高生产速度的水泥、砂浆和粉状产品。",
+        "ar": "متخصص في التعبئة الأوتوماتيكية. يتيح نظام الصمام الداخلي تعبئة سريعة وإغلاقاً أوتوماتيكياً بالضغط، مما يجعله مثالياً للأسمنت والملاط والمنتجات المسحوقة التي تتطلب سرعة إنتاج عالية."
       },
       "specs": [
         {
           "c": {
-            "es": "Ancho",
-            "en": "Width",
-            "pt": "Largura",
-            "zh": "宽度",
-            "ar": "عرض"
+            "es": "Llenado",
+            "en": "Filling",
+            "pt": "Envase",
+            "zh": "填充",
+            "ar": "التعبئة"
           },
-          "min": "13.78",
-          "max": "31.5",
+          "min": {
+            "es": "Automático",
+            "en": "Automatic",
+            "pt": "Automático",
+            "zh": "自动",
+            "ar": "آلي"
+          },
+          "max": "",
           "tol": {
-            "es": "±1",
+            "es": "",
             "en": "",
             "pt": "",
             "zh": "",
             "ar": ""
           },
-          "uni": "In",
+          "uni": "",
           "met": "",
           "hl": false
         },
         {
           "c": {
-            "es": "Largo",
-            "en": "Length",
-            "pt": "Comprimento",
-            "zh": "长度",
-            "ar": "طول"
+            "es": "Cierre",
+            "en": "Closure",
+            "pt": "Fechamento",
+            "zh": "封闭方式",
+            "ar": "الإغلاق"
           },
-          "min": "19.29",
-          "max": "45.28",
+          "min": {
+            "es": "Autovalvular",
+            "en": "Self-valving",
+            "pt": "Autovalvular",
+            "zh": "自封阀",
+            "ar": "صمام ذاتي"
+          },
+          "max": "",
           "tol": {
-            "es": "±1",
+            "es": "",
             "en": "",
             "pt": "",
             "zh": "",
             "ar": ""
           },
-          "uni": "In",
+          "uni": "",
           "met": "",
           "hl": false
         },
         {
           "c": {
-            "es": "Ancho de fondo",
-            "en": "Background width",
-            "pt": "Largura de fundo",
-            "zh": "背景宽度",
-            "ar": "عرض الخلفية"
+            "es": "Aplicación",
+            "en": "Application",
+            "pt": "Aplicação",
+            "zh": "应用",
+            "ar": "التطبيق"
           },
-          "min": "3.94",
-          "max": "7.87",
+          "min": {
+            "es": "Polvos / Cemento",
+            "en": "Powders / Cement",
+            "pt": "Pós / Cimento",
+            "zh": "粉末 / 水泥",
+            "ar": "مساحيق / أسمنت"
+          },
+          "max": "",
           "tol": {
-            "es": "±1",
+            "es": "",
             "en": "",
             "pt": "",
             "zh": "",
             "ar": ""
           },
-          "uni": "In",
+          "uni": "",
           "met": "",
           "hl": false
         },
         {
           "c": {
-            "es": "Peso del tejido",
-            "en": "Fabric weight",
-            "pt": "Peso do tecido",
-            "zh": "织物重量",
-            "ar": "وزن القماش"
+            "es": "Velocidad",
+            "en": "Speed",
+            "pt": "Velocidade",
+            "zh": "速度",
+            "ar": "السرعة"
           },
-          "min": "60",
-          "max": "100",
+          "min": {
+            "es": "Alta (Industrial)",
+            "en": "High (Industrial)",
+            "pt": "Alta (Industrial)",
+            "zh": "高（工业级）",
+            "ar": "عالية (صناعية)"
+          },
+          "max": "",
           "tol": {
-            "es": "±2",
+            "es": "",
             "en": "",
             "pt": "",
             "zh": "",
             "ar": ""
           },
-          "uni": "G/m2",
+          "uni": "",
           "met": "",
           "hl": false
-        },
+        }
+      ],
+      "visual": {
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "rotate": 0
+      }
+    },
+    {
+      "nombre": {
+        "es": "SACO JUMBO",
+        "en": "JUMBO BAG",
+        "pt": "SACO JUMBO",
+        "zh": "大袋子",
+        "ar": "حقيبة ضخمة"
+      },
+      "img": "saco-jumbo.webp",
+      "lado": "",
+      "desc": {
+        "es": "Solución para carga pesada a granel. Nuestros sacos Jumbo (FIBC) están diseñados para el manejo de hasta 2 toneladas, con asas reforzadas y opciones de carga/descarga que optimizan la logística de grandes volúmenes.",
+        "en": "Bulk heavy load solution. Our Jumbo bags (FIBC) are designed for handling up to 2 tons, with reinforced handles and loading/unloading options that optimize high-volume logistics.",
+        "pt": "Solução para carga pesada a granel. Nossos sacos Jumbo (FIBC) são projetados para o manuseio de até 2 toneladas, com alças reforçadas e opções de carga/descarga que otimizam a logística de grandes volumes.",
+        "zh": "大宗重载解决方案。我们的吨袋 (FIBC) 设计用于处理高达 2 吨的货物，具有加固手柄和装卸选项，可优化大容量物流。",
+        "ar": "حل للحمولات الثقيلة السائبة. تم تصميم أكياسنا الضخمة (FIBC) للتعامل مع ما يصل إلى طنين، مع مقابض معززة وخيارات تحميل/تفريغ تعمل على تحسين الخدمات اللوجستية للأحجام الكبيرة."
+      },
+      "specs": [
         {
           "c": {
-            "es": "Peso del laminado",
-            "en": "Laminated weight",
-            "pt": "Peso do laminado",
-            "zh": "层压重量",
-            "ar": "وزن اللaminado"
+            "es": "Capacidad",
+            "en": "Capacity",
+            "pt": "Capacidade",
+            "zh": "容量",
+            "ar": "السعة"
           },
-          "min": "20",
-          "max": "35",
+          "min": {
+            "es": "Hasta 2 Toneladas",
+            "en": "Up to 2 Tons",
+            "pt": "Até 2 Toneladas",
+            "zh": "最多 2 吨",
+            "ar": "حتى طنين"
+          },
+          "max": "",
           "tol": {
-            "es": "±2",
+            "es": "",
             "en": "",
             "pt": "",
             "zh": "",
             "ar": ""
           },
-          "uni": "G/m2",
+          "uni": "",
           "met": "",
           "hl": false
         },
         {
           "c": {
-            "es": "Resistencia del tejido",
-            "en": "Fabric strength",
-            "pt": "Resistência do tecido",
-            "zh": "织物强度",
-            "ar": "قوة القماش"
+            "es": "Refuerzo",
+            "en": "Reinforcement",
+            "pt": "Reforço",
+            "zh": "加固",
+            "ar": "التعزيز"
           },
-          "min": "264.55",
-          "max": "440.92",
+          "min": {
+            "es": "Asas Industriales",
+            "en": "Industrial Handles",
+            "pt": "Alças Industriais",
+            "zh": "工业级手柄",
+            "ar": "مقابض صناعية"
+          },
+          "max": "",
           "tol": {
-            "es": "±20%",
+            "es": "",
             "en": "",
             "pt": "",
             "zh": "",
             "ar": ""
           },
-          "uni": "lbf",
+          "uni": "",
           "met": "",
           "hl": false
         },
         {
           "c": {
-            "es": "Tinta",
-            "en": "Ink",
-            "pt": "Tinta",
-            "zh": "墨水",
-            "ar": "حبر"
+            "es": "Tipo",
+            "en": "Type",
+            "pt": "Tipo",
+            "zh": "类型",
+            "ar": "النوع"
           },
-          "min": "1",
-          "max": "12",
+          "min": {
+            "es": "FIBC / Granel",
+            "en": "FIBC / Bulk",
+            "pt": "FIBC / Granel",
+            "zh": "集装袋 / 散装",
+            "ar": "FIBC / حمولة سائبة"
+          },
+          "max": "",
           "tol": {
-            "es": "N/A",
-            "en": "N/A",
-            "pt": "N/A",
-            "zh": "不适用",
-            "ar": "غير متوفر"
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
           },
-          "uni": "Pzas",
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Seguridad",
+            "en": "Security",
+            "pt": "Segurança",
+            "zh": "安全性",
+            "ar": "الأمان"
+          },
+          "min": {
+            "es": "Alta (Izaje)",
+            "en": "High (Lifting)",
+            "pt": "Alta (Içamento)",
+            "zh": "高（起吊）",
+            "ar": "عالية (رفع)"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
           "met": "",
           "hl": false
         }

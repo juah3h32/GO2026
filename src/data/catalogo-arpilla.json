@@ -1,25 +1,25 @@
 {
   "intro": {
     "p1": {
-      "es": "Fabricada con polipropileno 100% virgen y construcción rafia, esta arpilla ofrece alta resistencia y excelente rendimiento en aplicaciones de empaque y almacenamiento. Su calidad garantiza durabilidad y un desempeño confiable en el manejo de diversos productos.",
-      "en": "Manufactured with 100% virgin polypropylene and raffia construction, this mesh bag offers high resistance and excellent performance in packaging and storage applications. Its quality guarantees durability and reliable performance in handling various products.",
-      "pt": "Fabricado com polipropileno 100% virgem e construção em ráfia, este saco de malha oferece alta resistência e excelente rendimento em aplicações de embalagem e armazenamento. Sua qualidade garante durabilidade e um desempenho confiável no manuseio de diversos produtos.",
-      "zh": "采用 100% 原生聚丙烯和拉菲草结构制造，这款网袋在包装和存储应用中提供高强度和出色性能。其质量保证了处理各种产品时的耐久性和可靠性。",
-      "ar": "مصنوع من البولي بروبيلين البكر بنسبة 100% وبنية من الرافيا، يوفر هذا الكيس الشبكي مقاومة عالية وأداءً ممتازاً في تطبيقات التعبئة والتخزين. تضمن جودته المتانة والأداء الموثوق في التعامل مع المنتجات المختلفة."
+      "es": "La arpilla de Grupo Ortiz® es una solución de empaque esencial para el sector agrícola, diseñada para maximizar la ventilación y proteger las cosechas. Su estructura tejida transpira y conserva la frescura del producto.",
+      "en": "Grupo Ortiz® mesh bags are an essential packaging solution for the agricultural sector, designed to maximize ventilation and protect crops. Their woven structure breathes and preserves product freshness.",
+      "pt": "A sacaria de ráfia (arpilla) da Grupo Ortiz® é uma solução essencial para o setor agrícola, projetada para maximizar a ventilação e proteger as colheitas. Sua estrutura tecida conserva a frescura do produto.",
+      "zh": "Grupo Ortiz® 网袋是农业部门必不可少的包装解决方案，旨在最大化通风并保护作物。其编织结构透气并保持产品的新鲜度。",
+      "ar": "تعتبر أكياس الخيش (arpilla) من Grupo Ortiz® حلاً أساسياً للتعبئة في القطاع الزراعي، مصممة لزيادة التهوية وحماية المحاصيل. يتنفس هيكلها المنسوج ويحافظ على نضارة المنتج."
     },
     "bioTitle": {
-      "es": "",
-      "en": "",
-      "pt": "",
-      "zh": "",
-      "ar": ""
+      "es": "Logística Agrícola Eficiente",
+      "en": "Efficient Agricultural Logistics",
+      "pt": "Logística Agrícola Eficiente",
+      "zh": "高效农业物流",
+      "ar": "الخدمات اللوجستية الزراعية الفعالة"
     },
     "p2": {
-      "es": "",
-      "en": "",
-      "pt": "",
-      "zh": "",
-      "ar": ""
+      "es": "Nuestras arpillas ofrecen una alta resistencia mecánica para el manejo rudo en la cadena logística, asegurando que los productos lleguen a su destino en condiciones óptimas, minimizando mermas y optimizando el almacenamiento.",
+      "en": "Our mesh bags offer high mechanical resistance for rough handling in the logistics chain, ensuring that products reach their destination in optimal conditions, minimizing losses and optimizing storage.",
+      "pt": "Nossas sacarias oferecem alta resistência mecânica para o manuseio bruto na cadeia logística, garantindo que os produtos cheguem ao seu destino em condições ideais, minimizando perdas e otimizando o armazenamento.",
+      "zh": "我们的网袋为物流链中的粗暴装卸提供高机械强度，确保产品以最佳状态到达目的地，最大限度地减少损失并优化存储。",
+      "ar": "توفر أكياسنا مقاومة ميكانيكية عالية للتعامل القاسي في السلسلة اللوجستية، مما يضمن وصول المنتجات إلى وجهتها في ظروف مثالية، وتقليل الهدر وتحسين التخزين."
     }
   },
   "productos": [

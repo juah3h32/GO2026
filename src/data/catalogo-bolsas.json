@@ -1,25 +1,25 @@
 {
   "intro": {
     "p1": {
-      "es": "Bolsas de polipropileno de alta resistencia para empaque industrial y comercial. Disponibles en 5 tamaños.",
-      "en": "High-strength polypropylene bags for industrial and commercial packaging. Available in 5 sizes.",
-      "pt": "Bolsas de polipropileno de alta resistência para embalagem industrial e comercial. Disponíveis em 5 tamanhos.",
-      "zh": "用于工业和商业包装的高强度聚丙烯袋。提供5种尺寸。",
-      "ar": "أكياس بولي بروبيلين عالية المقاومة للتعبئة الصناعية والتجارية. متوفرة بـ 5 مقاسات."
+      "es": "La línea de bolsas de Grupo Ortiz® ofrece soluciones de empaque versátiles que combinan funcionalidad comercial con altos estándares técnicos. Fabricadas con resinas de alta pureza, garantizan una transparencia y resistencia excepcionales.",
+      "en": "The Grupo Ortiz® bag line offers versatile packaging solutions that combine commercial functionality with high technical standards. Manufactured with high-purity resins, they guarantee exceptional transparency and resistance.",
+      "pt": "A linha de sacos da Grupo Ortiz® oferece soluções de embalagem versáteis que combinam funcionalidade comercial com altos padrões técnicos. Fabricados com resinas de alta pureza, garantem uma transparência e resistência excepcionais.",
+      "zh": "Grupo Ortiz® 袋系列提供多功能包装解决方案，将商业功能与高技术标准相结合通。采用高纯度树脂制造，保证了卓越的透明度和强度。",
+      "ar": "يقدم خط أكياس Grupo Ortiz® حلول تغليف متنوعة تجمع بين الوظائف التجارية والمعايير التقنية العالية. وهي مصنوعة من راتنجات عالية النقاء، وتضمن شفافية ومقاومة استثنائية."
     },
     "bioTitle": {
-      "es": "",
-      "en": "",
-      "pt": "",
-      "zh": "",
-      "ar": ""
+      "es": "Versatilidad en Soluciones de Empaque",
+      "en": "Versatility in Packaging Solutions",
+      "pt": "Versatilidade em Soluções de Embalagem",
+      "zh": "包装解决方案的多功能性",
+      "ar": "التنوع في حلول التغليف"
     },
     "p2": {
-      "es": "",
-      "en": "",
-      "pt": "",
-      "zh": "",
-      "ar": ""
+      "es": "Disponibles en múltiples tamaños, desde 15×20 hasta 60×90 cm, se adaptan a diversas necesidades de pesaje, almacenamiento y protección, ofreciendo un manejo eficiente y una calidad constante en el sector retail e industrial.",
+      "en": "Available in multiple sizes, from 15×20 to 60×90 cm, they adapt to various weighing, storage, and protection needs, offering efficient handling and consistent quality across the retail and industrial sectors.",
+      "pt": "Disponíveis em múltiplos tamanhos, de 15×20 a 60×90 cm, adaptam-se a diversas necessidades de pesagem, armazenamento e proteção, oferecendo um manuseio eficiente e qualidade constante nos setores de varejo e industrial.",
+      "zh": "提供多种尺寸，从 15×20 到 60×90 厘米，可适应各种称重、存储和保护需求，在零售和工业领域提供高效的装卸和一致的质量。",
+      "ar": "متوفرة بأحجام متعددة، من 15×20 إلى 60×90 سم، تتكيف مع احتياجات الوزن والتخزين والحماية المختلفة، مما يوفر تعاملاً فعالاً وجودة ثابتة في قطاعي التجزئة والصناعة."
     }
   },
   "productos": [
@@ -244,6 +244,87 @@
           "uni": "",
           "met": "",
           "hl": false
+        },
+        {
+          "c": {
+            "es": "Resistencia al rasgado",
+            "en": "Tear resistance",
+            "pt": "Resistência ao rasgo",
+            "zh": "撕裂强度",
+            "ar": "مقاومة التمزق"
+          },
+          "min": {
+            "es": "Alta",
+            "en": "High",
+            "pt": "Alto",
+            "zh": "高",
+            "ar": "عالي"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Acabado",
+            "en": "Finish",
+            "pt": "Acabamento",
+            "zh": "表面处理",
+            "ar": "تشطيب"
+          },
+          "min": {
+            "es": "Uniforme",
+            "en": "Uniform",
+            "pt": "Uniforme",
+            "zh": "均匀",
+            "ar": "موحد"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Presentación",
+            "en": "Presentation",
+            "pt": "Apresentação",
+            "zh": "展示",
+            "ar": "عرض"
+          },
+          "min": {
+            "es": "En rollo",
+            "en": "In roll",
+            "pt": "Em rolo",
+            "zh": "卷装",
+            "ar": "في لفة"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
         }
       ],
       "visual": {
@@ -366,6 +447,87 @@
             "pt": "Varejo",
             "zh": "零售",
             "ar": "تجارة التجزئة"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Resistencia al rasgado",
+            "en": "Tear resistance",
+            "pt": "Resistência ao rasgo",
+            "zh": "撕裂强度",
+            "ar": "مقاومة التمزق"
+          },
+          "min": {
+            "es": "Alta",
+            "en": "High",
+            "pt": "Alto",
+            "zh": "高",
+            "ar": "عالي"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Acabado",
+            "en": "Finish",
+            "pt": "Acabamento",
+            "zh": "表面处理",
+            "ar": "تشطيب"
+          },
+          "min": {
+            "es": "Uniforme",
+            "en": "Uniform",
+            "pt": "Uniforme",
+            "zh": "均匀",
+            "ar": "موحد"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Presentación",
+            "en": "Presentation",
+            "pt": "Apresentação",
+            "zh": "展示",
+            "ar": "عرض"
+          },
+          "min": {
+            "es": "En rollo",
+            "en": "In roll",
+            "pt": "Em rolo",
+            "zh": "卷装",
+            "ar": "في لفة"
           },
           "max": "",
           "tol": {
@@ -512,6 +674,87 @@
           "uni": "",
           "met": "",
           "hl": false
+        },
+        {
+          "c": {
+            "es": "Resistencia al rasgado",
+            "en": "Tear resistance",
+            "pt": "Resistência ao rasgo",
+            "zh": "撕裂强度",
+            "ar": "مقاومة التمزق"
+          },
+          "min": {
+            "es": "Alta",
+            "en": "High",
+            "pt": "Alto",
+            "zh": "高",
+            "ar": "عالي"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Acabado",
+            "en": "Finish",
+            "pt": "Acabamento",
+            "zh": "表面处理",
+            "ar": "تشطيب"
+          },
+          "min": {
+            "es": "Uniforme",
+            "en": "Uniform",
+            "pt": "Uniforme",
+            "zh": "均匀",
+            "ar": "موحد"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Presentación",
+            "en": "Presentation",
+            "pt": "Apresentação",
+            "zh": "展示",
+            "ar": "عرض"
+          },
+          "min": {
+            "es": "En rollo",
+            "en": "In roll",
+            "pt": "Em rolo",
+            "zh": "卷装",
+            "ar": "في لفة"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
         }
       ],
       "visual": {
@@ -634,6 +877,87 @@
             "pt": "Embalagem agrícola",
             "zh": "农业包装",
             "ar": "تعبئة زراعية"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Resistencia al rasgado",
+            "en": "Tear resistance",
+            "pt": "Resistência ao rasgo",
+            "zh": "撕裂强度",
+            "ar": "مقاومة التمزق"
+          },
+          "min": {
+            "es": "Alta",
+            "en": "High",
+            "pt": "Alto",
+            "zh": "高",
+            "ar": "عالي"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Acabado",
+            "en": "Finish",
+            "pt": "Acabamento",
+            "zh": "表面处理",
+            "ar": "تشطيب"
+          },
+          "min": {
+            "es": "Uniforme",
+            "en": "Uniform",
+            "pt": "Uniforme",
+            "zh": "均匀",
+            "ar": "موحد"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Presentación",
+            "en": "Presentation",
+            "pt": "Apresentação",
+            "zh": "展示",
+            "ar": "عرض"
+          },
+          "min": {
+            "es": "En rollo",
+            "en": "In roll",
+            "pt": "Em rolo",
+            "zh": "卷装",
+            "ar": "في لفة"
           },
           "max": "",
           "tol": {
@@ -780,6 +1104,87 @@
           "uni": "",
           "met": "",
           "hl": false
+        },
+        {
+          "c": {
+            "es": "Resistencia al rasgado",
+            "en": "Tear resistance",
+            "pt": "Resistência ao rasgo",
+            "zh": "撕裂强度",
+            "ar": "مقاومة التمزق"
+          },
+          "min": {
+            "es": "Alta",
+            "en": "High",
+            "pt": "Alto",
+            "zh": "高",
+            "ar": "عالي"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Acabado",
+            "en": "Finish",
+            "pt": "Acabamento",
+            "zh": "表面处理",
+            "ar": "تشطيب"
+          },
+          "min": {
+            "es": "Uniforme",
+            "en": "Uniform",
+            "pt": "Uniforme",
+            "zh": "均匀",
+            "ar": "موحد"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Presentación",
+            "en": "Presentation",
+            "pt": "Apresentação",
+            "zh": "展示",
+            "ar": "عرض"
+          },
+          "min": {
+            "es": "En rollo",
+            "en": "In roll",
+            "pt": "Em rolo",
+            "zh": "卷装",
+            "ar": "في لفة"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
         }
       ],
       "visual": {
@@ -902,6 +1307,87 @@
             "pt": "Logística industrial",
             "zh": "工业物流",
             "ar": "لوجستيات صناعية"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Resistencia al rasgado",
+            "en": "Tear resistance",
+            "pt": "Resistência ao rasgo",
+            "zh": "撕裂强度",
+            "ar": "مقاومة التمزق"
+          },
+          "min": {
+            "es": "Alta",
+            "en": "High",
+            "pt": "Alto",
+            "zh": "高",
+            "ar": "عالي"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Acabado",
+            "en": "Finish",
+            "pt": "Acabamento",
+            "zh": "表面处理",
+            "ar": "تشطيب"
+          },
+          "min": {
+            "es": "Uniforme",
+            "en": "Uniform",
+            "pt": "Uniforme",
+            "zh": "均匀",
+            "ar": "موحد"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Presentación",
+            "en": "Presentation",
+            "pt": "Apresentação",
+            "zh": "展示",
+            "ar": "عرض"
+          },
+          "min": {
+            "es": "En rollo",
+            "en": "In roll",
+            "pt": "Em rolo",
+            "zh": "卷装",
+            "ar": "في لفة"
           },
           "max": "",
           "tol": {
@@ -1048,6 +1534,87 @@
           "uni": "",
           "met": "",
           "hl": false
+        },
+        {
+          "c": {
+            "es": "Resistencia al rasgado",
+            "en": "Tear resistance",
+            "pt": "Resistência ao rasgo",
+            "zh": "撕裂强度",
+            "ar": "مقاومة التمزق"
+          },
+          "min": {
+            "es": "Alta",
+            "en": "High",
+            "pt": "Alto",
+            "zh": "高",
+            "ar": "عالي"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Acabado",
+            "en": "Finish",
+            "pt": "Acabamento",
+            "zh": "表面处理",
+            "ar": "تشطيب"
+          },
+          "min": {
+            "es": "Uniforme",
+            "en": "Uniform",
+            "pt": "Uniforme",
+            "zh": "均匀",
+            "ar": "موحد"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Presentación",
+            "en": "Presentation",
+            "pt": "Apresentação",
+            "zh": "展示",
+            "ar": "عرض"
+          },
+          "min": {
+            "es": "En rollo",
+            "en": "In roll",
+            "pt": "Em rolo",
+            "zh": "卷装",
+            "ar": "في لفة"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
         }
       ],
       "visual": {
@@ -1170,6 +1737,87 @@
             "pt": "Armazenamento industrial",
             "zh": "工业储存",
             "ar": "تخزين صناعي"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Resistencia al rasgado",
+            "en": "Tear resistance",
+            "pt": "Resistência ao rasgo",
+            "zh": "撕裂强度",
+            "ar": "مقاومة التمزق"
+          },
+          "min": {
+            "es": "Alta",
+            "en": "High",
+            "pt": "Alto",
+            "zh": "高",
+            "ar": "عالي"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Acabado",
+            "en": "Finish",
+            "pt": "Acabamento",
+            "zh": "表面处理",
+            "ar": "تشطيب"
+          },
+          "min": {
+            "es": "Uniforme",
+            "en": "Uniform",
+            "pt": "Uniforme",
+            "zh": "均匀",
+            "ar": "موحد"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Presentación",
+            "en": "Presentation",
+            "pt": "Apresentação",
+            "zh": "展示",
+            "ar": "عرض"
+          },
+          "min": {
+            "es": "En rollo",
+            "en": "In roll",
+            "pt": "Em rolo",
+            "zh": "卷装",
+            "ar": "في لفة"
           },
           "max": "",
           "tol": {
@@ -1316,6 +1964,87 @@
           "uni": "",
           "met": "",
           "hl": false
+        },
+        {
+          "c": {
+            "es": "Resistencia al rasgado",
+            "en": "Tear resistance",
+            "pt": "Resistência ao rasgo",
+            "zh": "撕裂强度",
+            "ar": "مقاومة التمزق"
+          },
+          "min": {
+            "es": "Alta",
+            "en": "High",
+            "pt": "Alto",
+            "zh": "高",
+            "ar": "عالي"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Acabado",
+            "en": "Finish",
+            "pt": "Acabamento",
+            "zh": "表面处理",
+            "ar": "تشطيب"
+          },
+          "min": {
+            "es": "Uniforme",
+            "en": "Uniform",
+            "pt": "Uniforme",
+            "zh": "均匀",
+            "ar": "موحد"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Presentación",
+            "en": "Presentation",
+            "pt": "Apresentação",
+            "zh": "展示",
+            "ar": "عرض"
+          },
+          "min": {
+            "es": "En rollo",
+            "en": "In roll",
+            "pt": "Em rolo",
+            "zh": "卷装",
+            "ar": "في لفة"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
         }
       ],
       "visual": {
@@ -1438,6 +2167,87 @@
             "pt": "Industrial / Granel",
             "zh": "工业 / 散装",
             "ar": "صناعي / سائب"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Resistencia al rasgado",
+            "en": "Tear resistance",
+            "pt": "Resistência ao rasgo",
+            "zh": "撕裂强度",
+            "ar": "مقاومة التمزق"
+          },
+          "min": {
+            "es": "Alta",
+            "en": "High",
+            "pt": "Alto",
+            "zh": "高",
+            "ar": "عالي"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Acabado",
+            "en": "Finish",
+            "pt": "Acabamento",
+            "zh": "表面处理",
+            "ar": "تشطيب"
+          },
+          "min": {
+            "es": "Uniforme",
+            "en": "Uniform",
+            "pt": "Uniforme",
+            "zh": "均匀",
+            "ar": "موحد"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Presentación",
+            "en": "Presentation",
+            "pt": "Apresentação",
+            "zh": "展示",
+            "ar": "عرض"
+          },
+          "min": {
+            "es": "En rollo",
+            "en": "In roll",
+            "pt": "Em rolo",
+            "zh": "卷装",
+            "ar": "في لفة"
           },
           "max": "",
           "tol": {

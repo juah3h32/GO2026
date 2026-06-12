@@ -16,7 +16,14 @@ let CURRENT_FOLDER = 'stretch';
 let COVER_FOLDER = 'catalogos';
 
 // Helper de traduccion
-const T = (obj, lang) => obj && obj[lang] ? obj[lang] : (obj && obj.es ? obj.es : obj);
+const T = (obj, lang) => {
+  if (obj && typeof obj === 'object' && !Array.isArray(obj)) {
+    const v = obj[lang];
+    if (v !== undefined && v !== null && v !== '') return v;
+    return (obj.es !== undefined && obj.es !== null && obj.es !== '') ? obj.es : (Object.values(obj)[0] || '');
+  }
+  return obj == null ? '' : obj;
+};
 
 // ── Chromium (igual que send-now.js) ──────────────────────────────────────────
 const LOCAL_CHROME = [
@@ -88,24 +95,33 @@ function header(t) {
   </div>`;
 }
 
-function tabla(specs, t, fi) {
+function tabla(f, t, fi) {
+  const { specs = [], single, cols = {} } = f;
+  
+  if (single) {
+    const head = specs.map((s, j) => `<th class="${j % 2 === 0 ? 'o' : 'g'}"${styleStr(`fichas.${fi}.specs.${j}.c`)}>${esc(s.c)}</th>`).join('');
+    const body = specs.map((s) => `<td class="n">${esc(s.min)}${s.uni ? (' ' + esc(s.uni)) : ''}</td>`).join('');
+    return `<table class="t th"><thead><tr>${head}</tr></thead><tbody><tr>${body}</tr></tbody></table>`;
+  }
+
   const rows = specs.map((s, j) => `
     <tr class="${s.hl ? 'hl' : ''}">
       <td class="c"${styleStr(`fichas.${fi}.specs.${j}.c`)}>${esc(s.c)}</td>
       <td class="n">${esc(s.min)}</td>
       <td class="n">${esc(s.max)}</td>
-      <td class="n">${esc(s.tol)}</td>
-      <td class="n">${esc(s.uni)}</td>
-      <td class="n" style="font-size: 10px;">${esc(s.met)}</td>
+      ${cols.tol ? `<td class="n">${esc(s.tol)}</td>` : ''}
+      ${cols.uni ? `<td class="n">${esc(s.uni)}</td>` : ''}
+      ${cols.met ? `<td class="n" style="font-size: 10px;">${esc(s.met)}</td>` : ''}
     </tr>`).join('');
+    
   return `<table class="t">
     <thead>
       <tr>
         <th class="o" rowspan="2">${esc(t.characteristics || "CARACTERÍSTICAS")}</th>
         <th class="g" colspan="2">${esc(t.measurement || "MEDICIÓN")}</th>
-        <th class="o" rowspan="2">${esc(t.tolerances || "TOLERANCIAS")}</th>
-        <th class="g" rowspan="2">${esc(t.unit || "UNIDAD")}</th>
-        <th class="o" rowspan="2">${esc(t.testMethod || "MÉTODO DE PRUEBA")}</th>
+        ${cols.tol ? `<th class="o" rowspan="2">${esc(t.tolerances || "TOLERANCIAS")}</th>` : ''}
+        ${cols.uni ? `<th class="g" rowspan="2">${esc(t.unit || "UNIDAD")}</th>` : ''}
+        ${cols.met ? `<th class="o" rowspan="2">${esc(t.testMethod || "MÉTODO DE PRUEBA")}</th>` : ''}
       </tr>
       <tr>
         <th class="g" style="font-size: 8px;">${esc(t.min || "MÍNIMO")}</th>
@@ -115,13 +131,49 @@ function tabla(specs, t, fi) {
     <tbody>${rows}</tbody></table>`;
 }
 
-function paginaProducto(f, i, t, isDark) {
-  const media = `<div class="media"><div class="media-tf" style="transform: translate(${f.visual?.offsetX || 0}%, ${f.visual?.offsetY || 0}%) scale(${f.visual?.scale || 1}) rotate(${f.visual?.rotate || 0}deg);"><img src="${img(f.img)}" alt=""/></div></div>`;
+// Tabla matriz (headers + filas label/cells). Ej: rafia, cuerda, esquinero.
+function matrixTabla(m) {
+  const head = (m.headers || []).map((h, hi) => `<th class="${hi === 0 ? 'o' : 'g'}">${esc(h)}</th>`).join('');
+  const body = (m.rows || []).map(r =>
+    `<tr><td class="c">${esc(r.label)}</td>${(r.cells || []).map(c => `<td class="n">${esc(c)}</td>`).join('')}</tr>`
+  ).join('');
+  return `<div class="mtable">
+    ${m.title ? `<div class="mtitle">${esc(m.title)}</div>` : ''}
+    <table class="t mt">${head ? `<thead><tr>${head}</tr></thead>` : ''}<tbody>${body}</tbody></table>
+    ${m.note ? `<div class="mnote">${esc(m.note)}</div>` : ''}
+  </div>`;
+}
+
+// Tabla de colores (Color / pulgadas / yardas). Ej: arpilla.
+function colorTabla(ct, ctl) {
+  const body = (ct.rows || []).map(r =>
+    `<tr><td class="c">${esc(r.color)}</td><td class="n">${esc(r.in)}</td><td class="n">${esc(r.yd)}</td></tr>`
+  ).join('');
+  return `<table class="t ct"><thead><tr><th class="o">${esc(ctl.color)}</th><th class="g">${esc(ctl.in)}</th><th class="g">${esc(ctl.yd)}</th></tr></thead><tbody>${body}</tbody></table>`;
+}
+
+function paginaProducto(f, i, t, isDark, ctl) {
+  const mediaOverlay = f.soon ? `<div class="soon-overlay">
+    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    <span>${esc(t.soon || "PRÓXIMAMENTE")}</span>
+  </div>` : '';
+
+  const media = `<div class="media ${f.soon ? 'media-soon' : ''}"><div class="media-tf" style="transform: translate(${f.visual?.offsetX || 0}%, ${f.visual?.offsetY || 0}%) scale(${f.visual?.scale || 1}) rotate(${f.visual?.rotate || 0}deg); overflow: ${f.visual?.clip ? 'hidden' : 'visible'};"><img src="${img(f.img)}" alt="" style="transform: scale(${f.visual?.zoom || 1});"/></div>${mediaOverlay}</div>`;
   const copy = `<div class="copy"><h2${styleStr(`fichas.${i}.nombre`)}>${esc(f.nombre)}</h2><p${styleStr(`fichas.${i}.desc`)}>${esc(f.desc)}</p></div>`;
+  const soonNote = f.soon ? `<div class="soon-note">${esc(t.soonNote || "")}</div>` : '';
+
+  const tables = [];
+  if (!f.soon) {
+    if (f.specs && f.specs.length) tables.push(tabla(f, t, i));
+    if (f.colorTable && f.colorTable.rows && f.colorTable.rows.length) tables.push(colorTabla(f.colorTable, ctl));
+    if (f.matrix && f.matrix.rows && f.matrix.rows.length) tables.push(matrixTabla(f.matrix));
+  }
+
   return `<div class="pg prod">
     ${header(t)}
     <div class="head">${copy}${media}</div>
-    ${tabla(f.specs, t, i)}
+    ${soonNote}
+    ${tables.join('')}
   </div>`;
 }
 
@@ -142,7 +194,16 @@ export function buildHTML(theme = 'dark', lang = 'es', data = {}) {
   const vc = data.visualCover || { scale: 1, offsetX: 0, offsetY: 0, rotate: 0 };
   CAT_STYLES = data.styles || {};
 
-  const t = translations[lang] || translations.es;
+  const UI = {
+    es: { soon: 'PRÓXIMAMENTE', soonNote: 'Este producto estará disponible pronto.' },
+    en: { soon: 'COMING SOON', soonNote: 'This product will be available soon.' },
+    pt: { soon: 'EM BREVE', soonNote: 'Este produto estará disponível em breve.' },
+    zh: { soon: '即将推出', soonNote: '该产品即将上市。' },
+    ar: { soon: 'قريباً', soonNote: 'سيتوفر هذا المنتج قريباً.' }
+  };
+  const ui = UI[lang] || UI.es;
+  const base = translations[lang] || translations.es;
+  const t = { soon: ui.soon, soonNote: ui.soonNote, ...(base.digital_catalog || {}), ...(base.common || {}) };
   
   // Traducir datos
   const introTr = {
@@ -156,14 +217,50 @@ export function buildHTML(theme = 'dark', lang = 'es', data = {}) {
     division: T(cover.division, lang)
   };
   const productosTr = productos.map(p => T(p, lang));
-  const fichasTr = fichas.map(f => ({
-    ...f,
-    nombre: T(f.nombre, lang),
-    desc: T(f.desc, lang),
-    specs: f.specs.map(s => ({ ...s, c: T(s.c, lang), tol: T(s.tol, lang) }))
-  }));
+  const _ne = (v) => v !== '' && v !== null && v !== undefined;
+  const fichasTr = (fichas || []).map(f => {
+    const specs = (f.specs || []).map(s => ({
+      ...s,
+      c: T(s.c, lang),
+      min: T(s.min, lang),
+      max: T(s.max, lang),
+      tol: T(s.tol, lang),
+      uni: T(s.uni, lang),
+      met: T(s.met, lang)
+    }));
+    const cols = {
+      min: specs.some(s => _ne(s.min)),
+      max: specs.some(s => _ne(s.max)),
+      tol: specs.some(s => _ne(s.tol)),
+      uni: specs.some(s => _ne(s.uni)),
+      met: specs.some(s => _ne(s.met)),
+    };
+    const single = cols.min && !cols.max;
+    const matrix = (f.matrix && Array.isArray(f.matrix.rows) && f.matrix.rows.length) ? {
+      title: T(f.matrix.title, lang),
+      note: T(f.matrix.note, lang),
+      headers: (f.matrix.headers || []).map(h => T(h, lang)),
+      rows: f.matrix.rows.map(r => ({ label: T(r.label, lang), cells: (r.cells || []).map(c => T(c, lang)) }))
+    } : null;
+    const colorTable = (f.colorTable && Array.isArray(f.colorTable.rows) && f.colorTable.rows.length) ? {
+      rows: f.colorTable.rows.map(r => ({ color: T(r.color, lang), in: T(r.in, lang), yd: T(r.yd, lang) }))
+    } : null;
+    return { ...f, nombre: T(f.nombre, lang), desc: T(f.desc, lang), specs, cols, single, matrix, colorTable };
+  });
+
+  const CT_LABELS = {
+    es: { color: 'Color', in: 'Medidas (pulgadas)', yd: 'Medidas (yardas)' },
+    en: { color: 'Color', in: 'Measures (inches)', yd: 'Measures (yards)' },
+    pt: { color: 'Cor', in: 'Medidas (polegadas)', yd: 'Medidas (jardas)' },
+    zh: { color: '颜色', in: '尺寸（英寸）', yd: '尺寸（码）' },
+    ar: { color: 'اللون', in: 'القياسات (بوصة)', yd: 'القياسات (ياردة)' }
+  };
+  const ctl = CT_LABELS[lang] || CT_LABELS.es;
 
   const lista = productosTr.map(p => `<li>- ${esc(p)}</li>`).join('');
+  // > 3 productos: lista horizontal abajo, deja arriba libre para la imagen
+  const manyProds = productosTr.length > 3;
+  const prodsBlock = `<div class="prods${manyProds ? ' prods-row' : ''}"><span>${esc(t.products || "Productos")}:</span><ul>${lista}</ul></div>`;
 
   const isDark = theme === 'dark';
   const BG = isDark ? '#1b1b1c' : '#f5f5f7';
@@ -173,31 +270,32 @@ export function buildHTML(theme = 'dark', lang = 'es', data = {}) {
   const BORDER = isDark ? '#444' : '#ddd';
   const ROW_ALT = isDark ? '#232324' : '#fcfcfc';
 
-  const portada = `<div class="pg cover">
+  const portada = `<div class="pg cover${manyProds ? ' manyprods' : ''}">
     ${header(t)}
     <div class="cover-grid">
       <div class="cover-left">
         <h1>
-          <span class="o">${esc(coverTr.t1 || '')}</span> 
-          ${coverTr.t2 ? `<span class="gray">${esc(coverTr.t2)}</span>` : ''}
+          <span class="o" style="${styleStr('cover.t1')}">${esc(coverTr.t1 || '')}</span> 
+          ${coverTr.t2 ? `<span class="gray" style="${styleStr('cover.t2')}">${esc(coverTr.t2)}</span>` : ''}
         </h1>
-        <div class="divis">${esc(coverTr.division || t.division || "DIVISIÓN")}</div>
+        <div class="divis" style="${styleStr('cover.division')}">${esc(coverTr.division || t.division || "DIVISIÓN")}</div>
         <p${styleStr('intro.p1')}>${esc(introTr.p1)}</p>
         <p class="bio"${styleStr('intro.bioTitle')}>${esc(introTr.bioTitle)}</p>
         <p${styleStr('intro.p2')}>${esc(introTr.p2)}</p>
       </div>
       <div class="cover-right">
         <div class="cover-imgbox">
-          <div class="cover-imgtf" style="transform: translate(${vc.offsetX}%, ${vc.offsetY}%) scale(${vc.scale}) rotate(${vc.rotate || 0}deg);">
-            <img src="${img(coverImg)}" alt=""/>
+          <div class="cover-imgtf" style="transform: translate(${vc.offsetX}%, ${vc.offsetY}%) scale(${vc.scale}) rotate(${vc.rotate || 0}deg); overflow: ${vc.clip ? 'hidden' : 'visible'};">
+            <img src="${img(coverImg)}" alt="" style="transform: scale(${vc.zoom || 1});"/>
           </div>
         </div>
-        <div class="prods"><span>${esc(t.products || "Productos")}:</span><ul>${lista}</ul></div>
+        ${manyProds ? '' : prodsBlock}
       </div>
     </div>
+    ${manyProds ? prodsBlock : ''}
   </div>`;
 
-  const productPages = fichasTr.map((f, i) => paginaProducto(f, i, t, isDark)).join('');
+  const productPages = fichasTr.map((f, i) => paginaProducto(f, i, t, isDark, ctl)).join('');
 
   return `<!doctype html><html lang="${lang}" dir="${isRTL ? 'rtl' : 'ltr'}"><head><meta charset="utf-8">${fontLink}<style>
     ${fontFace}
@@ -207,48 +305,55 @@ export function buildHTML(theme = 'dark', lang = 'es', data = {}) {
     .logo, .l1, .l2, .divis, .cover-left h1, .cover-left h1 span, .copy h2 { font-family: 'Morganite', ${cjkAr}sans-serif; }
     body { margin: 0; font-family: Arial, Helvetica, sans-serif; }
     .pg { position: relative; width: 1280px; height: 720px; background: ${BG}; color: ${TEXT};
-          overflow: hidden; padding: 100px 64px 44px; page-break-after: always; }
+          overflow: hidden; padding: 80px 80px 44px; page-break-after: always; }
     .pg:last-child { page-break-after: auto; }
     /* Fichas: contenido centrado verticalmente para espacios simetricos */
-    .pg.prod { display: flex; flex-direction: column; justify-content: center; gap: 26px; }
-    .bar { position: absolute; top: 34px; left: 64px; right: 64px; display: flex; justify-content: space-between; align-items: flex-start; }
+    .pg.prod { display: flex; flex-direction: column; justify-content: center; gap: 30px; }
+    .bar { position: absolute; top: 40px; left: 80px; right: 80px; display: flex; justify-content: space-between; align-items: flex-start; }
     .logo { display: flex; flex-direction: column; line-height: .8; font-family: 'Morganite', sans-serif; font-weight: 800; }
-    .l1 { font-size: 18px; letter-spacing: .04em; color: ${TEXT}; }
-    .l2 { font-size: 26px; letter-spacing: .04em; color: ${ORANGE}; }
-    .site { display: flex; align-items: center; gap: 10px; font-size: 11px; letter-spacing: .14em; color: ${MUTED}; margin-top: 8px; }
-    .line { width: 44px; height: 2px; background: ${ORANGE}; }
+    .l1 { font-size: 20px; letter-spacing: .04em; color: ${TEXT}; }
+    .l2 { font-size: 30px; letter-spacing: .04em; color: ${ORANGE}; }
+    .site { display: flex; align-items: center; gap: 10px; font-size: 13px; letter-spacing: .14em; color: ${MUTED}; margin-top: 10px; }
+    .line { width: 50px; height: 2px; background: ${ORANGE}; }
 
     /* Portada */
-    .cover-grid { display: grid; grid-template-columns: 1.65fr 1fr; gap: 36px; height: 100%; align-items: center; }
+    .cover-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 40px; height: 100%; align-items: center; }
     .cover-left { max-width: 100%; }
-    .cover-left h1 { font-family: 'Morganite', ${cjkAr}sans-serif; font-weight: 800; font-size: 136px; line-height: .82; letter-spacing: .01em; margin: 0; white-space: nowrap; }
+    .cover-left h1 { font-family: 'Morganite', ${cjkAr}sans-serif; font-weight: 800; font-size: 150px; line-height: .8; letter-spacing: .01em; margin: 0; white-space: nowrap; }
     .cover-left h1 span { display: inline; }
     .o { color: ${ORANGE}; } .gray { color: #9a9a9c; }
-    .divis { font-family: 'Morganite', sans-serif; font-weight: 800; font-size: 32px; letter-spacing: .04em; margin: 6px 0 20px; }
-    .cover-left p { font-size: 13.5px; line-height: 1.55; color: ${MUTED}; margin: 0 0 12px; max-width: 92%; }
-    .cover-left .bio { color: ${ORANGE}; font-weight: 700; margin-top: 10px; margin-bottom: 6px; }
+    .divis { font-family: 'Morganite', sans-serif; font-weight: 800; font-size: 42px; letter-spacing: .04em; margin: 8px 0 24px; }
+    .cover-left p { font-size: 16px; line-height: 1.55; color: ${MUTED}; margin: 0 0 14px; max-width: 85%; 
+                    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .cover-left .bio { color: ${ORANGE}; font-weight: 700; margin-top: 12px; margin-bottom: 8px; font-size: 18px; }
     .cover-right { position: relative; height: 100%; }
-    .cover-imgbox { position: absolute; right: 0; top: 50%; transform: translateY(-50%); width: 520px; display: flex; justify-content: flex-end; z-index: 1; }
+    .cover-imgbox { position: absolute; right: 0; top: 50%; transform: translateY(-50%); width: 560px; display: flex; justify-content: flex-end; z-index: 1; }
     .cover-imgtf { width: 100%; display: flex; justify-content: flex-end; }
-    .cover-imgtf img { width: 100%; max-height: 500px; object-fit: contain; filter: drop-shadow(0 30px 60px rgba(0,0,0,${isDark ? 0.6 : 0.25})); }
+    .cover-imgtf img { width: 100%; max-height: 520px; object-fit: contain; filter: drop-shadow(0 30px 60px rgba(0,0,0,${isDark ? 0.6 : 0.25})); }
     .prods { position: absolute; right: 0; bottom: 34px; text-align: right; z-index: 2; }
-    .prods span { color: #9a9a9c; font-size: 13px; }
-    .prods ul { list-style: none; margin: 8px 0 0; padding: 0; }
-    .prods li { font-size: 13px; color: ${MUTED}; padding: 3px 0; }
+    .prods span { color: #9a9a9c; font-size: 15px; font-weight: 700; }
+    .prods ul { list-style: none; margin: 10px 0 0; padding: 0; }
+    .prods li { font-size: 15px; color: ${MUTED}; padding: 4px 0; font-weight: 600; }
+    /* >3 productos: imagen arriba, lista horizontal al pie */
+    .cover.manyprods .cover-imgbox { top: 6%; transform: none; }
+    .cover.manyprods .cover-imgtf img { max-height: 430px; }
+    .prods-row { position: absolute; left: 80px; right: 80px; bottom: 40px; top: auto; text-align: left; z-index: 5; display: flex; align-items: baseline; gap: 8px 18px; flex-wrap: wrap; }
+    .prods-row ul { display: flex; flex-wrap: wrap; gap: 4px 22px; margin: 0; padding: 0; list-style: none; }
+    .prods-row li { padding: 0; }
 
     /* Paginas de producto */
-    .head { display: grid; grid-template-columns: 1.25fr 1fr; gap: 40px; align-items: center; margin: 0; height: 250px; }
-    .media { position: relative; z-index: 0; height: 100%; display: flex; align-items: center; justify-content: center; }
-    .media-tf { width: 100%; display: flex; align-items: center; justify-content: center; }
-    .media img { max-width: 100%; max-height: 230px; width: auto; object-fit: contain; filter: drop-shadow(0 25px 40px rgba(0,0,0,${isDark ? 0.6 : 0.2})); pointer-events: none; }
+    .head { display: grid; grid-template-columns: 1.2fr 1fr; gap: 50px; align-items: center; margin: 0; height: 280px; }
+    .media { position: relative; z-index: 0; height: 100%; display: flex; align-items: center; justify-content: center; min-height: 280px; }
+    .media-tf { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+    .media img { max-width: 100%; max-height: 280px; width: auto; object-fit: contain; filter: drop-shadow(0 25px 40px rgba(0,0,0,${isDark ? 0.6 : 0.2})); pointer-events: none; }
     .copy { position: relative; z-index: 2; }
-    .copy h2 { font-family: 'Morganite', sans-serif; font-weight: 800; font-size: 62px; line-height: .92; margin: 0 0 14px; color: ${TEXT}; }
-    .copy p { font-size: 13px; line-height: 1.5; color: ${MUTED}; margin: 0; max-width: 95%; }
+    .copy h2 { font-family: 'Morganite', sans-serif; font-weight: 800; font-size: 84px; line-height: .85; margin: 0 0 16px; color: ${TEXT}; }
+    .copy p { font-size: 16px; line-height: 1.5; color: ${MUTED}; margin: 0; max-width: 95%; }
 
     /* Tabla */
-    .t { width: 100%; border-collapse: collapse; font-size: 12.5px; position: relative; z-index: 3; background: ${BG}; }
-    .t th, .t td { padding: 7px 12px; text-align: center; border: 1px solid ${BORDER}; }
-    .t thead th { font-weight: 800; color: #fff; font-size: 12.5px; letter-spacing: .02em; }
+    .t { width: 100%; border-collapse: collapse; font-size: 14.5px; position: relative; z-index: 3; background: ${BG}; }
+    .t th, .t td { padding: 9px 14px; text-align: center; border: 1px solid ${BORDER}; }
+    .t thead th { font-weight: 800; color: #fff; font-size: 14.5px; letter-spacing: .02em; }
     .t .o { background: ${ORANGE}; } .t .g { background: #333; }
     .t tbody td { background: ${BG2}; color: ${TEXT}; }
     .t tbody tr:nth-child(even) td { background: ${ROW_ALT}; }
@@ -256,6 +361,26 @@ export function buildHTML(theme = 'dark', lang = 'es', data = {}) {
     .t .n { color: ${TEXT}; font-weight: 400; }
     .t .hl td { background: rgba(251,103,11,0.04); }
     .t .hl .c { color: ${ORANGE}; font-weight: 600; }
+    
+    .t.th { table-layout: fixed; }
+    .t.th thead th { font-size: 13px; padding: 12px 10px; }
+    .t.th tbody td { padding: 16px 10px; font-weight: 600; font-size: 16px; }
+
+    /* Tabla matriz (headers + label/cells) */
+    .mtable { width: 100%; }
+    .mtitle { background: ${ORANGE}; color: #fff; font-weight: 800; text-align: center; padding: 9px 10px; font-size: 14px; letter-spacing: .02em; border: 1px solid ${BORDER}; border-bottom: none; }
+    .t.mt { font-size: 11.5px; table-layout: auto; }
+    .t.mt th, .t.mt td { padding: 8px 8px; }
+    .t.mt .c { text-align: left; white-space: nowrap; font-weight: 600; }
+    .mnote { font-style: italic; color: ${MUTED}; font-size: 12px; margin-top: 8px; }
+    /* Tabla de colores */
+    .t.ct { font-size: 12px; }
+    .t.ct .c { text-align: left; white-space: nowrap; font-weight: 600; }
+
+    .media-soon img { filter: blur(5px) grayscale(0.2); }
+    .soon-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.35); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: #fff; z-index: 5; border-radius: 12px; }
+    .soon-overlay span { font-family: 'Morganite', sans-serif; font-size: 38px; letter-spacing: .1em; font-weight: 800; }
+    .soon-note { font-size: 16px; color: ${ORANGE}; font-weight: 700; margin-top: -10px; margin-bottom: 10px; }
   </style></head><body>${portada}${productPages}</body></html>`;
 }
 
@@ -337,7 +462,9 @@ export async function GET({ url }) {
     const html = buildHTML(theme, lang, data);
     const pdf = await generatePDF(html);
     
-    const filename = slug === 'digital-acolchado' ? 'Catalogo-Acolchado-Grupo-Ortiz.pdf' : 'Catalogo-Stretch-Film-Grupo-Ortiz.pdf';
+    // Nombre dinamico basado en la division
+    const cleanTitle = (meta.title || 'Productos').replace(/\s+/g, '-');
+    const filename = `Catalogo-${cleanTitle}-Grupo-Ortiz.pdf`;
 
     return new Response(pdf, {
       status: 200,

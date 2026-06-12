@@ -1,25 +1,25 @@
 {
   "intro": {
     "p1": {
-      "es": "Empaque sustentable 100% Plant Based que regresa a la tierra. Charolas reciclables y compostables para la industria alimentaria.",
-      "en": "100% Plant Based sustainable packaging that returns to the earth. Recyclable and compostable trays for the food industry.",
-      "pt": "Embalagem sustentável 100% Plant Based que retorna à terra. Bandejas recicláveis e compostáveis para a indústria alimentar.",
-      "zh": "100%植物基可持续包装，回归大地。适用于食品行业的可回收可堆肥托盘。",
-      "ar": "تغليف مستدام 100% نباتي يعود إلى الأرض. أطباق قابلة لإعادة التدوير والتسميد لصناعة الأغذية."
+      "es": "La línea Naturizable® de Grupo Ortiz® representa la vanguardia en empaques sustentables, desarrollados a partir de polímeros de origen vegetal. Es nuestra respuesta técnica para una economía circular y menor huella de carbono.",
+      "en": "The Naturizable® line by Grupo Ortiz® represents the forefront of sustainable packaging, developed from plant-based polymers. It is our technical response for a circular economy and a lower carbon footprint.",
+      "pt": "A linha Naturizable® da Grupo Ortiz® representa a vanguarda em embalagens sustentáveis, desenvolvidas a partir de polímeros de origem vegetal. É nossa resposta técnica para uma economia circular e menor pegada de carbono.",
+      "zh": "Grupo Ortiz® 的 Naturizable® 系列代表了可持续包装的前沿，由植物基聚合物开发而成。这是我们对循环经济和减少碳足迹的技术回应。",
+      "ar": "يمثل خط Naturizable® من Grupo Ortiz® طليعة التغليف المستدام، المطور من بوليمرات ذات أصل نباتي. إنه ردنا التقني من أجل اقتصاد دائري وبصمة كربونية أقل."
     },
     "bioTitle": {
-      "es": "",
-      "en": "",
-      "pt": "",
-      "zh": "",
-      "ar": ""
+      "es": "Innovación Sustentable",
+      "en": "Sustainable Innovation",
+      "pt": "Inovação Sustentável",
+      "zh": "可持续创新",
+      "ar": "الابتكار المستدام"
     },
     "p2": {
-      "es": "",
-      "en": "",
-      "pt": "",
-      "zh": "",
-      "ar": ""
+      "es": "Diseñados para mantener el rendimiento técnico de los materiales convencionales, nuestros productos naturizables ofrecen una alternativa compostable o bio-basada que minimiza el impacto ambiental sin comprometer la funcionalidad.",
+      "en": "Designed to maintain the technical performance of conventional materials, our naturizable products offer a compostable or bio-based alternative that minimizes environmental impact without compromising functionality.",
+      "pt": "Projetados para manter o desempenho técnico dos materiais convencionais, nossos produtos naturizáveis oferecem uma alternativa compostável ou de base biológica que minimiza o impacto ambiental sem comprometer a funcionalidade.",
+      "zh": "我们的 Naturizable 产品旨在保持传统材料的技术性能，提供可堆肥或生物基替代方案，在不影响功能的情况下最大限度地减少对环境的影响。",
+      "ar": "تم تصميم منتجاتنا القابلة للتحلل الطبيعي للحفاظ على الأداء التقني للمواد التقليدية، وهي توفر بديلاً قابلاً للتحلل أو ذا أساس حيوي يقلل من التأثير البيئي دون المساومة على الوظيفة."
     }
   },
   "productos": [
@@ -213,6 +213,7 @@
         "ar": "كوب سيليلوز"
       },
       "img": "/images/divisiones/vaso.webp",
+      "soon": true,
       "lado": "",
       "desc": {
         "es": "Vasos de celulosa biodegradables de alta calidad. Una solución sostenible y elegante para el servicio de bebidas, comprometida con el medio ambiente sin comprometer la funcionalidad.",
@@ -347,6 +348,7 @@
         "ar": "حاويات"
       },
       "img": "/images/divisiones/contenedor.webp",
+      "soon": true,
       "lado": "",
       "desc": {
         "es": "Contenedores especializados para diversas aplicaciones industriales y comerciales. Diseñados para máxima durabilidad y eficiencia en el almacenamiento y transporte.",

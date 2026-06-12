@@ -1,25 +1,25 @@
 {
   "intro": {
     "p1": {
-      "es": "Fabricado para proteger bordes y esquinas durante el transporte y almacenamiento, este esquinero distribuye la presión de manera uniforme, evitando deformaciones y daños en la mercancía. Su estructura ofrece resistencia y estabilidad en aplicaciones de embalaje exigentes.",
-      "en": "Designed to protect edges and corners during transport and storage, this edge protector distributes pressure evenly, preventing deformation and damage to merchandise. Its structure offers resistance and stability in demanding packaging applications.",
-      "pt": "Fabricada para proteger bordas e cantos durante o transporte e armazenamento, esta cantoneira distribui a pressão de forma uniforme, evitando deformações e danos na mercadoria. Sua estrutura oferece resistência e estabilidade em aplicações de embalagem exigentes.",
-      "zh": "专为在运输和存储过程中保护边缘和角落而设计，这款护角均匀分配压力，防止货物变形和损坏。其结构在要求苛刻的包装应用中提供强度和稳定性。",
-      "ar": "مصنوعة لحماية الحواف والزوايا أثناء النقل والتخزين، توزّع هذه الحافة الضغط بالتساوي، مما يمنع التشوه والأضرار في البضاعة. هيكلها يوفر المقاومة والاستقرار في تطبيقات التغليف الصعبة."
+      "es": "Los esquineros de Grupo Ortiz® son elementos críticos de empaque, diseñados para reforzar la unidad de carga y proteger las zonas vulnerables del pallet. Su composición garantiza alta resistencia a la compresión.",
+      "en": "Grupo Ortiz® edge protectors are critical packaging elements, designed to reinforce the load unit and protect the vulnerable areas of the pallet. Their composition guarantees high resistance to compression.",
+      "pt": "As cantoneiras da Grupo Ortiz® são elementos críticos de embalagem, projetadas para reforçar a unidade de carga e proteger as zonas vulneráveis do pallet. Sua composição garante alta resistência à compressão.",
+      "zh": "Grupo Ortiz® 护角是关键的包装要素，旨在加强负载单元并保护托盘脆弱的区域。其成分保证了高抗压强度。",
+      "ar": "تعتبر زوايا الحماية من Grupo Ortiz® عناصر تغليف أساسية، مصممة لتعزيز وحدة الحمل وحماية المناطق الضعيفة في المنصة. يضمن تكوينها مقاومة عالية للضغط."
     },
     "bioTitle": {
-      "es": "",
-      "en": "",
-      "pt": "",
-      "zh": "",
-      "ar": ""
+      "es": "Estabilidad y Protección Perimetral",
+      "en": "Stability and Perimeter Protection",
+      "pt": "Estabilidade e Proteção Perimetral",
+      "zh": "稳定性与周边界保护",
+      "ar": "الاستقرار وحماية المحيط"
     },
     "p2": {
-      "es": "",
-      "en": "",
-      "pt": "",
-      "zh": "",
-      "ar": ""
+      "es": "Nuestra tecnología permite mejorar significativamente la estabilidad en el estibado vertical, previniendo daños por flejado y colapsos de carga, lo que reduce reclamaciones por mercancía dañada y optimiza la seguridad en el almacén.",
+      "en": "Our technology allows for significantly improved vertical stacking stability, preventing strapping damage and load collapses, which reduces damaged goods claims and optimizes warehouse safety.",
+      "pt": "Nossa tecnologia permite melhorar significativamente a estabilidade no empilhamento vertical, prevenindo danos por arqueação e colapsos de carga, o que reduz reclamações por mercadoria danificada e otimiza a segurança no armazém.",
+      "zh": "我们的技术可显著提高垂直堆叠稳定性，防止捆扎损坏和负载崩溃，从而减少损坏货物的索赔并优化仓库安全。",
+      "ar": "تسمح تقنيتنا بتحسين الاستقرار بشكل كبير في التراص العمودي، مما يمنع أضرار الربط وانهيار الأحمال، مما يقلل من مطالبات البضائع التالفة ويحسن السلامة في المستودع."
     }
   },
   "productos": [

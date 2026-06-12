@@ -51,22 +51,34 @@ const coverTr = {
   division: T(cover.division)
 };
 const productosTr = productos.map(T);
-const fichasTr = fichas.map(f => ({
-  ...f,
-  nombre: T(f.nombre),
-  desc: T(f.desc),
-  specs: f.specs.map(s => ({ ...s, c: T(s.c), tol: T(s.tol), min: T(s.min), max: T(s.max), uni: T(s.uni), met: T(s.met) }))
-}));
+const manyProds = productosTr.length > 3; // >3: lista horizontal al pie, deja arriba libre para la imagen
+const _ne = (v: any) => v !== '' && v !== null && v !== undefined;
+const fichasTr = fichas.map(f => {
+  const specs = (f.specs || []).map(s => ({ ...s, c: T(s.c), tol: T(s.tol), min: T(s.min), max: T(s.max), uni: T(s.uni), met: T(s.met) }));
+  const cols = {
+    min: specs.some(s => _ne(s.min)),
+    max: specs.some(s => _ne(s.max)),
+    tol: specs.some(s => _ne(s.tol)),
+    uni: specs.some(s => _ne(s.uni)),
+    met: specs.some(s => _ne(s.met)),
+  };
+  // single = solo un valor por fila (sin rango min/max): ej bolsas (Ancho/Alto/Material/Uso)
+  const single = cols.min && !cols.max;
+  // pares para tabla simple a 2 columnas-par (llena el ancho, no se ve vacia)
+  const specPairs = [];
+  if (single) { for (let i = 0; i < specs.length; i += 2) specPairs.push([{ s: specs[i], i }, specs[i + 1] ? { s: specs[i + 1], i: i + 1 } : null]); }
+  return { ...f, nombre: T(f.nombre), desc: T(f.desc), specs, cols, single, specPairs };
+});
 
 const dc: any = (translations[currentLang] as any)?.digital_catalog || {};
 const common: any = (translations[currentLang] as any)?.common || {};
 // Diccionario UI de la portada/tabla (fallback garantizado por idioma; i18n puede estar incompleto)
 const UI: any = {
-  es: { downloadPDF: 'Descargar PDF', distributor: 'Quiero ser distribuidor', products: 'Productos', characteristics: 'CARACTERÍSTICAS', measurement: 'MEDICIÓN', tolerances: 'TOLERANCIAS', unit: 'UNIDAD', testMethod: 'MÉTODO DE PRUEBA', min: 'MÍNIMO', max: 'MÁXIMO', titlePart1: 'CATÁLOGO DE', titlePart2: 'PRODUCTOS', division: 'DIVISIÓN' },
-  en: { downloadPDF: 'Download PDF', distributor: 'Become a distributor', products: 'Products', characteristics: 'CHARACTERISTICS', measurement: 'MEASUREMENT', tolerances: 'TOLERANCES', unit: 'UNIT', testMethod: 'TEST METHOD', min: 'MINIMUM', max: 'MAXIMUM', titlePart1: 'CATALOG OF', titlePart2: 'PRODUCTS', division: 'DIVISION' },
-  pt: { downloadPDF: 'Baixar PDF', distributor: 'Quero ser distribuidor', products: 'Produtos', characteristics: 'CARACTERÍSTICAS', measurement: 'MEDIÇÃO', tolerances: 'TOLERÂNCIAS', unit: 'UNIDADE', testMethod: 'MÉTODO DE TESTE', min: 'MÍNIMO', max: 'MÁXIMO', titlePart1: 'CATÁLOGO DE', titlePart2: 'PRODUTOS', division: 'DIVISÃO' },
-  zh: { downloadPDF: '下载 PDF', distributor: '成为分销商', products: '产品', characteristics: '特性', measurement: '测量', tolerances: '公差', unit: '单位', testMethod: '测试方法', min: '最小值', max: '最大值', titlePart1: '产品', titlePart2: '目录', division: '部门' },
-  ar: { downloadPDF: 'تنزيل PDF', distributor: 'كن موزعًا', products: 'المنتجات', characteristics: 'الخصائص', measurement: 'القياس', tolerances: 'التفاوتات', unit: 'الوحدة', testMethod: 'طريقة الاختبار', min: 'الحد الأدنى', max: 'الحد الأقصى', titlePart1: 'كتالوج', titlePart2: 'المنتجات', division: 'قسم' }
+  es: { downloadPDF: 'Descargar PDF', distributor: 'Quiero ser distribuidor', products: 'Productos', characteristics: 'CARACTERÍSTICAS', measurement: 'MEDICIÓN', tolerances: 'TOLERANCIAS', unit: 'UNIDAD', testMethod: 'MÉTODO DE PRUEBA', min: 'MÍNIMO', max: 'MÁXIMO', value: 'VALOR', soon: 'PRÓXIMAMENTE', soonNote: 'Este producto estará disponible pronto.', titlePart1: 'CATÁLOGO DE', titlePart2: 'PRODUCTOS', division: 'DIVISIÓN' },
+  en: { downloadPDF: 'Download PDF', distributor: 'Become a distributor', products: 'Products', characteristics: 'CHARACTERISTICS', measurement: 'MEASUREMENT', tolerances: 'TOLERANCES', unit: 'UNIT', testMethod: 'TEST METHOD', min: 'MINIMUM', max: 'MAXIMUM', value: 'VALUE', soon: 'COMING SOON', soonNote: 'This product will be available soon.', titlePart1: 'CATALOG OF', titlePart2: 'PRODUCTS', division: 'DIVISION' },
+  pt: { downloadPDF: 'Baixar PDF', distributor: 'Quero ser distribuidor', products: 'Produtos', characteristics: 'CARACTERÍSTICAS', measurement: 'MEDIÇÃO', tolerances: 'TOLERÂNCIAS', unit: 'UNIDADE', testMethod: 'MÉTODO DE TESTE', min: 'MÍNIMO', max: 'MÁXIMO', value: 'VALOR', soon: 'EM BREVE', soonNote: 'Este produto estará disponível em breve.', titlePart1: 'CATÁLOGO DE', titlePart2: 'PRODUTOS', division: 'DIVISÃO' },
+  zh: { downloadPDF: '下载 PDF', distributor: '成为分销商', products: '产品', characteristics: '特性', measurement: '测量', tolerances: '公差', unit: '单位', testMethod: '测试方法', min: '最小值', max: '最大值', value: '数值', soon: '即将推出', soonNote: '该产品即将上市。', titlePart1: '产品', titlePart2: '目录', division: '部门' },
+  ar: { downloadPDF: 'تنزيل PDF', distributor: 'كن موزعًا', products: 'المنتجات', characteristics: 'الخصائص', measurement: 'القياس', tolerances: 'التفاوتات', unit: 'الوحدة', testMethod: 'طريقة الاختبار', min: 'الحد الأدنى', max: 'الحد الأقصى', value: 'القيمة', soon: 'قريباً', soonNote: 'سيتوفر هذا المنتج قريباً.', titlePart1: 'كتالوج', titlePart2: 'المنتجات', division: 'قسم' }
 };
 const ui: any = UI[currentLang] || UI.es;
 const ctTitle: any = { es: 'Catálogo de Productos | Grupo Ortiz', en: 'Product Catalog | Grupo Ortiz', pt: 'Catálogo de Produtos | Grupo Ortiz', zh: '产品目录 | Grupo Ortiz', ar: 'كتالوج المنتجات | Grupo Ortiz' };
@@ -84,6 +96,9 @@ const t: any = {
   testMethod: dc.testMethod || ui.testMethod,
   min: dc.min || ui.min,
   max: dc.max || ui.max,
+  value: ui.value,
+  soon: ui.soon,
+  soonNote: ui.soonNote,
   division: common.division || ui.division
 };
 
@@ -107,10 +122,11 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
   moveLogoMobile={true}
 >
   <main class="cd">
+    <div class="cd-ed-guides" aria-hidden="true"></div>
     <div class="cd-deck" id="cdDeck">
 
     <!-- ── HERO / PORTADA DIVISION ──────────────────────────────── -->
-    <section class="cd-slide cd-hero">
+    <section class={`cd-slide cd-hero ${manyProds ? "cd-hero-prodrow" : ""}`}>
       <header class="cd-bar cd-bar-sec">
         <div class="cd-logo">
           <span class="cd-logo-1">{t.catalogTitlePart1 || "CATÁLOGO DE"}</span>
@@ -119,16 +135,16 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
         <div class="cd-site"><span class="cd-site-line"></span>GRUPO-ORTIZ.COM</div>
       </header>
       <div class="cd-hero-media">
-        <div style={`transform: translate(${vc.offsetX}%, ${vc.offsetY}%) scale(${vc.scale}) rotate(${vc.rotate || 0}deg); transition: transform 0.1s ease;`}>
-          <img src={IMG_CAT(coverImg)} alt="Rollo de stretch film Grupo Ortiz" loading="eager" decoding="async" />
+        <div style={`transform: translate(${vc.offsetX}%, ${vc.offsetY}%) scale(${vc.scale}) rotate(${vc.rotate || 0}deg); overflow: ${vc.clip ? 'hidden' : 'visible'}; transition: transform 0.1s ease;`}>
+          <img src={IMG_CAT(coverImg)} alt="Rollo de stretch film Grupo Ortiz" loading="eager" decoding="async" style={`transform: scale(${vc.zoom || 1});`} />
         </div>
       </div>
       <div class="cd-hero-inner">
         <h1 class="cd-hero-title">
-          <span class="cd-w cd-orange reveal">{coverTr.t1}</span>
-          {coverTr.t2 && <span class="cd-w cd-gray reveal" style="--d:.1s">{coverTr.t2}</span>}
+          <span class="cd-w cd-orange reveal" data-cd-path="cover.t1">{coverTr.t1}</span>
+          {coverTr.t2 && <span class="cd-w cd-gray reveal" style="--d:.1s" data-cd-path="cover.t2">{coverTr.t2}</span>}
         </h1>
-        <div class="cd-hero-div reveal" style="--d:.18s">{coverTr.division || t.division || "DIVISIÓN"}</div>
+        <div class="cd-hero-div reveal" style="--d:.18s" data-cd-path="cover.division">{coverTr.division || t.division || "DIVISIÓN"}</div>
         <div class="cd-hero-copy reveal" style="--d:.26s">
           <p data-cd-path="intro.p1">{introTr.p1}</p>
           <p class="cd-bio-t" data-cd-path="intro.bioTitle">{introTr.bioTitle}</p>
@@ -148,14 +164,14 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       <div class="cd-hero-prods reveal" style="--d:.34s">
         <span class="cd-prods-t">{t.products || "Productos"}:</span>
         <ul>
-          {productosTr.map((p, i) => (<li style={`--d:${0.36 + i * 0.05}s`}>- {p}</li>))}
+          {productosTr.map((p, i) => (<li style={`--d:${0.36 + i * 0.05}s`} data-cd-path={`productos.${i}`}>- {p}</li>))}
         </ul>
       </div>
     </section>
 
     <!-- ── FICHAS TECNICAS ──────────────────────────────────────── -->
     {fichasTr.map((f, idx) => (
-      <section class={`cd-slide cd-ficha ${f.lado === "left" ? "is-left" : ""}`}>
+      <section class={`cd-slide cd-ficha ${f.lado === "left" ? "is-left" : ""} ${f.soon ? "is-soon" : ""}`}>
         <div class="cd-ficha-bg" aria-hidden="true"></div>
 
         <header class="cd-bar cd-bar-sec">
@@ -171,27 +187,54 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
             <h2 class="cd-h2 reveal" data-cd-path={`fichas.${idx}.nombre`}>{f.nombre}</h2>
             <p class="cd-p reveal" style="--d:.08s" data-cd-path={`fichas.${idx}.desc`}>{f.desc}</p>
           </div>
-          <div class="cd-ficha-media reveal">
-            <div class="cd-ficha-media-inner" style={`transform: translate(${f.visual?.offsetX || 0}%, ${f.visual?.offsetY || 0}%) scale(${f.visual?.scale || 1}) rotate(${f.visual?.rotate || 0}deg);`}>
-              <img src={IMG(f.img)} alt={f.nombre} loading="lazy" decoding="async" />
+          <div class="cd-ficha-media reveal ${f.soon ? 'media-soon' : ''}">
+            <div class="cd-ficha-media-inner" style={`transform: translate(${f.visual?.offsetX || 0}%, ${f.visual?.offsetY || 0}%) scale(${f.visual?.scale || 1}) rotate(${f.visual?.rotate || 0}deg); overflow: ${f.visual?.clip ? 'hidden' : 'visible'};`}>
+              <img src={IMG(f.img)} alt={f.nombre} loading="lazy" decoding="async" style={`transform: scale(${f.visual?.zoom || 1});`} />
             </div>
+            {f.soon && (
+              <div class="cd-soon-overlay" aria-hidden="true">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <span>{t.soon}</span>
+              </div>
+            )}
           </div>
         </div>
 
-        {f.specs.length > 0 && (
+        {f.soon && (
+          <div class="cd-soon-note reveal" style="--d:.12s">{t.soonNote}</div>
+        )}
+
+        {!f.soon && f.specs.length > 0 && f.single && (
+        <div class="cd-table-wrap reveal" style="--d:.12s">
+          <table class="cd-table cd-table-h">
+            <thead>
+              <tr>
+                {f.specs.map((s, i) => (<th class={i % 2 === 0 ? 'th-o' : 'th-g'} data-cd-path={`fichas.${idx}.specs.${i}.c`}>{s.c}</th>))}
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                {f.specs.map((s) => (<td class="td-n">{s.min}{s.uni ? (' ' + s.uni) : ''}</td>))}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        )}
+
+        {!f.soon && f.specs.length > 0 && !f.single && (
         <div class="cd-table-wrap reveal" style="--d:.12s">
           <table class="cd-table">
             <thead>
               <tr>
-                <th class="th-o" rowspan="2">{t.characteristics || "CARACTERÍSTICAS"}</th>
-                <th class="th-g" colspan="2">{t.measurement || "MEDICIÓN"}</th>
-                <th class="th-o" rowspan="2">{t.tolerances || "TOLERANCIAS"}</th>
-                <th class="th-g" rowspan="2">{t.unit || "UNIDAD"}</th>
-                <th class="th-o" rowspan="2">{t.testMethod || "MÉTODO DE PRUEBA"}</th>
+                <th class="th-o" rowspan="2">{t.characteristics}</th>
+                <th class="th-g" colspan="2">{t.measurement}</th>
+                {f.cols.tol && <th class="th-o" rowspan="2">{t.tolerances}</th>}
+                {f.cols.uni && <th class="th-g" rowspan="2">{t.unit}</th>}
+                {f.cols.met && <th class="th-o" rowspan="2">{t.testMethod}</th>}
               </tr>
               <tr>
-                <th class="th-g" style="font-size: 9px; padding-top: 2px; padding-bottom: 2px;">{t.min || "MÍNIMO"}</th>
-                <th class="th-g" style="font-size: 9px; padding-top: 2px; padding-bottom: 2px;">{t.max || "MÁXIMO"}</th>
+                <th class="th-g" style="font-size: 9px; padding-top: 2px; padding-bottom: 2px;">{t.min}</th>
+                <th class="th-g" style="font-size: 9px; padding-top: 2px; padding-bottom: 2px;">{t.max}</th>
               </tr>
             </thead>
             <tbody>
@@ -200,9 +243,9 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
                   <td class="td-c" data-cd-path={`fichas.${idx}.specs.${i}.c`}>{s.c}</td>
                   <td class="td-n">{s.min}</td>
                   <td class="td-n">{s.max}</td>
-                  <td class="td-n">{s.tol}</td>
-                  <td class="td-n">{s.uni}</td>
-                  <td class="td-n" style="font-size:11px;">{s.met}</td>
+                  {f.cols.tol && <td class="td-n">{s.tol}</td>}
+                  {f.cols.uni && <td class="td-n">{s.uni}</td>}
+                  {f.cols.met && <td class="td-n" style="font-size:11px;">{s.met}</td>}
                 </tr>
               ))}
             </tbody>
@@ -210,7 +253,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
         </div>
         )}
 
-        {f.colorTable && Array.isArray(f.colorTable.rows) && f.colorTable.rows.length > 0 && (
+        {!f.soon && f.colorTable && Array.isArray(f.colorTable.rows) && f.colorTable.rows.length > 0 && (
         <div class="cd-ctable-wrap reveal" style="--d:.12s">
           <table class="cd-ctable">
             <thead>
@@ -233,7 +276,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
         </div>
         )}
 
-        {f.matrix && Array.isArray(f.matrix.rows) && f.matrix.rows.length > 0 && (
+        {!f.soon && f.matrix && Array.isArray(f.matrix.rows) && f.matrix.rows.length > 0 && (
         <div class="cd-mtable-wrap reveal" style="--d:.12s">
           {f.matrix.title && <div class="cd-mtable-title">{T(f.matrix.title)}</div>}
           <div class="cd-mtable-scroll">
@@ -350,6 +393,8 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
     .cd-hero-media {
       position: absolute; right: -2%; top: 50%; transform: translateY(-50%);
       width: min(55vw, 800px); pointer-events: none; user-select: none; z-index: 1;
+      height: 60vh; display: flex; align-items: center; justify-content: flex-end;
+      overflow: visible; /* Elimina el marco/corte de la imagen */
     }
     .cd-hero-media img { width: 100%; filter: drop-shadow(0 40px 60px rgba(0,0,0,.4)); }
     :global(.dark) .cd-hero-media img { filter: drop-shadow(0 40px 60px rgba(0,0,0,.7)); }
@@ -367,7 +412,10 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       color: var(--text); letter-spacing: .04em; margin: 2px 0 22px;
     }
     .cd-hero-copy { grid-area: copy; position: relative; z-index: 2; max-width: 640px; }
-    .cd-hero-copy p { font-size: clamp(13px,1.45vw,16px); line-height: 1.55; color: var(--text-muted); margin: 0 0 10px; }
+    .cd-hero-copy p {
+      font-size: clamp(13px,1.45vw,16px); line-height: 1.55; color: var(--text-muted); margin: 0 0 10px;
+      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+    }
     .cd-hero-copy b { color: var(--text); }
     .cd-bio-t { color: var(--o) !important; font-weight: 700; margin-top: 6px !important; }
 
@@ -401,6 +449,16 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
     .cd-hero-prods ul { list-style: none; margin: 8px 0 0; padding: 0; }
     .cd-hero-prods li { font-size: 14px; color: var(--text-muted); padding: 3px 0; }
 
+    /* >3 productos: imagen arriba, lista horizontal al pie (full width) */
+    .cd-hero-prodrow { grid-template-areas: "title ." "copy ." "prods prods"; }
+    .cd-hero-prodrow .cd-hero-media { top: 40%; }
+    .cd-hero-prodrow .cd-hero-prods {
+      justify-self: stretch; align-self: end; text-align: left; padding-bottom: 0;
+      margin-top: 34px; display: flex; align-items: baseline; gap: 8px 18px; flex-wrap: wrap;
+    }
+    .cd-hero-prodrow .cd-hero-prods ul { display: flex; flex-wrap: wrap; gap: 4px 22px; margin: 0; }
+    .cd-hero-prodrow .cd-hero-prods li { padding: 0; }
+
     /* ── Tipos compartidos ── */
     .cd-h2 {
       font-family: "Morganite", sans-serif; font-weight: 800;
@@ -420,6 +478,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
     .cd-ficha-head { position: relative; z-index: 1; display: grid; grid-template-columns: 1.2fr 1fr; gap: clamp(14px, 4vw, 60px); align-items: center; margin-bottom: 32px; }
     .cd-ficha-media {
       position: relative; display: flex; align-items: center; justify-content: flex-end; z-index: 1;
+      height: clamp(300px, 40vh, 420px); overflow: visible; /* Sin marcos que corten la imagen */
     }
     .cd-ficha-media-inner {
       position: relative; display: flex; align-items: center; justify-content: flex-end; width: 100%; transition: transform 0.1s ease;
@@ -445,6 +504,26 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
     .cd-hl .td-c { color: var(--o); font-weight: 600; }
     .cd-hl .td-n { color: var(--table-text); }
 
+
+    /* ── Producto "Proximamente" (ej Naturizable: Vaso, Contenedor) ── */
+    .cd-ficha.is-soon .cd-ficha-media,
+    .cd-ficha.is-soon .cd-ficha-media-inner { justify-content: center; }
+    .cd-ficha.is-soon .cd-ficha-media-inner img { filter: blur(5px) grayscale(0.2); }
+    .cd-soon-overlay {
+      position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; z-index: 3; pointer-events: none;
+      background: rgba(0,0,0,0.35); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: 12px;
+    }
+    .cd-soon-overlay svg { color: #fff; }
+    .cd-soon-overlay span {
+      font-family: "Morganite", sans-serif; font-weight: 800; font-size: clamp(24px, 4vw, 36px);
+      color: #fff; letter-spacing: .1em; text-transform: uppercase;
+    }
+    .cd-soon-note { position: relative; z-index: 1; color: var(--o); font-weight: 700; font-size: 14px; margin-top: -10px; margin-bottom: 10px; }
+
+    /* ── Tabla horizontal: cada caracteristica es columna, una fila de valores (ej Bolsas) ── */
+    .cd-table-h { min-width: 0; table-layout: fixed; }
+    .cd-table-h thead th { font-size: 12px; padding: 10px 8px; }
+    .cd-table-h .td-n { white-space: normal; line-height: 1.35; padding: 14px 8px; font-weight: 600; }
 
     /* ── Tabla de medidas por color (Color | Pulgadas | Yardas) ── */
     .cd-ctable-wrap { position: relative; z-index: 1; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 14px; }
@@ -477,6 +556,16 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
     /* ── Reveal ── */
     .reveal { opacity: 0; transform: translateY(28px); transition: opacity .7s cubic-bezier(.22,1,.36,1), transform .7s cubic-bezier(.22,1,.36,1); transition-delay: var(--d, 0s); }
     .reveal.in { opacity: 1; transform: none; }
+
+    /* Guías de seguridad imaginarias (solo en edición) */
+    .cd-ed-guides { position: fixed; inset: 40px 60px; border: 1px dashed rgba(251,103,11,0.25); pointer-events: none; z-index: 9997; display: none; opacity: 0; transition: opacity .4s; }
+    .cd[data-cd-editing] .cd-ed-guides { display: block; opacity: 1; }
+    .cd[data-cd-editing] { overflow: hidden !important; height: 100vh !important; position: fixed; width: 100%; }
+
+    /* Ocultar elementos de edicion en PDF/Captura */
+    :global(html[data-cd-shot]) .cd-ed-h, :global(html[data-cd-shot]) #cdEdBtn,
+    .cd[data-cd-pdf] .cd-ed-h, .cd[data-cd-pdf] #cdEdBtn { display: none !important; }
+    .cd[data-cd-pdf] [data-cd-edit] { outline: none !important; background: none !important; }
     .cd-hero-prods li { opacity: 0; transform: translateY(12px); transition: opacity .5s ease, transform .5s ease; transition-delay: var(--d, 0s); }
     .cd-hero-prods.in li { opacity: 1; transform: none; }
     .cd-table tbody tr,
@@ -499,7 +588,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
         opacity: 0; visibility: hidden; pointer-events: none;
         transform: translateY(46px);
         transition: opacity .55s cubic-bezier(.22,1,.36,1), transform .7s cubic-bezier(.22,1,.36,1), visibility 0s linear .7s;
-        overflow-y: auto; overflow-x: hidden;
+        overflow: hidden; /* Evita saltos de scroll y la 'bajada' al editar imagenes gigantes */
       }
       .cd[data-deck-on] .cd-slide.is-active {
         opacity: 1; visibility: visible; pointer-events: auto; transform: none; z-index: 2;
@@ -537,9 +626,9 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
 
     /* ── Responsive ── */
     @media (max-width: 900px) {
-      .cd-hero { grid-template-columns: 1fr; grid-template-areas: "title" "copy" "prods"; }
-      .cd-hero-media { opacity: .14; right: -18%; width: 78vw; }
-      .cd-hero-prods { justify-self: start; text-align: left; margin-top: 18px; }
+      .cd-hero, .cd-hero-prodrow { grid-template-columns: 1fr; grid-template-areas: "title" "copy" "prods"; }
+      .cd-hero-media, .cd-hero-prodrow .cd-hero-media { opacity: .14; right: -18%; width: 78vw; top: 50%; }
+      .cd-hero-prods, .cd-hero-prodrow .cd-hero-prods { justify-self: start; text-align: left; margin-top: 18px; }
       
       .cd-ficha-head { grid-template-columns: 1fr; gap: 20px; margin-bottom: 24px; text-align: left; }
       .cd-ficha-media { order: 1; justify-content: center; }
@@ -578,10 +667,11 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
     :global(html[data-cd-shot]) .reveal { opacity: 1 !important; transform: none !important; }
   </style>
 
-  <script is:inline define:vars={{ catalogStyles, slug, imgFolder }}>
+  <script is:inline define:vars={{ catalogStyles, slug, imgFolder, title: meta.title }}>
     window.__cdStyles = catalogStyles;
     window.__cdSlug = slug;
     window.__cdImgFolder = imgFolder;
+    window.__cdTitle = title;
   </script>
 
   <script is:inline>
@@ -679,7 +769,8 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       var wlock = false;
       function onWheel(e) {
         if (!deckOn) return;
-        if (editMode) return; // en edicion no navegar por scroll: usar botones Prev/Next
+        if (editMode && edSel) return; // interactuando con elemento: bloqueo total
+        if (editMode && edDrag) return; // arrastrando: bloqueo total
         var s = slides[idx];
         var atTop = s.scrollTop <= 0;
         var atBot = s.scrollTop + s.clientHeight >= s.scrollHeight - 1;
@@ -732,7 +823,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       function onTS(e) { ty = e.touches[0].clientY; }
       function onTE(e) {
         if (!deckOn) return;
-        if (editMode) return; // en edicion no navegar por gesto: usar botones Prev/Next
+        if (editMode && edSel) return; // editando una imagen/texto: no navegar por gesto
         var dy = ty - e.changedTouches[0].clientY;
         if (Math.abs(dy) < 60) return;
         var s = slides[idx];
@@ -782,7 +873,9 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
           .then(function (blob) {
             var url = URL.createObjectURL(blob);
             var a = document.createElement('a');
-            const filename = (slug === 'digital-acolchado' ? 'Catalogo-Acolchado-Grupo-Ortiz.pdf' : 'Catalogo-Stretch-Film-Grupo-Ortiz.pdf');
+            // Nombre dinamico desde meta
+            var cleanTitle = (window.__cdTitle || 'Productos').replace(/\s+/g, '-');
+            var filename = 'Catalogo-' + cleanTitle + '-Grupo-Ortiz.pdf';
             a.href = url; a.download = filename;
             document.body.appendChild(a); a.click(); a.remove();
             setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
@@ -809,11 +902,19 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
 
       function edVisual() {
         if (!editData) return null;
-        if (idx === 0) { editData.visualCover = editData.visualCover || { scale: 1, offsetX: 0, offsetY: 0, rotate: 0 }; return editData.visualCover; }
-        var f = editData.fichas[idx - 1]; if (!f.visual) f.visual = { scale: 1, offsetX: 0, offsetY: 0, rotate: 0 }; return f.visual;
+        if (idx === 0) { editData.visualCover = editData.visualCover || { scale: 1, offsetX: 0, offsetY: 0, rotate: 0, zoom: 1, clip: false }; return editData.visualCover; }
+        var f = editData.fichas[idx - 1]; if (!f.visual) f.visual = { scale: 1, offsetX: 0, offsetY: 0, rotate: 0, zoom: 1, clip: false }; return f.visual;
       }
       function edMedia() { return idx === 0 ? document.querySelector('.cd-hero-media > div') : document.querySelectorAll('.cd-ficha-media-inner')[idx - 1]; }
-      function edApply() { var el = edMedia(), v = edVisual(); if (el && v) el.style.transform = 'translate(' + v.offsetX + '%,' + v.offsetY + '%) scale(' + v.scale + ') rotate(' + (v.rotate || 0) + 'deg)'; }
+      function edApply() {
+        var el = edMedia(), v = edVisual();
+        if (el && v) {
+          el.style.transform = 'translate(' + v.offsetX + '%,' + v.offsetY + '%) scale(' + v.scale + ') rotate(' + (v.rotate || 0) + 'deg)';
+          el.style.overflow = v.clip ? 'hidden' : 'visible';
+          var img = el.querySelector('img');
+          if (img) img.style.transform = 'scale(' + (v.zoom || 1) + ')';
+        }
+      }
 
       function edPt(e) { return { x: e.clientX != null ? e.clientX : (e.touches && e.touches[0] ? e.touches[0].clientX : 0), y: e.clientY != null ? e.clientY : (e.touches && e.touches[0] ? e.touches[0].clientY : 0) }; }
 
@@ -994,10 +1095,17 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
         edUnbindText();
         if (!editData) return;
         if (idx === 0) {
+          edLang(slides[0].querySelector('.cd-hero-title .cd-orange'), editData.cover.t1);
+          edLang(slides[0].querySelector('.cd-hero-title .cd-gray'), editData.cover.t2);
+          edLang(slides[0].querySelector('.cd-hero-div'), editData.cover.division);
+
           var ps = slides[0].querySelectorAll('.cd-hero-copy p');
           if (ps[0]) edLang(ps[0], editData.intro.p1);
           if (ps[1]) edLang(ps[1], editData.intro.bioTitle);
           if (ps[2]) edLang(ps[2], editData.intro.p2);
+
+          var prodEls = slides[0].querySelectorAll('.cd-hero-prods li');
+          prodEls.forEach(function (li, i) { if (editData.productos[i]) edLang(li, editData.productos[i]); });
         } else {
           var f = editData.fichas[idx - 1]; if (!f) return;
           edLang(slides[idx].querySelector('.cd-h2'), f.nombre);
@@ -1007,12 +1115,12 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
             var s = f.specs[j]; if (!s) return;
             var td = tr.querySelectorAll('td');
             if (td[0]) edLang(td[0], s.c);
-            if (td[1]) edPlain(td[1], s, 'min');
-            if (td[2]) edPlain(td[2], s, 'max');
+            if (td[1]) edLang(td[1], s.min);
+            if (td[2]) edLang(td[2], s.max);
             if (td[3]) edLang(td[3], s.tol);
-            if (td[4]) edPlain(td[4], s, 'uni');
-            if (td[5]) edPlain(td[5], s, 'met');
-          });
+            if (td[4]) edLang(td[4], s.uni);
+            if (td[5]) edLang(td[5], s.met);
+            });
         }
       }
 
@@ -1032,10 +1140,17 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       function edRenderText() {
         if (!editData) return;
         if (idx === 0) {
+          var h1 = slides[0].querySelector('.cd-hero-title .cd-orange'); if (h1) h1.textContent = editData.cover.t1[cdLang] || '';
+          var h2 = slides[0].querySelector('.cd-hero-title .cd-gray'); if (h2) h2.textContent = editData.cover.t2[cdLang] || '';
+          var dv = slides[0].querySelector('.cd-hero-div'); if (dv) dv.textContent = editData.cover.division[cdLang] || '';
+
           var ps = slides[0].querySelectorAll('.cd-hero-copy p');
           if (ps[0]) ps[0].textContent = editData.intro.p1[cdLang] || '';
           if (ps[1]) ps[1].textContent = editData.intro.bioTitle[cdLang] || '';
           if (ps[2]) ps[2].textContent = editData.intro.p2[cdLang] || '';
+
+          var prodEls = slides[0].querySelectorAll('.cd-hero-prods li');
+          prodEls.forEach(function (li, i) { if (editData.productos[i]) li.textContent = '- ' + (editData.productos[i][cdLang] || ''); });
         } else {
           var f = editData.fichas[idx - 1]; if (!f) return;
           var h = slides[idx].querySelector('.cd-h2'); if (h) h.textContent = f.nombre[cdLang] || '';
@@ -1043,12 +1158,12 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
           var rows = slides[idx].querySelectorAll('.cd-table tbody tr');
           rows.forEach(function (tr, j) {
             var s = f.specs[j]; if (!s) return; var td = tr.querySelectorAll('td');
-            if (td[0]) td[0].textContent = s.c[cdLang] || '';
-            if (td[1]) td[1].textContent = s.min || '';
-            if (td[2]) td[2].textContent = s.max || '';
-            if (td[3]) td[3].textContent = s.tol[cdLang] || '';
-            if (td[4]) td[4].textContent = s.uni || '';
-            if (td[5]) td[5].textContent = s.met || '';
+            if (td[0]) td[0].textContent = (s.c && s.c[cdLang]) || '';
+            if (td[1]) td[1].textContent = (s.min && s.min[cdLang]) || '';
+            if (td[2]) td[2].textContent = (s.max && s.max[cdLang]) || '';
+            if (td[3]) td[3].textContent = (s.tol && s.tol[cdLang]) || '';
+            if (td[4]) td[4].textContent = (s.uni && s.uni[cdLang]) || '';
+            if (td[5]) td[5].textContent = (s.met && s.met[cdLang]) || '';
           });
         }
       }
@@ -1067,7 +1182,12 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       function edSync() {
         if (!edBar) return;
         var v = edVisual();
-        ['scale', 'rotate', 'offsetX', 'offsetY'].forEach(function (k) { edFields[k].input.value = v[k]; edFields[k].val.textContent = edFmt(k, v[k]); });
+        ['scale', 'rotate', 'offsetX', 'offsetY', 'zoom'].forEach(function (k) {
+          if (!edFields[k]) return;
+          edFields[k].input.value = v[k] || (k === 'zoom' ? 1 : 0);
+          edFields[k].val.textContent = edFmt(k, v[k] || (k === 'zoom' ? 1 : 0));
+        });
+        if (edFields.clipInp) edFields.clipInp.checked = !!v.clip;
       }
 
       // ── Estilos de texto (guardados en editData.styles por data-cd-path) ──
@@ -1122,23 +1242,29 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
         var inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/png,image/jpeg,image/webp';
         inp.onchange = function () {
           var file = inp.files && inp.files[0]; if (!file) return;
+          // Captura el destino al momento del click (no al resolver la promesa)
+          var curIdx = idx, curBound = boundEl;
           var fd = new FormData();
           fd.append('file', file);
-          fd.append('target', idx === 0 ? 'cover' : String(idx - 1));
+          fd.append('target', curIdx === 0 ? 'cover' : String(curIdx - 1));
           fd.append('category', imgFolder || 'stretch');
           if (edFields.msg) { edFields.msg.style.color = '#9CA3AF'; edFields.msg.textContent = 'Subiendo...'; }
           fetch('/api/admin/catalog-image', { method: 'POST', body: fd })
             .then(function (r) { return r.ok ? r.json() : r.json().then(function (j) { throw new Error(j.error || 'Error'); }); })
             .then(function (d) {
               // Prefiere URL de Cloudinary (persiste en prod); si no, ruta local (dev).
-              var src = d.cloudUrl || ((idx === 0 ? '/images/catalogos/' : '/images/' + (imgFolder || 'stretch') + '/') + d.filename);
-              if (idx === 0) editData.coverImg = src; else editData.fichas[idx - 1].img = src;
-              var imgEl = boundEl ? boundEl.querySelector('img') : null;
+              var src = d.cloudUrl || ((curIdx === 0 ? '/images/catalogos/' : '/images/' + (imgFolder || 'stretch') + '/') + d.filename);
+              if (curIdx === 0) editData.coverImg = src; else editData.fichas[curIdx - 1].img = src;
+              var imgEl = curBound ? curBound.querySelector('img') : null;
               if (imgEl) imgEl.src = /^https?:\/\//.test(src) ? src : src + '?t=' + Date.now();
               edCommit();
-              if (edFields.msg) edFields.msg.style.color = '#9CA3AF';
-              if (edFields.msg) edFields.msg.textContent = d.cloudUrl ? 'Imagen lista (local + Cloudinary)' : (d.localOk ? 'Imagen lista (local)' : 'Subida');
-              setTimeout(function () { if (edFields.msg) edFields.msg.textContent = ''; }, 2600);
+              var donde = d.cloudUrl ? (d.localOk ? 'Cloudinary + local' : 'Cloudinary') : (d.localOk ? 'local' : 'subida');
+              if (edFields.msg) { edFields.msg.style.color = '#9CA3AF'; edFields.msg.textContent = 'Guardando...'; }
+              // Persistir YA en Turso -> se actualiza en web y PDF sin tocar "Guardar"
+              edSaveThen(function () {
+                if (edFields.msg) { edFields.msg.style.color = '#10B981'; edFields.msg.textContent = 'Imagen actualizada (' + donde + ')'; }
+                setTimeout(function () { if (edFields.msg) { edFields.msg.style.color = '#9CA3AF'; edFields.msg.textContent = ''; } }, 2600);
+              });
             })
             .catch(function (e) { if (edFields.msg) { edFields.msg.style.color = '#f87171'; edFields.msg.textContent = e.message; } });
         };
@@ -1158,8 +1284,10 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       function edAddFicha() {
         if (!editData) return;
         if (!Array.isArray(editData.fichas)) editData.fichas = [];
+        if (!Array.isArray(editData.productos)) editData.productos = [];
         var nm = edMl(); nm.es = 'PRODUCTO ' + (editData.fichas.length + 1);
         editData.fichas.push({ nombre: nm, img: '', lado: '', desc: edMl(), specs: [], visual: { scale: 1, offsetX: 0, offsetY: 0, rotate: 0 } });
+        editData.productos.push(nm);
         var target = slides.length; // nueva ficha = ultimo slide tras recargar
         edSaveThen(function () { location.href = location.pathname + '?edit=1&slide=' + target; });
       }
@@ -1170,6 +1298,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
         if (!Array.isArray(editData.fichas) || fi < 0 || fi >= editData.fichas.length) return;
         if (!confirm('Borrar esta ficha? No se puede deshacer.')) return;
         editData.fichas.splice(fi, 1);
+        if (Array.isArray(editData.productos)) editData.productos.splice(fi, 1);
         var target = Math.max(0, idx - 1);
         edSaveThen(function () { location.href = location.pathname + '?edit=1&slide=' + target; });
       }
@@ -1184,7 +1313,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
         var btns = document.createElement('div'); btns.style.cssText = 'display:flex;gap:8px;align-items:center;';
         var msg = document.createElement('span'); msg.style.cssText = 'font-size:11px;color:#9CA3AF;'; edFields.msg = msg;
         var bReset = document.createElement('button'); bReset.type = 'button'; bReset.textContent = 'Reset'; bReset.style.cssText = 'background:transparent;color:#9CA3AF;border:1px solid rgba(255,255,255,.15);padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:700;font-size:12px;'; edFields.bReset = bReset;
-        bReset.onclick = function () { var v = edVisual(); v.scale = 1; v.offsetX = 0; v.offsetY = 0; v.rotate = 0; edApply(); edSync(); edCommit(); };
+        bReset.onclick = function () { var v = edVisual(); v.scale = 1; v.offsetX = 0; v.offsetY = 0; v.rotate = 0; v.zoom = 1; v.clip = false; edApply(); edSync(); edCommit(); };
         var bSave = document.createElement('button'); bSave.type = 'button'; bSave.textContent = 'Guardar'; bSave.style.cssText = 'background:#fb670b;color:#fff;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:800;font-size:12px;';
         bSave.onclick = function () {
           bSave.textContent = 'Guardando...'; bSave.disabled = true; msg.textContent = '';
@@ -1209,7 +1338,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
         up.style.cssText = 'grid-column:1 / -1;background:transparent;color:#fb670b;border:1px dashed #fb670b;padding:9px 14px;border-radius:8px;cursor:pointer;font-weight:800;font-size:12px;';
         up.onclick = edUpload;
         grid.appendChild(up);
-        [['scale', 'Escala', 0.3, 2.5, 0.05], ['rotate', 'Rotacion', -180, 180, 1], ['offsetX', 'Eje X', -150, 150, 1], ['offsetY', 'Eje Y', -150, 150, 1]].forEach(function (c) {
+        [['scale', 'Escala', 0.3, 2.5, 0.05], ['rotate', 'Rotacion', -180, 180, 1], ['offsetX', 'Eje X', -150, 150, 1], ['offsetY', 'Eje Y', -150, 150, 1], ['zoom', 'Zoom Producto', 1, 4, 0.1]].forEach(function (c) {
           var k = c[0];
           var col = document.createElement('div'); col.style.cssText = 'display:flex;flex-direction:column;gap:5px;';
           var lab = document.createElement('div'); lab.style.cssText = 'display:flex;justify-content:space-between;';
@@ -1222,6 +1351,12 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
           col.appendChild(lab); col.appendChild(inp); grid.appendChild(col);
           edFields[k] = { input: inp, val: l2 };
         });
+        // Toggle Recorte
+        var cWrap = document.createElement('label'); cWrap.style.cssText = 'grid-column:1 / -1;display:flex;align-items:center;gap:10px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;margin-top:4px;';
+        var cInp = document.createElement('input'); cInp.type = 'checkbox'; edFields.clipInp = cInp;
+        cInp.onchange = function () { var v = edVisual(); v.clip = cInp.checked; edApply(); edCommit(); };
+        cWrap.appendChild(cInp); cWrap.appendChild(document.createTextNode('CORTAR BORDES (RECORTE)'));
+        grid.appendChild(cWrap);
         // Copiar / Pegar posicion (misma escala/offset/rotacion en otra slide)
         var posRow = document.createElement('div'); posRow.style.cssText = 'grid-column:1 / -1;display:flex;gap:10px;';
         var bCopy = document.createElement('button'); bCopy.type = 'button'; bCopy.textContent = '⧉ Copiar posicion';
@@ -1319,12 +1454,15 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       }
 
       function edInitAdmin() {
+        if (edBtn) { edToggle(true); return; } // ya inicializado
         fetch('/api/admin/catalog?slug=' + encodeURIComponent(window.__cdSlug || ''), { credentials: 'same-origin' })
           .then(function (r) { if (!r.ok) throw new Error('no-admin'); return r.json(); })
           .then(function (json) {
             if (json.error) return;
             editData = json;
             if (!editData.styles) editData.styles = {};
+            if (!editData.cover) editData.cover = { t1: '', t2: '', division: '' };
+            if (!editData.intro) editData.intro = { p1: edMl(), bioTitle: edMl(), p2: edMl() };
             edHist = [JSON.stringify(editData)];
             edBtn = document.createElement('button');
             edBtn.id = 'cdEdBtn'; edBtn.type = 'button';
@@ -1341,6 +1479,65 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       // Solo se prueba admin si se pide explicitamente (?edit=1).
       // El publico no dispara la llamada a la API.
       if (new URLSearchParams(location.search).get('edit') === '1') edInitAdmin();
+
+      // Modal de login (mismo diseno que el dashboard) para habilitar edicion desde el catalogo.
+      function edShowLogin() {
+        if (document.getElementById('cdLoginOv')) return;
+        if (!document.getElementById('cdLoginKf')) {
+          var kf = document.createElement('style'); kf.id = 'cdLoginKf';
+          kf.textContent = '@keyframes cdshake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}';
+          document.head.appendChild(kf);
+        }
+        var dark = document.documentElement.classList.contains('dark');
+        var cBg = dark ? '#181818' : '#ffffff';
+        var cBorder = dark ? '#2a2a2a' : '#e6e6e6';
+        var cText = dark ? '#ECEBE0' : '#1a1a1a';
+        var cMuted = dark ? '#8a8a8a' : '#777';
+        var cInp = dark ? '#0f0f0f' : '#f6f6f6';
+        var SANS = "system-ui,-apple-system,'Segoe UI',Roboto,sans-serif";
+        var ov = document.createElement('div'); ov.id = 'cdLoginOv';
+        ov.style.cssText = 'position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:24px;font-family:' + SANS + ';';
+        var card = document.createElement('div');
+        card.style.cssText = 'width:100%;max-width:340px;background:' + cBg + ';border:1px solid ' + cBorder + ';border-radius:16px;padding:28px;box-shadow:0 30px 80px rgba(0,0,0,.35);';
+        card.innerHTML = '<div style="text-align:center;margin-bottom:26px;font-family:' + SANS + ';"><div style="width:56px;height:56px;background:#FB670B;border-radius:16px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:14px;"><span style="color:#fff;font-weight:900;font-size:22px;letter-spacing:-1px;font-family:' + SANS + ';">GO</span></div><h1 style="color:' + cText + ';font-size:21px;font-weight:800;margin:0;letter-spacing:-.3px;text-transform:none;font-family:' + SANS + ';line-height:1.2;">Editar catalogo</h1><p style="color:' + cMuted + ';font-size:13px;margin:6px 0 0;font-family:' + SANS + ';">Ingresa con tu contrasena</p></div>';
+        var form = document.createElement('form'); form.style.cssText = 'display:flex;flex-direction:column;gap:12px;';
+        var inp = document.createElement('input'); inp.type = 'password'; inp.placeholder = 'Contrasena'; inp.autocomplete = 'current-password';
+        inp.style.cssText = 'background:' + cInp + ';border:1px solid ' + cBorder + ';border-radius:10px;padding:12px 14px;color:' + cText + ';font-size:16px;outline:none;width:100%;box-sizing:border-box;font-family:' + SANS + ';';
+        var err = document.createElement('p'); err.style.cssText = 'color:#F87171;font-size:12px;margin:0;text-align:center;display:none;font-family:' + SANS + ';';
+        var btn = document.createElement('button'); btn.type = 'submit'; btn.textContent = 'GO →';
+        btn.style.cssText = 'background:#FB670B;border:none;border-radius:10px;padding:13px;color:#fff;font-size:16px;font-weight:800;cursor:pointer;letter-spacing:1px;width:100%;font-family:' + SANS + ';';
+        var cancel = document.createElement('button'); cancel.type = 'button'; cancel.textContent = 'Cancelar';
+        cancel.style.cssText = 'background:transparent;border:none;color:' + cMuted + ';font-size:13px;cursor:pointer;text-decoration:underline;padding:4px 0;margin-top:10px;display:block;width:100%;font-family:' + SANS + ';';
+        form.appendChild(inp); form.appendChild(err); form.appendChild(btn);
+        card.appendChild(form); card.appendChild(cancel); ov.appendChild(card); document.body.appendChild(ov);
+        // Navbar blanco mientras el login esta abierto (sobre el fondo oscurecido no se ve en negro)
+        var hdr = document.querySelector('.montfort-header');
+        var hadBlack = hdr && hdr.classList.contains('force-black');
+        if (hdr) { hdr.classList.add('force-white'); hdr.classList.remove('force-black'); }
+        setTimeout(function () { inp.focus(); }, 50);
+        function close() { ov.remove(); if (hdr) { hdr.classList.remove('force-white'); if (hadBlack) hdr.classList.add('force-black'); } }
+        cancel.onclick = close;
+        ov.addEventListener('mousedown', function (e) { if (e.target === ov) close(); });
+        document.addEventListener('keydown', function esc(ev) { if (ev.key === 'Escape') { close(); document.removeEventListener('keydown', esc); } });
+        form.onsubmit = function (e) {
+          e.preventDefault(); var pw = inp.value.trim(); if (!pw) return;
+          btn.textContent = '…'; btn.disabled = true; err.style.display = 'none';
+          fetch('/api/auth', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin', body: JSON.stringify({ password: pw }) })
+            .then(function (r) { return r.json().catch(function () { return {}; }); })
+            .then(function (d) {
+              if (d && d.ok) { close(); edInitAdmin(); }
+              else { btn.textContent = 'GO →'; btn.disabled = false; err.textContent = (d && d.error) || 'Contrasena incorrecta'; err.style.display = 'block'; card.style.animation = 'cdshake .5s ease'; setTimeout(function () { card.style.animation = ''; }, 520); }
+            })
+            .catch(function () { btn.textContent = 'GO →'; btn.disabled = false; err.textContent = 'Error de conexion'; err.style.display = 'block'; });
+        };
+      }
+      // Atajo: Ctrl/Cmd + Shift + E -> habilita edicion aqui mismo (sin pasar por el dashboard).
+      document.addEventListener('keydown', function (e) {
+        if (!((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'E' || e.key === 'e'))) return;
+        e.preventDefault();
+        if (edBtn || editMode) { edToggle(true); return; } // ya habilitado
+        edShowLogin();
+      });
 
       if (elPrev) elPrev.addEventListener('click', onPrev);
       if (elNext) elNext.addEventListener('click', onNext);
