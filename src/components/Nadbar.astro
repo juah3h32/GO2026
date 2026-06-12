@@ -54,7 +54,7 @@ const isActive = (path: string) => {
 
 // --- LOGICA CLASES HEADER ---
 const isHomePage = pathname === `/${safeLang}/` || pathname === `/${safeLang}` || pathname === '/';
-const isForceWhitePage = isHomePage || pathname.includes('/productos') || pathname.includes('/arpillas') || pathname.includes('/rafias') || pathname.includes('/about') || pathname.includes('/social') || pathname.includes('/cuerdas');
+const isForceWhitePage = isHomePage || pathname.includes('/productos') || pathname.includes('/arpillas') || pathname.includes('/rafias') || pathname.includes('/about') || pathname.includes('/social') || pathname.includes('/cuerdas') || pathname.includes('/vacantes');
 const isForceBlackPage = pathname.includes('/distribuidor') || pathname.includes('/catalogo/');
 
 function getLangPath(targetLang: string) {

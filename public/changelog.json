@@ -1,6 +1,14 @@
 {
   "commits": [
     {
+      "hash": "37c0020",
+      "date": "2026-06-12",
+      "message": "feat(catalogo): catalogos digitales por division, edicion en vivo y traduccion 5 idiomas",
+      "rawMessage": "feat(catalogo): catalogos digitales por division, edicion en vivo y traduccion 5 idiomas",
+      "type": "feat",
+      "area": "i18n"
+    },
+    {
       "hash": "47b29b6",
       "date": "2026-06-09",
       "message": "feat(wa): control de escritura por WhatsApp (vacantes, candidatos, distribuidores)",
@@ -2130,9 +2138,9 @@
     }
   ],
   "stats": {
-    "total": 266,
+    "total": 267,
     "byType": {
-      "feat": 46,
+      "feat": 47,
       "fix": 79,
       "update": 12,
       "chore": 6,
@@ -2142,22 +2150,26 @@
       "release": 110
     },
     "byArea": {
+      "i18n": 4,
       "Reclutamiento": 1,
       "General": 191,
       "Media": 22,
       "Admin/API": 25,
       "Performance": 6,
       "UI": 2,
-      "Productos": 16,
-      "i18n": 3
+      "Productos": 16
     },
     "byMonth": {
-      "2026-06": 108,
+      "2026-06": 109,
       "2026-05": 33,
       "2026-04": 29,
       "2026-03": 96
     },
     "byAreaType": {
+      "i18n": {
+        "feat": 2,
+        "fix": 2
+      },
       "Reclutamiento": {
         "feat": 1
       },
@@ -2196,12 +2208,8 @@
         "chore": 1,
         "perf": 1,
         "update": 2
-      },
-      "i18n": {
-        "feat": 1,
-        "fix": 2
       }
     }
   },
-  "generatedAt": "2026-06-12T17:38:48.374Z"
+  "generatedAt": "2026-06-12T17:46:14.331Z"
 }
