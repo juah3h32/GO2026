@@ -1,11 +1,11 @@
 {
   "intro": {
     "p1": {
-      "es": "La línea Naturizable® de Grupo Ortiz® representa la vanguardia en empaques sustentables, desarrollados a partir de polímeros de origen vegetal. Es nuestra respuesta técnica para una economía circular y menor huella de carbono.",
-      "en": "The Naturizable® line by Grupo Ortiz® represents the forefront of sustainable packaging, developed from plant-based polymers. It is our technical response for a circular economy and a lower carbon footprint.",
-      "pt": "A linha Naturizable® da Grupo Ortiz® representa a vanguarda em embalagens sustentáveis, desenvolvidas a partir de polímeros de origem vegetal. É nossa resposta técnica para uma economia circular e menor pegada de carbono.",
-      "zh": "Grupo Ortiz® 的 Naturizable® 系列代表了可持续包装的前沿，由植物基聚合物开发而成。这是我们对循环经济和减少碳足迹的技术回应。",
-      "ar": "يمثل خط Naturizable® من Grupo Ortiz® طليعة التغليف المستدام، المطور من بوليمرات ذات أصل نباتي. إنه ردنا التقني من أجل اقتصاد دائري وبصمة كربونية أقل."
+      "es": "La línea Naturizable de Grupo Ortiz representa la vanguardia en empaques sustentables, desarrollados a partir de polímeros de origen vegetal. Es nuestra respuesta técnica para una economía circular y menor huella de carbono.",
+      "en": "The Naturizable line by Grupo Ortiz represents the forefront of sustainable packaging, developed from plant-based polymers. It is our technical response for a circular economy and a lower carbon footprint.",
+      "pt": "A linha Naturizable da Grupo Ortiz representa a vanguarda em embalagens sustentáveis, desenvolvidas a partir de polímeros de origem vegetal. É nossa resposta técnica para uma economia circular e menor pegada de carbono.",
+      "zh": "Grupo Ortiz 的 Naturizable 系列代表了可持续包装的前沿，由植物基聚合物开发而成。这是我们对循环经济和减少碳足迹的技术回应。",
+      "ar": "يمثل خط Naturizable من Grupo Ortiz طليعة التغليف المستدام، المطور من بوليمرات ذات أصل نباتي. إنه ردنا التقني من أجل اقتصاد دائري وبصمة كربونية أقل."
     },
     "bioTitle": {
       "es": "Innovación Sustentable",
@@ -61,11 +61,11 @@
       "ar": ""
     },
     "division": {
-      "es": "DIVISIÓN NATURIZABLE",
-      "en": "NATURIZABLE DIVISION",
-      "pt": "DIVISÃO NATURIZABLE",
-      "zh": "naturizable部门",
-      "ar": "قسم NATURIZABLE"
+      "es": "DIVISIÓN",
+      "en": "DIVISION",
+      "pt": "DIVISÃO",
+      "zh": "部门",
+      "ar": "قسم"
     }
   },
   "coverImg": "/images/divisiones/detallec.webp",

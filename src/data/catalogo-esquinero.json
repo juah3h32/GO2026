@@ -1,11 +1,11 @@
 {
   "intro": {
     "p1": {
-      "es": "Los esquineros de Grupo Ortiz® son elementos críticos de empaque, diseñados para reforzar la unidad de carga y proteger las zonas vulnerables del pallet. Su composición garantiza alta resistencia a la compresión.",
-      "en": "Grupo Ortiz® edge protectors are critical packaging elements, designed to reinforce the load unit and protect the vulnerable areas of the pallet. Their composition guarantees high resistance to compression.",
-      "pt": "As cantoneiras da Grupo Ortiz® são elementos críticos de embalagem, projetadas para reforçar a unidade de carga e proteger as zonas vulneráveis do pallet. Sua composição garante alta resistência à compressão.",
-      "zh": "Grupo Ortiz® 护角是关键的包装要素，旨在加强负载单元并保护托盘脆弱的区域。其成分保证了高抗压强度。",
-      "ar": "تعتبر زوايا الحماية من Grupo Ortiz® عناصر تغليف أساسية، مصممة لتعزيز وحدة الحمل وحماية المناطق الضعيفة في المنصة. يضمن تكوينها مقاومة عالية للضغط."
+      "es": "Los esquineros de Grupo Ortiz son elementos críticos de empaque, diseñados para reforzar la unidad de carga y proteger las zonas vulnerables del pallet. Su composición garantiza alta resistencia a la compresión.",
+      "en": "Grupo Ortiz edge protectors are critical packaging elements, designed to reinforce the load unit and protect the vulnerable areas of the pallet. Their composition guarantees high resistance to compression.",
+      "pt": "As cantoneiras da Grupo Ortiz são elementos críticos de embalagem, projetadas para reforçar a unidade de carga e proteger as zonas vulneráveis do pallet. Sua composição garante alta resistência à compressão.",
+      "zh": "Grupo Ortiz 护角是关键的包装要素，旨在加强负载单元并保护托盘脆弱的区域。其成分保证了高抗压强度。",
+      "ar": "تعتبر زوايا الحماية من Grupo Ortiz عناصر تغليف أساسية، مصممة لتعزيز وحدة الحمل وحماية المناطق الضعيفة في المنصة. يضمن تكوينها مقاومة عالية للضغط."
     },
     "bioTitle": {
       "es": "Estabilidad y Protección Perimetral",
@@ -54,11 +54,11 @@
       "ar": ""
     },
     "division": {
-      "es": "DIVISIÓN ESQUINERO",
-      "en": "EDGE PROTECTOR DIVISION",
-      "pt": "DIVISÃO CANTONEIRA",
-      "zh": "护角部门",
-      "ar": "قسم حافة حماية"
+      "es": "DIVISIÓN",
+      "en": "DIVISION",
+      "pt": "DIVISÃO",
+      "zh": "部门",
+      "ar": "قسم"
     }
   },
   "coverImg": "/images/esquinero/esquinero.png",

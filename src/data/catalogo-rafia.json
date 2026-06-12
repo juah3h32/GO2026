@@ -1,11 +1,11 @@
 {
   "intro": {
     "p1": {
-      "es": "La rafia de Grupo Ortiz® es una herramienta versátil diseñada para el amarre industrial y agrícola de precisión. Su fabricación con polipropileno de alta densidad garantiza una consistencia superior en cada metro de producto.",
-      "en": "Grupo Ortiz® raffia is a versatile tool designed for precision industrial and agricultural tying. Its high-density polypropylene manufacture ensures superior consistency in every meter of product.",
-      "pt": "A ráfia da Grupo Ortiz® é uma ferramenta versátil projetada para a amarração industrial e agrícola de precisão. Sua fabricação com polipropileno de alta densidade garante uma consistência superior em cada metro de produto.",
-      "zh": "Grupo Ortiz® 拉菲草是一种多功能工具，专为精确的工业和农业捆扎而设计。其高密度聚丙烯制造确保了每米产品的卓越一致性。",
-      "ar": "تعتبر رافيا Grupo Ortiz® أداة متعددة الاستخدامات مصممة للربط الصناعي والزراعي الدقيق. يضمن تصنيعها من البولي بروبيلين عالي الكثافة تناسقاً فائقاً في كل متر من المنتج."
+      "es": "La rafia de Grupo Ortiz es una herramienta versátil diseñada para el amarre industrial y agrícola de precisión. Su fabricación con polipropileno de alta densidad garantiza una consistencia superior en cada metro de producto.",
+      "en": "Grupo Ortiz raffia is a versatile tool designed for precision industrial and agricultural tying. Its high-density polypropylene manufacture ensures superior consistency in every meter of product.",
+      "pt": "A ráfia da Grupo Ortiz é uma ferramenta versátil projetada para a amarração industrial e agrícola de precisão. Sua fabricação com polipropileno de alta densidade garante uma consistência superior em cada metro de produto.",
+      "zh": "Grupo Ortiz 拉菲草是一种多功能工具，专为精确的工业和农业捆扎而设计。其高密度聚丙烯制造确保了每米产品的卓越一致性。",
+      "ar": "تعتبر رافيا Grupo Ortiz أداة متعددة الاستخدامات مصممة للربط الصناعي والزراعي الدقيق. يضمن تصنيعها من البولي بروبيلين عالي الكثافة تناسقاً فائقاً في كل متر من المنتج."
     },
     "bioTitle": {
       "es": "Rendimiento y Versatilidad de Amarre",
@@ -68,11 +68,11 @@
       "ar": ""
     },
     "division": {
-      "es": "DIVISIÓN RAFIA",
-      "en": "RAFFIA DIVISION",
-      "pt": "DIVISÃO RAFIA",
-      "zh": "拉菲草部门",
-      "ar": "قسم رافيا"
+      "es": "DIVISIÓN",
+      "en": "DIVISION",
+      "pt": "DIVISÃO",
+      "zh": "部门",
+      "ar": "قسم"
     }
   },
   "coverImg": "/images/rafias/atar.png",

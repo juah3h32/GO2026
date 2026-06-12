@@ -1,11 +1,11 @@
 {
   "intro": {
     "p1": {
-      "es": "Las cuerdas de Grupo Ortiz® son sinónimo de alta tenacidad y resistencia en los entornos más exigentes. Desarrolladas con polímeros de primera calidad, están diseñadas para soportar cargas críticas y condiciones climáticas adversas.",
-      "en": "Grupo Ortiz® ropes are synonymous with high tenacity and resistance in the most demanding environments. Developed with premium polymers, they are designed to withstand critical loads and adverse weather conditions.",
-      "pt": "As cordas da Grupo Ortiz® são sinônimo de alta tenacidade e resistência nos ambientes mais exigentes. Desenvolvidas com polímeros de primeira qualidade, são projetadas para suportar cargas críticas e condições climáticas adversas.",
-      "zh": "Grupo Ortiz® 绳索是要求最严苛环境下的高韧性和耐用性的代名词。采用优质聚合物开发，旨在承受临界载荷和恶劣天气条件。",
-      "ar": "تعتبر حبال Grupo Ortiz® مرادفاً للقوة العالية والمقاومة في البيئات الأكثر طلباً. تم تطويرها باستخدام بوليمرات ممتازة، وهي مصممة لتحمل الأحمال الحرجة والظروف الجوية القاسية."
+      "es": "Las cuerdas de Grupo Ortiz son sinónimo de alta tenacidad y resistencia en los entornos más exigentes. Desarrolladas con polímeros de primera calidad, están diseñadas para soportar cargas críticas y condiciones climáticas adversas.",
+      "en": "Grupo Ortiz ropes are synonymous with high tenacity and resistance in the most demanding environments. Developed with premium polymers, they are designed to withstand critical loads and adverse weather conditions.",
+      "pt": "As cordas da Grupo Ortiz são sinônimo de alta tenacidade e resistência nos ambientes mais exigentes. Desenvolvidas com polímeros de primeira qualidade, são projetadas para suportar cargas críticas e condições climáticas adversas.",
+      "zh": "Grupo Ortiz 绳索是要求最严苛环境下的高韧性和耐用性的代名词。采用优质聚合物开发，旨在承受临界载荷和恶劣天气条件。",
+      "ar": "تعتبر حبال Grupo Ortiz مرادفاً للقوة العالية والمقاومة في البيئات الأكثر طلباً. تم تطويرها باستخدام بوليمرات ممتازة، وهي مصممة لتحمل الأحمال الحرجة والظروف الجوية القاسية."
     },
     "bioTitle": {
       "es": "Máxima Resistencia y Durabilidad",
@@ -75,11 +75,11 @@
       "ar": ""
     },
     "division": {
-      "es": "DIVISIÓN CUERDA",
-      "en": "ROPE DIVISION",
-      "pt": "DIVISÃO CORDA",
-      "zh": "绳索部门",
-      "ar": "قسم حبل"
+      "es": "DIVISIÓN",
+      "en": "DIVISION",
+      "pt": "DIVISÃO",
+      "zh": "部门",
+      "ar": "قسم"
     }
   },
   "coverImg": "/images/cuerdas/CuerdaT1.webp",

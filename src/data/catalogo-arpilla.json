@@ -1,11 +1,11 @@
 {
   "intro": {
     "p1": {
-      "es": "La arpilla de Grupo Ortiz® es una solución de empaque esencial para el sector agrícola, diseñada para maximizar la ventilación y proteger las cosechas. Su estructura tejida transpira y conserva la frescura del producto.",
-      "en": "Grupo Ortiz® mesh bags are an essential packaging solution for the agricultural sector, designed to maximize ventilation and protect crops. Their woven structure breathes and preserves product freshness.",
-      "pt": "A sacaria de ráfia (arpilla) da Grupo Ortiz® é uma solução essencial para o setor agrícola, projetada para maximizar a ventilação e proteger as colheitas. Sua estrutura tecida conserva a frescura do produto.",
-      "zh": "Grupo Ortiz® 网袋是农业部门必不可少的包装解决方案，旨在最大化通风并保护作物。其编织结构透气并保持产品的新鲜度。",
-      "ar": "تعتبر أكياس الخيش (arpilla) من Grupo Ortiz® حلاً أساسياً للتعبئة في القطاع الزراعي، مصممة لزيادة التهوية وحماية المحاصيل. يتنفس هيكلها المنسوج ويحافظ على نضارة المنتج."
+      "es": "La arpilla de Grupo Ortiz es una solución de empaque esencial para el sector agrícola, diseñada para maximizar la ventilación y proteger las cosechas. Su estructura tejida transpira y conserva la frescura del producto.",
+      "en": "Grupo Ortiz mesh bags are an essential packaging solution for the agricultural sector, designed to maximize ventilation and protect crops. Their woven structure breathes and preserves product freshness.",
+      "pt": "A sacaria de ráfia (arpilla) da Grupo Ortiz é uma solução essencial para o setor agrícola, projetada para maximizar a ventilação e proteger as colheitas. Sua estrutura tecida conserva a frescura do produto.",
+      "zh": "Grupo Ortiz 网袋是农业部门必不可少的包装解决方案，旨在最大化通风并保护作物。其编织结构透气并保持产品的新鲜度。",
+      "ar": "تعتبر أكياس الخيش (arpilla) من Grupo Ortiz حلاً أساسياً للتعبئة في القطاع الزراعي، مصممة لزيادة التهوية وحماية المحاصيل. يتنفس هيكلها المنسوج ويحافظ على نضارة المنتج."
     },
     "bioTitle": {
       "es": "Logística Agrícola Eficiente",
@@ -68,11 +68,11 @@
       "ar": ""
     },
     "division": {
-      "es": "DIVISIÓN ARPILLA",
-      "en": "MESH BAG DIVISION",
-      "pt": "DIVISÃO SACO DE REDE",
-      "zh": "网袋部门",
-      "ar": "قسم شبكة"
+      "es": "DIVISIÓN",
+      "en": "DIVISION",
+      "pt": "DIVISÃO",
+      "zh": "部门",
+      "ar": "قسم"
     }
   },
   "coverImg": "/images/arpillas/arpilla.webp",

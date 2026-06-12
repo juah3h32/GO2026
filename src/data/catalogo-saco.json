@@ -1,11 +1,11 @@
 {
   "intro": {
     "p1": {
-      "es": "Los sacos de polipropileno de Grupo Ortiz® son una solución de alta resistencia para el envasado masivo y transporte de productos industriales y agrícolas, maximizando la seguridad de la carga en uso intensivo.",
-      "en": "Grupo Ortiz® polypropylene sacks are a high-resistance solution for mass packaging and transport of industrial and agricultural products, maximizing cargo security under intensive use.",
-      "pt": "Os sacos de polipropileno da Grupo Ortiz® são uma solução de alta resistência para a embalagem em massa e transporte de produtos industriais e agrícolas, maximizando a segurança da carga em uso intensivo.",
-      "zh": "Grupo Ortiz® 聚丙烯编织袋是一种高强度解决方案，专为工业和农产品的大宗包装和运输而设计，在密集使用条件下最大限度地提高货物安全性。",
-      "ar": "تعد أكياس البولي بروبيلين من Grupo Ortiz® حلاً عالي المقاومة للتغليف الشامل ونقل المنتجات الصناعية والزراعية، مما يزيد من أمان الشحنة في الاستخدام المكثف."
+      "es": "Los sacos de polipropileno de Grupo Ortiz son una solución de alta resistencia para el envasado masivo y transporte de productos industriales y agrícolas, maximizando la seguridad de la carga en uso intensivo.",
+      "en": "Grupo Ortiz polypropylene sacks are a high-resistance solution for mass packaging and transport of industrial and agricultural products, maximizing cargo security under intensive use.",
+      "pt": "Os sacos de polipropileno da Grupo Ortiz são uma solução de alta resistência para a embalagem em massa e transporte de produtos industriais e agrícolas, maximizando a segurança da carga em uso intensivo.",
+      "zh": "Grupo Ortiz 聚丙烯编织袋是一种高强度解决方案，专为工业和农产品的大宗包装和运输而设计，在密集使用条件下最大限度地提高货物安全性。",
+      "ar": "تعد أكياس البولي بروبيلين من Grupo Ortiz حلاً عالي المقاومة للتغليف الشامل ونقل المنتجات الصناعية والزراعية، مما يزيد من أمان الشحنة في الاستخدام المكثف."
     },
     "bioTitle": {
       "es": "Resistencia Industrial",
@@ -96,11 +96,11 @@
       "ar": "INDUSTRIAL"
     },
     "division": {
-      "es": "DIVISIÓN SACO",
-      "en": "SACK DIVISION",
-      "pt": "DIVISÃO DE SACOS",
-      "zh": "编织袋部门",
-      "ar": "قسم الأكياس"
+      "es": "DIVISIÓN",
+      "en": "DIVISION",
+      "pt": "DIVISÃO",
+      "zh": "部门",
+      "ar": "قسم"
     }
   },
   "coverImg": "portada.webp",

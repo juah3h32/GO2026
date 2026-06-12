@@ -15,14 +15,16 @@ const ORANGE = '#fb670b';
 let CURRENT_FOLDER = 'stretch';
 let COVER_FOLDER = 'catalogos';
 
+// Quita el simbolo ® de cualquier texto (regla: nunca debe salir en PDF ni catalogo)
+const stripR = (s) => typeof s === 'string' ? s.replace(/®/g, '') : s;
 // Helper de traduccion
 const T = (obj, lang) => {
   if (obj && typeof obj === 'object' && !Array.isArray(obj)) {
     const v = obj[lang];
-    if (v !== undefined && v !== null && v !== '') return v;
-    return (obj.es !== undefined && obj.es !== null && obj.es !== '') ? obj.es : (Object.values(obj)[0] || '');
+    if (v !== undefined && v !== null && v !== '') return stripR(v);
+    return stripR((obj.es !== undefined && obj.es !== null && obj.es !== '') ? obj.es : (Object.values(obj)[0] || ''));
   }
-  return obj == null ? '' : obj;
+  return obj == null ? '' : stripR(obj);
 };
 
 // ── Chromium (igual que send-now.js) ──────────────────────────────────────────
@@ -308,7 +310,7 @@ export function buildHTML(theme = 'dark', lang = 'es', data = {}) {
           overflow: hidden; padding: 80px 80px 44px; page-break-after: always; }
     .pg:last-child { page-break-after: auto; }
     /* Fichas: contenido centrado verticalmente para espacios simetricos */
-    .pg.prod { display: flex; flex-direction: column; justify-content: center; gap: 30px; }
+    .pg.prod { display: flex; flex-direction: column; justify-content: center; gap: 30px; isolation: isolate; }
     .bar { position: absolute; top: 40px; left: 80px; right: 80px; display: flex; justify-content: space-between; align-items: flex-start; }
     .logo { display: flex; flex-direction: column; line-height: .8; font-family: 'Morganite', sans-serif; font-weight: 800; }
     .l1 { font-size: 20px; letter-spacing: .04em; color: ${TEXT}; }
@@ -343,7 +345,7 @@ export function buildHTML(theme = 'dark', lang = 'es', data = {}) {
 
     /* Paginas de producto */
     .head { display: grid; grid-template-columns: 1.2fr 1fr; gap: 50px; align-items: center; margin: 0; height: 280px; }
-    .media { position: relative; z-index: 0; height: 100%; display: flex; align-items: center; justify-content: center; min-height: 280px; }
+    .media { position: relative; z-index: -1; height: 100%; display: flex; align-items: center; justify-content: center; min-height: 280px; }
     .media-tf { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
     .media img { max-width: 100%; max-height: 280px; width: auto; object-fit: contain; filter: drop-shadow(0 25px 40px rgba(0,0,0,${isDark ? 0.6 : 0.2})); pointer-events: none; }
     .copy { position: relative; z-index: 2; }

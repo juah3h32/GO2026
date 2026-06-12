@@ -1,11 +1,11 @@
 {
   "intro": {
     "p1": {
-      "es": "Las soluciones de empaque flexible de Grupo Ortiz® representan la vanguardia en protección y conservación industrial. Con tecnología multi-capa de alta barrera, actúan como un escudo hermético que extiende la vida útil del producto.",
-      "en": "Grupo Ortiz® flexible packaging solutions represent the vanguard in industrial protection and preservation. With high-barrier multi-layer technology, they act as a hermetic shield that extends your products' shelf life.",
-      "pt": "As soluções de embalagem flexível da Grupo Ortiz® representam a vanguarda na proteção e conservação industrial. Com tecnologia multicamada de alta barreira, atuam como um escudo hermético que estende a vida útil do produto.",
-      "zh": "Grupo Ortiz® 软包装解决方案代表了工业保护和保鲜的前沿。采用高阻隔多层技术，其作用犹如密封盾牌，延长产品的保质期。",
-      "ar": "تمثل حلول التعبئة المرنة من Grupo Ortiz® الطليعة في الحماية والحفاظ الصناعي. بفضل تقنية الطبقات المتعددة عالية الحاجز، تعمل كدرع محكم يطيل العمر الافتراضي للمنتج."
+      "es": "Las soluciones de empaque flexible de Grupo Ortiz representan la vanguardia en protección y conservación industrial. Con tecnología multi-capa de alta barrera, actúan como un escudo hermético que extiende la vida útil del producto.",
+      "en": "Grupo Ortiz flexible packaging solutions represent the vanguard in industrial protection and preservation. With high-barrier multi-layer technology, they act as a hermetic shield that extends your products' shelf life.",
+      "pt": "As soluções de embalagem flexível da Grupo Ortiz representam a vanguarda na proteção e conservação industrial. Com tecnologia multicamada de alta barreira, atuam como um escudo hermético que estende a vida útil do produto.",
+      "zh": "Grupo Ortiz 软包装解决方案代表了工业保护和保鲜的前沿。采用高阻隔多层技术，其作用犹如密封盾牌，延长产品的保质期。",
+      "ar": "تمثل حلول التعبئة المرنة من Grupo Ortiz الطليعة في الحماية والحفاظ الصناعي. بفضل تقنية الطبقات المتعددة عالية الحاجز، تعمل كدرع محكم يطيل العمر الافتراضي للمنتج."
     },
     "bioTitle": {
       "es": "Preservación Avanzada",
@@ -68,11 +68,11 @@
       "ar": "PACKAGING"
     },
     "division": {
-      "es": "DIVISIÓN EMPAQUE FLEXIBLE",
-      "en": "FLEXIBLE PACKAGING DIVISION",
-      "pt": "DIVISÃO DE EMBALAGEM FLEXÍVEL",
-      "zh": "弹性包装部门",
-      "ar": "قسم التغليف المرن"
+      "es": "DIVISIÓN",
+      "en": "DIVISION",
+      "pt": "DIVISÃO",
+      "zh": "部门",
+      "ar": "قسم"
     }
   },
   "coverImg": "portada.webp",

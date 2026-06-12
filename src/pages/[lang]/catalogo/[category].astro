@@ -30,13 +30,15 @@ const IMG_CAT = (n: string) => /^https?:\/\//.test(n) ? n : (n.startsWith('/') ?
 const vc = visualCover || { scale: 1, offsetX: 0, offsetY: 0, rotate: 0 };
 
 // Helper de traduccion para el JSON
+// Quita el simbolo ® de cualquier texto (regla: nunca debe salir en catalogo ni PDF)
+const stripR = (s: any) => typeof s === 'string' ? s.replace(/®/g, '') : s;
 const T = (obj: any) => {
   if (obj && typeof obj === 'object' && !Array.isArray(obj)) {
     const v = obj[currentLang];
-    if (v !== undefined && v !== null && v !== '') return v;
-    return obj.es !== undefined && obj.es !== null ? obj.es : '';
+    if (v !== undefined && v !== null && v !== '') return stripR(v);
+    return obj.es !== undefined && obj.es !== null ? stripR(obj.es) : '';
   }
-  return obj == null ? '' : obj;
+  return obj == null ? '' : stripR(obj);
 };
 
 // Traducimos los datos antes de inyectarlos

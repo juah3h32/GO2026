@@ -1,11 +1,11 @@
 {
   "intro": {
     "p1": {
-      "es": "La película estirable (stretch film) de Grupo Ortiz® es una solución de alto rendimiento que garantiza la integridad de la carga durante el transporte y almacenamiento. Su formulación avanzada brinda fuerza de retención superior.",
-      "en": "Grupo Ortiz® stretch film is a high-performance solution that ensures cargo integrity during transport and storage. Its advanced formulation provides superior holding force.",
-      "pt": "O filme extensível (stretch film) da Grupo Ortiz® é uma solução de alto desempenho que garante a integridade da carga durante o transporte e armazenamento. Sua formulação avançada proporciona força de retenção superior.",
-      "zh": "Grupo Ortiz® 缠绕膜（拉伸膜）是一种高性能解决方案，可确保货物在运输和储存过程中的完整性。其先进的配方提供了卓越的保持力。",
-      "ar": "يعتبر فيلم التغليف القابل للتمدد (stretch film) من Grupo Ortiz® حلاً عالي الأداء يضمن سلامة الشحنات أثناء النقل والتخزين. توفر تركيبته المتقدمة قوة تثبيت فائقة."
+      "es": "La película estirable (stretch film) de Grupo Ortiz es una solución de alto rendimiento que garantiza la integridad de la carga durante el transporte y almacenamiento. Su formulación avanzada brinda fuerza de retención superior.",
+      "en": "Grupo Ortiz stretch film is a high-performance solution that ensures cargo integrity during transport and storage. Its advanced formulation provides superior holding force.",
+      "pt": "O filme extensível (stretch film) da Grupo Ortiz é uma solução de alto desempenho que garante a integridade da carga durante o transporte e armazenamento. Sua formulação avançada proporciona força de retenção superior.",
+      "zh": "Grupo Ortiz 缠绕膜（拉伸膜）是一种高性能解决方案，可确保货物在运输和储存过程中的完整性。其先进的配方提供了卓越的保持力。",
+      "ar": "يعتبر فيلم التغليف القابل للتمدد (stretch film) من Grupo Ortiz حلاً عالي الأداء يضمن سلامة الشحنات أثناء النقل والتخزين. توفر تركيبته المتقدمة قوة تثبيت فائقة."
     },
     "bioTitle": {
       "es": "Seguridad y Estabilidad Logística",
@@ -82,11 +82,11 @@
       "ar": "فيلم"
     },
     "division": {
-      "es": "DIVISIÓN STRETCH",
-      "en": "STRETCH DIVISION",
-      "pt": "DIVISÃO STRETCH",
-      "zh": "拉伸部门",
-      "ar": "قسم الستريتش"
+      "es": "DIVISIÓN",
+      "en": "DIVISION",
+      "pt": "DIVISÃO",
+      "zh": "部门",
+      "ar": "قسم"
     }
   },
   "coverImg": "stretch-portada.png",

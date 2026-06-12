@@ -1,11 +1,11 @@
 {
   "intro": {
     "p1": {
-      "es": "La línea de bolsas de Grupo Ortiz® ofrece soluciones de empaque versátiles que combinan funcionalidad comercial con altos estándares técnicos. Fabricadas con resinas de alta pureza, garantizan una transparencia y resistencia excepcionales.",
-      "en": "The Grupo Ortiz® bag line offers versatile packaging solutions that combine commercial functionality with high technical standards. Manufactured with high-purity resins, they guarantee exceptional transparency and resistance.",
-      "pt": "A linha de sacos da Grupo Ortiz® oferece soluções de embalagem versáteis que combinam funcionalidade comercial com altos padrões técnicos. Fabricados com resinas de alta pureza, garantem uma transparência e resistência excepcionais.",
-      "zh": "Grupo Ortiz® 袋系列提供多功能包装解决方案，将商业功能与高技术标准相结合通。采用高纯度树脂制造，保证了卓越的透明度和强度。",
-      "ar": "يقدم خط أكياس Grupo Ortiz® حلول تغليف متنوعة تجمع بين الوظائف التجارية والمعايير التقنية العالية. وهي مصنوعة من راتنجات عالية النقاء، وتضمن شفافية ومقاومة استثنائية."
+      "es": "La línea de bolsas de Grupo Ortiz ofrece soluciones de empaque versátiles que combinan funcionalidad comercial con altos estándares técnicos. Fabricadas con resinas de alta pureza, garantizan una transparencia y resistencia excepcionales.",
+      "en": "The Grupo Ortiz bag line offers versatile packaging solutions that combine commercial functionality with high technical standards. Manufactured with high-purity resins, they guarantee exceptional transparency and resistance.",
+      "pt": "A linha de sacos da Grupo Ortiz oferece soluções de embalagem versáteis que combinam funcionalidade comercial com altos padrões técnicos. Fabricados com resinas de alta pureza, garantem uma transparência e resistência excepcionais.",
+      "zh": "Grupo Ortiz 袋系列提供多功能包装解决方案，将商业功能与高技术标准相结合通。采用高纯度树脂制造，保证了卓越的透明度和强度。",
+      "ar": "يقدم خط أكياس Grupo Ortiz حلول تغليف متنوعة تجمع بين الوظائف التجارية والمعايير التقنية العالية. وهي مصنوعة من راتنجات عالية النقاء، وتضمن شفافية ومقاومة استثنائية."
     },
     "bioTitle": {
       "es": "Versatilidad en Soluciones de Empaque",
@@ -110,11 +110,11 @@
       "ar": ""
     },
     "division": {
-      "es": "DIVISIÓN BOLSAS",
-      "en": "BAGS DIVISION",
-      "pt": "DIVISÃO BOLSAS",
-      "zh": "袋子部门",
-      "ar": "قسم أكياس"
+      "es": "DIVISIÓN",
+      "en": "DIVISION",
+      "pt": "DIVISÃO",
+      "zh": "部门",
+      "ar": "قسم"
     }
   },
   "coverImg": "/images/bolsas/15x20.png",

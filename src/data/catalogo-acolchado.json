@@ -15,11 +15,11 @@
       "ar": "زراعية"
     },
     "division": {
-      "es": "DIVISIÓN AGRÍCOLA",
-      "en": "AGRICULTURAL DIVISION",
-      "pt": "DIVISÃO AGRÍCOLA",
-      "zh": "农业部门",
-      "ar": "قسم الزراعة"
+      "es": "DIVISIÓN",
+      "en": "DIVISION",
+      "pt": "DIVISÃO",
+      "zh": "部门",
+      "ar": "قسم"
     }
   },
   "coverImg": "acolachad1.webp",
@@ -31,11 +31,11 @@
   },
   "intro": {
     "p1": {
-      "es": "El acolchado agrícola (mulch) de Grupo Ortiz® es una solución técnica avanzada diseñada para optimizar la producción agrícola. Actúa como una barrera protectora que maximiza el aprovechamiento de recursos y protege el cultivo.",
-      "en": "Grupo Ortiz® agricultural mulch is an advanced technical solution designed to optimize agricultural production. It acts as a protective barrier that maximizes resource utilization and protects the crop.",
-      "pt": "O acolchoado agrícola (mulch) da Grupo Ortiz® é uma solução técnica avançada projetada para otimizar a produção agrícola. Atua como una barreira protetora que maximiza o aproveitamento de recursos e protege a cultura.",
-      "zh": "Grupo Ortiz® 农用覆盖膜（地膜）是旨在优化农业生产的高级技术解决方案。它作为一种保护屏障，可最大限度地利用资源并保护农作物。",
-      "ar": "يعتبر الغطاء الزراعي (mulch) من Grupo Ortiz® حلاً تقنياً متقدماً مصمماً لتحسين الإنتاج الزراعي. يعمل كحاجز وقائي يزيد من الاستفادة من الموارد ويحمي المحصول."
+      "es": "El acolchado agrícola (mulch) de Grupo Ortiz es una solución técnica avanzada diseñada para optimizar la producción agrícola. Actúa como una barrera protectora que maximiza el aprovechamiento de recursos y protege el cultivo.",
+      "en": "Grupo Ortiz agricultural mulch is an advanced technical solution designed to optimize agricultural production. It acts as a protective barrier that maximizes resource utilization and protects the crop.",
+      "pt": "O acolchoado agrícola (mulch) da Grupo Ortiz é uma solução técnica avançada projetada para otimizar a produção agrícola. Atua como una barreira protetora que maximiza o aproveitamento de recursos e protege a cultura.",
+      "zh": "Grupo Ortiz 农用覆盖膜（地膜）是旨在优化农业生产的高级技术解决方案。它作为一种保护屏障，可最大限度地利用资源并保护农作物。",
+      "ar": "يعتبر الغطاء الزراعي (mulch) من Grupo Ortiz حلاً تقنياً متقدماً مصمماً لتحسين الإنتاج الزراعي. يعمل كحاجز وقائي يزيد من الاستفادة من الموارد ويحمي المحصول."
     },
     "bioTitle": {
       "es": "Optimización de Cultivos",
