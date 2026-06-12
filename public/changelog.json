@@ -1,6 +1,126 @@
 {
   "commits": [
     {
+      "hash": "47b29b6",
+      "date": "2026-06-09",
+      "message": "feat(wa): control de escritura por WhatsApp (vacantes, candidatos, distribuidores)",
+      "rawMessage": "feat(wa): control de escritura por WhatsApp (vacantes, candidatos, distribuidores)",
+      "type": "feat",
+      "area": "Reclutamiento"
+    },
+    {
+      "hash": "b7ff776",
+      "date": "2026-06-06",
+      "message": "distribuidor — confirmacion de exito clara y sin colgarse en \"Enviando\"",
+      "rawMessage": "fix: distribuidor — confirmacion de exito clara y sin colgarse en \"Enviando\"",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "39b6341",
+      "date": "2026-06-06",
+      "message": "design: overlay de envio elegante en tarjeta centrada + Montserrat ExtraBold",
+      "rawMessage": "design: overlay de envio elegante en tarjeta centrada + Montserrat ExtraBold",
+      "type": "update",
+      "area": "General"
+    },
+    {
+      "hash": "20f8535",
+      "date": "2026-06-06",
+      "message": "distribuidor — el form hacia submit GET nativo (no registraba ni mostraba modal)",
+      "rawMessage": "fix: distribuidor — el form hacia submit GET nativo (no registraba ni mostraba modal)",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "f6f7e46",
+      "date": "2026-06-06",
+      "message": "distribuidor — pantalla de carga, confirmacion real y verificacion de envio",
+      "rawMessage": "fix: distribuidor — pantalla de carga, confirmacion real y verificacion de envio",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "95d6ec4",
+      "date": "2026-06-06",
+      "message": "video del catalogo no cargaba en produccion",
+      "rawMessage": "fix: video del catalogo no cargaba en produccion",
+      "type": "fix",
+      "area": "Media"
+    },
+    {
+      "hash": "e36d744",
+      "date": "2026-06-06",
+      "message": "alertas exactas y reportes PDF directos sin Cloudinary",
+      "rawMessage": "fix: alertas exactas y reportes PDF directos sin Cloudinary",
+      "type": "fix",
+      "area": "Media"
+    },
+    {
+      "hash": "a8d434c",
+      "date": "2026-06-05",
+      "message": "fix(wa): reporte 7 dias ya no manda el mes + programar reportes desde WhatsApp",
+      "rawMessage": "fix(wa): reporte 7 dias ya no manda el mes + programar reportes desde WhatsApp",
+      "type": "fix",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "a9d025b",
+      "date": "2026-06-05",
+      "message": "actualizar changelog",
+      "rawMessage": "chore: actualizar changelog",
+      "type": "chore",
+      "area": "General"
+    },
+    {
+      "hash": "6bda3ca",
+      "date": "2026-06-05",
+      "message": "redeploy (repo publico, deploy desbloqueado)",
+      "rawMessage": "chore: redeploy (repo publico, deploy desbloqueado)",
+      "type": "chore",
+      "area": "General"
+    },
+    {
+      "hash": "ed0c9e8",
+      "date": "2026-06-05",
+      "message": "redeploy con email de la cuenta Vercel (coronapablo99)",
+      "rawMessage": "chore: redeploy con email de la cuenta Vercel (coronapablo99)",
+      "type": "chore",
+      "area": "General"
+    },
+    {
+      "hash": "f9f4799",
+      "date": "2026-06-05",
+      "message": "redeploy con autor vinculado a Vercel (juah3h32)",
+      "rawMessage": "chore: redeploy con autor vinculado a Vercel (juah3h32)",
+      "type": "chore",
+      "area": "General"
+    },
+    {
+      "hash": "cd5c1ba",
+      "date": "2026-06-05",
+      "message": "fallback a OpenAI cuando Claude falla (sin creditos)",
+      "rawMessage": "feat: fallback a OpenAI cuando Claude falla (sin creditos)",
+      "type": "feat",
+      "area": "Media"
+    },
+    {
+      "hash": "436fc09",
+      "date": "2026-06-05",
+      "message": "deslinde claro entre funciones de analisis (sin choque)",
+      "rawMessage": "fix: deslinde claro entre funciones de analisis (sin choque)",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "cf08cd5",
+      "date": "2026-06-05",
+      "message": "500 real en /api/logs era BigInt no serializable",
+      "rawMessage": "fix: 500 real en /api/logs era BigInt no serializable",
+      "type": "fix",
+      "area": "Admin/API"
+    },
+    {
       "hash": "ee5ca9c",
       "date": "2026-06-05",
       "message": "menos alertas — solo paginas caidas; arregla 500 de /api/logs",
@@ -2010,47 +2130,57 @@
     }
   ],
   "stats": {
-    "total": 251,
+    "total": 266,
     "byType": {
-      "fix": 71,
-      "feat": 44,
+      "feat": 46,
+      "fix": 79,
+      "update": 12,
+      "chore": 6,
       "style": 9,
-      "update": 11,
       "perf": 3,
       "docs": 1,
-      "chore": 2,
       "release": 110
     },
     "byArea": {
-      "Admin/API": 23,
-      "General": 182,
+      "Reclutamiento": 1,
+      "General": 191,
+      "Media": 22,
+      "Admin/API": 25,
       "Performance": 6,
       "UI": 2,
       "Productos": 16,
-      "Media": 19,
       "i18n": 3
     },
     "byMonth": {
-      "2026-06": 93,
+      "2026-06": 108,
       "2026-05": 33,
       "2026-04": 29,
       "2026-03": 96
     },
     "byAreaType": {
+      "Reclutamiento": {
+        "feat": 1
+      },
+      "General": {
+        "fix": 43,
+        "update": 7,
+        "chore": 5,
+        "feat": 21,
+        "style": 5,
+        "release": 110
+      },
+      "Media": {
+        "fix": 16,
+        "feat": 4,
+        "perf": 1,
+        "update": 1
+      },
       "Admin/API": {
-        "fix": 11,
+        "fix": 13,
         "style": 2,
         "feat": 7,
         "update": 2,
         "docs": 1
-      },
-      "General": {
-        "fix": 39,
-        "feat": 21,
-        "style": 5,
-        "update": 6,
-        "chore": 1,
-        "release": 110
       },
       "Performance": {
         "fix": 1,
@@ -2067,17 +2197,11 @@
         "perf": 1,
         "update": 2
       },
-      "Media": {
-        "feat": 3,
-        "fix": 14,
-        "perf": 1,
-        "update": 1
-      },
       "i18n": {
         "feat": 1,
         "fix": 2
       }
     }
   },
-  "generatedAt": "2026-06-05T15:16:09.416Z"
+  "generatedAt": "2026-06-12T17:38:48.374Z"
 }

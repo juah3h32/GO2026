@@ -1,0 +1,258 @@
+{
+  "intro": {
+    "p1": {
+      "es": "Fabricado para proteger bordes y esquinas durante el transporte y almacenamiento, este esquinero distribuye la presión de manera uniforme, evitando deformaciones y daños en la mercancía. Su estructura ofrece resistencia y estabilidad en aplicaciones de embalaje exigentes.",
+      "en": "Designed to protect edges and corners during transport and storage, this edge protector distributes pressure evenly, preventing deformation and damage to merchandise. Its structure offers resistance and stability in demanding packaging applications.",
+      "pt": "Fabricada para proteger bordas e cantos durante o transporte e armazenamento, esta cantoneira distribui a pressão de forma uniforme, evitando deformações e danos na mercadoria. Sua estrutura oferece resistência e estabilidade em aplicações de embalagem exigentes.",
+      "zh": "专为在运输和存储过程中保护边缘和角落而设计，这款护角均匀分配压力，防止货物变形和损坏。其结构在要求苛刻的包装应用中提供强度和稳定性。",
+      "ar": "مصنوعة لحماية الحواف والزوايا أثناء النقل والتخزين، توزّع هذه الحافة الضغط بالتساوي، مما يمنع التشوه والأضرار في البضاعة. هيكلها يوفر المقاومة والاستقرار في تطبيقات التغليف الصعبة."
+    },
+    "bioTitle": {
+      "es": "",
+      "en": "",
+      "pt": "",
+      "zh": "",
+      "ar": ""
+    },
+    "p2": {
+      "es": "",
+      "en": "",
+      "pt": "",
+      "zh": "",
+      "ar": ""
+    }
+  },
+  "productos": [
+    {
+      "es": "ESQUINERO KRAFT CAFÉ",
+      "en": "BROWN KRAFT EDGE PROTECTOR",
+      "pt": "CANTONEIRA KRAFT MARROM",
+      "zh": "牛皮纸护角",
+      "ar": "حافة كرافت بنية"
+    },
+    {
+      "es": "ESQUINERO KRAFT BLANCO",
+      "en": "WHITE KRAFT EDGE PROTECTOR",
+      "pt": "CANTONEIRA KRAFT BRANCA",
+      "zh": "白色牛皮纸护角",
+      "ar": "حافة كرافت بيضاء"
+    }
+  ],
+  "cover": {
+    "t1": {
+      "es": "ESQUINERO",
+      "en": "EDGE PROTECTOR",
+      "pt": "CANTONEIRA",
+      "zh": "护角",
+      "ar": "حافة حماية"
+    },
+    "t2": {
+      "es": "",
+      "en": "",
+      "pt": "",
+      "zh": "",
+      "ar": ""
+    },
+    "division": {
+      "es": "DIVISIÓN ESQUINERO",
+      "en": "EDGE PROTECTOR DIVISION",
+      "pt": "DIVISÃO CANTONEIRA",
+      "zh": "护角部门",
+      "ar": "قسم حافة حماية"
+    }
+  },
+  "coverImg": "/images/esquinero/esquinero.png",
+  "fichas": [
+    {
+      "nombre": {
+        "es": "ESQUINERO KRAFT CAFÉ",
+        "en": "BROWN KRAFT EDGE PROTECTOR",
+        "pt": "CANTONEIRA KRAFT MARROM",
+        "zh": "牛皮纸护角",
+        "ar": "حافة كرافت بنية"
+      },
+      "img": "/images/esquinero/esquinero.png",
+      "lado": "",
+      "desc": {
+        "es": "Fabricado para proteger bordes y esquinas durante el transporte y almacenamiento, este esquinero distribuye la presión de manera uniforme, evitando deformaciones y daños en la mercancía. Su estructura ofrece resistencia y estabilidad en aplicaciones de embalaje exigentes.",
+        "en": "Designed to protect edges and corners during transport and storage, this edge protector distributes pressure evenly, preventing deformation and damage to merchandise. Its structure offers resistance and stability in demanding packaging applications.",
+        "pt": "Fabricada para proteger bordas e cantos durante o transporte e armazenamento, esta cantoneira distribui a pressão de forma uniforme, evitando deformações e danos na mercadoria. Sua estrutura oferece resistência e estabilidade em aplicações de embalagem exigentes.",
+        "zh": "专为在运输和存储过程中保护边缘和角落而设计，这款护角均匀分配压力，防止货物变形和损坏。其结构在要求苛刻的包装应用中提供强度和稳定性。",
+        "ar": "مصنوعة لحماية الحواف والزوايا أثناء النقل والتخزين، توزّع هذه الحافة الضغط بالتساوي، مما يمنع التشوه والأضرار في البضاعة. هيكلها يوفر المقاومة والاستقرار في تطبيقات التغليف الصعبة."
+      },
+      "specs": [],
+      "visual": {
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "rotate": 0
+      },
+      "matrix": {
+        "title": {
+          "es": "ESPECIFICACIONES",
+          "en": "SPECIFICATIONS",
+          "pt": "ESPECIFICAÇÕES",
+          "zh": "规格",
+          "ar": "المواصفات"
+        },
+        "headers": [],
+        "rows": [
+          {
+            "label": {
+              "es": "PESTAÑA",
+              "en": "FLANGE",
+              "pt": "ABA",
+              "zh": "翼边",
+              "ar": "الحافة"
+            },
+            "cells": [
+              "1.5×1.5 in ±1/8\n0.04×0.04 yd ±0.00 yd",
+              "1.75×1.75 in ±1/8\n0.05×0.05 yd ±0.00 yd",
+              "2×2 in ±1/8\n0.06×0.06 yd ±0.00 yd",
+              "2.5×2.5 in ±1/8\n0.07×0.07 yd ±0.00 yd",
+              "3×3 in ±1/8\n0.08×0.08 yd ±0.00 yd"
+            ]
+          },
+          {
+            "label": {
+              "es": "ESPESOR",
+              "en": "THICKNESS",
+              "pt": "ESPESSURA",
+              "zh": "厚度",
+              "ar": "السماكة"
+            },
+            "cells": [
+              "0.080 in to 0.300 in ±5%\n0.0022 yd to 0.0083 yd ±5%",
+              "0.080 in to 0.300 in ±5%\n0.0022 yd to 0.0083 yd ±5%",
+              "0.080 in to 0.300 in ±5%\n0.0022 yd to 0.0083 yd ±5%",
+              "0.080 in to 0.300 in ±5%\n0.0022 yd to 0.0083 yd ±5%",
+              "0.080 in to 0.300 in ±5%\n0.0022 yd to 0.0083 yd ±5%"
+            ]
+          },
+          {
+            "label": {
+              "es": "LONGITUD",
+              "en": "LENGTH",
+              "pt": "COMPRIMENTO",
+              "zh": "长度",
+              "ar": "الطول"
+            },
+            "cells": [
+              "11.81 in to 118.11 in ±0.12 in\n0.33 yd to 3.28 yd ±0.00 yd",
+              "11.81 in to 118.11 in ±0.12 in\n0.33 yd to 3.28 yd ±0.00 yd",
+              "11.81 in to 118.11 in ±0.12 in\n0.33 yd to 3.28 yd ±0.00 yd",
+              "11.81 in to 118.11 in ±0.12 in\n0.33 yd to 3.28 yd ±0.00 yd",
+              "11.81 in to 118.11 in ±0.12 in\n0.33 yd to 3.28 yd ±0.00 yd"
+            ]
+          }
+        ],
+        "note": {
+          "es": "Colores disponibles: Kraft y Kraft blanco",
+          "en": "Available colors: Kraft and white Kraft",
+          "pt": "Cores disponíveis: Kraft e Kraft branco",
+          "zh": "可选颜色：牛皮纸色和白色牛皮纸",
+          "ar": "الألوان المتاحة: كرافت وكرافت أبيض"
+        }
+      }
+    },
+    {
+      "nombre": {
+        "es": "ESQUINERO KRAFT BLANCO",
+        "en": "WHITE KRAFT EDGE PROTECTOR",
+        "pt": "CANTONEIRA KRAFT BRANCA",
+        "zh": "白色牛皮纸护角",
+        "ar": "حافة كرافت بيضاء"
+      },
+      "img": "/images/esquinero/esquinerob.png",
+      "lado": "",
+      "desc": {
+        "es": "Fabricado para proteger bordes y esquinas durante el transporte y almacenamiento, este esquinero distribuye la presión de manera uniforme, evitando deformaciones y daños en la mercancía. Su estructura ofrece resistencia y estabilidad en aplicaciones de embalaje exigentes.",
+        "en": "Designed to protect edges and corners during transport and storage, this edge protector distributes pressure evenly, preventing deformation and damage to merchandise. Its structure offers resistance and stability in demanding packaging applications.",
+        "pt": "Fabricada para proteger bordas e cantos durante o transporte e armazenamento, esta cantoneira distribui a pressão de forma uniforme, evitando deformações e danos na mercadoria. Sua estrutura oferece resistência e estabilidade em aplicações de embalagem exigentes.",
+        "zh": "专为在运输和存储过程中保护边缘和角落而设计，这款护角均匀分配压力，防止货物变形和损坏。其结构在要求苛刻的包装应用中提供强度和稳定性。",
+        "ar": "مصنوعة لحماية الحواف والزوايا أثناء النقل والتخزين، توزّع هذه الحافة الضغط بالتساوي، مما يمنع التشوه والأضرار في البضاعة. هيكلها يوفر المقاومة والاستقرار في تطبيقات التغليف الصعبة."
+      },
+      "specs": [],
+      "visual": {
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "rotate": 0
+      },
+      "matrix": {
+        "title": {
+          "es": "ESPECIFICACIONES",
+          "en": "SPECIFICATIONS",
+          "pt": "ESPECIFICAÇÕES",
+          "zh": "规格",
+          "ar": "المواصفات"
+        },
+        "headers": [],
+        "rows": [
+          {
+            "label": {
+              "es": "PESTAÑA",
+              "en": "FLANGE",
+              "pt": "ABA",
+              "zh": "翼边",
+              "ar": "الحافة"
+            },
+            "cells": [
+              "1.5×1.5 in ±1/8\n0.04×0.04 yd ±0.00 yd",
+              "1.75×1.75 in ±1/8\n0.05×0.05 yd ±0.00 yd",
+              "2×2 in ±1/8\n0.06×0.06 yd ±0.00 yd",
+              "2.5×2.5 in ±1/8\n0.07×0.07 yd ±0.00 yd",
+              "3×3 in ±1/8\n0.08×0.08 yd ±0.00 yd"
+            ]
+          },
+          {
+            "label": {
+              "es": "ESPESOR",
+              "en": "THICKNESS",
+              "pt": "ESPESSURA",
+              "zh": "厚度",
+              "ar": "السماكة"
+            },
+            "cells": [
+              "0.080 in to 0.300 in ±5%\n0.0022 yd to 0.0083 yd ±5%",
+              "0.080 in to 0.300 in ±5%\n0.0022 yd to 0.0083 yd ±5%",
+              "0.080 in to 0.300 in ±5%\n0.0022 yd to 0.0083 yd ±5%",
+              "0.080 in to 0.300 in ±5%\n0.0022 yd to 0.0083 yd ±5%",
+              "0.080 in to 0.300 in ±5%\n0.0022 yd to 0.0083 yd ±5%"
+            ]
+          },
+          {
+            "label": {
+              "es": "LONGITUD",
+              "en": "LENGTH",
+              "pt": "COMPRIMENTO",
+              "zh": "长度",
+              "ar": "الطول"
+            },
+            "cells": [
+              "11.81 in to 118.11 in ±0.12 in\n0.33 yd to 3.28 yd ±0.00 yd",
+              "11.81 in to 118.11 in ±0.12 in\n0.33 yd to 3.28 yd ±0.00 yd",
+              "11.81 in to 118.11 in ±0.12 in\n0.33 yd to 3.28 yd ±0.00 yd",
+              "11.81 in to 118.11 in ±0.12 in\n0.33 yd to 3.28 yd ±0.00 yd",
+              "11.81 in to 118.11 in ±0.12 in\n0.33 yd to 3.28 yd ±0.00 yd"
+            ]
+          }
+        ],
+        "note": {
+          "es": "Colores disponibles: Kraft y Kraft blanco",
+          "en": "Available colors: Kraft and white Kraft",
+          "pt": "Cores disponíveis: Kraft e Kraft branco",
+          "zh": "可选颜色：牛皮纸色和白色牛皮纸",
+          "ar": "الألوان المتاحة: كرافت وكرافت أبيض"
+        }
+      }
+    }
+  ],
+  "visualCover": {
+    "scale": 1,
+    "offsetX": 0,
+    "offsetY": 0,
+    "rotate": 0
+  },
+  "styles": {}
+}

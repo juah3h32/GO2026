@@ -1,0 +1,132 @@
+{
+  "intro": {
+    "p1": {
+      "es": "La película de Grupo Ortiz cumple con nuestros altos estándares de calidad y cuenta con una claridad óptica excepcional y características superiores. Independientemente de la aplicación, nuestros productos ofrecen una excelente integridad de carga y una mayor eficiencia en costos.",
+      "en": "Grupo Ortiz® film meets our high quality standards and features exceptional optical clarity and superior characteristics. Regardless of the application, our products offer excellent load integrity and greater cost efficiency.",
+      "pt": "O filme da Grupo Ortiz® cumpre nossos altos padrões de calidad e conta com clareza óptica excepcional e características superiores. Independentemente da aplicação, nossos produtos oferecem excelente integridade de carga e maior eficiência de custos.",
+      "zh": "Grupo Ortiz® 薄膜符合 nosas de calidad y cuenta con uma claridad óptica excepcional y características superiores. Independentemente da aplicação, nossos produtos oferecem excelente integridade de carga e maior eficiência de custos.",
+      "ar": "يلبي فيلم Grupo Ortiz® معاييرنا العالية للجودة ويتميز بوضوح بصري استثنائي وخصائص متفوقة. وبغض النظر عن التطبيق، توفر منتجاتنا سلامة ممتازة للحمل وكفاءة أعلى in التكلفة."
+    },
+    "bioTitle": {
+      "es": "Película Biodegradable",
+      "en": "Biodegradable Film",
+      "pt": "Filme Biodegradável",
+      "zh": "可生物降解薄膜",
+      "ar": "فيلم قابل للتحلل الحيوي"
+    },
+    "p2": {
+      "es": "A través de una formulación especial, se logra la biodegradación de la película stretch. Esta formulación permite que el proceso de degradación sea un 90% más rápido en comparación con los materiales estándar.",
+      "en": "Through a special formulation, biodegradation of the stretch film is achieved. This formulation makes the degradation process 90% faster compared to standard materials.",
+      "pt": "Através de uma formulação especial, obtém-se a biodegradação do filme stretch. Esta formulação permite que o processo de degradação seja 90% mais rápido em comparação com os materiais padrão.",
+      "zh": "通过特殊配方，实现拉伸膜的生物降解。该配方使降解过程比标准材料快90%。",
+      "ar": "من خلال تركيبة خاصة، يتم تحقيق التحلل الحيوي لفيلم التمدد. تتيح هذه التركيبة أن تكون عملية التحلل أسرع بنسبة 90% مقارنة بالمواد القياسية."
+    }
+  },
+  "productos": [
+    {
+      "es": "Stretch Premium",
+      "en": "Premium Stretch",
+      "pt": "Stretch Premium",
+      "zh": "高级拉伸膜",
+      "ar": "ستريتش بريميوم"
+    },
+    {
+      "es": "Automático",
+      "en": "Automatic",
+      "pt": "Automático",
+      "zh": "自动型",
+      "ar": "أوتوماتيكي"
+    },
+    {
+      "es": "Manual Preestirado",
+      "en": "Pre-Stretched Manual",
+      "pt": "Manual Pré-esticado",
+      "zh": "手动预拉伸型",
+      "ar": "يدوي مسبق الشد"
+    },
+    {
+      "es": "Manual Banding",
+      "en": "Manual Banding",
+      "pt": "Cintagem Manual",
+      "zh": "手动捆扎型",
+      "ar": "الربط اليدوي"
+    },
+    {
+      "es": "Coreles",
+      "en": "Coreless",
+      "pt": "Sem Núcleo",
+      "zh": "无纸芯型",
+      "ar": "بدون لب"
+    },
+    {
+      "es": "Manual Rígido",
+      "en": "Rigid Manual",
+      "pt": "Manual Rígido",
+      "zh": "手动硬质型",
+      "ar": "يدوي صلب"
+    }
+  ],
+  "cover": {
+    "t1": { "es": "STRETCH", "en": "STRETCH", "pt": "STRETCH", "zh": "拉伸", "ar": "ستريتش" },
+    "t2": { "es": "FILM", "en": "FILM", "pt": "FILM", "zh": "薄膜", "ar": "فيلم" },
+    "division": { "es": "DIVISIÓN STRETCH", "en": "STRETCH DIVISION", "pt": "DIVISÃO STRETCH", "zh": "拉伸部门", "ar": "قسم الستريتش" }
+  },
+  "coverImg": "stretch-portada.png",
+  "fichas": [
+    {
+      "nombre": {
+        "es": "STRETCH PREMIUM",
+        "en": "STRETCH PREMIUM",
+        "pt": "STRETCH PREMIUM",
+        "zh": "高级拉伸膜",
+        "ar": "ستريتش بريميوم"
+      },
+      "img": "premium.png",
+      "lado": "left",
+      "desc": {
+        "es": "Film estirable automático diseñado para máquinas de envoltura de baja y media velocidad, con elongaciones que no exceden el 280%. Ideal para su uso con equipos de brazo giratorio y plato giratorio.",
+        "en": "Automatic stretch film designed for low- and medium-speed wrapping machines, with elongation not exceeding 280%. Ideal for use with rotary arm and turntable equipment.",
+        "pt": "Filme estirável automático projetado para máquinas de embalagem de baixa e média velocidade, com alongamentos que não excedem 280%. Ideal para uso com equipamentos de braço giratório e mesa giratória.",
+        "zh": "自动拉伸膜，专为中低速缠绕包装机设计，伸长率不超过280%。适用于旋转臂和转盘设备。",
+        "ar": "فيلم تمدد أوتوماتيكي مصمم لآلات التغليف ذات السرعة المنخفضة والمتوسطة، باستطالة لا تتجاوز 280%. مثالي للاستخدام مع معدات الذراع الدوار والطاولة الدوارة."
+      },
+      "specs": [
+        {
+          "c": { "es": "Amplitud", "en": "Width", "pt": "Largura", "zh": "宽度", "ar": "العرض" },
+          "min": "19", "max": "30", "tol": { "es": "±1/8", "en": "±1/8", "pt": "±1/8", "zh": "±1/8", "ar": "±1/8" }, "uni": "In", "met": "—", "hl": false
+        },
+        {
+          "c": { "es": "Grosor", "en": "Thickness", "pt": "Espessura", "zh": "厚度", "ar": "السماكة" },
+          "min": "50", "max": "90", "tol": { "es": "±5", "en": "±5", "pt": "±5", "zh": "±5", "ar": "±5" }, "uni": "Gauges", "met": "—", "hl": false
+        },
+        {
+          "c": { "es": "Largo", "en": "Length", "pt": "Comprimento", "zh": "长度", "ar": "الطول" },
+          "min": "3000", "max": "15000", "tol": { "es": "±50", "en": "±50", "pt": "±50", "zh": "±50", "ar": "±50" }, "uni": "Ft", "met": "—", "hl": false
+        },
+        {
+          "c": { "es": "Peso neto", "en": "Net weight", "pt": "Peso líquido", "zh": "净重", "ar": "الوزن الصافي" },
+          "min": "5.18", "max": "39.2", "tol": { "es": "± 2%", "en": "± 2%", "pt": "± 2%", "zh": "± 2%", "ar": "± 2%" }, "uni": "Lb", "met": "—", "hl": false
+        },
+        {
+          "c": { "es": "Elongación", "en": "Elongation", "pt": "Alongamento", "zh": "伸长率", "ar": "الاستطالة" },
+          "min": "270", "max": "280", "tol": { "es": "Mínimo", "en": "Minimum", "pt": "Mínimo", "zh": "最小值", "ar": "الحد الأدنى" }, "uni": "%", "met": "NOM-002", "hl": true
+        },
+        {
+          "c": { "es": "Adherencia", "en": "Adhesion", "pt": "Aderência", "zh": "粘附力", "ar": "الالتصاق" },
+          "min": "12", "max": "60", "tol": { "es": "Mínimo", "en": "Minimum", "pt": "Mínimo", "zh": "最小值", "ar": "الحد الأدنى" }, "uni": "Gfr", "met": "NMX-E-003", "hl": true
+        },
+        {
+          "c": { "es": "Resistencia de carga", "en": "Load resistance", "pt": "Resistência de carga", "zh": "承载强度", "ar": "مقاومة الحمل" },
+          "min": "3.45", "max": "4.73", "tol": { "es": "Mínimo", "en": "Minimum", "pt": "Mínimo", "zh": "最小值", "ar": "الحد الأدنى" }, "uni": "Lbf", "met": "NMX-E-002", "hl": true
+        },
+        {
+          "c": { "es": "Resistencia", "en": "Resistance", "pt": "Resistência", "zh": "抗拉强度", "ar": "المقاومة" },
+          "min": "3", "max": "4.49", "tol": { "es": "Mínimo", "en": "Minimum", "pt": "Mínimo", "zh": "最小值", "ar": "الحد الأدنى" }, "uni": "Lbf", "met": "NMX-E-002", "hl": true
+        }
+      ],
+      "visual": { "scale": 2.5, "offsetX": 19.9, "offsetY": 2.3, "rotate": -90 }
+    }
+  ],
+  "visualCover": { "scale": 1.75, "offsetX": -18.3, "offsetY": 13.5, "rotate": 0 },
+  "styles": {}
+}

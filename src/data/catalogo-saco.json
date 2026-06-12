@@ -1,0 +1,483 @@
+{
+  "intro": {
+    "p1": {
+      "es": "Fabricados con cintas de polipropileno entrelazadas, los sacos de rafia sin laminar ofrecen gran resistencia y excelente durabilidad en aplicaciones de empaque y almacenamiento. Su estructura permite soportar cargas pesadas sin romperse, garantizando un desempeño confiable en trabajos exigentes.",
+      "en": "Made with interlaced polypropylene tapes, unlaminated woven sacks offer great resistance and excellent durability in packaging and storage applications. Their structure can withstand heavy loads without tearing, guaranteeing reliable performance in demanding work.",
+      "pt": "Fabricados com fitas de polipropileno entrelaçadas, os sacos de rafia sem laminação oferecem grande resistência e excelente durabilidade em aplicações de embalagem e armazenamento. Sua estrutura suporta cargas pesadas sem romper, garantindo desempenho confiável em trabalhos exigentes.",
+      "zh": "由交织聚丙烯纱线制成，非覆膜拉菲草编织袋在包装和存储应用中提供高强度和出色耐久性。其结构能够承受重载而不会破裂，在繁重工作中保证可靠性能。",
+      "ar": "مصنوعة من شرائط بولي بروبيلين متشابكة، توفّر أكياس الرافيا غير المُطلَّاة مقاومة كبيرة ومتانة ممتازة في تطبيقات التعبئة والتخزين. هيكلها يتحمّل الأحمال الثقيلة دون تمزق، مما يضمن أداءً موثوقاً في الأعمال الشاقة."
+    },
+    "bioTitle": {
+      "es": "",
+      "en": "",
+      "pt": "",
+      "zh": "",
+      "ar": ""
+    },
+    "p2": {
+      "es": "",
+      "en": "",
+      "pt": "",
+      "zh": "",
+      "ar": ""
+    }
+  },
+  "productos": [
+    {
+      "es": "SACO DE RAFIA SIN LAMINAR",
+      "en": "UNLAMINATED WOVEN SACK",
+      "pt": "SACO DE RAFIA SEM LAMINAÇÃO",
+      "zh": "非覆膜拉菲草编织袋",
+      "ar": "كيس رافيا غير مُطلَّى"
+    },
+    {
+      "es": "SACO TRANSPARENTE",
+      "en": "TRANSPARENT SACK",
+      "pt": "SACO TRANSPARENTE",
+      "zh": "透明编织袋",
+      "ar": "كيس شفاف"
+    },
+    {
+      "es": "SACO DE RAFIA ECOLÓGICO",
+      "en": "ECO WOVEN SACK",
+      "pt": "SACO DE RAFIA ECOLÓGICO",
+      "zh": "环保拉菲草编织袋",
+      "ar": "كيس رافيا بيئي"
+    }
+  ],
+  "cover": {
+    "t1": {
+      "es": "SACO",
+      "en": "WOVEN SACK",
+      "pt": "SACO",
+      "zh": "编织袋",
+      "ar": "كيس"
+    },
+    "t2": {
+      "es": "",
+      "en": "",
+      "pt": "",
+      "zh": "",
+      "ar": ""
+    },
+    "division": {
+      "es": "DIVISIÓN SACO",
+      "en": "WOVEN SACK DIVISION",
+      "pt": "DIVISÃO SACO",
+      "zh": "编织袋部门",
+      "ar": "قسم كيس"
+    }
+  },
+  "coverImg": "/images/sacos/saco2.png",
+  "fichas": [
+    {
+      "nombre": {
+        "es": "SACO DE RAFIA SIN LAMINAR",
+        "en": "UNLAMINATED WOVEN SACK",
+        "pt": "SACO DE RAFIA SEM LAMINAÇÃO",
+        "zh": "非覆膜拉菲草编织袋",
+        "ar": "كيس رافيا غير مُطلَّى"
+      },
+      "img": "/images/sacos/saco2.png",
+      "lado": "",
+      "desc": {
+        "es": "Fabricados con cintas de polipropileno entrelazadas, los sacos de rafia sin laminar ofrecen gran resistencia y excelente durabilidad en aplicaciones de empaque y almacenamiento. Su estructura permite soportar cargas pesadas sin romperse, garantizando un desempeño confiable en trabajos exigentes.",
+        "en": "Made with interlaced polypropylene tapes, unlaminated woven sacks offer great resistance and excellent durability in packaging and storage applications. Their structure can withstand heavy loads without tearing, guaranteeing reliable performance in demanding work.",
+        "pt": "Fabricados com fitas de polipropileno entrelaçadas, os sacos de rafia sem laminação oferecem grande resistência e excelente durabilidade em aplicações de embalagem e armazenamento. Sua estrutura suporta cargas pesadas sem romper, garantindo desempenho confiável em trabalhos exigentes.",
+        "zh": "由交织聚丙烯纱线制成，非覆膜拉菲草编织袋在包装和存储应用中提供高强度和出色耐久性。其结构能够承受重载而不会破裂，在繁重工作中保证可靠性能。",
+        "ar": "مصنوعة من شرائط بولي بروبيلين متشابكة، توفّر أكياس الرافيا غير المُطلَّاة مقاومة كبيرة ومتانة ممتازة في تطبيقات التعبئة والتخزين. هيكلها يتحمّل الأحمال الثقيلة دون تمزق، مما يضمن أداءً موثوقاً في الأعمال الشاقة."
+      },
+      "specs": [
+        {
+          "c": {
+            "es": "Ancho",
+            "en": "Width",
+            "pt": "Largura",
+            "zh": "宽度",
+            "ar": "العرض"
+          },
+          "min": {
+            "es": "35-80 cm",
+            "en": "35-80 cm",
+            "pt": "35-80 cm",
+            "zh": "35-80 厘米",
+            "ar": "35-80 سم"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Largo",
+            "en": "Length",
+            "pt": "Comprimento",
+            "zh": "长度",
+            "ar": "الطول"
+          },
+          "min": {
+            "es": "49-115 cm",
+            "en": "49-115 cm",
+            "pt": "49-115 cm",
+            "zh": "49-115 厘米",
+            "ar": "49-115 سم"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Material",
+            "en": "Material",
+            "pt": "Material",
+            "zh": "材料",
+            "ar": "المادة"
+          },
+          "min": {
+            "es": "PP",
+            "en": "PP",
+            "pt": "PP",
+            "zh": "PP",
+            "ar": "PP"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Resistencia",
+            "en": "Resistance",
+            "pt": "Resistência",
+            "zh": "强度",
+            "ar": "المقاومة"
+          },
+          "min": {
+            "es": "120-200 kgf",
+            "en": "120-200 kgf",
+            "pt": "120-200 kgf",
+            "zh": "120-200 公斤力",
+            "ar": "120-200 كجف"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        }
+      ],
+      "visual": {
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "rotate": 0
+      }
+    },
+    {
+      "nombre": {
+        "es": "SACO TRANSPARENTE",
+        "en": "TRANSPARENT SACK",
+        "pt": "SACO TRANSPARENTE",
+        "zh": "透明编织袋",
+        "ar": "كيس شفاف"
+      },
+      "img": "/images/sacos/saco.png",
+      "lado": "",
+      "desc": {
+        "es": "Fabricados con cintas de polipropileno y acabado transparente, estos sacos ofrecen alta resistencia y permiten una excelente visualización del producto envasado. Su estructura garantiza durabilidad y un desempeño confiable en aplicaciones de almacenamiento y transporte.",
+        "en": "Made with polypropylene tapes and a transparent finish, these sacks offer high resistance and allow excellent visibility of the packaged product. Their structure guarantees durability and reliable performance in storage and transport applications.",
+        "pt": "Fabricados com fitas de polipropileno e acabamento transparente, estes sacos oferecem alta resistência e permitem excelente visualização do produto embalado. Sua estrutura garante durabilidade e desempenho confiável em aplicações de armazenamento e transporte.",
+        "zh": "由聚丙烯纱线制成并具有透明外观，这些袋子提供高强度并可清晰看到装袋产品。其结构保证了在存储和运输应用中的耐久性和可靠性。",
+        "ar": "مصنوعة من شرائط بولي بروبيلين بتشطيب شفاف، تقدّم هذه الأكياس مقاومة عالية وتتيح رؤية المنتج المعبأ بوضوح. هيكلها يضمن المتانة والأداء الموثوق في تطبيقات التخزين والنقل."
+      },
+      "specs": [
+        {
+          "c": {
+            "es": "Ancho",
+            "en": "Width",
+            "pt": "Largura",
+            "zh": "宽度",
+            "ar": "العرض"
+          },
+          "min": {
+            "es": "35-80 kg",
+            "en": "35-80 kg",
+            "pt": "35-80 kg",
+            "zh": "35-80 公斤",
+            "ar": "35-80 كجم"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Largo",
+            "en": "Length",
+            "pt": "Comprimento",
+            "zh": "长度",
+            "ar": "الطول"
+          },
+          "min": {
+            "es": "49-115 cm",
+            "en": "49-115 cm",
+            "pt": "49-115 cm",
+            "zh": "49-115 厘米",
+            "ar": "49-115 سم"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Material",
+            "en": "Material",
+            "pt": "Material",
+            "zh": "材料",
+            "ar": "المادة"
+          },
+          "min": {
+            "es": "PP",
+            "en": "PP",
+            "pt": "PP",
+            "zh": "PP",
+            "ar": "PP"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Resistencia",
+            "en": "Resistance",
+            "pt": "Resistência",
+            "zh": "强度",
+            "ar": "المقاومة"
+          },
+          "min": {
+            "es": "120-200 kgf",
+            "en": "120-200 kgf",
+            "pt": "120-200 kgf",
+            "zh": "120-200 公斤力",
+            "ar": "120-200 كجف"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        }
+      ],
+      "visual": {
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "rotate": 0
+      }
+    },
+    {
+      "nombre": {
+        "es": "SACO DE RAFIA ECOLÓGICO",
+        "en": "ECO WOVEN SACK",
+        "pt": "SACO DE RAFIA ECOLÓGICO",
+        "zh": "环保拉菲草编织袋",
+        "ar": "كيس رافيا بيئي"
+      },
+      "img": "/images/sacos/saco3.png",
+      "lado": "",
+      "desc": {
+        "es": "Fabricados con material reciclado proveniente de la merma del mismo proceso de producción, estos sacos ofrecen resistencia y buena durabilidad a un costo más accesible. Su fabricación permite un desempeño confiable en aplicaciones generales de empaque y almacenamiento.",
+        "en": "Made with recycled material from the waste of the same production process, these sacks offer resistance and good durability at a more accessible cost. Their manufacture allows reliable performance in general packaging and storage applications.",
+        "pt": "Fabricados com material reciclado proveniente dos resíduos do próprio processo de produção, estes sacos oferecem resistência e boa durabilidade a um custo mais acessível. Sua fabricação permite desempenho confiável em aplicações gerais de embalagem e armazenamento.",
+        "zh": "由生产过程中的边角料回收材料制成，这些袋子以更实惠的成本提供强度和良好的耐久性。其制造允许在一般包装和存储应用中实现可靠性能。",
+        "ar": "مصنوعة من مواد معاد تدويرها من نفايات عملية الإنتاج، توفّر هذه الأكياس مقاومة ومتانة جيدة بتكلفة أكثر اقتصادية. تصنيعها يتيح أداءً موثوقاً في تطبيقات التعبئة والتخزين العامة."
+      },
+      "specs": [
+        {
+          "c": {
+            "es": "Ancho",
+            "en": "Width",
+            "pt": "Largura",
+            "zh": "宽度",
+            "ar": "العرض"
+          },
+          "min": {
+            "es": "45-80 kg",
+            "en": "45-80 kg",
+            "pt": "45-80 kg",
+            "zh": "45-80 公斤",
+            "ar": "45-80 كجم"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Largo",
+            "en": "Length",
+            "pt": "Comprimento",
+            "zh": "长度",
+            "ar": "الطول"
+          },
+          "min": {
+            "es": "49-115 cm",
+            "en": "49-115 cm",
+            "pt": "49-115 cm",
+            "zh": "49-115 厘米",
+            "ar": "49-115 سم"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Material",
+            "en": "Material",
+            "pt": "Material",
+            "zh": "材料",
+            "ar": "المادة"
+          },
+          "min": {
+            "es": "PP",
+            "en": "PP",
+            "pt": "PP",
+            "zh": "PP",
+            "ar": "PP"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Resistencia",
+            "en": "Resistance",
+            "pt": "Resistência",
+            "zh": "强度",
+            "ar": "المقاومة"
+          },
+          "min": {
+            "es": "120-200 kgf",
+            "en": "120-200 kgf",
+            "pt": "120-200 kgf",
+            "zh": "120-200 公斤力",
+            "ar": "120-200 كجف"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        }
+      ],
+      "visual": {
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "rotate": 0
+      }
+    }
+  ],
+  "visualCover": {
+    "scale": 1,
+    "offsetX": 0,
+    "offsetY": 0,
+    "rotate": 0
+  },
+  "styles": {}
+}

@@ -1,6 +1,21 @@
 // src/i18n/en.js
 
 export const en = {
+  digital_catalog: {
+    title: "Product Catalog | Grupo Ortiz",
+    titlePart1: "PRODUCT",
+    titlePart2: "CATALOG",
+    downloadPDF: "Download PDF",
+    distributor: "Become a distributor",
+    products: "Products",
+    characteristics: "CHARACTERISTICS",
+    measurement: "MEASUREMENT",
+    tolerances: "TOLERANCES",
+    unit: "UNIT",
+    testMethod: "TEST METHOD",
+    min: "MINIMUM",
+    max: "MAXIMUM"
+  },
   // =================================================
   // NAVIGATION BAR
   // =================================================

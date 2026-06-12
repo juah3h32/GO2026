@@ -53,8 +53,9 @@ const isActive = (path: string) => {
 };
 
 // --- LOGICA CLASES HEADER ---
-const isForceWhitePage = pathname.includes('/catalogo') || pathname.includes('/') || pathname.includes('/productos') || pathname.includes('/arpillas') || pathname.includes('/rafias') || pathname.includes('/about') || pathname.includes('/social') || pathname.includes('/cuerdas');
-const isForceBlackPage = pathname.includes('/distribuidor');
+const isHomePage = pathname === `/${safeLang}/` || pathname === `/${safeLang}` || pathname === '/';
+const isForceWhitePage = isHomePage || pathname.includes('/productos') || pathname.includes('/arpillas') || pathname.includes('/rafias') || pathname.includes('/about') || pathname.includes('/social') || pathname.includes('/cuerdas');
+const isForceBlackPage = pathname.includes('/distribuidor') || pathname.includes('/catalogo/');
 
 function getLangPath(targetLang: string) {
   if (pathname === '/' || pathname === '') return `/${targetLang}/`;
@@ -434,8 +435,16 @@ body.no-scroll {
 .logo img { 
   height: 45px; 
   width: auto; 
-  filter: brightness(0) invert(1);
+  filter: brightness(0);
   transition: transform 0.3s, filter 0.3s;
+}
+
+:global(html.dark) .logo img {
+  filter: brightness(0) invert(1);
+}
+
+.montfort-header.force-white.transparent .logo img {
+  filter: brightness(0) invert(1);
 }
 
 .logo img:hover { 

@@ -1,0 +1,483 @@
+{
+  "intro": {
+    "p1": {
+      "es": "Fabricada con polipropileno 100% virgen, esta rafia ofrece alta resistencia y excelente rendimiento, manteniendo sus propiedades físicas aun en condiciones de intemperie. Su calidad garantiza durabilidad y desempeño confiable en aplicaciones exigentes. Es ampliamente utilizada en los sectores agrícola, avícola y de horticultura.",
+      "en": "Made with 100% virgin polypropylene, this raffia offers high resistance and excellent yield, maintaining its physical properties even in outdoor conditions. Its quality guarantees durability and reliable performance in demanding applications. It is widely used in the agricultural, poultry and horticultural sectors.",
+      "pt": "Fabricada com polipropileno 100% virgem, esta rafia oferece alta resistência e excelente rendimento, mantendo suas propriedades físicas mesmo em condições de intempérie. Sua qualidade garante durabilidade e desempenho confiável em aplicações exigentes. É amplamente utilizada nos setores agrícola, avícola e de horticultura.",
+      "zh": "采用 100% 原生聚丙烯制造，这款拉菲草提供高强度和出色性能，即使在户外条件下也能保持其物理特性。其质量保证了在要求苛刻的应用中的耐久性和可靠性。广泛应用于农业、禽类养殖和园艺行业。",
+      "ar": "مصنوعة من بولي بروبيلين 100% بكر، تقدّم هذه الرافيا مقاومة عالية وأداءً ممتازاً مع الحفاظ على خصائصها الفيزيائية حتى في الظروف الجوية القاسية. جودتها تضمن المتانة والأداء الموثوق في التطبيقات الصعبة. تُستخدم على نطاق واسع في القطاعات الزراعية والدواجن والبستنة."
+    },
+    "bioTitle": {
+      "es": "",
+      "en": "",
+      "pt": "",
+      "zh": "",
+      "ar": ""
+    },
+    "p2": {
+      "es": "",
+      "en": "",
+      "pt": "",
+      "zh": "",
+      "ar": ""
+    }
+  },
+  "productos": [
+    {
+      "es": "RAFIA DE ATAR",
+      "en": "TYING RAFFIA",
+      "pt": "RAFIA DE AMARRAR",
+      "zh": "捆扎拉菲草",
+      "ar": "رافيا الربط"
+    },
+    {
+      "es": "RAFIA ECOLÓGICA",
+      "en": "ECO RAFFIA",
+      "pt": "RAFIA ECOLÓGICA",
+      "zh": "环保拉菲草",
+      "ar": "الرافيا البيئية"
+    },
+    {
+      "es": "RAFIA FIBRILADA NEGRA",
+      "en": "BLACK FIBRILLATED RAFFIA",
+      "pt": "RAFIA FIBRILADA PRETA",
+      "zh": "黑色原纤化拉菲草",
+      "ar": "رافيا ليفية سوداء"
+    }
+  ],
+  "cover": {
+    "t1": {
+      "es": "RAFIA",
+      "en": "RAFFIA",
+      "pt": "RAFIA",
+      "zh": "拉菲草",
+      "ar": "رافيا"
+    },
+    "t2": {
+      "es": "",
+      "en": "",
+      "pt": "",
+      "zh": "",
+      "ar": ""
+    },
+    "division": {
+      "es": "DIVISIÓN RAFIA",
+      "en": "RAFFIA DIVISION",
+      "pt": "DIVISÃO RAFIA",
+      "zh": "拉菲草部门",
+      "ar": "قسم رافيا"
+    }
+  },
+  "coverImg": "/images/rafias/atar.png",
+  "fichas": [
+    {
+      "nombre": {
+        "es": "RAFIA DE ATAR",
+        "en": "TYING RAFFIA",
+        "pt": "RAFIA DE AMARRAR",
+        "zh": "捆扎拉菲草",
+        "ar": "رافيا الربط"
+      },
+      "img": "/images/rafias/atar.png",
+      "lado": "",
+      "desc": {
+        "es": "Fabricada con polipropileno 100% virgen, esta rafia ofrece alta resistencia y excelente rendimiento, manteniendo sus propiedades físicas aun en condiciones de intemperie. Su calidad garantiza durabilidad y desempeño confiable en aplicaciones exigentes. Es ampliamente utilizada en los sectores agrícola, avícola y de horticultura.",
+        "en": "Made with 100% virgin polypropylene, this raffia offers high resistance and excellent yield, maintaining its physical properties even in outdoor conditions. Its quality guarantees durability and reliable performance in demanding applications. It is widely used in the agricultural, poultry and horticultural sectors.",
+        "pt": "Fabricada com polipropileno 100% virgem, esta rafia oferece alta resistência e excelente rendimento, mantendo suas propriedades físicas mesmo em condições de intempérie. Sua qualidade garante durabilidade e desempenho confiável em aplicações exigentes. É amplamente utilizada nos setores agrícola, avícola e de horticultura.",
+        "zh": "采用 100% 原生聚丙烯制造，这款拉菲草提供高强度和出色性能，即使在户外条件下也能保持其物理特性。其质量保证了在要求苛刻的应用中的耐久性和可靠性。广泛应用于农业、禽类养殖和园艺行业。",
+        "ar": "مصنوعة من بولي بروبيلين 100% بكر، تقدّم هذه الرافيا مقاومة عالية وأداءً ممتازاً مع الحفاظ على خصائصها الفيزيائية حتى في الظروف الجوية القاسية. جودتها تضمن المتانة والأداء الموثوق في التطبيقات الصعبة. تُستخدم على نطاق واسع في القطاعات الزراعية والدواجن والبستنة."
+      },
+      "specs": [
+        {
+          "c": {
+            "es": "Calibre",
+            "en": "Gauge",
+            "pt": "Calibre",
+            "zh": "规格",
+            "ar": "المعيار"
+          },
+          "min": {
+            "es": "2-8 mm",
+            "en": "2-8 mm",
+            "pt": "2-8 mm",
+            "zh": "2-8 毫米",
+            "ar": "2-8 مم"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Rendimiento m",
+            "en": "Yield (m)",
+            "pt": "Rendimento m",
+            "zh": "米数",
+            "ar": "المردود بالمتر"
+          },
+          "min": {
+            "es": "90 kg",
+            "en": "90 kg",
+            "pt": "90 kg",
+            "zh": "90 公斤",
+            "ar": "90 كجم"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Resistencia kg",
+            "en": "Resistance (kg)",
+            "pt": "Resistência kg",
+            "zh": "强度（公斤）",
+            "ar": "المقاومة بالكجم"
+          },
+          "min": {
+            "es": "60-320 f",
+            "en": "60-320 f",
+            "pt": "60-320 f",
+            "zh": "60-320 磅",
+            "ar": "60-320 f"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Material",
+            "en": "Material",
+            "pt": "Material",
+            "zh": "材料",
+            "ar": "المادة"
+          },
+          "min": {
+            "es": "PP-UV",
+            "en": "PP-UV",
+            "pt": "PP-UV",
+            "zh": "PP-UV",
+            "ar": "PP-UV"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        }
+      ],
+      "visual": {
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "rotate": 0
+      }
+    },
+    {
+      "nombre": {
+        "es": "RAFIA ECOLÓGICA",
+        "en": "ECO RAFFIA",
+        "pt": "RAFIA ECOLÓGICA",
+        "zh": "环保拉菲草",
+        "ar": "الرافيا البيئية"
+      },
+      "img": "/images/rafias/Eco.png",
+      "lado": "",
+      "desc": {
+        "es": "Fabricada con polipropileno de alta calidad, esta rafia ofrece excelente resistencia y mantiene sus propiedades físicas aun en condiciones de intemperie. Su rendimiento confiable la convierte en una opción ideal para aplicaciones agrícolas, avícolas y de horticultura.",
+        "en": "Made with high-quality polypropylene, this raffia offers excellent resistance and maintains its physical properties even in outdoor conditions. Its reliable yield makes it an ideal option for agricultural, poultry and horticultural applications.",
+        "pt": "Fabricada com polipropileno de alta qualidade, esta rafia oferece excelente resistência e mantém suas propriedades físicas mesmo em condições de intempérie. Seu rendimento confiável a torna uma opção ideal para aplicações agrícolas, avícolas e de horticultura.",
+        "zh": "采用优质聚丙烯制造，这款拉菲草提供出色的强度，即使在户外条件下也能保持其物理特性。其可靠的性能使其成为农业、禽类养殖和园艺应用的理想选择。",
+        "ar": "مصنوعة من بولي بروبيلين عالي الجودة، تقدّم هذه الرافيا مقاومة ممتازة وتحافظ على خصائصها الفيزيائية حتى في الظروف الجوية القاسية. أداؤها الموثوق يجعلها خياراً مثالياً للتطبيقات الزراعية والدواجن والبستنة."
+      },
+      "specs": [
+        {
+          "c": {
+            "es": "Calibre",
+            "en": "Gauge",
+            "pt": "Calibre",
+            "zh": "规格",
+            "ar": "المعيار"
+          },
+          "min": {
+            "es": "2-8",
+            "en": "2-8",
+            "pt": "2-8",
+            "zh": "2-8",
+            "ar": "2-8"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Rendimiento m",
+            "en": "Yield (m)",
+            "pt": "Rendimento m",
+            "zh": "米数",
+            "ar": "المردود بالمتر"
+          },
+          "min": {
+            "es": "90-500 kg",
+            "en": "90-500 kg",
+            "pt": "90-500 kg",
+            "zh": "90-500 公斤",
+            "ar": "90-500 كجم"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Resistencia kg",
+            "en": "Resistance (kg)",
+            "pt": "Resistência kg",
+            "zh": "强度（公斤）",
+            "ar": "المقاومة بالكجم"
+          },
+          "min": {
+            "es": "59-255 f",
+            "en": "59-255 f",
+            "pt": "59-255 f",
+            "zh": "59-255 磅",
+            "ar": "59-255 f"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Material",
+            "en": "Material",
+            "pt": "Material",
+            "zh": "材料",
+            "ar": "المادة"
+          },
+          "min": {
+            "es": "PP-UV",
+            "en": "PP-UV",
+            "pt": "PP-UV",
+            "zh": "PP-UV",
+            "ar": "PP-UV"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        }
+      ],
+      "visual": {
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "rotate": 0
+      }
+    },
+    {
+      "nombre": {
+        "es": "RAFIA FIBRILADA NEGRA",
+        "en": "BLACK FIBRILLATED RAFFIA",
+        "pt": "RAFIA FIBRILADA PRETA",
+        "zh": "黑色原纤化拉菲草",
+        "ar": "رافيا ليفية سوداء"
+      },
+      "img": "/images/rafias/negra.png",
+      "lado": "",
+      "desc": {
+        "es": "Fabricada con polipropileno de alta calidad, esta rafia ofrece gran resistencia y mantiene sus propiedades físicas aun en condiciones de intemperie. Su excelente rendimiento la hace ideal para aplicaciones industriales, ferreteras y de empaque, así como para los sectores agrícola, avícola y de horticultura.",
+        "en": "Made with high-quality polypropylene, this raffia offers great resistance and maintains its physical properties even in outdoor conditions. Its excellent yield makes it ideal for industrial, hardware and packaging applications, as well as for the agricultural, poultry and horticultural sectors.",
+        "pt": "Fabricada com polipropileno de alta qualidade, esta rafia oferece grande resistência e mantém suas propriedades físicas mesmo em condições de intempérie. Seu excelente rendimento a torna ideal para aplicações industriais, de ferragem e embalagem, bem como para os setores agrícola, avícola e de horticultura.",
+        "zh": "采用优质聚丙烯制造，这款拉菲草提供高强度，即使在户外条件下也能保持其物理特性。其出色的性能使其非常适合工业、五金和包装应用，以及农业、禽类养殖和园艺行业。",
+        "ar": "مصنوعة من بولي بروبيلين عالي الجودة، تقدّم هذه الرافيا مقاومة كبيرة وتحافظ على خصائصها الفيزيائية حتى في الظروف الجوية. أداؤها الممتاز يجعلها مثالية للتطبيقات الصناعية والأدوات والتغليف، فضلاً عن القطاعات الزراعية والدواجن والبستنة."
+      },
+      "specs": [
+        {
+          "c": {
+            "es": "Calibre",
+            "en": "Gauge",
+            "pt": "Calibre",
+            "zh": "规格",
+            "ar": "المعيار"
+          },
+          "min": {
+            "es": "2-8",
+            "en": "2-8",
+            "pt": "2-8",
+            "zh": "2-8",
+            "ar": "2-8"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Rendimiento m",
+            "en": "Yield (m)",
+            "pt": "Rendimento m",
+            "zh": "米数",
+            "ar": "المردود بالمتر"
+          },
+          "min": {
+            "es": "90-500 kg",
+            "en": "90-500 kg",
+            "pt": "90-500 kg",
+            "zh": "90-500 公斤",
+            "ar": "90-500 كجم"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Resistencia kg",
+            "en": "Resistance (kg)",
+            "pt": "Resistência kg",
+            "zh": "强度（公斤）",
+            "ar": "المقاومة بالكجم"
+          },
+          "min": {
+            "es": "59-255 f",
+            "en": "59-255 f",
+            "pt": "59-255 f",
+            "zh": "59-255 磅",
+            "ar": "59-255 f"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Material",
+            "en": "Material",
+            "pt": "Material",
+            "zh": "材料",
+            "ar": "المادة"
+          },
+          "min": {
+            "es": "PP-UV",
+            "en": "PP-UV",
+            "pt": "PP-UV",
+            "zh": "PP-UV",
+            "ar": "PP-UV"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        }
+      ],
+      "visual": {
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "rotate": 0
+      }
+    }
+  ],
+  "visualCover": {
+    "scale": 1,
+    "offsetX": 0,
+    "offsetY": 0,
+    "rotate": 0
+  },
+  "styles": {}
+}

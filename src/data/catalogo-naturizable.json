@@ -1,0 +1,483 @@
+{
+  "intro": {
+    "p1": {
+      "es": "Empaque sustentable 100% Plant Based que regresa a la tierra. Charolas reciclables y compostables para la industria alimentaria.",
+      "en": "100% Plant Based sustainable packaging that returns to the earth. Recyclable and compostable trays for the food industry.",
+      "pt": "Embalagem sustentável 100% Plant Based que retorna à terra. Bandejas recicláveis e compostáveis para a indústria alimentar.",
+      "zh": "100%植物基可持续包装，回归大地。适用于食品行业的可回收可堆肥托盘。",
+      "ar": "تغليف مستدام 100% نباتي يعود إلى الأرض. أطباق قابلة لإعادة التدوير والتسميد لصناعة الأغذية."
+    },
+    "bioTitle": {
+      "es": "",
+      "en": "",
+      "pt": "",
+      "zh": "",
+      "ar": ""
+    },
+    "p2": {
+      "es": "",
+      "en": "",
+      "pt": "",
+      "zh": "",
+      "ar": ""
+    }
+  },
+  "productos": [
+    {
+      "es": "CHAROLA 855",
+      "en": "CHAROLA 855",
+      "pt": "BANDEJA 855",
+      "zh": "托盘 855",
+      "ar": "طبق 855"
+    },
+    {
+      "es": "VASO DE CELULOSA",
+      "en": "CELLULOSE CUP",
+      "pt": "COPO DE CELULOSE",
+      "zh": "纤维素杯",
+      "ar": "كوب سيليلوز"
+    },
+    {
+      "es": "CONTENEDORES",
+      "en": "CONTAINERS",
+      "pt": "CONTENTORES",
+      "zh": "容器",
+      "ar": "حاويات"
+    }
+  ],
+  "cover": {
+    "t1": {
+      "es": "NATURIZABLE",
+      "en": "NATURIZABLE",
+      "pt": "NATURIZABLE",
+      "zh": "NATURIZABLE",
+      "ar": "NATURIZABLE"
+    },
+    "t2": {
+      "es": "",
+      "en": "",
+      "pt": "",
+      "zh": "",
+      "ar": ""
+    },
+    "division": {
+      "es": "DIVISIÓN NATURIZABLE",
+      "en": "NATURIZABLE DIVISION",
+      "pt": "DIVISÃO NATURIZABLE",
+      "zh": "naturizable部门",
+      "ar": "قسم NATURIZABLE"
+    }
+  },
+  "coverImg": "/images/divisiones/detallec.webp",
+  "fichas": [
+    {
+      "nombre": {
+        "es": "CHAROLA 855",
+        "en": "CHAROLA 855",
+        "pt": "BANDEJA 855",
+        "zh": "托盘 855",
+        "ar": "طبق 855"
+      },
+      "img": "/images/divisiones/detallec.webp",
+      "lado": "",
+      "desc": {
+        "es": "Empaque que sostiene la comida con dignidad. Sirve al taquero, al carnicero, al frutero, al chef — y cuando termina, regresa a la tierra sin pedir permiso. Sostenemos al mundo. Una charola a la vez.",
+        "en": "Packaging that holds food with dignity. It serves the taquero, the butcher, the greengrocer, the chef — and when it's done, it returns to the earth without asking permission. We sustain the world. One tray at a time.",
+        "pt": "Embalagem que sustenta a comida com dignidade. Serve ao taqueiro, ao açougueiro, ao feirante, ao chef — e quando termina, retorna à terra sem pedir permissão. Sustentamos o mundo. Uma bandeja de cada vez.",
+        "zh": "承载食物的尊严包装。服务于厨师、屠夫、摊贩和主厨——使命完成后，无声无息地回归大地。我们承托世界，一个托盘一次。",
+        "ar": "تغليف يحمل الطعام بكرامة. يخدم الطاهي والجزار والبائع والشيف — وعند انتهاء عمره، يعود إلى الأرض دون استئذان. ندعم العالم. طبق واحد في كل مرة."
+      },
+      "specs": [
+        {
+          "c": {
+            "es": "Material",
+            "en": "Material",
+            "pt": "Material",
+            "zh": "材料",
+            "ar": "المادة"
+          },
+          "min": {
+            "es": "Cartón Kraft",
+            "en": "Kraft Cardboard",
+            "pt": "Cartão Kraft",
+            "zh": "牛皮纸板",
+            "ar": "كرافت كارتون"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Uso",
+            "en": "Usage",
+            "pt": "Uso",
+            "zh": "用途",
+            "ar": "الاستخدام"
+          },
+          "min": {
+            "es": "Alimentos",
+            "en": "Food",
+            "pt": "Alimentos",
+            "zh": "食品",
+            "ar": "أغذية"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Resistencia",
+            "en": "Resistance",
+            "pt": "Resistência",
+            "zh": "耐受性",
+            "ar": "المقاومة"
+          },
+          "min": {
+            "es": "Antigrasa",
+            "en": "Greaseproof",
+            "pt": "Antigraxa",
+            "zh": "防油脂",
+            "ar": "مقاوم للدهون"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Presentación",
+            "en": "Presentation",
+            "pt": "Apresentação",
+            "zh": "展示",
+            "ar": "العرض"
+          },
+          "min": {
+            "es": "Ecológica",
+            "en": "Eco-friendly",
+            "pt": "Ecológica",
+            "zh": "环保",
+            "ar": "بيئي"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        }
+      ],
+      "visual": {
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "rotate": 0
+      }
+    },
+    {
+      "nombre": {
+        "es": "VASO DE CELULOSA",
+        "en": "CELLULOSE CUP",
+        "pt": "COPO DE CELULOSE",
+        "zh": "纤维素杯",
+        "ar": "كوب سيليلوز"
+      },
+      "img": "/images/divisiones/vaso.webp",
+      "lado": "",
+      "desc": {
+        "es": "Vasos de celulosa biodegradables de alta calidad. Una solución sostenible y elegante para el servicio de bebidas, comprometida con el medio ambiente sin comprometer la funcionalidad.",
+        "en": "High-quality biodegradable cellulose cups. A sustainable and elegant solution for beverage service, committed to the environment without compromising functionality.",
+        "pt": "Copos de celulose biodegradáveis de alta qualidade. Uma solução sustentável e elegante para o serviço de bebidas, comprometida com o meio ambiente sem comprometer a funcionalidade.",
+        "zh": "高质量生物可降解纤维素杯。一种可持续且优雅的饮料服务解决方案，在不妥协功能性的前提下，致力于环境保护。",
+        "ar": "أكواب سيليلوز قابلة للتحلل الحيوي عالية الجودة. حل مستدام وأنيق لخدمة المشروبات، ملتزم بالبيئة دون المساومة على الوظيفية."
+      },
+      "specs": [
+        {
+          "c": {
+            "es": "Material",
+            "en": "Material",
+            "pt": "Material",
+            "zh": "材料",
+            "ar": "المادة"
+          },
+          "min": {
+            "es": "Celulosa",
+            "en": "Cellulose",
+            "pt": "Celulose",
+            "zh": "纤维素",
+            "ar": "سيليلوز"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Uso",
+            "en": "Usage",
+            "pt": "Uso",
+            "zh": "用途",
+            "ar": "الاستخدام"
+          },
+          "min": {
+            "es": "Bebidas / Eventos",
+            "en": "Drinks / Events",
+            "pt": "Bebidas / Eventos",
+            "zh": "饮料 / 活动",
+            "ar": "مشروبات / فعاليات"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Resistencia",
+            "en": "Resistance",
+            "pt": "Resistência",
+            "zh": "耐受性",
+            "ar": "المقاومة"
+          },
+          "min": {
+            "es": "Térmica",
+            "en": "Thermal",
+            "pt": "Térmica",
+            "zh": "耐热",
+            "ar": "حراري"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Presentación",
+            "en": "Presentation",
+            "pt": "Apresentação",
+            "zh": "展示",
+            "ar": "العرض"
+          },
+          "min": {
+            "es": "Ecológica",
+            "en": "Eco-friendly",
+            "pt": "Ecológica",
+            "zh": "环保",
+            "ar": "بيئي"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        }
+      ],
+      "visual": {
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "rotate": 0
+      }
+    },
+    {
+      "nombre": {
+        "es": "CONTENEDORES",
+        "en": "CONTAINERS",
+        "pt": "CONTENTORES",
+        "zh": "容器",
+        "ar": "حاويات"
+      },
+      "img": "/images/divisiones/contenedor.webp",
+      "lado": "",
+      "desc": {
+        "es": "Contenedores especializados para diversas aplicaciones industriales y comerciales. Diseñados para máxima durabilidad y eficiencia en el almacenamiento y transporte.",
+        "en": "Specialized containers for various industrial and commercial applications. Designed for maximum durability and efficiency in storage and transport.",
+        "pt": "Contentores especializados para diversas aplicações industriais e comerciais. Projetados para máxima durabilidade e eficiência no armazenamento e transporte.",
+        "zh": "专为各种工业和商业应用设计的专业容器。为存储和运输提供最大耐用性和效率。",
+        "ar": "حاويات متخصصة لتطبيقات صناعية وتجارية متنوعة. مصممة لأقصى قدر من المتانة والكفاءة في التخزين والنقل."
+      },
+      "specs": [
+        {
+          "c": {
+            "es": "Material",
+            "en": "Material",
+            "pt": "Material",
+            "zh": "材料",
+            "ar": "المادة"
+          },
+          "min": {
+            "es": "Polímeros",
+            "en": "Polymers",
+            "pt": "Polímeros",
+            "zh": "聚合物",
+            "ar": "بوليمرات"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Uso",
+            "en": "Usage",
+            "pt": "Uso",
+            "zh": "用途",
+            "ar": "الاستخدام"
+          },
+          "min": {
+            "es": "Multiusos",
+            "en": "Multi-purpose",
+            "pt": "Multiusos",
+            "zh": "多用途",
+            "ar": "متعدد الاستخدامات"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Resistencia",
+            "en": "Resistance",
+            "pt": "Resistência",
+            "zh": "耐受性",
+            "ar": "المقاومة"
+          },
+          "min": {
+            "es": "Industrial",
+            "en": "Industrial",
+            "pt": "Industrial",
+            "zh": "工业级",
+            "ar": "صناعي"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Presentación",
+            "en": "Presentation",
+            "pt": "Apresentação",
+            "zh": "展示",
+            "ar": "العرض"
+          },
+          "min": {
+            "es": "Varios Tamaños",
+            "en": "Various Sizes",
+            "pt": "Vários Tamanhos",
+            "zh": "多种尺寸",
+            "ar": "أحجام متعددة"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        }
+      ],
+      "visual": {
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "rotate": 0
+      }
+    }
+  ],
+  "visualCover": {
+    "scale": 1,
+    "offsetX": 0,
+    "offsetY": 0,
+    "rotate": 0
+  },
+  "styles": {}
+}

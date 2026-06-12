@@ -9,6 +9,7 @@ import RecruitmentTab from './RecruitmentTab';
 import ReportScheduler from './ReportScheduler';
 import VacantesTab from './VacantesTab';
 import ChangelogTab from './ChangelogTab';
+import CatalogVisualEditor from './CatalogVisualEditor';
 
 // ── COUNTRY CODES (GSC alpha-3) → nombre + bandera ───────────────────────────
 const COUNTRY_MAP = {
@@ -1632,6 +1633,7 @@ const ALL_PERMS = [
   {id:'overview'},{id:'console'},{id:'activity'},{id:'products'},{id:'keywords'},
   {id:'messages'},{id:'conversations'},{id:'distribuidores'},{id:'whatsapp'},
   {id:'recruitment'},{id:'vacantes'},{id:'ai'},{id:'reportes'},{id:'changelog'},
+  {id:'catalogo'},
 ];
 
 const PERM_GROUPS = [
@@ -1647,6 +1649,7 @@ const PERM_GROUPS = [
       {id:'messages',      label:'Mensajes'},
       {id:'conversations', label:'Conversaciones'},
       {id:'distribuidores',label:'Distribuidores'},
+      {id:'catalogo',      label:'Catálogo Visual'},
     ],
   },
   {
@@ -2377,7 +2380,7 @@ const SC_METRICS = [
 
 // ── DASH ──────────────────────────────────────────────────────────────────────
 // Tabs fusionadas: ids viejos de permisos (DB) → tab consolidada que los contiene
-const TAB_ALIAS = { keywords:'products', messages:'conversations', llamadas:'conversations', vacantes:'recruitment' };
+const TAB_ALIAS = { keywords:'products', messages:'conversations', llamadas:'conversations', vacantes:'recruitment', catalogo:'catalog' };
 
 function Dash({ onClose, role, theme='dark', toggleTheme, fullscreen=false }) {
   const P = useP();
@@ -2585,6 +2588,7 @@ const PERM_OPTIONS = [
   { id: 'distribuidores',label: 'Distribuidores' },
   { id: 'messages',      label: 'Mensajes bot' },
   { id: 'mantenimiento', label: 'Mantenimiento (subir/bajar paginas)' },
+  { id: 'catalogo',      label: 'Catálogo Visual (Posición y escala)' },
   { id: 'vacantes_write',      label: 'Vacantes: crear/publicar/cerrar/push' },
   { id: 'candidates_write',    label: 'Candidatos: cambiar estatus' },
   { id: 'distribuidores_write',label: 'Distribuidores: cambiar estatus' },
@@ -3164,6 +3168,7 @@ const ALL_TABS=[
     {id:'reportes',label:'Reportes',       icon:'◫'},
     {id:'changelog',label:'Historial',     icon:'◭'},
     {id:'users',label:'Usuarios',          icon:'◴'},
+    {id:'catalog',label:'Catálogo Visual', icon:'📷'},
   ];
   
   // ✅ CORRECCIÓN FINAL: Permitimos nombres de Admin y banderas de Admin, PERO bloqueamos a RH explícitamente.
@@ -3175,6 +3180,7 @@ const ALL_TABS=[
     if (t.id === 'reportes')  return canSeeReportes;
     if (t.id === 'changelog') return canSeeChangelog;
     if (t.id === 'whatsapp')  return canSeeWhatsapp;
+    if (t.id === 'catalog')   return canSee('catalogo');
     // Tabs fusionadas: visibles si el usuario tiene CUALQUIER permiso interno
     if (t.id === 'products')      return canSee('products')||canSee('keywords');
     if (t.id === 'conversations') return canSee('conversations')||canSee('messages')||canSee('llamadas');
@@ -4367,6 +4373,13 @@ const ALL_TABS=[
         {canSeeWhatsapp&&(
           <div className="tab-content" key="wa" style={{ display: tab==='whatsapp' ? undefined : 'none' }}>
             <WAWebhookTab P={P} isMobile={isMobile}/>
+          </div>
+        )}
+
+        {/* ── CATALOGO VISUAL ── */}
+        {tab==='catalog'&&canSee('catalogo')&&(
+          <div className="tab-content" key="catalog">
+            <CatalogVisualEditor P={P} />
           </div>
         )}
 

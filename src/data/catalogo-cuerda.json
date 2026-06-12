@@ -1,0 +1,564 @@
+{
+  "intro": {
+    "p1": {
+      "es": "Diseñado con polipropileno y un avanzado filtro UV, este cable es ideal para actividades con alta exposición solar. Su formulación especializada retarda el desgaste natural y prolonga su vida útil, garantizando mayor resistencia y durabilidad frente a la intemperie. Es la cuerda ferretera perfecta para brindar firmeza, seguridad y rendimiento confiable en aplicaciones generales y trabajos exigentes.",
+      "en": "Made with polypropylene and an advanced UV filter, this rope is ideal for activities with high sun exposure. Its specialized formulation slows natural wear and extends service life, guaranteeing greater resistance and durability against the elements. It is the perfect hardware rope for providing firmness, safety and reliable performance in general applications and demanding work.",
+      "pt": "Desenvolvido com polipropileno e um avançado filtro UV, este cabo é ideal para atividades com alta exposição solar. Sua formulação especializada retarda o desgaste natural e prolonga sua vida útil, garantindo maior resistência e durabilidade frente às intempéries. É a corda perfeita para feragens, proporcionando firmeza, segurança e desempenho confiável em aplicações gerais e trabalhos exigentes.",
+      "zh": "采用聚丙烯和先进紫外线过滤器制成，这款绳索非常适合高阳光暴露的活动。其专业配方延缓自然磨损并延长使用寿命，在户外环境中保证更强的耐久性。是五金绳的完美选择，在一般应用和要求苛刻的工作中提供稳固、安全和可靠的性能。",
+      "ar": "مصنوع من البولي بروبيلين وفلتر UV متقدم، هذا الحبل مثالي للأنشطة ذات التعرض الشمسي العالي. تركيبته المتخصصة تبطّئ التآكل الطبيعي وتطيل عمره الافتراضي، مما يضمن مقاومة ومتانة أكبر في الهواء الطلق. إنه الحبل المثالي للصلابة والأمان والأداء الموثوق في التطبيقات العامة والأعمال الشاقة."
+    },
+    "bioTitle": {
+      "es": "",
+      "en": "",
+      "pt": "",
+      "zh": "",
+      "ar": ""
+    },
+    "p2": {
+      "es": "",
+      "en": "",
+      "pt": "",
+      "zh": "",
+      "ar": ""
+    }
+  },
+  "productos": [
+    {
+      "es": "CUERDA FERRETERA",
+      "en": "HARDWARE ROPE",
+      "pt": "CORDA FERAGEM",
+      "zh": "五金绳",
+      "ar": "حبل الأدوات"
+    },
+    {
+      "es": "CUERDA INVERNADERO",
+      "en": "GREENHOUSE ROPE",
+      "pt": "CORDA ESTUFA",
+      "zh": "温室绳",
+      "ar": "حبل البيوت المحمية"
+    },
+    {
+      "es": "CUERDA ECOLÓGICA",
+      "en": "ECO ROPE",
+      "pt": "CORDA ECOLÓGICA",
+      "zh": "环保绳",
+      "ar": "الحبل البيئي"
+    }
+  ],
+  "cover": {
+    "t1": {
+      "es": "CUERDA",
+      "en": "ROPE",
+      "pt": "CORDA",
+      "zh": "绳索",
+      "ar": "حبل"
+    },
+    "t2": {
+      "es": "",
+      "en": "",
+      "pt": "",
+      "zh": "",
+      "ar": ""
+    },
+    "division": {
+      "es": "DIVISIÓN CUERDA",
+      "en": "ROPE DIVISION",
+      "pt": "DIVISÃO CORDA",
+      "zh": "绳索部门",
+      "ar": "قسم حبل"
+    }
+  },
+  "coverImg": "/images/cuerdas/CuerdaT1.webp",
+  "fichas": [
+    {
+      "nombre": {
+        "es": "CUERDA FERRETERA",
+        "en": "HARDWARE ROPE",
+        "pt": "CORDA FERAGEM",
+        "zh": "五金绳",
+        "ar": "حبل الأدوات"
+      },
+      "img": "/images/cuerdas/CuerdaT1.webp",
+      "lado": "",
+      "desc": {
+        "es": "Diseñado con polipropileno y un avanzado filtro UV, este cable es ideal para actividades con alta exposición solar. Su formulación especializada retarda el desgaste natural y prolonga su vida útil, garantizando mayor resistencia y durabilidad frente a la intemperie. Es la cuerda ferretera perfecta para brindar firmeza, seguridad y rendimiento confiable en aplicaciones generales y trabajos exigentes.",
+        "en": "Made with polypropylene and an advanced UV filter, this rope is ideal for activities with high sun exposure. Its specialized formulation slows natural wear and extends service life, guaranteeing greater resistance and durability against the elements. It is the perfect hardware rope for providing firmness, safety and reliable performance in general applications and demanding work.",
+        "pt": "Desenvolvido com polipropileno e um avançado filtro UV, este cabo é ideal para atividades com alta exposição solar. Sua formulação especializada retarda o desgaste natural e prolonga sua vida útil, garantindo maior resistência e durabilidade frente às intempéries. É a corda perfeita para feragens, proporcionando firmeza, segurança e desempenho confiável em aplicações gerais e trabalhos exigentes.",
+        "zh": "采用聚丙烯和先进紫外线过滤器制成，这款绳索非常适合高阳光暴露的活动。其专业配方延缓自然磨损并延长使用寿命，在户外环境中保证更强的耐久性。是五金绳的完美选择，在一般应用和要求苛刻的工作中提供稳固、安全和可靠的性能。",
+        "ar": "مصنوع من البولي بروبيلين وفلتر UV متقدم، هذا الحبل مثالي للأنشطة ذات التعرض الشمسي العالي. تركيبته المتخصصة تبطّئ التآكل الطبيعي وتطيل عمره الافتراضي، مما يضمن مقاومة ومتانة أكبر في الهواء الطلق. إنه الحبل المثالي للصلابة والأمان والأداء الموثوق في التطبيقات العامة والأعمال الشاقة."
+      },
+      "specs": [
+        {
+          "c": {
+            "es": "Rendimiento",
+            "en": "Yield",
+            "pt": "Rendimento",
+            "zh": "米数",
+            "ar": "المردود"
+          },
+          "min": {
+            "es": "1,980 m",
+            "en": "1,980 m",
+            "pt": "1.980 m",
+            "zh": "1,980 米",
+            "ar": "1,980 م"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Material",
+            "en": "Material",
+            "pt": "Material",
+            "zh": "材料",
+            "ar": "المادة"
+          },
+          "min": {
+            "es": "PP-UV",
+            "en": "PP-UV",
+            "pt": "PP-UV",
+            "zh": "PP-UV",
+            "ar": "PP-UV"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Peso",
+            "en": "Weight",
+            "pt": "Peso",
+            "zh": "重量",
+            "ar": "الوزن"
+          },
+          "min": {
+            "es": "18 kg",
+            "en": "18 kg",
+            "pt": "18 kg",
+            "zh": "18 公斤",
+            "ar": "18 كجم"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Resistencia",
+            "en": "Resistance",
+            "pt": "Resistência",
+            "zh": "强度",
+            "ar": "المقاومة"
+          },
+          "min": {
+            "es": "175 kg",
+            "en": "175 kg",
+            "pt": "175 kg",
+            "zh": "175 公斤",
+            "ar": "175 كجم"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Presentación",
+            "en": "Presentation",
+            "pt": "Apresentação",
+            "zh": "规格",
+            "ar": "التقديم"
+          },
+          "min": {
+            "es": "4-19 mm",
+            "en": "4-19 mm",
+            "pt": "4-19 mm",
+            "zh": "4-19 毫米",
+            "ar": "4-19 مم"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        }
+      ],
+      "visual": {
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "rotate": 0
+      }
+    },
+    {
+      "nombre": {
+        "es": "CUERDA INVERNADERO",
+        "en": "GREENHOUSE ROPE",
+        "pt": "CORDA ESTUFA",
+        "zh": "温室绳",
+        "ar": "حبل البيوت المحمية"
+      },
+      "img": "/images/cuerdas/CuerdaNegra.webp",
+      "lado": "",
+      "desc": {
+        "es": "Diseñado con polipropileno (PP) y estabilizador UV, este cable es ideal para el sector marítimo y actividades con alta exposición solar. Su formulación especializada retarda el desgaste provocado por la radiación ultravioleta, prolongando su vida útil y garantizando mayor resistencia a la intemperie. Es la solución perfecta para brindar firmeza y estabilidad en macrotúneles agrícolas.",
+        "en": "Made with polypropylene (PP) and a UV stabilizer, this rope is ideal for the maritime sector and activities with high sun exposure. Its specialized formulation slows UV-induced degradation, extending service life and guaranteeing greater weather resistance. It is the perfect solution for providing firmness and stability in agricultural macro-tunnels.",
+        "pt": "Desenvolvido com polipropileno (PP) e estabilizador UV, este cabo é ideal para o setor marítimo e atividades com alta exposição solar. Sua formulação especializada retarda o desgaste provocado pela radiação ultravioleta, prolongando sua vida útil e garantindo maior resistência às intempéries. É a solução perfeita para proporcionar firmeza e estabilidade em macrotúneis agrícolas.",
+        "zh": "采用聚丙烯（PP）和紫外线稳定剂制成，这款绳索非常适合海洋行业和高阳光暴露的活动。其专业配方延缓紫外线辐射造成的磨损，延长使用寿命并保证更强的耐候性。是为农业大棚提供稳固性和稳定性的完美解决方案。",
+        "ar": "مصنوع من البولي بروبيلين (PP) ومثبّت UV، هذا الحبل مثالي للقطاع البحري والأنشطة ذات التعرض الشمسي العالي. تركيبته المتخصصة تبطّئ التلف الناجم عن الأشعة فوق البنفسجية، مما يطيل عمره الافتراضي ويضمن مقاومة أكبر للعوامل الجوية. إنه الحل المثالي للصلابة والاستقرار في الأنفاق الزراعية الكبيرة."
+      },
+      "specs": [
+        {
+          "c": {
+            "es": "Rendimiento",
+            "en": "Yield",
+            "pt": "Rendimento",
+            "zh": "米数",
+            "ar": "المردود"
+          },
+          "min": {
+            "es": "3,240 m",
+            "en": "3,240 m",
+            "pt": "3.240 m",
+            "zh": "3,240 米",
+            "ar": "3,240 م"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Material",
+            "en": "Material",
+            "pt": "Material",
+            "zh": "材料",
+            "ar": "المادة"
+          },
+          "min": {
+            "es": "PP-UV",
+            "en": "PP-UV",
+            "pt": "PP-UV",
+            "zh": "PP-UV",
+            "ar": "PP-UV"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Peso",
+            "en": "Weight",
+            "pt": "Peso",
+            "zh": "重量",
+            "ar": "الوزن"
+          },
+          "min": {
+            "es": "18 kg",
+            "en": "18 kg",
+            "pt": "18 kg",
+            "zh": "18 公斤",
+            "ar": "18 كجم"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Resistencia",
+            "en": "Resistance",
+            "pt": "Resistência",
+            "zh": "强度",
+            "ar": "المقاومة"
+          },
+          "min": {
+            "es": "105 kg",
+            "en": "105 kg",
+            "pt": "105 kg",
+            "zh": "105 公斤",
+            "ar": "105 كجم"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Presentación",
+            "en": "Presentation",
+            "pt": "Apresentação",
+            "zh": "规格",
+            "ar": "التقديم"
+          },
+          "min": {
+            "es": "3-8 mm",
+            "en": "3-8 mm",
+            "pt": "3-8 mm",
+            "zh": "3-8 毫米",
+            "ar": "3-8 مم"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        }
+      ],
+      "visual": {
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "rotate": 0
+      }
+    },
+    {
+      "nombre": {
+        "es": "CUERDA ECOLÓGICA",
+        "en": "ECO ROPE",
+        "pt": "CORDA ECOLÓGICA",
+        "zh": "环保绳",
+        "ar": "الحبل البيئي"
+      },
+      "img": "/images/cuerdas/CuerdaEco.png",
+      "lado": "",
+      "desc": {
+        "es": "Fabricada con polipropileno (PP) de alta calidad, esta cuerda ofrece una amplia variedad de presentaciones, calibres y colores, disponibles en versiones lisas o combinadas, con refuerzo o con marca. Su versatilidad y resistencia la convierten en una opción confiable para múltiples aplicaciones, para uso en industrias, fábricas, bodegas, mercados de abasto, ferreterías, tlapalerías, talleres y áreas de maquinado.",
+        "en": "Made with high-quality polypropylene (PP), this rope is available in a wide variety of presentations, gauges and colors, in plain or combined versions, reinforced or branded. Its versatility and resistance make it a reliable option for multiple applications in industries, factories, warehouses, wholesale markets, hardware stores, and machining areas.",
+        "pt": "Fabricada com polipropileno (PP) de alta qualidade, esta corda oferece uma ampla variedade de apresentações, calibres e cores, disponíveis em versões lisas ou combinadas, com reforço ou com marca. Sua versatilidade e resistência a tornam uma opção confiável para múltiplas aplicações, para uso em indústrias, fábricas, armazéns, mercados, ferragens, lojas de materiais e oficinas.",
+        "zh": "采用优质聚丙烯（PP）制造，这款绳索提供多种规格、粗细和颜色，有光面或组合版本，带加强或带标记版本。其多功能性和耐久性使其成为多种应用的可靠选择，适用于工业、工厂、仓库、批发市场、五金店和加工区域。",
+        "ar": "مصنوع من البولي بروبيلين (PP) عالي الجودة، يوفر هذا الحبل مجموعة واسعة من التقديمات والمقاسات والألوان، متاح بإصدارات ملساء أو مجمّعة، مع تعزيز أو بعلامة. تنوّعه ومقاومته يجعلانه خياراً موثوقاً للتطبيقات المتعددة في الصناعات والمصانع والمستودعات والأسواق والأعمال العامة."
+      },
+      "specs": [
+        {
+          "c": {
+            "es": "Rendimiento",
+            "en": "Yield",
+            "pt": "Rendimento",
+            "zh": "米数",
+            "ar": "المردود"
+          },
+          "min": {
+            "es": "3,240 m",
+            "en": "3,240 m",
+            "pt": "3.240 m",
+            "zh": "3,240 米",
+            "ar": "3,240 م"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Material",
+            "en": "Material",
+            "pt": "Material",
+            "zh": "材料",
+            "ar": "المادة"
+          },
+          "min": {
+            "es": "PP-UV",
+            "en": "PP-UV",
+            "pt": "PP-UV",
+            "zh": "PP-UV",
+            "ar": "PP-UV"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Peso",
+            "en": "Weight",
+            "pt": "Peso",
+            "zh": "重量",
+            "ar": "الوزن"
+          },
+          "min": {
+            "es": "18 kg",
+            "en": "18 kg",
+            "pt": "18 kg",
+            "zh": "18 公斤",
+            "ar": "18 كجم"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Resistencia",
+            "en": "Resistance",
+            "pt": "Resistência",
+            "zh": "强度",
+            "ar": "المقاومة"
+          },
+          "min": {
+            "es": "105 kg",
+            "en": "105 kg",
+            "pt": "105 kg",
+            "zh": "105 公斤",
+            "ar": "105 كجم"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Presentación",
+            "en": "Presentation",
+            "pt": "Apresentação",
+            "zh": "规格",
+            "ar": "التقديم"
+          },
+          "min": {
+            "es": "3-8 mm",
+            "en": "3-8 mm",
+            "pt": "3-8 mm",
+            "zh": "3-8 毫米",
+            "ar": "3-8 مم"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        }
+      ],
+      "visual": {
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "rotate": 0
+      }
+    }
+  ],
+  "visualCover": {
+    "scale": 1,
+    "offsetX": 0,
+    "offsetY": 0,
+    "rotate": 0
+  },
+  "styles": {}
+}

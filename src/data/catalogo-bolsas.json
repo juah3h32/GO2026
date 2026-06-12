@@ -1,0 +1,1470 @@
+{
+  "intro": {
+    "p1": {
+      "es": "Bolsas de polipropileno de alta resistencia para empaque industrial y comercial. Disponibles en 5 tamaños.",
+      "en": "High-strength polypropylene bags for industrial and commercial packaging. Available in 5 sizes.",
+      "pt": "Bolsas de polipropileno de alta resistência para embalagem industrial e comercial. Disponíveis em 5 tamanhos.",
+      "zh": "用于工业和商业包装的高强度聚丙烯袋。提供5种尺寸。",
+      "ar": "أكياس بولي بروبيلين عالية المقاومة للتعبئة الصناعية والتجارية. متوفرة بـ 5 مقاسات."
+    },
+    "bioTitle": {
+      "es": "",
+      "en": "",
+      "pt": "",
+      "zh": "",
+      "ar": ""
+    },
+    "p2": {
+      "es": "",
+      "en": "",
+      "pt": "",
+      "zh": "",
+      "ar": ""
+    }
+  },
+  "productos": [
+    {
+      "es": "BOLSA 15×20 CM",
+      "en": "BAG 15×20 CM",
+      "pt": "BOLSA 15×20 CM",
+      "zh": "袋子 15×20 厘米",
+      "ar": "كيس 15×20 سم"
+    },
+    {
+      "es": "BOLSA 15×25 CM",
+      "en": "BAG 15×25 CM",
+      "pt": "BOLSA 15×25 CM",
+      "zh": "袋子 15×25 厘米",
+      "ar": "كيس 15×25 سم"
+    },
+    {
+      "es": "BOLSA 18×25 CM",
+      "en": "BAG 18×25 CM",
+      "pt": "BOLSA 18×25 CM",
+      "zh": "袋子 18×25 厘米",
+      "ar": "كيس 18×25 سم"
+    },
+    {
+      "es": "BOLSA 20×30 CM",
+      "en": "BAG 20×30 CM",
+      "pt": "BOLSA 20×30 CM",
+      "zh": "袋子 20×30 厘米",
+      "ar": "كيس 20×30 سم"
+    },
+    {
+      "es": "BOLSA 25×35 CM",
+      "en": "BAG 25×35 CM",
+      "pt": "BOLSA 25×35 CM",
+      "zh": "袋子 25×35 厘米",
+      "ar": "كيس 25×35 سم"
+    },
+    {
+      "es": "BOLSA 30×40 CM",
+      "en": "BAG 30×40 CM",
+      "pt": "BOLSA 30×40 CM",
+      "zh": "袋子 30×40 厘米",
+      "ar": "كيس 30×40 سم"
+    },
+    {
+      "es": "BOLSA 35×45 CM",
+      "en": "BAG 35×45 CM",
+      "pt": "BOLSA 35×45 CM",
+      "zh": "袋子 35×45 厘米",
+      "ar": "كيس 35×45 سم"
+    },
+    {
+      "es": "BOLSA 40×60 CM",
+      "en": "BAG 40×60 CM",
+      "pt": "BOLSA 40×60 CM",
+      "zh": "袋子 40×60 厘米",
+      "ar": "كيس 40×60 سم"
+    },
+    {
+      "es": "BOLSA 50×70 CM",
+      "en": "BAG 50×70 CM",
+      "pt": "BOLSA 50×70 CM",
+      "zh": "袋子 50×70 厘米",
+      "ar": "كيس 50×70 سم"
+    },
+    {
+      "es": "BOLSA 60×90 CM",
+      "en": "BAG 60×90 CM",
+      "pt": "BOLSA 60×90 CM",
+      "zh": "袋子 60×90 厘米",
+      "ar": "كيس 60×90 سم"
+    }
+  ],
+  "cover": {
+    "t1": {
+      "es": "BOLSAS",
+      "en": "BAGS",
+      "pt": "BOLSAS",
+      "zh": "袋子",
+      "ar": "أكياس"
+    },
+    "t2": {
+      "es": "",
+      "en": "",
+      "pt": "",
+      "zh": "",
+      "ar": ""
+    },
+    "division": {
+      "es": "DIVISIÓN BOLSAS",
+      "en": "BAGS DIVISION",
+      "pt": "DIVISÃO BOLSAS",
+      "zh": "袋子部门",
+      "ar": "قسم أكياس"
+    }
+  },
+  "coverImg": "/images/bolsas/15x20.png",
+  "fichas": [
+    {
+      "nombre": {
+        "es": "BOLSA 15×20 CM",
+        "en": "BAG 15×20 CM",
+        "pt": "BOLSA 15×20 CM",
+        "zh": "袋子 15×20 厘米",
+        "ar": "كيس 15×20 سم"
+      },
+      "img": "/images/bolsas/15x20.png",
+      "lado": "",
+      "desc": {
+        "es": "Bolsa de polipropileno compacta ideal para empaque de productos pequeños en porciones individuales. Perfecta para retail, semillas, especias y consumo cotidiano. Alta resistencia al rasgado con acabado uniforme.",
+        "en": "Compact polypropylene bag ideal for packaging small products in individual portions. Perfect for retail, seeds, spices, and daily use. High tear resistance with a uniform finish.",
+        "pt": "Bolsa de polipropileno compacta ideal para empaque de productos pequeños en porciones individuales. Alta resistencia al rasgado con acabado uniforme.",
+        "zh": "紧凑型聚丙烯袋，非常适合以单独份量包装小产品。适合零售、种子、香料和日常使用。高抗撕裂性，表面均匀。",
+        "ar": "كيس بولي بروبيلين مدمج مثالي لتعبئة المنتجات الصغيرة في أجزاء فردية. مثالي للبيع بالتجزئة والبذور والتوابل. مقاومة عالية للتمزق مع نهاية موحدة."
+      },
+      "specs": [
+        {
+          "c": {
+            "es": "Ancho",
+            "en": "Width",
+            "pt": "Largura",
+            "zh": "宽度",
+            "ar": "العرض"
+          },
+          "min": {
+            "es": "15 cm",
+            "en": "15 cm",
+            "pt": "15 cm",
+            "zh": "15 cm",
+            "ar": "15 cm"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Alto",
+            "en": "Height",
+            "pt": "Altura",
+            "zh": "高度",
+            "ar": "الارتفاع"
+          },
+          "min": {
+            "es": "20 cm",
+            "en": "20 cm",
+            "pt": "20 cm",
+            "zh": "20 cm",
+            "ar": "20 cm"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Material",
+            "en": "Material",
+            "pt": "Material",
+            "zh": "材料",
+            "ar": "المادة"
+          },
+          "min": {
+            "es": "Polipropileno",
+            "en": "Polipropileno",
+            "pt": "Polipropileno",
+            "zh": "Polipropileno",
+            "ar": "Polipropileno"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Uso",
+            "en": "Use",
+            "pt": "Uso",
+            "zh": "用途",
+            "ar": "الاستخدام"
+          },
+          "min": {
+            "es": "Retail",
+            "en": "Retail",
+            "pt": "Retail",
+            "zh": "零售",
+            "ar": "التجزئة"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        }
+      ],
+      "visual": {
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "rotate": 0
+      }
+    },
+    {
+      "nombre": {
+        "es": "BOLSA 15×25 CM",
+        "en": "BAG 15×25 CM",
+        "pt": "BOLSA 15×25 CM",
+        "zh": "袋子 15×25 厘米",
+        "ar": "كيس 15×25 سم"
+      },
+      "img": "/images/bolsas/15x25.webp",
+      "lado": "",
+      "desc": {
+        "es": "Bolsa de polipropileno compacta, ideal para empaque de productos pequeños. Perfecta para retail, empaque de semillas, especias y productos de consumo en porciones individuales. Alta resistencia al rasgado con acabado uniforme.",
+        "en": "Compact polypropylene bag, ideal for packaging small products. Perfect for retail, seed packaging, spices and individual-portion consumer products. High tear resistance with uniform finish.",
+        "pt": "Bolsa de polipropileno compacta, ideal para embalagem de produtos pequenos. Perfeita para varejo, embalagem de sementes, especiarias e produtos de consumo em porções individuais. Alta resistência ao rasgamento com acabamento uniforme.",
+        "zh": "紧凑型聚丙烯袋，适合小产品包装。完美用于零售、种子包装、香料和单份消费品。高抗撕裂性，表面均匀。",
+        "ar": "كيس بولي بروبيلين مدمج، مثالي لتعبئة المنتجات الصغيرة. مناسب لتجارة التجزئة وتعبئة البذور والتوابل ومنتجات الاستهلاك الفردي. مقاومة عالية للتمزق مع تشطيب منتظم."
+      },
+      "specs": [
+        {
+          "c": {
+            "es": "Ancho",
+            "en": "Width",
+            "pt": "Largura",
+            "zh": "宽度",
+            "ar": "العرض"
+          },
+          "min": {
+            "es": "15 cm",
+            "en": "15 cm",
+            "pt": "15 cm",
+            "zh": "15 厘米",
+            "ar": "15 سم"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Alto",
+            "en": "Height",
+            "pt": "Altura",
+            "zh": "高度",
+            "ar": "الارتفاع"
+          },
+          "min": {
+            "es": "25 cm",
+            "en": "25 cm",
+            "pt": "25 cm",
+            "zh": "25 厘米",
+            "ar": "25 سم"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Material",
+            "en": "Material",
+            "pt": "Material",
+            "zh": "材料",
+            "ar": "المادة"
+          },
+          "min": {
+            "es": "Polipropileno",
+            "en": "Polypropylene",
+            "pt": "Polipropileno",
+            "zh": "聚丙烯",
+            "ar": "بولي بروبيلين"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Uso",
+            "en": "Use",
+            "pt": "Uso",
+            "zh": "用途",
+            "ar": "الاستخدام"
+          },
+          "min": {
+            "es": "Retail",
+            "en": "Retail",
+            "pt": "Varejo",
+            "zh": "零售",
+            "ar": "تجارة التجزئة"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        }
+      ],
+      "visual": {
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "rotate": 0
+      }
+    },
+    {
+      "nombre": {
+        "es": "BOLSA 18×25 CM",
+        "en": "BAG 18×25 CM",
+        "pt": "BOLSA 18×25 CM",
+        "zh": "袋子 18×25 厘米",
+        "ar": "كيس 18×25 سم"
+      },
+      "img": "/images/bolsas/18X25.png",
+      "lado": "",
+      "desc": {
+        "es": "Bolsa de polipropileno de tamaño estándar para empaque versátil de productos de mediano volumen. Ideal para granos, cereales, botanas y artículos de uso cotidiano con presentación limpia y resistente.",
+        "en": "Standard-size polypropylene bag for versatile packaging of medium-volume products. Ideal for grains, cereals, snacks and everyday items with a clean, durable presentation.",
+        "pt": "Bolsa de polipropileno de tamanho padrão para embalagem versátil de produtos de médio volume. Ideal para grãos, cereais, lanches e artigos de uso diário com apresentação limpa e durável.",
+        "zh": "标准尺寸聚丙烯袋，适用于中等体积产品的多功能包装。适合谷物、麦片、零食和日用品，外观整洁耐用。",
+        "ar": "كيس بولي بروبيلين بحجم قياسي للتعبئة متعددة الاستخدامات لمنتجات الحجم المتوسط. مثالي للحبوب والمواد الغذائية والمنتجات اليومية بعرض نظيف ومتين."
+      },
+      "specs": [
+        {
+          "c": {
+            "es": "Ancho",
+            "en": "Width",
+            "pt": "Largura",
+            "zh": "宽度",
+            "ar": "العرض"
+          },
+          "min": {
+            "es": "18 cm",
+            "en": "18 cm",
+            "pt": "18 cm",
+            "zh": "18 厘米",
+            "ar": "18 سم"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Alto",
+            "en": "Height",
+            "pt": "Altura",
+            "zh": "高度",
+            "ar": "الارتفاع"
+          },
+          "min": {
+            "es": "25 cm",
+            "en": "25 cm",
+            "pt": "25 cm",
+            "zh": "25 厘米",
+            "ar": "25 سم"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Material",
+            "en": "Material",
+            "pt": "Material",
+            "zh": "材料",
+            "ar": "المادة"
+          },
+          "min": {
+            "es": "Polipropileno",
+            "en": "Polypropylene",
+            "pt": "Polipropileno",
+            "zh": "聚丙烯",
+            "ar": "بولي بروبيلين"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Uso",
+            "en": "Use",
+            "pt": "Uso",
+            "zh": "用途",
+            "ar": "الاستخدام"
+          },
+          "min": {
+            "es": "Empaque industrial",
+            "en": "Industrial packaging",
+            "pt": "Embalagem industrial",
+            "zh": "工业包装",
+            "ar": "تعبئة صناعية"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        }
+      ],
+      "visual": {
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "rotate": 0
+      }
+    },
+    {
+      "nombre": {
+        "es": "BOLSA 20×30 CM",
+        "en": "BAG 20×30 CM",
+        "pt": "BOLSA 20×30 CM",
+        "zh": "袋子 20×30 厘米",
+        "ar": "كيس 20×30 سم"
+      },
+      "img": "/images/bolsas/20X30.png",
+      "lado": "",
+      "desc": {
+        "es": "Bolsa de mediano formato con alta capacidad volumétrica. Diseñada para el empaque de frutas, verduras, productos agrícolas y mercancía de mediano peso. Resistente al rasgado con acabado uniforme.",
+        "en": "Medium-format bag with high volumetric capacity. Designed for packaging fruits, vegetables, agricultural products and medium-weight merchandise. Tear-resistant with a uniform finish.",
+        "pt": "Bolsa de médio formato com alta capacidade volumétrica. Projetada para embalagem de frutas, verduras, produtos agrícolas e mercadorias de médio peso. Resistente ao rasgamento com acabamento uniforme.",
+        "zh": "中等尺寸袋，体积容量大。专为水果、蔬菜、农产品和中等重量商品的包装而设计。抗撕裂，表面均匀。",
+        "ar": "كيس متوسط الحجم بسعة حجمية عالية. مصمم لتعبئة الفواكه والخضروات والمنتجات الزراعية والبضائع متوسطة الوزن. مقاوم للتمزق مع تشطيب منتظم."
+      },
+      "specs": [
+        {
+          "c": {
+            "es": "Ancho",
+            "en": "Width",
+            "pt": "Largura",
+            "zh": "宽度",
+            "ar": "العرض"
+          },
+          "min": {
+            "es": "20 cm",
+            "en": "20 cm",
+            "pt": "20 cm",
+            "zh": "20 厘米",
+            "ar": "20 سم"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Alto",
+            "en": "Height",
+            "pt": "Altura",
+            "zh": "高度",
+            "ar": "الارتفاع"
+          },
+          "min": {
+            "es": "30 cm",
+            "en": "30 cm",
+            "pt": "30 cm",
+            "zh": "30 厘米",
+            "ar": "30 سم"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Material",
+            "en": "Material",
+            "pt": "Material",
+            "zh": "材料",
+            "ar": "المادة"
+          },
+          "min": {
+            "es": "Polipropileno",
+            "en": "Polypropylene",
+            "pt": "Polipropileno",
+            "zh": "聚丙烯",
+            "ar": "بولي بروبيلين"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Uso",
+            "en": "Use",
+            "pt": "Uso",
+            "zh": "用途",
+            "ar": "الاستخدام"
+          },
+          "min": {
+            "es": "Empaque agrícola",
+            "en": "Agricultural packaging",
+            "pt": "Embalagem agrícola",
+            "zh": "农业包装",
+            "ar": "تعبئة زراعية"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        }
+      ],
+      "visual": {
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "rotate": 0
+      }
+    },
+    {
+      "nombre": {
+        "es": "BOLSA 25×35 CM",
+        "en": "BAG 25×35 CM",
+        "pt": "BOLSA 25×35 CM",
+        "zh": "袋子 25×35 厘米",
+        "ar": "كيس 25×35 سم"
+      },
+      "img": "/images/bolsas/25x35.webp",
+      "lado": "",
+      "desc": {
+        "es": "Bolsa de gran formato ideal para el manejo de productos de mayor volumen. Perfecta para empaque de ropa, textiles, calzado y mercancía de distribución. Ofrece resistencia superior y excelente presentación.",
+        "en": "Large-format bag ideal for handling higher-volume products. Perfect for clothing, textiles, footwear and bulk distribution merchandise. Superior resistance and excellent presentation.",
+        "pt": "Bolsa de grande formato ideal para manuseio de produtos de maior volume. Perfeita para roupas, têxteis, calçados e mercadorias de distribuição a granel. Resistência superior e excelente apresentação.",
+        "zh": "大尺寸袋，适合处理更大体积的产品。完美用于服装、纺织品、鞋类和散装配送商品。出色的耐用性和展示效果。",
+        "ar": "كيس كبير الحجم مثالي للتعامل مع المنتجات ذات الحجم الأكبر. مناسب للملابس والمنسوجات والأحذية وبضائع التوزيع بالجملة. مقاومة فائقة وعرض ممتاز."
+      },
+      "specs": [
+        {
+          "c": {
+            "es": "Ancho",
+            "en": "Width",
+            "pt": "Largura",
+            "zh": "宽度",
+            "ar": "العرض"
+          },
+          "min": {
+            "es": "25 cm",
+            "en": "25 cm",
+            "pt": "25 cm",
+            "zh": "25 厘米",
+            "ar": "25 سم"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Alto",
+            "en": "Height",
+            "pt": "Altura",
+            "zh": "高度",
+            "ar": "الارتفاع"
+          },
+          "min": {
+            "es": "35 cm",
+            "en": "35 cm",
+            "pt": "35 cm",
+            "zh": "35 厘米",
+            "ar": "35 سم"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Material",
+            "en": "Material",
+            "pt": "Material",
+            "zh": "材料",
+            "ar": "المادة"
+          },
+          "min": {
+            "es": "Polipropileno",
+            "en": "Polypropylene",
+            "pt": "Polipropileno",
+            "zh": "聚丙烯",
+            "ar": "بولي بروبيلين"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Uso",
+            "en": "Use",
+            "pt": "Uso",
+            "zh": "用途",
+            "ar": "الاستخدام"
+          },
+          "min": {
+            "es": "Distribución a granel",
+            "en": "Bulk distribution",
+            "pt": "Distribuição a granel",
+            "zh": "散装配送",
+            "ar": "توزيع بالجملة"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        }
+      ],
+      "visual": {
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "rotate": 0
+      }
+    },
+    {
+      "nombre": {
+        "es": "BOLSA 30×40 CM",
+        "en": "BAG 30×40 CM",
+        "pt": "BOLSA 30×40 CM",
+        "zh": "袋子 30×40 厘米",
+        "ar": "كيس 30×40 سم"
+      },
+      "img": "/images/bolsas/30X40.png",
+      "lado": "",
+      "desc": {
+        "es": "Bolsa de máxima capacidad para empaque industrial de gran volumen. Diseñada para cargas pesadas, materiales a granel y logística de distribución de alta demanda. Resistencia extrema con acabado de alta calidad.",
+        "en": "Maximum-capacity bag for large-volume industrial packaging. Designed for heavy loads, bulk materials and high-demand distribution logistics. Extreme resistance with high-quality finish.",
+        "pt": "Bolsa de máxima capacidade para embalagem industrial de grande volume. Projetada para cargas pesadas, materiais a granel e logística de distribuição de alta demanda. Resistência extrema com acabamento de alta qualidade.",
+        "zh": "最大容量袋，用于大体积工业包装。专为重载荷、散装材料和高需求配送物流而设计。极强耐用性，高质量表面处理。",
+        "ar": "كيس بأقصى سعة للتعبئة الصناعية بحجم كبير. مصمم للأحمال الثقيلة والمواد السائبة ولوجستيات التوزيع عالية الطلب. مقاومة قصوى مع تشطيب عالي الجودة."
+      },
+      "specs": [
+        {
+          "c": {
+            "es": "Ancho",
+            "en": "Width",
+            "pt": "Largura",
+            "zh": "宽度",
+            "ar": "العرض"
+          },
+          "min": {
+            "es": "30 cm",
+            "en": "30 cm",
+            "pt": "30 cm",
+            "zh": "30 厘米",
+            "ar": "30 سم"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Alto",
+            "en": "Height",
+            "pt": "Altura",
+            "zh": "高度",
+            "ar": "الارتفاع"
+          },
+          "min": {
+            "es": "40 cm",
+            "en": "40 cm",
+            "pt": "40 cm",
+            "zh": "40 厘米",
+            "ar": "40 سم"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Material",
+            "en": "Material",
+            "pt": "Material",
+            "zh": "材料",
+            "ar": "المادة"
+          },
+          "min": {
+            "es": "Polipropileno",
+            "en": "Polypropylene",
+            "pt": "Polipropileno",
+            "zh": "聚丙烯",
+            "ar": "بولي بروبيلين"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Uso",
+            "en": "Use",
+            "pt": "Uso",
+            "zh": "用途",
+            "ar": "الاستخدام"
+          },
+          "min": {
+            "es": "Logística industrial",
+            "en": "Industrial logistics",
+            "pt": "Logística industrial",
+            "zh": "工业物流",
+            "ar": "لوجستيات صناعية"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        }
+      ],
+      "visual": {
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "rotate": 0
+      }
+    },
+    {
+      "nombre": {
+        "es": "BOLSA 35×45 CM",
+        "en": "BAG 35×45 CM",
+        "pt": "BOLSA 35×45 CM",
+        "zh": "袋子 35×45 厘米",
+        "ar": "كيس 35×45 سم"
+      },
+      "img": "/images/bolsas/35X45.png",
+      "lado": "",
+      "desc": {
+        "es": "Bolsa de polipropileno de gran capacidad para empaque de productos de alto volumen. Diseñada para cargas pesadas, materiales industriales y logística de distribución exigente. Acabado resistente de alta calidad.",
+        "en": "High-capacity polypropylene bag for large-volume product packaging. Designed for heavy loads, industrial materials and demanding distribution logistics. High-quality resistant finish.",
+        "pt": "Bolsa de polipropileno de alta capacidade para embalagem de produtos de alto volume. Projetada para cargas pesadas, materiais industriais e logística de distribuição exigente. Acabamento resistente de alta qualidade.",
+        "zh": "大容量聚丙烯袋，适合大体积产品包装。专为重型载荷、工业材料和高要求配送物流而设计。高质量耐用表面处理。",
+        "ar": "كيس بولي بروبيلين عالي السعة لتعبئة المنتجات كبيرة الحجم. مصمم للأحمال الثقيلة والمواد الصناعية ولوجستيات التوزيع المتطلبة. تشطيب عالي المقاومة والجودة."
+      },
+      "specs": [
+        {
+          "c": {
+            "es": "Ancho",
+            "en": "Width",
+            "pt": "Largura",
+            "zh": "宽度",
+            "ar": "العرض"
+          },
+          "min": {
+            "es": "35 cm",
+            "en": "35 cm",
+            "pt": "35 cm",
+            "zh": "35 厘米",
+            "ar": "35 سم"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Alto",
+            "en": "Height",
+            "pt": "Altura",
+            "zh": "高度",
+            "ar": "الارتفاع"
+          },
+          "min": {
+            "es": "45 cm",
+            "en": "45 cm",
+            "pt": "45 cm",
+            "zh": "45 厘米",
+            "ar": "45 سم"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Material",
+            "en": "Material",
+            "pt": "Material",
+            "zh": "材料",
+            "ar": "المادة"
+          },
+          "min": {
+            "es": "Polipropileno",
+            "en": "Polypropylene",
+            "pt": "Polipropileno",
+            "zh": "聚丙烯",
+            "ar": "بولي بروبيلين"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Uso",
+            "en": "Use",
+            "pt": "Uso",
+            "zh": "用途",
+            "ar": "الاستخدام"
+          },
+          "min": {
+            "es": "Empaque industrial",
+            "en": "Industrial packaging",
+            "pt": "Embalagem industrial",
+            "zh": "工业包装",
+            "ar": "تعبئة صناعية"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        }
+      ],
+      "visual": {
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "rotate": 0
+      }
+    },
+    {
+      "nombre": {
+        "es": "BOLSA 40×60 CM",
+        "en": "BAG 40×60 CM",
+        "pt": "BOLSA 40×60 CM",
+        "zh": "袋子 40×60 厘米",
+        "ar": "كيس 40×60 سم"
+      },
+      "img": "/images/bolsas/40X60.png",
+      "lado": "",
+      "desc": {
+        "es": "Bolsa extra-grande para empaque y almacenamiento de productos voluminosos. Ideal para textiles, materiales de construcción ligeros y distribución a gran escala. Máxima resistencia estructural.",
+        "en": "Extra-large bag for packaging and storing bulky products. Ideal for textiles, lightweight construction materials and large-scale distribution. Maximum structural strength.",
+        "pt": "Bolsa extra-grande para embalagem e armazenamento de produtos volumosos. Ideal para têxteis, materiais de construção leves e distribuição em grande escala. Resistência estrutural máxima.",
+        "zh": "特大号袋，用于大体积产品的包装和储存。适合纺织品、轻型建材和大规模配送。最大结构强度。",
+        "ar": "كيس كبير الحجم لتعبئة وتخزين المنتجات الضخمة. مثالي للمنسوجات ومواد البناء الخفيفة والتوزيع واسع النطاق. أقصى مقاومة هيكلية."
+      },
+      "specs": [
+        {
+          "c": {
+            "es": "Ancho",
+            "en": "Width",
+            "pt": "Largura",
+            "zh": "宽度",
+            "ar": "العرض"
+          },
+          "min": {
+            "es": "40 cm",
+            "en": "40 cm",
+            "pt": "40 cm",
+            "zh": "40 厘米",
+            "ar": "40 سم"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Alto",
+            "en": "Height",
+            "pt": "Altura",
+            "zh": "高度",
+            "ar": "الارتفاع"
+          },
+          "min": {
+            "es": "60 cm",
+            "en": "60 cm",
+            "pt": "60 cm",
+            "zh": "60 厘米",
+            "ar": "60 سم"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Material",
+            "en": "Material",
+            "pt": "Material",
+            "zh": "材料",
+            "ar": "المادة"
+          },
+          "min": {
+            "es": "Polipropileno",
+            "en": "Polypropylene",
+            "pt": "Polipropileno",
+            "zh": "聚丙烯",
+            "ar": "بولي بروبيلين"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Uso",
+            "en": "Use",
+            "pt": "Uso",
+            "zh": "用途",
+            "ar": "الاستخدام"
+          },
+          "min": {
+            "es": "Almacenamiento industrial",
+            "en": "Industrial storage",
+            "pt": "Armazenamento industrial",
+            "zh": "工业储存",
+            "ar": "تخزين صناعي"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        }
+      ],
+      "visual": {
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "rotate": 0
+      }
+    },
+    {
+      "nombre": {
+        "es": "BOLSA 50×70 CM",
+        "en": "BAG 50×70 CM",
+        "pt": "BOLSA 50×70 CM",
+        "zh": "袋子 50×70 厘米",
+        "ar": "كيس 50×70 سم"
+      },
+      "img": "/images/bolsas/50X70.png",
+      "lado": "",
+      "desc": {
+        "es": "Bolsa de gran formato para cargas de alto peso y volumen. Diseñada para aplicaciones industriales de alta demanda, logística de exportación y almacenaje de materiales a granel. Resistencia extrema garantizada.",
+        "en": "Large-format bag for high-weight and high-volume loads. Designed for high-demand industrial applications, export logistics and bulk material storage. Guaranteed extreme resistance.",
+        "pt": "Bolsa de grande formato para cargas de alto peso e volume. Projetada para aplicações industriais de alta demanda, logística de exportação e armazenagem de materiais a granel. Resistência extrema garantida.",
+        "zh": "大格式袋，适用于高重量、高体积载荷。专为高需求工业应用、出口物流和散装材料储存而设计。极强耐用性有保障。",
+        "ar": "كيس كبير الحجم للأحمال عالية الوزن والحجم. مصمم للتطبيقات الصناعية عالية الطلب ولوجستيات التصدير وتخزين المواد السائبة. مقاومة قصوى مضمونة."
+      },
+      "specs": [
+        {
+          "c": {
+            "es": "Ancho",
+            "en": "Width",
+            "pt": "Largura",
+            "zh": "宽度",
+            "ar": "العرض"
+          },
+          "min": {
+            "es": "50 cm",
+            "en": "50 cm",
+            "pt": "50 cm",
+            "zh": "50 厘米",
+            "ar": "50 سم"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Alto",
+            "en": "Height",
+            "pt": "Altura",
+            "zh": "高度",
+            "ar": "الارتفاع"
+          },
+          "min": {
+            "es": "70 cm",
+            "en": "70 cm",
+            "pt": "70 cm",
+            "zh": "70 厘米",
+            "ar": "70 سم"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Material",
+            "en": "Material",
+            "pt": "Material",
+            "zh": "材料",
+            "ar": "المادة"
+          },
+          "min": {
+            "es": "Polipropileno",
+            "en": "Polypropylene",
+            "pt": "Polipropileno",
+            "zh": "聚丙烯",
+            "ar": "بولي بروبيلين"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Uso",
+            "en": "Use",
+            "pt": "Uso",
+            "zh": "用途",
+            "ar": "الاستخدام"
+          },
+          "min": {
+            "es": "Logística y exportación",
+            "en": "Logistics & export",
+            "pt": "Logística e exportação",
+            "zh": "物流与出口",
+            "ar": "لوجستيات وتصدير"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        }
+      ],
+      "visual": {
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "rotate": 0
+      }
+    },
+    {
+      "nombre": {
+        "es": "BOLSA 60×90 CM",
+        "en": "BAG 60×90 CM",
+        "pt": "BOLSA 60×90 CM",
+        "zh": "袋子 60×90 厘米",
+        "ar": "كيس 60×90 سم"
+      },
+      "img": "/images/bolsas/60X90.png",
+      "lado": "",
+      "desc": {
+        "es": "La bolsa de mayor capacidad del catálogo. Ideal para empaque industrial de gran escala, almacenamiento de insumos pesados y distribución masiva. Construida para soportar las exigencias más extremas.",
+        "en": "The largest-capacity bag in the catalog. Ideal for large-scale industrial packaging, heavy input storage and mass distribution. Built to withstand the most extreme demands.",
+        "pt": "A bolsa de maior capacidade do catálogo. Ideal para embalagem industrial em grande escala, armazenamento de insumos pesados e distribuição em massa. Construída para suportar as exigências mais extremas.",
+        "zh": "目录中容量最大的袋子。适合大规模工业包装、重型原料储存和大批量配送。专为承受最极端需求而打造。",
+        "ar": "الكيس الأكبر سعة في الكتالوج. مثالي للتعبئة الصناعية واسعة النطاق وتخزين المدخلات الثقيلة والتوزيع الجماعي. مصمم لتحمل أشد المتطلبات قسوة."
+      },
+      "specs": [
+        {
+          "c": {
+            "es": "Ancho",
+            "en": "Width",
+            "pt": "Largura",
+            "zh": "宽度",
+            "ar": "العرض"
+          },
+          "min": {
+            "es": "60 cm",
+            "en": "60 cm",
+            "pt": "60 cm",
+            "zh": "60 厘米",
+            "ar": "60 سم"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Alto",
+            "en": "Height",
+            "pt": "Altura",
+            "zh": "高度",
+            "ar": "الارتفاع"
+          },
+          "min": {
+            "es": "90 cm",
+            "en": "90 cm",
+            "pt": "90 cm",
+            "zh": "90 厘米",
+            "ar": "90 سم"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Material",
+            "en": "Material",
+            "pt": "Material",
+            "zh": "材料",
+            "ar": "المادة"
+          },
+          "min": {
+            "es": "Polipropileno",
+            "en": "Polypropylene",
+            "pt": "Polipropileno",
+            "zh": "聚丙烯",
+            "ar": "بولي بروبيلين"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Uso",
+            "en": "Use",
+            "pt": "Uso",
+            "zh": "用途",
+            "ar": "الاستخدام"
+          },
+          "min": {
+            "es": "Industrial / Granel",
+            "en": "Industrial / Bulk",
+            "pt": "Industrial / Granel",
+            "zh": "工业 / 散装",
+            "ar": "صناعي / سائب"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        }
+      ],
+      "visual": {
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "rotate": 0
+      }
+    }
+  ],
+  "visualCover": {
+    "scale": 1,
+    "offsetX": 0,
+    "offsetY": 0,
+    "rotate": 0
+  },
+  "styles": {}
+}

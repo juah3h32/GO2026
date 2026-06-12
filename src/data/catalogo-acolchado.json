@@ -1,0 +1,124 @@
+{
+  "cover": {
+    "t1": { "es": "ACOLCHADO", "en": "AGRICULTURAL", "pt": "ACOLCHOADO", "zh": "农用", "ar": "تغطية" },
+    "t2": { "es": "AGRÍCOLA", "en": "MULCH", "pt": "AGRÍCOLA", "zh": "地膜", "ar": "زراعية" },
+    "division": { "es": "DIVISIÓN AGRÍCOLA", "en": "AGRICULTURAL DIVISION", "pt": "DIVISÃO AGRÍCOLA", "zh": "农业部门", "ar": "قسم الزراعة" }
+  },
+  "coverImg": "acolachad1.webp",
+  "visualCover": {
+    "scale": 1.2,
+    "offsetX": 0,
+    "offsetY": 0,
+    "rotate": 0
+  },
+  "intro": {
+    "p1": {
+      "es": "El acolchado agrícola (mulch) de Grupo Ortiz® es una solución técnica avanzada diseñada para optimizar la producción agrícola. Actúa como una barrera protectora que maximiza el aprovechamiento de recursos y protege el cultivo.",
+      "en": "Grupo Ortiz® agricultural mulch is an advanced technical solution designed to optimize agricultural production. It acts as a protective barrier that maximizes resource utilization and protects the crop.",
+      "pt": "O acolchoado agrícola (mulch) da Grupo Ortiz® é uma solução técnica avançada projetada para otimizar a produção agrícola. Atua como una barreira protetora que maximiza o aproveitamento de recursos e protege a cultura.",
+      "zh": "Grupo Ortiz® 农用覆盖膜（地膜）是旨在优化农业生产的高级技术解决方案。它作为一种保护屏障，可最大限度地利用资源并保护农作物。",
+      "ar": "يعتبر الغطاء الزراعي (mulch) من Grupo Ortiz® حلاً تقنياً متقدماً مصمماً لتحسين الإنتاج الزراعي. يعمل كحاجز وقائي يزيد من الاستفادة من الموارد ويحمي المحصول."
+    },
+    "bioTitle": {
+      "es": "Optimización de Cultivos",
+      "en": "Crop Optimization",
+      "pt": "Otimização de Culturas",
+      "zh": "作物优化",
+      "ar": "تحسين المحاصيل"
+    },
+    "p2": {
+      "es": "Nuestras láminas permiten un control eficiente de malezas, conservan la humedad del suelo reduciendo el riego y regulan la temperatura térmica, lo que se traduce en una mayor productividad y calidad de la cosecha.",
+      "en": "Our films allow for efficient weed control, conserve soil moisture by reducing irrigation, and regulate thermal temperature, resulting in increased productivity and harvest quality.",
+      "pt": "Nossos filmes permiten um controle eficiente de ervas daninhas, conservam a umidade do solo reduzindo a irrigação e regulam a temperatura térmica, resultando em maior produtividade e qualidade da colheita.",
+      "zh": "我们的地膜可实现高效的杂草控制，通过减少灌溉来保持土壤水分，并调节热温度，从而提高生产力和收获质量。",
+      "ar": "تسمح أفلامنا بالتحكم الفعال in الأعشاب الضارة، وتحافظ على رطوبة التربة عن طريق تقليل الري وتنظيم درجة الحرارة الحرارية، مما يؤدي إلى زيادة الإنتاجية وجودة الحصاد."
+    }
+  },
+  "productos": [
+    {
+      "es": "Acolchado Agrícola",
+      "en": "Agricultural Mulch",
+      "pt": "Acolchoado Agrícola",
+      "zh": "农用地膜",
+      "ar": "تغطية زraعية"
+    }
+  ],
+  "fichas": [
+    {
+      "nombre": {
+        "es": "ACOLCHADO AGRÍCOLA",
+        "en": "AGRICULTURAL MULCH",
+        "pt": "ACOLCHOADO AGRÍCOLA",
+        "zh": "农用地膜",
+        "ar": "تغطية زراعية"
+      },
+      "img": "acolachad2.webp",
+      "gallery": ["acolachad1.webp", "acolachad2.webp", "acolachad3.webp"],
+      "lado": "left",
+      "desc": {
+        "es": "Lámina plástica de alta tecnología disponible en diferentes configuraciones (Negro/Negro, Plata/Negro, Blanco/Negro) para adaptarse a las necesidades específicas de cada cultivo y clima. Garantiza un control total de malezas y optimización de recursos hídricos.",
+        "en": "High-tech plastic film available in different configurations (Black/Black, Silver/Black, White/Black) to adapt to the specific needs of each crop and climate. It guarantees full weed control and optimization of water resources.",
+        "pt": "Filme plástico de alta tecnologia disponível em diferentes configurações (Preto/Preto, Prata/Preto, Branco/Preto) para se adaptar às necesidades específicas de cada cultura e clima. Garante controle total de ervas daninhas e otimização de recursos hídricos.",
+        "zh": "高科技塑料地膜，提供不同配置（黑/黑、银/黑、白/黑），以适应每种作物和气候的特定需求。确保完全控制杂草并优化水资源利用。",
+        "ar": "فيلم بلاستيكي عالي التقنية متوفر بتكوينات مختلفة (أسود/أسود، فضي/أسود، أبيض/أسود) للتكيف con الاحتياجات الخاصة لكل محصول ومناخ. يضمن التحكم الكامل في الأعشاب الضارة وتحسين الموارد المائية."
+      },
+      "specs": [
+        {
+          "c": { "es": "Ancho", "en": "Width", "pt": "Largura", "zh": "宽度", "ar": "العرض" },
+          "min": "0.60",
+          "max": "2.40",
+          "tol": { "es": "±0.02", "en": "±0.02", "pt": "±0.02", "zh": "±0.02", "ar": "±0.02" },
+          "uni": "m",
+          "met": "—",
+          "hl": false
+        },
+        {
+          "c": { "es": "Espesor", "en": "Thickness", "pt": "Espessura", "zh": "厚度", "ar": "السماكة" },
+          "min": "0.6",
+          "max": "1.5",
+          "tol": { "es": "±5%", "en": "±5%", "pt": "±5%", "zh": "±5%", "ar": "±5%" },
+          "uni": "mil",
+          "met": "NMX-E-093",
+          "hl": false
+        },
+        {
+          "c": { "es": "Largo", "en": "Length", "pt": "Comprimento", "zh": "长度", "ar": "الطول" },
+          "min": "500",
+          "max": "2000",
+          "tol": { "es": "±2%", "en": "±2%", "pt": "±2%", "zh": "±2%", "ar": "±2%" },
+          "uni": "m",
+          "met": "—",
+          "hl": false
+        },
+        {
+          "c": { "es": "Protección UV", "en": "UV Protection", "pt": "Proteção UV", "zh": "紫外线防护", "ar": "حماية من الأشعة فوق البنفسجية" },
+          "min": "12",
+          "max": "24",
+          "tol": { "es": "Meses", "en": "Months", "pt": "Meses", "zh": "月", "ar": "شهور" },
+          "uni": "m",
+          "met": "ASTM D-4329",
+          "hl": true
+        },
+        {
+          "c": { "es": "Opacidad", "en": "Opacity", "pt": "Opacidade", "zh": "不透明度", "ar": "العتمة" },
+          "min": "99.9",
+          "max": "100",
+          "tol": { "es": "Mínimo", "en": "Minimum", "pt": "Mínimo", "zh": "最小", "ar": "الحد الأدنى" },
+          "uni": "%",
+          "met": "—",
+          "hl": true
+        }
+      ],
+      "visual": {
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "rotate": 0
+      }
+    }
+  ],
+  "styles": {
+    "primaryColor": "#2d5a27",
+    "secondaryColor": "#4a7c44"
+  }
+}

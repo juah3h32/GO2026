@@ -1,0 +1,732 @@
+{
+  "intro": {
+    "p1": {
+      "es": "Nuestras bobinas cuentan con gran variedad en laminaciones, calibres y acabados. Con opción de impresión hasta 10 tintas y 133 líneas por pulgada. Desarrollo máximo: 1,140 mm. Ancho máximo de impresión: 1,450 mm. Compatibles con maquinaria de envasado automático para optimizar la eficiencia de producción.",
+      "en": "Our rolls feature a wide variety of laminations, gauges and finishes. With printing options of up to 10 inks and 133 lines per inch. Maximum development: 1,140 mm. Maximum print width: 1,450 mm. Compatible with automatic packaging machinery to optimize production efficiency.",
+      "pt": "Nossas bobinas contam com grande variedade em laminações, calibres e acabamentos. Com opção de impressão até 10 tintas e 133 linhas por polegada. Desenvolvimento máximo: 1.140 mm. Largura máxima de impressão: 1.450 mm. Compatíveis com maquinário de envase automático para otimizar a eficiência de produção.",
+      "zh": "我们的卷材提供多种复合方式、厚度和表面处理。可选择最多 10 色印刷，133 线/英寸。最大展开：1,140 毫米。最大印刷宽度：1,450 毫米。与自动包装机械兼容，优化生产效率。",
+      "ar": "تتميّز بكراتنا بتنوع كبير في الطلاءات والسُّمك والتشطيبات. مع خيار الطباعة حتى 10 أحبار و133 خطاً في البوصة. الحد الأقصى للمحيط: 1,140 مم. الحد الأقصى لعرض الطباعة: 1,450 مم. متوافقة مع آلات التعبئة الأوتوماتيكية لتحسين كفاءة الإنتاج."
+    },
+    "bioTitle": {
+      "es": "",
+      "en": "",
+      "pt": "",
+      "zh": "",
+      "ar": ""
+    },
+    "p2": {
+      "es": "",
+      "en": "",
+      "pt": "",
+      "zh": "",
+      "ar": ""
+    }
+  },
+  "productos": [
+    {
+      "es": "BOBINA IMPRESA",
+      "en": "PRINTED ROLL",
+      "pt": "BOBINA IMPRESSA",
+      "zh": "印刷卷材",
+      "ar": "بكرة مطبوعة"
+    },
+    {
+      "es": "BOLSA STAND UP",
+      "en": "STAND UP POUCH",
+      "pt": "BOLSA STAND UP",
+      "zh": "自立袋",
+      "ar": "كيس قائم"
+    },
+    {
+      "es": "STAND UP POUCH",
+      "en": "PRINTED STAND UP POUCH",
+      "pt": "STAND UP POUCH",
+      "zh": "印花自立袋",
+      "ar": "كيس ستاند أب بوتش"
+    },
+    {
+      "es": "BOLSA ALTO VACÍO",
+      "en": "VACUUM BAG",
+      "pt": "BOLSA ALTO VÁCUO",
+      "zh": "高真空袋",
+      "ar": "كيس تفريغ عالٍ"
+    }
+  ],
+  "cover": {
+    "t1": {
+      "es": "EMPAQUE FLEXIBLE",
+      "en": "FLEXIBLE PACKAGING",
+      "pt": "EMBALAGEM FLEXÍVEL",
+      "zh": "软包装",
+      "ar": "تغليف مرن"
+    },
+    "t2": {
+      "es": "",
+      "en": "",
+      "pt": "",
+      "zh": "",
+      "ar": ""
+    },
+    "division": {
+      "es": "DIVISIÓN EMPAQUE FLEXIBLE",
+      "en": "FLEXIBLE PACKAGING DIVISION",
+      "pt": "DIVISÃO EMBALAGEM FLEXÍVEL",
+      "zh": "软包装部门",
+      "ar": "قسم تغليف مرن"
+    }
+  },
+  "coverImg": "/images/flexible/bobina-impresa.png",
+  "fichas": [
+    {
+      "nombre": {
+        "es": "BOBINA IMPRESA",
+        "en": "PRINTED ROLL",
+        "pt": "BOBINA IMPRESSA",
+        "zh": "印刷卷材",
+        "ar": "بكرة مطبوعة"
+      },
+      "img": "/images/flexible/bobina-impresa.png",
+      "lado": "",
+      "desc": {
+        "es": "Nuestras bobinas cuentan con gran variedad en laminaciones, calibres y acabados. Con opción de impresión hasta 10 tintas y 133 líneas por pulgada. Desarrollo máximo: 1,140 mm. Ancho máximo de impresión: 1,450 mm. Compatibles con maquinaria de envasado automático para optimizar la eficiencia de producción.",
+        "en": "Our rolls feature a wide variety of laminations, gauges and finishes. With printing options of up to 10 inks and 133 lines per inch. Maximum development: 1,140 mm. Maximum print width: 1,450 mm. Compatible with automatic packaging machinery to optimize production efficiency.",
+        "pt": "Nossas bobinas contam com grande variedade em laminações, calibres e acabamentos. Com opção de impressão até 10 tintas e 133 linhas por polegada. Desenvolvimento máximo: 1.140 mm. Largura máxima de impressão: 1.450 mm. Compatíveis com maquinário de envase automático para otimizar a eficiência de produção.",
+        "zh": "我们的卷材提供多种复合方式、厚度和表面处理。可选择最多 10 色印刷，133 线/英寸。最大展开：1,140 毫米。最大印刷宽度：1,450 毫米。与自动包装机械兼容，优化生产效率。",
+        "ar": "تتميّز بكراتنا بتنوع كبير في الطلاءات والسُّمك والتشطيبات. مع خيار الطباعة حتى 10 أحبار و133 خطاً في البوصة. الحد الأقصى للمحيط: 1,140 مم. الحد الأقصى لعرض الطباعة: 1,450 مم. متوافقة مع آلات التعبئة الأوتوماتيكية لتحسين كفاءة الإنتاج."
+      },
+      "specs": [
+        {
+          "c": {
+            "es": "Laminación",
+            "en": "Lamination",
+            "pt": "Laminação",
+            "zh": "复合",
+            "ar": "الطلاء"
+          },
+          "min": {
+            "es": "3 Tipos",
+            "en": "3 Types",
+            "pt": "3 Tipos",
+            "zh": "3 种类型",
+            "ar": "3 أنواع"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Acabado",
+            "en": "Finish",
+            "pt": "Acabamento",
+            "zh": "表面处理",
+            "ar": "التشطيب"
+          },
+          "min": {
+            "es": "Variados",
+            "en": "Various",
+            "pt": "Variados",
+            "zh": "多样",
+            "ar": "متنوعة"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Medidas hasta",
+            "en": "Dimensions up to",
+            "pt": "Medidas até",
+            "zh": "最大尺寸",
+            "ar": "الأبعاد حتى"
+          },
+          "min": {
+            "es": "1,450 mm",
+            "en": "1,450 mm",
+            "pt": "1.450 mm",
+            "zh": "1,450 毫米",
+            "ar": "1,450 مم"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Zipper",
+            "en": "Zipper",
+            "pt": "Zipper",
+            "zh": "拉链",
+            "ar": "سحّاب"
+          },
+          "min": {
+            "es": "N/A",
+            "en": "N/A",
+            "pt": "N/A",
+            "zh": "不适用",
+            "ar": "غير متاح"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Tipo",
+            "en": "Type",
+            "pt": "Tipo",
+            "zh": "类型",
+            "ar": "النوع"
+          },
+          "min": {
+            "es": "Bobina",
+            "en": "Roll",
+            "pt": "Bobina",
+            "zh": "卷材",
+            "ar": "بكرة"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        }
+      ],
+      "visual": {
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "rotate": 0
+      }
+    },
+    {
+      "nombre": {
+        "es": "BOLSA STAND UP",
+        "en": "STAND UP POUCH",
+        "pt": "BOLSA STAND UP",
+        "zh": "自立袋",
+        "ar": "كيس قائم"
+      },
+      "img": "/images/flexible/standup-generica.png",
+      "lado": "",
+      "desc": {
+        "es": "Bolsas stand-up pouch versátiles con estructura laminada y alta barrera contra humedad y oxígeno. Ideales para alimentos secos o húmedos, polvos, líquidos, cosméticos y químicos. Disponibles en acabados Natural, Mate y Metalizado, en tamaños de 150 g hasta 1 kg, con opción de cierre zipper y ventana.",
+        "en": "Versatile stand-up pouch bags with laminated structure and high moisture and oxygen barrier. Ideal for dry or wet foods, powders, liquids, cosmetics and chemicals. Available in Natural, Matte and Metallic finishes, in sizes from 150 g to 1 kg, with optional zipper closure and window.",
+        "pt": "Bolsas stand-up pouch versáteis com estrutura laminada e alta barreira contra umidade e oxigênio. Ideais para alimentos secos ou úmidos, pós, líquidos, cosméticos e químicos. Disponíveis em acabamentos Natural, Fosco e Metalizado, em tamanhos de 150 g até 1 kg, com opção de fecho zipper e janela.",
+        "zh": "多功能自立袋，具有复合结构和高阻湿氧性能。适用于干湿食品、粉末、液体、化妆品和化工品。提供天然、哑光和镀铝表面处理，尺寸从 150 克至 1 公斤，可选拉链封口和视窗。",
+        "ar": "أكياس قائمة متعددة الاستخدامات ببنية مُطلَّاة وحاجز عالٍ ضد الرطوبة والأكسجين. مثالية للأغذية الجافة أو الرطبة والمساحيق والسوائل ومستحضرات التجميل والمواد الكيميائية. متاحة بتشطيبات طبيعية ومطفأة ومعدنية، بأحجام من 150 جم حتى 1 كجم، مع خيار سحاب ونافذة."
+      },
+      "specs": [
+        {
+          "c": {
+            "es": "Laminación",
+            "en": "Lamination",
+            "pt": "Laminação",
+            "zh": "复合",
+            "ar": "الطلاء"
+          },
+          "min": {
+            "es": "Laminado",
+            "en": "Laminated",
+            "pt": "Laminado",
+            "zh": "复合",
+            "ar": "مُطلَّى"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Acabado",
+            "en": "Finish",
+            "pt": "Acabamento",
+            "zh": "表面处理",
+            "ar": "التشطيب"
+          },
+          "min": {
+            "es": "3 Tipos",
+            "en": "3 Types",
+            "pt": "3 Tipos",
+            "zh": "3 种类型",
+            "ar": "3 أنواع"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Medidas hasta",
+            "en": "Dimensions up to",
+            "pt": "Medidas até",
+            "zh": "最大尺寸",
+            "ar": "الأبعاد حتى"
+          },
+          "min": {
+            "es": "1 kg",
+            "en": "1 kg",
+            "pt": "1 kg",
+            "zh": "1 公斤",
+            "ar": "1 كجم"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Zipper",
+            "en": "Zipper",
+            "pt": "Zipper",
+            "zh": "拉链",
+            "ar": "سحّاب"
+          },
+          "min": {
+            "es": "Sí / No",
+            "en": "Yes / No",
+            "pt": "Sim / Não",
+            "zh": "有 / 无",
+            "ar": "نعم / لا"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Tipo",
+            "en": "Type",
+            "pt": "Tipo",
+            "zh": "类型",
+            "ar": "النوع"
+          },
+          "min": {
+            "es": "Bolsa",
+            "en": "Bag",
+            "pt": "Bolsa",
+            "zh": "袋子",
+            "ar": "كيس"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        }
+      ],
+      "visual": {
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "rotate": 0
+      }
+    },
+    {
+      "nombre": {
+        "es": "STAND UP POUCH",
+        "en": "PRINTED STAND UP POUCH",
+        "pt": "STAND UP POUCH",
+        "zh": "印花自立袋",
+        "ar": "كيس ستاند أب بوتش"
+      },
+      "img": "/images/flexible/standup-origanics.png",
+      "lado": "",
+      "desc": {
+        "es": "Línea de bolsas con diseños decorativos atractivos: Frutos Rojos, Flores, Frutas, Espigas, Regalo Azul y Regalo Rosa. Cierre tipo zipper, estructura resistente y acabados Natural o Metalizado. Disponibles en tamaños de 150 g hasta 1 kg. Ideales para quienes buscan un empaque de alta calidad y atractivo visual.",
+        "en": "Line of bags with attractive decorative designs: Red Berries, Flowers, Fruits, Wheat, Blue Gift and Pink Gift. Zipper closure, resistant structure and Natural or Metallic finishes. Available in sizes from 150 g to 1 kg. Ideal for those seeking high-quality, visually appealing packaging.",
+        "pt": "Linha de bolsas com designs decorativos atraentes: Frutas Vermelhas, Flores, Frutas, Espigas, Presente Azul e Presente Rosa. Fecho tipo zipper, estrutura resistente e acabamentos Natural ou Metalizado. Disponíveis em tamanhos de 150 g até 1 kg. Ideais para quem busca uma embalagem de alta qualidade e apelo visual.",
+        "zh": "具有吸引人装饰图案的袋子系列：红果、花卉、水果、麦穗、蓝色礼品和粉色礼品。拉链封口、坚固结构和天然或镀铝表面处理。尺寸从 150 克至 1 公斤。适合寻求高质量和视觉吸引力包装的用户。",
+        "ar": "سلسلة أكياس بتصاميم زخرفية جذابة: توت أحمر، أزهار، فواكه، سنابل، هدية زرقاء وهدية وردية. إغلاق بسحّاب وهيكل متين وتشطيبات طبيعية أو معدنية. متاحة بأحجام من 150 جم حتى 1 كجم. مثالية لمن يبحث عن تغليف عالي الجودة وجاذبية بصرية."
+      },
+      "specs": [
+        {
+          "c": {
+            "es": "Laminación",
+            "en": "Lamination",
+            "pt": "Laminação",
+            "zh": "复合",
+            "ar": "الطلاء"
+          },
+          "min": {
+            "es": "2 Tipos",
+            "en": "2 Types",
+            "pt": "2 Tipos",
+            "zh": "2 种类型",
+            "ar": "نوعان"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Acabado",
+            "en": "Finish",
+            "pt": "Acabamento",
+            "zh": "表面处理",
+            "ar": "التشطيب"
+          },
+          "min": {
+            "es": "Regalo",
+            "en": "Gift",
+            "pt": "Presente",
+            "zh": "礼品",
+            "ar": "هدية"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Medidas hasta",
+            "en": "Dimensions up to",
+            "pt": "Medidas até",
+            "zh": "最大尺寸",
+            "ar": "الأبعاد حتى"
+          },
+          "min": {
+            "es": "1 kg",
+            "en": "1 kg",
+            "pt": "1 kg",
+            "zh": "1 公斤",
+            "ar": "1 كجم"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Zipper",
+            "en": "Zipper",
+            "pt": "Zipper",
+            "zh": "拉链",
+            "ar": "سحّاب"
+          },
+          "min": {
+            "es": "Sí",
+            "en": "Yes",
+            "pt": "Sim",
+            "zh": "有",
+            "ar": "نعم"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Tipo",
+            "en": "Type",
+            "pt": "Tipo",
+            "zh": "类型",
+            "ar": "النوع"
+          },
+          "min": {
+            "es": "Bolsa impresa",
+            "en": "Printed bag",
+            "pt": "Bolsa impressa",
+            "zh": "印花袋",
+            "ar": "كيس مطبوع"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        }
+      ],
+      "visual": {
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "rotate": 0
+      }
+    },
+    {
+      "nombre": {
+        "es": "BOLSA ALTO VACÍO",
+        "en": "VACUUM BAG",
+        "pt": "BOLSA ALTO VÁCUO",
+        "zh": "高真空袋",
+        "ar": "كيس تفريغ عالٍ"
+      },
+      "img": "/images/flexible/bolsa-alto-vacio.png",
+      "lado": "",
+      "desc": {
+        "es": "Diseñadas para maximizar la frescura y vida útil de carnes, quesos, embutidos y productos frescos. Su sellado hermético elimina el aire, retiene las propiedades naturales del producto y evita la pérdida de sabor, textura y calidad. Fabricadas con materiales de alta resistencia y barrera.",
+        "en": "Designed to maximize freshness and shelf life of meats, cheeses, cold cuts and fresh products. Their hermetic seal eliminates air, retains the product's natural properties and prevents loss of flavor, texture and quality. Made with high-resistance, high-barrier materials.",
+        "pt": "Projetadas para maximizar a frescura e vida útil de carnes, queijos, embutidos e produtos frescos. Seu selamento hermético elimina o ar, retém as propriedades naturais do produto e evita a perda de sabor, textura e qualidade. Fabricadas com materiais de alta resistência e barreira.",
+        "zh": "专为最大限度保持肉类、奶酪、熟食和新鲜产品的新鲜度和保质期而设计。其密封排除空气，保留产品的天然特性，防止风味、口感和质量损失。由高强度阻隔材料制成。",
+        "ar": "مصمّمة لتعظيم نضارة وعمر صلاحية اللحوم والأجبان والنقانق والمنتجات الطازجة. يزيل إغلاقها المحكم الهواء ويحافظ على الخصائص الطبيعية للمنتج ويمنع فقدان الطعم والملمس والجودة. مصنوعة من مواد عالية المقاومة والحاجز."
+      },
+      "specs": [
+        {
+          "c": {
+            "es": "Laminación",
+            "en": "Lamination",
+            "pt": "Laminação",
+            "zh": "复合",
+            "ar": "الطلاء"
+          },
+          "min": {
+            "es": "Multicapa",
+            "en": "Multilayer",
+            "pt": "Multicamada",
+            "zh": "多层",
+            "ar": "متعدد الطبقات"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Acabado",
+            "en": "Finish",
+            "pt": "Acabamento",
+            "zh": "表面处理",
+            "ar": "التشطيب"
+          },
+          "min": {
+            "es": "Clara",
+            "en": "Clear",
+            "pt": "Transparente",
+            "zh": "透明",
+            "ar": "شفاف"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Medidas hasta",
+            "en": "Dimensions up to",
+            "pt": "Medidas até",
+            "zh": "最大尺寸",
+            "ar": "الأبعاد حتى"
+          },
+          "min": {
+            "es": "Producto",
+            "en": "Product",
+            "pt": "Produto",
+            "zh": "按产品",
+            "ar": "حسب المنتج"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Zipper",
+            "en": "Zipper",
+            "pt": "Zipper",
+            "zh": "拉链",
+            "ar": "سحّاب"
+          },
+          "min": {
+            "es": "No",
+            "en": "No",
+            "pt": "Não",
+            "zh": "无",
+            "ar": "لا"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Tipo",
+            "en": "Type",
+            "pt": "Tipo",
+            "zh": "类型",
+            "ar": "النوع"
+          },
+          "min": {
+            "es": "Bolsa",
+            "en": "Bag",
+            "pt": "Bolsa",
+            "zh": "袋子",
+            "ar": "كيس"
+          },
+          "max": "",
+          "tol": {
+            "es": "",
+            "en": "",
+            "pt": "",
+            "zh": "",
+            "ar": ""
+          },
+          "uni": "",
+          "met": "",
+          "hl": false
+        }
+      ],
+      "visual": {
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "rotate": 0
+      }
+    }
+  ],
+  "visualCover": {
+    "scale": 1,
+    "offsetX": 0,
+    "offsetY": 0,
+    "rotate": 0
+  },
+  "styles": {}
+}

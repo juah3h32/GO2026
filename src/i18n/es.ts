@@ -1,6 +1,21 @@
 // src/i18n/es.js
 
 export const es = {
+  digital_catalog: {
+    title: "Catálogo de Productos | Grupo Ortiz",
+    titlePart1: "CATÁLOGO DE",
+    titlePart2: "PRODUCTOS",
+    downloadPDF: "Descargar PDF",
+    distributor: "Quiero ser distribuidor",
+    products: "Productos",
+    characteristics: "CARACTERÍSTICAS",
+    measurement: "MEDICIÓN",
+    tolerances: "TOLERANCIAS",
+    unit: "UNIDAD",
+    testMethod: "MÉTODO DE PRUEBA",
+    min: "MÍNIMO",
+    max: "MÁXIMO"
+  },
   // =================================================
   // BARRA DE NAVEGACIÓN
   // =================================================
