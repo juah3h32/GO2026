@@ -25,31 +25,31 @@
   "productos": [
     {
       "es": "BOBINA IMPRESA",
-      "en": "PRINTED ROLL",
+      "en": "PRINTED COIL",
       "pt": "BOBINA IMPRESSA",
-      "zh": "印刷卷",
+      "zh": "印刷卷材",
       "ar": "بكرة مطبوعة"
     },
     {
-      "es": "BOLSA STAND UP",
-      "en": "STAND UP BAG",
-      "pt": "BOLSA STAND UP",
-      "zh": "立式袋",
-      "ar": "كيس قائم"
+      "es": "BOLSA GENÉRICA TIPO STAND-UP",
+      "en": "GENERIC STAND-UP BAG",
+      "pt": "BOLSA GENÉRICA TIPO STAND-UP",
+      "zh": "通用立式袋",
+      "ar": "كيس قائم عام"
     },
     {
-      "es": "STAND UP POUCH",
-      "en": "STAND UP POUCH",
-      "pt": "STAND UP POUCH",
-      "zh": "立式袋",
-      "ar": "كيس قائم"
+      "es": "BOLSA TIPO STAND X ORGANICS",
+      "en": "X ORGANICS STAND-UP BAG",
+      "pt": "BOLSA TIPO STAND X ORGANICS",
+      "zh": "X ORGANICS 立式袋",
+      "ar": "كيس قائم X ORGANICS"
     },
     {
-      "es": "BOLSA ALTO VACÍO",
-      "en": "HIGH VACUUM BAG",
-      "pt": "BOLSA ALTO VACÍO",
-      "zh": "高真空袋",
-      "ar": "حقيبة مفرغة عالية"
+      "es": "BOLSA PERSONALIZADA",
+      "en": "CUSTOM BAG",
+      "pt": "BOLSA PERSONALIZADA",
+      "zh": "定制袋",
+      "ar": "كيس مخصص"
     }
   ],
   "cover": {
@@ -80,130 +80,58 @@
     {
       "nombre": {
         "es": "BOBINA IMPRESA",
-        "en": "PRINTED ROLL",
+        "en": "PRINTED COIL",
         "pt": "BOBINA IMPRESSA",
-        "zh": "印刷卷",
+        "zh": "印刷卷材",
         "ar": "بكرة مطبوعة"
       },
-      "img": "bobina.webp",
+      "img": "",
       "lado": "",
       "desc": {
-        "es": "Nuestras bobinas impresas ofrecen máxima eficiencia en líneas de envasado automático. Con capacidad de impresión de alta definición hasta 10 tintas, garantizamos que su marca destaque con colores vibrantes y acabados premium.",
-        "en": "Our printed rolls offer maximum efficiency in automatic packaging lines. With high-definition printing capacity of up to 10 inks, we guarantee that your brand stands out with vibrant colors and premium finishes.",
-        "pt": "Nossas bobinas impressas oferecem máxima eficiência em linhas de envase automático. Com capacidade de impressão de alta definição de até 10 tintas, garantimos que sua marca se destaque com cores vibrantes e acabamentos premium.",
-        "zh": "我们的印刷卷材在自动包装线上提供最高效率。凭借高达 10 色的高清晰度印刷能力，我们确保您的品牌以鲜艳的色彩和优质的表面处理脱颖而出。",
-        "ar": "توفر بكراتنا المطبوعة أقصى قدر من الكفاءة في خطوط التعبئة الأوتوماتيكية. مع قدرة طباعة عالية الدقة تصل إلى 10 أحبار، نضمن تميز علامتك التجارية بألوان نابضة بالحياة وتشطيبات فاخرة."
+        "es": "Nuestros rollos están disponibles en una amplia variedad de laminados, grosores y acabados, con capacidad de impresión de alta resolución de hasta 10 colores y 133 líneas por pulgada. Diseñados pensando en la calidad y la flexibilidad, nuestros productos cumplen con los más altos estándares. Ancho máximo de rollo: 44.88 pulgadas; ancho máximo de impresión: 57.08 pulgadas.",
+        "en": "Our rolls are available in a wide variety of laminates, thicknesses and finishes, with high-resolution printing of up to 10 colors and 133 lines per inch. Designed for quality and flexibility, our products meet the highest standards. Maximum roll width: 44.88 inches; maximum print width: 57.08 inches.",
+        "pt": "Nossas bobinas estão disponíveis em uma ampla variedade de laminados, espessuras e acabamentos, com impressão de alta resolução de até 10 cores e 133 linhas por polegada. Projetadas para qualidade e flexibilidade, atendem aos mais altos padrões. Largura máxima da bobina: 44,88 polegadas; largura máxima de impressão: 57,08 polegadas.",
+        "zh": "我们的卷材有多种复合结构、厚度和表面处理可选，高分辨率印刷可达10色、每英寸133线。以品质与灵活性为设计理念，符合最高标准。最大卷宽44.88英寸；最大印刷宽度57.08英寸。",
+        "ar": "تتوفر بكراتنا في مجموعة واسعة من الطبقات والسماكات والتشطيبات، مع طباعة عالية الدقة حتى 10 ألوان و133 خطاً للبوصة. مصممة للجودة والمرونة وتلبي أعلى المعايير. أقصى عرض للبكرة: 44.88 بوصة؛ أقصى عرض للطباعة: 57.08 بوصة."
       },
-      "specs": [
-        {
-          "c": {
-            "es": "Material",
-            "en": "Material",
-            "pt": "Material",
-            "zh": "材料",
-            "ar": "المادة"
-          },
-          "min": {
-            "es": "Multicapa / Barrera",
-            "en": "Multi-layer / Barrier",
-            "pt": "Multicamada / Barreira",
-            "zh": "多层 / 阻隔",
-            "ar": "متعدد الطبقات / حاجز"
-          },
-          "max": "",
-          "tol": {
-            "es": "",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "",
-          "met": "",
-          "hl": false
+      "specs": [],
+      "matrix": {
+        "title": {
+          "es": "ESTRUCTURAS DE LAMINADO",
+          "en": "LAMINATE STRUCTURES",
+          "pt": "ESTRUTURAS DE LAMINADO",
+          "zh": "复合结构",
+          "ar": "هياكل التصفيح"
         },
-        {
-          "c": {
-            "es": "Impresión",
-            "en": "Printing",
-            "pt": "Impressão",
-            "zh": "印刷",
-            "ar": "الطباعة"
+        "note": "",
+        "headers": [],
+        "rows": [
+          {
+            "label": "BOPP / BOPP",
+            "cells": []
           },
-          "min": {
-            "es": "Hasta 10 tintas",
-            "en": "Up to 10 inks",
-            "pt": "Até 10 tintas",
-            "zh": "最多 10 色",
-            "ar": "حتى 10 أحبار"
+          {
+            "label": "BOPP / POLIETILENO",
+            "cells": []
           },
-          "max": "",
-          "tol": {
-            "es": "",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
+          {
+            "label": "BOPP / PET / PE",
+            "cells": []
           },
-          "uni": "",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Ancho Máx.",
-            "en": "Max Width",
-            "pt": "Largura Máx.",
-            "zh": "最大宽度",
-            "ar": "أقصى عرض"
+          {
+            "label": "POLIETILENO / POLIETILENO",
+            "cells": []
           },
-          "min": {
-            "es": "1,450 mm",
-            "en": "1,450 mm",
-            "pt": "1.450 mm",
-            "zh": "1,450 毫米",
-            "ar": "1,450 مم"
+          {
+            "label": "PET / PET / PE",
+            "cells": []
           },
-          "max": "",
-          "tol": {
-            "es": "",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Aplicación",
-            "en": "Application",
-            "pt": "Aplicação",
-            "zh": "应用",
-            "ar": "التطبيق"
-          },
-          "min": {
-            "es": "Automática",
-            "en": "Automatic",
-            "pt": "Automática",
-            "zh": "自动",
-            "ar": "آلي"
-          },
-          "max": "",
-          "tol": {
-            "es": "",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "",
-          "met": "",
-          "hl": false
-        }
-      ],
+          {
+            "label": "PET / PE",
+            "cells": []
+          }
+        ]
+      },
       "visual": {
         "scale": 1,
         "offsetX": 0,
@@ -213,131 +141,158 @@
     },
     {
       "nombre": {
-        "es": "BOLSA STAND UP",
-        "en": "STAND UP BAG",
-        "pt": "BOLSA STAND UP",
-        "zh": "立式袋",
-        "ar": "كيس قائم"
+        "es": "BOLSA GENÉRICA TIPO STAND-UP",
+        "en": "GENERIC STAND-UP BAG",
+        "pt": "BOLSA GENÉRICA TIPO STAND-UP",
+        "zh": "通用立式袋",
+        "ar": "كيس قائم عام"
       },
-      "img": "standup.webp",
+      "img": "",
       "lado": "",
       "desc": {
-        "es": "La solución ideal para retail. Nuestras bolsas Stand Up combinan una excelente estabilidad en anaquel con propiedades de barrera superiores para mantener la frescura de sus productos por más tiempo.",
-        "en": "The ideal solution for retail. Our Stand Up bags combine excellent shelf stability with superior barrier properties to keep your products fresh for longer.",
-        "pt": "A solução ideal para retail. Nossas bolsas Stand Up combinam uma excelente estabilidade na prateleira com propriedades de barreira superiores para manter a frescura de seus produtos por mais tempo.",
-        "zh": "零售的理想解决方案。我们的立式袋结合了出色的货架稳定性与卓越的阻隔性能，可让您的产品保鲜更长时间。",
-        "ar": "الحل الأمثل للبيع بالتجزئة. تجمع أكياسنا القائمة بين استقرار الرف الممتاز وخصائص الحاجز الفائقة للحفاظ على نضارة منتجاتك لفترة أطول."
+        "es": "Nuestras bolsas genéricas tipo stand-up son soluciones versátiles y prácticas, ideales para presentar y proteger productos alimenticios secos o húmedos, polvos, líquidos, cosméticos, artículos del hogar y productos químicos. Fabricadas con materiales de alta barrera, ofrecen una excelente protección contra la humedad, el oxígeno y contaminantes externos, preservando la frescura y calidad del contenido.",
+        "en": "Our generic stand-up bags are versatile, practical solutions, ideal for presenting and protecting dry or wet food products, powders, liquids, cosmetics, household items and chemicals. Made with high-barrier materials, they offer excellent protection against moisture, oxygen and external contaminants, preserving the freshness and quality of the contents.",
+        "pt": "Nossas bolsas genéricas tipo stand-up são soluções versáteis e práticas, ideais para apresentar e proteger produtos alimentícios secos ou úmidos, pós, líquidos, cosméticos, artigos domésticos e produtos químicos. Fabricadas com materiais de alta barreira, oferecem excelente proteção contra umidade, oxigênio e contaminantes externos, preservando a frescura e qualidade do conteúdo.",
+        "zh": "我们的通用立式袋是多功能、实用的解决方案，适合展示和保护干湿食品、粉末、液体、化妆品、家居用品和化学品。采用高阻隔材料制成，能有效防潮、防氧及防外部污染，保持内容物的新鲜与品质。",
+        "ar": "أكياسنا القائمة العامة حلول متعددة الاستخدامات وعملية، مثالية لعرض وحماية المنتجات الغذائية الجافة أو الرطبة والمساحيق والسوائل ومستحضرات التجميل والأدوات المنزلية والمواد الكيميائية. مصنوعة من مواد عالية الحاجز، توفر حماية ممتازة من الرطوبة والأكسجين والملوثات الخارجية، وتحافظ على نضارة وجودة المحتوى."
       },
-      "specs": [
-        {
-          "c": {
-            "es": "Formato",
-            "en": "Format",
-            "pt": "Formato",
-            "zh": "规格",
-            "ar": "التنسيق"
-          },
-          "min": {
-            "es": "Stand Up Pouch",
-            "en": "Stand Up Pouch",
-            "pt": "Stand Up Pouch",
-            "zh": "立式袋",
-            "ar": "كيس قائم"
-          },
-          "max": "",
-          "tol": {
-            "es": "",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
-          },
-          "uni": "",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Acabado",
-            "en": "Finish",
-            "pt": "Acabamento",
+      "specs": [],
+      "matrix": {
+        "title": "Dimensions",
+        "note": "",
+        "headers": [
+          {
+            "es": "Acabados",
+            "en": "Finishes",
+            "pt": "Acabamentos",
             "zh": "表面处理",
-            "ar": "التشطيب"
+            "ar": "التشطيبات"
           },
-          "min": {
-            "es": "Mate / Brillante",
-            "en": "Matte / Glossy",
-            "pt": "Fosco / Brilhante",
-            "zh": "磨砂 / 亮光",
-            "ar": "مطفي / لامع"
+          {
+            "es": "Variante (W x L + Fuelle)",
+            "en": "Variant (W x L + Gusset)",
+            "pt": "Variante (L x C + Sanfona)",
+            "zh": "款式 (宽x长+底)",
+            "ar": "النوع (عرض×طول+قاعدة)"
           },
-          "max": "",
-          "tol": {
-            "es": "",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
+          "0.33 lb\n12x19+7",
+          "0.55 lb\n15x21+8",
+          "1.10 lb\n19.2x25+10",
+          "2.20 lb\n21.6x32+10",
+          "Zipper",
+          "Window"
+        ],
+        "rows": [
+          {
+            "label": "Natural",
+            "cells": [
+              "White",
+              "✓",
+              "✓",
+              "✓",
+              "✓",
+              "Yes/No",
+              "Yes/No"
+            ]
           },
-          "uni": "",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Cierre",
-            "en": "Closure",
-            "pt": "Fechamento",
-            "zh": "密封方式",
-            "ar": "الإغلاق"
+          {
+            "label": "",
+            "cells": [
+              "Negro",
+              "✓",
+              "✓",
+              "✓",
+              "✓",
+              "Yes/No",
+              "Yes/No"
+            ]
           },
-          "min": {
-            "es": "Zipper Opcional",
-            "en": "Optional Zipper",
-            "pt": "Zíper Opcional",
-            "zh": "可选拉链",
-            "ar": "سحاب اختياري"
+          {
+            "label": "",
+            "cells": [
+              "Transparent",
+              "✓",
+              "✓",
+              "✓",
+              "✓",
+              "Yes/No",
+              "No"
+            ]
           },
-          "max": "",
-          "tol": {
-            "es": "",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
+          {
+            "label": "",
+            "cells": [
+              "Transparent Metallized",
+              "✗",
+              "✓",
+              "✓",
+              "✓",
+              "Yes/No",
+              "No"
+            ]
           },
-          "uni": "",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Resistencia",
-            "en": "Resistance",
-            "pt": "Resistência",
-            "zh": "耐受性",
-            "ar": "المقاومة"
+          {
+            "label": "Matte",
+            "cells": [
+              "White",
+              "✓",
+              "✓",
+              "✓",
+              "✓",
+              "Yes/No",
+              "Yes/No"
+            ]
           },
-          "min": {
-            "es": "Punción / Desgarre",
-            "en": "Puncture / Tear",
-            "pt": "Punção / Rasgo",
-            "zh": "穿刺 / 撕裂",
-            "ar": "ثقب / تمزق"
+          {
+            "label": "",
+            "cells": [
+              "Black",
+              "✓",
+              "✓",
+              "✓",
+              "✓",
+              "Yes/No",
+              "Yes/No"
+            ]
           },
-          "max": "",
-          "tol": {
-            "es": "",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
+          {
+            "label": "",
+            "cells": [
+              "Kraft",
+              "✓",
+              "✓",
+              "✓",
+              "✓",
+              "Yes/No",
+              "Yes/No"
+            ]
           },
-          "uni": "",
-          "met": "",
-          "hl": false
-        }
-      ],
+          {
+            "label": "Metallized",
+            "cells": [
+              "Gold",
+              "✓",
+              "✓",
+              "✓",
+              "✓",
+              "Yes/No",
+              "No"
+            ]
+          },
+          {
+            "label": "",
+            "cells": [
+              "Silver",
+              "✓",
+              "✓",
+              "✓",
+              "✓",
+              "Yes/No",
+              "No"
+            ]
+          }
+        ]
+      },
       "visual": {
         "scale": 1,
         "offsetX": 0,
@@ -347,131 +302,225 @@
     },
     {
       "nombre": {
-        "es": "BOLSA ALTO VACÍO",
-        "en": "HIGH VACUUM BAG",
-        "pt": "BOLSA ALTO VACÍO",
-        "zh": "高真空袋",
-        "ar": "حقيبة مفرغة عالية"
+        "es": "BOLSA TIPO STAND X ORGANICS",
+        "en": "X ORGANICS STAND-UP BAG",
+        "pt": "BOLSA TIPO STAND X ORGANICS",
+        "zh": "X ORGANICS 立式袋",
+        "ar": "كيس قائم X ORGANICS"
       },
-      "img": "vacio.webp",
+      "img": "",
       "lado": "",
       "desc": {
-        "es": "Protección total para productos perecederos. Nuestras bolsas de alto vacío ofrecen una barrera impenetrable al oxígeno y humedad, preservando las propiedades organolépticas de los alimentos.",
-        "en": "Total protection for perishable products. Our high vacuum bags offer an impenetrable barrier to oxygen and moisture, preserving the organoleptic properties of food.",
-        "pt": "Proteção total para produtos perecíveis. Nossas bolsas de alto vácuo oferecem uma barreira impenetrável ao oxigênio e umidade, preservando as propriedades organolépticas dos alimentos.",
-        "zh": "为易腐产品提供全面保护。我们的高真空袋对氧气和水分具有不可逾越的屏障作用，可保留食物的感官特性。",
-        "ar": "حماية كاملة للمنتجات القابلة للتلف. توفر أكياسنا المفرغة العالية حاجزاً لا يمكن اختراقه للأكسجين والرطوبة، مما يحافظ على الخصائص الحسية للطعام."
+        "es": "Nuestra línea de bolsas tipo stand-up X Organics presenta diseños versátiles y llamativos, creados para adaptarse a una amplia gama de productos. Desde motivos florales y frutales hasta dulces y más, nuestros diseños brindan a su empaque un aspecto profesional y atractivo, con diferentes opciones para elegir el diseño que mejor se adapte a su producto.",
+        "en": "Our X Organics stand-up bag line features versatile, eye-catching designs created to adapt to a wide range of products. From floral and fruit motifs to sweets and more, our designs give your packaging a professional, attractive look, with different options to choose the design that best fits your product.",
+        "pt": "Nossa linha de bolsas tipo stand-up X Organics apresenta designs versáteis e marcantes, criados para se adaptar a uma ampla gama de produtos. De motivos florais e frutais a doces e muito mais, nossos designs dão à sua embalagem um aspecto profissional e atraente, com diferentes opções para escolher o design que melhor se adapta ao seu produto.",
+        "zh": "我们的 X Organics 立式袋系列拥有多样且醒目的设计，适用于各类产品。从花卉、水果图案到糖果等，我们的设计让您的包装更专业、更具吸引力，并提供多种选择以匹配您的产品。",
+        "ar": "تتميز مجموعة أكياس X Organics القائمة بتصاميم متعددة الاستخدامات وجذابة، صُممت لتناسب مجموعة واسعة من المنتجات. من الزخارف الزهرية والفاكهية إلى الحلويات وغيرها، تمنح تصاميمنا تغليفك مظهراً احترافياً وجذاباً، مع خيارات متعددة لاختيار التصميم الأنسب لمنتجك."
       },
-      "specs": [
-        {
-          "c": {
-            "es": "Transparencia",
-            "en": "Transparency",
-            "pt": "Transparência",
-            "zh": "透明度",
-            "ar": "الشفافية"
+      "specs": [],
+      "matrix": {
+        "title": "Dimensiones",
+        "note": "",
+        "headers": [
+          {
+            "es": "Acabados",
+            "en": "Finishes",
+            "pt": "Acabamentos",
+            "zh": "表面处理",
+            "ar": "التشطيبات"
           },
-          "min": {
-            "es": "Alta Claridad",
-            "en": "High Clarity",
-            "pt": "Alta Claridade",
-            "zh": "高透明度",
-            "ar": "وضوح عالٍ"
+          {
+            "es": "Variante (W x L + Fuelle)",
+            "en": "Variant (W x L + Gusset)",
+            "pt": "Variante (L x C + Sanfona)",
+            "zh": "款式 (宽x长+底)",
+            "ar": "النوع (عرض×طول+قاعدة)"
           },
-          "max": "",
-          "tol": {
-            "es": "",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
+          "0.33 lb\n12x19+7",
+          "0.55 lb\n15x21+8",
+          "1.10 lb\n19.2x25+10",
+          "2.20 lb\n21.6x32+10",
+          "Zipper",
+          "Window"
+        ],
+        "rows": [
+          {
+            "label": "Natural",
+            "cells": [
+              "Red Fruits",
+              "✓",
+              "✓",
+              "✓",
+              "✓",
+              "Yes",
+              "Yes/No"
+            ]
           },
-          "uni": "",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Barrera",
-            "en": "Barrier",
-            "pt": "Barreira",
-            "zh": "阻隔性",
-            "ar": "الحاجز"
+          {
+            "label": "",
+            "cells": [
+              "Flowers",
+              "✓",
+              "✓",
+              "✓",
+              "✓",
+              "Yes",
+              "Yes/No"
+            ]
           },
-          "min": {
-            "es": "Oxígeno / Humedad",
-            "en": "Oxygen / Moisture",
-            "pt": "Oxigênio / Umidade",
-            "zh": "氧气 / 水分",
-            "ar": "الأكسجين / الرطوبة"
+          {
+            "label": "",
+            "cells": [
+              "Fruits",
+              "✓",
+              "✓",
+              "✓",
+              "✓",
+              "Yes",
+              "No"
+            ]
           },
-          "max": "",
-          "tol": {
-            "es": "",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
+          {
+            "label": "",
+            "cells": [
+              "Spikes",
+              "✓",
+              "✓",
+              "✓",
+              "✓",
+              "Yes",
+              "No"
+            ]
           },
-          "uni": "",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Sellado",
-            "en": "Sealing",
-            "pt": "Selagem",
-            "zh": "封口",
-            "ar": "الختم"
+          {
+            "label": "Metalizado",
+            "cells": [
+              "Blue Gift",
+              "✓",
+              "✓",
+              "✓",
+              "✓",
+              "✓",
+              "✓"
+            ]
           },
-          "min": {
-            "es": "Térmico Hermético",
-            "en": "Hermetic Thermal",
-            "pt": "Térmico Hermético",
-            "zh": "密封热封",
-            "ar": "حراري محكم"
+          {
+            "label": "",
+            "cells": [
+              "Pink Gift",
+              "✓",
+              "✓",
+              "✓",
+              "✓",
+              "✓",
+              "✓"
+            ]
+          }
+        ]
+      },
+      "visual": {
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "rotate": 0
+      }
+    },
+    {
+      "nombre": {
+        "es": "BOLSA PERSONALIZADA",
+        "en": "CUSTOM BAG",
+        "pt": "BOLSA PERSONALIZADA",
+        "zh": "定制袋",
+        "ar": "كيس مخصص"
+      },
+      "img": "",
+      "lado": "",
+      "desc": {
+        "es": "Ofrecemos diversas estructuras y materiales adaptados a las necesidades específicas de su producto, ya sea para alimentos secos, líquidos, polvos o artículos sensibles. Ajustamos el tamaño para adaptarse a su producto, desde barreras de alta protección hasta laminados especiales que mejoran la durabilidad y frescura.",
+        "en": "We offer various structures and materials tailored to your product's specific needs, whether for dry foods, liquids, powders or sensitive items. We adjust the size to fit your product, from high-protection barriers to special laminates that improve durability and freshness.",
+        "pt": "Oferecemos diversas estruturas e materiais adaptados às necessidades específicas do seu produto, seja para alimentos secos, líquidos, pós ou artigos sensíveis. Ajustamos o tamanho para se adequar ao seu produto, desde barreiras de alta proteção até laminados especiais que melhoram a durabilidade e frescura.",
+        "zh": "我们提供多种结构和材料，量身满足您产品的具体需求，无论是干性食品、液体、粉末还是敏感物品。我们可根据您的产品调整尺寸，从高防护阻隔到提升耐用性与新鲜度的特殊复合材料。",
+        "ar": "نقدم هياكل ومواد متنوعة مصممة وفقاً لاحتياجات منتجك المحددة، سواء للأطعمة الجافة أو السوائل أو المساحيق أو المواد الحساسة. نضبط الحجم ليناسب منتجك، من الحواجز عالية الحماية إلى الطبقات الخاصة التي تحسّن المتانة والنضارة."
+      },
+      "specs": [],
+      "matrix": {
+        "title": "",
+        "note": "",
+        "headers": [
+          {
+            "es": "TIPOS DE BOLSAS",
+            "en": "BAG TYPES",
+            "pt": "TIPOS DE BOLSAS",
+            "zh": "袋型",
+            "ar": "أنواع الأكياس"
           },
-          "max": "",
-          "tol": {
-            "es": "",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
+          {
+            "es": "ESTRUCTURAS DE LAMINACIÓN",
+            "en": "LAMINATION STRUCTURES",
+            "pt": "ESTRUTURAS DE LAMINAÇÃO",
+            "zh": "复合结构",
+            "ar": "هياكل التصفيح"
           },
-          "uni": "",
-          "met": "",
-          "hl": false
-        },
-        {
-          "c": {
-            "es": "Grado",
-            "en": "Grade",
-            "pt": "Grau",
-            "zh": "等级",
-            "ar": "الدرجة"
+          {
+            "es": "ACABADOS",
+            "en": "FINISHES",
+            "pt": "ACABAMENTOS",
+            "zh": "表面处理",
+            "ar": "التشطيبات"
+          }
+        ],
+        "rows": [
+          {
+            "label": "2 bolsas selladas",
+            "cells": [
+              "BOPP / BOPP",
+              "Transparente"
+            ]
           },
-          "min": {
-            "es": "Alimenticio",
-            "en": "Food Grade",
-            "pt": "Alimentício",
-            "zh": "食品级",
-            "ar": "غذائي"
+          {
+            "label": "Bolsa de 3 sellos",
+            "cells": [
+              "BOPP / POLIETILENO",
+              "Metalizado"
+            ]
           },
-          "max": "",
-          "tol": {
-            "es": "",
-            "en": "",
-            "pt": "",
-            "zh": "",
-            "ar": ""
+          {
+            "label": "Sello de aleta",
+            "cells": [
+              "BOPP / PET / PE",
+              "Mate"
+            ]
           },
-          "uni": "",
-          "met": "",
-          "hl": false
-        }
-      ],
+          {
+            "label": "Bolsa de 4 sellos",
+            "cells": [
+              "PET / PET / PE",
+              "Brillante"
+            ]
+          },
+          {
+            "label": "Cremallera alta",
+            "cells": [
+              "CPP / BOPP",
+              "Requisitos especiales"
+            ]
+          },
+          {
+            "label": "Refuerzos laterales",
+            "cells": [
+              "PET / PE",
+              ""
+            ]
+          },
+          {
+            "label": "Sello de superposición",
+            "cells": [
+              "",
+              ""
+            ]
+          }
+        ]
+      },
       "visual": {
         "scale": 1,
         "offsetX": 0,

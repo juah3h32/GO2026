@@ -32,7 +32,7 @@ function freshTimestamp(ts) {
 }
 import { existsSync, readFileSync } from 'node:fs';
 import { join }       from 'node:path';
-import { claimWAIncoming, resetWAReply, updateWAIncomingReply, getWAAuthorizedByPhone, getWagoConfig, logSystemEvent } from '../../../lib/analytics-db.js';
+import { claimWAIncoming, resetWAReply, updateWAIncomingReply, getWAAuthorizedByPhone, getWagoConfig, getConfig, logSystemEvent } from '../../../lib/analytics-db.js';
 import { sendWAText, sendWAPDF, generateReportPDF, sendTyping, transcribeAudio } from '../../../lib/notify.js';
 import { ejecutarComando } from '../../../lib/wa-commands.js';
 import { ejecutarAsistente } from '../../../lib/wa-assistant.js';
@@ -210,22 +210,29 @@ export async function handleIncomingMessage(msg, origin) {
     }
   } else {
     // ── BotGO (chatbot de clientes) ──────────────────────────────────────────
-    try {
-      const chatRes = await fetch(`${origin}/api/chat`, {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages:  [{ role: 'user', content: msg.body }],
-          sessionId: `wa_${msg.phone}`,
-          lang:      'es',
-        }),
-      });
-      if (chatRes.ok) {
-        const d   = await chatRes.json();
-        // Limpiar tags de acción del chat antes de enviar por WhatsApp
-        replyText = (d.reply || '').replace(/\[ACCION:[^\]]+\]/g, '').trim();
-      }
-    } catch (e) { console.error('[webhook/wa] Chat error:', e.message); }
+    // Pausa global: si esta activada, el bot NO responde a numeros del publico
+    // (no autorizados). El mensaje igual queda registrado para verlo en el panel.
+    const pausado = await getConfig('bot_general_paused').catch(() => null);
+    if (pausado === '1' || pausado === 1 || pausado === true) {
+      console.log('[webhook/wa] Automatizacion pausada — no se responde a', msg.phone);
+    } else {
+      try {
+        const chatRes = await fetch(`${origin}/api/chat`, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messages:  [{ role: 'user', content: msg.body }],
+            sessionId: `wa_${msg.phone}`,
+            lang:      'es',
+          }),
+        });
+        if (chatRes.ok) {
+          const d   = await chatRes.json();
+          // Limpiar tags de acción del chat antes de enviar por WhatsApp
+          replyText = (d.reply || '').replace(/\[ACCION:[^\]]+\]/g, '').trim();
+        }
+      } catch (e) { console.error('[webhook/wa] Chat error:', e.message); }
+    }
   }
 
   // Detener "escribiendo…" antes de enviar la respuesta

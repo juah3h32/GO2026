@@ -52,7 +52,9 @@ const coverTr = {
   t2: T(cover.t2),
   division: T(cover.division)
 };
-const productosTr = productos.map(T);
+// La lista de portada se deriva de los nombres de las fichas: si borras/renombras una ficha,
+// la portada se actualiza sola (quedan siempre vinculadas). Fallback al array productos legacy.
+const productosTr = (Array.isArray(fichas) && fichas.length) ? fichas.map(f => T(f.nombre)) : productos.map(T);
 const manyProds = productosTr.length > 3; // >3: lista horizontal al pie, deja arriba libre para la imagen
 const _ne = (v: any) => v !== '' && v !== null && v !== undefined;
 const fichasTr = fichas.map(f => {
@@ -166,7 +168,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       <div class="cd-hero-prods reveal" style="--d:.34s">
         <span class="cd-prods-t">{t.products || "Productos"}:</span>
         <ul>
-          {productosTr.map((p, i) => (<li style={`--d:${0.36 + i * 0.05}s`} data-cd-path={`productos.${i}`}>- {p}</li>))}
+          {productosTr.map((p, i) => (<li style={`--d:${0.36 + i * 0.05}s`} data-cd-path={`fichas.${i}.nombre`}>- {p}</li>))}
         </ul>
       </div>
     </section>
@@ -397,6 +399,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       width: min(55vw, 800px); pointer-events: none; user-select: none; z-index: 1;
       height: 60vh; display: flex; align-items: center; justify-content: flex-end;
       overflow: visible; /* Elimina el marco/corte de la imagen */
+      contain: layout; /* Agrandar la imagen no altera el alto del slide ni la animacion (el sangrado visual se conserva) */
     }
     .cd-hero-media img { width: 100%; filter: drop-shadow(0 40px 60px rgba(0,0,0,.4)); }
     :global(.dark) .cd-hero-media img { filter: drop-shadow(0 40px 60px rgba(0,0,0,.7)); }
@@ -481,6 +484,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
     .cd-ficha-media {
       position: relative; display: flex; align-items: center; justify-content: flex-end; z-index: 1;
       height: clamp(300px, 40vh, 420px); overflow: visible; /* Sin marcos que corten la imagen */
+      contain: layout; /* Agrandar la imagen no altera el alto del slide ni la animacion (el sangrado visual se conserva) */
     }
     .cd-ficha-media-inner {
       position: relative; display: flex; align-items: center; justify-content: flex-end; width: 100%; transition: transform 0.1s ease;
@@ -989,7 +993,9 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
           el.removeAttribute('contenteditable'); el.removeAttribute('data-cd-edit');
           if (el.__cdSet) el.removeEventListener('input', el.__cdSet);
           edCommit();
-          if (changed) edAiTranslate(el); // IA actualiza los demas idiomas
+          // Solo auto-traducir desde el idioma fuente (espanol). En otros idiomas el cambio
+          // es manual y NO debe sobrescribir lo que ya existe en los demas.
+          if (changed && cdLang === 'es') edAiTranslate(el);
         }
         edSel = null;
         edBarMode('none');
@@ -1010,6 +1016,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       }
       // IA: traduce el campo a todos los demas idiomas automaticamente
       var edAiBusy = {};
+      var edPending = []; // promesas de traduccion en vuelo — el guardado las espera
       function edAiTranslate(el) {
         var path = el.getAttribute('data-cd-path'); if (!path) return;
         if (edAiBusy[path]) return; // evita carrera: una traduccion por campo a la vez
@@ -1025,17 +1032,41 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
         }
         if (edFields.msg) { edFields.msg.style.color = '#9CA3AF'; edFields.msg.textContent = 'IA traduciendo...'; }
         edAiBusy[path] = true;
-        fetch('/api/admin/ai-translate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: text, fromLang: cdLang }) })
+        var p = fetch('/api/admin/ai-translate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: text, fromLang: cdLang }) })
           .then(function (r) { return r.ok ? r.json() : r.json().then(function (j) { throw new Error(j.error || 'Error'); }); })
           .then(function (d) {
             var tr = d.translations || {};
             ['es', 'en', 'pt', 'zh', 'ar'].forEach(function (l) { if (l !== cdLang && tr[l]) obj[l] = tr[l]; });
             edCommit();
-            if (edFields.msg) { edFields.msg.style.color = '#10B981'; edFields.msg.textContent = 'IA: traducido a todos los idiomas'; }
+            if (edFields.msg) { edFields.msg.style.color = '#10B981'; edFields.msg.textContent = 'IA: campo traducido a los demas idiomas'; }
             setTimeout(function () { if (edFields.msg) edFields.msg.textContent = ''; }, 2600);
           })
           .catch(function (e) { if (edFields.msg) { edFields.msg.style.color = '#f87171'; edFields.msg.textContent = 'IA: ' + e.message; } })
-          .then(function () { delete edAiBusy[path]; });
+          .then(function () { delete edAiBusy[path]; var i = edPending.indexOf(p); if (i >= 0) edPending.splice(i, 1); });
+        edPending.push(p);
+      }
+      // Antes de guardar: cierra el campo activo (dispara IA) y espera traducciones pendientes
+      function edFlush() {
+        edDeselect();
+        return edPending.length ? Promise.all(edPending.slice()) : Promise.resolve();
+      }
+      // Cambia el idioma que se esta editando, en vivo (sin recargar)
+      function edSwitchLang(l) {
+        if (l === cdLang) return;
+        edDeselect(); // cierra el campo actual; si editabas espanol, dispara la IA
+        cdLang = l;
+        if (edFields.langBtns) Object.keys(edFields.langBtns).forEach(function (k) {
+          var b = edFields.langBtns[k];
+          b.style.background = (k === cdLang) ? '#fb670b' : 'transparent';
+          b.style.color = (k === cdLang) ? '#fff' : '#9CA3AF';
+        });
+        edRenderText(); edBindText();
+        if (edFields.msg) {
+          edFields.msg.style.color = '#9CA3AF';
+          edFields.msg.textContent = (cdLang === 'es')
+            ? 'ES · al editar un campo, la IA lo traduce'
+            : l.toUpperCase() + ' · cambio manual';
+        }
       }
       function edDocDown(e) {
         if (!editMode) return;
@@ -1114,7 +1145,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
           if (ps[2]) edLang(ps[2], editData.intro.p2);
 
           var prodEls = slides[0].querySelectorAll('.cd-hero-prods li');
-          prodEls.forEach(function (li, i) { if (editData.productos[i]) edLang(li, editData.productos[i]); });
+          prodEls.forEach(function (li, i) { if (editData.fichas[i] && editData.fichas[i].nombre) edLang(li, editData.fichas[i].nombre); });
         } else {
           var f = editData.fichas[idx - 1]; if (!f) return;
           edLang(slides[idx].querySelector('.cd-h2'), f.nombre);
@@ -1159,7 +1190,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
           if (ps[2]) ps[2].textContent = editData.intro.p2[cdLang] || '';
 
           var prodEls = slides[0].querySelectorAll('.cd-hero-prods li');
-          prodEls.forEach(function (li, i) { if (editData.productos[i]) li.textContent = '- ' + (editData.productos[i][cdLang] || ''); });
+          prodEls.forEach(function (li, i) { if (editData.fichas[i] && editData.fichas[i].nombre) li.textContent = '- ' + (editData.fichas[i].nombre[cdLang] || ''); });
         } else {
           var f = editData.fichas[idx - 1]; if (!f) return;
           var h = slides[idx].querySelector('.cd-h2'); if (h) h.textContent = f.nombre[cdLang] || '';
@@ -1247,42 +1278,126 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       }
 
       // ── Subir imagen (Cloudinary catalogos/<cat> + copia local) ──
+      // Aplica una imagen (URL ya resuelta) al slide/ficha actual y persiste
+      function edApplyImage(src, curIdx, curBound, donde) {
+        if (curIdx === 0) editData.coverImg = src; else editData.fichas[curIdx - 1].img = src;
+        var mediaEl = curIdx === 0
+          ? document.querySelector('.cd-hero-media')
+          : document.querySelectorAll('.cd-ficha-media-inner')[curIdx - 1];
+        var imgEl = (mediaEl && mediaEl.querySelector('img')) || (curBound && curBound.querySelector('img'));
+        if (imgEl) imgEl.src = src + (src.indexOf('?') < 0 ? '?t=' : '&t=') + Date.now();
+        edCommit();
+        if (edFields.msg) { edFields.msg.style.color = '#9CA3AF'; edFields.msg.textContent = 'Guardando...'; }
+        edSaveThen(function () {
+          if (edFields.msg) { edFields.msg.style.color = '#10B981'; edFields.msg.textContent = 'Imagen actualizada (' + (donde || 'lista') + ')'; }
+          setTimeout(function () { if (edFields.msg) { edFields.msg.style.color = '#9CA3AF'; edFields.msg.textContent = ''; } }, 2600);
+        });
+      }
+      // Sube un archivo nuevo a Cloudinary/local y lo aplica
+      function edUploadFile(file, curIdx, curBound) {
+        var imgFolder = window.__cdImgFolder || 'stretch';
+        var fd = new FormData();
+        fd.append('file', file);
+        fd.append('target', curIdx === 0 ? 'cover' : String(curIdx - 1));
+        fd.append('category', imgFolder);
+        if (edFields.msg) { edFields.msg.style.color = '#9CA3AF'; edFields.msg.textContent = 'Subiendo...'; }
+        return fetch('/api/admin/catalog-image', { method: 'POST', body: fd })
+          .then(function (r) { return r.ok ? r.json() : r.json().then(function (j) { throw new Error(j.error || 'Error'); }); })
+          .then(function (d) {
+            var src = d.cloudUrl || ((curIdx === 0 ? '/images/catalogos/' : '/images/' + (imgFolder || 'stretch') + '/') + d.filename);
+            var donde = d.cloudUrl ? (d.localOk ? 'Cloudinary + local' : 'Cloudinary') : (d.localOk ? 'local' : 'subida');
+            edApplyImage(src, curIdx, curBound, donde);
+          })
+          .catch(function (e) { if (edFields.msg) { edFields.msg.style.color = '#f87171'; edFields.msg.textContent = e.message; } });
+      }
+      // Modal generico: card al centro con fondo borroso sobre el editor
+      function edModal(node, maxW) {
+        var ov = document.createElement('div');
+        ov.style.cssText = 'position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;padding:14px;background:rgba(0,0,0,.6);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);';
+        var card = document.createElement('div');
+        card.style.cssText = 'background:#fff;color:#111;border-radius:16px;box-shadow:0 30px 80px rgba(0,0,0,.55);max-width:' + (maxW || '900px') + ';width:100%;max-height:96vh;overflow:hidden;display:flex;flex-direction:column;position:relative;';
+        var x = document.createElement('button'); x.type = 'button'; x.textContent = '✕';
+        x.style.cssText = 'position:absolute;top:10px;right:10px;z-index:3;width:32px;height:32px;border-radius:8px;border:none;background:rgba(0,0,0,.07);color:#333;cursor:pointer;font-size:14px;font-weight:700;';
+        // Bloquea scroll de fondo y oculta UI flotante (menu del sitio, nav del deck, barra editor)
+        // Se hace con una regla <style> !important para que aplique al instante, sin flasheo.
+        var prevOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+        var hideStyle = document.createElement('style');
+        hideStyle.textContent = '.montfort-header,.cd-deck-nav,#cdNavBtn{display:none!important;}';
+        document.head.appendChild(hideStyle);
+        if (typeof edBar !== 'undefined' && edBar) edBar.style.visibility = 'hidden';
+        function close() {
+          if (ov.parentNode) ov.parentNode.removeChild(ov);
+          document.removeEventListener('keydown', onKey);
+          document.body.style.overflow = prevOverflow;
+          if (hideStyle.parentNode) hideStyle.parentNode.removeChild(hideStyle);
+          if (typeof edBar !== 'undefined' && edBar) edBar.style.visibility = '';
+        }
+        x.onclick = close;
+        ov.addEventListener('mousedown', function (e) { if (e.target === ov) close(); });
+        function onKey(e) { if (e.key === 'Escape') close(); }
+        document.addEventListener('keydown', onKey);
+        card.appendChild(x); card.appendChild(node);
+        ov.appendChild(card); document.body.appendChild(ov);
+        return { overlay: ov, card: card, close: close };
+      }
+      // Confirmacion en card al centro (reemplaza el confirm() del navegador)
+      function edConfirm(opts) {
+        opts = opts || {};
+        var box = document.createElement('div'); box.style.cssText = 'padding:26px 26px 22px;display:flex;flex-direction:column;gap:6px;';
+        var ttl = document.createElement('div'); ttl.textContent = opts.title || 'Confirmar'; ttl.style.cssText = 'font-weight:800;font-size:17px;color:#111;';
+        var msg = document.createElement('div'); msg.textContent = opts.message || ''; msg.style.cssText = 'font-size:13px;color:#555;line-height:1.5;margin-top:2px;';
+        var row = document.createElement('div'); row.style.cssText = 'display:flex;gap:10px;justify-content:flex-end;margin-top:18px;';
+        var bCancel = document.createElement('button'); bCancel.type = 'button'; bCancel.textContent = opts.cancelText || 'Cancelar';
+        bCancel.style.cssText = 'background:transparent;color:#444;border:1px solid #d1d5db;padding:9px 16px;border-radius:9px;cursor:pointer;font-weight:700;font-size:13px;';
+        var bOk = document.createElement('button'); bOk.type = 'button'; bOk.textContent = opts.okText || 'Eliminar';
+        var danger = opts.danger !== false;
+        bOk.style.cssText = 'background:' + (danger ? '#ef4444' : '#fb670b') + ';color:#fff;border:none;padding:9px 18px;border-radius:9px;cursor:pointer;font-weight:800;font-size:13px;';
+        row.appendChild(bCancel); row.appendChild(bOk);
+        box.appendChild(ttl); box.appendChild(msg); box.appendChild(row);
+        var m = edModal(box, '420px');
+        bCancel.onclick = m.close;
+        bOk.onclick = function () { m.close(); if (typeof opts.onConfirm === 'function') opts.onConfirm(); };
+      }
+      // Selector de imagen: subir nueva o elegir una existente de Cloudinary
       function edUpload() {
-        var inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/png,image/jpeg,image/webp';
-        inp.onchange = function () {
-          var file = inp.files && inp.files[0]; if (!file) return;
-          // Captura el destino al momento del click (no al resolver la promesa)
-          var curIdx = idx, curBound = boundEl;
-          var imgFolder = window.__cdImgFolder || 'stretch'; // viene del define:vars; no esta en este scope
-          var fd = new FormData();
-          fd.append('file', file);
-          fd.append('target', curIdx === 0 ? 'cover' : String(curIdx - 1));
-          fd.append('category', imgFolder);
-          if (edFields.msg) { edFields.msg.style.color = '#9CA3AF'; edFields.msg.textContent = 'Subiendo...'; }
-          fetch('/api/admin/catalog-image', { method: 'POST', body: fd })
-            .then(function (r) { return r.ok ? r.json() : r.json().then(function (j) { throw new Error(j.error || 'Error'); }); })
-            .then(function (d) {
-              // Prefiere URL de Cloudinary (persiste en prod); si no, ruta local (dev).
-              var src = d.cloudUrl || ((curIdx === 0 ? '/images/catalogos/' : '/images/' + (imgFolder || 'stretch') + '/') + d.filename);
-              if (curIdx === 0) editData.coverImg = src; else editData.fichas[curIdx - 1].img = src;
-              // Reemplazo visual robusto: ubica el <img> real aunque boundEl este desfasado
-              var mediaEl = curIdx === 0
-                ? document.querySelector('.cd-hero-media')
-                : document.querySelectorAll('.cd-ficha-media-inner')[curIdx - 1];
-              var imgEl = (mediaEl && mediaEl.querySelector('img')) || (curBound && curBound.querySelector('img'));
-              if (imgEl) imgEl.src = src + (src.indexOf('?') < 0 ? '?t=' : '&t=') + Date.now(); // cache-buster: fuerza la nueva
-              edCommit();
-              var donde = d.cloudUrl ? (d.localOk ? 'Cloudinary + local' : 'Cloudinary') : (d.localOk ? 'local' : 'subida');
-              if (edFields.msg) { edFields.msg.style.color = '#9CA3AF'; edFields.msg.textContent = 'Guardando...'; }
-              // Persistir YA en Turso -> se actualiza en web y PDF sin tocar "Guardar"
-              edSaveThen(function () {
-                if (edFields.msg) { edFields.msg.style.color = '#10B981'; edFields.msg.textContent = 'Imagen actualizada (' + donde + ')'; }
-                setTimeout(function () { if (edFields.msg) { edFields.msg.style.color = '#9CA3AF'; edFields.msg.textContent = ''; } }, 2600);
-              });
-            })
-            .catch(function (e) { if (edFields.msg) { edFields.msg.style.color = '#f87171'; edFields.msg.textContent = e.message; } });
+        var curIdx = idx, curBound = boundEl;
+        var imgFolder = window.__cdImgFolder || 'stretch';
+        var box = document.createElement('div'); box.style.cssText = 'display:flex;flex-direction:column;min-height:0;';
+        var head = document.createElement('div'); head.style.cssText = 'padding:18px 20px;border-bottom:1px solid #eee;display:flex;align-items:center;gap:12px;';
+        var ttl = document.createElement('div'); ttl.textContent = 'Elegir imagen'; ttl.style.cssText = 'font-weight:800;font-size:16px;color:#111;';
+        var bUp = document.createElement('button'); bUp.type = 'button'; bUp.textContent = '⬆ Subir nueva';
+        bUp.style.cssText = 'margin-left:auto;background:#fb670b;color:#fff;border:none;padding:9px 16px;border-radius:9px;cursor:pointer;font-weight:800;font-size:13px;';
+        head.appendChild(ttl); head.appendChild(bUp); box.appendChild(head);
+        var grid = document.createElement('div'); grid.style.cssText = 'padding:16px 20px;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px;';
+        var hint = document.createElement('div'); hint.textContent = 'Cargando imagenes de la biblioteca...'; hint.style.cssText = 'grid-column:1/-1;color:#888;font-size:13px;padding:20px 0;text-align:center;';
+        grid.appendChild(hint); box.appendChild(grid);
+        var m = edModal(box, '880px');
+
+        bUp.onclick = function () {
+          var inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/png,image/jpeg,image/webp';
+          inp.onchange = function () { var file = inp.files && inp.files[0]; if (!file) return; m.close(); edUploadFile(file, curIdx, curBound); };
+          inp.click();
         };
-        inp.click();
+
+        fetch('/api/admin/catalog-images?category=' + encodeURIComponent(imgFolder), { credentials: 'same-origin' })
+          .then(function (r) { return r.json(); })
+          .then(function (d) {
+            grid.innerHTML = '';
+            var imgs = (d && d.images) || [];
+            if (!imgs.length) { var e = document.createElement('div'); e.textContent = 'Sin imagenes en la biblioteca. Sube una nueva.'; e.style.cssText = 'grid-column:1/-1;color:#888;font-size:13px;padding:20px 0;text-align:center;'; grid.appendChild(e); return; }
+            imgs.forEach(function (im) {
+              var cell = document.createElement('button'); cell.type = 'button'; cell.title = im.public_id || '';
+              cell.style.cssText = 'border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;cursor:pointer;background:#f8f9fb;aspect-ratio:1/1;padding:6px;display:flex;align-items:center;justify-content:center;transition:border-color .15s,transform .15s;';
+              cell.onmouseenter = function () { cell.style.borderColor = '#fb670b'; cell.style.transform = 'translateY(-2px)'; };
+              cell.onmouseleave = function () { cell.style.borderColor = '#e5e7eb'; cell.style.transform = 'none'; };
+              var im2 = document.createElement('img'); im2.src = im.url; im2.loading = 'lazy'; im2.style.cssText = 'max-width:100%;max-height:100%;object-fit:contain;';
+              cell.appendChild(im2);
+              cell.onclick = function () { m.close(); edApplyImage(im.url, curIdx, curBound, 'biblioteca'); };
+              grid.appendChild(cell);
+            });
+          })
+          .catch(function (e) { grid.innerHTML = ''; var er = document.createElement('div'); er.textContent = 'Error: ' + e.message; er.style.cssText = 'grid-column:1/-1;color:#c00;font-size:13px;padding:20px 0;text-align:center;'; grid.appendChild(er); });
       }
 
       // ── Agregar / borrar fichas (guarda y recarga; SSR reconstruye el deck) ──
@@ -1290,7 +1405,8 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       function edSaveThen(cb) {
         if (!editData) return;
         if (edFields.msg) { edFields.msg.style.color = '#9CA3AF'; edFields.msg.textContent = 'Guardando...'; }
-        fetch('/api/admin/catalog?slug=' + encodeURIComponent(window.__cdSlug || ''), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(editData) })
+        edFlush()
+          .then(function () { return fetch('/api/admin/catalog?slug=' + encodeURIComponent(window.__cdSlug || ''), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(editData) }); })
           .then(function (r) { return r.ok ? r.json() : r.json().then(function (j) { throw new Error(j.error || 'Error'); }); })
           .then(cb)
           .catch(function (e) { if (edFields.msg) { edFields.msg.style.color = '#f87171'; edFields.msg.textContent = e.message; } });
@@ -1310,28 +1426,36 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
         if (idx < 1) { if (edFields.msg) { edFields.msg.style.color = '#f87171'; edFields.msg.textContent = 'Ve a una ficha (no la portada)'; } return; }
         var fi = idx - 1;
         if (!Array.isArray(editData.fichas) || fi < 0 || fi >= editData.fichas.length) return;
-        if (!confirm('Borrar esta ficha? No se puede deshacer.')) return;
-        editData.fichas.splice(fi, 1);
-        if (Array.isArray(editData.productos)) editData.productos.splice(fi, 1);
-        var target = Math.max(0, idx - 1);
-        edSaveThen(function () { location.href = location.pathname + '?edit=1&slide=' + target; });
+        edConfirm({
+          title: 'Borrar ficha',
+          message: 'Se eliminara esta ficha del catalogo. Esta accion no se puede deshacer.',
+          okText: 'Borrar ficha',
+          onConfirm: function () {
+            editData.fichas.splice(fi, 1);
+            if (Array.isArray(editData.productos)) editData.productos.splice(fi, 1);
+            var target = Math.max(0, idx - 1);
+            edSaveThen(function () { location.href = location.pathname + '?edit=1&slide=' + target; });
+          }
+        });
       }
 
       function edBuildBar() {
         edBar = document.createElement('div');
         edBar.id = 'cdEdBar';
-        edBar.style.cssText = 'position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:9999;background:#161616;border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:12px 16px;display:flex;flex-direction:column;gap:10px;box-shadow:0 20px 60px rgba(0,0,0,.5);font-family:system-ui;width:min(760px,94vw);';
+        edBar.style.cssText = 'position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:9999;background:#161616;border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:12px 16px;display:flex;flex-direction:column;gap:10px;box-shadow:0 20px 60px rgba(0,0,0,.5);font-family:system-ui;width:min(920px,96vw);';
         var top = document.createElement('div');
-        top.style.cssText = 'display:flex;justify-content:space-between;align-items:center;gap:10px;';
-        var nm = document.createElement('span'); nm.style.cssText = 'color:#fb670b;font-weight:800;font-size:14px;letter-spacing:.5px;text-transform:uppercase;'; edFields.name = nm;
-        var btns = document.createElement('div'); btns.style.cssText = 'display:flex;gap:8px;align-items:center;';
-        var msg = document.createElement('span'); msg.style.cssText = 'font-size:11px;color:#9CA3AF;'; edFields.msg = msg;
+        top.style.cssText = 'display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;';
+        var nm = document.createElement('span'); nm.style.cssText = 'color:#fb670b;font-weight:800;font-size:14px;letter-spacing:.5px;text-transform:uppercase;flex-shrink:0;'; edFields.name = nm;
+        var btns = document.createElement('div'); btns.style.cssText = 'display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end;';
+        var msg = document.createElement('span'); msg.style.cssText = 'font-size:11px;color:#9CA3AF;line-height:1.3;flex:1 1 130px;min-width:110px;text-align:center;'; edFields.msg = msg;
         var bReset = document.createElement('button'); bReset.type = 'button'; bReset.textContent = 'Reset'; bReset.style.cssText = 'background:transparent;color:#9CA3AF;border:1px solid rgba(255,255,255,.15);padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:700;font-size:12px;'; edFields.bReset = bReset;
         bReset.onclick = function () { var v = edVisual(); v.scale = 1; v.offsetX = 0; v.offsetY = 0; v.rotate = 0; v.zoom = 1; v.clip = false; edApply(); edSync(); edCommit(); };
         var bSave = document.createElement('button'); bSave.type = 'button'; bSave.textContent = 'Guardar'; bSave.style.cssText = 'background:#fb670b;color:#fff;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:800;font-size:12px;';
         bSave.onclick = function () {
           bSave.textContent = 'Guardando...'; bSave.disabled = true; msg.textContent = '';
-          fetch('/api/admin/catalog?slug=' + encodeURIComponent(window.__cdSlug || ''), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(editData) })
+          // Espera a que la IA termine de traducir a todos los idiomas antes de persistir
+          edFlush()
+            .then(function () { return fetch('/api/admin/catalog?slug=' + encodeURIComponent(window.__cdSlug || ''), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(editData) }); })
             .then(function (r) { return r.ok ? r.json() : r.json().then(function (j) { throw new Error(j.error || 'Error'); }); })
             .then(function () { bSave.textContent = 'Guardado'; msg.textContent = ''; setTimeout(function () { bSave.textContent = 'Guardar'; bSave.disabled = false; }, 1800); })
             .catch(function (err) { bSave.textContent = 'Guardar'; bSave.disabled = false; msg.style.color = '#f87171'; msg.textContent = err.message; });
@@ -1342,8 +1466,76 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
         bDel.onclick = edDelFicha;
         var bExit = document.createElement('button'); bExit.type = 'button'; bExit.textContent = '✕'; bExit.title = 'Salir del modo edicion'; bExit.style.cssText = 'background:transparent;color:#fff;border:1px solid rgba(255,255,255,.15);width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:13px;';
         bExit.onclick = function () { edToggle(false); };
-        btns.appendChild(msg); btns.appendChild(bAdd); btns.appendChild(bDel); btns.appendChild(bReset); btns.appendChild(bSave); btns.appendChild(bExit);
-        top.appendChild(nm); top.appendChild(btns); edBar.appendChild(top);
+        // Vista previa: muestra como se vera en el PDF con los cambios actuales, SIN guardar
+        var bPrev = document.createElement('button'); bPrev.type = 'button'; bPrev.textContent = 'Vista previa'; bPrev.title = 'Ver como se vera en el PDF (sin guardar)';
+        bPrev.style.cssText = 'background:transparent;color:#60A5FA;border:1px solid rgba(96,165,250,.5);padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:800;font-size:12px;';
+        bPrev.onclick = function () {
+          edDeselect(); // finaliza el campo activo para que el preview incluya el ultimo texto
+          // El preview respeta el tema actual: claro -> blanco, oscuro -> negro
+          var prevTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+          bPrev.disabled = true; bPrev.textContent = 'Generando...';
+          // Modal in-place: card al centro con el editor borroso detras (no abre pestana)
+          var wrap = document.createElement('div'); wrap.style.cssText = 'display:flex;flex-direction:column;width:100%;height:94vh;';
+          var bar = document.createElement('div'); bar.style.cssText = 'padding:13px 18px;border-bottom:1px solid #eee;font-weight:800;font-size:14px;color:#111;flex-shrink:0;';
+          bar.textContent = 'Vista previa del PDF (' + (prevTheme === 'dark' ? 'oscuro' : 'claro') + ')';
+          var loading = document.createElement('div'); loading.textContent = 'Generando vista previa...'; loading.style.cssText = 'padding:24px;color:#666;font-family:system-ui;';
+          wrap.appendChild(bar); wrap.appendChild(loading);
+          var m = edModal(wrap, '96vw');
+          fetch('/api/catalogo-pdf', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ slug: window.__cdSlug || '', lang: cdLang, theme: prevTheme, data: editData, format: 'html' }) })
+            .then(function (r) { return r.ok ? r.text() : r.json().then(function (j) { throw new Error(j.error || 'Error'); }); })
+            .then(function (html) {
+              loading.remove();
+              var bg = prevTheme === 'dark' ? '#0e0e0e' : '#fff';
+              // Host con scroll vertical; el iframe se escala al ancho disponible (paginas PDF = 1280x720)
+              var host = document.createElement('div'); host.style.cssText = 'flex:1;overflow-y:auto;overflow-x:hidden;width:100%;background:' + bg + ';';
+              var inner = document.createElement('div'); inner.style.cssText = 'position:relative;';
+              var frame = document.createElement('iframe'); frame.style.cssText = 'border:none;background:' + bg + ';transform-origin:top left;display:block;';
+              var PAGE_W = 1280, PAGE_H = 720;
+              frame.onload = function () {
+                try {
+                  var doc = frame.contentDocument;
+                  var pages = doc ? doc.querySelectorAll('.pg') : [];
+                  var contentH = pages.length ? pages.length * PAGE_H : ((doc && doc.body && doc.body.scrollHeight) || PAGE_H);
+                  var availW = host.clientWidth || PAGE_W;
+                  var scale = availW / PAGE_W;
+                  frame.style.width = PAGE_W + 'px';
+                  frame.style.height = contentH + 'px';
+                  frame.style.transform = 'scale(' + scale + ')';
+                  inner.style.width = availW + 'px';
+                  inner.style.height = (contentH * scale) + 'px';
+                } catch (e) { frame.style.width = '100%'; }
+              };
+              inner.appendChild(frame); host.appendChild(inner); wrap.appendChild(host);
+              frame.srcdoc = html; // asignar ya en el DOM para medir bien el ancho
+            })
+            .catch(function (e) { loading.textContent = 'Error: ' + e.message; loading.style.color = '#c00'; })
+            .then(function () { bPrev.disabled = false; bPrev.textContent = 'Vista previa'; });
+        };
+        // Selector de idioma a editar — permite ajustar cada idioma manualmente en tiempo real
+        var langBar = document.createElement('div'); langBar.title = 'Idioma a editar'; langBar.style.cssText = 'display:flex;align-items:center;gap:3px;margin-right:6px;background:rgba(255,255,255,.06);border-radius:8px;padding:3px;';
+        edFields.langBtns = {};
+        ['es', 'en', 'pt', 'zh', 'ar'].forEach(function (l) {
+          var b = document.createElement('button'); b.type = 'button'; b.textContent = l.toUpperCase();
+          b.style.cssText = 'background:' + (l === cdLang ? '#fb670b' : 'transparent') + ';color:' + (l === cdLang ? '#fff' : '#9CA3AF') + ';border:none;border-radius:6px;padding:5px 9px;cursor:pointer;font-weight:800;font-size:11px;';
+          b.onclick = function () { edSwitchLang(l); };
+          edFields.langBtns[l] = b; langBar.appendChild(b);
+        });
+        // Izquierda: etiqueta TEXTO + selector de idioma. Centro: mensaje. Derecha: acciones.
+        var leftGroup = document.createElement('div'); leftGroup.style.cssText = 'display:flex;align-items:center;gap:10px;flex-shrink:0;';
+        // Logo BotGO (el mismo del login del dashboard / Ctrl+K)
+        var logo = document.createElement('div');
+        logo.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:9px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);flex-shrink:0;box-shadow:0 0 16px rgba(251,103,11,.25);';
+        logo.innerHTML = '<svg width="22" height="22" viewBox="0 0 100 100" fill="none">'
+          + '<defs><linearGradient id="edRobotG" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#fb670b"/><stop offset="100%" stop-color="#b84d08"/></linearGradient></defs>'
+          + '<line x1="20" y1="35" x2="15" y2="20" stroke="#fb670b" stroke-width="4" stroke-linecap="round"/><circle cx="15" cy="20" r="4" fill="#fb670b"/>'
+          + '<line x1="80" y1="35" x2="85" y2="20" stroke="#fb670b" stroke-width="4" stroke-linecap="round"/><circle cx="85" cy="20" r="4" fill="#fb670b"/>'
+          + '<circle cx="50" cy="55" r="40" fill="url(#edRobotG)"/><ellipse cx="50" cy="58" rx="32" ry="30" fill="#161616"/>'
+          + '<rect x="25" y="45" width="50" height="22" rx="10" fill="#fb670b"/>'
+          + '<circle cx="38" cy="56" r="5" fill="#ECEBE0"/><circle cx="62" cy="56" r="5" fill="#ECEBE0"/>'
+          + '<ellipse cx="50" cy="78" rx="6" ry="2" fill="#b84d08" opacity="0.8"/></svg>';
+        leftGroup.appendChild(logo); leftGroup.appendChild(nm); leftGroup.appendChild(langBar);
+        btns.appendChild(bAdd); btns.appendChild(bDel); btns.appendChild(bReset); btns.appendChild(bPrev); btns.appendChild(bSave); btns.appendChild(bExit);
+        top.appendChild(leftGroup); top.appendChild(msg); top.appendChild(btns); edBar.appendChild(top);
 
         // Grupo IMAGEN (subir + sliders)
         var grid = document.createElement('div'); edFields.imgGrid = grid;
@@ -1574,7 +1766,15 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
         ov.style.cssText = 'position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:24px;font-family:' + SANS + ';';
         var card = document.createElement('div');
         card.style.cssText = 'width:100%;max-width:340px;background:' + cBg + ';border:1px solid ' + cBorder + ';border-radius:16px;padding:28px;box-shadow:0 30px 80px rgba(0,0,0,.35);';
-        card.innerHTML = '<div style="text-align:center;margin-bottom:26px;font-family:' + SANS + ';"><div style="width:56px;height:56px;background:#FB670B;border-radius:16px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:14px;"><span style="color:#fff;font-weight:900;font-size:22px;letter-spacing:-1px;font-family:' + SANS + ';">GO</span></div><h1 style="color:' + cText + ';font-size:21px;font-weight:800;margin:0;letter-spacing:-.3px;text-transform:none;font-family:' + SANS + ';line-height:1.2;">Editar catalogo</h1><p style="color:' + cMuted + ';font-size:13px;margin:6px 0 0;font-family:' + SANS + ';">Ingresa con tu contrasena</p></div>';
+        var robotSvg = '<svg width="38" height="38" viewBox="0 0 100 100" fill="none">'
+          + '<defs><linearGradient id="edLoginRobotG" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#fb670b"/><stop offset="100%" stop-color="#b84d08"/></linearGradient></defs>'
+          + '<line x1="20" y1="35" x2="15" y2="20" stroke="#fb670b" stroke-width="4" stroke-linecap="round"/><circle cx="15" cy="20" r="4" fill="#fb670b"/>'
+          + '<line x1="80" y1="35" x2="85" y2="20" stroke="#fb670b" stroke-width="4" stroke-linecap="round"/><circle cx="85" cy="20" r="4" fill="#fb670b"/>'
+          + '<circle cx="50" cy="55" r="40" fill="url(#edLoginRobotG)"/><ellipse cx="50" cy="58" rx="32" ry="30" fill="' + cBg + '"/>'
+          + '<rect x="25" y="45" width="50" height="22" rx="10" fill="#fb670b"/>'
+          + '<circle cx="38" cy="56" r="5" fill="#ECEBE0"/><circle cx="62" cy="56" r="5" fill="#ECEBE0"/>'
+          + '<ellipse cx="50" cy="78" rx="6" ry="2" fill="#b84d08" opacity="0.8"/></svg>';
+        card.innerHTML = '<div style="text-align:center;margin-bottom:26px;font-family:' + SANS + ';"><div style="width:56px;height:56px;background:' + cInp + ';border:1px solid ' + cBorder + ';border-radius:16px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:14px;box-shadow:0 0 24px rgba(251,103,11,.25);">' + robotSvg + '</div><h1 style="color:' + cText + ';font-size:21px;font-weight:800;margin:0;letter-spacing:-.3px;text-transform:none;font-family:' + SANS + ';line-height:1.2;">Editar catalogo</h1><p style="color:' + cMuted + ';font-size:13px;margin:6px 0 0;font-family:' + SANS + ';">Ingresa con tu contrasena</p></div>';
         var form = document.createElement('form'); form.style.cssText = 'display:flex;flex-direction:column;gap:12px;';
         var inp = document.createElement('input'); inp.type = 'password'; inp.placeholder = 'Contrasena'; inp.autocomplete = 'current-password';
         inp.style.cssText = 'background:' + cInp + ';border:1px solid ' + cBorder + ';border-radius:10px;padding:12px 14px;color:' + cText + ';font-size:16px;outline:none;width:100%;box-sizing:border-box;font-family:' + SANS + ';';

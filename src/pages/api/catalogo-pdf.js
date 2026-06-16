@@ -10,6 +10,7 @@ import { readFileSync, existsSync } from 'fs';
 import { translations } from '../../i18n';
 import { getCatalog } from '../../lib/catalog-store.js';
 import { getCatalogMeta } from '../../lib/catalogs.js';
+import { verifyAdminToken } from '../../lib/verifyAdminToken.ts';
 
 const ORANGE = '#fb670b';
 let CURRENT_FOLDER = 'stretch';
@@ -173,9 +174,11 @@ function paginaProducto(f, i, t, isDark, ctl) {
 
   return `<div class="pg prod">
     ${header(t)}
-    <div class="head">${copy}${media}</div>
-    ${soonNote}
-    ${tables.join('')}
+    <div class="pg-fit">
+      <div class="head">${copy}${media}</div>
+      ${soonNote}
+      ${tables.join('')}
+    </div>
   </div>`;
 }
 
@@ -218,7 +221,8 @@ export function buildHTML(theme = 'dark', lang = 'es', data = {}) {
     t2: T(cover.t2, lang),
     division: T(cover.division, lang)
   };
-  const productosTr = productos.map(p => T(p, lang));
+  // Lista de portada vinculada a las fichas (borrar/renombrar una ficha se refleja aqui)
+  const productosTr = (Array.isArray(fichas) && fichas.length) ? fichas.map(f => T(f.nombre, lang)) : productos.map(p => T(p, lang));
   const _ne = (v) => v !== '' && v !== null && v !== undefined;
   const fichasTr = (fichas || []).map(f => {
     const specs = (f.specs || []).map(s => ({
@@ -310,7 +314,9 @@ export function buildHTML(theme = 'dark', lang = 'es', data = {}) {
           overflow: hidden; padding: 80px 80px 44px; page-break-after: always; }
     .pg:last-child { page-break-after: auto; }
     /* Fichas: contenido centrado verticalmente para espacios simetricos */
-    .pg.prod { display: flex; flex-direction: column; justify-content: center; gap: 30px; isolation: isolate; }
+    .pg.prod { display: flex; flex-direction: column; justify-content: center; padding: 90px 80px 40px; isolation: isolate; }
+    /* Wrapper que se auto-escala para que TODO el contenido quepa en la pagina (sin chocar con el header) */
+    .pg-fit { display: flex; flex-direction: column; gap: 24px; transform-origin: center center; }
     .bar { position: absolute; top: 40px; left: 80px; right: 80px; display: flex; justify-content: space-between; align-items: flex-start; }
     .logo { display: flex; flex-direction: column; line-height: .8; font-family: 'Morganite', sans-serif; font-weight: 800; }
     .l1 { font-size: 20px; letter-spacing: .04em; color: ${TEXT}; }
@@ -321,35 +327,39 @@ export function buildHTML(theme = 'dark', lang = 'es', data = {}) {
     /* Portada */
     .cover-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 40px; height: 100%; align-items: center; }
     .cover-left { max-width: 100%; }
-    .cover-left h1 { font-family: 'Morganite', ${cjkAr}sans-serif; font-weight: 800; font-size: 150px; line-height: .8; letter-spacing: .01em; margin: 0; white-space: nowrap; }
+    /* Igual que la web (.cd-hero-title): el titulo envuelve a 2 lineas para no chocar con la imagen */
+    .cover-left h1 { font-family: 'Morganite', ${cjkAr}sans-serif; font-weight: 800; font-size: 160px; line-height: .8; letter-spacing: .01em; margin: 0; display: flex; flex-wrap: wrap; gap: 0 .22em; max-width: 100%; }
     .cover-left h1 span { display: inline; }
     .o { color: ${ORANGE}; } .gray { color: #9a9a9c; }
     .divis { font-family: 'Morganite', sans-serif; font-weight: 800; font-size: 42px; letter-spacing: .04em; margin: 8px 0 24px; }
-    .cover-left p { font-size: 16px; line-height: 1.55; color: ${MUTED}; margin: 0 0 14px; max-width: 85%; 
-                    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .cover-left p { font-size: 15px; line-height: 1.5; color: ${MUTED}; margin: 0 0 12px; max-width: 70%; }
     .cover-left .bio { color: ${ORANGE}; font-weight: 700; margin-top: 12px; margin-bottom: 8px; font-size: 18px; }
     .cover-right { position: relative; height: 100%; }
-    .cover-imgbox { position: absolute; right: 0; top: 50%; transform: translateY(-50%); width: 560px; display: flex; justify-content: flex-end; z-index: 1; }
-    .cover-imgtf { width: 100%; display: flex; justify-content: flex-end; }
-    .cover-imgtf img { width: 100%; max-height: 520px; object-fit: contain; filter: drop-shadow(0 30px 60px rgba(0,0,0,${isDark ? 0.6 : 0.25})); }
+    /* Espejo de la web (.cd-hero-media, cap 800px). En pagina 1280 ~585px, sangrando a la derecha.
+       top 46% compensa el padding asimetrico (80/44) para centrar igual que web (vertical ~0.49). */
+    .cover-imgbox { position: absolute; right: -106px; top: 46%; transform: translateY(-50%); width: 585px; display: flex; justify-content: flex-end; z-index: 1; }
+    .cover-imgtf { width: 100%; }
+    .cover-imgtf img { width: 100%; height: auto; display: block; filter: drop-shadow(0 30px 60px rgba(0,0,0,${isDark ? 0.6 : 0.25})); }
     .prods { position: absolute; right: 0; bottom: 34px; text-align: right; z-index: 2; }
     .prods span { color: #9a9a9c; font-size: 15px; font-weight: 700; }
     .prods ul { list-style: none; margin: 10px 0 0; padding: 0; }
     .prods li { font-size: 15px; color: ${MUTED}; padding: 4px 0; font-weight: 600; }
     /* >3 productos: imagen arriba, lista horizontal al pie */
-    .cover.manyprods .cover-imgbox { top: 6%; transform: none; }
-    .cover.manyprods .cover-imgtf img { max-height: 430px; }
+    /* manyprods: imagen centrada arriba igual que web (.cd-hero-prodrow .cd-hero-media{top:40%}).
+       35% (en vez de 46% del default) compensa el padding y deja la lista de productos al pie. */
+    .cover.manyprods .cover-imgbox { top: 35%; }
     .prods-row { position: absolute; left: 80px; right: 80px; bottom: 40px; top: auto; text-align: left; z-index: 5; display: flex; align-items: baseline; gap: 8px 18px; flex-wrap: wrap; }
     .prods-row ul { display: flex; flex-wrap: wrap; gap: 4px 22px; margin: 0; padding: 0; list-style: none; }
     .prods-row li { padding: 0; }
 
-    /* Paginas de producto */
-    .head { display: grid; grid-template-columns: 1.2fr 1fr; gap: 50px; align-items: center; margin: 0; height: 280px; }
-    .media { position: relative; z-index: -1; height: 100%; display: flex; align-items: center; justify-content: center; min-height: 280px; }
-    .media-tf { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
-    .media img { max-width: 100%; max-height: 280px; width: auto; object-fit: contain; filter: drop-shadow(0 25px 40px rgba(0,0,0,${isDark ? 0.6 : 0.2})); pointer-events: none; }
+    /* Paginas de producto — geometria espejo de la web (.cd-ficha-media), escalada a la pagina.
+       Misma proporcion que web: caja 0.4 de alto, imagen a la derecha, tamaño por ancho. */
+    .head { display: grid; grid-template-columns: minmax(0,1.2fr) minmax(0,1fr); gap: 50px; align-items: center; margin: 0; height: 288px; }
+    .media { position: relative; z-index: -1; height: 100%; display: flex; align-items: center; justify-content: flex-end; min-height: 288px; contain: layout; /* La imagen (aunque sea grande) no altera el alto del bloque: el auto-fit NO encoge titulos/texto por la imagen */ }
+    .media-tf { width: 100%; height: 100%; display: flex; align-items: center; justify-content: flex-end; }
+    .media img { width: 100%; max-width: 424px; max-height: 307px; object-fit: contain; filter: drop-shadow(0 25px 40px rgba(0,0,0,${isDark ? 0.6 : 0.2})); pointer-events: none; }
     .copy { position: relative; z-index: 2; }
-    .copy h2 { font-family: 'Morganite', sans-serif; font-weight: 800; font-size: 84px; line-height: .85; margin: 0 0 16px; color: ${TEXT}; }
+    .copy h2 { font-family: 'Morganite', sans-serif; font-weight: 800; font-size: 84px; line-height: .85; margin: 0 0 16px; color: ${TEXT}; white-space: nowrap; }
     .copy p { font-size: 16px; line-height: 1.5; color: ${MUTED}; margin: 0; max-width: 95%; }
 
     /* Tabla */
@@ -396,6 +406,29 @@ async function generatePDF(html) {
     // Mismo soporte que los reportes de resumen (vector, nitido).
     await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 2 });
     await page.setContent(html, { waitUntil: 'networkidle2', timeout: 45_000 });
+    try { await page.evaluateHandle('document.fonts.ready'); } catch (e) {}
+    // Auto-fit: si el contenido de una ficha excede la pagina, escalar para que quepa todo.
+    await page.evaluate(() => {
+      const PAGE_H = 720, PAD_TOP = 90, PAD_BOTTOM = 40, INNER_W = 1120; // 1280 - 80*2
+      const avail = PAGE_H - PAD_TOP - PAD_BOTTOM;
+      // Titulo SIEMPRE en una linea: reduce el tamano de fuente hasta que quepa en su columna.
+      document.querySelectorAll('.pg.prod .copy h2').forEach((h) => {
+        const max = h.parentElement.clientWidth;
+        let fs = parseFloat(getComputedStyle(h).fontSize), guard = 0;
+        while (h.scrollWidth > max && fs > 24 && guard++ < 120) { fs -= 2; h.style.fontSize = fs + 'px'; }
+      });
+      document.querySelectorAll('.pg.prod .pg-fit').forEach((fit) => {
+        if (fit.scrollHeight <= avail) return;
+        const s = avail / fit.scrollHeight;
+        // Ensancha el bloque (1/s) y compensa con margenes negativos simetricos:
+        // al escalar por s vuelve a ocupar el ancho completo, centrado, sin huecos en las orillas.
+        const extra = INNER_W / s - INNER_W;
+        fit.style.width = (INNER_W / s) + 'px';
+        fit.style.marginLeft = (-extra / 2) + 'px';
+        fit.style.marginRight = (-extra / 2) + 'px';
+        fit.style.transform = `scale(${s})`;
+      });
+    });
     const pdf = await page.pdf({ preferCSSPageSize: true, printBackground: true, margin: { top: 0, right: 0, bottom: 0, left: 0 } });
     return Buffer.from(pdf);
   } finally {
@@ -462,6 +495,7 @@ export async function GET({ url }) {
 
     const data = await getCatalog(slug);
     const html = buildHTML(theme, lang, data);
+    if (url.searchParams.get('debug') === 'html') return new Response(html, { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
     const pdf = await generatePDF(html);
     
     // Nombre dinamico basado en la division
@@ -478,6 +512,37 @@ export async function GET({ url }) {
     });
   } catch (err) {
     console.error('[catalogo-pdf]', err);
+    return new Response(JSON.stringify({ ok: false, error: err.message }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+  }
+}
+
+// POST: vista previa del PDF con datos en vivo del editor (SIN guardar en Turso).
+// Solo admin. body: { slug, lang, theme, data, format } — format 'html' (rapido) o 'pdf'.
+export async function POST({ request }) {
+  try {
+    const role = await verifyAdminToken(request).catch(() => null);
+    const ok = role && (role.isAdminRole || (Array.isArray(role.tabs) && role.tabs.includes('catalogo')));
+    if (!ok) return new Response(JSON.stringify({ ok: false, error: 'No autorizado' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
+
+    const body = await request.json();
+    const theme = body.theme || 'dark';
+    const lang = body.lang || 'es';
+    const slug = body.slug || 'digital-stretch-film';
+    const data = body.data || await getCatalog(slug);
+
+    const meta = getCatalogMeta(slug);
+    CURRENT_FOLDER = meta.imgFolder || 'stretch';
+    COVER_FOLDER = meta.coverImgFolder || 'catalogos';
+
+    const html = buildHTML(theme, lang, data);
+    // Preview HTML: identico al layout del PDF, instantaneo (sin Puppeteer)
+    if ((body.format || 'html') === 'html') {
+      return new Response(html, { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' } });
+    }
+    const pdf = await generatePDF(html);
+    return new Response(pdf, { status: 200, headers: { 'Content-Type': 'application/pdf', 'Cache-Control': 'no-store' } });
+  } catch (err) {
+    console.error('[catalogo-pdf POST]', err);
     return new Response(JSON.stringify({ ok: false, error: err.message }), { status: 500, headers: { 'Content-Type': 'application/json' } });
   }
 }

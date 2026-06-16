@@ -22,7 +22,7 @@ export async function POST({ request }) {
     const from = ALL.includes(fromLang) ? fromLang : 'es';
     const targets = ALL.filter(l => l !== from);
 
-    const key = process.env.OPENAI_API_KEY;
+    const key = import.meta.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY;
     if (!key) return json({ error: 'OPENAI_API_KEY no configurado' }, 500);
 
     const targetList = targets.map(l => `"${l}" (${LANG_NAME[l]})`).join(', ');

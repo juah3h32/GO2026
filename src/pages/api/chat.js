@@ -127,7 +127,8 @@ function extraerDatosDeHistorial(messages) {
     if (/puesto|posici[oó]n|posicion|[aá]rea|area|trabajo.*interesa|tipo de puesto|aplicar a|qu[eé].*puesto|a qu[eé].*puesto/i.test(pregunta) && !data.puesto) {
       data.puesto = respuesta;
     } else if (/nombre completo|c[oó]mo te llamas|como te llamas|tu nombre|cu[aá]l es tu nombre/i.test(pregunta) && !data.nombre) {
-      if (!/^\d+$/.test(respuesta)) data.nombre = respuesta;
+      // No tomar como nombre un mensaje genérico de intención (ej. re-clic en "lista de espera")
+      if (!/^\d+$/.test(respuesta) && respuesta.length <= 60 && !/registrarme|lista de espera|vacante|no encontr[eé]|me interesa trabajar/i.test(respuesta)) data.nombre = respuesta;
     } else if (/cu[aá]ntos a[nñ]os|cuantos anos|a[nñ]os tienes|edad/i.test(pregunta) && !data.edad) {
       data.edad = respuesta;
     } else if (/estado.*rep[uú]blica|estado.*vives|qu[eé] estado|que estado|en qu[eé] estado/i.test(pregunta) && !data.estado) {
@@ -173,14 +174,17 @@ function matchVacanteSimilar(puestoUsuario, vacantes) {
 }
 
 // ─── System Prompt Dinámico ───────────────────────────────────────────────────
-function buildSystemPrompt(targetLang, puestoPreseleccionado = null, vacantesActivas = [], nombreDetectado = null, langCode = 'es') {
+function buildSystemPrompt(targetLang, puestoPreseleccionado = null, vacantesActivas = [], nombreDetectado = null, langCode = 'es', datosRecabados = {}) {
   const waPhone = langCode === 'en' ? '+1 210-429-3789' : '+52 443-207-2593';
 
-  // PASO 1: puesto — omitir si ya fue preseleccionado
+  // Puesto ya conocido: por botón (preseleccionado) o detectado en la conversación
+  const puestoConocido = puestoPreseleccionado || datosRecabados.puesto || null;
+
+  // PASO 1: puesto — omitir si ya se conoce
   let paso1 = `PASO 1 → "¡Con gusto te ayudo! ¿A qué puesto te gustaría aplicar?"
          Termina con: [ACCION:QUICK_REPLY:puesto]`;
-  if (puestoPreseleccionado) {
-    paso1 = `⚠️ EL USUARIO YA SELECCIONÓ EL PUESTO: "${puestoPreseleccionado}". OMITE EL PASO 1 completamente.`;
+  if (puestoConocido) {
+    paso1 = `⚠️ EL USUARIO YA INDICÓ EL PUESTO: "${puestoConocido}". OMITE EL PASO 1 completamente. NUNCA vuelvas a preguntar el puesto.`;
   }
 
   // PASO 2: nombre — omitir si ya se detectó en la conversación
@@ -217,6 +221,30 @@ Cuando el usuario diga el puesto que busca (PASO 1 o en cualquier momento):
 ══════════════════════════════════════════
 En este momento NO hay vacantes abiertas.
 Registra al candidato en lista de espera y dile que le avisarás cuando se abra una.
+`.trim();
+  }
+
+  // Bloque de datos ya recabados — evita re-preguntar y reinicios del flujo
+  const recabados = [];
+  if (datosRecabados.puesto)   recabados.push(`puesto: ${datosRecabados.puesto}`);
+  if (datosRecabados.nombre)   recabados.push(`nombre: ${datosRecabados.nombre}`);
+  if (datosRecabados.edad)     recabados.push(`edad: ${datosRecabados.edad}`);
+  if (datosRecabados.estado)   recabados.push(`estado: ${datosRecabados.estado}`);
+  if (datosRecabados.colonia)  recabados.push(`colonia: ${datosRecabados.colonia}`);
+  if (datosRecabados.email)    recabados.push(`email: ${datosRecabados.email}`);
+  if (datosRecabados.telefono) recabados.push(`telefono: ${datosRecabados.telefono}`);
+  let bloqueRecabados = '';
+  if (recabados.length > 0) {
+    bloqueRecabados = `
+══════════════════════════════════════════
+  DATOS YA RECABADOS EN ESTA CONVERSACIÓN
+══════════════════════════════════════════
+${recabados.map(r => '- ' + r).join('\n')}
+
+⚠️ REGLA DE MEMORIA (OBLIGATORIA):
+- Estos datos YA los tienes. NUNCA los vuelvas a preguntar.
+- Aunque el usuario repita un mensaje genérico (ej. "Quiero registrarme en lista de espera"), NO reinicies el flujo: continúa pidiendo el SIGUIENTE dato que falta, en el orden de los PASOS.
+- Pide ÚNICAMENTE los datos que faltan. Si ya tienes todos, cierra con el PASO 10.
 `.trim();
   }
 
@@ -376,6 +404,8 @@ Si el usuario pregunta sobre ser distribuidor, distribuir productos, revender, s
 ══════════════════════════════════════════
 Si el usuario menciona vacante, empleo, trabajo, CV, postularse, busco trabajo:
 
+${bloqueRecabados}
+
 Recopila UN DATO POR MENSAJE en este orden exacto:
 
 ${paso1}
@@ -390,7 +420,7 @@ PASO 8 → "¡Casi listo! ¿Tienes un CV para adjuntar?"
 PASO 9 → "¿Hay algo que quieras agregar sobre tu experiencia o perfil? (si no tienes nada, responde 'no')"
 PASO 10 → Cuando tienes todos los datos:
          - Si el usuario se registró porque NO hay vacantes actualmente (lista de espera):
-           "¡Listo, [nombre]! Quedas en nuestra lista de espera para [puesto]. En cuanto se abra una vacante, nuestro equipo de RH será de los primeros en contactarte. ¡Mucho éxito! 🌟"
+           "¡Listo, [nombre]! Guardamos todos tus datos y quedas en nuestra lista de espera para [puesto]. Estarás entre los primeros y te avisaremos por WhatsApp al [telefono] en cuanto se abra la vacante. ¡Mucho éxito! 🌟"
          - Si hay vacante activa:
            "¡Listo, [nombre]! Registré tu solicitud para [puesto]. Nuestro equipo de RH te contactará pronto. ¡Mucho éxito! 🌟"
          Termina con: [RECLUTAMIENTO:nombre=X|puesto=X|edad=X|estado=X|colonia=X|email=X|telefono=X|comentarios=X]
@@ -761,7 +791,7 @@ export async function POST({ request }) {
     // ── Generar respuesta ──────────────────────────────────────────────────
     const systemPrompt = isAnalysis
       ? "Eres un analista de datos experto. Genera un resumen ejecutivo claro y profesional basado en los datos proporcionados. Sigue las instrucciones del usuario al pie de la letra."
-      : buildSystemPrompt('Spanish', puestoPreseleccionado, vacantesActivas, nombreDetectado, langCode);
+      : buildSystemPrompt('Spanish', puestoPreseleccionado, vacantesActivas, nombreDetectado, langCode, datosHistorialPrevio);
 
     const dataES = await fetchOpenAI(apiKey, {
       model: 'gpt-4.1-mini',

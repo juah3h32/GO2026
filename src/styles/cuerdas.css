@@ -1328,3 +1328,35 @@ model-viewer::part(default-progress-mask) { display: none !important; opacity: 0
 .dark .btn-soon .btn-label {
   color: #999 !important;
 }
+
+/* ── LUPA (MAGNIFIER) ── */
+.magnifier-lens {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  border: 3px solid #FB670B;
+  box-shadow: 0 0 25px rgba(0,0,0,0.5), inset 0 0 15px rgba(0,0,0,0.2);
+  pointer-events: none;
+  visibility: hidden;
+  opacity: 0;
+  z-index: 1000;
+  background-repeat: no-repeat;
+  background-color: rgba(255,255,255,0.1);
+  backdrop-filter: blur(2px);
+  transition: opacity 0.2s ease;
+}
+.magnifier-lens.visible {
+  visibility: visible;
+  opacity: 1;
+}
+
+@media screen and (min-width: 1025px) {
+  #product-image-overlay {
+    pointer-events: auto !important;
+    cursor: crosshair;
+  }
+  .product-hero-img:hover {
+    transform: none !important; /* Desactivar scale de cuerdas.css para que la lupa sea precisa */
+  }
+}

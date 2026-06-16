@@ -299,7 +299,8 @@ function extraerDatosDeHistorial(msgs) {
     if (/puesto|posici[oó]n|[aá]rea|trabajo.*interesa|tipo de puesto|aplicar a|qu[eé] puesto|a qu[eé] puesto|cu[aá]l.*puesto/i.test(pregunta) && !data.puesto) {
       data.puesto = sanitizeInput(respuesta, 'default', 50);
     } else if (/nombre completo|c[oó]mo te llamas|tu nombre|cu[aá]l es tu nombre/i.test(pregunta) && !data.nombre) {
-      if (!/^\d+$/.test(respuesta)) data.nombre = sanitizeInput(respuesta, 'default', 60);
+      // No tomar como nombre un mensaje genérico de intención (ej. re-clic en botón "lista de espera")
+      if (!/^\d+$/.test(respuesta) && respuesta.length <= 60 && !/registrarme|lista de espera|vacante|no encontr[eé]|me interesa trabajar/i.test(respuesta)) data.nombre = sanitizeInput(respuesta, 'default', 60);
     } else if (/cu[aá]ntos a[nñ]os|a[nñ]os tienes|edad/i.test(pregunta) && !data.edad) {
       data.edad = sanitizeInput(respuesta, 'edad', 3);
     } else if (/estado.*rep[uú]blica|estado.*vives|qu[eé] estado|en qu[eé] estado/i.test(pregunta) && !data.estado) {
@@ -789,8 +790,16 @@ const RecruitmentConfirmation = ({ candidato, t }) => {
         <div className="confirmation-icon-ring" />
       </div>
       <div className="confirmation-body">
-        <p className="confirmation-title">{t?.confirmTitle || '¡Solicitud registrada con éxito!'}</p>
-        <p className="confirmation-subtitle">{t?.confirmSubtitle || 'Nuestro equipo de RH se pondrá en contacto contigo pronto.'}</p>
+        <p className="confirmation-title">
+          {candidato?.esListaEspera
+            ? '¡Quedaste en lista de espera!'
+            : (t?.confirmTitle || '¡Solicitud registrada con éxito!')}
+        </p>
+        <p className="confirmation-subtitle">
+          {candidato?.esListaEspera
+            ? `Guardamos todos tus datos${campos.puesto ? ` para ${campos.puesto}` : ''}. Estarás entre los primeros y te avisaremos por WhatsApp en cuanto se abra la vacante.`
+            : (t?.confirmSubtitle || 'Nuestro equipo de RH se pondrá en contacto contigo pronto.')}
+        </p>
 
         <div className="confirmation-badge">
           {candidato?.id && (

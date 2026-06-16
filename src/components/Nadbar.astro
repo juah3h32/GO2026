@@ -58,7 +58,7 @@ const isHomePage = pathname === `/${safeLang}/` || pathname === `/${safeLang}` |
 const catTail = pathname.includes('/catalogo') ? (pathname.split('/catalogo')[1] || '').replace(/^\/+|\/+$/g, '') : null;
 const isCatalogList = catTail === '';
 const isCatalogDetail = !!catTail;
-const isForceWhitePage = isHomePage || pathname.includes('/productos') || pathname.includes('/arpillas') || pathname.includes('/rafias') || pathname.includes('/about') || pathname.includes('/social') || pathname.includes('/cuerdas') || pathname.includes('/vacantes') || isCatalogList;
+const isForceWhitePage = isHomePage || showBackBtn || pathname.includes('/productos') || pathname.includes('/about') || pathname.includes('/social') || pathname.includes('/vacantes') || isCatalogList;
 const isForceBlackPage = pathname.includes('/distribuidor') || isCatalogDetail;
 
 function getLangPath(targetLang: string) {

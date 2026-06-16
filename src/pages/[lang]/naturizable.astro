@@ -193,6 +193,48 @@ const specs = [
     const titleEl = document.getElementById('product-title');
     const descEl  = document.getElementById('product-desc');
     const heroImg = document.getElementById('product-hero-img');
+    const overlay = document.getElementById('product-image-overlay');
+
+    // ── Lógica de la Lupa (Magnifier) ─────────────────────────────
+    let lens;
+    function initMagnifier() {
+      if (!heroImg || !overlay || window.innerWidth <= 1024) return;
+      
+      if (!lens) {
+        lens = document.createElement('div');
+        lens.className = 'magnifier-lens';
+        overlay.appendChild(lens);
+      }
+
+      function moveLens(e) {
+        const rect = heroImg.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        if (x > 0 && x < rect.width && y > 0 && y < rect.height) {
+          lens.classList.add('visible');
+          const overlayRect = overlay.getBoundingClientRect();
+          const lensX = e.clientX - overlayRect.left - (lens.offsetWidth / 2);
+          const lensY = e.clientY - overlayRect.top - (lens.offsetHeight / 2);
+          lens.style.left = lensX + 'px';
+          lens.style.top  = lensY + 'px';
+
+          const zoom = 2.5; 
+          lens.style.backgroundImage = `url('${heroImg.src}')`;
+          lens.style.backgroundSize  = (rect.width * zoom) + 'px ' + (rect.height * zoom) + 'px';
+          const bgX = (x * zoom) - (lens.offsetWidth / 2);
+          const bgY = (y * zoom) - (lens.offsetHeight / 2);
+          lens.style.backgroundPosition = `-${bgX}px -${bgY}px`;
+        } else {
+          lens.classList.remove('visible');
+        }
+      }
+      overlay.addEventListener('mousemove', moveLens);
+      overlay.addEventListener('mouseleave', () => {
+        if (lens) lens.classList.remove('visible');
+      });
+    }
+    initMagnifier();
 
     const specIds = {
       mat:    document.getElementById('spec-mat'),

@@ -902,9 +902,12 @@ async function notifyCategoria(categoria, buildMsg) {
 
 // Nuevo candidato → categoría 'rh'
 export async function notifyCategoriaRH(c) {
+  const esEspera = c.en_lista_espera === 1 || c.en_lista_espera === true || c.esListaEspera === true;
   return notifyCategoria('rh', (nombre) => {
     const saludo = nombre ? `*${nombre}*, hay` : 'Hay';
-    return `${saludo} un nuevo registro de candidato, te lo comparto:\n\n` +
+    const tipo   = esEspera ? 'registro en *LISTA DE ESPERA*' : 'registro de candidato';
+    return `${saludo} un nuevo ${tipo}, te lo comparto:\n\n` +
+      (esEspera ? `*EN LISTA DE ESPERA* — se le avisará cuando se abra la vacante.\n\n` : '') +
       `- Nombre: *${c.nombre || '—'}*\n` +
       `- Puesto: ${c.puesto || '—'}\n` +
       (c.edad ? `- Edad: ${c.edad}\n` : '') +

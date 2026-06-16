@@ -1,6 +1,62 @@
 {
   "commits": [
     {
+      "hash": "971ef44",
+      "date": "2026-06-12",
+      "message": "fix(catalogo): imagen siempre detras en PDF, sin simbolo ® y subtitulo solo \"DIVISION\"",
+      "rawMessage": "fix(catalogo): imagen siempre detras en PDF, sin simbolo ® y subtitulo solo \"DIVISION\"",
+      "type": "fix",
+      "area": "Media"
+    },
+    {
+      "hash": "705c4a9",
+      "date": "2026-06-12",
+      "message": "feat(catalogo): selector de division pulido (pildora + popover grid)",
+      "rawMessage": "feat(catalogo): selector de division pulido (pildora + popover grid)",
+      "type": "feat",
+      "area": "General"
+    },
+    {
+      "hash": "3fac0d2",
+      "date": "2026-06-12",
+      "message": "feat(catalogo): menu lateral de divisiones en modo edicion (admin)",
+      "rawMessage": "feat(catalogo): menu lateral de divisiones en modo edicion (admin)",
+      "type": "feat",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "f9c2e39",
+      "date": "2026-06-12",
+      "message": "fix(catalogo): edUpload usaba imgFolder fuera de scope (ReferenceError)",
+      "rawMessage": "fix(catalogo): edUpload usaba imgFolder fuera de scope (ReferenceError)",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "2184302",
+      "date": "2026-06-12",
+      "message": "fix(catalogo): reemplazo visual robusto al subir imagen en el editor",
+      "rawMessage": "fix(catalogo): reemplazo visual robusto al subir imagen en el editor",
+      "type": "fix",
+      "area": "Media"
+    },
+    {
+      "hash": "a166d32",
+      "date": "2026-06-12",
+      "message": "fix(catalogo): PDF tablas matrix/colorTable, productos horizontales y subida de imagen persistente",
+      "rawMessage": "fix(catalogo): PDF tablas matrix/colorTable, productos horizontales y subida de imagen persistente",
+      "type": "fix",
+      "area": "Productos"
+    },
+    {
+      "hash": "6d577d9",
+      "date": "2026-06-12",
+      "message": "fix(catalogo): render de min/max en specs (T) + 6 productos stretch del PDF",
+      "rawMessage": "fix(catalogo): render de min/max en specs (T) + 6 productos stretch del PDF",
+      "type": "fix",
+      "area": "Productos"
+    },
+    {
       "hash": "b999e44",
       "date": "2026-06-12",
       "message": "fix(editor): abre en español (no ingles); navegacion estable al escalar; copiar/pegar posicion de imagen",
@@ -2170,10 +2226,10 @@
     }
   ],
   "stats": {
-    "total": 271,
+    "total": 278,
     "byType": {
-      "fix": 82,
-      "feat": 48,
+      "fix": 87,
+      "feat": 50,
       "update": 12,
       "chore": 6,
       "style": 9,
@@ -2182,42 +2238,49 @@
       "release": 110
     },
     "byArea": {
-      "Media": 23,
-      "Productos": 17,
-      "General": 192,
+      "Media": 25,
+      "General": 194,
+      "Admin/API": 26,
+      "Productos": 19,
       "Reclutamiento": 2,
       "i18n": 4,
-      "Admin/API": 25,
       "Performance": 6,
       "UI": 2
     },
     "byMonth": {
-      "2026-06": 113,
+      "2026-06": 120,
       "2026-05": 33,
       "2026-04": 29,
       "2026-03": 96
     },
     "byAreaType": {
       "Media": {
-        "fix": 17,
+        "fix": 19,
         "feat": 4,
         "perf": 1,
         "update": 1
       },
+      "General": {
+        "feat": 22,
+        "fix": 45,
+        "update": 7,
+        "chore": 5,
+        "style": 5,
+        "release": 110
+      },
+      "Admin/API": {
+        "feat": 8,
+        "fix": 13,
+        "style": 2,
+        "update": 2,
+        "docs": 1
+      },
       "Productos": {
+        "fix": 6,
         "feat": 9,
-        "fix": 4,
         "chore": 1,
         "perf": 1,
         "update": 2
-      },
-      "General": {
-        "fix": 44,
-        "update": 7,
-        "chore": 5,
-        "feat": 21,
-        "style": 5,
-        "release": 110
       },
       "Reclutamiento": {
         "fix": 1,
@@ -2226,13 +2289,6 @@
       "i18n": {
         "feat": 2,
         "fix": 2
-      },
-      "Admin/API": {
-        "fix": 13,
-        "style": 2,
-        "feat": 7,
-        "update": 2,
-        "docs": 1
       },
       "Performance": {
         "fix": 1,
@@ -2244,5 +2300,5 @@
       }
     }
   },
-  "generatedAt": "2026-06-12T18:35:26.191Z"
+  "generatedAt": "2026-06-16T18:34:12.174Z"
 }

@@ -3,7 +3,7 @@
 export const prerender = false;
 
 import { verifyAdminToken }  from '../../../lib/verifyAdminToken.ts';
-import { getWAIncoming, getWAAuthorized, addWAAuthorized, updateWAAuthorized, deleteWAAuthorized } from '../../../lib/analytics-db.js';
+import { getWAIncoming, getWAAuthorized, addWAAuthorized, updateWAAuthorized, deleteWAAuthorized, getConfig, setConfig } from '../../../lib/analytics-db.js';
 import { sendWAText }        from '../../../lib/notify.js';
 
 export async function POST({ request }) {
@@ -63,6 +63,17 @@ export async function POST({ request }) {
     if (!body.id) return json({ ok: false, error: 'id requerido' }, 400);
     await deleteWAAuthorized(body.id);
     return json({ ok: true });
+  }
+
+  // ── Pausa global de la automatizacion del bot (numeros del publico) ─────────
+  if (body.action === 'bot_pause_get') {
+    const v = await getConfig('bot_general_paused').catch(() => null);
+    return json({ ok: true, paused: v === '1' });
+  }
+
+  if (body.action === 'bot_pause_set') {
+    await setConfig('bot_general_paused', body.paused ? '1' : '0');
+    return json({ ok: true, paused: !!body.paused });
   }
 
   return json({ ok: false, error: 'Unknown action' }, 400);

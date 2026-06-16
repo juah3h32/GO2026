@@ -221,6 +221,7 @@ export async function POST({ request }) {
         await notifyNewVacante({
           nombre, puesto, edad, estado, colonia,
           whatsapp: telefono, email, cvNombre, mensaje: comentarios || mensaje,
+          en_lista_espera,
         });
         console.log('✅ Notificación RH enviada');
       } catch (err) {

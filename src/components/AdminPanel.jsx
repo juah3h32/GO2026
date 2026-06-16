@@ -2607,6 +2607,7 @@ function WAWebhookTab({ P, isMobile }) {
   const [msgsLoading, setMsgsLoading] = useState(false);
   const [authorized, setAuthorized]   = useState([]);
   const [authLoading, setAuthLoading] = useState(false);
+  const [botPaused, setBotPaused]     = useState(false);
 
   // form envío
   const [sPhone, setSPhone] = useState('');
@@ -2706,6 +2707,17 @@ function WAWebhookTab({ P, isMobile }) {
     setAuthLoading(false);
   }
 
+  async function loadBotPause() {
+    const d = await api({ action: 'bot_pause_get' }).catch(() => ({}));
+    if (d.ok) setBotPaused(!!d.paused);
+  }
+  async function toggleBotPause() {
+    const next = !botPaused;
+    setBotPaused(next); // optimista
+    const d = await api({ action: 'bot_pause_set', paused: next }).catch(() => ({}));
+    if (!d.ok) setBotPaused(!next); // revertir si falla
+  }
+
   // Auto-poll: jala mensajes nuevos de WhatsApp y refresca la lista.
   // Fallback en vivo mientras el dashboard está abierto (la cola push de WAHooks
   // puede no entregar; este pull garantiza que el bot responda).
@@ -2722,7 +2734,7 @@ function WAWebhookTab({ P, isMobile }) {
       loadMsgs(); loadAuthorized();
       const itv = setInterval(pollWhatsApp, 6000);
       return () => clearInterval(itv);
-    } else if (subTab === 'numeros') loadAuthorized();
+    } else if (subTab === 'numeros') { loadAuthorized(); loadBotPause(); }
   }, [subTab]);
 
   async function handleSend(e) {
@@ -2761,6 +2773,21 @@ function WAWebhookTab({ P, isMobile }) {
     if (!window.confirm('Eliminar este número?')) return;
     try {
       await api({ action: 'authorized_delete', id });
+      loadAuthorized();
+    } catch { /* silencioso */ }
+  }
+
+  // Detener / reanudar notificaciones a un número sin eliminarlo (active 0/1)
+  async function handleToggleActive(item) {
+    try {
+      await api({
+        action: 'authorized_update',
+        id: item.id,
+        name: item.name,
+        permissions: item.permissions || [],
+        categories: item.categories || [],
+        active: !item.active,
+      });
       loadAuthorized();
     } catch { /* silencioso */ }
   }
@@ -3000,6 +3027,24 @@ function WAWebhookTab({ P, isMobile }) {
       {/* ── NUMEROS AUTORIZADOS ── */}
       {subTab === 'numeros' && (
         <div>
+          {/* Pausa global de la automatizacion del bot (publico) */}
+          <div style={{ ...CARD, borderColor: botPaused ? '#f59e0b' : P.border, background: botPaused ? 'rgba(245,158,11,0.06)' : (CARD.background || P.surface) }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+              <div style={{ flex: 1, minWidth: 200 }}>
+                <p style={{ ...LABEL, marginBottom: 4 }}>Automatizacion del bot (publico)</p>
+                <p style={{ fontSize: 11, color: P.textDim, margin: 0, lineHeight: 1.5 }}>
+                  {botPaused
+                    ? 'PAUSADO: el bot NO responde a numeros no autorizados. Los mensajes igual se registran. Los autorizados siguen funcionando.'
+                    : 'ACTIVO: el bot responde automaticamente a cualquier numero que escriba.'}
+                </p>
+              </div>
+              <button onClick={toggleBotPause}
+                style={{ flexShrink: 0, padding: '9px 18px', borderRadius: 9, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 800,
+                  background: botPaused ? '#22C55E' : '#f59e0b', color: '#fff' }}>
+                {botPaused ? 'Reanudar respuestas' : 'Pausar respuestas'}
+              </button>
+            </div>
+          </div>
           {/* Agregar número */}
           <div style={CARD}>
             <p style={LABEL}>Agregar numero autorizado</p>
@@ -3111,6 +3156,11 @@ function WAWebhookTab({ P, isMobile }) {
                       </div>
                     </div>
                     <div style={{ display: 'flex', gap: 5 }}>
+                      <button onClick={() => handleToggleActive(item)}
+                        title={item.active ? 'Detener notificaciones a este número (sin eliminarlo)' : 'Reanudar notificaciones a este número'}
+                        style={{ ...BTN_SM, color: item.active ? '#f59e0b' : '#22C55E',
+                          border: `1px solid ${item.active ? 'rgba(245,158,11,0.35)' : 'rgba(34,197,94,0.35)'}` }}>
+                        {item.active ? 'Detener' : 'Activar'}</button>
                       <button onClick={() => { setEditId(item.id); setEditPerms(item.permissions || []); setEditCats(item.categories || []); setEditActive(item.active); }}
                         style={BTN_SM}>Editar</button>
                       <button onClick={() => handleDelete(item.id)}
@@ -3214,8 +3264,8 @@ const ALL_TABS=[
         ? { background:P.bg,
             display:'flex', flexDirection:'column', overflow:'hidden' }
         : { background:P.bg, border:`1px solid ${P.border}`, borderRadius:isMobile?10:16,
-            width:'100%', maxWidth:isMobile?'100%':isTablet?'98vw':1200,
-            height:isMobile?'100dvh':'90vh', maxHeight:isMobile?'100dvh':'90vh',
+            width:'100%', maxWidth:isMobile?'100%':isTablet?'98vw':'min(1320px,94vw)',
+            height:isMobile?'100dvh':'88vh', maxHeight:isMobile?'100dvh':'88vh',
             display:'flex', flexDirection:'column', overflow:'hidden',
             boxShadow:`0 24px 80px rgba(0,0,0,0.60), 0 0 0 1px ${P.border}`,
             position:'relative' }}>
