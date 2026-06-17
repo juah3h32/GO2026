@@ -490,6 +490,7 @@ const handleDelete = () => {
   // PROTECCIÓN: Valores por defecto para evitar errores de renderizado
   const folio   = candidate?.id ? `#${String(candidate.id).padStart(5,'0')}` : '—';
   const tieneCv = !!(candidate?.cv_nombre);
+  const cvDescargable = !!(candidate?.cv_base64); // el archivo realmente existe en BD
   const tsLabel = formatFecha(candidate?.created_at || candidate?.ts);
   const recent  = isNew || isRecent(candidate?.created_at || candidate?.ts);
   const sm      = getStatusMap(C)[currentStatus] || getStatusMap(C).nuevo;
@@ -641,14 +642,21 @@ const handleDelete = () => {
                 </div>
 
                 {/* CV */}
-                {tieneCv && (
+                {tieneCv && (cvDescargable ? (
                   <button onClick={() => abrirCV(candidate)}
                     style={{ marginTop:14, display:'inline-flex', alignItems:'center', gap:6, padding:'7px 13px', borderRadius:8,
                       fontSize:11, fontWeight:600, fontFamily:T.sans, cursor:'pointer', width:'100%',
                       background:C.surface, border:`1px solid ${C.border}`, color:C.teal, justifyContent:'center' }}>
                     {Ic.clip} Ver CV — {candidate.cv_nombre}
                   </button>
-                )}
+                ) : (
+                  <div title="El candidato adjunto un CV pero el archivo no quedo guardado"
+                    style={{ marginTop:14, display:'inline-flex', alignItems:'center', gap:6, padding:'7px 13px', borderRadius:8,
+                      fontSize:11, fontWeight:600, fontFamily:T.sans, width:'100%', boxSizing:'border-box',
+                      background:C.surface2||C.surface, border:`1px dashed ${C.border}`, color:C.textDim, justifyContent:'center' }}>
+                    {Ic.clip} CV: {candidate.cv_nombre} · sin archivo
+                  </div>
+                ))}
 
                 {/* Perfil PDF */}
                 <button onClick={() => descargarPerfilPDF(candidate)}

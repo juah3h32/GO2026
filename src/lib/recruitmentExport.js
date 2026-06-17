@@ -215,6 +215,7 @@ export async function descargarPerfilPDF(candidate) {
     if (!response.ok) throw new Error('Error al generar PDF');
 
     const blob = await response.blob();
+    if (!blob || blob.size < 100) throw new Error('PDF vacio');
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -225,7 +226,19 @@ export async function descargarPerfilPDF(candidate) {
     setTimeout(() => URL.revokeObjectURL(url), 2000);
   } catch (err) {
     console.error('[export-pdf-client]', err);
-    alert('No se pudo generar el PDF. Revisa la consola.');
+    // Fallback: abrir el perfil en una ventana para guardarlo como PDF (Imprimir > Guardar como PDF)
+    try {
+      const w = window.open('', '_blank');
+      if (w) {
+        w.document.open();
+        w.document.write(html);
+        w.document.close();
+        w.document.title = `Perfil ${candidate.nombre || ''}`.trim();
+        setTimeout(() => { try { w.focus(); w.print(); } catch {} }, 700);
+        return;
+      }
+    } catch {}
+    alert('No se pudo generar el PDF en el servidor. Permite las ventanas emergentes e intenta de nuevo.');
   }
 }
 

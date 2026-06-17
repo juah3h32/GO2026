@@ -1,6 +1,14 @@
 {
   "commits": [
     {
+      "hash": "e197d52",
+      "date": "2026-06-17",
+      "message": "Catalogo: selector imagenes Cloudinary, recorte, 2026 portadas, fixes specs y video stretch",
+      "rawMessage": "Catalogo: selector imagenes Cloudinary, recorte, 2026 portadas, fixes specs y video stretch",
+      "type": "update",
+      "area": "Media"
+    },
+    {
       "hash": "6822dc6",
       "date": "2026-06-16",
       "message": "Catalogo editor: editor por idioma, vista previa PDF, selector de imagenes Cloudinary y fixes",
@@ -2234,9 +2242,9 @@
     }
   ],
   "stats": {
-    "total": 279,
+    "total": 280,
     "byType": {
-      "update": 13,
+      "update": 14,
       "fix": 87,
       "feat": 50,
       "chore": 6,
@@ -2246,7 +2254,7 @@
       "release": 110
     },
     "byArea": {
-      "Media": 26,
+      "Media": 27,
       "General": 194,
       "Admin/API": 26,
       "Productos": 19,
@@ -2256,14 +2264,14 @@
       "UI": 2
     },
     "byMonth": {
-      "2026-06": 121,
+      "2026-06": 122,
       "2026-05": 33,
       "2026-04": 29,
       "2026-03": 96
     },
     "byAreaType": {
       "Media": {
-        "update": 2,
+        "update": 3,
         "fix": 19,
         "feat": 4,
         "perf": 1
@@ -2308,5 +2316,5 @@
       }
     }
   },
-  "generatedAt": "2026-06-17T15:42:17.886Z"
+  "generatedAt": "2026-06-17T16:22:42.208Z"
 }

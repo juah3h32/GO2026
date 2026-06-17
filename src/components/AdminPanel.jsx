@@ -2392,7 +2392,7 @@ function Dash({ onClose, role, theme='dark', toggleTheme, fullscreen=false }) {
   const [convSub,setConvSub]=useState(()=> role.tabs.includes('conversations')?'chats':role.tabs.includes('messages')?'mensajes':'llamadas');
   const [recSub,setRecSub]=useState(()=> role.tabs.includes('recruitment')?'candidatos':'vacantes');
   const [repSub,setRepSub]=useState('pdf'); // sub-pestañas de Reportes: pdf | notificaciones | monitoreo
-  const [auto,setAuto]=useState(true), [menuOpen,setMenuOpen]=useState(false);
+  const [auto,setAuto]=useState(true), [menuOpen,setMenuOpen]=useState(false), [openGroup,setOpenGroup]=useState(null);
   const itvRef=useRef(null), scrollRef=useRef(null);
   const _defPreset = role.name==='Marketing' ? 'all' : '28d';
   const [activePresetId,setActivePresetId]=useState(_defPreset);
@@ -3237,6 +3237,26 @@ const ALL_TABS=[
     if (t.id === 'recruitment')   return canSee('recruitment')||canSee('vacantes');
     return canSee(t.id);
   });
+
+  // Agrupacion de tabs por categoria (para un menu mas claro). Solo se muestran
+  // los grupos/tabs que el usuario tiene permitidos.
+  const TAB_GROUPS=[
+    { label:'Panel',     ids:['overview','console','activity'] },
+    { label:'Comercial', ids:['products','conversations','distribuidores','recruitment'] },
+    { label:'Análisis',  ids:['ai','reportes','changelog'] },
+    { label:'Gestión',   ids:['whatsapp','catalog','users'] },
+  ];
+  const groupedTabs = (() => {
+    const used = new Set();
+    const groups = TAB_GROUPS.map(g => {
+      const tabs = g.ids.map(id => TABS.find(t => t.id === id)).filter(Boolean);
+      tabs.forEach(t => used.add(t.id));
+      return { label: g.label, tabs };
+    }).filter(g => g.tabs.length);
+    const rest = TABS.filter(t => !used.has(t.id));
+    if (rest.length) groups.push({ label:'Otros', tabs: rest });
+    return groups;
+  })();
   // Shared card style
   const CARD={
     background:P.surface,
@@ -3382,26 +3402,32 @@ const ALL_TABS=[
 
       {/* ── TABS ── */}
       {!isMobile ? (
-        <div className="tabs-row" style={{ display:'flex', overflowX:'auto',
+        <div className="tabs-row" style={{ display:'flex', alignItems:'center', overflowX:'auto',
           background:P.surface, flexShrink:0 }}>
-          {TABS.map(t=>(
-            <button key={t.id} onClick={()=>setTab(t.id)}
-              className={`tab-btn ${tab===t.id?'active':''}`}
-              style={{ background:'transparent',
-                color:tab===t.id?'#fff':P.textDim,
-                border:'none', padding:'7px 13px',
-                cursor:'pointer', fontSize:12,
-                fontWeight:tab===t.id?600:400,
-                whiteSpace:'nowrap',
-                letterSpacing:'-0.01em' }}>
-              {t.label}
-              {t.id==='distribuidores'&&leads.length>0&&(
-                <span style={{ marginLeft:5,
-                  background: tab===t.id ? 'rgba(255,255,255,0.28)' : P.okDim,
-                  color: tab===t.id ? '#fff' : P.orange,
-                  borderRadius:10, padding:'1px 7px', fontSize:9, fontWeight:700 }}>{leads.length}</span>
-              )}
-            </button>
+          {groupedTabs.map((g,gi)=>(
+            <span key={g.label} style={{ display:'inline-flex', alignItems:'center', flexShrink:0 }}>
+              {gi>0 && <span aria-hidden="true" style={{ width:1, height:18, background:P.border, margin:'0 8px', flexShrink:0, opacity:0.6 }} />}
+              {g.tabs.map(t=>(
+                <button key={t.id} onClick={()=>setTab(t.id)}
+                  className={`tab-btn ${tab===t.id?'active':''}`}
+                  title={g.label}
+                  style={{ background:'transparent',
+                    color:tab===t.id?'#fff':P.textDim,
+                    border:'none', padding:'7px 13px',
+                    cursor:'pointer', fontSize:12,
+                    fontWeight:tab===t.id?600:400,
+                    whiteSpace:'nowrap',
+                    letterSpacing:'-0.01em' }}>
+                  {t.label}
+                  {t.id==='distribuidores'&&leads.length>0&&(
+                    <span style={{ marginLeft:5,
+                      background: tab===t.id ? 'rgba(255,255,255,0.28)' : P.okDim,
+                      color: tab===t.id ? '#fff' : P.orange,
+                      borderRadius:10, padding:'1px 7px', fontSize:9, fontWeight:700 }}>{leads.length}</span>
+                  )}
+                </button>
+              ))}
+            </span>
           ))}
         </div>
       ) : (
@@ -3417,22 +3443,30 @@ const ALL_TABS=[
           {menuOpen&&(
             <div style={{ position:'absolute', top:'calc(100% + 2px)', left:14, right:14,
               background:P.surface, border:`1px solid ${P.border}`, borderRadius:10,
-              zIndex:100, overflow:'hidden', boxShadow:`0 12px 40px rgba(0,0,0,0.8)`,
+              zIndex:100, overflow:'hidden', maxHeight:'70vh', overflowY:'auto', boxShadow:`0 12px 40px rgba(0,0,0,0.8)`,
               animation:'fadeUp 0.15s ease' }}>
-              {TABS.map(t=>(
-                <button key={t.id} onClick={()=>{setTab(t.id);setMenuOpen(false);}}
-                  style={{ width:'100%', display:'flex', alignItems:'center', justifyContent:'space-between',
-                    padding:'12px 15px', background:tab===t.id?P.okDim:'transparent',
-                    border:'none', borderBottom:`1px solid ${P.border2}`,
-                    color:tab===t.id?P.orange:P.textSub, fontSize:12,
-                    fontWeight:tab===t.id?600:400, cursor:'pointer', textAlign:'left' }}>
-                  {t.label}
-                  {t.id==='distribuidores'&&leads.length>0&&(
-                    <span style={{ background: tab===t.id ? P.orange : P.okDim,
-                      color: tab===t.id ? '#fff' : P.orange,
-                      borderRadius:10, padding:'1px 7px', fontSize:9, fontWeight:700 }}>{leads.length}</span>
-                  )}
-                </button>
+              {groupedTabs.map(g=>(
+                <div key={g.label}>
+                  <div style={{ padding:'8px 15px 4px', fontSize:9, fontWeight:800, letterSpacing:'0.09em',
+                    textTransform:'uppercase', color:P.textDim, opacity:0.7, background:P.surface2 }}>{g.label}</div>
+                  {g.tabs.map(t=>(
+                    <button key={t.id} onClick={()=>{setTab(t.id);setMenuOpen(false);}}
+                      style={{ width:'100%', display:'flex', alignItems:'center', justifyContent:'space-between', gap:8,
+                        padding:'11px 15px', background:tab===t.id?P.okDim:'transparent',
+                        border:'none', borderBottom:`1px solid ${P.border2}`,
+                        color:tab===t.id?P.orange:P.textSub, fontSize:12,
+                        fontWeight:tab===t.id?600:400, cursor:'pointer', textAlign:'left' }}>
+                      <span style={{ display:'inline-flex', alignItems:'center', gap:8 }}>
+                        <span style={{ opacity:0.7, fontSize:12 }}>{t.icon}</span>{t.label}
+                      </span>
+                      {t.id==='distribuidores'&&leads.length>0&&(
+                        <span style={{ background: tab===t.id ? P.orange : P.okDim,
+                          color: tab===t.id ? '#fff' : P.orange,
+                          borderRadius:10, padding:'1px 7px', fontSize:9, fontWeight:700 }}>{leads.length}</span>
+                      )}
+                    </button>
+                  ))}
+                </div>
               ))}
             </div>
           )}

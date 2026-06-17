@@ -913,10 +913,9 @@ export async function POST({ request }) {
       });
     }
 
-    // ── Preparar datos para revisión en frontend (NO se guarda aún en DB) ───
-    // El guardado real ocurre cuando el usuario confirma en PreRegistroReview.
     let isDuplicate = false;
     let esListaEspera = false;
+    let candidatoId = null;
 
     if (accionReclutamiento && recruitData) {
       const historialTextos = (messages || []).filter(m => m.role === 'user').map(m => m.content || '').join(' ');
@@ -928,6 +927,43 @@ export async function POST({ request }) {
         esListaEspera = true;
       } else if (recruitData.puesto && !matchVacanteSimilar(recruitData.puesto, vacantesActivas)) {
         esListaEspera = true;
+      }
+
+      // ── GUARDADO AUTOMATICO EN BD + NOTIFICACION ──────────────────────────
+      // Antes solo se guardaba al confirmar en el frontend (web) -> WhatsApp y
+      // las charlas sin confirmar nunca se registraban. Ahora se persiste aqui.
+      try {
+        const saved = await saveRecruitmentLead({
+          nombre:     recruitData.nombre   || '',
+          email:      recruitData.email    || '',
+          telefono:   recruitData.telefono || '',
+          puesto:     recruitData.puesto   || '',
+          edad:       recruitData.edad     || '',
+          estado_rep: recruitData.estado   || '',
+          colonia:    recruitData.colonia  || '',
+          cvNombre:   recruitData.cvNombre || '',
+          mensaje:    '',
+          comentarios: recruitData.comentarios || recruitData.mensaje || '',
+          sessionId:  sessionId || '',
+          en_lista_espera: esListaEspera ? 1 : 0,
+        });
+        if (saved?.duplicate) {
+          isDuplicate = true;
+          candidatoId = saved.id || null;
+        } else {
+          candidatoId = saved?.id || null;
+          // Notificar a RH / categorias (no bloquea la respuesta)
+          notifyNewVacante({
+            nombre: recruitData.nombre, puesto: recruitData.puesto, edad: recruitData.edad,
+            estado: recruitData.estado, colonia: recruitData.colonia,
+            whatsapp: recruitData.telefono, email: recruitData.email,
+            cvNombre: recruitData.cvNombre, mensaje: recruitData.comentarios || recruitData.mensaje,
+            en_lista_espera: esListaEspera ? 1 : 0,
+          }).catch(e => console.warn('⚠️ notif RH (chat):', e.message));
+          console.log('✅ Candidato guardado desde chat:', candidatoId, recruitData.nombre, '→', recruitData.puesto);
+        }
+      } catch (e) {
+        console.error('❌ guardar candidato (chat):', e.message);
       }
     }
 
@@ -945,7 +981,7 @@ export async function POST({ request }) {
         accionDistribuidor,
         accionReclutamiento: accionReclutamiento && !isDuplicate,
         enFlujoReclutamiento,
-        candidatoId:         null,
+        candidatoId,
         isDuplicate,
         esListaEspera,
         recruitData:         accionReclutamiento ? recruitData : null,
