@@ -1,6 +1,14 @@
 {
   "commits": [
     {
+      "hash": "6822dc6",
+      "date": "2026-06-16",
+      "message": "Catalogo editor: editor por idioma, vista previa PDF, selector de imagenes Cloudinary y fixes",
+      "rawMessage": "Catalogo editor: editor por idioma, vista previa PDF, selector de imagenes Cloudinary y fixes",
+      "type": "update",
+      "area": "Media"
+    },
+    {
       "hash": "971ef44",
       "date": "2026-06-12",
       "message": "fix(catalogo): imagen siempre detras en PDF, sin simbolo ® y subtitulo solo \"DIVISION\"",
@@ -2226,11 +2234,11 @@
     }
   ],
   "stats": {
-    "total": 278,
+    "total": 279,
     "byType": {
+      "update": 13,
       "fix": 87,
       "feat": 50,
-      "update": 12,
       "chore": 6,
       "style": 9,
       "perf": 3,
@@ -2238,7 +2246,7 @@
       "release": 110
     },
     "byArea": {
-      "Media": 25,
+      "Media": 26,
       "General": 194,
       "Admin/API": 26,
       "Productos": 19,
@@ -2248,17 +2256,17 @@
       "UI": 2
     },
     "byMonth": {
-      "2026-06": 120,
+      "2026-06": 121,
       "2026-05": 33,
       "2026-04": 29,
       "2026-03": 96
     },
     "byAreaType": {
       "Media": {
+        "update": 2,
         "fix": 19,
         "feat": 4,
-        "perf": 1,
-        "update": 1
+        "perf": 1
       },
       "General": {
         "feat": 22,
@@ -2300,5 +2308,5 @@
       }
     }
   },
-  "generatedAt": "2026-06-16T18:34:12.174Z"
+  "generatedAt": "2026-06-17T15:42:17.886Z"
 }

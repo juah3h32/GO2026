@@ -78,6 +78,20 @@
       "pt": "SACO JUMBO",
       "zh": "大袋子",
       "ar": "حقيبة ضخمة"
+    },
+    {
+      "es": "SACO DE RAFIA CON LINER",
+      "en": "RAFFIA BAG WITH LINER",
+      "pt": "SACO DE RÁFIA COM LINER",
+      "zh": "带内衬拉菲袋",
+      "ar": "كيس رافيا ببطانة"
+    },
+    {
+      "es": "SACO DE RAFIA PIGMENTADO",
+      "en": "PIGMENTED RAFFIA BAG",
+      "pt": "SACO DE RÁFIA PIGMENTADO",
+      "zh": "染色拉菲袋",
+      "ar": "كيس رافيا ملون"
     }
   ],
   "cover": {
@@ -1166,6 +1180,436 @@
             "ar": ""
           },
           "uni": "",
+          "met": "",
+          "hl": false
+        }
+      ],
+      "visual": {
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "rotate": 0
+      }
+    },
+    {
+      "nombre": {
+        "es": "SACO DE RAFIA CON LINER",
+        "en": "RAFFIA BAG WITH LINER",
+        "pt": "SACO DE RÁFIA COM LINER",
+        "zh": "带内衬拉菲袋",
+        "ar": "كيس رافيا ببطانة"
+      },
+      "img": "",
+      "lado": "",
+      "desc": {
+        "es": "Los sacos con liner suelen estar laminados y funcionan como una barrera adicional al laminado, proporcionando una mayor impermeabilidad al producto envasado. Este tipo de saco se utiliza especialmente para fertilizantes finos, donde es fundamental evitar fugas o brindar una protección adicional contra la humedad. Industria: fertilizantes.",
+        "en": "Bags with a liner are usually laminated and act as an additional barrier to the lamination, providing greater impermeability to the packaged product. This type of bag is especially used for fine fertilizers, where it is essential to prevent leaks or provide extra protection against moisture. Industry: fertilizers.",
+        "pt": "Os sacos com liner costumam ser laminados e funcionam como uma barreira adicional à laminação, proporcionando maior impermeabilidade ao produto embalado. Esse tipo de saco é especialmente utilizado para fertilizantes finos, onde é fundamental evitar vazamentos ou oferecer proteção adicional contra a umidade. Indústria: fertilizantes.",
+        "zh": "带内衬的袋子通常经过覆膜处理，作为覆膜之外的额外屏障，为包装产品提供更强的防潮性能。此类袋子特别适用于细颗粒肥料，对于防止泄漏或提供额外的防潮保护至关重要。行业：肥料。",
+        "ar": "عادةً ما تكون الأكياس ذات البطانة مغلفة وتعمل كحاجز إضافي للتغليف، مما يوفر مقاومة أكبر للرطوبة للمنتج المعبأ. يُستخدم هذا النوع من الأكياس خصيصًا للأسمدة الدقيقة، حيث من الضروري منع التسرب أو توفير حماية إضافية ضد الرطوبة. الصناعة: الأسمدة."
+      },
+      "specs": [
+        {
+          "c": {
+            "es": "Ancho",
+            "en": "Width",
+            "pt": "Largura",
+            "zh": "宽度",
+            "ar": "العرض"
+          },
+          "min": "13.78",
+          "max": "31.50",
+          "tol": {
+            "es": "±1",
+            "en": "±1",
+            "pt": "±1",
+            "zh": "±1",
+            "ar": "±1"
+          },
+          "uni": "Inches",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Largo",
+            "en": "Length",
+            "pt": "Comprimento",
+            "zh": "长度",
+            "ar": "الطول"
+          },
+          "min": "19.29",
+          "max": "45.28",
+          "tol": {
+            "es": "±1",
+            "en": "±1",
+            "pt": "±1",
+            "zh": "±1",
+            "ar": "±1"
+          },
+          "uni": "Inches",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Peso del tejido",
+            "en": "Fabric weight",
+            "pt": "Peso do tecido",
+            "zh": "织物重量",
+            "ar": "وزن النسيج"
+          },
+          "min": "48",
+          "max": "100",
+          "tol": {
+            "es": "±2",
+            "en": "±2",
+            "pt": "±2",
+            "zh": "±2",
+            "ar": "±2"
+          },
+          "uni": "G/m2",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Peso del laminado",
+            "en": "Lamination weight",
+            "pt": "Peso da laminação",
+            "zh": "覆膜重量",
+            "ar": "وزن التغليف"
+          },
+          "min": "14",
+          "max": "35",
+          "tol": {
+            "es": "±2",
+            "en": "±2",
+            "pt": "±2",
+            "zh": "±2",
+            "ar": "±2"
+          },
+          "uni": "G/m2",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Costura",
+            "en": "Stitching",
+            "pt": "Costura",
+            "zh": "缝合",
+            "ar": "الخياطة"
+          },
+          "min": "13",
+          "max": "16",
+          "tol": {
+            "es": "±1",
+            "en": "±1",
+            "pt": "±1",
+            "zh": "±1",
+            "ar": "±1"
+          },
+          "uni": "Stitches",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Dobladillo",
+            "en": "Hem",
+            "pt": "Bainha",
+            "zh": "折边",
+            "ar": "الحاشية"
+          },
+          "min": "0.79",
+          "max": "1.18",
+          "tol": {
+            "es": "±0.5",
+            "en": "±0.5",
+            "pt": "±0.5",
+            "zh": "±0.5",
+            "ar": "±0.5"
+          },
+          "uni": "Inches",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Fuelles",
+            "en": "Gussets",
+            "pt": "Foles",
+            "zh": "侧褶",
+            "ar": "الطيات الجانبية"
+          },
+          "min": "2.76",
+          "max": "7.87",
+          "tol": {
+            "es": "±0.5",
+            "en": "±0.5",
+            "pt": "±0.5",
+            "zh": "±0.5",
+            "ar": "±0.5"
+          },
+          "uni": "Inches",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Resistencia del tejido",
+            "en": "Fabric strength",
+            "pt": "Resistência do tecido",
+            "zh": "织物强度",
+            "ar": "مقاومة النسيج"
+          },
+          "min": "264.55",
+          "max": "440.92",
+          "tol": {
+            "es": "±20%",
+            "en": "±20%",
+            "pt": "±20%",
+            "zh": "±20%",
+            "ar": "±20%"
+          },
+          "uni": "lbf",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Tinta",
+            "en": "Ink",
+            "pt": "Tinta",
+            "zh": "油墨",
+            "ar": "الحبر"
+          },
+          "min": "1",
+          "max": "12",
+          "tol": {
+            "es": "N/A",
+            "en": "N/A",
+            "pt": "N/A",
+            "zh": "N/A",
+            "ar": "N/A"
+          },
+          "uni": "Pieces",
+          "met": "",
+          "hl": false
+        }
+      ],
+      "visual": {
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 0,
+        "rotate": 0
+      }
+    },
+    {
+      "nombre": {
+        "es": "SACO DE RAFIA PIGMENTADO",
+        "en": "PIGMENTED RAFFIA BAG",
+        "pt": "SACO DE RÁFIA PIGMENTADO",
+        "zh": "染色拉菲袋",
+        "ar": "كيس رافيا ملون"
+      },
+      "img": "",
+      "lado": "",
+      "desc": {
+        "es": "Los sacos de rafia pigmentada son conocidos por su alta resistencia, durabilidad y capacidad para preservar las características de los productos envasados, incluso en condiciones exigentes. Industrias: granos, sales minerales y azúcares, alimento para animales, harinas, semillas y fertilizantes.",
+        "en": "Pigmented raffia bags are known for their high strength, durability, and ability to preserve the characteristics of packaged products, even under demanding conditions. Industries: grains, mineral salts and sugars, animal feed, flours, seeds and fertilizers.",
+        "pt": "Os sacos de ráfia pigmentada são conhecidos por sua alta resistência, durabilidade e capacidade de preservar as características dos produtos embalados, mesmo em condições exigentes. Indústrias: grãos, sais minerais e açúcares, ração animal, farinhas, sementes e fertilizantes.",
+        "zh": "染色拉菲袋以其高强度、耐用性以及在严苛条件下仍能保持包装产品特性的能力而闻名。行业：谷物、矿物盐和糖、动物饲料、面粉、种子和肥料。",
+        "ar": "تُعرف أكياس الرافيا الملونة بمتانتها العالية وقدرتها على الحفاظ على خصائص المنتجات المعبأة، حتى في الظروف الصعبة. الصناعات: الحبوب، الأملاح المعدنية والسكريات، أعلاف الحيوانات، الدقيق، البذور والأسمدة."
+      },
+      "specs": [
+        {
+          "c": {
+            "es": "Ancho",
+            "en": "Width",
+            "pt": "Largura",
+            "zh": "宽度",
+            "ar": "العرض"
+          },
+          "min": "13.78",
+          "max": "31.50",
+          "tol": {
+            "es": "±1",
+            "en": "±1",
+            "pt": "±1",
+            "zh": "±1",
+            "ar": "±1"
+          },
+          "uni": "Inches",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Largo",
+            "en": "Length",
+            "pt": "Comprimento",
+            "zh": "长度",
+            "ar": "الطول"
+          },
+          "min": "19.29",
+          "max": "45.28",
+          "tol": {
+            "es": "±1",
+            "en": "±1",
+            "pt": "±1",
+            "zh": "±1",
+            "ar": "±1"
+          },
+          "uni": "Inches",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Peso del tejido",
+            "en": "Fabric weight",
+            "pt": "Peso do tecido",
+            "zh": "织物重量",
+            "ar": "وزن النسيج"
+          },
+          "min": "48",
+          "max": "100",
+          "tol": {
+            "es": "±2",
+            "en": "±2",
+            "pt": "±2",
+            "zh": "±2",
+            "ar": "±2"
+          },
+          "uni": "G/m2",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Peso del laminado",
+            "en": "Lamination weight",
+            "pt": "Peso da laminação",
+            "zh": "覆膜重量",
+            "ar": "وزن التغليف"
+          },
+          "min": "14",
+          "max": "35",
+          "tol": {
+            "es": "±2",
+            "en": "±2",
+            "pt": "±2",
+            "zh": "±2",
+            "ar": "±2"
+          },
+          "uni": "G/m2",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Costura",
+            "en": "Stitching",
+            "pt": "Costura",
+            "zh": "缝合",
+            "ar": "الخياطة"
+          },
+          "min": "13",
+          "max": "16",
+          "tol": {
+            "es": "±1",
+            "en": "±1",
+            "pt": "±1",
+            "zh": "±1",
+            "ar": "±1"
+          },
+          "uni": "Stitches",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Dobladillo",
+            "en": "Hem",
+            "pt": "Bainha",
+            "zh": "折边",
+            "ar": "الحاشية"
+          },
+          "min": "0.79",
+          "max": "1.18",
+          "tol": {
+            "es": "±0.5",
+            "en": "±0.5",
+            "pt": "±0.5",
+            "zh": "±0.5",
+            "ar": "±0.5"
+          },
+          "uni": "Inches",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Fuelles",
+            "en": "Gussets",
+            "pt": "Foles",
+            "zh": "侧褶",
+            "ar": "الطيات الجانبية"
+          },
+          "min": "2.76",
+          "max": "7.87",
+          "tol": {
+            "es": "±0.5",
+            "en": "±0.5",
+            "pt": "±0.5",
+            "zh": "±0.5",
+            "ar": "±0.5"
+          },
+          "uni": "Inches",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Resistencia del tejido",
+            "en": "Fabric strength",
+            "pt": "Resistência do tecido",
+            "zh": "织物强度",
+            "ar": "مقاومة النسيج"
+          },
+          "min": "264.55",
+          "max": "440.92",
+          "tol": {
+            "es": "±20%",
+            "en": "±20%",
+            "pt": "±20%",
+            "zh": "±20%",
+            "ar": "±20%"
+          },
+          "uni": "lbf",
+          "met": "",
+          "hl": false
+        },
+        {
+          "c": {
+            "es": "Tinta",
+            "en": "Ink",
+            "pt": "Tinta",
+            "zh": "油墨",
+            "ar": "الحبر"
+          },
+          "min": "1",
+          "max": "12",
+          "tol": {
+            "es": "N/A",
+            "en": "N/A",
+            "pt": "N/A",
+            "zh": "N/A",
+            "ar": "N/A"
+          },
+          "uni": "Pieces",
           "met": "",
           "hl": false
         }

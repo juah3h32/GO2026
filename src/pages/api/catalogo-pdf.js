@@ -161,7 +161,7 @@ function paginaProducto(f, i, t, isDark, ctl) {
     <span>${esc(t.soon || "PRÓXIMAMENTE")}</span>
   </div>` : '';
 
-  const media = `<div class="media ${f.soon ? 'media-soon' : ''}"><div class="media-tf" style="transform: translate(${f.visual?.offsetX || 0}%, ${f.visual?.offsetY || 0}%) scale(${f.visual?.scale || 1}) rotate(${f.visual?.rotate || 0}deg); overflow: ${f.visual?.clip ? 'hidden' : 'visible'};"><img src="${img(f.img)}" alt="" style="transform: scale(${f.visual?.zoom || 1});"/></div>${mediaOverlay}</div>`;
+  const media = `<div class="media ${f.soon ? 'media-soon' : ''}"><div class="media-tf" style="transform: translate(${f.visual?.offsetX || 0}%, ${f.visual?.offsetY || 0}%) scale(${f.visual?.scale || 1}) rotate(${f.visual?.rotate || 0}deg); overflow: ${f.visual?.clip ? 'hidden' : 'visible'};"><img src="${img(f.img)}" alt="" style="transform: scale(${f.visual?.zoom || 1});${(f.visual?.clipTop || f.visual?.clipBottom) ? ` clip-path: inset(${f.visual?.clipTop || 0}% 0 ${f.visual?.clipBottom || 0}% 0);` : ''}"/></div>${mediaOverlay}</div>`;
   const copy = `<div class="copy"><h2${styleStr(`fichas.${i}.nombre`)}>${esc(f.nombre)}</h2><p${styleStr(`fichas.${i}.desc`)}>${esc(f.desc)}</p></div>`;
   const soonNote = f.soon ? `<div class="soon-note">${esc(t.soonNote || "")}</div>` : '';
 
@@ -277,7 +277,7 @@ export function buildHTML(theme = 'dark', lang = 'es', data = {}) {
   const ROW_ALT = isDark ? '#232324' : '#fcfcfc';
 
   const portada = `<div class="pg cover${manyProds ? ' manyprods' : ''}">
-    ${header(t)}
+    <div class="bar"><div></div><div class="site"><span class="line"></span>GRUPO-ORTIZ.COM</div></div>
     <div class="cover-grid">
       <div class="cover-left">
         <h1>
@@ -292,7 +292,7 @@ export function buildHTML(theme = 'dark', lang = 'es', data = {}) {
       <div class="cover-right">
         <div class="cover-imgbox">
           <div class="cover-imgtf" style="transform: translate(${vc.offsetX}%, ${vc.offsetY}%) scale(${vc.scale}) rotate(${vc.rotate || 0}deg); overflow: ${vc.clip ? 'hidden' : 'visible'};">
-            <img src="${img(coverImg)}" alt="" style="transform: scale(${vc.zoom || 1});"/>
+            <img src="${img(coverImg)}" alt="" style="transform: scale(${vc.zoom || 1});${(vc.clipTop || vc.clipBottom) ? ` clip-path: inset(${vc.clipTop || 0}% 0 ${vc.clipBottom || 0}% 0);` : ''}"/>
           </div>
         </div>
         ${manyProds ? '' : prodsBlock}
@@ -313,6 +313,8 @@ export function buildHTML(theme = 'dark', lang = 'es', data = {}) {
     .pg { position: relative; width: 1280px; height: 720px; background: ${BG}; color: ${TEXT};
           overflow: hidden; padding: 80px 80px 44px; page-break-after: always; }
     .pg:last-child { page-break-after: auto; }
+    /* Año de actualización del catálogo — abajo a la derecha en cada página */
+    .pg.cover::after { content: '2026'; position: absolute; right: 44px; bottom: 10px; color: ${ORANGE}; font-family: 'Morganite', ${cjkAr}sans-serif; font-weight: 800; font-size: 56px; line-height: 1; letter-spacing: .04em; z-index: 8; }
     /* Fichas: contenido centrado verticalmente para espacios simetricos */
     .pg.prod { display: flex; flex-direction: column; justify-content: center; padding: 90px 80px 40px; isolation: isolate; }
     /* Wrapper que se auto-escala para que TODO el contenido quepa en la pagina (sin chocar con el header) */

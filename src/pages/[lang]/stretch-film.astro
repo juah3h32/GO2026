@@ -34,6 +34,12 @@ const specs = [
 const CLOUD = import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME;
 const videoPoster = (src: string) =>
   CLOUD ? `https://res.cloudinary.com/${CLOUD}/video/upload/f_jpg,q_auto,so_0/${src.replace(/^\//, "").replace(/\.mp4$/, "")}.jpg` : '';
+// El campo `video` es un public_id de Cloudinary (ej "GO/stretch/fondo"). Construir la URL completa.
+const videoUrl = (src: string) => {
+  if (!src) return '';
+  if (/^https?:\/\//.test(src)) return src;
+  return CLOUD ? `https://res.cloudinary.com/${CLOUD}/video/upload/q_auto:best/${src.replace(/^\//, "").replace(/\.mp4$/, "")}.mp4` : src;
+};
 ---
 
 <BaseLayout
@@ -54,7 +60,7 @@ const videoPoster = (src: string) =>
       <video
         class={`video-bg ${index === 0 ? 'visible' : ''}`}
         data-video-index={index}
-        src={prod.video || ''}
+        src={videoUrl(prod.video || '')}
         autoplay muted playsinline
         preload={index === 0 ? 'metadata' : 'none'}
         poster={index === 0 ? videoPoster(prod.video || '') : undefined}
