@@ -163,12 +163,14 @@ export async function applyCatalogChange(parsed) {
     return { success: false, error: `Campo no soportado: ${field}` };
   }
 
+  // JSON write falla en Vercel (filesystem read-only) — es solo seed local, no es crítico
   const jsonOk = saveCatalogJSON(catalog, updated);
-  if (!jsonOk) {
-    return { success: false, error: 'Error guardando JSON' };
-  }
+  if (!jsonOk) console.warn('[wa-catalog-sync] JSON write failed (Vercel filesystem read-only) — Turso es fuente de verdad');
 
   const tursoOk = await syncToTurso(catalogKey, updated);
+  if (!tursoOk) {
+    return { success: false, error: 'Error al guardar en base de datos. Intenta de nuevo.' };
+  }
 
   return {
     success: true,
