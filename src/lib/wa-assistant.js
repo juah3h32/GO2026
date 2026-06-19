@@ -514,6 +514,37 @@ const TOOLS = [
       },
     },
   },
+  {
+    type: 'function',
+    function: {
+      name: 'ver_catalogo',
+      description: 'Muestra el contenido actual de un catálogo digital (texto en español). Usar cuando el usuario quiere ver qué dice actualmente un campo antes de editarlo, o para verificar un cambio. Campos disponibles: descripcion (intro principal), p2 (párrafo secundario), titulo (portada).',
+      parameters: {
+        type: 'object',
+        properties: {
+          catalogo: { type: 'string', enum: ['rafia','cuerda','arpilla','bolsa','saco','stretch','flexible','esquinero','naturizable','acolchado'], description: 'Nombre del catálogo.' },
+          campo:    { type: 'string', enum: ['descripcion','p2','titulo','t2'], description: 'Campo a consultar.' },
+        },
+        required: ['catalogo', 'campo'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'editar_catalogo',
+      description: 'Edita el texto de un catálogo digital y lo guarda en todos los idiomas automáticamente (es, en, pt, zh, ar). SIEMPRE confirma con el usuario el texto exacto ANTES de llamar esta función. Campos editables: descripcion (párrafo introductorio principal), p2 (párrafo secundario), titulo (título en portada), t2 (subtítulo en portada).',
+      parameters: {
+        type: 'object',
+        properties: {
+          catalogo:  { type: 'string', enum: ['rafia','cuerda','arpilla','bolsa','saco','stretch','flexible','esquinero','naturizable','acolchado'], description: 'Catálogo a editar.' },
+          campo:     { type: 'string', enum: ['descripcion','p2','titulo','t2'], description: 'Campo a editar.' },
+          nuevo_texto: { type: 'string', description: 'Nuevo texto en español. Se traducirá automáticamente a los demás idiomas.' },
+        },
+        required: ['catalogo', 'campo', 'nuevo_texto'],
+      },
+    },
+  },
 ];
 
 // ── Permisos requeridos por tool — enforcement en CÓDIGO, no en el prompt ────
@@ -546,6 +577,8 @@ const TOOL_PERMS = {
   enviar_push:                 'vacantes_write',
   cambiar_estatus_candidato:   'candidates_write',
   cambiar_estatus_distribuidor:'distribuidores_write',
+  ver_catalogo:                'catalogo_write',
+  editar_catalogo:             'catalogo_write',
 };
 
 // ── Ejecución de tools ────────────────────────────────────────────────────────
@@ -1139,6 +1172,40 @@ async function ejecutarTool(name, args, ctx) {
     return { ok: true, contacto: b.match.nombre || b.match.empresa, estatus: st, instruccion: `Confirma en una linea que el contacto quedo como "${st}".` };
   }
 
+  if (name === 'ver_catalogo') {
+    try {
+      const { loadCatalogJSON, getCatalogFieldValue, getFieldLabel } = await import('./wa-catalog-reader.js');
+      const fileMap = { rafia:'catalogo-rafia.json', cuerda:'catalogo-cuerda.json', arpilla:'catalogo-arpilla.json', bolsa:'catalogo-bolsas.json', saco:'catalogo-saco.json', stretch:'catalogo-stretch.json', flexible:'catalogo-flexible.json', esquinero:'catalogo-esquinero.json', naturizable:'catalogo-naturizable.json', acolchado:'catalogo-acolchado.json' };
+      const file = fileMap[args.catalogo];
+      if (!file) return { error: `Catálogo no encontrado: ${args.catalogo}` };
+      const data = loadCatalogJSON(file);
+      if (!data) return { error: `No se pudo cargar el catálogo ${args.catalogo}` };
+      const value = getCatalogFieldValue(data, args.campo);
+      const label = getFieldLabel(args.campo);
+      return { catalogo: args.catalogo, campo: args.campo, label, valor_actual: value || '(vacío)', instruccion: `Muestra el valor actual al usuario y pregunta si desea cambiarlo y cuál sería el nuevo texto.` };
+    } catch (e) { return { error: `Error leyendo catálogo: ${e.message}` }; }
+  }
+
+  if (name === 'editar_catalogo') {
+    try {
+      const { applyCatalogChange } = await import('./wa-catalog-sync.js');
+      const fileMap = { rafia:'catalogo-rafia.json', cuerda:'catalogo-cuerda.json', arpilla:'catalogo-arpilla.json', bolsa:'catalogo-bolsas.json', saco:'catalogo-saco.json', stretch:'catalogo-stretch.json', flexible:'catalogo-flexible.json', esquinero:'catalogo-esquinero.json', naturizable:'catalogo-naturizable.json', acolchado:'catalogo-acolchado.json' };
+      const file = fileMap[args.catalogo];
+      if (!file) return { error: `Catálogo no encontrado: ${args.catalogo}` };
+      if (!args.nuevo_texto || !String(args.nuevo_texto).trim()) return { error: 'El nuevo texto no puede estar vacío.' };
+      if (String(args.nuevo_texto).length > 500) return { error: 'El texto es muy largo (máx 500 caracteres).' };
+      const result = await applyCatalogChange({
+        success: true,
+        catalog: file,
+        catalogKey: args.catalogo,
+        field: args.campo,
+        value: String(args.nuevo_texto).trim(),
+      });
+      if (!result.success) return { error: result.error };
+      return { ok: true, catalogo: args.catalogo, campo: args.campo, turso: result.tursoOk, instruccion: `Confirma al usuario en una línea que el catálogo fue actualizado y que el cambio ya está visible en el sitio en todos los idiomas.` };
+    } catch (e) { return { error: `Error guardando cambio: ${e.message}` }; }
+  }
+
   return { error: 'tool desconocida' };
 }
 
@@ -1185,7 +1252,8 @@ PERMISOS DEL USUARIO: ${JSON.stringify(perms)} (* = acceso total). Cada area dep
 - vacantes_write → crear, publicar, cerrar, borrar vacantes, editar beneficios y enviar push masivo
 - candidates_write → cambiar el estatus de candidatos
 - distribuidores_write → cambiar el estatus de contactos de distribuidores
-- * → ademas: revisar sistema, rastrear sitio, analisis del dia, velocidad, almacenamiento
+- catalogo_write → editar textos de los catálogos digitales. Usa ver_catalogo para mostrar el valor actual y editar_catalogo para guardar el cambio real en el sitio. NUNCA digas que guardaste algo sin haber llamado editar_catalogo. Si el usuario pide editar y no da el nuevo texto, primero llama ver_catalogo para mostrar el valor actual y luego pide el nuevo texto. Cuando el usuario confirme el texto, llama editar_catalogo.
+- * → ademas: revisar sistema, rastrear sitio, analisis del dia, velocidad, almacenamiento, catalogo_write incluido
 REGLA DURA DE PERMISOS: si el usuario pide algo de un area para la que NO tiene permiso, RECHAZALO DE INMEDIATO en una linea amable, SIN preguntar periodo ni detalles, SIN ofrecer verlo. No menciones datos de esa area. Ej. usuario solo con candidates pide distribuidores → "No tienes acceso a distribuidores; pídeselo al administrador." Solo ofrece y responde lo que SI esta en sus permisos.
 
 Reglas:
@@ -1245,6 +1313,12 @@ Reglas:
   * "avisa a todos / manda notificacion que diga X" → enviar_push. Es masivo e irreversible: confirma primero; al confirmar, confirmado=true.
   * "marca a [nombre] como contactado/descartado/contratado/visto" → cambiar_estatus_candidato (candidato YA registrado).
   * "marca a [nombre/empresa] como revisado/enviado/pendiente" → cambiar_estatus_distribuidor.
+  * CATÁLOGOS DIGITALES (requiere catalogo_write):
+    - "editar/cambiar/modificar el catálogo de rafia / cuerda / ..." → Si el usuario NO dice el nuevo texto: llama ver_catalogo para mostrar el valor actual, luego pide el nuevo texto. Cuando tenga el texto, llama editar_catalogo. NUNCA digas que guardaste sin llamar editar_catalogo.
+    - "qué dice el catálogo de X / muéstrame la descripción" → ver_catalogo.
+    - Catálogos: rafia, cuerda, arpilla, bolsa, saco, stretch, flexible, esquinero, naturizable, acolchado.
+    - Campos: descripcion (intro principal), p2 (párrafo 2), titulo (portada), t2 (subtítulo portada).
+    - editar_catalogo traduce automáticamente a todos los idiomas (es, en, pt, zh, ar).
   * Si una herramienta devuelve requiere_confirmacion=true: NO la repitas aun; pregunta al usuario en una linea y espera su "si". Si devuelve ambiguo=true: lista las opciones y pide que elija. NUNCA inventes ids ni titulos.
 - Datos puntuales (¿cuántos mensajes hoy?) → texto directo, sin PDF.
 - Si combinas varias métricas, organízalas con subtítulos en negrita (ej. *Reclutamiento:*, *Productos:*).

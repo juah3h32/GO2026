@@ -33,6 +33,9 @@ function freshTimestamp(ts) {
 import { existsSync, readFileSync } from 'node:fs';
 import { join }       from 'node:path';
 import { claimWAIncoming, resetWAReply, updateWAIncomingReply, getWAAuthorizedByPhone, getWagoConfig, getConfig, logSystemEvent } from '../../../lib/analytics-db.js';
+import { parseCatalogIntent, validateCatalogChange } from '../../../lib/wa-catalog-parser.js';
+import { applyCatalogChange } from '../../../lib/wa-catalog-sync.js';
+import { handleCatalogCommand } from '../../../lib/wa-catalog-handler.js';
 import { sendWAText, sendWAPDF, generateReportPDF, sendTyping, transcribeAudio } from '../../../lib/notify.js';
 import { ejecutarComando } from '../../../lib/wa-commands.js';
 import { ejecutarAsistente } from '../../../lib/wa-assistant.js';
@@ -183,8 +186,26 @@ export async function handleIncomingMessage(msg, origin) {
       return 'manual';
     }
 
+    // ── Catálogos: edición remota vía WhatsApp ────────────────────────────────
+    const hasPermCatalog = Array.isArray(authorized?.permissions)
+      ? (authorized.permissions.includes('*') || authorized.permissions.includes('catalogo_write'))
+      : false;
+    console.log('[webhook/catalog] phone:', msg.phone, 'hasPerm:', hasPermCatalog, 'perms:', JSON.stringify(authorized?.permissions));
+    if (hasPermCatalog) {
+      try {
+        const catalogResult = await handleCatalogCommand(msg.phone, msg.body);
+        console.log('[webhook/catalog] result:', catalogResult?.action, !!catalogResult?.message);
+        if (catalogResult?.message) {
+          replyText = catalogResult.message;
+        }
+      } catch (e) {
+        console.error('[webhook/catalog] ERROR:', e.message, e.stack);
+      }
+    }
+
     // ── Asistente IA (cerebro) para números autorizados ──────────────────────
-    try {
+    // Solo corre si catálogos no manejaron el mensaje
+    if (!replyText) try {
       let result = null;
 
       // 1. Asistente IA — entiende lenguaje natural y consulta datos reales
@@ -339,6 +360,15 @@ function buildCapabilitiesManual(authorized) {
   if (has('candidates'))     L.push('- *Mercado laboral:* "busca en el mercado gerente de planta" — sueldos, vacantes similares y dónde hay candidatos');
   if (has('vacantes'))       L.push('- *Vacantes:* "qué vacantes hay abiertas"');
   if (has('messages'))       L.push('- *Consultas web:* "últimos mensajes de clientes"');
+
+  if (has('catalogo_write') || has('*')) {
+    L.push('');
+    L.push('*CATÁLOGOS DIGITALES*');
+    L.push('- "editar rafia, cambiar descripcion"');
+    L.push('- "modificar cuerda titulo"');
+    L.push('- Catálogos: rafia, cuerda, arpilla, bolsa, saco, stretch, flexible, esquinero, naturizable, acolchado');
+    L.push('- _Muestra valor actual → pide nuevo texto → confirma antes de guardar_');
+  }
 
   if (has('vacantes_write') || has('candidates_write') || has('distribuidores_write')) {
     L.push('');
