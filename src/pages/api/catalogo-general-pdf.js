@@ -1,7 +1,7 @@
 // src/pages/api/catalogo-general-pdf.js
 // PDF unico con TODAS las divisiones — Catalogo General Grupo Ortiz.
 export const prerender = false;
-export const config = { maxDuration: 180 };
+export const config = { maxDuration: 300 };
 
 import { existsSync } from 'fs';
 import { translations } from '../../i18n';

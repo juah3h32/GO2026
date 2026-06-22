@@ -1099,9 +1099,14 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
         fetch(url, { cache: 'no-store' })
           .then(function (r) {
             if (!r.ok) {
-              return r.json().then(function (j) { throw new Error((j && j.error) || 'Error del servidor'); }).catch(function (parseErr) {
-                if (parseErr && parseErr.message && parseErr.message !== 'Error del servidor') throw parseErr;
-                throw new Error('Error del servidor (' + r.status + ')');
+              // El servidor puede devolver JSON {error} o texto/html (timeout)
+              var ct = r.headers.get('content-type') || '';
+              if (ct.includes('application/json')) {
+                return r.json().then(function (j) { throw new Error((j && j.error) || 'Error del servidor'); });
+              }
+              return r.text().then(function (t) {
+                var short = (t || '').slice(0, 120).replace(/\n/g, ' ').trim();
+                throw new Error(short || 'Error ' + r.status + ' — reintenta');
               });
             }
             clearInterval(fakeTimer);
