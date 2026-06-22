@@ -178,28 +178,40 @@ async function generateCombinedPDF(lang, theme) {
       console.error('[catalogo-general] Portada error', e);
     }
 
-    // 2b. Cada division
+    // 2b. Preparar HTML de cada division (preloadImages + buildHTML)
+    const jobs = [];
     for (const { cat, data } of catDataArr) {
       if (!data) continue;
       try {
         setCatFolders(cat.imgFolder, cat.coverImgFolder);
         const loaded = await preloadImages(data);
         const html = buildHTML(theme, lang, loaded);
-        // Extraer solo <body> y el <style> (sin @page que fuerza 1280x720)
         const bodyMatch = html.match(/<body[^>]*>([\s\S]*)<\/body>/i);
         const styleMatch = html.match(/<style[^>]*>([\s\S]*)<\/style>/i);
-        // Eliminar @page del CSS para que no limite el tamaño de pagina
         const css = styleMatch ? styleMatch[1].replace(/@page\s*\{[^}]*\}/g, '') : '';
         const body = bodyMatch ? bodyMatch[1] : html;
-        // Ocultar "2026" de portadas individuales
         const wrapped = `<!doctype html><html lang="${lang}" dir="${isRTL ? 'rtl' : 'ltr'}"><head><meta charset="utf-8">${fontLink}<style>${css} .pg.cover::after,.pg.cover.manyprods::after{content:none!important} .pg:last-child{page-break-after:auto}</style></head><body>${body}</body></html>`;
-
-        const pdfBuf = await renderPageHTML(browser, wrapped);
-        pdfBuffers.push(pdfBuf);
-        console.log('[catalogo-general]', cat.slug, 'OK', (pdfBuf.length / 1024 / 1024).toFixed(1) + 'MB');
+        jobs.push({ slug: cat.slug, html: wrapped });
       } catch (e) {
-        console.error('[catalogo-general] Render error ' + cat.slug, e);
+        console.error('[catalogo-general] Build error ' + cat.slug, e);
       }
+    }
+    console.log('[catalogo-general] HTML listo para', jobs.length, 'divisiones');
+
+    // 2c. Renderizar en paralelo (3 paginas concurrentes)
+    const CONCURRENCY = 3;
+    for (let i = 0; i < jobs.length; i += CONCURRENCY) {
+      const batch = jobs.slice(i, i + CONCURRENCY);
+      const results = await Promise.all(batch.map(job =>
+        renderPageHTML(browser, job.html).then(buf => {
+          console.log('[catalogo-general]', job.slug, 'OK', (buf.length / 1024 / 1024).toFixed(1) + 'MB');
+          return buf;
+        }).catch(e => {
+          console.error('[catalogo-general] Render error ' + job.slug, e);
+          return null;
+        })
+      ));
+      for (const buf of results) if (buf) pdfBuffers.push(buf);
     }
   } finally {
     await browser.close();
