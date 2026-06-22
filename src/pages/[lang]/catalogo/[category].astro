@@ -328,15 +328,30 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
     <!-- Navegación entre divisiones -->
     {(() => {
       const cats = listCatalogsMeta();
-      const idx = cats.findIndex(c => c.slug === slug);
-      const prev = idx > 0 ? cats[idx - 1] : null;
-      const next = idx < cats.length - 1 ? cats[idx + 1] : null;
-      return `
-      <nav class="cd-cat-nav" aria-label="Navegación entre catálogos">
-        ${prev ? `<a href="/${currentLang}/catalogo/${prev.slug}" class="cd-cat-arrow cd-cat-prev" aria-label="Anterior: ${prev.title}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg><span>${prev.title}</span></a>` : `<span class="cd-cat-arrow cd-cat-prev is-disabled"></span>`}
-        <span class="cd-cat-current">${meta.title}</span>
-        ${next ? `<a href="/${currentLang}/catalogo/${next.slug}" class="cd-cat-arrow cd-cat-next" aria-label="Siguiente: ${next.title}"><span>${next.title}</span><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></a>` : `<span class="cd-cat-arrow cd-cat-next is-disabled"></span>`}
-      </nav>`;
+      const catIdx = cats.findIndex(c => c.slug === slug);
+      const prevCat = catIdx > 0 ? cats[catIdx - 1] : null;
+      const nextCat = catIdx < cats.length - 1 ? cats[catIdx + 1] : null;
+      return (
+        <nav class="cd-cat-nav" aria-label="Navegación entre catálogos">
+          {prevCat ? (
+            <a href={`/${currentLang}/catalogo/${prevCat.slug}`} class="cd-cat-arrow cd-cat-prev" aria-label={`Anterior: ${prevCat.title}`}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+              <span>{prevCat.title}</span>
+            </a>
+          ) : (
+            <span class="cd-cat-arrow cd-cat-prev is-disabled"></span>
+          )}
+          <span class="cd-cat-current">{meta.title}</span>
+          {nextCat ? (
+            <a href={`/${currentLang}/catalogo/${nextCat.slug}`} class="cd-cat-arrow cd-cat-next" aria-label={`Siguiente: ${nextCat.title}`}>
+              <span>{nextCat.title}</span>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+            </a>
+          ) : (
+            <span class="cd-cat-arrow cd-cat-next is-disabled"></span>
+          )}
+        </nav>
+      );
     })()}
 
     <!-- Floating ¿Cómo funciona? button -->
