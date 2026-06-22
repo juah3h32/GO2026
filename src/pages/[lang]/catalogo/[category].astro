@@ -1083,12 +1083,12 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
         if (elGenOv) { elGenOv.style.display = 'flex'; }
         if (elGenTxt) { elGenTxt.textContent = 'DESCARGANDO...'; }
 
-        // Fase 1: fake progress (generacion servidor) 0→88% en ~100s
+        // Fase 1: fake progress 0→88% en ~50s (match con tiempo real)
         var fakePct = 0;
         var fakeTimer = setInterval(function () {
-          var step = fakePct < 40 ? (Math.random() * 1.5 + 0.8)
-                   : fakePct < 70 ? (Math.random() * 0.7 + 0.25)
-                   : (Math.random() * 0.2 + 0.05);
+          var step = fakePct < 50 ? (Math.random() * 2.2 + 1.2)
+                   : fakePct < 75 ? (Math.random() * 1.0 + 0.4)
+                   : (Math.random() * 0.3 + 0.08);
           fakePct = Math.min(fakePct + step, 88);
           if (elGenBar) { elGenBar.style.width = Math.round(fakePct) + '%'; }
           if (elGenMb) { elGenMb.textContent = Math.round(fakePct) + '%'; }
