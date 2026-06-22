@@ -897,12 +897,14 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
         main.setAttribute('data-deck-on', '');
         if (elTot) elTot.textContent = pad(slides.length);
         idx = 0; show(0);
+        window.addEventListener('wheel', onWheel, { passive: false });
       }
       function disableDeck() {
         if (!deckOn && main.getAttribute('data-deck-on') === null && io) return;
         deckOn = false;
         document.body.style.overflow = '';
         main.removeAttribute('data-deck-on');
+        window.removeEventListener('wheel', onWheel);
         slides.forEach(function (s) { s.classList.remove('is-active', 'is-exit-up'); });
         // Reveals con IntersectionObserver para scroll normal (movil)
         if ('IntersectionObserver' in window) {
@@ -2146,7 +2148,6 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
 
       if (elPrev) elPrev.addEventListener('click', onPrev);
       if (elNext) elNext.addEventListener('click', onNext);
-      window.addEventListener('wheel', onWheel, { passive: false });
       window.addEventListener('keydown', onKey);
       window.addEventListener('touchstart', onTS, { passive: true });
       window.addEventListener('touchend', onTE, { passive: true });

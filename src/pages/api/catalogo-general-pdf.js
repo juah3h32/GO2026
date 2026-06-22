@@ -130,16 +130,12 @@ async function generateCombinedPDF(lang, theme) {
 
   // Construir body: portada general + cada catalogo (buildHTML ya trae su propio CSS inline)
   let bodyContent = generalCoverHTML(lang, theme);
-  const externalUrls = new Set(); // URLs que Puppeteer va a pedir via intercepcion
 
   for (const { cat, data } of catDataArr) {
     if (!data) continue;
     try {
       setCatFolders(cat.imgFolder, cat.coverImgFolder);
       const html = buildHTML(theme, lang, data);
-      // Recolectar URLs externas para pre-calentar cache de intercepcion
-      const urlMatches = html.matchAll(/https?:\/\/[^"'\s>]+\.(?:jpg|jpeg|png|webp|gif|svg)[^"'\s>]*/gi);
-      for (const [url] of urlMatches) externalUrls.add(url);
       const headMatch = html.match(/<head[^>]*>([\s\S]*)<\/head>/i);
       const bodyMatch = html.match(/<body[^>]*>([\s\S]*)<\/body>/i);
       if (headMatch) {
@@ -157,41 +153,13 @@ async function generateCombinedPDF(lang, theme) {
 
   const doc = `<!doctype html><html lang="${lang}" dir="${isRTL ? 'rtl' : 'ltr'}"><head><meta charset="utf-8">${fontLink}<style>${wrapCSS(theme, lang)}</style></head><body>${bodyContent}</body></html>`;
 
-  // Pre-calentar cache de imagenes externas en paralelo (antes de lanzar Puppeteer)
-  const imgCache = new Map();
-  await Promise.all([...externalUrls].map(async (url) => {
-    try {
-      const ctrl = new AbortController();
-      const t = setTimeout(() => ctrl.abort(), 10000);
-      const r = await fetch(url, { signal: ctrl.signal });
-      clearTimeout(t);
-      if (r.ok) {
-        const buf = Buffer.from(await r.arrayBuffer());
-        imgCache.set(url, { buf, ct: r.headers.get('content-type') || 'image/jpeg' });
-      }
-    } catch { /* silencioso — Puppeteer intentara cargar la URL directo si falla */ }
-  }));
-
   let browser;
   try {
     const puppeteer = (await import('puppeteer-core')).default;
     browser = await puppeteer.launch({ executablePath, args, headless });
     const page = await browser.newPage();
-
-    // Intercepcion: servir imagenes desde cache Node.js en vez de que el browser las descargue
-    await page.setRequestInterception(true);
-    page.on('request', (req) => {
-      const url = req.url();
-      const cached = imgCache.get(url);
-      if (cached) {
-        req.respond({ status: 200, contentType: cached.ct, body: cached.buf });
-      } else {
-        req.continue();
-      }
-    });
-
     await page.setViewport({ width: 1280, height: 720, deviceScaleFactor: 2 });
-    await page.setContent(doc, { waitUntil: 'networkidle0', timeout: 60_000 });
+    await page.setContent(doc, { waitUntil: 'networkidle2', timeout: 90_000 });
 
     // Auto-fit + injectar numero de pagina (rapido)
     await page.evaluate(() => {
