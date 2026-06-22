@@ -156,6 +156,10 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             <span class="cd-dl-txt">{t.downloadPDF || "Descargar PDF"}</span>
           </a>
+          <button class="cd-dl cd-dl-general cd-ed-h" id="cdDownloadGeneral" type="button" aria-label="Descargar catálogo general con todas las divisiones">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span class="cd-dl-txt">Catálogo General</span>
+          </button>
           <a class="cd-btn-hero" href={`/${currentLang}/distribuidor`}>
             <span>{t.distributor || "Quiero ser distribuidor"}</span>
             <i class="cd-chevs" style="font-size: 1.2em; margin-left: 4px;">&raquo;</i>
@@ -306,12 +310,43 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
 
     </div><!-- /cd-deck -->
 
-    <div class="cd-deck-nav" id="cdNav">
-      <button class="cd-navbtn" id="cdPrev" aria-label="Anterior" type="button">&lsaquo;</button>
-      <div class="cd-counter"><b id="cdCur">01</b><span>/</span><span id="cdTot">08</span></div>
-      <button class="cd-navbtn" id="cdNext" aria-label="Siguiente" type="button">&rsaquo;</button>
+    <!-- Hidden nav: keeps JS IDs alive, not visible -->
+    <div aria-hidden="true" style="display:none">
+      <button id="cdPrev" type="button"></button>
+      <span id="cdCur"></span><span id="cdTot"></span>
+      <button id="cdNext" type="button"></button>
     </div>
+
+    <!-- Scroll hint: shown on first slide only -->
+    <div class="cd-scroll-hint" id="cdScrollHint">
+      <div class="cd-scroll-mouse">
+        <div class="cd-scroll-wheel"></div>
+      </div>
+      <span>Deslizar para ver más</span>
+    </div>
+
+    <!-- Navegación entre catálogos -->
+    <div id="cdCatNav"></div>
+
+    <!-- Floating ¿Cómo funciona? button -->
+    <button class="cd-how-fab cd-ed-h" id="cdHowBtn" type="button" aria-label="¿Cómo funciona?">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span>¿Cómo funciona?</span>
+    </button>
   </main>
+
+  <!-- Overlay fullscreen descarga catálogo general (fuera de <main> para evitar stacking contexts) -->
+  <div class="cd-gen-overlay" id="cdGenOverlay" style="display:none">
+    <div class="cd-gen-card">
+      <div class="cd-gen-mb" id="cdGenMb">0%</div>
+      <div class="cd-gen-title">CATÁLOGO GENERAL</div>
+      <div class="cd-gen-sub">Grupo Ortiz · Todas las divisiones</div>
+      <div class="cd-gen-bar-wrap">
+        <div class="cd-gen-bar" id="cdGenBar"></div>
+      </div>
+      <div class="cd-gen-txt" id="cdGenTxt">GENERANDO</div>
+    </div>
+  </div>
 
   <Footer currentLang={currentLang} />
 
@@ -447,6 +482,59 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
     .cd-dl[aria-busy="true"] { opacity: .75; pointer-events: none; }
     .cd-dl svg { flex: none; }
 
+    /* ── Botón Catálogo General ── */
+    .cd-dl-general { background: #1b1b1c; box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+    :global(.dark) .cd-dl-general { background: #fff; color: #1b1b1c; box-shadow: 0 10px 30px rgba(255,255,255,.15); }
+    .cd-dl-general:hover { background: #333; box-shadow: 0 14px 36px rgba(0,0,0,.4); }
+    :global(.dark) .cd-dl-general:hover { background: #e5e5e5; }
+
+    /* ── Overlay fullscreen descarga ── */
+    .cd-gen-overlay {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      z-index: 999; /* debajo del navbar (1000) */
+      background: #f5f5f7;
+      display: flex; align-items: center; justify-content: center;
+      font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
+      margin: 0; padding: 0;
+      padding-top: 80px; /* espacio para el navbar arriba */
+    }
+    :global(.dark) .cd-gen-overlay { background: #1b1b1c; }
+    .cd-gen-card {
+      text-align: center; max-width: 480px; width: 90%;
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+    }
+    .cd-gen-title {
+      font-family: "Morganite", sans-serif; font-weight: 800;
+      font-size: clamp(42px, 7vw, 72px); line-height: .9;
+      color: #fb670b; letter-spacing: .02em; text-transform: uppercase;
+    }
+    .cd-gen-sub {
+      font-size: 13px; font-weight: 600; color: #6f6f72;
+      letter-spacing: .08em; text-transform: uppercase;
+    }
+    :global(.dark) .cd-gen-sub { color: #c9c9cc; }
+    .cd-gen-mb {
+      font-family: "Morganite", sans-serif; font-weight: 800;
+      font-size: clamp(72px, 14vw, 130px); letter-spacing: .02em;
+      color: #fb670b; line-height: 1;
+    }
+    .cd-gen-bar-wrap {
+      width: 100%; height: 6px; background: rgba(0,0,0,.10);
+      border-radius: 3px; overflow: hidden;
+    }
+    :global(.dark) .cd-gen-bar-wrap { background: rgba(255,255,255,.1); }
+    .cd-gen-bar {
+      height: 100%; border-radius: 3px; background: #1b1b1c;
+      width: 0%; transition: width .35s cubic-bezier(.25,.46,.45,.94);
+    }
+    :global(.dark) .cd-gen-bar { background: #ffffff; }
+    .cd-gen-txt {
+      font-family: "Morganite", sans-serif; font-weight: 800;
+      font-size: 18px; letter-spacing: .12em;
+      text-transform: uppercase; color: #6f6f72; line-height: 1;
+    }
+    :global(.dark) .cd-gen-txt { color: #c9c9cc; }
+
     .cd-hero-prods { grid-area: prods; position: relative; z-index: 2; align-self: end; justify-self: end; text-align: right; padding-bottom: 60px; }
     /* Año de actualización del catálogo — abajo a la derecha */
     .cd-year { position: absolute; right: clamp(20px, 6vw, 90px); bottom: 18px; z-index: 3; color: var(--o); font-family: "Morganite", sans-serif; font-weight: 800; font-size: clamp(46px, 6vw, 72px); line-height: 1; letter-spacing: .03em; pointer-events: none; }
@@ -563,6 +651,18 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
     .reveal { opacity: 0; transform: translateY(28px); transition: opacity .7s cubic-bezier(.22,1,.36,1), transform .7s cubic-bezier(.22,1,.36,1); transition-delay: var(--d, 0s); }
     .reveal.in { opacity: 1; transform: none; }
 
+    /* ── FAB ¿Cómo funciona? ── */
+    .cd-how-fab { position:fixed; bottom:26px; left:20px; z-index:9001; display:inline-flex; align-items:center; gap:8px; padding:12px 20px; background:var(--o); border:none; border-radius:999px; color:#fff; font-size:12px; font-weight:800; cursor:pointer; font-family:inherit; letter-spacing:.4px; box-shadow:0 6px 24px rgba(251,103,11,.45); transition:box-shadow .22s,transform .22s; }
+    .cd-how-fab:hover { box-shadow:0 10px 32px rgba(251,103,11,.65); transform:translateY(-2px); }
+    .cd[data-cd-pdf] .cd-how-fab, :global(html[data-cd-shot]) .cd-how-fab { display:none !important; }
+    /* ── Tutorial highlight animation ── */
+    @keyframes cdTutPulse {
+      0%,100% { box-shadow: 0 0 0 3px #FB670B, 0 0 0 8px rgba(251,103,11,.3), 0 0 24px rgba(251,103,11,.5); }
+      50%      { box-shadow: 0 0 0 3px #FB670B, 0 0 0 14px rgba(251,103,11,.12), 0 0 44px rgba(251,103,11,.75); }
+    }
+    /* z-index layering: overlay=100000, highlight=100001, card=100002 */
+    .cd-tut-hl { position:relative !important; z-index:100001 !important; animation: cdTutPulse 1.15s ease-in-out infinite; outline:none !important; }
+
     /* Guías de seguridad imaginarias (solo en edición) */
     .cd-ed-guides { position: fixed; inset: 40px 60px; border: 1px dashed rgba(251,103,11,0.25); pointer-events: none; z-index: 9997; display: none; opacity: 0; transition: opacity .4s; }
     .cd[data-cd-editing] .cd-ed-guides { display: block; opacity: 1; }
@@ -576,10 +676,10 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
     .cd-hero-prods.in li { opacity: 1; transform: none; }
     .cd-table tbody tr,
     .cd-ctable tbody tr,
-    .cd-mtable tbody tr { opacity: 0; transform: translateY(10px); transition: opacity .5s ease, transform .5s ease; transition-delay: var(--d, 0s); }
-    .cd-table-wrap.in tbody tr,
-    .cd-ctable-wrap.in tbody tr,
-    .cd-mtable-wrap.in tbody tr { opacity: 1; transform: none; }
+    .cd-mtable tbody tr { opacity: 1; transform: none; transition: none; }
+    .cd-table-wrap,
+    .cd-ctable-wrap,
+    .cd-mtable-wrap { opacity: 1 !important; transform: none !important; transition: none !important; }
 
     @media (prefers-reduced-motion: reduce) {
       .reveal, .cd-hero-prods li, .cd-table tbody tr { transition: none; opacity: 1; transform: none; }
@@ -605,30 +705,34 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       .cd[data-deck-on] .cd-ficha { display: flex; flex-direction: column; justify-content: center; }
     }
 
-    .cd-deck-nav {
-      position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%);
-      z-index: 50; display: none; align-items: center; gap: 16px;
-      background: var(--bg2); 
-      box-shadow: 0 4px 20px rgba(0,0,0,.1);
-      backdrop-filter: blur(8px);
-      border: 1px solid var(--line); border-radius: 999px; padding: 8px 14px;
+    /* ── Scroll hint ── */
+    .cd-scroll-hint {
+      position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%);
+      z-index: 50; display: none; flex-direction: column; align-items: center; gap: 8px;
+      pointer-events: none;
+      opacity: 0; transition: opacity .55s ease;
     }
-    :global(.dark) .cd-deck-nav {
-      background: rgba(20,20,21,.72); 
-      box-shadow: 0 4px 20px rgba(0,0,0,.4);
+    .cd[data-deck-on] .cd-scroll-hint { display: flex; }
+    .cd-scroll-hint.sh-visible { opacity: 1; }
+    .cd-scroll-hint span {
+      font-size: 10px; font-weight: 800; letter-spacing: 1.8px; text-transform: uppercase;
+      color: var(--text-muted); font-family: inherit; white-space: nowrap;
     }
-    .cd[data-deck-on] .cd-deck-nav { display: flex; }
-    .cd-navbtn {
-      width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line);
-      background: transparent; color: var(--text); font-size: 22px; line-height: 1; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      transition: background .2s, border-color .2s, opacity .2s, color .2s;
+    .cd-scroll-mouse {
+      width: 22px; height: 34px; border: 2px solid var(--text-muted);
+      border-radius: 12px; display: flex; justify-content: center; padding-top: 5px;
+      box-sizing: border-box;
     }
-    .cd-navbtn:hover { background: var(--o); border-color: var(--o); color: #fff; }
-    .cd-navbtn:disabled { opacity: .28; cursor: default; }
-    .cd-counter { font-family: "Morganite", sans-serif; font-weight: 800; font-size: 24px; letter-spacing: .06em; color: var(--text); display: flex; align-items: center; gap: 7px; }
-    .cd-counter b { color: var(--o); }
-    .cd-counter span { color: var(--gray); }
+    .cd-scroll-wheel {
+      width: 3px; height: 7px; background: var(--o);
+      border-radius: 3px; animation: cdScrollWheel 1.4s ease-in-out infinite;
+    }
+    @keyframes cdScrollWheel {
+      0% { opacity: 1; transform: translateY(0); }
+      60% { opacity: 0; transform: translateY(9px); }
+      61% { opacity: 0; transform: translateY(0); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
 
     /* ── Responsive ── */
     @media (max-width: 900px) {
@@ -653,7 +757,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
     }
 
     /* ── Modo PDF: cada slide una pagina, todo visible, sin deck ── */
-    .cd[data-cd-pdf] .cd-deck-nav { display: none !important; }
+    .cd[data-cd-pdf] .cd-scroll-hint { display: none !important; }
     .cd[data-cd-pdf] .cd-slide {
       position: static !important; opacity: 1 !important; visibility: visible !important;
       transform: none !important; break-after: page; page-break-after: always;
@@ -667,7 +771,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
     :global(html[data-cd-shot] header.montfort-header),
     :global(html[data-cd-shot] .botgo-launcher),
     :global(html[data-cd-shot] #global-audio-player),
-    :global(html[data-cd-shot]) .cd-deck-nav { display: none !important; }
+    :global(html[data-cd-shot]) .cd-scroll-hint { display: none !important; }
     :global(html[data-cd-shot]) .cd-slide,
     :global(html[data-cd-shot]) .reveal { transition: none !important; animation: none !important; }
     :global(html[data-cd-shot]) .reveal { opacity: 1 !important; transform: none !important; }
@@ -709,6 +813,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       var elNext = document.getElementById('cdNext');
       var elCur  = document.getElementById('cdCur');
       var elTot  = document.getElementById('cdTot');
+      var elScrollHint = document.getElementById('cdScrollHint');
       var idx = 0, deckOn = false, io = null, exitReady = false;
 
       cdApplyStyles(); // estilos guardados, para todos
@@ -746,6 +851,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
         if (elCur)  elCur.textContent = pad(i + 1);
         if (elPrev) elPrev.disabled = i === 0;
         if (elNext) elNext.disabled = i === slides.length - 1;
+        if (elScrollHint) { if (i === 0) { setTimeout(function () { elScrollHint.classList.add('sh-visible'); }, 600); } else { elScrollHint.classList.remove('sh-visible'); } }
         if (editMode) { requestAnimationFrame(function () { edBind(); edBindText(); edSync(); edBarMode('none'); }); }
       }
 
@@ -883,7 +989,8 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
             var a = document.createElement('a');
             // Nombre dinamico desde meta
             var cleanTitle = (window.__cdTitle || 'Productos').replace(/\s+/g, '-');
-            var filename = 'Catalogo-' + cleanTitle + '-Grupo-Ortiz.pdf';
+            var langCode = (window.__cdLang || 'es').toUpperCase();
+            var filename = cleanTitle + '-' + langCode + '.pdf';
             a.href = url; a.download = filename;
             document.body.appendChild(a); a.click(); a.remove();
             setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
@@ -895,6 +1002,90 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
           });
       }
       if (elDl) elDl.addEventListener('click', onDl);
+
+      // ── Descargar Catálogo General (todas las divisiones) con overlay fullscreen ──
+      var elDlGen = document.getElementById('cdDownloadGeneral');
+      var elGenOv = document.getElementById('cdGenOverlay');
+      var elGenBar = document.getElementById('cdGenBar');
+      var elGenTxt = document.getElementById('cdGenTxt');
+      var elGenMb = document.getElementById('cdGenMb');
+      var dlGenBusy = false;
+      function formatMB(bytes) { return (bytes / (1024 * 1024)).toFixed(1) + ' MB'; }
+      function onDlGeneral(e) {
+        e.preventDefault();
+        if (dlGenBusy) return; dlGenBusy = true;
+        var theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+        var langEl = document.documentElement; // usar el lang del html
+        var url = '/api/catalogo-general-pdf?lang=' + (window.__cdLang || 'es') + '&theme=' + theme + '&t=' + Date.now();
+
+        elDlGen.setAttribute('aria-busy', 'true');
+        if (elGenOv) { elGenOv.style.display = 'flex'; }
+        if (elGenBar) { elGenBar.style.width = '0%'; }
+        if (elGenTxt) { elGenTxt.textContent = 'DESCARGANDO...'; }
+        if (elGenMb) { elGenMb.textContent = '0%'; }
+
+        // Fase 1: fake progress (generacion servidor) 0→88% en ~60s
+        var fakePct = 0;
+        var fakeTimer = setInterval(function () {
+          var step = fakePct < 40 ? (Math.random() * 3 + 1.5)
+                   : fakePct < 70 ? (Math.random() * 1.5 + 0.5)
+                   : (Math.random() * 0.4 + 0.1);
+          fakePct = Math.min(fakePct + step, 88);
+          if (elGenBar) { elGenBar.style.width = Math.round(fakePct) + '%'; }
+          if (elGenMb) { elGenMb.textContent = Math.round(fakePct) + '%'; }
+          if (fakePct >= 88) clearInterval(fakeTimer);
+        }, 500);
+        if (elGenTxt) { elGenTxt.textContent = 'GENERANDO...'; }
+
+        fetch(url, { cache: 'no-store' })
+          .then(function (r) {
+            if (!r.ok) throw new Error('Error al generar el PDF');
+            clearInterval(fakeTimer);
+            if (elGenTxt) { elGenTxt.textContent = 'DESCARGANDO...'; }
+            // Recolectar todos los bytes antes de animar al 100%
+            return r.arrayBuffer();
+          })
+          .then(function (buffer) {
+            var loaded = buffer.byteLength;
+            // Animar suavemente de fakePct → 100% en ~900ms con pasos
+            var startPct = fakePct;
+            var cur = startPct;
+            var finishTimer = setInterval(function () {
+              cur = Math.min(cur + (100 - startPct) / 9, 100);
+              if (elGenBar) { elGenBar.style.width = Math.round(cur) + '%'; }
+              if (elGenMb) { elGenMb.textContent = formatMB(loaded); }
+              if (cur >= 100) {
+                clearInterval(finishTimer);
+                if (elGenTxt) { elGenTxt.textContent = 'COMPLETADO'; }
+                if (elGenMb) { elGenMb.textContent = formatMB(loaded); }
+                var blob = new Blob([buffer], { type: 'application/pdf' });
+                var blobUrl = URL.createObjectURL(blob);
+                var a = document.createElement('a');
+                a.href = blobUrl;
+                a.download = 'Catalogo-General-' + (window.__cdLang || 'es').toUpperCase() + '.pdf';
+                document.body.appendChild(a); a.click(); a.remove();
+                setTimeout(function () { URL.revokeObjectURL(blobUrl); }, 4000);
+                setTimeout(function () {
+                  if (elGenOv) { elGenOv.style.display = 'none'; }
+                  dlGenBusy = false;
+                  elDlGen.removeAttribute('aria-busy');
+                }, 1200);
+              }
+            }, 100);
+          })
+          .catch(function (err) {
+            clearInterval(fakeTimer);
+            if (elGenBar) { elGenBar.style.width = '0%'; }
+            if (elGenTxt) { elGenTxt.textContent = 'Error: ' + err.message; }
+            if (elGenMb) { elGenMb.textContent = 'Intenta de nuevo'; }
+            setTimeout(function () {
+              if (elGenOv) { elGenOv.style.display = 'none'; }
+              dlGenBusy = false;
+              elDlGen.removeAttribute('aria-busy');
+            }, 3000);
+          });
+      }
+      if (elDlGen) elDlGen.addEventListener('click', onDlGeneral);
 
       // ════════════════════════════════════════════════════════
       // EDITOR ADMIN IN-PAGE (estilo Elementor) — solo si admin
@@ -996,7 +1187,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
           var el = edSel;
           var changed = el.__cdOrig !== undefined && el.__cdOrig !== el.textContent.trim();
           el.removeAttribute('contenteditable'); el.removeAttribute('data-cd-edit');
-          if (el.__cdSet) el.removeEventListener('input', el.__cdSet);
+          if (el.__cdSet) { el.__cdSet(); el.removeEventListener('input', el.__cdSet); }
           edCommit();
           // Solo auto-traducir desde el idioma fuente (espanol). En otros idiomas el cambio
           // es manual y NO debe sobrescribir lo que ya existe en los demas.
@@ -1336,7 +1527,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
         var prevOverflow = document.body.style.overflow;
         document.body.style.overflow = 'hidden';
         var hideStyle = document.createElement('style');
-        hideStyle.textContent = '.montfort-header,.cd-deck-nav,#cdNavBtn{display:none!important;}';
+        hideStyle.textContent = '.montfort-header,.cd-scroll-hint,#cdNavBtn{display:none!important;}';
         document.head.appendChild(hideStyle);
         if (typeof edBar !== 'undefined' && edBar) edBar.style.visibility = 'hidden';
         function close() {
@@ -1960,5 +2151,607 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
     else cdInit();
     document.addEventListener('astro:page-load', cdInit);
     document.addEventListener('astro:after-swap', cdInit);
+  </script>
+
+  <script is:inline>
+    (function () {
+      var ORANGE = '#FB670B';
+
+      function buildCatNav() {
+        var root = document.getElementById('cdCatNav');
+        var cats = window.__cdCats || [];
+        var slug = window.__cdSlug || '';
+        var lang = window.__cdLang || 'es';
+        if (!root || !cats.length) return;
+
+        var idx = cats.findIndex(function (c) { return c.slug === slug; });
+        var prev = idx > 0 ? cats[idx - 1] : null;
+        var next = idx >= 0 && idx < cats.length - 1 ? cats[idx + 1] : null;
+
+        root.innerHTML = '';
+
+        function makeBtn(cat, direction) {
+          var isLeft = direction === 'left';
+          var wrap = document.createElement('div');
+          wrap.style.cssText = 'position:fixed;top:50%;z-index:9000;transform:translateY(-50%);' + (isLeft ? 'left:16px;' : 'right:16px;');
+
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.setAttribute('aria-label', (isLeft ? 'Catálogo anterior' : 'Catálogo siguiente') + ': ' + cat.title);
+          btn.style.cssText = [
+            'display:flex;align-items:center;border:none;cursor:pointer;padding:5px;',
+            'background:transparent;border-radius:999px;',
+            'box-shadow:none;',
+            'transition:box-shadow .22s ease,background .22s ease;',
+            'flex-direction:' + (isLeft ? 'row' : 'row-reverse') + ';',
+            'font-family:system-ui,sans-serif;'
+          ].join('');
+
+          /* texto */
+          var txt = document.createElement('div');
+          txt.style.cssText = [
+            'overflow:hidden;max-width:0;opacity:0;white-space:nowrap;',
+            'transition:max-width .28s ease,opacity .22s ease;',
+            isLeft ? 'padding-right:14px;text-align:right;' : 'padding-left:14px;text-align:left;'
+          ].join('');
+          txt.innerHTML = '<div style="font-size:9px;font-weight:800;color:' + ORANGE + ';letter-spacing:1.8px;text-transform:uppercase;line-height:1.2">'
+            + (isLeft ? 'Anterior' : 'Siguiente')
+            + '</div><div style="font-size:13px;font-weight:900;color:#111827;letter-spacing:-0.4px;line-height:1.3;text-transform:uppercase">'
+            + cat.title + '</div>';
+
+          /* círculo */
+          var circle = document.createElement('div');
+          circle.style.cssText = 'width:38px;height:38px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,#FB670B 60%,#ff8c47 100%);display:flex;align-items:center;justify-content:center;box-shadow:0 0 10px rgba(251,103,11,.5);';
+          circle.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">'
+            + (isLeft ? '<polyline points="15 18 9 12 15 6"/>' : '<polyline points="9 18 15 12 9 6"/>')
+            + '</svg>';
+
+          btn.appendChild(txt);
+          btn.appendChild(circle);
+
+          btn.addEventListener('mouseenter', function () {
+            txt.style.maxWidth = '180px';
+            txt.style.opacity = '1';
+            btn.style.background = 'rgba(235,235,235,0.97)';
+            btn.style.boxShadow = '0 0 0 3px rgba(251,103,11,.55),0 0 24px rgba(251,103,11,.35),0 8px 28px rgba(0,0,0,.3)';
+          });
+          btn.addEventListener('mouseleave', function () {
+            if (document.getElementById('cdHowOv')) return; // tutorial activo: no colapsar
+            txt.style.maxWidth = '0';
+            txt.style.opacity = '0';
+            btn.style.background = 'transparent';
+            btn.style.boxShadow = 'none';
+          });
+          btn.addEventListener('click', function (e) {
+            var url = '/' + lang + '/catalogo/' + cat.slug;
+            if (document.getElementById('cdHowOv')) {
+              e.stopPropagation();
+              // guarda el paso actual del tutorial y navega
+              try {
+                sessionStorage.setItem('cdTutActive', '1');
+                sessionStorage.setItem('cdTutStep', String(window.__cdHowCur || 2)); // paso 3 = índice 2
+              } catch (_) {}
+              window.location.href = url;
+            } else {
+              window.location.href = url;
+            }
+          });
+
+          wrap.appendChild(btn);
+          return wrap;
+        }
+
+        if (prev) root.appendChild(makeBtn(prev, 'left'));
+        if (next) root.appendChild(makeBtn(next, 'right'));
+      }
+
+      function init() { buildCatNav(); }
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+      else init();
+      document.addEventListener('astro:page-load', init);
+      document.addEventListener('astro:after-swap', init);
+    })();
+  </script>
+
+  <script is:inline>
+  (function () {
+    var O = '#FB670B';
+    var MG = '"Morganite",sans-serif';
+
+    /* ── Highlight: force element to position:fixed above overlay ── */
+    var spots = [], hlEls = [];
+    function hl(els) {
+      unhl();
+      els.forEach(function (el) {
+        if (!el) return;
+        var r = el.getBoundingClientRect();
+        if (!r.width) return;
+        var brRaw = getComputedStyle(el).borderRadius || '0px';
+        var br = (brRaw === '0px' || brRaw === '0px 0px 0px 0px') ? '999px' : brRaw;
+        /* save inline styles */
+        el.__ts = { pos: el.style.position, zi: el.style.zIndex, top: el.style.top, left: el.style.left, w: el.style.width, h: el.style.height, m: el.style.margin, tr: el.style.transform };
+        /* force above overlay — position:fixed breaks out of any stacking context */
+        el.style.setProperty('position','fixed','important');
+        el.style.setProperty('z-index','100001','important');
+        el.style.setProperty('top', r.top+'px','important');
+        el.style.setProperty('left', r.left+'px','important');
+        el.style.setProperty('width', r.width+'px','important');
+        el.style.setProperty('height', r.height+'px','important');
+        el.style.setProperty('margin','0','important');
+        el.style.setProperty('transform','none','important');
+        hlEls.push(el);
+        /* pulsing ring */
+        var sp = document.createElement('div');
+        sp.style.cssText = 'position:fixed;pointer-events:none;z-index:100002;box-sizing:border-box;border-radius:' + br + ';animation:cdTutPulse 1.15s ease-in-out infinite;top:' + r.top + 'px;left:' + r.left + 'px;width:' + r.width + 'px;height:' + r.height + 'px;';
+        document.body.appendChild(sp); spots.push(sp);
+      });
+    }
+    function unhl() {
+      hlEls.forEach(function (el) {
+        if (!el || !el.__ts) return;
+        var s = el.__ts;
+        el.style.position = s.pos; el.style.zIndex = s.zi; el.style.top = s.top;
+        el.style.left = s.left; el.style.width = s.w; el.style.height = s.h;
+        el.style.margin = s.m; el.style.transform = s.tr;
+        delete el.__ts;
+      });
+      hlEls = [];
+      spots.forEach(function (s) { if (s.parentNode) s.parentNode.removeChild(s); });
+      spots = [];
+    }
+    /* raise a container above the overlay (already position:fixed), add rings to children */
+    var hlContainers = [];
+    function hlContainer(container, childSel) {
+      unhl();
+      if (!container) return;
+      container.__oldZi = container.style.zIndex;
+      container.style.setProperty('z-index','100001','important');
+      hlContainers.push(container);
+      var children = childSel ? Array.prototype.slice.call(container.querySelectorAll(childSel)) : [container];
+      children.forEach(function(el) {
+        if (!el) return;
+        var r = el.getBoundingClientRect();
+        if (!r.width) return;
+        var brRaw = getComputedStyle(el).borderRadius || '50%';
+        var br = (brRaw === '0px' || brRaw === '0px 0px 0px 0px') ? '999px' : brRaw;
+        var sp = document.createElement('div');
+        sp.style.cssText = 'position:fixed;pointer-events:none;z-index:100002;box-sizing:border-box;border-radius:' + br + ';animation:cdTutPulse 1.15s ease-in-out infinite;top:' + r.top + 'px;left:' + r.left + 'px;width:' + r.width + 'px;height:' + r.height + 'px;';
+        document.body.appendChild(sp); spots.push(sp);
+      });
+    }
+    function unhlContainers() {
+      hlContainers.forEach(function(c) {
+        if (!c) return;
+        if (c.__oldZi !== undefined) { c.style.zIndex = c.__oldZi; delete c.__oldZi; }
+      });
+      hlContainers = [];
+    }
+
+    function mk(tag, css) { var e = document.createElement(tag); if (css) e.style.cssText = css; return e; }
+
+    function openHowModal() {
+      if (document.getElementById('cdHowOv')) return;
+      var cur = 0;
+      try {
+        var savedStep = parseInt(sessionStorage.getItem('cdTutStep'), 10);
+        if (savedStep >= 0 && savedStep < 5) cur = savedStep;
+        sessionStorage.removeItem('cdTutStep');
+      } catch (_) {}
+      var isDk = function () { return document.documentElement.classList.contains('dark'); };
+
+      var ov = document.createElement('div'); ov.id = 'cdHowOv';
+      ov.style.cssText = 'position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.4);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);';
+
+      var SF = "-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif";
+      var card = document.createElement('div'); card.id = 'cdHowCard';
+      card.style.cssText = 'width:100%;max-width:380px;border-radius:20px;overflow:hidden;position:relative;z-index:100002;box-shadow:0 32px 80px rgba(0,0,0,.35),0 0 0 1px rgba(0,0,0,.06);background:#fff;font-family:' + SF + ';';
+
+      /* force navbar white + bloquear scroll mientras tutorial está abierto */
+      var hdr = document.querySelector('.montfort-header');
+      var hadBlack = hdr && hdr.classList.contains('force-black');
+      if (hdr) { hdr.classList.add('force-white'); hdr.classList.remove('force-black'); }
+      var oldBodyOverflow = document.body.style.overflow;
+      var oldHtmlOverflow = document.documentElement.style.overflow;
+      var scrollBlocked = true; // bloqueado por defecto, solo paso 4 lo suelta
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+      // detiene Lenis si existe para evitar que siga scrolleando
+      if (typeof window.__lenis !== 'undefined' && window.__lenis) { window.__lenis.stop(); }
+      // bloquea cualquier intento de scroll (wheel + touch)
+      function blockScroll(e) {
+        if (!scrollBlocked) return;
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      document.addEventListener('wheel', blockScroll, { passive: false });
+      document.addEventListener('touchmove', blockScroll, { passive: false });
+
+      function close() {
+        scrollBlocked = false;
+        document.removeEventListener('wheel', blockScroll);
+        document.removeEventListener('touchmove', blockScroll);
+        unhl(); ov.remove();
+        if (hdr) { hdr.classList.remove('force-white'); if (hadBlack) hdr.classList.add('force-black'); }
+        document.body.style.overflow = oldBodyOverflow;
+        document.documentElement.style.overflow = oldHtmlOverflow;
+        if (typeof window.__lenis !== 'undefined' && window.__lenis) { window.__lenis.start(); }
+        document.removeEventListener('keydown', onEsc);
+      }
+      function onEsc(e) { if (e.key === 'Escape') { steps[cur].leave(); close(); } }
+      document.addEventListener('keydown', onEsc);
+
+      /* ── STEP DEFINITIONS ── */
+      var cats = window.__cdCats || [];
+      var ci = Math.max(0, cats.findIndex(function (c) { return c.slug === (window.__cdSlug || ''); }));
+
+      var steps = [
+        /* ── 01 TEMA ── */
+        {
+          icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>',
+          num: '01', title: 'Tema',
+          subtitle: 'Claro u oscuro — tú decides',
+          desc: 'Cambia la apariencia del catálogo entre modo claro y oscuro. El PDF que descargues se genera exactamente con el tema que tengas activo al momento de descargarlo.',
+          hint: '↑ Busca el toggle en la barra de navegación superior',
+          enter: function () {
+            var hdrEl = document.querySelector('.montfort-header');
+            hlContainer(hdrEl, '.theme-switch,.mobile-theme-btn');
+          },
+          leave: function() { unhlContainers(); unhl(); },
+          demo: function () {
+            var row = mk('div','display:flex;gap:8px;');
+            var thBtns = [];
+            function mkTb(lbl, iconSvg, dk) {
+              var b = mk('button','flex:1;padding:14px 10px;border-radius:12px;border:none;cursor:pointer;font-size:20px;font-weight:800;letter-spacing:.5px;transition:all .2s;font-family:' + MG + ';display:flex;align-items:center;justify-content:center;gap:8px;text-transform:uppercase;');
+              b.type = 'button';
+              var ic = document.createElement('span'); ic.innerHTML = iconSvg; ic.style.cssText = 'display:flex;align-items:center;flex-shrink:0;';
+              var tx = mk('span','font-family:' + MG + ';font-weight:800;font-size:20px;text-transform:uppercase;letter-spacing:.5px;'); tx.textContent = lbl;
+              b.appendChild(ic); b.appendChild(tx);
+              function rf() {
+                var on = isDk() === dk;
+                b.style.background = on ? 'rgba(251,103,11,.13)' : '#EBEBEB';
+                b.style.color = on ? O : '#444';
+              }
+              rf(); b._rf = rf;
+              b.onclick = function () {
+                if (dk !== isDk()) {
+                  var inp = document.querySelector('.js-theme-toggle');
+                  if (inp) inp.click();
+                  else { document.documentElement.classList[dk ? 'add' : 'remove']('dark'); localStorage.setItem('theme', dk ? 'dark' : 'light'); }
+                }
+                thBtns.forEach(function (x) { x._rf(); });
+                setTimeout(function () { unhl(); hl(Array.prototype.slice.call(document.querySelectorAll('.theme-switch,.mobile-theme-btn'))); }, 80);
+              };
+              return b;
+            }
+            var b1 = mkTb('Claro','<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>',false);
+            var b2 = mkTb('Oscuro','<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>',true);
+            thBtns.push(b1,b2); row.appendChild(b1); row.appendChild(b2);
+            return row;
+          }
+        },
+        /* ── 02 IDIOMA ── */
+        {
+          icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
+          num: '02', title: 'Idioma',
+          subtitle: '5 idiomas con traducción IA',
+          desc: 'El catálogo está disponible en Español, Inglés, Portugués, Chino y Árabe. Cada idioma incluye traducción automática con inteligencia artificial en todos los textos del producto.',
+          hint: '↑ Selecciona el idioma que necesites',
+          enter: function () {},
+          leave: unhl,
+          demo: function () {
+            var langs = [['es','Español'],['en','English'],['pt','Português'],['zh','中文'],['ar','العربية']];
+            var active = window.__cdLang || 'es';
+            var grid = mk('div','display:grid;grid-template-columns:1fr 1fr;gap:6px;');
+            langs.forEach(function (l) {
+              var b = mk('button','padding:11px 12px;border-radius:12px;border:none;cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:8px;');
+              b.type = 'button';
+              var on = l[0] === active;
+              b.style.background = on ? 'rgba(251,103,11,.13)' : '#EBEBEB';
+              var spCode = mk('span','font-family:' + MG + ';font-weight:800;font-size:17px;min-width:24px;color:' + O + ';');
+              spCode.textContent = l[0].toUpperCase();
+              var spName = mk('span','font-family:' + MG + ';font-weight:800;font-size:16px;letter-spacing:.3px;');
+              spName.style.color = on ? O : '#444';
+              spName.textContent = l[1];
+              b.appendChild(spCode); b.appendChild(spName);
+              b.onclick = function () {
+                active = l[0];
+                grid.querySelectorAll('button').forEach(function (x, xi) {
+                  var xon = langs[xi][0] === active;
+                  x.style.background = xon ? 'rgba(251,103,11,.13)' : '#EBEBEB';
+                  x.querySelectorAll('span')[0].style.color = O;
+                  x.querySelectorAll('span')[1].style.color = xon ? O : '#444';
+                });
+              };
+              grid.appendChild(b);
+            });
+            return grid;
+          }
+        },
+        /* ── 03 NAVEGACION ── */
+        {
+          icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>',
+          num: '03', title: 'Navegar',
+          subtitle: 'Explora todos los catálogos',
+          desc: 'Las flechas naranjas a los bordes de la pantalla te permiten pasar entre las divisiones de Grupo Ortiz. Al pasar el cursor, aparece el nombre del catálogo al que irás.',
+          hint: '← Mira las flechas que brillan en los bordes →',
+          enter: function () {
+            var nav = document.getElementById('cdCatNav');
+            if (!nav) return;
+            Array.prototype.slice.call(nav.children).forEach(function(wrapper) {
+              /* subir wrapper (ya position:fixed) sobre el overlay */
+              wrapper.__oldZi = wrapper.style.zIndex;
+              wrapper.style.setProperty('z-index','100001','important');
+              hlContainers.push(wrapper);
+              /* expandir botón al estado hover para mostrar texto del catálogo */
+              var btn = wrapper.querySelector('button');
+              var txtDiv = btn ? btn.firstElementChild : null;
+              if (btn && txtDiv) {
+                /* desactiva transición para medir el ancho real expandido */
+                var oldTransition = txtDiv.style.transition;
+                txtDiv.style.transition = 'none';
+                txtDiv.style.maxWidth = '180px';
+                txtDiv.style.opacity = '1';
+                btn.style.background = 'rgba(235,235,235,0.97)';
+                btn.style.boxShadow = '0 0 0 3px rgba(251,103,11,.55),0 0 24px rgba(251,103,11,.35),0 8px 28px rgba(0,0,0,.3)';
+                /* fuerza reflow sincrono con el boton ya expandido */
+                btn.offsetHeight;
+                var r = btn.getBoundingClientRect();
+                /* restaura transición */
+                txtDiv.style.transition = oldTransition;
+                if (r.width) {
+                  var sp = document.createElement('div');
+                  sp.style.cssText = 'position:fixed;pointer-events:none;z-index:100002;box-sizing:border-box;border-radius:999px;animation:cdTutPulse 1.15s ease-in-out infinite;top:' + (r.top - 4) + 'px;left:' + (r.left - 4) + 'px;width:' + (r.width + 8) + 'px;height:' + (r.height + 8) + 'px;';
+                  document.body.appendChild(sp); spots.push(sp);
+                }
+              }
+            });
+          },
+          leave: function() {
+            /* colapsar botones antes de restaurar z-index */
+            var nav = document.getElementById('cdCatNav');
+            if (nav) {
+              Array.prototype.slice.call(nav.children).forEach(function(wrapper) {
+                var btn = wrapper.querySelector('button');
+                var txtDiv = btn ? btn.firstElementChild : null;
+                if (btn && txtDiv) {
+                  txtDiv.style.maxWidth = '0'; txtDiv.style.opacity = '0';
+                  btn.style.background = 'transparent'; btn.style.boxShadow = 'none';
+                }
+              });
+            }
+            unhlContainers(); unhl();
+          },
+          demo: function () {
+            var w = mk('div','display:flex;align-items:center;gap:12px;padding:14px;border-radius:14px;background:#F2F2F2;');
+            function arr(svg) {
+              var d = mk('div','width:40px;height:40px;flex-shrink:0;border-radius:50%;background:' + O + ';display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(251,103,11,.38);');
+              d.innerHTML = svg; return d;
+            }
+            var lA = arr('<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>');
+            var rA = arr('<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>');
+            var info = mk('div','flex:1;text-align:center;');
+            var iLbl = mk('div','font-family:' + MG + ';font-weight:800;font-size:12px;letter-spacing:3px;text-transform:uppercase;color:' + O + ';margin-bottom:3px;');
+            iLbl.textContent = 'División actual';
+            var iTitle = mk('div','font-family:' + MG + ';font-weight:800;font-size:24px;text-transform:uppercase;letter-spacing:.5px;color:#111;line-height:1;');
+            iTitle.textContent = cats[ci] ? cats[ci].title : 'STRETCH FILM';
+            var iCount = mk('div','font-family:' + MG + ';font-weight:800;font-size:14px;color:rgba(0,0,0,.4);margin-top:4px;letter-spacing:1px;');
+            iCount.textContent = (ci + 1) + ' / ' + (cats.length || 10) + ' catálogos';
+            info.appendChild(iLbl); info.appendChild(iTitle); info.appendChild(iCount);
+            w.appendChild(lA); w.appendChild(info); w.appendChild(rA);
+            return w;
+          }
+        },
+        /* ── 04 DESPLAZAR ── */
+        {
+          icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18.01"/></svg>',
+          num: '04', title: 'Desplazar',
+          subtitle: 'Cada división tiene productos y fichas técnicas',
+          desc: 'Cada división del catálogo incluye varios productos con sus fichas técnicas completas. Haz scroll hacia abajo para ver especificaciones, tablas de medidas, colores y matrices.',
+          hint: '↓ Ahora puedes deslizar para ver los productos de esta división',
+          enter: function () {
+            scrollBlocked = false; // suelta bloqueo de eventos de scroll
+            var hint = document.getElementById('cdScrollHint');
+            if (hint) { hint.classList.add('sh-visible'); }
+            var activeSlide = document.querySelector('.cd-slide.is-active');
+            if (activeSlide) {
+              activeSlide.__oldOverflow = activeSlide.style.overflow;
+              activeSlide.style.overflowY = 'auto';
+              activeSlide.style.overflowX = 'hidden';
+              activeSlide.scrollTop = 0;
+            }
+          },
+          leave: function () {
+            scrollBlocked = true; // re-bloquea eventos
+            var hint = document.getElementById('cdScrollHint');
+            if (hint) { hint.classList.remove('sh-visible'); }
+            var activeSlide = document.querySelector('.cd-slide.is-active');
+            if (activeSlide && activeSlide.__oldOverflow !== undefined) {
+              activeSlide.style.overflowY = '';
+              activeSlide.style.overflowX = '';
+              activeSlide.style.overflow = activeSlide.__oldOverflow;
+              delete activeSlide.__oldOverflow;
+            }
+          },
+          demo: function () {
+            var wrap = mk('div','display:flex;flex-direction:column;gap:10px;');
+            var device = mk('div','border-radius:14px;background:#1b1b1c;padding:16px 14px;overflow:hidden;');
+            var screen = mk('div','border-radius:8px;background:#fff;overflow-y:auto;max-height:110px;padding:10px;font-size:10px;color:#333;');
+            screen.innerHTML = '<table style="width:100%;border-collapse:collapse;font-size:9px;"><thead><tr><th style="background:#FB670B;color:#fff;padding:4px 6px;">ESPECIFICACIÓN</th><th style="background:#333;color:#fff;padding:4px 6px;">MÍN</th><th style="background:#333;color:#fff;padding:4px 6px;">MÁX</th></tr></thead><tbody>' +
+              '<tr><td style="padding:4px 6px;border-bottom:1px solid #eee;">Calibre</td><td style="padding:4px 6px;border-bottom:1px solid #eee;">12 µm</td><td style="padding:4px 6px;border-bottom:1px solid #eee;">30 µm</td></tr>' +
+              '<tr><td style="padding:4px 6px;border-bottom:1px solid #eee;">Ancho</td><td style="padding:4px 6px;border-bottom:1px solid #eee;">250 mm</td><td style="padding:4px 6px;border-bottom:1px solid #eee;">750 mm</td></tr>' +
+              '<tr><td style="padding:4px 6px;border-bottom:1px solid #eee;">Largo</td><td style="padding:4px 6px;border-bottom:1px solid #eee;">500 m</td><td style="padding:4px 6px;border-bottom:1px solid #eee;">3000 m</td></tr>' +
+              '<tr><td style="padding:4px 6px;border-bottom:1px solid #eee;">Peso</td><td style="padding:4px 6px;border-bottom:1px solid #eee;">5 kg</td><td style="padding:4px 6px;border-bottom:1px solid #eee;">25 kg</td></tr></tbody></table>';
+            device.appendChild(screen);
+            var mouse = mk('div','display:flex;align-items:center;gap:14px;padding:0 8px;margin-top:10px;');
+            var mouseIcon = mk('div','width:18px;height:25px;border:2px solid ' + O + ';border-radius:10px;display:flex;justify-content:center;padding-top:4px;');
+            var wheel = mk('div','width:2.5px;height:5px;background:' + O + ';border-radius:2px;');
+            mouseIcon.appendChild(wheel);
+            var mouseLabel = mk('span','font-family:' + MG + ';font-weight:800;font-size:15px;text-transform:uppercase;letter-spacing:.3px;color:#111;');
+            mouseLabel.textContent = 'SCROLL DENTRO DE CADA FICHA';
+            mouse.appendChild(mouseIcon); mouse.appendChild(mouseLabel);
+            wrap.appendChild(device); wrap.appendChild(mouse);
+            return wrap;
+          }
+        },
+        /* ── 05 PDF ── */
+        {
+          icon: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>',
+          num: '05', title: 'Descargar PDF',
+          subtitle: 'El catálogo a tu medida',
+          desc: 'El PDF se genera en tiempo real con el idioma y tema que hayas seleccionado en los pasos anteriores. Incluye todas las fichas técnicas con especificaciones completas.',
+          hint: '↓ El botón de descarga está resaltando en la página',
+          enter: function () {
+            var d = document.getElementById('cdDownload');
+            if (!d) return;
+            var r = d.getBoundingClientRect();
+            if (!r.width) return;
+            /* clone to body — escapes GSAP transform stacking context */
+            var cl = d.cloneNode(true);
+            cl.removeAttribute('id');
+            cl.style.position = 'fixed';
+            cl.style.top = r.top + 'px';
+            cl.style.left = r.left + 'px';
+            cl.style.width = r.width + 'px';
+            cl.style.height = r.height + 'px';
+            cl.style.zIndex = '100001';
+            cl.style.margin = '0';
+            cl.style.transform = 'none';
+            cl.style.cursor = 'pointer';
+            cl.onclick = function(e) { e.stopPropagation(); d.click(); };
+            document.body.appendChild(cl); spots.push(cl);
+            /* pulsing ring on top */
+            var sp = document.createElement('div');
+            sp.style.cssText = 'position:fixed;pointer-events:none;z-index:100002;box-sizing:border-box;border-radius:' + (getComputedStyle(d).borderRadius || '999px') + ';animation:cdTutPulse 1.15s ease-in-out infinite;top:' + r.top + 'px;left:' + r.left + 'px;width:' + r.width + 'px;height:' + r.height + 'px;';
+            document.body.appendChild(sp); spots.push(sp);
+          },
+          leave: function() { unhl(); },
+          demo: function () {
+            var wrap = mk('div','display:flex;flex-direction:column;align-items:center;gap:10px;');
+            var btn = mk('div','display:flex;align-items:center;gap:10px;padding:14px 28px;border-radius:14px;background:' + O + ';color:#fff;font-family:' + MG + ';font-size:20px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;box-shadow:0 6px 22px rgba(251,103,11,.38);cursor:default;');
+            btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Descargar PDF';
+            var note = mk('div','font-size:12px;color:rgba(0,0,0,.38);font-weight:500;text-align:center;');
+            note.textContent = 'Se genera con el tema e idioma seleccionados';
+            wrap.appendChild(btn); wrap.appendChild(note);
+            return wrap;
+          }
+        }
+      ];
+
+      /* ── helpers for current theme colors ── */
+      function bdr() { return isDk() ? 'rgba(255,255,255,.1)' : 'rgba(0,0,0,.09)'; }
+      function mt()  { return isDk() ? '#8a8a8a' : '#6B7280'; }
+      function bg()  { return isDk() ? '#181818' : '#ffffff'; }
+      function txt() { return isDk() ? '#F0EFE8' : '#0f172a'; }
+
+      /* ── RENDER ── */
+      function render() {
+        window.__cdHowCur = cur;
+        card.innerHTML = '';
+        var s = steps[cur];
+        var isLast = cur === steps.length - 1;
+        var sNext = !isLast ? steps[cur + 1] : null;
+        var sPrev = cur > 0 ? steps[cur - 1] : null;
+
+        /* ═══ TOP BAR ═══ */
+        var topBar = mk('div','display:flex;justify-content:space-between;align-items:center;padding:18px 20px 0;');
+        /* step dots */
+        var dotsWrap = mk('div','display:flex;gap:5px;align-items:center;');
+        steps.forEach(function(_,i){
+          var d = mk('div','height:3px;border-radius:2px;transition:all .35s;');
+          d.style.background = i===cur ? O : 'rgba(0,0,0,.12)';
+          d.style.width = i===cur ? '24px' : '8px';
+          dotsWrap.appendChild(d);
+        });
+        /* right: counter + close */
+        var rightTop = mk('div','display:flex;align-items:center;gap:10px;');
+        var stepLbl = mk('span','font-size:12px;font-weight:600;color:rgba(0,0,0,.35);letter-spacing:.2px;');
+        stepLbl.textContent = (cur+1) + ' de ' + steps.length;
+        var xb = mk('button','width:28px;height:28px;border-radius:50%;border:none;background:rgba(0,0,0,.07);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;color:rgba(0,0,0,.45);transition:background .2s;padding:0;');
+        xb.type='button'; xb.innerHTML='&times;';
+        xb.onmouseenter=function(){xb.style.background='rgba(0,0,0,.13)';};
+        xb.onmouseleave=function(){xb.style.background='rgba(0,0,0,.07)';};
+        xb.onclick=function(){s.leave();close();};
+        rightTop.appendChild(stepLbl); rightTop.appendChild(xb);
+        topBar.appendChild(dotsWrap); topBar.appendChild(rightTop);
+        card.appendChild(topBar);
+
+        /* ═══ HERO ═══ */
+        var hero = mk('div','padding:20px 24px 18px;');
+        var numEl = mk('div','font-family:' + MG + ';font-weight:800;font-size:72px;line-height:.85;color:' + O + ';letter-spacing:-2px;');
+        numEl.textContent = s.num;
+        var titleEl = mk('div','font-family:' + MG + ';font-weight:800;font-size:32px;text-transform:uppercase;color:#111;line-height:1;margin-top:6px;letter-spacing:.3px;');
+        titleEl.textContent = s.title;
+        var subEl = mk('div','font-size:13px;color:rgba(0,0,0,.42);margin-top:6px;line-height:1.4;font-weight:500;');
+        subEl.textContent = s.subtitle;
+        hero.appendChild(numEl); hero.appendChild(titleEl); hero.appendChild(subEl);
+        card.appendChild(hero);
+
+        /* separator */
+        card.appendChild(mk('div','height:1px;background:rgba(0,0,0,.07);'));
+
+        /* ═══ BODY ═══ */
+        var body = mk('div','padding:18px 20px;');
+        body.appendChild(s.demo());
+        card.appendChild(body);
+
+        /* separator */
+        card.appendChild(mk('div','height:1px;background:rgba(0,0,0,.07);'));
+
+        /* ═══ FOOTER ═══ */
+        var foot = mk('div','padding:14px 20px 18px;display:flex;gap:8px;');
+        if (sPrev) {
+          var bp = mk('button','flex:0 0 auto;padding:16px 20px;border-radius:12px;border:none;background:#EBEBEB;color:#333;cursor:pointer;transition:background .2s;font-family:' + MG + ';font-size:20px;font-weight:800;letter-spacing:.3px;white-space:nowrap;display:flex;align-items:center;gap:8px;');
+          bp.type='button';
+          var bpArr = mk('span','font-size:13px;opacity:.45;'); bpArr.textContent = '←';
+          var bpTxt = mk('span','font-family:' + MG + ';font-weight:800;font-size:20px;letter-spacing:.4px;text-transform:uppercase;'); bpTxt.textContent = sPrev.num;
+          bp.appendChild(bpArr); bp.appendChild(bpTxt);
+          bp.onmouseenter=function(){bp.style.background='#DCDCDC';};
+          bp.onmouseleave=function(){bp.style.background='#EBEBEB';};
+          bp.onclick=function(){s.leave();cur--;render();};
+          foot.appendChild(bp);
+        }
+        var bn = mk('button','flex:1;padding:16px 16px;border-radius:12px;border:none;background:' + O + ';color:#fff;cursor:pointer;transition:opacity .18s;font-family:' + MG + ';font-size:22px;font-weight:800;letter-spacing:.4px;box-shadow:0 4px 18px rgba(251,103,11,.38);display:flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;');
+        bn.type='button';
+        if (isLast) {
+          bn.textContent = 'TERMINAR ✓';
+        } else {
+          var bnTxt = mk('span','font-family:' + MG + ';font-weight:800;font-size:22px;letter-spacing:.5px;text-transform:uppercase;');
+          bnTxt.textContent = sNext.num + ' ' + sNext.title.toUpperCase();
+          var bnArr = mk('span','font-size:16px;opacity:.65;');
+          bnArr.textContent = '→';
+          bn.appendChild(bnTxt); bn.appendChild(bnArr);
+        }
+        bn.onmouseenter=function(){bn.style.opacity='.85';};
+        bn.onmouseleave=function(){bn.style.opacity='1';};
+        bn.onclick=function(e){e.stopPropagation();if(isLast){s.leave();close();}else{s.leave();cur++;render();}};
+        foot.appendChild(bn);
+        card.appendChild(foot);
+
+        s.enter();
+      }
+
+      render();
+      ov.appendChild(card);
+      document.body.appendChild(ov);
+      // solo se cierra con X o Escape — no con click en el fondo
+    }
+
+    function bind() {
+      var b = document.getElementById('cdHowBtn');
+      if (!b || b.__hb) return; b.__hb = true;
+      b.addEventListener('click', openHowModal);
+      // tutorial auto-reabre al navegar entre catálogos
+      try {
+        if (sessionStorage.getItem('cdTutActive') === '1') {
+          sessionStorage.removeItem('cdTutActive');
+          setTimeout(openHowModal, 400);
+        }
+      } catch (_) {}
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind);
+    else bind();
+    document.addEventListener('astro:page-load', bind);
+    document.addEventListener('astro:after-swap', bind);
+  })();
   </script>
 </BaseLayout>
