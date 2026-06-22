@@ -1100,7 +1100,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       function onPrev() { show(idx - 1); }
       function onNext() { show(idx + 1); }
 
-      // ── Descargar PDF — mismo sistema que reportes (fetch → blob → a.click) ──
+      // ── Descargar PDF — overlay centro de descarga ──
       var elDl = document.getElementById('cdDownload');
       var dlTxt = elDl ? elDl.querySelector('.cd-dl-txt') : null;
       var dlBusy = false;
@@ -1114,12 +1114,38 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
         var theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
         var url = elDl.getAttribute('href') + '&theme=' + theme + '&t=' + Date.now();
 
+        var ov = document.getElementById('cdGenOverlay');
+        var bar = document.getElementById('cdGenBar');
+        var mb = document.getElementById('cdGenMb');
+        var txt = document.getElementById('cdGenTxt');
+        var prog = document.getElementById('cdGenProgress');
+        var errC = document.getElementById('cdGenErrCard');
+        if (ov) ov.style.display = 'flex';
+        if (errC) errC.style.display = 'none';
+        if (prog) prog.style.display = 'flex';
+        if (bar) bar.style.width = '0%';
+        if (txt) txt.textContent = 'GENERANDO...';
+        if (mb) mb.textContent = '0%';
+
+        var fakePct = 0;
+        var fakeTimer = setInterval(function () {
+          fakePct = Math.min(fakePct + (Math.random() * 3 + 2.5), 90);
+          if (bar) bar.style.width = Math.round(fakePct) + '%';
+          if (mb) mb.textContent = Math.round(fakePct) + '%';
+          if (fakePct >= 90) clearInterval(fakeTimer);
+        }, 300);
+
         fetch(url, { cache: 'no-store' })
           .then(function (r) {
             if (!r.ok) throw new Error('Error ' + r.status);
             return r.blob();
           })
           .then(function (blob) {
+            clearInterval(fakeTimer);
+            if (bar) bar.style.width = '100%';
+            if (mb) mb.textContent = (blob.size / 1024 / 1024).toFixed(1) + ' MB';
+            if (txt) txt.textContent = 'COMPLETADO';
+
             var blobUrl = URL.createObjectURL(blob);
             var isMob = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
             if (isMob) {
@@ -1136,25 +1162,63 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
               URL.revokeObjectURL(blobUrl);
               document.body.removeChild(a);
             }
+
+            setTimeout(function () {
+              if (ov) ov.style.display = 'none';
+              dlBusy = false; elDl.removeAttribute('aria-busy');
+              if (dlTxt) dlTxt.textContent = original || 'Descargar PDF';
+            }, 1200);
           })
           .catch(function () { window.open(url, '_blank'); })
           .finally(function () {
-            dlBusy = false; elDl.removeAttribute('aria-busy');
-            if (dlTxt) dlTxt.textContent = original || 'Descargar PDF';
+            if (fakeTimer) clearInterval(fakeTimer);
           });
       }
       if (elDl) elDl.addEventListener('click', onDl);
 
-      // ── Catálogo General — mismo sistema que reportes (fetch → blob → a.click) ──
+      // ── Catálogo General — overlay centro de descarga ──
       var elDlGen = document.getElementById('cdDownloadGeneral');
+      var dlGenTxt = elDlGen ? elDlGen.querySelector('.cd-dl-txt') : null;
+      var elGenOv = document.getElementById('cdGenOverlay');
+      var elGenBar = document.getElementById('cdGenBar');
+      var elGenTxt = document.getElementById('cdGenTxt');
+      var elGenMb = document.getElementById('cdGenMb');
+      var elGenProgress = document.getElementById('cdGenProgress');
+      var elGenErrCard = document.getElementById('cdGenErrCard');
       var dlGenBusy = false;
+
+      function resetGenOverlay() {
+        if (elGenErrCard) elGenErrCard.style.display = 'none';
+        if (elGenProgress) elGenProgress.style.display = 'flex';
+        if (elGenBar) elGenBar.style.width = '0%';
+        if (elGenMb) elGenMb.textContent = '0%';
+        if (elGenTxt) elGenTxt.textContent = 'GENERANDO...';
+      }
+
       function onDlGeneral(e) {
         e.preventDefault();
         if (dlGenBusy) return; dlGenBusy = true;
+        var original = dlGenTxt ? dlGenTxt.textContent : '';
         elDlGen.setAttribute('aria-busy', 'true');
+        if (dlGenTxt) dlGenTxt.textContent = 'Generando PDF…';
+
         var lang = window.__cdLang || 'es';
         var theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
         var url = '/api/catalogo-general-pdf?lang=' + lang + '&theme=' + theme + '&t=' + Date.now();
+
+        resetGenOverlay();
+        if (elGenOv) elGenOv.style.display = 'flex';
+
+        var fakePct = 0;
+        var fakeTimer = setInterval(function () {
+          var step = fakePct < 55 ? (Math.random() * 1.8 + 1.8)
+                   : fakePct < 85 ? (Math.random() * 0.8 + 0.4)
+                   : (Math.random() * 0.18 + 0.06);
+          fakePct = Math.min(fakePct + step, 88);
+          if (elGenBar) elGenBar.style.width = Math.round(fakePct) + '%';
+          if (elGenMb) elGenMb.textContent = Math.round(fakePct) + '%';
+          if (fakePct >= 88) clearInterval(fakeTimer);
+        }, 350);
 
         fetch(url, { cache: 'no-store' })
           .then(function (r) {
@@ -1162,6 +1226,11 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
             return r.blob();
           })
           .then(function (blob) {
+            clearInterval(fakeTimer);
+            if (elGenBar) elGenBar.style.width = '100%';
+            if (elGenMb) elGenMb.textContent = (blob.size / 1024 / 1024).toFixed(1) + ' MB';
+            if (elGenTxt) elGenTxt.textContent = 'COMPLETADO';
+
             var blobUrl = URL.createObjectURL(blob);
             var isMob = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
             if (isMob) {
@@ -1176,10 +1245,22 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
               URL.revokeObjectURL(blobUrl);
               document.body.removeChild(a);
             }
+
+            setTimeout(function () {
+              if (elGenOv) elGenOv.style.display = 'none';
+              dlGenBusy = false; elDlGen.removeAttribute('aria-busy');
+              if (dlGenTxt) dlGenTxt.textContent = original || 'Catálogo General';
+            }, 1500);
           })
-          .catch(function () { window.open(url, '_blank'); })
-          .finally(function () {
-            dlGenBusy = false; elDlGen.removeAttribute('aria-busy');
+          .catch(function () {
+            clearInterval(fakeTimer);
+            if (elGenProgress) elGenProgress.style.display = 'none';
+            if (elGenErrCard) elGenErrCard.style.display = 'flex';
+            setTimeout(function () {
+              if (elGenOv) elGenOv.style.display = 'none';
+              dlGenBusy = false; elDlGen.removeAttribute('aria-busy');
+              if (dlGenTxt) dlGenTxt.textContent = original || 'Catálogo General';
+            }, 4000);
           });
       }
       if (elDlGen) elDlGen.addEventListener('click', onDlGeneral);
