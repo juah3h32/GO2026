@@ -3,11 +3,10 @@
 export const prerender = false;
 export const config = { maxDuration: 120 };
 
-import { join } from 'path';
-import { readFileSync, existsSync } from 'fs';
+import { existsSync } from 'fs';
 import { translations } from '../../i18n';
 import { CATALOGS } from '../../lib/catalogs.js';
-import { buildHTML, setCatFolders } from './catalogo-pdf.js';
+import { buildHTML, setCatFolders } from '../../lib/catalogo-builder.js';
 import { getCatalog } from '../../lib/catalog-store.js';
 
 // ── CSS compartido (sin @page que ya viene en cada buildHTML) ────────
@@ -60,14 +59,6 @@ async function getBrowserConfig() {
   if (fromEnv && existsSync(fromEnv)) return { executablePath: fromEnv, args: ['--no-sandbox', '--disable-setuid-sandbox'], headless: true };
   for (const p of LOCAL_CHROME) if (existsSync(p)) return { executablePath: p, args: ['--no-sandbox', '--disable-setuid-sandbox'], headless: true };
   throw new Error('Chrome no encontrado. Define CHROME_PATH o instala Google Chrome.');
-}
-
-function asset(relPath, mime) {
-  try {
-    const abs = join(process.cwd(), 'public', relPath);
-    if (!existsSync(abs)) return '';
-    return `data:${mime};base64,${readFileSync(abs).toString('base64')}`;
-  } catch { return ''; }
 }
 
 const ORANGE = '#fb670b';
