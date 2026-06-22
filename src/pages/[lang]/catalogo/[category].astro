@@ -1011,41 +1011,62 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       function onPrev() { show(idx - 1); }
       function onNext() { show(idx + 1); }
 
-      // ── Descargar PDF — window.print() nativo, instantaneo, sin servidor ──
+      // ── Descargar PDF — API Puppeteer optimizada + fallback print ──
       var elDl = document.getElementById('cdDownload');
       var dlTxt = elDl ? elDl.querySelector('.cd-dl-txt') : null;
+      var dlBusy = false;
       function onDl(e) {
         e.preventDefault();
+        if (dlBusy) return; dlBusy = true;
         var original = dlTxt ? dlTxt.textContent : '';
-        if (dlTxt) dlTxt.textContent = 'Preparando…';
+        elDl.setAttribute('aria-busy', 'true');
+        if (dlTxt) dlTxt.textContent = 'Generando PDF…';
 
-        // Activar modo impresion (todos los slides visibles, page-break entre ellos)
-        document.documentElement.setAttribute('data-cd-printing', '');
-        var cd = document.querySelector('.cd');
-        cd.setAttribute('data-cd-pdf', '');
+        var theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+        var url = elDl.getAttribute('href') + '&theme=' + theme + '&t=' + Date.now();
 
-        setTimeout(function () {
-          window.print();
-        }, 250);
-
-        // Limpiar despues de imprimir/cerrar dialogo
-        var afterPrint = function () {
-          document.documentElement.removeAttribute('data-cd-printing');
-          cd.removeAttribute('data-cd-pdf');
-          if (dlTxt) dlTxt.textContent = original || 'Descargar PDF';
-          window.removeEventListener('afterprint', afterPrint);
-        };
-        window.addEventListener('afterprint', afterPrint);
+        fetch(url, { cache: 'no-store' })
+          .then(function (r) { if (!r.ok) throw new Error('No se pudo generar el PDF'); return r.blob(); })
+          .then(function (blob) {
+            var blobUrl = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            var cleanTitle = (window.__cdTitle || 'Productos').replace(/\s+/g, '-');
+            var langCode = (window.__cdLang || 'es').toUpperCase();
+            a.href = blobUrl; a.download = cleanTitle + '-' + langCode + '.pdf';
+            document.body.appendChild(a); a.click(); a.remove();
+            setTimeout(function () { URL.revokeObjectURL(blobUrl); }, 4000);
+          })
+          .catch(function () { window.open(url, '_blank'); })
+          .finally(function () {
+            dlBusy = false; elDl.removeAttribute('aria-busy');
+            if (dlTxt) dlTxt.textContent = original || 'Descargar PDF';
+          });
       }
       if (elDl) elDl.addEventListener('click', onDl);
 
-      // ── Descargar Catálogo General — abre HTML combinado + auto-print ──
+      // ── Descargar Catálogo General — API Puppeteer (preloadImages + render unificado) ──
       var elDlGen = document.getElementById('cdDownloadGeneral');
+      var dlGenBusy = false;
       function onDlGeneral(e) {
         e.preventDefault();
+        if (dlGenBusy) return; dlGenBusy = true;
+        elDlGen.setAttribute('aria-busy', 'true');
         var theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-        var url = '/api/catalogo-general-html?lang=' + (window.__cdLang || 'es') + '&theme=' + theme;
-        window.open(url, '_blank');
+        var url = '/api/catalogo-general-pdf?lang=' + (window.__cdLang || 'es') + '&theme=' + theme + '&t=' + Date.now();
+
+        fetch(url, { cache: 'no-store' })
+          .then(function (r) { if (!r.ok) throw new Error('Error del servidor'); return r.blob(); })
+          .then(function (blob) {
+            var blobUrl = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = blobUrl; a.download = 'Catalogo-General-' + (window.__cdLang || 'es').toUpperCase() + '.pdf';
+            document.body.appendChild(a); a.click(); a.remove();
+            setTimeout(function () { URL.revokeObjectURL(blobUrl); }, 4000);
+          })
+          .catch(function () { window.open(url, '_blank'); })
+          .finally(function () {
+            dlGenBusy = false; elDlGen.removeAttribute('aria-busy');
+          });
       }
       if (elDlGen) elDlGen.addEventListener('click', onDlGeneral);
 
