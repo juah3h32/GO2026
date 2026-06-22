@@ -845,14 +845,19 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       .cd-hero-copy { max-width: 100%; margin-bottom: 0; }
       .cd-hero-media {
         position: relative !important; left: auto !important; right: auto !important;
-        top: auto !important; transform: none !important;
-        width: 100% !important; height: auto !important;
+        top: auto !important; bottom: auto !important;
+        transform: none !important;
+        width: 100% !important; height: auto !important; max-height: 30vh !important;
         display: flex !important; align-items: center !important; justify-content: center !important;
-        opacity: .14; contain: none !important; margin: 12px auto;
+        opacity: .14; contain: none !important; margin: 8px auto 0;
       }
-      .cd-hero-media > div { width: min(60vw, 240px); }
-      .cd-hero-media img { width: 100% !important; }
-      .cd-hero-actions { margin-top: 16px; margin-bottom: 4px; }
+      .cd-hero-media > div {
+        width: min(55vw, 220px) !important;
+        transform: none !important;
+        display: flex; align-items: center; justify-content: center;
+      }
+      .cd-hero-media img { width: 100% !important; height: auto !important; }
+      .cd-hero-actions { margin-top: 12px; margin-bottom: 2px; }
       .cd-hero-prods { justify-self: start; text-align: left; margin-top: 4px; }
       .cd-hero-prods ul { display: flex; flex-wrap: wrap; gap: 2px 12px; }
       .cd-hero-prods li { font-size: 11px; padding: 1px 0; }
