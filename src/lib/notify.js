@@ -766,6 +766,38 @@ export async function sendWAPDF(phone, pdfBuffer, filename) {
   }
 }
 
+// ── Enviar documento desde buffer (CV, imágenes, etc.) ─────────────────────────
+export async function sendWADocumentRaw(phone, buffer, filename, mimetype = 'application/pdf') {
+  const waha = wahaConfig();
+  if (waha) {
+    const res = await fetch(`${waha.url}/api/sendFile`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Api-Key': waha.apiKey },
+      body:    JSON.stringify({
+        session: waha.session, chatId: toWahaChatId(phone),
+        file: { mimetype, filename, data: buffer.toString('base64') },
+      }),
+    });
+    if (res.ok) return;
+    throw new Error(`WAHA sendFile HTTP ${res.status}`);
+  }
+
+  const creds = await resolveWagoCredentials();
+  const { url, token, connectionId } = creds || {};
+  if (!url || !token || !connectionId) throw new Error('WAGO no configurado');
+
+  const chatId = toWhatsAppJid(phone);
+  const res = await fetch(`${url}/api/connections/${connectionId}/send-document`, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json', 'User-Agent': BROWSER_UA, 'Authorization': `Bearer ${token}` },
+    body:    JSON.stringify({ chatId, data: buffer.toString('base64'), mimetype, filename }),
+  });
+  if (!res.ok) {
+    const b = await res.text().catch(() => '');
+    throw new Error(`send-document HTTP ${res.status}: ${b.slice(0, 120)}`);
+  }
+}
+
 // ── Aplica variables al template de caption ───────────────────────────────────
 function buildMessage(template, recipientName, candidato, puesto) {
   return (template || DEFAULT_CAPTION)

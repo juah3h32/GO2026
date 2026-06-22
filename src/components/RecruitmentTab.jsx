@@ -493,7 +493,10 @@ const handleResend = async () => {
     const r = await fetch('/api/recruitment', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'resend', id: candidate.id }) });
     const j = await r.json();
     if (!j.ok) { alert('Error: ' + (j.error || 'No se pudo reenviar')); return; }
-    alert('Reenviado a ' + (j.sent || 0) + ' destinatario(s).');
+    const msg = j.tieneCV
+      ? `Enviado a ${j.sent} RH · CV adjunto a ${j.cvSent}`
+      : `Enviado a ${j.sent} RH · sin CV`;
+    alert(msg);
   } catch(e) { console.error(e); alert('Error al reenviar'); }
   setResending(false);
 };

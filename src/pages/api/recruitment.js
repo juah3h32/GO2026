@@ -316,7 +316,7 @@ export async function POST({ request }) {
       return json({ ok: true, vacantes });
     }
 
-    // ── resend: reenviar notificación de candidato a todos los RH ──
+    // ── resend: reenviar notificación + CV si tiene ──
     if (action === 'resend') {
       const { id } = body;
       if (!id) return json({ ok: false, error: 'ID de candidato requerido' }, 400);
@@ -325,7 +325,9 @@ export async function POST({ request }) {
       const candidate = candidates.find(c => c.id === Number(id));
       if (!candidate) return json({ ok: false, error: 'Candidato no encontrado' }, 404);
 
-      const { notifyCategoriaRH } = await import('../../lib/notify.js');
+      const { notifyCategoriaRH, sendWADocumentRaw } = await import('../../lib/notify.js');
+
+      // 1. Texto a todos los RH
       const resultRH = await notifyCategoriaRH({
         nombre: candidate.nombre,
         puesto: candidate.puesto,
@@ -338,7 +340,33 @@ export async function POST({ request }) {
         cvBase64: candidate.cv_base64,
         mensaje: candidate.mensaje || candidate.comentarios,
       });
-      return json({ ok: true, sent: resultRH.sent || 0, nota: 'Notificación de texto enviada a los números de RH autorizados' });
+
+      // 2. Si tiene CV, enviar el archivo a los RH
+      let cvSent = 0;
+      const tieneCV = !!(candidate.cv_base64 && candidate.cv_nombre);
+      if (tieneCV) {
+        try {
+          const decoded = Buffer.from(candidate.cv_base64, 'base64');
+          const { getWAAuthorizedByCategory } = await import('../../lib/analytics-db.js');
+          const subs = await getWAAuthorizedByCategory('rh').catch(() => []);
+          for (const s of subs) {
+            try {
+              await sendWADocumentRaw(s.phone, decoded, candidate.cv_nombre, candidate.cv_tipo);
+              cvSent++;
+            } catch (e) { console.warn('resend CV a', String(s.phone).slice(-4), e.message); }
+          }
+        } catch (e) { console.error('resend CV error:', e.message); }
+      }
+
+      return json({
+        ok: true,
+        sent: resultRH.sent || 0,
+        cvSent,
+        tieneCV,
+        nota: tieneCV
+          ? `Notificación enviada a ${resultRH.sent || 0} RH · CV adjunto a ${cvSent}`
+          : `Notificación enviada a ${resultRH.sent || 0} RH · sin CV`,
+      });
     }
 
     return json({ ok: false, error: 'Acción desconocida.' }, 400);
