@@ -325,8 +325,19 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       <span>Deslizar para ver más</span>
     </div>
 
-    <!-- Navegación entre catálogos -->
-    <div id="cdCatNav"></div>
+    <!-- Navegación entre divisiones -->
+    {(() => {
+      const cats = listCatalogsMeta();
+      const idx = cats.findIndex(c => c.slug === slug);
+      const prev = idx > 0 ? cats[idx - 1] : null;
+      const next = idx < cats.length - 1 ? cats[idx + 1] : null;
+      return `
+      <nav class="cd-cat-nav" aria-label="Navegación entre catálogos">
+        ${prev ? `<a href="/${currentLang}/catalogo/${prev.slug}" class="cd-cat-arrow cd-cat-prev" aria-label="Anterior: ${prev.title}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg><span>${prev.title}</span></a>` : `<span class="cd-cat-arrow cd-cat-prev is-disabled"></span>`}
+        <span class="cd-cat-current">${meta.title}</span>
+        ${next ? `<a href="/${currentLang}/catalogo/${next.slug}" class="cd-cat-arrow cd-cat-next" aria-label="Siguiente: ${next.title}"><span>${next.title}</span><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></a>` : `<span class="cd-cat-arrow cd-cat-next is-disabled"></span>`}
+      </nav>`;
+    })()}
 
     <!-- Floating ¿Cómo funciona? button -->
     <button class="cd-how-fab cd-ed-h" id="cdHowBtn" type="button" aria-label="¿Cómo funciona?">
@@ -468,14 +479,14 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
     /* ── Hero Buttons ── */
     .cd-hero-actions {
       margin-top: 26px;
-      display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+      display: flex; align-items: center; gap: 10px; flex-wrap: nowrap;
     }
     .cd-dl, .cd-btn-hero {
-      display: inline-flex; align-items: center; gap: 10px; width: fit-content;
+      display: inline-flex; align-items: center; gap: 8px; width: fit-content;
       background: var(--o); color: #fff; text-decoration: none;
-      padding: 14px 26px; border-radius: 999px; font-size: 14px; font-weight: 700; letter-spacing: .02em;
+      padding: 12px 20px; border-radius: 999px; font-size: 13px; font-weight: 700; letter-spacing: .02em;
       box-shadow: 0 10px 30px rgba(251,103,11,.28); transition: transform .25s, box-shadow .25s, opacity .25s;
-      cursor: pointer; border: none;
+      cursor: pointer; border: none; white-space: nowrap;
     }
     .cd-btn-hero {
       background: transparent; border: 1px solid var(--line);
@@ -789,6 +800,48 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       .cd-table th, .cd-table td { padding: 8px 8px; }
       .cd-table thead th { font-size: 12px; }
       .cd-table .td-c { white-space: normal; line-height: 1.2; }
+    }
+
+    /* ── Solo portada: ocultar fichas tecnicas + FAB ── */
+    .cd-ficha { display: none !important; }
+    .cd-scroll-hint { display: none !important; }
+    .cd-how-fab { display: none !important; }
+    .cd-hero { min-height: auto; padding-bottom: 20px; }
+
+    /* ── Navegacion entre divisiones ── */
+    .cd-cat-nav {
+      display: flex; align-items: center; justify-content: center; gap: 20px;
+      padding: 20px clamp(16px,4vw,48px); margin-top: 0;
+      position: relative; z-index: 5;
+    }
+    .cd-cat-arrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      text-decoration: none; color: var(--text);
+      font-family: "Morganite", sans-serif; font-weight: 800;
+      font-size: 18px; letter-spacing: .04em; text-transform: uppercase;
+      transition: color .25s, transform .25s; padding: 8px 0;
+    }
+    .cd-cat-arrow:hover { color: var(--o); }
+    .cd-cat-prev:hover { transform: translateX(-4px); }
+    .cd-cat-next:hover { transform: translateX(4px); }
+    .cd-cat-arrow.is-disabled { visibility: hidden; width: 80px; }
+    .cd-cat-current {
+      font-family: "Morganite", sans-serif; font-weight: 800;
+      font-size: 22px; letter-spacing: .06em; color: var(--o);
+      text-transform: uppercase; text-align: center; min-width: 120px;
+    }
+    .cd-cat-arrow svg { flex: none; }
+
+    @media (max-width: 767px) {
+      .cd-cat-nav { gap: 10px; padding: 12px 16px; }
+      .cd-cat-arrow { font-size: 14px; gap: 4px; }
+      .cd-cat-arrow svg { width: 18px; height: 18px; }
+      .cd-cat-arrow span { display: none; }
+      .cd-cat-current { font-size: 16px; min-width: 80px; }
+      .cd-cat-arrow.is-disabled { width: 40px; }
+      .cd-hero-actions { flex-wrap: nowrap; gap: 6px; }
+      .cd-dl, .cd-btn-hero { padding: 10px 14px; font-size: 11px; gap: 5px; border-radius: 999px; }
+      .cd-dl svg, .cd-btn-hero svg { width: 14px; height: 14px; }
     }
 
     /* ── Modo PDF: cada slide una pagina, todo visible, sin deck ── */
