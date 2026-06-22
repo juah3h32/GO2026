@@ -431,10 +431,12 @@ export function parseIncoming(body) {
     // WAHA formato original: payload.from, payload.body
     const text = p.body || p.text || '';
     // Detección de nota de voz / audio (sin texto pero con media de audio).
-    const mime = p.media?.mimetype || p._data?.message?.audioMessage?.mimetype || '';
+    const mime = p.media?.mimetype || p._data?.message?.audioMessage?.mimetype || p._data?.message?.documentMessage?.mimetype || '';
     const isAudio = (String(p.type || '').match(/audio|ptt|voice/i) || /audio/i.test(mime)) && !p.fromMe;
-    const mediaUrl = p.media?.url || '';
-    if (!text && !isAudio) return null;
+    const isDoc   = (String(p.type || '').match(/document/i) || /application|pdf|msword|officedocument/i.test(mime)) && !p.fromMe;
+    const mediaUrl = p.media?.url || p._data?.message?.documentMessage?.url || p._data?.message?.audioMessage?.url || '';
+    const docCaption = String(p._data?.message?.documentMessage?.caption || p._data?.message?.imageMessage?.caption || text || '');
+    if (!text && !isAudio && !isDoc) return null;
     // WhatsApp NOWEB usa @lid (Linked ID) en vez del número real.
     // El número telefónico real viene en _data.key.remoteJidAlt.
     const fromRaw = p.from || '';
@@ -444,16 +446,20 @@ export function parseIncoming(body) {
     return {
       phone,
       chatId: fromRaw || realJid,     // responder al @lid original
-      body: String(text), fromMe: !!p.fromMe, msgId: p.id || '', timestamp: p.timestamp || 0,
-      isAudio: !!isAudio, mediaUrl, mediaMime: mime,
+      body: String(isDoc ? docCaption : text), fromMe: !!p.fromMe, msgId: p.id || '', timestamp: p.timestamp || 0,
+      isAudio: !!isAudio, isDocument: !!isDoc, mediaUrl, mediaMime: mime, docCaption,
     };
   }
 
   // Genérico / WAGO directo
   const from = body?.from || body?.sender || body?.message?.from;
-  const text = body?.body || body?.text || body?.message?.body || body?.message?.text;
-  if (!from || !text) return null;
-  return { phone: cleanPhone(String(from)), body: String(text), fromMe: !!(body?.fromMe || body?.message?.fromMe), msgId: body?.id || '', timestamp: body?.timestamp || 0 };
+  const text = body?.body || body?.text || body?.message?.body || body?.message?.text || '';
+  const isDoc = (body?.message?.documentMessage || body?.document) && !body?.fromMe;
+  const mediaUrl = body?.message?.documentMessage?.url || body?.media?.url || '';
+  const docCaption = body?.message?.documentMessage?.caption || '';
+  if (!from || (!text && !isDoc)) return null;
+  return { phone: cleanPhone(String(from)), body: String(isDoc ? docCaption || text : text), fromMe: !!(body?.fromMe || body?.message?.fromMe), msgId: body?.id || '', timestamp: body?.timestamp || 0,
+    isDocument: !!isDoc, mediaUrl, mediaMime: body?.message?.documentMessage?.mimetype || '', docCaption };
 }
 
 export function cleanPhone(raw) {

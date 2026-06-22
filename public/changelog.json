@@ -1,6 +1,62 @@
 {
   "commits": [
     {
+      "hash": "9afb965",
+      "date": "2026-06-22",
+      "message": "general catalog PDF — request interception + parallel chromium+data load",
+      "rawMessage": "fix: general catalog PDF — request interception + parallel chromium+data load",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "fd97a87",
+      "date": "2026-06-22",
+      "message": "preload Cloudinary images to base64 before PDF render",
+      "rawMessage": "perf: preload Cloudinary images to base64 before PDF render",
+      "type": "perf",
+      "area": "Media"
+    },
+    {
+      "hash": "f5b6686",
+      "date": "2026-06-22",
+      "message": "faster PDF gen + aesthetic error state in download overlay",
+      "rawMessage": "fix: faster PDF gen + aesthetic error state in download overlay",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "8018add",
+      "date": "2026-06-22",
+      "message": "extract shared PDF builder to lib to fix production 404 on download",
+      "rawMessage": "refactor: extract shared PDF builder to lib to fix production 404 on download",
+      "type": "refactor",
+      "area": "General"
+    },
+    {
+      "hash": "8f0c18d",
+      "date": "2026-06-22",
+      "message": "fix(nav): eliminar redirect de catalogo — links apuntan directo a digital-stretch-film",
+      "rawMessage": "fix(nav): eliminar redirect de catalogo — links apuntan directo a digital-stretch-film",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "ea25c48",
+      "date": "2026-06-22",
+      "message": "feat(catalog-editor): editor visual mejorado con portal fullscreen y soporte español",
+      "rawMessage": "feat(catalog-editor): editor visual mejorado con portal fullscreen y soporte español",
+      "type": "feat",
+      "area": "General"
+    },
+    {
+      "hash": "e195ff7",
+      "date": "2026-06-22",
+      "message": "fix(catalogo-general): exportar setCatFolders desde catalogo-pdf.js",
+      "rawMessage": "fix(catalogo-general): exportar setCatFolders desde catalogo-pdf.js",
+      "type": "fix",
+      "area": "General"
+    },
+    {
       "hash": "29fa081",
       "date": "2026-06-22",
       "message": "fix(catalogo-general): centrado perfecto en portada PDF",
@@ -2282,34 +2338,50 @@
     }
   ],
   "stats": {
-    "total": 285,
+    "total": 292,
     "byType": {
-      "fix": 89,
-      "feat": 52,
+      "fix": 93,
+      "perf": 4,
+      "refactor": 1,
+      "feat": 53,
       "update": 15,
       "chore": 6,
       "style": 9,
-      "perf": 3,
       "docs": 1,
       "release": 110
     },
     "byArea": {
+      "General": 202,
+      "Media": 28,
       "Performance": 8,
       "i18n": 5,
-      "General": 196,
-      "Media": 27,
       "Admin/API": 26,
       "Productos": 19,
       "Reclutamiento": 2,
       "UI": 2
     },
     "byMonth": {
-      "2026-06": 127,
+      "2026-06": 134,
       "2026-05": 33,
       "2026-04": 29,
       "2026-03": 96
     },
     "byAreaType": {
+      "General": {
+        "fix": 50,
+        "refactor": 1,
+        "feat": 24,
+        "update": 7,
+        "chore": 5,
+        "style": 5,
+        "release": 110
+      },
+      "Media": {
+        "perf": 2,
+        "update": 3,
+        "fix": 19,
+        "feat": 4
+      },
       "Performance": {
         "fix": 2,
         "update": 1,
@@ -2319,20 +2391,6 @@
       "i18n": {
         "feat": 3,
         "fix": 2
-      },
-      "General": {
-        "fix": 46,
-        "feat": 23,
-        "update": 7,
-        "chore": 5,
-        "style": 5,
-        "release": 110
-      },
-      "Media": {
-        "update": 3,
-        "fix": 19,
-        "feat": 4,
-        "perf": 1
       },
       "Admin/API": {
         "feat": 8,
@@ -2357,5 +2415,5 @@
       }
     }
   },
-  "generatedAt": "2026-06-22T17:06:28.785Z"
+  "generatedAt": "2026-06-22T18:38:05.400Z"
 }
