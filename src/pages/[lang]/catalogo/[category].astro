@@ -745,6 +745,10 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
 
     /* ── Modo diapositivas (deck) — solo desktop ── */
     .cd-deck { position: relative; }
+    @media (max-width: 900px) {
+      .cd[data-deck-on] .cd-deck { height: auto !important; overflow: visible !important; }
+      .cd[data-deck-on] .cd-slide { position: relative !important; opacity: 1 !important; visibility: visible !important; transform: none !important; }
+    }
     @media (min-width: 901px) {
       .cd[data-deck-on] .cd-deck { height: 100svh; overflow: hidden; }
       .cd[data-deck-on] .cd-slide {
@@ -814,6 +818,9 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       .cd-table .td-c { white-space: normal; line-height: 1.2; }
 
       /* 3 botones siempre en 1 linea horizontal */
+      .cd-ficha { display: none !important; } /* solo portada, sin scroll */
+      .cd-scroll-hint { display: none !important; }
+      .cd-deck { overflow: visible !important; }
       .cd-hero { padding-top: clamp(80px, 10vh, 110px); }
       .cd-hero-actions { flex-wrap: nowrap; gap: 4px; justify-content: center; }
       .cd-dl, .cd-btn-hero { padding: 9px 10px; font-size: 10px; gap: 4px; white-space: nowrap; border-radius: 999px; }
