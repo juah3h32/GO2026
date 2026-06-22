@@ -47,7 +47,11 @@ async function generatePDF(html) {
     browser = await puppeteer.launch({ executablePath, args, headless });
     const page = await browser.newPage();
     await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 2 });
-    await page.setContent(html, { waitUntil: 'networkidle2', timeout: 45_000 });
+    await page.setContent(html, { waitUntil: 'load', timeout: 45_000 });
+    await page.evaluate(() =>
+      Promise.all(Array.from(document.images).filter(i => !i.complete)
+        .map(i => new Promise(r => { i.onload = i.onerror = r; })))
+    );
     try { await page.evaluateHandle('document.fonts.ready'); } catch (e) {}
     await page.evaluate(() => {
       const PAGE_H = 720, PAD_TOP = 90, PAD_BOTTOM = 40, INNER_W = 1120;

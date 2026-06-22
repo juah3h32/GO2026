@@ -157,6 +157,10 @@ async function generateCombinedPDF(lang, theme) {
     const page = await browser.newPage();
     await page.setViewport({ width: 1280, height: 720, deviceScaleFactor: 2 });
     await page.setContent(doc, { waitUntil: 'load', timeout: 45_000 });
+    await page.evaluate(() =>
+      Promise.all(Array.from(document.images).filter(i => !i.complete)
+        .map(i => new Promise(r => { i.onload = i.onerror = r; })))
+    );
 
     // Auto-fit + injectar numero de pagina (rapido)
     await page.evaluate(() => {

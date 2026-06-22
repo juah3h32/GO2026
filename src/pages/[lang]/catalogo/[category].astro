@@ -337,7 +337,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
 
   <!-- Overlay fullscreen descarga catálogo general (fuera de <main> para evitar stacking contexts) -->
   <div class="cd-gen-overlay" id="cdGenOverlay" style="display:none">
-    <div class="cd-gen-card">
+    <div class="cd-gen-card" id="cdGenProgress">
       <div class="cd-gen-mb" id="cdGenMb">0%</div>
       <div class="cd-gen-title">CATÁLOGO GENERAL</div>
       <div class="cd-gen-sub">Grupo Ortiz · Todas las divisiones</div>
@@ -345,6 +345,14 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
         <div class="cd-gen-bar" id="cdGenBar"></div>
       </div>
       <div class="cd-gen-txt" id="cdGenTxt">GENERANDO</div>
+    </div>
+    <div class="cd-gen-card cd-gen-err-card" id="cdGenErrCard" style="display:none">
+      <div class="cd-gen-err-icon">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      </div>
+      <div class="cd-gen-err-title">No se pudo generar</div>
+      <div class="cd-gen-err-msg" id="cdGenErrMsg">Intenta de nuevo en un momento</div>
+      <button class="cd-gen-err-retry" id="cdGenRetry">Reintentar</button>
     </div>
   </div>
 
@@ -534,6 +542,33 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       text-transform: uppercase; color: #6f6f72; line-height: 1;
     }
     :global(.dark) .cd-gen-txt { color: #c9c9cc; }
+
+    .cd-gen-err-card {
+      gap: 8px;
+    }
+    .cd-gen-err-icon {
+      color: #6f6f72; margin-bottom: 4px;
+    }
+    :global(.dark) .cd-gen-err-icon { color: #c9c9cc; }
+    .cd-gen-err-title {
+      font-family: "Morganite", sans-serif; font-weight: 800;
+      font-size: 32px; letter-spacing: .04em; color: #1b1b1c;
+      text-transform: uppercase;
+    }
+    :global(.dark) .cd-gen-err-title { color: #f5f5f7; }
+    .cd-gen-err-msg {
+      font-size: 13px; color: #6f6f72; letter-spacing: .02em;
+    }
+    :global(.dark) .cd-gen-err-msg { color: #c9c9cc; }
+    .cd-gen-err-retry {
+      margin-top: 8px; padding: 9px 24px;
+      background: #1b1b1c; color: #fff;
+      border: none; border-radius: 20px;
+      font-size: 13px; font-weight: 600; letter-spacing: .06em;
+      cursor: pointer; transition: opacity .2s;
+    }
+    :global(.dark) .cd-gen-err-retry { background: #fff; color: #1b1b1c; }
+    .cd-gen-err-retry:hover { opacity: .75; }
 
     .cd-hero-prods { grid-area: prods; position: relative; z-index: 2; align-self: end; justify-self: end; text-align: right; padding-bottom: 60px; }
     /* Año de actualización del catálogo — abajo a la derecha */
@@ -1009,7 +1044,30 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       var elGenBar = document.getElementById('cdGenBar');
       var elGenTxt = document.getElementById('cdGenTxt');
       var elGenMb = document.getElementById('cdGenMb');
+      var elGenProgress = document.getElementById('cdGenProgress');
+      var elGenErrCard = document.getElementById('cdGenErrCard');
+      var elGenErrMsg = document.getElementById('cdGenErrMsg');
+      var elGenRetry = document.getElementById('cdGenRetry');
       var dlGenBusy = false;
+      function showGenError(msg) {
+        if (elGenProgress) elGenProgress.style.display = 'none';
+        if (elGenErrMsg) elGenErrMsg.textContent = msg || 'Intenta de nuevo en un momento';
+        if (elGenErrCard) elGenErrCard.style.display = 'flex';
+      }
+      function resetGenOverlay() {
+        if (elGenErrCard) elGenErrCard.style.display = 'none';
+        if (elGenProgress) elGenProgress.style.display = 'flex';
+        if (elGenBar) elGenBar.style.width = '0%';
+        if (elGenMb) elGenMb.textContent = '0%';
+      }
+      if (elGenRetry) {
+        elGenRetry.addEventListener('click', function () {
+          if (elGenOv) elGenOv.style.display = 'none';
+          dlGenBusy = false;
+          if (elDlGen) elDlGen.removeAttribute('aria-busy');
+          resetGenOverlay();
+        });
+      }
       function formatMB(bytes) { return (bytes / (1024 * 1024)).toFixed(1) + ' MB'; }
       function onDlGeneral(e) {
         e.preventDefault();
@@ -1019,10 +1077,9 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
         var url = '/api/catalogo-general-pdf?lang=' + (window.__cdLang || 'es') + '&theme=' + theme + '&t=' + Date.now();
 
         elDlGen.setAttribute('aria-busy', 'true');
+        resetGenOverlay();
         if (elGenOv) { elGenOv.style.display = 'flex'; }
-        if (elGenBar) { elGenBar.style.width = '0%'; }
         if (elGenTxt) { elGenTxt.textContent = 'DESCARGANDO...'; }
-        if (elGenMb) { elGenMb.textContent = '0%'; }
 
         // Fase 1: fake progress (generacion servidor) 0→88% en ~60s
         var fakePct = 0;
@@ -1075,14 +1132,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
           })
           .catch(function (err) {
             clearInterval(fakeTimer);
-            if (elGenBar) { elGenBar.style.width = '0%'; }
-            if (elGenTxt) { elGenTxt.textContent = 'Error: ' + err.message; }
-            if (elGenMb) { elGenMb.textContent = 'Intenta de nuevo'; }
-            setTimeout(function () {
-              if (elGenOv) { elGenOv.style.display = 'none'; }
-              dlGenBusy = false;
-              elDlGen.removeAttribute('aria-busy');
-            }, 3000);
+            showGenError(err && err.message && err.message.length < 60 ? err.message : 'Intenta de nuevo en un momento');
           });
       }
       if (elDlGen) elDlGen.addEventListener('click', onDlGeneral);
