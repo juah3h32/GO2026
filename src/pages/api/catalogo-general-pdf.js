@@ -1,7 +1,7 @@
 // src/pages/api/catalogo-general-pdf.js
 // PDF unico con TODAS las divisiones — Catalogo General Grupo Ortiz.
 export const prerender = false;
-export const config = { maxDuration: 120 };
+export const config = { maxDuration: 180 };
 
 import { existsSync } from 'fs';
 import { translations } from '../../i18n';
@@ -101,69 +101,15 @@ function generalCoverHTML(lang, theme) {
   </div>`;
 }
 
-// ── Genera el PDF completo — un solo HTML, un solo render ────────────
-async function generateCombinedPDF(lang, theme) {
-  const isRTL = lang === 'ar';
-  const fontLink = lang === 'zh'
-    ? '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;800&display=swap" rel="stylesheet">'
-    : lang === 'ar'
-    ? '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&display=swap" rel="stylesheet">'
-    : '';
-
-  // Paralelizar: descarga chromium + datos de todos los catalogos al mismo tiempo
-  const [{ executablePath, args, headless }, catDataArr] = await Promise.all([
-    getBrowserConfig(),
-    Promise.all(CATALOGS.map(async (cat) => {
-      try {
-        const raw = await getCatalog(cat.slug);
-        if (!raw.coverImg) raw.coverImg = cat.coverImgFolder + '/portada.webp';
-        if (!raw.cover) raw.cover = { t1: { es: cat.title }, t2: { es: '' }, division: { es: cat.division } };
-        if (!raw.intro) raw.intro = { p1: { es: '' }, bioTitle: { es: '' }, p2: { es: '' } };
-        if (!raw.styles) raw.styles = {};
-        return { cat, data: raw };
-      } catch (e) {
-        console.error('[catalogo-general] Fetch error ' + cat.slug, e);
-        return { cat, data: null };
-      }
-    }))
-  ]);
-
-  // Construir body: portada general + cada catalogo (buildHTML ya trae su propio CSS inline)
-  let bodyContent = generalCoverHTML(lang, theme);
-
-  for (const { cat, data } of catDataArr) {
-    if (!data) continue;
-    try {
-      setCatFolders(cat.imgFolder, cat.coverImgFolder);
-      const loaded = await preloadImages(data);
-      const html = buildHTML(theme, lang, loaded);
-      const headMatch = html.match(/<head[^>]*>([\s\S]*)<\/head>/i);
-      const bodyMatch = html.match(/<body[^>]*>([\s\S]*)<\/body>/i);
-      if (headMatch) {
-        const styleMatch = headMatch[1].match(/<style[^>]*>([\s\S]*)<\/style>/i);
-        if (styleMatch) bodyContent += '<style>' + styleMatch[1] + '</style>';
-      }
-      bodyContent += bodyMatch ? bodyMatch[1] : html;
-    } catch (e) {
-      console.error('[catalogo-general] Build error ' + cat.slug, e);
-    }
-  }
-
-  // Oculta el "2026" de cada portada individual (el general ya tiene su año)
-  bodyContent += '<style>.pg.cover::after{content:none!important}.pg.cover.manyprods::after{content:none!important}</style>';
-
-  const doc = `<!doctype html><html lang="${lang}" dir="${isRTL ? 'rtl' : 'ltr'}"><head><meta charset="utf-8">${fontLink}<style>${wrapCSS(theme, lang)}</style></head><body>${bodyContent}</body></html>`;
-
-  let browser;
+// ── Genera el PDF completo — render por division + merge con pdf-lib ──
+async function renderPageHTML(browser, html, viewport = { width: 1280, height: 720 }) {
+  const page = await browser.newPage();
   try {
-    const puppeteer = (await import('puppeteer-core')).default;
-    browser = await puppeteer.launch({ executablePath, args, headless });
-    const page = await browser.newPage();
-    await page.setViewport({ width: 1280, height: 720, deviceScaleFactor: 2 });
-    await page.setContent(doc, { waitUntil: 'domcontentloaded', timeout: 60_000 });
+    await page.setViewport({ ...viewport, deviceScaleFactor: 2 });
+    await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 30_000 });
     try { await page.evaluateHandle('document.fonts.ready'); } catch (e) {}
 
-    // Auto-fit + injectar numero de pagina (rapido)
+    // Auto-fit para productos que no caben en 720px
     await page.evaluate(() => {
       const PAGE_H = 720, PAD_TOP = 90, PAD_BOTTOM = 40, INNER_W = 1120;
       const avail = PAGE_H - PAD_TOP - PAD_BOTTOM;
@@ -181,22 +127,110 @@ async function generateCombinedPDF(lang, theme) {
         fit.style.marginRight = (-extra / 2) + 'px';
         fit.style.transform = `scale(${s})`;
       });
-      // Numeracion de paginas
-      var pages = document.querySelectorAll('.pg');
-      var total = pages.length;
-      pages.forEach(function (pg, i) {
-        var num = document.createElement('div');
-        num.textContent = (i + 1) + ' / ' + total;
-        num.style.cssText = 'position:absolute;bottom:12px;right:22px;font-family:Arial,sans-serif;font-size:9px;color:rgba(0,0,0,.25);letter-spacing:.6px;z-index:20;';
-        pg.appendChild(num);
-      });
     });
 
-    const pdf = await page.pdf({ preferCSSPageSize: true, printBackground: true, margin: { top: 0, right: 0, bottom: 0, left: 0 } });
-    return Buffer.from(pdf);
+    return await page.pdf({ preferCSSPageSize: true, printBackground: true, margin: { top: 0, right: 0, bottom: 0, left: 0 } });
   } finally {
-    await browser?.close();
+    await page.close();
   }
+}
+
+async function generateCombinedPDF(lang, theme) {
+  const isRTL = lang === 'ar';
+  const fontLink = lang === 'zh'
+    ? '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;800&display=swap" rel="stylesheet">'
+    : lang === 'ar'
+    ? '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&display=swap" rel="stylesheet">'
+    : '';
+
+  // ── Fase 1: chromium + datos de todos los catalogos en paralelo ──
+  const [{ executablePath, args, headless }, catDataArr] = await Promise.all([
+    getBrowserConfig(),
+    Promise.all(CATALOGS.map(async (cat) => {
+      try {
+        const raw = await getCatalog(cat.slug);
+        if (!raw.coverImg) raw.coverImg = cat.coverImgFolder + '/portada.webp';
+        if (!raw.cover) raw.cover = { t1: { es: cat.title }, t2: { es: '' }, division: { es: cat.division } };
+        if (!raw.intro) raw.intro = { p1: { es: '' }, bioTitle: { es: '' }, p2: { es: '' } };
+        if (!raw.styles) raw.styles = {};
+        return { cat, data: raw };
+      } catch (e) {
+        console.error('[catalogo-general] Fetch error ' + cat.slug, e);
+        return { cat, data: null };
+      }
+    }))
+  ]);
+
+  // ── Fase 2: renderizar cada division a PDF individual ──
+  const puppeteer = (await import('puppeteer-core')).default;
+  const browser = await puppeteer.launch({ executablePath, args, headless });
+
+  const pdfBuffers = [];
+  try {
+    // 2a. Portada general
+    const coverCSS = `<style>${wrapCSS(theme, lang)}</style>`;
+    const coverDoc = `<!doctype html><html lang="${lang}" dir="${isRTL ? 'rtl' : 'ltr'}"><head><meta charset="utf-8">${fontLink}${coverCSS}</head><body>${generalCoverHTML(lang, theme)}</body></html>`;
+    try {
+      const coverPdf = await renderPageHTML(browser, coverDoc);
+      pdfBuffers.push(coverPdf);
+      console.log('[catalogo-general] Portada OK');
+    } catch (e) {
+      console.error('[catalogo-general] Portada error', e);
+    }
+
+    // 2b. Cada division
+    for (const { cat, data } of catDataArr) {
+      if (!data) continue;
+      try {
+        setCatFolders(cat.imgFolder, cat.coverImgFolder);
+        const loaded = await preloadImages(data);
+        const html = buildHTML(theme, lang, loaded);
+        // Extraer solo <body> y el <style> (sin @page que fuerza 1280x720)
+        const bodyMatch = html.match(/<body[^>]*>([\s\S]*)<\/body>/i);
+        const styleMatch = html.match(/<style[^>]*>([\s\S]*)<\/style>/i);
+        // Eliminar @page del CSS para que no limite el tamaño de pagina
+        const css = styleMatch ? styleMatch[1].replace(/@page\s*\{[^}]*\}/g, '') : '';
+        const body = bodyMatch ? bodyMatch[1] : html;
+        // Ocultar "2026" de portadas individuales
+        const wrapped = `<!doctype html><html lang="${lang}" dir="${isRTL ? 'rtl' : 'ltr'}"><head><meta charset="utf-8">${fontLink}<style>${css} .pg.cover::after,.pg.cover.manyprods::after{content:none!important} .pg:last-child{page-break-after:auto}</style></head><body>${body}</body></html>`;
+
+        const pdfBuf = await renderPageHTML(browser, wrapped);
+        pdfBuffers.push(pdfBuf);
+        console.log('[catalogo-general]', cat.slug, 'OK', (pdfBuf.length / 1024 / 1024).toFixed(1) + 'MB');
+      } catch (e) {
+        console.error('[catalogo-general] Render error ' + cat.slug, e);
+      }
+    }
+  } finally {
+    await browser.close();
+  }
+
+  if (!pdfBuffers.length) throw new Error('No se pudo generar ninguna pagina del catalogo general');
+
+  // ── Fase 3: merge con pdf-lib + numeracion ──
+  const { PDFDocument, StandardFonts } = await import('pdf-lib');
+  const merged = await PDFDocument.create();
+  const font = await merged.embedFont(StandardFonts.Helvetica);
+
+  for (const buf of pdfBuffers) {
+    const src = await PDFDocument.load(buf);
+    const pages = await merged.copyPages(src, src.getPageIndices());
+    for (const p of pages) merged.addPage(p);
+  }
+
+  // Numeracion de paginas
+  const total = merged.getPageCount();
+  for (let i = 0; i < total; i++) {
+    const pg = merged.getPage(i);
+    pg.drawText(`${i + 1} / ${total}`, {
+      x: 1230, y: 16,
+      size: 9,
+      font,
+      color: { r: 0, g: 0, b: 0, opacity: 0.25 },
+    });
+  }
+
+  return Buffer.from(await merged.save());
 }
 
 export async function GET({ url }) {
