@@ -1158,7 +1158,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
               var cleanTitle = (window.__cdTitle || 'Productos').replace(/\s+/g, '-');
               var langCode = (window.__cdLang || 'es').toUpperCase();
               a.href = blobUrl;
-              a.download = cleanTitle + '-' + langCode + '.pdf';
+              a.download = cleanTitle + '-' + langCode + '-' + theme + '.pdf';
               document.body.appendChild(a);
               a.click();
               URL.revokeObjectURL(blobUrl);
@@ -1243,7 +1243,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
             } else {
               var a = document.createElement('a');
               a.href = blobUrl;
-              a.download = 'Catalogo-General-' + lang.toUpperCase() + '.pdf';
+              a.download = 'Catalogo-General-' + lang.toUpperCase() + '-' + theme + '.pdf';
               document.body.appendChild(a);
               a.click();
               URL.revokeObjectURL(blobUrl);
