@@ -123,10 +123,16 @@ async function generateCombinedPDF(lang, theme) {
     ? '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&display=swap" rel="stylesheet">'
     : '';
 
-  // ── Fase 1: browser + preloadImages + buildHTML TODO en paralelo ──
-  const [browserCfg, catJobs] = await Promise.all([
-    getBrowserConfig(),
-    Promise.all(CATALOGS.map(async (cat) => {
+  // ── Fase 1: browser en paralelo + catalogos en batches de 2 ──
+  // Batches de 2 evita saturar Cloudinary (max 12 descargas simultaneas:
+  // 2 catalogos × 6 concurrencia interna de preloadImages)
+  const browserCfgPromise = getBrowserConfig();
+
+  const catJobs = [];
+  const BATCH_SIZE = 2;
+  for (let i = 0; i < CATALOGS.length; i += BATCH_SIZE) {
+    const batch = CATALOGS.slice(i, i + BATCH_SIZE);
+    const results = await Promise.all(batch.map(async (cat) => {
       try {
         const raw = await getCatalog(cat.slug);
         if (!raw.coverImg) raw.coverImg = cat.coverImgFolder + '/portada.webp';
@@ -134,7 +140,6 @@ async function generateCombinedPDF(lang, theme) {
         if (!raw.intro) raw.intro = { p1: { es: '' }, bioTitle: { es: '' }, p2: { es: '' } };
         if (!raw.styles) raw.styles = {};
         setCatFolders(cat.imgFolder, cat.coverImgFolder);
-        // preloadImages: descarga Cloudinary → base64 (w500, conc 6)
         const data = await preloadImages(raw);
         const html = buildHTML(theme, lang, data);
         return { slug: cat.slug, html };
@@ -142,8 +147,11 @@ async function generateCombinedPDF(lang, theme) {
         console.error('[catalogo-general] Build error ' + cat.slug, e);
         return null;
       }
-    }))
-  ]);
+    }));
+    catJobs.push(...results);
+  }
+
+  const browserCfg = await browserCfgPromise;
 
   // ── Fase 2: Combinar TODO en un solo HTML (imagenes ya base64) ──
   const bodies = [];
