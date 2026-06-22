@@ -959,6 +959,27 @@ export async function notifyEnglishLead({ nombre, telefono, email, interes, mens
   }
 }
 
+// ── Notificar al CANDIDATO que quedó en lista de espera ───────────────────────
+// Se llama cuando alguien se registra pero no hay vacante activa que coincida.
+export async function notifyCandidateEspera({ nombre, puesto, telefono }) {
+  const phone = (telefono || '').replace(/\D/g, '');
+  if (!phone || phone.length < 8) return { ok: false, error: 'Sin teléfono válido' };
+  const mensaje =
+    `¡Hola ${nombre || 'candidato'}! 👋\n\n` +
+    `Recibimos tu solicitud para *${puesto || 'la vacante'}* y la enviamos al departamento de *Recursos Humanos* de Grupo Ortiz.\n\n` +
+    `📋 *¿Qué sigue?*\n` +
+    `• Tu perfil queda en nuestra *lista de espera* prioritaria.\n` +
+    `• En cuanto se abra una vacante que coincida con tu perfil, *te contactaremos* directamente por este medio.\n\n` +
+    `Si tienes dudas, responde a este mensaje y con gusto te ayudamos. 😊\n\n` +
+    `_Este mensaje fue enviado automáticamente por el sistema de Reclutamiento de Grupo Ortiz._`;
+  try {
+    await sendWAText(phone, mensaje);
+    return { ok: true, phone };
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
 // ── Notificar candidatos en lista de espera cuando se publica una vacante ─────
 // Envía WhatsApp directo al candidato (no al equipo RH)
 export async function notifyEsperaVacante({ candidatos, vacante, urlVacantes = '' }) {

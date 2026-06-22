@@ -1,5 +1,5 @@
 // src/pages/api/recruitment.js
-import { notifyNewVacante, notifyEsperaVacante } from '../../lib/notify';
+import { notifyNewVacante, notifyCandidateEspera } from '../../lib/notify';
 import { verifyAdminToken } from '../../lib/verifyAdminToken.ts';
 import {
   saveRecruitmentLead,
@@ -92,8 +92,9 @@ export async function POST({ request }) {
 
         try {
           if (en_lista_espera) {
-            await notifyEsperaVacante({ nombre, puesto, telefono, email, sessionId });
-            // Lista de espera también es registro nuevo → avisar a RH por categoría
+            // 1. Mensaje al CANDIDATO confirmando que su perfil fue enviado a RH
+            notifyCandidateEspera({ nombre, puesto, telefono }).catch(e => console.warn('notify candidato:', e.message));
+            // 2. Avisar a RH por categoría
             const { notifyCategoriaRH } = await import('../../lib/notify.js');
             notifyCategoriaRH({ nombre, puesto, telefono, email }).catch(() => {});
           } else {
@@ -218,6 +219,9 @@ export async function POST({ request }) {
       console.log(`✅ Candidato #${candidatoId} guardado: ${nombre} → ${puesto} | CV: ${cvNombre || 'sin CV'}`);
 
       try {
+        if (en_lista_espera) {
+          notifyCandidateEspera({ nombre, puesto, telefono }).catch(e => console.warn('notify candidato:', e.message));
+        }
         await notifyNewVacante({
           nombre, puesto, edad, estado, colonia,
           whatsapp: telefono, email, cvNombre, mensaje: comentarios || mensaje,
