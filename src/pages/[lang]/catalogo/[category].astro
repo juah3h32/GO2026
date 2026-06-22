@@ -325,8 +325,31 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       <span>Deslizar para ver más</span>
     </div>
 
-    <!-- Navegación entre catálogos -->
+    <!-- Navegación entre catálogos (admin) -->
     <div id="cdCatNav"></div>
+
+    <!-- Navegación mobile entre divisiones -->
+    {(() => {
+      const cats = listCatalogsMeta();
+      const catIdx = cats.findIndex(c => c.slug === slug);
+      const prevCat = catIdx > 0 ? cats[catIdx - 1] : null;
+      const nextCat = catIdx < cats.length - 1 ? cats[catIdx + 1] : null;
+      return (
+        <nav class="cd-mob-nav" aria-label="Navegación entre divisiones">
+          {prevCat ? (
+            <a href={`/${currentLang}/catalogo/${prevCat.slug}`} class="cd-mob-arrow" aria-label={`Anterior: ${prevCat.title}`}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            </a>
+          ) : <span class="cd-mob-arrow is-disabled"></span>}
+          <span class="cd-mob-current">{meta.title}</span>
+          {nextCat ? (
+            <a href={`/${currentLang}/catalogo/${nextCat.slug}`} class="cd-mob-arrow" aria-label={`Siguiente: ${nextCat.title}`}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+            </a>
+          ) : <span class="cd-mob-arrow is-disabled"></span>}
+        </nav>
+      );
+    })()}
 
     <!-- Floating ¿Cómo funciona? button -->
     <button class="cd-how-fab cd-ed-h" id="cdHowBtn" type="button" aria-label="¿Cómo funciona?">
@@ -774,7 +797,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       .cd-hero, .cd-hero-prodrow { grid-template-columns: 1fr; grid-template-areas: "title" "copy" "prods"; }
       .cd-hero-media, .cd-hero-prodrow .cd-hero-media { opacity: .14; right: -18%; width: 78vw; top: 50%; }
       .cd-hero-prods, .cd-hero-prodrow .cd-hero-prods { justify-self: start; text-align: left; margin-top: 18px; }
-      
+
       .cd-ficha-head { grid-template-columns: 1fr; gap: 20px; margin-bottom: 24px; text-align: left; }
       .cd-ficha-media { order: 1; justify-content: center; }
       .cd-ficha-media-inner { justify-content: center; }
@@ -789,6 +812,35 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       .cd-table th, .cd-table td { padding: 8px 8px; }
       .cd-table thead th { font-size: 12px; }
       .cd-table .td-c { white-space: normal; line-height: 1.2; }
+
+      /* 3 botones siempre en 1 linea horizontal */
+      .cd-hero-actions { flex-wrap: nowrap; gap: 6px; justify-content: center; }
+      .cd-dl, .cd-btn-hero { padding: 10px 12px; font-size: 10px; gap: 4px; white-space: nowrap; }
+      .cd-dl svg, .cd-btn-hero svg { width: 13px; height: 13px; }
+    }
+
+    /* ── Navegacion mobile entre divisiones ── */
+    .cd-mob-nav { display: none; }
+    .cd-mob-arrow {
+      display: flex; align-items: center; justify-content: center;
+      width: 40px; height: 40px; border-radius: 50%;
+      border: 1px solid var(--line); color: var(--text);
+      text-decoration: none; transition: all .25s; flex: none;
+    }
+    .cd-mob-arrow:hover { border-color: var(--o); color: var(--o); }
+    .cd-mob-arrow.is-disabled { visibility: hidden; width: 40px; }
+    .cd-mob-current {
+      font-family: "Morganite", sans-serif; font-weight: 800;
+      font-size: 18px; letter-spacing: .06em; color: var(--o);
+      text-transform: uppercase; text-align: center;
+    }
+    .cd-mob-arrow svg { flex: none; }
+
+    @media (max-width: 900px) {
+      .cd-mob-nav {
+        display: flex; align-items: center; justify-content: center;
+        gap: 16px; padding: 16px 16px 24px;
+      }
     }
 
     /* ── Modo PDF: cada slide una pagina, todo visible, sin deck ── */
