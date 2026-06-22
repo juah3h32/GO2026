@@ -13,8 +13,9 @@ export default defineConfig({
   output: 'server',
   adapter: vercel({
     isr: false,
-    // Reportes (pdf-lib ~2s) + asistente IA + latencia WAF; margen holgado.
-    maxDuration: 60,
+    // PDFs catalogo: preloadImages batches + Puppeteer ~55s.
+    // 120s da margen para cold starts de Chromium.
+    maxDuration: 120,
   }),
 
   server: {
