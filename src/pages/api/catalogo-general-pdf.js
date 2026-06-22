@@ -182,7 +182,8 @@ ${fontLink}
   try {
     const page = await browser.newPage();
     await page.setViewport({ width: 1280, height: 720, deviceScaleFactor: 1.0 });
-    await page.setContent(combinedHTML, { waitUntil: 'load', timeout: 120_000 });
+    // domcontentloaded + image wait: mas rapido que 'load' (no espera iframes/frames)
+    await page.setContent(combinedHTML, { waitUntil: 'domcontentloaded', timeout: 90_000 });
 
     // Esperar decodificacion de todas las imagenes Cloudinary
     await page.evaluate(() => Promise.all(
@@ -190,7 +191,6 @@ ${fontLink}
         new Promise(resolve => { img.onload = img.onerror = resolve; })
       )
     ));
-    try { await page.evaluateHandle('document.fonts.ready'); } catch (e) {}
 
     // Auto-fit para productos que no caben en 720px
     await page.evaluate(() => {
