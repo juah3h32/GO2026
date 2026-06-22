@@ -846,11 +846,15 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
     @media (max-width: 900px) {
       .cd-mob-nav {
         display: flex; align-items: center; justify-content: center;
-        gap: 14px; padding: 8px 16px max(14px, env(safe-area-inset-bottom));
-        position: fixed; bottom: 0; left: 0; right: 0; z-index: 9000;
-        background: linear-gradient(transparent, var(--bg) 30%);
+        gap: 14px; padding: 6px 16px max(10px, env(safe-area-inset-bottom));
+        position: fixed; bottom: 4px; left: 0; right: 0; z-index: 9000;
+        background: linear-gradient(transparent, var(--bg) 20%);
       }
-      .cd { padding-bottom: 60px; }
+      .cd-mob-arrow { width: 36px; height: 36px; }
+      .cd-mob-arrow svg { width: 18px; height: 18px; }
+      .cd-mob-arrow.is-disabled { width: 36px; }
+      .cd-mob-current { font-size: 16px; }
+      .cd { padding-bottom: 54px; }
       #cdCatNav { display: none; } /* oculto en mobile, solo admin */
     }
 
