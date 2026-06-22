@@ -810,6 +810,13 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
     :global(html[data-cd-shot]) .cd-slide,
     :global(html[data-cd-shot]) .reveal { transition: none !important; animation: none !important; }
     :global(html[data-cd-shot]) .reveal { opacity: 1 !important; transform: none !important; }
+
+    /* ── Modo impresion: oculta cromo del sitio ── */
+    :global(html[data-cd-printing]) header.montfort-header,
+    :global(html[data-cd-printing]) .botgo-launcher,
+    :global(html[data-cd-printing]) #global-audio-player,
+    :global(html[data-cd-printing]) nav,
+    :global(html[data-cd-printing]) footer { display: none !important; }
   </style>
 
   <script is:inline define:vars={{ catalogStyles, slug, imgFolder, title: meta.title, cats: listCatalogsMeta(), lang: currentLang }}>
@@ -1004,148 +1011,41 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       function onPrev() { show(idx - 1); }
       function onNext() { show(idx + 1); }
 
-      // ── Descargar PDF (mismo motor Puppeteer de los reportes) ──
+      // ── Descargar PDF — window.print() nativo, instantaneo, sin servidor ──
       var elDl = document.getElementById('cdDownload');
       var dlTxt = elDl ? elDl.querySelector('.cd-dl-txt') : null;
-      var dlBusy = false;
       function onDl(e) {
         e.preventDefault();
-        if (dlBusy) return; dlBusy = true;
         var original = dlTxt ? dlTxt.textContent : '';
-        elDl.setAttribute('aria-busy', 'true');
-        if (dlTxt) dlTxt.textContent = 'Generando PDF…';
+        if (dlTxt) dlTxt.textContent = 'Preparando…';
 
-        // Detectar tema actual
-        var theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-        var url = elDl.getAttribute('href') + '&theme=' + theme + '&t=' + Date.now();
+        // Activar modo impresion (todos los slides visibles, page-break entre ellos)
+        document.documentElement.setAttribute('data-cd-printing', '');
+        var cd = document.querySelector('.cd');
+        cd.setAttribute('data-cd-pdf', '');
 
-        fetch(url, { cache: 'no-store' })
-          .then(function (r) { if (!r.ok) throw new Error('No se pudo generar el PDF'); return r.blob(); })
-          .then(function (blob) {
-            var url = URL.createObjectURL(blob);
-            var a = document.createElement('a');
-            // Nombre dinamico desde meta
-            var cleanTitle = (window.__cdTitle || 'Productos').replace(/\s+/g, '-');
-            var langCode = (window.__cdLang || 'es').toUpperCase();
-            var filename = cleanTitle + '-' + langCode + '.pdf';
-            a.href = url; a.download = filename;
-            document.body.appendChild(a); a.click(); a.remove();
-            setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
-          })
-          .catch(function () { window.open(url, '_blank'); })
-          .finally(function () {
-            dlBusy = false; elDl.removeAttribute('aria-busy');
-            if (dlTxt) dlTxt.textContent = original || 'Descargar PDF';
-          });
+        setTimeout(function () {
+          window.print();
+        }, 250);
+
+        // Limpiar despues de imprimir/cerrar dialogo
+        var afterPrint = function () {
+          document.documentElement.removeAttribute('data-cd-printing');
+          cd.removeAttribute('data-cd-pdf');
+          if (dlTxt) dlTxt.textContent = original || 'Descargar PDF';
+          window.removeEventListener('afterprint', afterPrint);
+        };
+        window.addEventListener('afterprint', afterPrint);
       }
       if (elDl) elDl.addEventListener('click', onDl);
 
-      // ── Descargar Catálogo General (todas las divisiones) con overlay fullscreen ──
+      // ── Descargar Catálogo General — abre HTML combinado + auto-print ──
       var elDlGen = document.getElementById('cdDownloadGeneral');
-      var elGenOv = document.getElementById('cdGenOverlay');
-      var elGenBar = document.getElementById('cdGenBar');
-      var elGenTxt = document.getElementById('cdGenTxt');
-      var elGenMb = document.getElementById('cdGenMb');
-      var elGenProgress = document.getElementById('cdGenProgress');
-      var elGenErrCard = document.getElementById('cdGenErrCard');
-      var elGenErrMsg = document.getElementById('cdGenErrMsg');
-      var elGenRetry = document.getElementById('cdGenRetry');
-      var dlGenBusy = false;
-      function showGenError(msg) {
-        if (elGenProgress) elGenProgress.style.display = 'none';
-        if (elGenErrMsg) elGenErrMsg.textContent = msg || 'Intenta de nuevo en un momento';
-        if (elGenErrCard) elGenErrCard.style.display = 'flex';
-      }
-      function resetGenOverlay() {
-        if (elGenErrCard) elGenErrCard.style.display = 'none';
-        if (elGenProgress) elGenProgress.style.display = 'flex';
-        if (elGenBar) elGenBar.style.width = '0%';
-        if (elGenMb) elGenMb.textContent = '0%';
-      }
-      if (elGenRetry) {
-        elGenRetry.addEventListener('click', function () {
-          if (elGenOv) elGenOv.style.display = 'none';
-          dlGenBusy = false;
-          if (elDlGen) elDlGen.removeAttribute('aria-busy');
-          resetGenOverlay();
-        });
-      }
-      function formatMB(bytes) { return (bytes / (1024 * 1024)).toFixed(1) + ' MB'; }
       function onDlGeneral(e) {
         e.preventDefault();
-        if (dlGenBusy) return; dlGenBusy = true;
         var theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-        var langEl = document.documentElement; // usar el lang del html
-        var url = '/api/catalogo-general-pdf?lang=' + (window.__cdLang || 'es') + '&theme=' + theme + '&t=' + Date.now();
-
-        elDlGen.setAttribute('aria-busy', 'true');
-        resetGenOverlay();
-        if (elGenOv) { elGenOv.style.display = 'flex'; }
-        if (elGenTxt) { elGenTxt.textContent = 'DESCARGANDO...'; }
-
-        // Fase 1: fake progress 0→88% en ~25s (batches de 4, domcontentloaded)
-        var fakePct = 0;
-        var fakeTimer = setInterval(function () {
-          var step = fakePct < 55 ? (Math.random() * 1.8 + 2.2)
-                   : fakePct < 80 ? (Math.random() * 0.8 + 0.5)
-                   : (Math.random() * 0.18 + 0.08);
-          fakePct = Math.min(fakePct + step, 88);
-          if (elGenBar) { elGenBar.style.width = Math.round(fakePct) + '%'; }
-          if (elGenMb) { elGenMb.textContent = Math.round(fakePct) + '%'; }
-          if (fakePct >= 88) clearInterval(fakeTimer);
-        }, 400);
-        if (elGenTxt) { elGenTxt.textContent = 'GENERANDO...'; }
-
-        fetch(url, { cache: 'no-store' })
-          .then(function (r) {
-            if (!r.ok) {
-              // El servidor puede devolver JSON {error} o texto/html (timeout)
-              var ct = r.headers.get('content-type') || '';
-              if (ct.includes('application/json')) {
-                return r.json().then(function (j) { throw new Error((j && j.error) || 'Error del servidor'); });
-              }
-              return r.text().then(function (t) {
-                var short = (t || '').slice(0, 120).replace(/\n/g, ' ').trim();
-                throw new Error(short || 'Error ' + r.status + ' — reintenta');
-              });
-            }
-            clearInterval(fakeTimer);
-            if (elGenTxt) { elGenTxt.textContent = 'DESCARGANDO...'; }
-            // Recolectar todos los bytes antes de animar al 100%
-            return r.arrayBuffer();
-          })
-          .then(function (buffer) {
-            var loaded = buffer.byteLength;
-            // Animar suavemente de fakePct → 100% en ~900ms con pasos
-            var startPct = fakePct;
-            var cur = startPct;
-            var finishTimer = setInterval(function () {
-              cur = Math.min(cur + (100 - startPct) / 9, 100);
-              if (elGenBar) { elGenBar.style.width = Math.round(cur) + '%'; }
-              if (elGenMb) { elGenMb.textContent = formatMB(loaded); }
-              if (cur >= 100) {
-                clearInterval(finishTimer);
-                if (elGenTxt) { elGenTxt.textContent = 'COMPLETADO'; }
-                if (elGenMb) { elGenMb.textContent = formatMB(loaded); }
-                var blob = new Blob([buffer], { type: 'application/pdf' });
-                var blobUrl = URL.createObjectURL(blob);
-                var a = document.createElement('a');
-                a.href = blobUrl;
-                a.download = 'Catalogo-General-' + (window.__cdLang || 'es').toUpperCase() + '.pdf';
-                document.body.appendChild(a); a.click(); a.remove();
-                setTimeout(function () { URL.revokeObjectURL(blobUrl); }, 4000);
-                setTimeout(function () {
-                  if (elGenOv) { elGenOv.style.display = 'none'; }
-                  dlGenBusy = false;
-                  elDlGen.removeAttribute('aria-busy');
-                }, 1200);
-              }
-            }, 100);
-          })
-          .catch(function (err) {
-            clearInterval(fakeTimer);
-            showGenError(err && err.message && err.message.length < 60 ? err.message : 'Intenta de nuevo en un momento');
-          });
+        var url = '/api/catalogo-general-html?lang=' + (window.__cdLang || 'es') + '&theme=' + theme;
+        window.open(url, '_blank');
       }
       if (elDlGen) elDlGen.addEventListener('click', onDlGeneral);
 
