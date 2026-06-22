@@ -818,10 +818,16 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       .cd-table .td-c { white-space: normal; line-height: 1.2; }
 
       /* 3 botones siempre en 1 linea horizontal */
-      .cd-ficha { display: none !important; } /* solo portada, sin scroll */
+      .cd-ficha { display: none !important; }
       .cd-scroll-hint { display: none !important; }
       .cd-deck { overflow: visible !important; }
-      .cd-hero { padding-top: clamp(80px, 10vh, 110px); }
+      html, body { overflow: hidden !important; height: 100% !important; position: fixed !important; width: 100% !important; }
+      .cd { overflow: hidden !important; }
+      .cd-hero { min-height: 100svh; display: flex; flex-direction: column; justify-content: center; padding-top: clamp(60px, 8vh, 90px); }
+      .cd-hero-media { top: 42% !important; width: min(60vw, 260px) !important; }
+      .cd-hero-inner { max-height: 60vh; }
+      .cd-hero-copy p { -webkit-line-clamp: 2; }
+      .cd-hero-prods { display: none; }
       .cd-hero-actions { flex-wrap: nowrap; gap: 4px; justify-content: center; }
       .cd-dl, .cd-btn-hero { padding: 9px 10px; font-size: 10px; gap: 4px; white-space: nowrap; border-radius: 999px; }
       .cd-dl svg, .cd-btn-hero svg { width: 12px; height: 12px; flex-shrink: 0; }
