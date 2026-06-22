@@ -951,22 +951,13 @@ arpillas: {
 
     products: [
       {
-        name: "BAG 15×20 CM",
-        img:   "/images/bolsas/15x25.webp",
-        thumb: "/images/bolsas/15x25.webp",
-        link:  "#",
-        description: "Compact polypropylene bag ideal for packaging small products in individual portions. Perfect for retail, seeds, spices, and daily use. High tear resistance with a uniform finish.",
-        specs_values: { width: "15 cm", height: "20 cm", mat: "Polipropileno", use: "Retail" },
-        gallery: ["/images/bolsas/15x20d.webp", "/images/bolsas/15x20.png", "/images/bolsas/15x20f.webp"]
-      },
-            {
         name: "BAG 15×25 CM",
         img:   "/images/bolsas/15x25.webp",
         thumb: "/images/bolsas/15x25.webp",
         link:  "#",
         description: "Compact polypropylene bag, ideal for packaging small products. Perfect for retail, seed packaging, spices and individual-portion consumer products. High tear resistance with uniform finish.",
         specs_values: { width: "15 cm", height: "25 cm", mat: "Polypropylene", use: "Retail" },
-        gallery: ["/images/bolsas/15x20d.webp", "/images/bolsas/15x25.webp", "/images/bolsas/15x20f.webp"]
+        gallery: ["/images/bolsas/15x25.webp"]
       },
       {
         name: "BAG 18×25 CM",

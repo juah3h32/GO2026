@@ -937,22 +937,13 @@ export const pt = {
 
     products: [
       {
-        name: "BOLSA 15×20 CM",
-        img:   "/images/bolsas/15x20.png",
-        thumb: "/images/bolsas/15x20.png",
-        link:  "#",
-        description: "Bolsa de polipropileno compacta ideal para empaque de productos pequeños en porciones individuales. Alta resistencia al rasgado con acabado uniforme.",
-        specs_values: { width: "15 cm", height: "20 cm", mat: "Polipropileno", use: "Retail" },
-        gallery: ["/images/bolsas/15x20d.webp", "/images/bolsas/15x20.png", "/images/bolsas/15x20f.webp"]
-      },
-      {
         name: "BOLSA 15×25 CM",
         img:   "/images/bolsas/15x25.webp",
         thumb: "/images/bolsas/15x25.webp",
         link:  "#",
         description: "Bolsa de polipropileno compacta, ideal para embalagem de produtos pequenos. Perfeita para varejo, embalagem de sementes, especiarias e produtos de consumo em porções individuais. Alta resistência ao rasgamento com acabamento uniforme.",
         specs_values: { width: "15 cm", height: "25 cm", mat: "Polipropileno", use: "Varejo" },
-        gallery: ["/images/bolsas/15x20d.webp", "/images/bolsas/15x25.webp", "/images/bolsas/15x20f.webp"]
+        gallery: ["/images/bolsas/15x25.webp"]
       },
       {
         name: "BOLSA 18×25 CM",

@@ -937,22 +937,13 @@ export const zh = {
 
     products: [
       {
-        name: "袋子 15×20 厘米",
-        img:   "/images/bolsas/15x25.webp",
-        thumb: "/images/bolsas/15x25.webp",
-        link:  "#",
-        description: "紧凑型聚丙烯袋，非常适合以单独份量包装小产品。适合零售、种子、香料和日常使用。高抗撕裂性，表面均匀。",
-        specs_values: { width: "15 cm", height: "20 cm", mat: "Polipropileno", use: "零售" },
-        gallery: ["/images/bolsas/15x20d.webp", "/images/bolsas/15x20.png", "/images/bolsas/15x20f.webp"]
-      },
-            {
         name: "袋子 15×25 厘米",
         img:   "/images/bolsas/15x25.webp",
         thumb: "/images/bolsas/15x25.webp",
         link:  "#",
         description: "紧凑型聚丙烯袋，适合小产品包装。完美用于零售、种子包装、香料和单份消费品。高抗撕裂性，表面均匀。",
         specs_values: { width: "15 厘米", height: "25 厘米", mat: "聚丙烯", use: "零售" },
-        gallery: ["/images/bolsas/15x20d.webp", "/images/bolsas/15x25.webp", "/images/bolsas/15x20f.webp"]
+        gallery: ["/images/bolsas/15x25.webp"]
       },
       {
         name: "袋子 18×25 厘米",

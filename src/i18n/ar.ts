@@ -937,22 +937,13 @@ export const ar = {
 
     products: [
       {
-        name: "كيس 15×20 سم",
-        img:   "/images/bolsas/15x25.webp",
-        thumb: "/images/bolsas/15x25.webp",
-        link:  "#",
-        description: "كيس بولي بروبيلين مدمج مثالي لتعبئة المنتجات الصغيرة في أجزاء فردية. مثالي للبيع بالتجزئة والبذور والتوابل. مقاومة عالية للتمزق مع نهاية موحدة.",
-        specs_values: { width: "15 cm", height: "20 cm", mat: "Polipropileno", use: "التجزئة" },
-        gallery: ["/images/bolsas/15x20d.webp", "/images/bolsas/15x20.png", "/images/bolsas/15x20f.webp"]
-      },
-            {
         name: "كيس 15×25 سم",
         img:   "/images/bolsas/15x25.webp",
         thumb: "/images/bolsas/15x25.webp",
         link:  "#",
         description: "كيس بولي بروبيلين مدمج، مثالي لتعبئة المنتجات الصغيرة. مناسب لتجارة التجزئة وتعبئة البذور والتوابل ومنتجات الاستهلاك الفردي. مقاومة عالية للتمزق مع تشطيب منتظم.",
         specs_values: { width: "15 سم", height: "25 سم", mat: "بولي بروبيلين", use: "تجارة التجزئة" },
-        gallery: ["/images/bolsas/15x20d.webp", "/images/bolsas/15x25.webp", "/images/bolsas/15x20f.webp"]
+        gallery: ["/images/bolsas/15x25.webp"]
       },
       {
         name: "كيس 18×25 سم",

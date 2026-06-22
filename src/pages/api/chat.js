@@ -22,7 +22,7 @@ const PRODUCT_ALIASES = {
   esquineros: ['esquinero','esquineros','esquinero kraft','cantonera','cantoneras','protector de esquina','esquineros de carton','eskinero','esquinro'],
   flexible:   ['empaque flexible','empaques flexibles','bobina','bobinas','stand up','standup','bolsa stand up','bolsa alto vacio','flexible','flexibles','pouch','empaque','empaques','bolsa impresa'],
   charola:    ['charola','charolas','charola naturizable','charola biodegradable','charola termoformable','charola para alimentos','charola compostable','charola ecologica','charola eco'],
-  bolsas:     ['bolsa pp','bolsas pp','bolsa polipropileno','bolsas polipropileno','bolsa transparente','bolsas transparentes','bolsa plastica','bolsas plasticas','bolsa 15x20','bolsa 18x25','bolsa 20x30','bolsa 25x35','bolsa 30x40','bolsa 35x45','bolsa 40x60','bolsa 50x70','bolsa 60x90','bolsas de pp'],
+  bolsas:     ['bolsa pp','bolsas pp','bolsa polipropileno','bolsas polipropileno','bolsa transparente','bolsas transparentes','bolsa plastica','bolsas plasticas','bolsa 15x25','bolsa 18x25','bolsa 20x30','bolsa 25x35','bolsa 30x40','bolsa 35x45','bolsa 40x60','bolsa 50x70','bolsa 60x90','bolsas de pp'],
   acolchado:  ['acolchado','acolchados','mulch','mulching','acolchamiento','lamina acolchada','plastico acolchado','acolchado agricola','lámina acolchada'],
 };
 
@@ -332,7 +332,6 @@ Contacto: WhatsApp ${waPhone} | atencionacliente@grupo-ortiz.com | Morelia, Mich
 
 9. BOLSAS PP — Polipropileno, alta resistencia al rasgado, acabado uniforme.
    Medidas disponibles (ancho × alto):
-   15×20 cm — retail, semillas, especias, porciones individuales.
    15×25 cm — retail, semillas, especias, empaque individual.
    18×25 cm — granos, cereales, botanas, uso cotidiano.
    20×30 cm — frutas, verduras, productos agrícolas, mediano peso.
@@ -363,7 +362,7 @@ SIEMBRA / CULTIVO / HUERTO:
 - "empacar mis frutas o verduras" → Arpillas (presentación y ventilación) o Bolsas PP (medida según volumen).
 
 EMPAQUE / ALMACENAJE:
-- "empacar granos / cereales / semillas / especias (pequeño)" → Bolsas PP 15×20 o 18×25.
+- "empacar granos / cereales / semillas / especias (pequeño)" → Bolsas PP 15×25 o 18×25.
 - "empacar frutas / verduras / productos medianos" → Bolsas PP 20×30 o 25×35.
 - "empacar ropa / textiles / calzado" → Bolsas PP 25×35 o 30×40.
 - "empacar carga pesada / a granel / fertilizantes / construcción" → Sacos de Rafia (120-200 kgf resistencia).
