@@ -828,9 +828,10 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       .cd-hero-inner { max-height: 60vh; }
       .cd-hero-copy p { -webkit-line-clamp: 2; }
       .cd-hero-prods { display: none; }
-      .cd-hero-actions { flex-wrap: nowrap; gap: 4px; justify-content: center; }
-      .cd-dl, .cd-btn-hero { padding: 9px 10px; font-size: 10px; gap: 4px; white-space: nowrap; border-radius: 999px; }
-      .cd-dl svg, .cd-btn-hero svg { width: 12px; height: 12px; flex-shrink: 0; }
+      .cd-btn-hero { display: none !important; } /* solo 2 botones */
+      .cd-hero-actions { flex-wrap: nowrap; gap: 10px; justify-content: center; }
+      .cd-dl, .cd-dl-general { padding: 12px 20px; font-size: 12px; gap: 6px; white-space: nowrap; border-radius: 999px; }
+      .cd-dl svg, .cd-dl-general svg { width: 15px; height: 15px; flex-shrink: 0; }
       .cd-how-fab { display: none; }
       .cd-year { display: none; }
       footer, :global(footer) { display: none !important; }
