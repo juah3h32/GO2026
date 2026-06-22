@@ -325,7 +325,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       <span>Deslizar para ver más</span>
     </div>
 
-    <!-- Navegación entre divisiones -->
+    <!-- Navegación entre divisiones (solo flechas, sin nombres) -->
     {(() => {
       const cats = listCatalogsMeta();
       const catIdx = cats.findIndex(c => c.slug === slug);
@@ -334,22 +334,16 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       return (
         <nav class="cd-cat-nav" aria-label="Navegación entre catálogos">
           {prevCat ? (
-            <a href={`/${currentLang}/catalogo/${prevCat.slug}`} class="cd-cat-arrow cd-cat-prev" aria-label={`Anterior: ${prevCat.title}`}>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-              <span>{prevCat.title}</span>
+            <a href={`/${currentLang}/catalogo/${prevCat.slug}`} class="cd-cat-arrow" aria-label={`Anterior: ${prevCat.title}`}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
             </a>
-          ) : (
-            <span class="cd-cat-arrow cd-cat-prev is-disabled"></span>
-          )}
+          ) : <span class="cd-cat-arrow is-disabled"></span>}
           <span class="cd-cat-current">{meta.title}</span>
           {nextCat ? (
-            <a href={`/${currentLang}/catalogo/${nextCat.slug}`} class="cd-cat-arrow cd-cat-next" aria-label={`Siguiente: ${nextCat.title}`}>
-              <span>{nextCat.title}</span>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+            <a href={`/${currentLang}/catalogo/${nextCat.slug}`} class="cd-cat-arrow" aria-label={`Siguiente: ${nextCat.title}`}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
             </a>
-          ) : (
-            <span class="cd-cat-arrow cd-cat-next is-disabled"></span>
-          )}
+          ) : <span class="cd-cat-arrow is-disabled"></span>}
         </nav>
       );
     })()}
@@ -825,49 +819,42 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
 
     /* ── Navegacion entre divisiones ── */
     .cd-cat-nav {
-      display: flex; align-items: center; justify-content: center; gap: 20px;
-      padding: 20px clamp(16px,4vw,48px); margin-top: 0;
-      position: relative; z-index: 5;
+      display: flex; align-items: center; justify-content: center; gap: 16px;
+      padding: 24px 20px; position: relative; z-index: 5;
     }
     .cd-cat-arrow {
-      display: inline-flex; align-items: center; gap: 8px;
-      text-decoration: none; color: var(--text);
-      font-family: "Morganite", sans-serif; font-weight: 800;
-      font-size: 18px; letter-spacing: .04em; text-transform: uppercase;
-      transition: color .25s, transform .25s; padding: 8px 0;
+      display: flex; align-items: center; justify-content: center;
+      width: 44px; height: 44px; border-radius: 50%;
+      border: 1px solid var(--line); color: var(--text);
+      text-decoration: none; transition: all .25s; flex: none;
     }
-    .cd-cat-arrow:hover { color: var(--o); }
-    .cd-cat-prev:hover { transform: translateX(-4px); }
-    .cd-cat-next:hover { transform: translateX(4px); }
-    .cd-cat-arrow.is-disabled { visibility: hidden; width: 80px; }
+    .cd-cat-arrow:hover { border-color: var(--o); color: var(--o); background: rgba(251,103,11,.08); }
+    .cd-cat-arrow.is-disabled { visibility: hidden; width: 44px; }
     .cd-cat-current {
       font-family: "Morganite", sans-serif; font-weight: 800;
-      font-size: 22px; letter-spacing: .06em; color: var(--o);
-      text-transform: uppercase; text-align: center; min-width: 120px;
+      font-size: clamp(20px, 4vw, 28px); letter-spacing: .06em; color: var(--o);
+      text-transform: uppercase; text-align: center; padding: 0 8px;
     }
     .cd-cat-arrow svg { flex: none; }
 
     @media (max-width: 767px) {
-      .cd-hero { padding: clamp(120px,18vh,180px) 16px 14px; }
+      .cd-hero { padding: clamp(110px,16vh,160px) 16px 10px; }
       .cd-hero-inner { max-width: 100%; }
       .cd-hero-copy { max-width: 100%; }
-      .cd-hero-media { opacity: .12; right: -22%; width: 85vw; top: 45%; }
-      .cd-hero-prods { justify-self: start; text-align: left; margin-top: 10px; }
-      .cd-hero-prods ul { display: flex; flex-wrap: wrap; gap: 2px 14px; }
-      .cd-hero-prods li { font-size: 12px; padding: 1px 0; }
+      .cd-hero-media { opacity: .10; right: -25%; width: 90vw; top: 42%; }
+      .cd-hero-prods { justify-self: start; text-align: left; margin-top: 8px; }
+      .cd-hero-prods ul { display: flex; flex-wrap: wrap; gap: 2px 12px; }
+      .cd-hero-prods li { font-size: 11px; padding: 1px 0; }
 
-      /* 3 botones: ultra compactos para caber en 1 linea (375px) */
       .cd-hero-actions { flex-wrap: nowrap; gap: 4px; justify-content: center; }
       .cd-dl, .cd-btn-hero { padding: 8px 10px; font-size: 9px; gap: 3px; border-radius: 999px; }
       .cd-dl svg, .cd-btn-hero svg { width: 12px; height: 12px; }
 
-      /* Nav arrows mas grandes, nombre de division visible */
-      .cd-cat-nav { gap: 12px; padding: 14px 12px; }
-      .cd-cat-arrow { font-size: 16px; gap: 6px; }
-      .cd-cat-arrow svg { width: 22px; height: 22px; }
-      .cd-cat-arrow span { display: inline; font-size: 13px; }
-      .cd-cat-current { font-size: 20px; min-width: 90px; }
-      .cd-cat-arrow.is-disabled { width: 30px; }
+      .cd-cat-nav { gap: 14px; padding: 16px 12px; }
+      .cd-cat-arrow { width: 40px; height: 40px; }
+      .cd-cat-arrow svg { width: 20px; height: 20px; }
+      .cd-cat-arrow.is-disabled { width: 40px; }
+      .cd-cat-current { font-size: clamp(16px, 5vw, 22px); }
     }
 
     /* ── Modo PDF: cada slide una pagina, todo visible, sin deck ── */
