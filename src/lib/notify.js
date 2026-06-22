@@ -913,7 +913,10 @@ async function notifyCategoria(categoria, buildMsg) {
     const { getWAAuthorizedByCategory } = await import('./analytics-db.js');
     subs = await getWAAuthorizedByCategory(categoria);
   } catch (e) { console.error('[notify-cat] DB:', e.message); return { sent: 0 }; }
-  if (!subs.length) return { sent: 0 };
+  if (!subs.length) {
+    console.warn(`[notify-cat:${categoria}] Sin destinatarios — verifica que haya números autorizados con categoría "${categoria}" o permiso correspondiente`);
+    return { sent: 0 };
+  }
 
   let sent = 0;
   for (let i = 0; i < subs.length; i++) {

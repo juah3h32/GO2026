@@ -1187,15 +1187,22 @@ export async function getWAAuthorized() {
 }
 
 // Categorías de notificación automática: 'rh' (candidatos), 'clientes' (distribuidores)
+// Fallback: si nadie tiene la categoría, usa números con permiso '*' o el permiso equivalente
 export async function getWAAuthorizedByCategory(categoria) {
   await ensureInit();
   try { await db.execute(`ALTER TABLE wa_authorized ADD COLUMN categories TEXT NOT NULL DEFAULT '[]'`); } catch {}
-  const r = await db.execute(`SELECT id, phone, name, categories FROM wa_authorized WHERE active=1`);
+  const PERM_MAP = { rh: 'candidates', clientes: 'distribuidores' };
+  const r = await db.execute(`SELECT id, phone, name, permissions, categories FROM wa_authorized WHERE active=1`);
   const out = [];
   for (const row of r.rows) {
     let cats = [];
-    try { cats = JSON.parse(row[3] || '[]'); } catch {}
-    if (cats.includes(categoria)) out.push({ id: row[0], phone: row[1], name: row[2] });
+    let perms = [];
+    try { cats = JSON.parse(row[4] || '[]'); } catch {}
+    try { perms = typeof row[3] === 'string' ? JSON.parse(row[3]) : (Array.isArray(row[3]) ? row[3] : []); } catch {}
+    // Match directo por categoría o fallback por permisos
+    if (cats.includes(categoria) || perms.includes('*') || perms.includes(PERM_MAP[categoria] || '')) {
+      out.push({ id: row[0], phone: row[1], name: row[2] });
+    }
   }
   return out;
 }

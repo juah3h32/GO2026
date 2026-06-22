@@ -92,11 +92,12 @@ export async function POST({ request }) {
 
         try {
           if (en_lista_espera) {
-            // 1. Mensaje al CANDIDATO confirmando que su perfil fue enviado a RH
+            // 1. Mensaje al CANDIDATO confirmando envío a RH
             notifyCandidateEspera({ nombre, puesto, telefono }).catch(e => console.warn('notify candidato:', e.message));
             // 2. Avisar a RH por categoría
             const { notifyCategoriaRH } = await import('../../lib/notify.js');
-            notifyCategoriaRH({ nombre, puesto, telefono, email }).catch(() => {});
+            const rhResult = await notifyCategoriaRH({ nombre, puesto, telefono, email, cvNombre: cvNombre || '', cvBase64: cvBase64 || '' });
+            console.log(`📢 RH notificados: ${rhResult.sent || 0} destinatarios`);
           } else {
             await notifyNewVacante({ nombre, puesto, telefono, email, cvNombre, sessionId });
           }
