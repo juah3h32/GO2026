@@ -6,7 +6,7 @@ export const config = { maxDuration: 120 };
 import { existsSync } from 'fs';
 import { translations } from '../../i18n';
 import { CATALOGS } from '../../lib/catalogs.js';
-import { buildHTML, setCatFolders } from '../../lib/catalogo-builder.js';
+import { buildHTML, setCatFolders, preloadImages } from '../../lib/catalogo-builder.js';
 import { getCatalog } from '../../lib/catalog-store.js';
 
 // ── CSS compartido (sin @page que ya viene en cada buildHTML) ────────
@@ -135,7 +135,8 @@ async function generateCombinedPDF(lang, theme) {
     if (!data) continue;
     try {
       setCatFolders(cat.imgFolder, cat.coverImgFolder);
-      const html = buildHTML(theme, lang, data);
+      const loaded = await preloadImages(data);
+      const html = buildHTML(theme, lang, loaded);
       const headMatch = html.match(/<head[^>]*>([\s\S]*)<\/head>/i);
       const bodyMatch = html.match(/<body[^>]*>([\s\S]*)<\/body>/i);
       if (headMatch) {
@@ -159,7 +160,8 @@ async function generateCombinedPDF(lang, theme) {
     browser = await puppeteer.launch({ executablePath, args, headless });
     const page = await browser.newPage();
     await page.setViewport({ width: 1280, height: 720, deviceScaleFactor: 2 });
-    await page.setContent(doc, { waitUntil: 'networkidle2', timeout: 90_000 });
+    await page.setContent(doc, { waitUntil: 'domcontentloaded', timeout: 60_000 });
+    try { await page.evaluateHandle('document.fonts.ready'); } catch (e) {}
 
     // Auto-fit + injectar numero de pagina (rapido)
     await page.evaluate(() => {
