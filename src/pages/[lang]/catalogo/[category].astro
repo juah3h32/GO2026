@@ -166,15 +166,8 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
           </a>
         </div>
       </div>
-      <div class="cd-hero-prods reveal" style="--d:.34s">
-        <span class="cd-prods-t">{t.products || "Productos"}:</span>
-        <ul>
-          {productosTr.map((p, i) => (<li style={`--d:${0.36 + i * 0.05}s`} data-cd-path={`fichas.${i}.nombre`}>- {p}</li>))}
-        </ul>
-      </div>
-      <div class="cd-year">2026</div>
 
-      <!-- Navegación entre divisiones (dentro del hero) -->
+      <!-- Navegación entre divisiones (arriba de productos) -->
       {(() => {
         const cats = listCatalogsMeta();
         const catIdx = cats.findIndex(c => c.slug === slug);
@@ -196,6 +189,14 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
           </nav>
         );
       })()}
+
+      <div class="cd-hero-prods reveal" style="--d:.34s">
+        <span class="cd-prods-t">{t.products || "Productos"}:</span>
+        <ul>
+          {productosTr.map((p, i) => (<li style={`--d:${0.36 + i * 0.05}s`} data-cd-path={`fichas.${i}.nombre`}>- {p}</li>))}
+        </ul>
+      </div>
+      <div class="cd-year">2026</div>
     </section>
 
     <!-- ── FICHAS TECNICAS ──────────────────────────────────────── -->
@@ -791,8 +792,9 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
 
     /* ── Responsive ── */
     @media (max-width: 900px) {
-      .cd-hero, .cd-hero-prodrow { grid-template-columns: 1fr; grid-template-areas: "title" "prods"; }
-      .cd-hero-prods, .cd-hero-prodrow .cd-hero-prods { justify-self: start; text-align: left; margin-top: 10px; }
+      .cd-hero, .cd-hero-prodrow { display: flex; flex-direction: column; }
+      .cd-hero-inner, .cd-hero-copy, .cd-hero-prods, .cd-cat-nav { grid-area: auto; }
+      .cd-hero-prods, .cd-hero-prodrow .cd-hero-prods { text-align: left; margin-top: 8px; }
       
       .cd-ficha-head { grid-template-columns: 1fr; gap: 20px; margin-bottom: 24px; text-align: left; }
       .cd-ficha-media { order: 1; justify-content: center; }
@@ -859,11 +861,12 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       .cd-dl, .cd-btn-hero { padding: 8px 10px; font-size: 9px; gap: 3px; border-radius: 999px; }
       .cd-dl svg, .cd-btn-hero svg { width: 12px; height: 12px; }
 
-      .cd-cat-nav { gap: 14px; padding: 16px 12px; }
+      .cd-cat-nav { gap: 14px; padding: 10px 12px; grid-column: auto; align-self: auto; margin-top: 0; }
       .cd-cat-arrow { width: 40px; height: 40px; }
       .cd-cat-arrow svg { width: 20px; height: 20px; }
       .cd-cat-arrow.is-disabled { width: 40px; }
       .cd-cat-current { font-size: clamp(16px, 5vw, 22px); }
+      .cd-year { display: none; }
     }
 
     /* ── Modo PDF: cada slide una pagina, todo visible, sin deck ── */
