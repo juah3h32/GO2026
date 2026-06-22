@@ -182,6 +182,8 @@ function paginaProducto(f, i, t, isDark, ctl) {
   </div>`;
 }
 
+export function setCatFolders(imgF, covF) { CURRENT_FOLDER = imgF || 'stretch'; COVER_FOLDER = covF || 'catalogos'; }
+
 export function buildHTML(theme = 'dark', lang = 'es', data = {}) {
   const font = asset('fonts/Morganite-ExtraBold.ttf', 'font/ttf');
   const fontFace = font ? `@font-face{font-family:'Morganite';src:url('${font}') format('truetype');font-weight:800;font-style:normal;}` : '';
