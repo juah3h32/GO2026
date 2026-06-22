@@ -4463,7 +4463,7 @@ const ALL_TABS=[
         {/* ── CATALOGO VISUAL ── */}
         {tab==='catalog'&&canSee('catalogo')&&(
           <div className="tab-content" key="catalog">
-            <CatalogVisualEditor P={P} />
+            <CatalogVisualEditor P={P} onClose={onClose} />
           </div>
         )}
 

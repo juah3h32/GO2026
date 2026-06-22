@@ -1,22 +1,16 @@
 ---
-// src/pages/[lang]/catalogo.astro
-import "../../styles/catalogo.css";
-export const prerender = true;  // ← AGREGAR ESTA LÍNEA
-import "../../styles/global.css";
-import "../../styles/flechas.css";
+// src/pages/[lang]/catalogo.astro — redirige al primer catálogo digital
+export const prerender = true;
 
-import BaseLayout from "../../layouts/BaseLayout.astro";
-import Footer from "../../components/Footer.astro";
-
-import { languages, translations } from "../../i18n";
-import { es } from "../../i18n/es";
+import { languages } from "../../i18n";
 
 export function getStaticPaths() {
   return Object.keys(languages).map((lang) => ({ params: { lang } }));
 }
 
 const { lang } = Astro.params;
-const currentLang = (lang && lang in translations) ? lang : 'es';
+const currentLang = lang || 'es';
+return Astro.redirect(`/${currentLang}/catalogo/digital-stretch-film`, 301);
 const t = translations[currentLang as keyof typeof translations] as typeof es;
 
 // Video hero desde Cloudinary (public/videos/ esta en .gitignore → no se deploya).

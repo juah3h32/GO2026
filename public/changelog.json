@@ -1,6 +1,46 @@
 {
   "commits": [
     {
+      "hash": "29fa081",
+      "date": "2026-06-22",
+      "message": "fix(catalogo-general): centrado perfecto en portada PDF",
+      "rawMessage": "fix(catalogo-general): centrado perfecto en portada PDF",
+      "type": "fix",
+      "area": "Performance"
+    },
+    {
+      "hash": "eda7d51",
+      "date": "2026-06-22",
+      "message": "feat(catalogo-general): portada mayusculas, overlay descarga rediseñado y nombres PDF con idioma",
+      "rawMessage": "feat(catalogo-general): portada mayusculas, overlay descarga rediseñado y nombres PDF con idioma",
+      "type": "feat",
+      "area": "i18n"
+    },
+    {
+      "hash": "a8b5f35",
+      "date": "2026-06-19",
+      "message": "fix(whatsapp-catalog): JSON write opcional en Vercel — solo Turso determina éxito",
+      "rawMessage": "fix(whatsapp-catalog): JSON write opcional en Vercel — solo Turso determina éxito",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "77fdfe3",
+      "date": "2026-06-19",
+      "message": "feat(whatsapp): editor de catálogos digitales desde WhatsApp",
+      "rawMessage": "feat(whatsapp): editor de catálogos digitales desde WhatsApp",
+      "type": "feat",
+      "area": "General"
+    },
+    {
+      "hash": "deb8893",
+      "date": "2026-06-17",
+      "message": "Reclutamiento: guardado automatico + notif, menu agrupado, fixes CV/perfil",
+      "rawMessage": "Reclutamiento: guardado automatico + notif, menu agrupado, fixes CV/perfil",
+      "type": "update",
+      "area": "Performance"
+    },
+    {
       "hash": "e197d52",
       "date": "2026-06-17",
       "message": "Catalogo: selector imagenes Cloudinary, recorte, 2026 portadas, fixes specs y video stretch",
@@ -2242,11 +2282,11 @@
     }
   ],
   "stats": {
-    "total": 280,
+    "total": 285,
     "byType": {
-      "update": 14,
-      "fix": 87,
-      "feat": 50,
+      "fix": 89,
+      "feat": 52,
+      "update": 15,
       "chore": 6,
       "style": 9,
       "perf": 3,
@@ -2254,35 +2294,45 @@
       "release": 110
     },
     "byArea": {
+      "Performance": 8,
+      "i18n": 5,
+      "General": 196,
       "Media": 27,
-      "General": 194,
       "Admin/API": 26,
       "Productos": 19,
       "Reclutamiento": 2,
-      "i18n": 4,
-      "Performance": 6,
       "UI": 2
     },
     "byMonth": {
-      "2026-06": 122,
+      "2026-06": 127,
       "2026-05": 33,
       "2026-04": 29,
       "2026-03": 96
     },
     "byAreaType": {
+      "Performance": {
+        "fix": 2,
+        "update": 1,
+        "feat": 4,
+        "perf": 1
+      },
+      "i18n": {
+        "feat": 3,
+        "fix": 2
+      },
+      "General": {
+        "fix": 46,
+        "feat": 23,
+        "update": 7,
+        "chore": 5,
+        "style": 5,
+        "release": 110
+      },
       "Media": {
         "update": 3,
         "fix": 19,
         "feat": 4,
         "perf": 1
-      },
-      "General": {
-        "feat": 22,
-        "fix": 45,
-        "update": 7,
-        "chore": 5,
-        "style": 5,
-        "release": 110
       },
       "Admin/API": {
         "feat": 8,
@@ -2302,19 +2352,10 @@
         "fix": 1,
         "feat": 1
       },
-      "i18n": {
-        "feat": 2,
-        "fix": 2
-      },
-      "Performance": {
-        "fix": 1,
-        "feat": 4,
-        "perf": 1
-      },
       "UI": {
         "style": 2
       }
     }
   },
-  "generatedAt": "2026-06-17T16:22:42.208Z"
+  "generatedAt": "2026-06-22T17:06:28.785Z"
 }
