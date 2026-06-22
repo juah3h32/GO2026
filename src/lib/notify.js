@@ -788,13 +788,13 @@ export async function notifyNewVacante(candidate) {
   const html       = buildCandidateProfileHTML(candidate, logoBase64);
   const filename   = buildFilename(candidate.nombre, candidate.puesto);
 
-  let pdfBuffer;
+  let pdfBuffer = null;
   try {
     pdfBuffer = await generatePDF(html);
     console.log(`[notify] PDF listo: ${(pdfBuffer.length / 1024).toFixed(0)} KB`);
   } catch (pdfErr) {
-    console.error('[notify] Error generando PDF:', pdfErr.message);
-    throw pdfErr;
+    console.error('[notify] Error generando PDF (seguimos sin PDF):', pdfErr.message);
+    // NO throw — seguimos con notificaciones de texto
   }
 
   const results = [];
@@ -810,8 +810,8 @@ export async function notifyNewVacante(candidate) {
       try {
         // 1 — texto personalizado primero
         await sendWAText(phone, message);
-        // 2 — PDF del perfil (mensaje separado, sin caption)
-        await sendWAPDF(phone, pdfBuffer, filename);
+        // 2 — PDF del perfil (solo si se generó)
+        if (pdfBuffer) await sendWAPDF(phone, pdfBuffer, filename);
         // 🔒 LOG SEGURO: no exponer teléfono real, usar hash
         const phoneHash = Buffer.from(phone).toString('base64').slice(0, 8);
         results.push({ config: config.name, phone: `****${phoneHash}`, name: rName, ok: true });

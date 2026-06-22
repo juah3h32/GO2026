@@ -316,7 +316,7 @@ export async function POST({ request }) {
       return json({ ok: true, vacantes });
     }
 
-    // ── resend: reenviar notificación de candidato a todos los números autorizados ──
+    // ── resend: reenviar notificación de candidato a todos los RH ──
     if (action === 'resend') {
       const { id } = body;
       if (!id) return json({ ok: false, error: 'ID de candidato requerido' }, 400);
@@ -325,8 +325,8 @@ export async function POST({ request }) {
       const candidate = candidates.find(c => c.id === Number(id));
       if (!candidate) return json({ ok: false, error: 'Candidato no encontrado' }, 404);
 
-      const { notifyNewVacante } = await import('../../lib/notify.js');
-      const result = await notifyNewVacante({
+      const { notifyCategoriaRH } = await import('../../lib/notify.js');
+      const resultRH = await notifyCategoriaRH({
         nombre: candidate.nombre,
         puesto: candidate.puesto,
         edad: candidate.edad,
@@ -336,10 +336,9 @@ export async function POST({ request }) {
         email: candidate.email,
         cvNombre: candidate.cv_nombre,
         cvBase64: candidate.cv_base64,
-        cvTipo: candidate.cv_tipo,
         mensaje: candidate.mensaje || candidate.comentarios,
       });
-      return json({ ok: true, sent: result.sent, results: result.results });
+      return json({ ok: true, sent: resultRH.sent || 0, nota: 'Notificación de texto enviada a los números de RH autorizados' });
     }
 
     return json({ ok: false, error: 'Acción desconocida.' }, 400);
