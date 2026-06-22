@@ -6,7 +6,7 @@ export const config = { maxDuration: 120 };
 import { existsSync } from 'fs';
 import { translations } from '../../i18n';
 import { CATALOGS } from '../../lib/catalogs.js';
-import { buildHTML, setCatFolders, preloadImages } from '../../lib/catalogo-builder.js';
+import { buildHTML, setCatFolders } from '../../lib/catalogo-builder.js';
 import { getCatalog } from '../../lib/catalog-store.js';
 
 // ── CSS compartido (sin @page que ya viene en cada buildHTML) ────────
@@ -103,8 +103,6 @@ function generalCoverHTML(lang, theme) {
 
 // ── Genera el PDF completo — un solo HTML, un solo render ────────────
 async function generateCombinedPDF(lang, theme) {
-  const { executablePath, args, headless } = await getBrowserConfig();
-
   const isRTL = lang === 'ar';
   const fontLink = lang === 'zh'
     ? '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;800&display=swap" rel="stylesheet">'
@@ -112,46 +110,45 @@ async function generateCombinedPDF(lang, theme) {
     ? '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&display=swap" rel="stylesheet">'
     : '';
 
-  // Precargar datos e imagenes de todos los catalogos en paralelo
-  const catDataArr = await Promise.all(CATALOGS.map(async (cat) => {
-    try {
-      const raw = await getCatalog(cat.slug);
-      if (!raw.coverImg) raw.coverImg = cat.coverImgFolder + '/portada.webp';
-      if (!raw.cover) raw.cover = { t1: { es: cat.title }, t2: { es: '' }, division: { es: cat.division } };
-      if (!raw.intro) raw.intro = { p1: { es: '' }, bioTitle: { es: '' }, p2: { es: '' } };
-      if (!raw.styles) raw.styles = {};
-      return { cat, data: await preloadImages(raw) };
-    } catch (e) {
-      console.error('[catalogo-general] Preload error ' + cat.slug, e);
-      return { cat, data: null };
-    }
-  }));
+  // Paralelizar: descarga chromium + datos de todos los catalogos al mismo tiempo
+  const [{ executablePath, args, headless }, catDataArr] = await Promise.all([
+    getBrowserConfig(),
+    Promise.all(CATALOGS.map(async (cat) => {
+      try {
+        const raw = await getCatalog(cat.slug);
+        if (!raw.coverImg) raw.coverImg = cat.coverImgFolder + '/portada.webp';
+        if (!raw.cover) raw.cover = { t1: { es: cat.title }, t2: { es: '' }, division: { es: cat.division } };
+        if (!raw.intro) raw.intro = { p1: { es: '' }, bioTitle: { es: '' }, p2: { es: '' } };
+        if (!raw.styles) raw.styles = {};
+        return { cat, data: raw };
+      } catch (e) {
+        console.error('[catalogo-general] Fetch error ' + cat.slug, e);
+        return { cat, data: null };
+      }
+    }))
+  ]);
 
   // Construir body: portada general + cada catalogo (buildHTML ya trae su propio CSS inline)
   let bodyContent = generalCoverHTML(lang, theme);
+  const externalUrls = new Set(); // URLs que Puppeteer va a pedir via intercepcion
 
   for (const { cat, data } of catDataArr) {
     if (!data) continue;
     try {
       setCatFolders(cat.imgFolder, cat.coverImgFolder);
       const html = buildHTML(theme, lang, data);
-      // buildHTML devuelve HTML completo. Extraemos head (para CSS/fonts) y body.
+      // Recolectar URLs externas para pre-calentar cache de intercepcion
+      const urlMatches = html.matchAll(/https?:\/\/[^"'\s>]+\.(?:jpg|jpeg|png|webp|gif|svg)[^"'\s>]*/gi);
+      for (const [url] of urlMatches) externalUrls.add(url);
       const headMatch = html.match(/<head[^>]*>([\s\S]*)<\/head>/i);
       const bodyMatch = html.match(/<body[^>]*>([\s\S]*)<\/body>/i);
       if (headMatch) {
-        // El CSS de buildHTML incluye @page, fuentes, etc. Lo metemos inline.
         const styleMatch = headMatch[1].match(/<style[^>]*>([\s\S]*)<\/style>/i);
-        if (styleMatch) {
-          bodyContent += '<style>' + styleMatch[1] + '</style>';
-        }
+        if (styleMatch) bodyContent += '<style>' + styleMatch[1] + '</style>';
       }
-      if (bodyMatch) {
-        bodyContent += bodyMatch[1];
-      } else {
-        bodyContent += html;
-      }
+      bodyContent += bodyMatch ? bodyMatch[1] : html;
     } catch (e) {
-      console.error('[catalogo-general] Error en ' + cat.slug, e);
+      console.error('[catalogo-general] Build error ' + cat.slug, e);
     }
   }
 
@@ -160,14 +157,41 @@ async function generateCombinedPDF(lang, theme) {
 
   const doc = `<!doctype html><html lang="${lang}" dir="${isRTL ? 'rtl' : 'ltr'}"><head><meta charset="utf-8">${fontLink}<style>${wrapCSS(theme, lang)}</style></head><body>${bodyContent}</body></html>`;
 
+  // Pre-calentar cache de imagenes externas en paralelo (antes de lanzar Puppeteer)
+  const imgCache = new Map();
+  await Promise.all([...externalUrls].map(async (url) => {
+    try {
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), 10000);
+      const r = await fetch(url, { signal: ctrl.signal });
+      clearTimeout(t);
+      if (r.ok) {
+        const buf = Buffer.from(await r.arrayBuffer());
+        imgCache.set(url, { buf, ct: r.headers.get('content-type') || 'image/jpeg' });
+      }
+    } catch { /* silencioso — Puppeteer intentara cargar la URL directo si falla */ }
+  }));
+
   let browser;
   try {
     const puppeteer = (await import('puppeteer-core')).default;
     browser = await puppeteer.launch({ executablePath, args, headless });
     const page = await browser.newPage();
+
+    // Intercepcion: servir imagenes desde cache Node.js en vez de que el browser las descargue
+    await page.setRequestInterception(true);
+    page.on('request', (req) => {
+      const url = req.url();
+      const cached = imgCache.get(url);
+      if (cached) {
+        req.respond({ status: 200, contentType: cached.ct, body: cached.buf });
+      } else {
+        req.continue();
+      }
+    });
+
     await page.setViewport({ width: 1280, height: 720, deviceScaleFactor: 2 });
-    // Imagenes ya son base64 inline — no hay peticiones externas.
-    await page.setContent(doc, { waitUntil: 'domcontentloaded', timeout: 30_000 });
+    await page.setContent(doc, { waitUntil: 'networkidle0', timeout: 60_000 });
 
     // Auto-fit + injectar numero de pagina (rapido)
     await page.evaluate(() => {
