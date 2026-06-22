@@ -1399,11 +1399,13 @@ export default function BotGO({ language = 'es' }) {
         fd.append('esListaEspera', datos.esListaEspera ? '1' : '0');
         // CV como binario — evita overhead del 33% de base64
         try {
-          const bytes = Uint8Array.from(atob(cvActual.base64), c => c.charCodeAt(0));
+          // quitar prefijo data:application/pdf;base64, si existe
+          const b64 = cvActual.base64.includes(',') ? cvActual.base64.split(',')[1] : cvActual.base64;
+          const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
           const blob  = new Blob([bytes], { type: cvActual.tipo || 'application/octet-stream' });
           fd.append('cv', blob, cvActual.nombre || 'cv');
         } catch (e) {
-          console.error('❌ Error decodificando CV:', e.message);
+          console.error('Error decodificando CV:', e.message);
           fd.append('cvNombre', cvActual.nombre || '');
         }
         fetchOpts = { method: 'POST', body: fd };
