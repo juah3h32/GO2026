@@ -367,7 +367,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       <div class="cd-gen-bar-wrap">
         <div class="cd-gen-bar" id="cdGenBar"></div>
       </div>
-      <div class="cd-gen-txt" id="cdGenTxt">GENERANDO</div>
+      <div class="cd-gen-txt" id="cdGenTxt">DESCARGA EN CURSO</div>
     </div>
     <div class="cd-gen-card cd-gen-err-card" id="cdGenErrCard" style="display:none">
       <div class="cd-gen-err-icon">
@@ -1125,7 +1125,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
         if (errC) errC.style.display = 'none';
         if (prog) prog.style.display = 'flex';
         if (bar) bar.style.width = '0%';
-        if (txt) txt.textContent = 'GENERANDO...';
+        if (txt) txt.textContent = 'DESCARGA EN CURSO';
         if (mb) mb.textContent = '0%';
         if (titleEl) titleEl.textContent = (window.__cdTitle || 'Productos').toUpperCase();
 
@@ -1194,7 +1194,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
         if (elGenProgress) elGenProgress.style.display = 'flex';
         if (elGenBar) elGenBar.style.width = '0%';
         if (elGenMb) elGenMb.textContent = '0%';
-        if (elGenTxt) elGenTxt.textContent = 'GENERANDO...';
+        if (elGenTxt) elGenTxt.textContent = 'DESCARGA EN CURSO';
       }
 
       function onDlGeneral(e) {
