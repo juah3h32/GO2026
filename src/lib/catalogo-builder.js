@@ -22,6 +22,36 @@ const T = (obj, lang) => {
 
 export function setCatFolders(imgF, covF) { CURRENT_FOLDER = imgF || 'stretch'; COVER_FOLDER = covF || 'catalogos'; }
 
+// Descarga una URL externa y la convierte a data-URI. Fallback: URL original.
+async function urlToBase64(url) {
+  if (!url || !/^https?:\/\//.test(url)) return url;
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 9000);
+    const res = await fetch(url, { signal: ctrl.signal });
+    clearTimeout(t);
+    if (!res.ok) return url;
+    const buf = await res.arrayBuffer();
+    const mime = res.headers.get('content-type') || 'image/jpeg';
+    return `data:${mime};base64,${Buffer.from(buf).toString('base64')}`;
+  } catch { return url; }
+}
+
+// Precarga todas las imagenes externas (Cloudinary) del data a base64
+// para que Puppeteer no tenga que hacer ninguna peticion de red durante el render.
+export async function preloadImages(data) {
+  const out = { ...data };
+  if (out.coverImg && /^https?:\/\//.test(out.coverImg)) {
+    out.coverImg = await urlToBase64(out.coverImg);
+  }
+  if (Array.isArray(out.fichas) && out.fichas.length) {
+    const urls = out.fichas.map(f => (f.img && /^https?:\/\//.test(f.img)) ? f.img : null);
+    const b64s = await Promise.all(urls.map(u => u ? urlToBase64(u) : Promise.resolve(null)));
+    out.fichas = out.fichas.map((f, i) => b64s[i] ? { ...f, img: b64s[i] } : f);
+  }
+  return out;
+}
+
 function asset(relPath, mime) {
   try {
     const abs = join(process.cwd(), 'public', relPath);
@@ -31,7 +61,8 @@ function asset(relPath, mime) {
 }
 function img(name) {
   if (!name) return '';
-  if (/^https?:\/\//.test(name)) return name;
+  if (/^data:/.test(name)) return name; // ya es base64 (preloaded)
+  if (/^https?:\/\//.test(name)) return name; // fallback URL si no se pudo precargar
   if (name.startsWith('/')) return asset(name.replace(/^\//, ''), 'image/png');
   const folder = name.includes('portada') ? COVER_FOLDER : CURRENT_FOLDER;
   return asset(`images/${folder}/${name}`, 'image/png');

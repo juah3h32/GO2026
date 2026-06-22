@@ -8,7 +8,7 @@ import { existsSync } from 'fs';
 import { getCatalog } from '../../lib/catalog-store.js';
 import { getCatalogMeta } from '../../lib/catalogs.js';
 import { verifyAdminToken } from '../../lib/verifyAdminToken.ts';
-import { buildHTML, setCatFolders } from '../../lib/catalogo-builder.js';
+import { buildHTML, setCatFolders, preloadImages } from '../../lib/catalogo-builder.js';
 
 // ── Chromium (igual que send-now.js) ──────────────────────────────────────────
 const LOCAL_CHROME = [
@@ -47,11 +47,8 @@ async function generatePDF(html) {
     browser = await puppeteer.launch({ executablePath, args, headless });
     const page = await browser.newPage();
     await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 2 });
-    await page.setContent(html, { waitUntil: 'load', timeout: 45_000 });
-    await page.evaluate(() =>
-      Promise.all(Array.from(document.images).filter(i => !i.complete)
-        .map(i => new Promise(r => { i.onload = i.onerror = r; })))
-    );
+    // Imagenes ya son base64 inline — no hay peticiones externas, domcontentloaded es suficiente.
+    await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 30_000 });
     try { await page.evaluateHandle('document.fonts.ready'); } catch (e) {}
     await page.evaluate(() => {
       const PAGE_H = 720, PAD_TOP = 90, PAD_BOTTOM = 40, INNER_W = 1120;
@@ -133,7 +130,8 @@ export async function GET({ url }) {
     const meta = getCatalogMeta(slug);
     setCatFolders(meta.imgFolder, meta.coverImgFolder);
 
-    const data = await getCatalog(slug);
+    const rawData = await getCatalog(slug);
+    const data = await preloadImages(rawData);
     const html = buildHTML(theme, lang, data);
     if (url.searchParams.get('debug') === 'html') return new Response(html, { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
     const pdf = await generatePDF(html);
@@ -167,11 +165,12 @@ export async function POST({ request }) {
     const theme = body.theme || 'dark';
     const lang = body.lang || 'es';
     const slug = body.slug || 'digital-stretch-film';
-    const data = body.data || await getCatalog(slug);
+    const rawData = body.data || await getCatalog(slug);
 
     const meta = getCatalogMeta(slug);
     setCatFolders(meta.imgFolder, meta.coverImgFolder);
 
+    const data = await preloadImages(rawData);
     const html = buildHTML(theme, lang, data);
     if ((body.format || 'html') === 'html') {
       return new Response(html, { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' } });

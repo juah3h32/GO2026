@@ -6,7 +6,7 @@ export const config = { maxDuration: 120 };
 import { existsSync } from 'fs';
 import { translations } from '../../i18n';
 import { CATALOGS } from '../../lib/catalogs.js';
-import { buildHTML, setCatFolders } from '../../lib/catalogo-builder.js';
+import { buildHTML, setCatFolders, preloadImages } from '../../lib/catalogo-builder.js';
 import { getCatalog } from '../../lib/catalog-store.js';
 
 // ── CSS compartido (sin @page que ya viene en cada buildHTML) ────────
@@ -112,18 +112,28 @@ async function generateCombinedPDF(lang, theme) {
     ? '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&display=swap" rel="stylesheet">'
     : '';
 
+  // Precargar datos e imagenes de todos los catalogos en paralelo
+  const catDataArr = await Promise.all(CATALOGS.map(async (cat) => {
+    try {
+      const raw = await getCatalog(cat.slug);
+      if (!raw.coverImg) raw.coverImg = cat.coverImgFolder + '/portada.webp';
+      if (!raw.cover) raw.cover = { t1: { es: cat.title }, t2: { es: '' }, division: { es: cat.division } };
+      if (!raw.intro) raw.intro = { p1: { es: '' }, bioTitle: { es: '' }, p2: { es: '' } };
+      if (!raw.styles) raw.styles = {};
+      return { cat, data: await preloadImages(raw) };
+    } catch (e) {
+      console.error('[catalogo-general] Preload error ' + cat.slug, e);
+      return { cat, data: null };
+    }
+  }));
+
   // Construir body: portada general + cada catalogo (buildHTML ya trae su propio CSS inline)
   let bodyContent = generalCoverHTML(lang, theme);
 
-  for (const cat of CATALOGS) {
+  for (const { cat, data } of catDataArr) {
+    if (!data) continue;
     try {
       setCatFolders(cat.imgFolder, cat.coverImgFolder);
-      // Lee datos VIVOS de Turso (igual que el PDF individual)
-      const data = await getCatalog(cat.slug);
-      if (!data.coverImg) data.coverImg = cat.coverImgFolder + '/portada.webp';
-      if (!data.cover) data.cover = { t1: { es: cat.title }, t2: { es: '' }, division: { es: cat.division } };
-      if (!data.intro) data.intro = { p1: { es: '' }, bioTitle: { es: '' }, p2: { es: '' } };
-      if (!data.styles) data.styles = {};
       const html = buildHTML(theme, lang, data);
       // buildHTML devuelve HTML completo. Extraemos head (para CSS/fonts) y body.
       const headMatch = html.match(/<head[^>]*>([\s\S]*)<\/head>/i);
@@ -156,11 +166,8 @@ async function generateCombinedPDF(lang, theme) {
     browser = await puppeteer.launch({ executablePath, args, headless });
     const page = await browser.newPage();
     await page.setViewport({ width: 1280, height: 720, deviceScaleFactor: 2 });
-    await page.setContent(doc, { waitUntil: 'load', timeout: 45_000 });
-    await page.evaluate(() =>
-      Promise.all(Array.from(document.images).filter(i => !i.complete)
-        .map(i => new Promise(r => { i.onload = i.onerror = r; })))
-    );
+    // Imagenes ya son base64 inline — no hay peticiones externas.
+    await page.setContent(doc, { waitUntil: 'domcontentloaded', timeout: 30_000 });
 
     // Auto-fit + injectar numero de pagina (rapido)
     await page.evaluate(() => {
