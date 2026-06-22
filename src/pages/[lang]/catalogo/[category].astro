@@ -1083,17 +1083,17 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
         if (elGenOv) { elGenOv.style.display = 'flex'; }
         if (elGenTxt) { elGenTxt.textContent = 'DESCARGANDO...'; }
 
-        // Fase 1: fake progress 0→88% en ~50s (match con tiempo real)
+        // Fase 1: fake progress 0→88% en ~25s (match con nuevo render unificado)
         var fakePct = 0;
         var fakeTimer = setInterval(function () {
-          var step = fakePct < 50 ? (Math.random() * 2.2 + 1.2)
-                   : fakePct < 75 ? (Math.random() * 1.0 + 0.4)
-                   : (Math.random() * 0.3 + 0.08);
+          var step = fakePct < 60 ? (Math.random() * 1.8 + 2.5)
+                   : fakePct < 85 ? (Math.random() * 1.0 + 0.8)
+                   : (Math.random() * 0.25 + 0.12);
           fakePct = Math.min(fakePct + step, 88);
           if (elGenBar) { elGenBar.style.width = Math.round(fakePct) + '%'; }
           if (elGenMb) { elGenMb.textContent = Math.round(fakePct) + '%'; }
           if (fakePct >= 88) clearInterval(fakeTimer);
-        }, 500);
+        }, 350);
         if (elGenTxt) { elGenTxt.textContent = 'GENERANDO...'; }
 
         fetch(url, { cache: 'no-store' })
