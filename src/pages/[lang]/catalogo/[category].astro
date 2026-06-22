@@ -328,7 +328,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
     <!-- Navegación entre catálogos (admin) -->
     <div id="cdCatNav"></div>
 
-    <!-- Navegación mobile entre divisiones -->
+    <!-- Navegación mobile (fixed bottom) -->
     {(() => {
       const cats = listCatalogsMeta();
       const catIdx = cats.findIndex(c => c.slug === slug);
@@ -817,6 +817,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       .cd-hero-actions { flex-wrap: nowrap; gap: 3px; justify-content: center; }
       .cd-dl, .cd-btn-hero { padding: 8px 8px; font-size: 9px; gap: 3px; white-space: nowrap; border-radius: 999px; }
       .cd-dl svg, .cd-btn-hero svg { width: 11px; height: 11px; flex-shrink: 0; }
+      .cd-how-fab { display: none; } /* oculto, nav fixed ocupa ese espacio */
     }
 
     /* ── Navegacion mobile entre divisiones ── */
@@ -839,8 +840,11 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
     @media (max-width: 900px) {
       .cd-mob-nav {
         display: flex; align-items: center; justify-content: center;
-        gap: 16px; padding: 16px 16px 24px;
+        gap: 14px; padding: 8px 16px max(14px, env(safe-area-inset-bottom));
+        position: fixed; bottom: 0; left: 0; right: 0; z-index: 9000;
+        background: linear-gradient(transparent, var(--bg) 30%);
       }
+      .cd { padding-bottom: 60px; } /* espacio para nav fixed */
     }
 
     /* ── Modo PDF: cada slide una pagina, todo visible, sin deck ── */
