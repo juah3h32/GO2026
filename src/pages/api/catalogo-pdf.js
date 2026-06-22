@@ -47,8 +47,13 @@ async function generatePDF(html) {
     browser = await puppeteer.launch({ executablePath, args, headless });
     const page = await browser.newPage();
     await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1.5 });
-    // Imagenes ya son base64 inline — no hay peticiones externas, domcontentloaded es suficiente.
-    await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 45_000 });
+    await page.setContent(html, { waitUntil: 'networkidle0', timeout: 45_000 });
+    // Esperar que todas las imagenes base64 esten decodificadas antes de renderizar
+    await page.evaluate(() => Promise.all(
+      Array.from(document.images).filter(img => !img.complete).map(img =>
+        new Promise(resolve => { img.onload = img.onerror = resolve; })
+      )
+    ));
     try { await page.evaluateHandle('document.fonts.ready'); } catch (e) {}
     await page.evaluate(() => {
       const PAGE_H = 720, PAD_TOP = 90, PAD_BOTTOM = 40, INNER_W = 1120;
@@ -68,7 +73,7 @@ async function generatePDF(html) {
         fit.style.transform = `scale(${s})`;
       });
     });
-    const pdf = await page.pdf({ preferCSSPageSize: true, printBackground: true, margin: { top: 0, right: 0, bottom: 0, left: 0 } });
+    const pdf = await page.pdf({ width: '1280px', height: '720px', printBackground: true, margin: { top: 0, right: 0, bottom: 0, left: 0 } });
     return Buffer.from(pdf);
   } finally {
     await browser?.close();

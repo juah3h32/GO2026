@@ -15,14 +15,17 @@ const LOCAL_CHROME_PATHS = [
   'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
 ];
 
+const CHROMIUM_PACK_URL = process.env.CHROMIUM_PACK_URL
+  || 'https://github.com/Sparticuz/chromium/releases/download/v131.0.1/chromium-v131.0.1-pack.tar';
+
 async function getBrowserConfig(): Promise<{ executablePath: string; args: string[] }> {
   const isServerless = !!(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
 
   if (isServerless) {
-    // chromium no disponible en este entorno
+    const chromium = (await import('@sparticuz/chromium-min')).default;
     return {
-      executablePath: await chromium.default.executablePath(),
-      args: [...chromium.default.args, '--no-sandbox'],
+      executablePath: await chromium.executablePath(CHROMIUM_PACK_URL),
+      args: [...chromium.args, '--no-sandbox', '--disable-setuid-sandbox'],
     };
   }
 

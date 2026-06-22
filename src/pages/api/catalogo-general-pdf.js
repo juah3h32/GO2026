@@ -3,11 +3,22 @@
 export const prerender = false;
 export const config = { maxDuration: 300 };
 
-import { existsSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
+import { join } from 'path';
 import { translations } from '../../i18n';
 import { CATALOGS } from '../../lib/catalogs.js';
 import { buildHTML, setCatFolders, preloadImages } from '../../lib/catalogo-builder.js';
 import { getCatalog } from '../../lib/catalog-store.js';
+
+// ── Morganite font para portada del catalogo general ──
+function getMorganiteFontFace() {
+  try {
+    const abs = join(process.cwd(), 'public', 'fonts', 'Morganite-ExtraBold.ttf');
+    if (!existsSync(abs)) return '';
+    const b64 = readFileSync(abs).toString('base64');
+    return `@font-face{font-family:'Morganite';src:url('data:font/ttf;base64,${b64}') format('truetype');font-weight:800;font-style:normal;}`;
+  } catch { return ''; }
+}
 
 // ── CSS compartido (sin @page que ya viene en cada buildHTML) ────────
 function wrapCSS(theme, lang) {
@@ -106,7 +117,13 @@ async function renderPageHTML(browser, html, viewport = { width: 1280, height: 7
   const page = await browser.newPage();
   try {
     await page.setViewport({ ...viewport, deviceScaleFactor: 1.0 });
-    await page.setContent(html, { waitUntil: 'load', timeout: 20_000 });
+    await page.setContent(html, { waitUntil: 'networkidle0', timeout: 30_000 });
+    // Esperar que todas las imagenes (incluyendo data-URLs) esten decodificadas
+    await page.evaluate(() => Promise.all(
+      Array.from(document.images).filter(img => !img.complete).map(img =>
+        new Promise(resolve => { img.onload = img.onerror = resolve; })
+      )
+    ));
     try { await page.evaluateHandle('document.fonts.ready'); } catch (e) {}
 
     // Auto-fit para productos que no caben en 720px
@@ -129,7 +146,7 @@ async function renderPageHTML(browser, html, viewport = { width: 1280, height: 7
       });
     });
 
-    return await page.pdf({ preferCSSPageSize: true, printBackground: true, margin: { top: 0, right: 0, bottom: 0, left: 0 } });
+    return await page.pdf({ width: '1280px', height: '720px', printBackground: true, margin: { top: 0, right: 0, bottom: 0, left: 0 } });
   } finally {
     await page.close();
   }
@@ -162,7 +179,8 @@ async function generateCombinedPDF(lang, theme) {
         if (!raw.intro) raw.intro = { p1: { es: '' }, bioTitle: { es: '' }, p2: { es: '' } };
         if (!raw.styles) raw.styles = {};
         setCatFolders(cat.imgFolder, cat.coverImgFolder);
-        const html = buildHTML(theme, lang, raw); // sin preloadImages — buildHTML ya embebe locales
+        const data = await preloadImages(raw);
+        const html = buildHTML(theme, lang, data);
         return { slug: cat.slug, html: wrapDivisionHTML(html, lang, isRTL, fontLink) };
       } catch (e) {
         console.error('[catalogo-general] Build error ' + cat.slug, e);
@@ -178,7 +196,8 @@ async function generateCombinedPDF(lang, theme) {
   const pdfBuffers = [];
   try {
     // Portada general (sin imagenes externas — render inmediato)
-    const coverCSS = `<style>${wrapCSS(theme, lang)}</style>`;
+    const coverFont = getMorganiteFontFace();
+    const coverCSS = `<style>${coverFont}${wrapCSS(theme, lang)}</style>`;
     const coverDoc = `<!doctype html><html lang="${lang}" dir="${isRTL ? 'rtl' : 'ltr'}"><head><meta charset="utf-8">${fontLink}${coverCSS}</head><body>${generalCoverHTML(lang, theme)}</body></html>`;
 
     const allJobs = [{ slug: 'portada', html: coverDoc }, ...catJobs.filter(Boolean)];
