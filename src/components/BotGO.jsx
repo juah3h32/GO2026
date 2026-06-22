@@ -1698,7 +1698,7 @@ export default function BotGO({ language = 'es' }) {
         setCvPendiente(cvData);
       }
       setMostrarSubirCV(false);
-      await sendMessage(null, t?.cvConfirmMsg || '📎 CV adjuntado correctamente.', false, cvData);
+      await sendMessage(null, t?.cvConfirmMsg || 'CV adjuntado correctamente.', false, cvData);
     } catch (err) {
       console.error('❌ CV upload error:', err);
       setMicToast('Ocurrió un error al procesar el archivo. Intenta de nuevo.');
@@ -1810,7 +1810,7 @@ export default function BotGO({ language = 'es' }) {
     const waLink = `https://wa.me/524432072593?text=${encodeURIComponent(waText + ' ' + (topic || 'sus productos'))}`;
     setMessages(prev => [...prev, {
       role: 'assistant',
-      content: t.salesMsg || '¡Con gusto! Escríbenos al WhatsApp para una cotización exacta según tu volumen 😊',
+      content: t.salesMsg || 'Con gusto. Escribenos al WhatsApp para una cotizacion exacta segun tu volumen.',
       waLink,
       pdfData: null, distLink: null, isDuplicate: false,
       showCVUpload: false, quickReplies: null, quickRepliesUsed: false,

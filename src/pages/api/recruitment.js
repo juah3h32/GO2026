@@ -402,11 +402,11 @@ export async function GET() {
 const VALID_STATUSES = ['nuevo', 'visto', 'contactado', 'descartado', 'contratado'];
 
 const STATUS_LABELS = {
-  nuevo:      '🆕 Nuevo',
-  visto:      '👀 Visto',
-  contactado: '📞 Contactado',
-  descartado: '❌ Descartado',
-  contratado: '✅ Contratado',
+  nuevo:      'Nuevo',
+  visto:      'Visto',
+  contactado: 'Contactado',
+  descartado: 'Descartado',
+  contratado: 'Contratado',
 };
 
 function formatFecha(ts) {

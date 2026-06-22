@@ -758,7 +758,7 @@ export async function sendWAPDF(phone, pdfBuffer, filename) {
   const resTxt = await fetch(`${url}/api/connections/${connectionId}/send`, {
     method:  'POST',
     headers: { 'Content-Type': 'application/json', 'User-Agent': BROWSER_UA, 'Authorization': `Bearer ${token}` },
-    body:    JSON.stringify({ chatId, text: `📎 Perfil PDF disponible: ${filename}` }),
+    body:    JSON.stringify({ chatId, text: `Perfil PDF disponible: ${filename}` }),
   });
   if (!resTxt.ok) {
     const body = await resTxt.text();
@@ -943,16 +943,16 @@ export async function notifyCategoriaRH(c) {
     const tipo   = esEspera ? 'registro en *LISTA DE ESPERA*' : 'registro de candidato';
     const tieneCV = !!(c.cvNombre || c.cv_nombre || c.cvBase64 || c.cv_base64);
     return `${saludo} un nuevo ${tipo}, te comparto los datos:\n\n` +
-      (esEspera ? `⚠️ *LISTA DE ESPERA* — se le avisará cuando se abra la vacante.\n\n` : '') +
-      `👤 Nombre: *${c.nombre || '—'}*\n` +
-      `💼 Puesto: ${c.puesto || '—'}\n` +
-      (c.edad ? `🎂 Edad: ${c.edad}\n` : '') +
-      ((c.estado_rep || c.estado) ? `📍 Estado: ${c.estado_rep || c.estado}${c.colonia ? ' / ' + c.colonia : ''}\n` : '') +
-      (c.telefono || c.whatsapp ? `📱 Teléfono: ${c.telefono || c.whatsapp}\n` : '') +
-      (c.email ? `📧 Email: ${c.email}\n` : '') +
-      (tieneCV ? `📎 CV: *adjunto en el panel de reclutamiento*\n` : '') +
-      (c.sessionId ? `🆔 Folio: ${String(c.sessionId).slice(0, 12)}\n` : '') +
-      `\n🔗 Gestiona desde: Panel → Reclutamiento`;
+      (esEspera ? `*LISTA DE ESPERA* — se le avisara cuando se abra la vacante.\n\n` : '') +
+      `Nombre: *${c.nombre || '—'}*\n` +
+      `Puesto: ${c.puesto || '—'}\n` +
+      (c.edad ? `Edad: ${c.edad}\n` : '') +
+      ((c.estado_rep || c.estado) ? `Estado: ${c.estado_rep || c.estado}${c.colonia ? ' / ' + c.colonia : ''}\n` : '') +
+      (c.telefono || c.whatsapp ? `Telefono: ${c.telefono || c.whatsapp}\n` : '') +
+      (c.email ? `Email: ${c.email}\n` : '') +
+      (tieneCV ? `CV: adjunto en el panel de reclutamiento\n` : '') +
+      (c.sessionId ? `Folio: ${String(c.sessionId).slice(0, 12)}\n` : '') +
+      `\nGestiona desde: Panel > Reclutamiento`;
   });
 }
 
@@ -979,10 +979,10 @@ export async function notifyCategoriaClientes(l) {
 export async function notifyEnglishLead({ nombre, telefono, email, interes, mensaje }) {
   const phone = (import.meta.env.ENGLISH_LEAD_PHONE || '+12104293789').replace(/[\s\-]/g, '');
   const lines = [
-    `🇺🇸 *New English Contact — Grupo Ortiz*`,
-    nombre   ? `👤 Name: ${nombre}`                          : null,
-    telefono ? `📱 Phone: ${telefono}`                       : null,
-    email    ? `📧 Email: ${email}`                          : null,
+    `*New English Contact — Grupo Ortiz*`,
+    nombre   ? `Name: ${nombre}`                          : null,
+    telefono ? `Phone: ${telefono}`                       : null,
+    email    ? `Email: ${email}`                          : null,
     interes  ? `🎯 Interested in: ${interes}`                : null,
     mensaje  ? `💬 Message: ${String(mensaje).slice(0, 300)}` : null,
   ].filter(Boolean).join('\n');
@@ -1000,13 +1000,13 @@ export async function notifyCandidateEspera({ nombre, puesto, telefono }) {
   const phone = (telefono || '').replace(/\D/g, '');
   if (!phone || phone.length < 8) return { ok: false, error: 'Sin teléfono válido' };
   const mensaje =
-    `¡Hola ${nombre || 'candidato'}! 👋\n\n` +
+    `Hola ${nombre || 'candidato'},\n\n` +
     `Recibimos tu solicitud para *${puesto || 'la vacante'}* y la enviamos al departamento de *Recursos Humanos* de Grupo Ortiz.\n\n` +
-    `📋 *¿Qué sigue?*\n` +
-    `• Tu perfil queda en nuestra *lista de espera* prioritaria.\n` +
-    `• En cuanto se abra una vacante que coincida con tu perfil, *te contactaremos* directamente por este medio.\n\n` +
-    `Si tienes dudas, responde a este mensaje y con gusto te ayudamos. 😊\n\n` +
-    `_Este mensaje fue enviado automáticamente por el sistema de Reclutamiento de Grupo Ortiz._`;
+    `*Que sigue?*\n` +
+    `- Tu perfil queda en nuestra *lista de espera* prioritaria.\n` +
+    `- En cuanto se abra una vacante que coincida con tu perfil, *te contactaremos* directamente por este medio.\n\n` +
+    `Si tienes dudas, responde a este mensaje y con gusto te ayudamos.\n\n` +
+    `_Este mensaje fue enviado automaticamente por el sistema de Reclutamiento de Grupo Ortiz._`;
   try {
     await sendWAText(phone, mensaje);
     return { ok: true, phone };
@@ -1030,7 +1030,7 @@ export async function notifyEsperaVacante({ candidatos, vacante, urlVacantes = '
     const empresa  = vacante.empresa || 'Grupo Ortiz';
     const linkLine = urlVacantes ? `\n\nConsulta la vacante aquí: ${urlVacantes}` : '';
     const mensaje  =
-      `¡Hola ${nombre}! 🎉\n\n` +
+      `Hola ${nombre},\n\n` +
       `*${empresa}* acaba de publicar la vacante de *${puesto}* por la que dejaste tus datos en nuestra lista de espera.\n\n` +
       `¿Sigues en búsqueda de empleo? Entra a nuestro chat para postularte de manera rápida.${linkLine}\n\n` +
       `_Este mensaje fue enviado automáticamente por el sistema de reclutamiento de ${empresa}._`;
