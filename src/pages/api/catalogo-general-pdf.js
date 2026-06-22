@@ -185,10 +185,14 @@ ${fontLink}
     // domcontentloaded + image wait: mas rapido que 'load' (no espera iframes/frames)
     await page.setContent(combinedHTML, { waitUntil: 'domcontentloaded', timeout: 90_000 });
 
-    // Esperar decodificacion de todas las imagenes Cloudinary
+    // Esperar decodificacion de todas las imagenes Cloudinary (max 15s por img)
     await page.evaluate(() => Promise.all(
       Array.from(document.images).filter(img => !img.complete).map(img =>
-        new Promise(resolve => { img.onload = img.onerror = resolve; })
+        new Promise(resolve => {
+          const t = setTimeout(resolve, 15_000);
+          const done = () => { clearTimeout(t); resolve(); };
+          img.onload = done; img.onerror = done;
+        })
       )
     ));
 
