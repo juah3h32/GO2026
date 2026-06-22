@@ -157,7 +157,8 @@ function wrapDivisionHTML(catHTML, lang, isRTL, fontLink) {
   const styleMatch = catHTML.match(/<style[^>]*>([\s\S]*)<\/style>/i);
   const css = styleMatch ? styleMatch[1].replace(/@page\s*\{[^}]*\}/g, '') : '';
   const body = bodyMatch ? bodyMatch[1] : catHTML;
-  return `<!doctype html><html lang="${lang}" dir="${isRTL ? 'rtl' : 'ltr'}"><head><meta charset="utf-8">${fontLink}<style>${css} .pg.cover::after,.pg.cover.manyprods::after{content:none!important} .pg:last-child{page-break-after:auto}</style></head><body>${body}</body></html>`;
+  const preconnect = '<link rel="preconnect" href="https://res.cloudinary.com" crossorigin>';
+  return `<!doctype html><html lang="${lang}" dir="${isRTL ? 'rtl' : 'ltr'}"><head><meta charset="utf-8">${preconnect}${fontLink}<style>${css} .pg.cover::after,.pg.cover.manyprods::after{content:none!important} .pg:last-child{page-break-after:auto}</style></head><body>${body}</body></html>`;
 }
 
 async function generateCombinedPDF(lang, theme) {

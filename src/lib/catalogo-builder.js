@@ -22,13 +22,41 @@ const T = (obj, lang) => {
 
 export function setCatFolders(imgF, covF) { CURRENT_FOLDER = imgF || 'stretch'; COVER_FOLDER = covF || 'catalogos'; }
 
-// Descarga una URL externa y la convierte a data-URI. Fallback: URL original.
-async function urlToBase64(url) {
+// ── Optimizacion Cloudinary ──────────────────────────────────────────
+// Reduce el peso de las imagenes 70-80% sin perdida visible en PDF (1280x720).
+// f_auto = mejor formato (webp/avif), w_N = ancho maximo, q_auto:eco = calidad optima.
+function optimizeCloudinaryURL(url, maxWidth = 800) {
+  if (!url || typeof url !== 'string') return url;
+  if (!/res\.cloudinary\.com/.test(url)) return url;
+  // Inserta transform params entre /upload/ y el resto
+  return url.replace(
+    /^(https:\/\/res\.cloudinary\.com\/[^/]+\/image\/upload)\/(v\d+\/)?(.+)$/,
+    `$1/f_auto,w_${maxWidth},q_auto:eco/$2$3`
+  );
+}
+
+// ── Concurrency limiter ──────────────────────────────────────────────
+async function batchPromises(tasks, limit = 6) {
+  const results = new Array(tasks.length);
+  let idx = 0;
+  async function worker() {
+    while (idx < tasks.length) {
+      const i = idx++;
+      try { results[i] = await tasks[i](); } catch (e) { results[i] = null; }
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(limit, tasks.length) }, () => worker()));
+  return results;
+}
+
+// Descarga una URL externa optimizada y la convierte a data-URI. Fallback: URL original.
+async function urlToBase64(url, maxWidth = 600) {
   if (!url || !/^https?:\/\//.test(url)) return url;
+  const optUrl = optimizeCloudinaryURL(url, maxWidth);
   try {
     const ctrl = new AbortController();
-    const t = setTimeout(() => ctrl.abort(), 9000);
-    const res = await fetch(url, { signal: ctrl.signal });
+    const t = setTimeout(() => ctrl.abort(), 8000);
+    const res = await fetch(optUrl, { signal: ctrl.signal });
     clearTimeout(t);
     if (!res.ok) return url;
     const buf = await res.arrayBuffer();
@@ -38,16 +66,18 @@ async function urlToBase64(url) {
 }
 
 // Precarga todas las imagenes externas (Cloudinary) del data a base64
-// para que Puppeteer no tenga que hacer ninguna peticion de red durante el render.
+// con concurrencia limitada y URLs optimizadas. Para Puppeteer sin peticiones de red.
 export async function preloadImages(data) {
   const out = { ...data };
   if (out.coverImg && /^https?:\/\//.test(out.coverImg)) {
-    out.coverImg = await urlToBase64(out.coverImg);
+    out.coverImg = await urlToBase64(out.coverImg, 900); // portada: mas ancho
   }
   if (Array.isArray(out.fichas) && out.fichas.length) {
-    const urls = out.fichas.map(f => (f.img && /^https?:\/\//.test(f.img)) ? f.img : null);
-    const b64s = await Promise.all(urls.map(u => u ? urlToBase64(u) : Promise.resolve(null)));
-    out.fichas = out.fichas.map((f, i) => b64s[i] ? { ...f, img: b64s[i] } : f);
+    const tasks = out.fichas.map((f, i) => {
+      const url = (f.img && /^https?:\/\//.test(f.img)) ? f.img : null;
+      return url ? () => urlToBase64(url, 600).then(b64 => { out.fichas[i] = { ...f, img: b64 }; }) : () => Promise.resolve();
+    });
+    await batchPromises(tasks, 6);
   }
   return out;
 }
@@ -62,7 +92,7 @@ function asset(relPath, mime) {
 function img(name) {
   if (!name) return '';
   if (/^data:/.test(name)) return name; // ya es base64 (preloaded)
-  if (/^https?:\/\//.test(name)) return name; // fallback URL si no se pudo precargar
+  if (/^https?:\/\//.test(name)) return optimizeCloudinaryURL(name, 600); // URL externa → optimizada para Puppeteer
   if (name.startsWith('/')) return asset(name.replace(/^\//, ''), 'image/png');
   const folder = name.includes('portada') ? COVER_FOLDER : CURRENT_FOLDER;
   return asset(`images/${folder}/${name}`, 'image/png');
