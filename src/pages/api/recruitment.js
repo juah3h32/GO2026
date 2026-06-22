@@ -141,7 +141,7 @@ export async function POST({ request }) {
     const body       = await request.json();
     const { action } = body;
 
-    const ADMIN_ACTIONS = ['list', 'listPending', 'updateStatus', 'updateLead', 'delete', 'reset', 'addNote', 'getNotes', 'deleteNote', 'notificar-espera'];
+    const ADMIN_ACTIONS = ['list', 'listPending', 'updateStatus', 'updateLead', 'delete', 'reset', 'addNote', 'getNotes', 'deleteNote', 'notificar-espera', 'resend'];
     if (ADMIN_ACTIONS.includes(action)) {
       const adminRole = await verifyAdminToken(request);
       if (!adminRole) return json({ ok: false, error: 'No autorizado' }, 401);
@@ -310,6 +310,32 @@ export async function POST({ request }) {
     if (action === 'list-vacantes') {
       const vacantes = await readVacantes(true); // solo activas
       return json({ ok: true, vacantes });
+    }
+
+    // ── resend: reenviar notificación de candidato a todos los números autorizados ──
+    if (action === 'resend') {
+      const { id } = body;
+      if (!id) return json({ ok: false, error: 'ID de candidato requerido' }, 400);
+
+      const candidates = await readRecruitmentLeads();
+      const candidate = candidates.find(c => c.id === Number(id));
+      if (!candidate) return json({ ok: false, error: 'Candidato no encontrado' }, 404);
+
+      const { notifyNewVacante } = await import('../../lib/notify.js');
+      const result = await notifyNewVacante({
+        nombre: candidate.nombre,
+        puesto: candidate.puesto,
+        edad: candidate.edad,
+        estado_rep: candidate.estado_rep,
+        colonia: candidate.colonia,
+        telefono: candidate.telefono,
+        email: candidate.email,
+        cvNombre: candidate.cv_nombre,
+        cvBase64: candidate.cv_base64,
+        cvTipo: candidate.cv_tipo,
+        mensaje: candidate.mensaje || candidate.comentarios,
+      });
+      return json({ ok: true, sent: result.sent, results: result.results });
     }
 
     return json({ ok: false, error: 'Acción desconocida.' }, 400);

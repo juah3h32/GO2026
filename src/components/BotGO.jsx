@@ -1402,7 +1402,10 @@ export default function BotGO({ language = 'es' }) {
           const bytes = Uint8Array.from(atob(cvActual.base64), c => c.charCodeAt(0));
           const blob  = new Blob([bytes], { type: cvActual.tipo || 'application/octet-stream' });
           fd.append('cv', blob, cvActual.nombre || 'cv');
-        } catch { fd.append('cvNombre', cvActual.nombre || ''); }
+        } catch (e) {
+          console.error('❌ Error decodificando CV:', e.message);
+          fd.append('cvNombre', cvActual.nombre || '');
+        }
         fetchOpts = { method: 'POST', body: fd };
       } else {
         fetchOpts = {
@@ -1430,8 +1433,9 @@ export default function BotGO({ language = 'es' }) {
       const res    = await fetch('/api/recruitment', fetchOpts);
       const result = await res.json();
       setCandidatoRegistrado({ ...datos, id: result.id || null });
-    } catch {
-      setCandidatoRegistrado({ ...datos, id: null });
+    } catch (e) {
+      console.error('❌ Error guardando candidato:', e.message);
+      setCandidatoRegistrado({ ...datos, id: null, error: e.message });
     }
     setPreRegistroPendiente(null);
   // eslint-disable-next-line react-hooks/exhaustive-deps

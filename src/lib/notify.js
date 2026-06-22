@@ -906,16 +906,18 @@ export async function notifyCategoriaRH(c) {
   return notifyCategoria('rh', (nombre) => {
     const saludo = nombre ? `*${nombre}*, hay` : 'Hay';
     const tipo   = esEspera ? 'registro en *LISTA DE ESPERA*' : 'registro de candidato';
-    return `${saludo} un nuevo ${tipo}, te lo comparto:\n\n` +
-      (esEspera ? `*EN LISTA DE ESPERA* — se le avisará cuando se abra la vacante.\n\n` : '') +
-      `- Nombre: *${c.nombre || '—'}*\n` +
-      `- Puesto: ${c.puesto || '—'}\n` +
-      (c.edad ? `- Edad: ${c.edad}\n` : '') +
-      ((c.estado_rep || c.estado) ? `- Estado: ${c.estado_rep || c.estado}${c.colonia ? ' / ' + c.colonia : ''}\n` : '') +
-      (c.telefono || c.whatsapp ? `- Teléfono: ${c.telefono || c.whatsapp}\n` : '') +
-      (c.email ? `- Email: ${c.email}\n` : '') +
-      ((c.cvNombre || c.cv_nombre) ? `- CV: adjunto en el panel\n` : '') +
-      `\nPuedes gestionarlo desde el panel de Reclutamiento.`;
+    const tieneCV = !!(c.cvNombre || c.cv_nombre || c.cvBase64 || c.cv_base64);
+    return `${saludo} un nuevo ${tipo}, te comparto los datos:\n\n` +
+      (esEspera ? `⚠️ *LISTA DE ESPERA* — se le avisará cuando se abra la vacante.\n\n` : '') +
+      `👤 Nombre: *${c.nombre || '—'}*\n` +
+      `💼 Puesto: ${c.puesto || '—'}\n` +
+      (c.edad ? `🎂 Edad: ${c.edad}\n` : '') +
+      ((c.estado_rep || c.estado) ? `📍 Estado: ${c.estado_rep || c.estado}${c.colonia ? ' / ' + c.colonia : ''}\n` : '') +
+      (c.telefono || c.whatsapp ? `📱 Teléfono: ${c.telefono || c.whatsapp}\n` : '') +
+      (c.email ? `📧 Email: ${c.email}\n` : '') +
+      (tieneCV ? `📎 CV: *adjunto en el panel de reclutamiento*\n` : '') +
+      (c.sessionId ? `🆔 Folio: ${String(c.sessionId).slice(0, 12)}\n` : '') +
+      `\n🔗 Gestiona desde: Panel → Reclutamiento`;
   });
 }
 

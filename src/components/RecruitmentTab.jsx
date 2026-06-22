@@ -462,11 +462,10 @@ function TrackingPanel({ candidateId }) {
   );
 }
 
-function CandidateCard({ candidate, onStatusChange, onDelete, onRequestDelete, expanded, onToggle, isNew, canDelete }) {
+function CandidateCard({ candidate, onStatusChange, onDelete, onRequestDelete, expanded, onToggle, isNew, canDelete, onResend }) {
   const C = useC();
   const [updating,  setUpdating]  = useState(false);
-  const [sendOpen,  setSendOpen]  = useState(false);
-  const [sendPhone, setSendPhone] = useState('');
+  const [resending, setResending] = useState(false);
   
   // PROTECCIÓN: Validamos que candidate exista antes de pasarlo a funciones de estatus
   const currentStatus = candidate ? getStatus(candidate) : 'nuevo';
@@ -485,6 +484,18 @@ function CandidateCard({ candidate, onStatusChange, onDelete, onRequestDelete, e
 const handleDelete = () => {
   if (!canDelete || !candidate) return;
   onRequestDelete({ id: candidate.id, nombre: candidate.nombre, puesto: candidate.puesto });
+};
+
+const handleResend = async () => {
+  if (!candidate?.id || resending) return;
+  setResending(true);
+  try {
+    const r = await fetch('/api/recruitment', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'resend', id: candidate.id }) });
+    const j = await r.json();
+    if (!j.ok) { alert('Error: ' + (j.error || 'No se pudo reenviar')); return; }
+    alert('Reenviado a ' + (j.sent || 0) + ' destinatario(s).');
+  } catch(e) { console.error(e); alert('Error al reenviar'); }
+  setResending(false);
 };
 
   // PROTECCIÓN: Valores por defecto para evitar errores de renderizado
@@ -584,12 +595,20 @@ const handleDelete = () => {
                 </button>
               ))}
               {canDelete && (
-                <button onClick={handleDelete}
+                <>
+                <button onClick={handleResend} disabled={resending}
                   style={{ marginLeft:'auto', display:'inline-flex', alignItems:'center', gap:5, padding:'5px 12px', borderRadius:20,
+                    fontSize:11, fontWeight:600, fontFamily:T.sans, cursor: resending?'not-allowed':'pointer',
+                    background:'transparent', border:`1.5px solid ${C.teal}35`, color:C.teal, transition:'all 0.12s ease', opacity: resending?0.6:1 }}>
+                  {resending ? '···' : Ic.send} Reenviar
+                </button>
+                <button onClick={handleDelete}
+                  style={{ display:'inline-flex', alignItems:'center', gap:5, padding:'5px 12px', borderRadius:20,
                     fontSize:11, fontWeight:600, fontFamily:T.sans, cursor:'pointer',
                     background:'transparent', border:`1.5px solid ${C.red}35`, color:C.red, transition:'all 0.12s ease' }}>
                   {Ic.trash} Eliminar
                 </button>
+                </>
               )}
             </div>
 
