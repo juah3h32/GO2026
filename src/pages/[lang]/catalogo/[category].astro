@@ -1083,12 +1083,12 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
         if (elGenOv) { elGenOv.style.display = 'flex'; }
         if (elGenTxt) { elGenTxt.textContent = 'DESCARGANDO...'; }
 
-        // Fase 1: fake progress (generacion servidor) 0→88% en ~60s
+        // Fase 1: fake progress (generacion servidor) 0→88% en ~100s
         var fakePct = 0;
         var fakeTimer = setInterval(function () {
-          var step = fakePct < 40 ? (Math.random() * 3 + 1.5)
-                   : fakePct < 70 ? (Math.random() * 1.5 + 0.5)
-                   : (Math.random() * 0.4 + 0.1);
+          var step = fakePct < 40 ? (Math.random() * 1.5 + 0.8)
+                   : fakePct < 70 ? (Math.random() * 0.7 + 0.25)
+                   : (Math.random() * 0.2 + 0.05);
           fakePct = Math.min(fakePct + step, 88);
           if (elGenBar) { elGenBar.style.width = Math.round(fakePct) + '%'; }
           if (elGenMb) { elGenMb.textContent = Math.round(fakePct) + '%'; }
@@ -1098,7 +1098,12 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
 
         fetch(url, { cache: 'no-store' })
           .then(function (r) {
-            if (!r.ok) throw new Error('Error al generar el PDF');
+            if (!r.ok) {
+              return r.json().then(function (j) { throw new Error((j && j.error) || 'Error del servidor'); }).catch(function (parseErr) {
+                if (parseErr && parseErr.message && parseErr.message !== 'Error del servidor') throw parseErr;
+                throw new Error('Error del servidor (' + r.status + ')');
+              });
+            }
             clearInterval(fakeTimer);
             if (elGenTxt) { elGenTxt.textContent = 'DESCARGANDO...'; }
             // Recolectar todos los bytes antes de animar al 100%

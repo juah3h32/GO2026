@@ -2,7 +2,7 @@
 // Genera el PDF del catalogo digital con Puppeteer.
 // HTML compartido viene de catalogo-builder.js (no importar como modulo junto con GET/POST).
 export const prerender = false;
-export const config = { maxDuration: 60 };
+export const config = { maxDuration: 90 };
 
 import { existsSync } from 'fs';
 import { getCatalog } from '../../lib/catalog-store.js';
@@ -46,9 +46,9 @@ async function generatePDF(html) {
     const puppeteer = (await import('puppeteer-core')).default;
     browser = await puppeteer.launch({ executablePath, args, headless });
     const page = await browser.newPage();
-    await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 2 });
+    await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1.5 });
     // Imagenes ya son base64 inline — no hay peticiones externas, domcontentloaded es suficiente.
-    await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 30_000 });
+    await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 45_000 });
     try { await page.evaluateHandle('document.fonts.ready'); } catch (e) {}
     await page.evaluate(() => {
       const PAGE_H = 720, PAD_TOP = 90, PAD_BOTTOM = 40, INNER_W = 1120;

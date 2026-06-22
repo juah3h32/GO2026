@@ -105,7 +105,7 @@ function generalCoverHTML(lang, theme) {
 async function renderPageHTML(browser, html, viewport = { width: 1280, height: 720 }) {
   const page = await browser.newPage();
   try {
-    await page.setViewport({ ...viewport, deviceScaleFactor: 2 });
+    await page.setViewport({ ...viewport, deviceScaleFactor: 1.5 });
     await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 30_000 });
     try { await page.evaluateHandle('document.fonts.ready'); } catch (e) {}
 
