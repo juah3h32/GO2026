@@ -20,10 +20,10 @@ function wrapCSS(theme, lang) {
   const ORANGE = '#fb670b';
   return `
     .pg.gc { display: flex; align-items: center; justify-content: center; background: ${BG}; }
-    .gchero { text-align: center; }
-    .gclogo { font-family: 'Morganite', sans-serif; font-weight: 800; font-size: 18px; letter-spacing: .16em; color: ${MUTED}; margin-bottom: 8px; }
+    .gchero { text-align: center; width: 100%; display: flex; flex-direction: column; align-items: center; }
+    .gclogo { font-family: 'Morganite', sans-serif; font-weight: 800; font-size: 18px; letter-spacing: .16em; text-indent: .16em; color: ${MUTED}; margin-bottom: 8px; }
     .gctitle { font-family: 'Morganite', sans-serif; font-weight: 800; font-size: 96px; letter-spacing: .02em; color: ${ORANGE}; margin: 0; line-height: .9; }
-    .gcsub { font-family: 'Morganite', sans-serif; font-weight: 800; font-size: 28px; letter-spacing: .08em; color: ${MUTED}; margin-top: 8px; text-transform: uppercase; }
+    .gcsub { font-family: 'Morganite', sans-serif; font-weight: 800; font-size: 28px; letter-spacing: .08em; text-indent: .08em; color: ${MUTED}; margin-top: 8px; text-transform: uppercase; }
     .gcsel { font-family: 'Morganite', sans-serif; font-weight: 800; font-size: 52px; letter-spacing: .06em; color: ${TEXT}; margin-top: 4px; line-height: 1; text-transform: uppercase; }
     .gcd { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 16px; margin-top: 44px; max-width: 820px; }
     .di { display: flex; align-items: center; gap: 8px; padding: 10px 16px; border: 1px solid rgba(0,0,0,.08); border-radius: 12px; background: ${isDark ? 'rgba(255,255,255,.04)' : '#fff'}; }
@@ -31,7 +31,7 @@ function wrapCSS(theme, lang) {
     .dit { display: flex; flex-direction: column; }
     .dname { font-family: 'Morganite', sans-serif; font-weight: 800; font-size: 20px; letter-spacing: .04em; text-transform: uppercase; }
     .dsub { font-size: 10px; color: ${MUTED}; }
-    .gcfooter { font-family: 'Morganite', sans-serif; font-weight: 800; font-size: 32px; letter-spacing: .12em; color: ${MUTED}; margin-top: 40px; text-transform: uppercase; }
+    .gcfooter { font-family: 'Morganite', sans-serif; font-weight: 800; font-size: 32px; letter-spacing: .12em; text-indent: .12em; color: ${MUTED}; margin-top: 40px; text-transform: uppercase; text-align: center; }
     .gcyear { position: absolute; right: 44px; bottom: 10px; font-family: 'Morganite', sans-serif; font-weight: 800; font-size: 140px; color: ${ORANGE}; opacity: .1; line-height: 1; }
   `;
 }
