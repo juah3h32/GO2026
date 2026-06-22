@@ -1130,16 +1130,50 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       }
       if (elDl) elDl.addEventListener('click', onDl);
 
-      // ── Catálogo General — mismo sistema que reportes (fetch → blob → a.click) ──
+      // ── Catálogo General — mismo sistema que individual + overlay progreso ──
       var elDlGen = document.getElementById('cdDownloadGeneral');
+      var dlGenTxt = elDlGen ? elDlGen.querySelector('.cd-dl-txt') : null;
+      var elGenOv = document.getElementById('cdGenOverlay');
+      var elGenBar = document.getElementById('cdGenBar');
+      var elGenTxt = document.getElementById('cdGenTxt');
+      var elGenMb = document.getElementById('cdGenMb');
+      var elGenProgress = document.getElementById('cdGenProgress');
+      var elGenErrCard = document.getElementById('cdGenErrCard');
       var dlGenBusy = false;
+
+      function resetGenOverlay() {
+        if (elGenErrCard) elGenErrCard.style.display = 'none';
+        if (elGenProgress) elGenProgress.style.display = 'flex';
+        if (elGenBar) elGenBar.style.width = '0%';
+        if (elGenMb) elGenMb.textContent = '0%';
+        if (elGenTxt) elGenTxt.textContent = 'GENERANDO...';
+      }
+
       function onDlGeneral(e) {
         e.preventDefault();
         if (dlGenBusy) return; dlGenBusy = true;
+        var original = dlGenTxt ? dlGenTxt.textContent : '';
         elDlGen.setAttribute('aria-busy', 'true');
+        if (dlGenTxt) dlGenTxt.textContent = 'Generando PDF…';
+
         var lang = window.__cdLang || 'es';
         var theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
         var url = '/api/catalogo-general-pdf?lang=' + lang + '&theme=' + theme + '&t=' + Date.now();
+
+        // Overlay con progreso
+        resetGenOverlay();
+        if (elGenOv) elGenOv.style.display = 'flex';
+
+        var fakePct = 0;
+        var fakeTimer = setInterval(function () {
+          var step = fakePct < 55 ? (Math.random() * 1.8 + 1.8)
+                   : fakePct < 85 ? (Math.random() * 0.8 + 0.4)
+                   : (Math.random() * 0.18 + 0.06);
+          fakePct = Math.min(fakePct + step, 88);
+          if (elGenBar) elGenBar.style.width = Math.round(fakePct) + '%';
+          if (elGenMb) elGenMb.textContent = Math.round(fakePct) + '%';
+          if (fakePct >= 88) clearInterval(fakeTimer);
+        }, 350);
 
         fetch(url, { cache: 'no-store' })
           .then(function (r) {
@@ -1147,6 +1181,11 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
             return r.blob();
           })
           .then(function (blob) {
+            clearInterval(fakeTimer);
+            if (elGenBar) elGenBar.style.width = '100%';
+            if (elGenMb) elGenMb.textContent = (blob.size / 1024 / 1024).toFixed(1) + ' MB';
+            if (elGenTxt) elGenTxt.textContent = 'COMPLETADO';
+
             var blobUrl = URL.createObjectURL(blob);
             var isMob = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
             if (isMob) {
@@ -1161,10 +1200,22 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
               URL.revokeObjectURL(blobUrl);
               document.body.removeChild(a);
             }
+
+            setTimeout(function () {
+              if (elGenOv) elGenOv.style.display = 'none';
+              dlGenBusy = false; elDlGen.removeAttribute('aria-busy');
+              if (dlGenTxt) dlGenTxt.textContent = original || 'Catálogo General';
+            }, 1500);
           })
-          .catch(function () { window.open(url, '_blank'); })
-          .finally(function () {
-            dlGenBusy = false; elDlGen.removeAttribute('aria-busy');
+          .catch(function (err) {
+            clearInterval(fakeTimer);
+            if (elGenProgress) elGenProgress.style.display = 'none';
+            if (elGenErrCard) elGenErrCard.style.display = 'flex';
+            setTimeout(function () {
+              if (elGenOv) elGenOv.style.display = 'none';
+              dlGenBusy = false; elDlGen.removeAttribute('aria-busy');
+              if (dlGenTxt) dlGenTxt.textContent = original || 'Catálogo General';
+            }, 4000);
           });
       }
       if (elDlGen) elDlGen.addEventListener('click', onDlGeneral);
