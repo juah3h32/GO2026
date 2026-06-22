@@ -1039,65 +1039,18 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       }
       if (elDl) elDl.addEventListener('click', onDl);
 
-      // ── Descargar Catálogo General — overlay + iframe download ──
+      // ── Catálogo General — iframe download via API ──
       var elDlGen = document.getElementById('cdDownloadGeneral');
-      var elGenOv = document.getElementById('cdGenOverlay');
-      var elGenBar = document.getElementById('cdGenBar');
-      var elGenTxt = document.getElementById('cdGenTxt');
-      var elGenMb = document.getElementById('cdGenMb');
-      var elGenProgress = document.getElementById('cdGenProgress');
-      var elGenErrCard = document.getElementById('cdGenErrCard');
-      var dlGenBusy = false;
-
-      function resetGenOverlay() {
-        if (elGenErrCard) elGenErrCard.style.display = 'none';
-        if (elGenProgress) elGenProgress.style.display = 'flex';
-        if (elGenBar) elGenBar.style.width = '0%';
-        if (elGenMb) elGenMb.textContent = '0%';
-      }
-
       function onDlGeneral(e) {
         e.preventDefault();
-        if (dlGenBusy) return; dlGenBusy = true;
-        elDlGen.setAttribute('aria-busy', 'true');
+        var lang = window.__cdLang || 'es';
         var theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-        var url = '/api/catalogo-general-pdf?lang=' + (window.__cdLang || 'es') + '&theme=' + theme + '&t=' + Date.now();
-
-        resetGenOverlay();
-        if (elGenOv) elGenOv.style.display = 'flex';
-        if (elGenTxt) elGenTxt.textContent = 'GENERANDO...';
-
-        // Fake progress 0→90% en ~25s
-        var fakePct = 0;
-        var fakeTimer = setInterval(function () {
-          var step = fakePct < 50 ? (Math.random() * 2.0 + 2.0)
-                   : fakePct < 80 ? (Math.random() * 1.0 + 0.6)
-                   : (Math.random() * 0.25 + 0.08);
-          fakePct = Math.min(fakePct + step, 90);
-          if (elGenBar) elGenBar.style.width = Math.round(fakePct) + '%';
-          if (elGenMb) elGenMb.textContent = Math.round(fakePct) + '%';
-          if (fakePct >= 90) clearInterval(fakeTimer);
-        }, 400);
-
-        // iframe: descarga nativa via Content-Disposition attachment
+        var url = '/api/catalogo-general-pdf?lang=' + lang + '&theme=' + theme + '&t=' + Date.now();
         var iframe = document.createElement('iframe');
         iframe.style.display = 'none';
         iframe.src = url;
         document.body.appendChild(iframe);
-
-        // Limpiar tras ~35s (match con tiempo real de generacion)
-        setTimeout(function () {
-          clearInterval(fakeTimer);
-          if (elGenBar) elGenBar.style.width = '100%';
-          if (elGenMb) elGenMb.textContent = '100%';
-          if (elGenTxt) elGenTxt.textContent = 'DESCARGANDO';
-          setTimeout(function () {
-            if (elGenOv) elGenOv.style.display = 'none';
-            document.body.removeChild(iframe);
-            dlGenBusy = false;
-            elDlGen.removeAttribute('aria-busy');
-          }, 1500);
-        }, 35000);
+        setTimeout(function () { document.body.removeChild(iframe); }, 5000);
       }
       if (elDlGen) elDlGen.addEventListener('click', onDlGeneral);
 
