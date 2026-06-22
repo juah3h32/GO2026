@@ -117,8 +117,8 @@ async function renderPageHTML(browser, html, viewport = { width: 1280, height: 7
   const page = await browser.newPage();
   try {
     await page.setViewport({ ...viewport, deviceScaleFactor: 1.0 });
-    await page.setContent(html, { waitUntil: 'networkidle0', timeout: 30_000 });
-    // Esperar que todas las imagenes (incluyendo data-URLs) esten decodificadas
+    await page.setContent(html, { waitUntil: 'networkidle2', timeout: 60_000 });
+    // Esperar que todas las imagenes (Cloudinary) esten decodificadas
     await page.evaluate(() => Promise.all(
       Array.from(document.images).filter(img => !img.complete).map(img =>
         new Promise(resolve => { img.onload = img.onerror = resolve; })
@@ -179,8 +179,9 @@ async function generateCombinedPDF(lang, theme) {
         if (!raw.intro) raw.intro = { p1: { es: '' }, bioTitle: { es: '' }, p2: { es: '' } };
         if (!raw.styles) raw.styles = {};
         setCatFolders(cat.imgFolder, cat.coverImgFolder);
-        const data = await preloadImages(raw);
-        const html = buildHTML(theme, lang, data);
+        // Sin preloadImages: las imagenes quedan como URLs de Cloudinary.
+        // Puppeteer las carga via networkidle2 + image wait en renderPageHTML.
+        const html = buildHTML(theme, lang, raw);
         return { slug: cat.slug, html: wrapDivisionHTML(html, lang, isRTL, fontLink) };
       } catch (e) {
         console.error('[catalogo-general] Build error ' + cat.slug, e);
