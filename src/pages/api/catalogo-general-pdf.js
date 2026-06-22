@@ -105,8 +105,8 @@ function generalCoverHTML(lang, theme) {
 async function renderPageHTML(browser, html, viewport = { width: 1280, height: 720 }) {
   const page = await browser.newPage();
   try {
-    await page.setViewport({ ...viewport, deviceScaleFactor: 1.5 });
-    await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 30_000 });
+    await page.setViewport({ ...viewport, deviceScaleFactor: 1.0 });
+    await page.setContent(html, { waitUntil: 'load', timeout: 20_000 });
     try { await page.evaluateHandle('document.fonts.ready'); } catch (e) {}
 
     // Auto-fit para productos que no caben en 720px
@@ -135,6 +135,14 @@ async function renderPageHTML(browser, html, viewport = { width: 1280, height: 7
   }
 }
 
+function wrapDivisionHTML(catHTML, lang, isRTL, fontLink) {
+  const bodyMatch = catHTML.match(/<body[^>]*>([\s\S]*)<\/body>/i);
+  const styleMatch = catHTML.match(/<style[^>]*>([\s\S]*)<\/style>/i);
+  const css = styleMatch ? styleMatch[1].replace(/@page\s*\{[^}]*\}/g, '') : '';
+  const body = bodyMatch ? bodyMatch[1] : catHTML;
+  return `<!doctype html><html lang="${lang}" dir="${isRTL ? 'rtl' : 'ltr'}"><head><meta charset="utf-8">${fontLink}<style>${css} .pg.cover::after,.pg.cover.manyprods::after{content:none!important} .pg:last-child{page-break-after:auto}</style></head><body>${body}</body></html>`;
+}
+
 async function generateCombinedPDF(lang, theme) {
   const isRTL = lang === 'ar';
   const fontLink = lang === 'zh'
@@ -143,8 +151,8 @@ async function generateCombinedPDF(lang, theme) {
     ? '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&display=swap" rel="stylesheet">'
     : '';
 
-  // ── Fase 1: chromium + datos de todos los catalogos en paralelo ──
-  const [{ executablePath, args, headless }, catDataArr] = await Promise.all([
+  // ── Fase 1: TODO en paralelo — chromium + datos Turso + buildHTML ──
+  const [browserCfg, catJobs] = await Promise.all([
     getBrowserConfig(),
     Promise.all(CATALOGS.map(async (cat) => {
       try {
@@ -153,55 +161,32 @@ async function generateCombinedPDF(lang, theme) {
         if (!raw.cover) raw.cover = { t1: { es: cat.title }, t2: { es: '' }, division: { es: cat.division } };
         if (!raw.intro) raw.intro = { p1: { es: '' }, bioTitle: { es: '' }, p2: { es: '' } };
         if (!raw.styles) raw.styles = {};
-        return { cat, data: raw };
+        setCatFolders(cat.imgFolder, cat.coverImgFolder);
+        const html = buildHTML(theme, lang, raw); // sin preloadImages — buildHTML ya embebe locales
+        return { slug: cat.slug, html: wrapDivisionHTML(html, lang, isRTL, fontLink) };
       } catch (e) {
-        console.error('[catalogo-general] Fetch error ' + cat.slug, e);
-        return { cat, data: null };
+        console.error('[catalogo-general] Build error ' + cat.slug, e);
+        return null;
       }
     }))
   ]);
 
-  // ── Fase 2: renderizar cada division a PDF individual ──
+  const { executablePath, args, headless } = browserCfg;
   const puppeteer = (await import('puppeteer-core')).default;
   const browser = await puppeteer.launch({ executablePath, args, headless });
 
   const pdfBuffers = [];
   try {
-    // 2a. Portada general
+    // Portada general (sin imagenes externas — render inmediato)
     const coverCSS = `<style>${wrapCSS(theme, lang)}</style>`;
     const coverDoc = `<!doctype html><html lang="${lang}" dir="${isRTL ? 'rtl' : 'ltr'}"><head><meta charset="utf-8">${fontLink}${coverCSS}</head><body>${generalCoverHTML(lang, theme)}</body></html>`;
-    try {
-      const coverPdf = await renderPageHTML(browser, coverDoc);
-      pdfBuffers.push(coverPdf);
-      console.log('[catalogo-general] Portada OK');
-    } catch (e) {
-      console.error('[catalogo-general] Portada error', e);
-    }
 
-    // 2b. Preparar HTML de cada division (preloadImages + buildHTML)
-    const jobs = [];
-    for (const { cat, data } of catDataArr) {
-      if (!data) continue;
-      try {
-        setCatFolders(cat.imgFolder, cat.coverImgFolder);
-        const loaded = await preloadImages(data);
-        const html = buildHTML(theme, lang, loaded);
-        const bodyMatch = html.match(/<body[^>]*>([\s\S]*)<\/body>/i);
-        const styleMatch = html.match(/<style[^>]*>([\s\S]*)<\/style>/i);
-        const css = styleMatch ? styleMatch[1].replace(/@page\s*\{[^}]*\}/g, '') : '';
-        const body = bodyMatch ? bodyMatch[1] : html;
-        const wrapped = `<!doctype html><html lang="${lang}" dir="${isRTL ? 'rtl' : 'ltr'}"><head><meta charset="utf-8">${fontLink}<style>${css} .pg.cover::after,.pg.cover.manyprods::after{content:none!important} .pg:last-child{page-break-after:auto}</style></head><body>${body}</body></html>`;
-        jobs.push({ slug: cat.slug, html: wrapped });
-      } catch (e) {
-        console.error('[catalogo-general] Build error ' + cat.slug, e);
-      }
-    }
-    console.log('[catalogo-general] HTML listo para', jobs.length, 'divisiones');
+    const allJobs = [{ slug: 'portada', html: coverDoc }, ...catJobs.filter(Boolean)];
 
-    // 2c. Renderizar en paralelo (3 paginas concurrentes)
-    const CONCURRENCY = 3;
-    for (let i = 0; i < jobs.length; i += CONCURRENCY) {
-      const batch = jobs.slice(i, i + CONCURRENCY);
+    // Renderizar en paralelo — batches de 4
+    const CONCURRENCY = 4;
+    for (let i = 0; i < allJobs.length; i += CONCURRENCY) {
+      const batch = allJobs.slice(i, i + CONCURRENCY);
       const results = await Promise.all(batch.map(job =>
         renderPageHTML(browser, job.html).then(buf => {
           console.log('[catalogo-general]', job.slug, 'OK', (buf.length / 1024 / 1024).toFixed(1) + 'MB');
@@ -219,7 +204,7 @@ async function generateCombinedPDF(lang, theme) {
 
   if (!pdfBuffers.length) throw new Error('No se pudo generar ninguna pagina del catalogo general');
 
-  // ── Fase 3: merge con pdf-lib + numeracion ──
+  // ── Merge con pdf-lib + numeracion ──
   const { PDFDocument, StandardFonts } = await import('pdf-lib');
   const merged = await PDFDocument.create();
   const font = await merged.embedFont(StandardFonts.Helvetica);
@@ -230,14 +215,10 @@ async function generateCombinedPDF(lang, theme) {
     for (const p of pages) merged.addPage(p);
   }
 
-  // Numeracion de paginas
   const total = merged.getPageCount();
   for (let i = 0; i < total; i++) {
-    const pg = merged.getPage(i);
-    pg.drawText(`${i + 1} / ${total}`, {
-      x: 1230, y: 16,
-      size: 9,
-      font,
+    merged.getPage(i).drawText(`${i + 1} / ${total}`, {
+      x: 1230, y: 16, size: 9, font,
       color: { r: 0, g: 0, b: 0, opacity: 0.25 },
     });
   }
