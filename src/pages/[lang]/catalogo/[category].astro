@@ -1011,7 +1011,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       function onPrev() { show(idx - 1); }
       function onNext() { show(idx + 1); }
 
-      // ── Descargar PDF — iframe download (confiable, no CORS, no blob) ──
+      // ── Descargar PDF — mismo sistema que reportes (fetch → blob → a.click) ──
       var elDl = document.getElementById('cdDownload');
       var dlTxt = elDl ? elDl.querySelector('.cd-dl-txt') : null;
       var dlBusy = false;
@@ -1025,32 +1025,73 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
         var theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
         var url = elDl.getAttribute('href') + '&theme=' + theme + '&t=' + Date.now();
 
-        // iframe descarga: Content-Disposition attachment fuerza download nativo
-        var iframe = document.createElement('iframe');
-        iframe.style.display = 'none';
-        iframe.src = url;
-        document.body.appendChild(iframe);
-
-        setTimeout(function () {
-          document.body.removeChild(iframe);
-          dlBusy = false; elDl.removeAttribute('aria-busy');
-          if (dlTxt) dlTxt.textContent = original || 'Descargar PDF';
-        }, 6000);
+        fetch(url, { cache: 'no-store' })
+          .then(function (r) {
+            if (!r.ok) throw new Error('Error ' + r.status);
+            return r.blob();
+          })
+          .then(function (blob) {
+            var blobUrl = URL.createObjectURL(blob);
+            var isMob = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            if (isMob) {
+              window.open(blobUrl, '_blank');
+              setTimeout(function () { URL.revokeObjectURL(blobUrl); }, 10000);
+            } else {
+              var a = document.createElement('a');
+              var cleanTitle = (window.__cdTitle || 'Productos').replace(/\s+/g, '-');
+              var langCode = (window.__cdLang || 'es').toUpperCase();
+              a.href = blobUrl;
+              a.download = cleanTitle + '-' + langCode + '.pdf';
+              document.body.appendChild(a);
+              a.click();
+              URL.revokeObjectURL(blobUrl);
+              document.body.removeChild(a);
+            }
+          })
+          .catch(function () { window.open(url, '_blank'); })
+          .finally(function () {
+            dlBusy = false; elDl.removeAttribute('aria-busy');
+            if (dlTxt) dlTxt.textContent = original || 'Descargar PDF';
+          });
       }
       if (elDl) elDl.addEventListener('click', onDl);
 
-      // ── Catálogo General — iframe download via API ──
+      // ── Catálogo General — mismo sistema que reportes (fetch → blob → a.click) ──
       var elDlGen = document.getElementById('cdDownloadGeneral');
+      var dlGenBusy = false;
       function onDlGeneral(e) {
         e.preventDefault();
+        if (dlGenBusy) return; dlGenBusy = true;
+        elDlGen.setAttribute('aria-busy', 'true');
         var lang = window.__cdLang || 'es';
         var theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
         var url = '/api/catalogo-general-pdf?lang=' + lang + '&theme=' + theme + '&t=' + Date.now();
-        var iframe = document.createElement('iframe');
-        iframe.style.display = 'none';
-        iframe.src = url;
-        document.body.appendChild(iframe);
-        setTimeout(function () { document.body.removeChild(iframe); }, 5000);
+
+        fetch(url, { cache: 'no-store' })
+          .then(function (r) {
+            if (!r.ok) throw new Error('Error ' + r.status);
+            return r.blob();
+          })
+          .then(function (blob) {
+            var blobUrl = URL.createObjectURL(blob);
+            var isMob = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            if (isMob) {
+              window.open(blobUrl, '_blank');
+              setTimeout(function () { URL.revokeObjectURL(blobUrl); }, 10000);
+            } else {
+              var a = document.createElement('a');
+              a.href = blobUrl;
+              a.download = 'Catalogo-General-' + lang.toUpperCase() + '.pdf';
+              document.body.appendChild(a);
+              a.click();
+              URL.revokeObjectURL(blobUrl);
+              document.body.removeChild(a);
+            }
+          })
+          .catch(function () { window.open(url, '_blank'); })
+          .finally(function () {
+            dlGenBusy = false; elDlGen.removeAttribute('aria-busy');
+          });
       }
       if (elDlGen) elDlGen.addEventListener('click', onDlGeneral);
 
