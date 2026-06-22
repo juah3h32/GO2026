@@ -1120,12 +1120,14 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
         var txt = document.getElementById('cdGenTxt');
         var prog = document.getElementById('cdGenProgress');
         var errC = document.getElementById('cdGenErrCard');
+        var titleEl = ov ? ov.querySelector('.cd-gen-title') : null;
         if (ov) ov.style.display = 'flex';
         if (errC) errC.style.display = 'none';
         if (prog) prog.style.display = 'flex';
         if (bar) bar.style.width = '0%';
         if (txt) txt.textContent = 'GENERANDO...';
         if (mb) mb.textContent = '0%';
+        if (titleEl) titleEl.textContent = (window.__cdTitle || 'Productos').toUpperCase();
 
         var fakePct = 0;
         var fakeTimer = setInterval(function () {
@@ -1208,6 +1210,8 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
 
         resetGenOverlay();
         if (elGenOv) elGenOv.style.display = 'flex';
+        var genTitle = elGenOv ? elGenOv.querySelector('.cd-gen-title') : null;
+        if (genTitle) genTitle.textContent = 'CATÁLOGO GENERAL';
 
         var fakePct = 0;
         var fakeTimer = setInterval(function () {
