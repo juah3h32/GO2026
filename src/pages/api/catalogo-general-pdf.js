@@ -111,10 +111,9 @@ function generalCoverHTML(lang, theme) {
   </div>`;
 }
 
-// ── Genera el PDF completo — preloadImages + un solo render ──
-// Estrategia: precargar TODAS las imagenes Cloudinary a base64 (w500),
-// combinar en un solo HTML, renderizar en un solo page.pdf().
-// Cero peticiones de red durante Puppeteer → 15-25s total.
+// ── Genera el PDF completo — sin preloadImages, imagenes Cloudinary w400 ──
+// Puppeteer carga las imagenes directo (optimizadas w400+q_auto:eco).
+// Sin preloadImages → ~15s mas rapido. Cabe en 60s Hobby.
 async function generateCombinedPDF(lang, theme) {
   const isRTL = lang === 'ar';
   const fontLink = lang === 'zh'
@@ -123,16 +122,10 @@ async function generateCombinedPDF(lang, theme) {
     ? '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&display=swap" rel="stylesheet">'
     : '';
 
-  // ── Fase 1: browser en paralelo + catalogos en batches de 2 ──
-  // Batches de 2 evita saturar Cloudinary (max 12 descargas simultaneas:
-  // 2 catalogos × 6 concurrencia interna de preloadImages)
-  const browserCfgPromise = getBrowserConfig();
-
-  const catJobs = [];
-  const BATCH_SIZE = 2;
-  for (let i = 0; i < CATALOGS.length; i += BATCH_SIZE) {
-    const batch = CATALOGS.slice(i, i + BATCH_SIZE);
-    const results = await Promise.all(batch.map(async (cat) => {
+  // ── Fase 1: browser + buildHTML TODO en paralelo (sin preloadImages) ──
+  const [browserCfg, catJobs] = await Promise.all([
+    getBrowserConfig(),
+    Promise.all(CATALOGS.map(async (cat) => {
       try {
         const raw = await getCatalog(cat.slug);
         if (!raw.coverImg) raw.coverImg = cat.coverImgFolder + '/portada.webp';
@@ -140,28 +133,23 @@ async function generateCombinedPDF(lang, theme) {
         if (!raw.intro) raw.intro = { p1: { es: '' }, bioTitle: { es: '' }, p2: { es: '' } };
         if (!raw.styles) raw.styles = {};
         setCatFolders(cat.imgFolder, cat.coverImgFolder);
-        const data = await preloadImages(raw);
-        const html = buildHTML(theme, lang, data);
+        // Sin preloadImages: img() en buildHTML genera URLs Cloudinary w400
+        const html = buildHTML(theme, lang, raw);
         return { slug: cat.slug, html };
       } catch (e) {
         console.error('[catalogo-general] Build error ' + cat.slug, e);
         return null;
       }
-    }));
-    catJobs.push(...results);
-  }
+    }))
+  ]);
 
-  const browserCfg = await browserCfgPromise;
-
-  // ── Fase 2: Combinar TODO en un solo HTML (imagenes ya base64) ──
+  // ── Fase 2: Combinar TODO en un solo HTML ──
   const bodies = [];
   const styles = [];
 
-  // Portada
   styles.push(getMorganiteFontFace() + wrapCSS(theme, lang));
   bodies.push(generalCoverHTML(lang, theme));
 
-  // Extraer <body> y <style> de cada division HTML
   for (const job of catJobs.filter(Boolean)) {
     const bm = job.html.match(/<body[^>]*>([\s\S]*)<\/body>/i);
     const sm = job.html.match(/<style[^>]*>([\s\S]*)<\/style>/i);
@@ -175,12 +163,14 @@ async function generateCombinedPDF(lang, theme) {
   const extraCSS = '.pg.cover::after,.pg.cover.manyprods::after{content:none!important} .pg:last-child{page-break-after:auto}';
 
   const combinedHTML = `<!doctype html><html lang="${lang}" dir="${isRTL ? 'rtl' : 'ltr'}">
-<head><meta charset="utf-8">${fontLink}
+<head><meta charset="utf-8">
+<link rel="preconnect" href="https://res.cloudinary.com" crossorigin>
+${fontLink}
 <style>${uniqueCSS} ${extraCSS}</style>
 </head>
 <body>${bodies.join('')}</body></html>`;
 
-  // ── Fase 3: UN solo render — sin peticiones de red (todo base64) ──
+  // ── Fase 3: UN solo render — Puppeteer carga imagenes Cloudinary directo ──
   const { executablePath, args, headless } = browserCfg;
   const puppeteer = (await import('puppeteer-core')).default;
   const browser = await puppeteer.launch({ executablePath, args, headless });
@@ -188,21 +178,21 @@ async function generateCombinedPDF(lang, theme) {
   try {
     const page = await browser.newPage();
     await page.setViewport({ width: 1280, height: 720, deviceScaleFactor: 1.0 });
-    // domcontentloaded: suficiente (imagenes base64, sin red externa)
-    await page.setContent(combinedHTML, { waitUntil: 'domcontentloaded', timeout: 45_000 });
+    // networkidle2: espera a que Cloudinary termine de servir todas las imagenes
+    await page.setContent(combinedHTML, { waitUntil: 'networkidle2', timeout: 50_000 });
 
-    // Esperar decodificacion de imagenes base64
+    // Timeout safety: max 10s por imagen colgada
     await page.evaluate(() => Promise.all(
       Array.from(document.images).filter(img => !img.complete).map(img =>
         new Promise(resolve => {
-          const t = setTimeout(resolve, 8_000);
+          const t = setTimeout(resolve, 10_000);
           const done = () => { clearTimeout(t); resolve(); };
           img.onload = done; img.onerror = done;
         })
       )
     ));
 
-    // Auto-fit para productos que no caben en 720px
+    // Auto-fit
     await page.evaluate(() => {
       const PAGE_H = 720, PAD_TOP = 90, PAD_BOTTOM = 40, INNER_W = 1120;
       const avail = PAGE_H - PAD_TOP - PAD_BOTTOM;

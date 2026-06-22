@@ -1044,15 +1044,29 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       }
       if (elDl) elDl.addEventListener('click', onDl);
 
-      // ── Catálogo General — abre HTML combinado + auto-print ──
-      // Hobby plan (max 60s): Puppeteer no cabe para 10 divisiones.
-      // Se abre pestana con HTML (sin Puppeteer, ~3s server) + window.print() automatico.
+      // ── Descargar Catálogo General — API Puppeteer optimizada, descarga directa ──
       var elDlGen = document.getElementById('cdDownloadGeneral');
+      var dlGenBusy = false;
       function onDlGeneral(e) {
         e.preventDefault();
+        if (dlGenBusy) return; dlGenBusy = true;
+        elDlGen.setAttribute('aria-busy', 'true');
         var theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-        var url = '/api/catalogo-general-html?lang=' + (window.__cdLang || 'es') + '&theme=' + theme;
-        window.open(url, '_blank');
+        var url = '/api/catalogo-general-pdf?lang=' + (window.__cdLang || 'es') + '&theme=' + theme + '&t=' + Date.now();
+
+        fetch(url, { cache: 'no-store' })
+          .then(function (r) { if (!r.ok) throw new Error('Error del servidor'); return r.blob(); })
+          .then(function (blob) {
+            var blobUrl = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = blobUrl; a.download = 'Catalogo-General-' + (window.__cdLang || 'es').toUpperCase() + '.pdf';
+            document.body.appendChild(a); a.click(); a.remove();
+            setTimeout(function () { URL.revokeObjectURL(blobUrl); }, 4000);
+          })
+          .catch(function () { window.open(url, '_blank'); })
+          .finally(function () {
+            dlGenBusy = false; elDlGen.removeAttribute('aria-busy');
+          });
       }
       if (elDlGen) elDlGen.addEventListener('click', onDlGeneral);
 
