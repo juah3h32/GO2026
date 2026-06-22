@@ -820,8 +820,8 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
 
     /* ── Navegacion entre divisiones ── */
     .cd-cat-nav {
-      display: flex; align-items: center; justify-content: center; gap: 16px;
-      padding: 24px 20px; position: relative; z-index: 5;
+      display: flex; align-items: center; justify-content: center; gap: 20px;
+      padding: 16px 20px 20px; position: relative; z-index: 5;
       grid-column: 1 / -1; align-self: end; margin-top: auto;
     }
     .cd-cat-arrow {
@@ -840,7 +840,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
     .cd-cat-arrow svg { flex: none; }
 
     @media (max-width: 767px) {
-      .cd-hero { padding: clamp(100px,14vh,140px) 16px 20px; }
+      .cd-hero { padding: clamp(80px,11vh,120px) 16px 16px; }
       .cd-hero-inner { max-width: 100%; }
       .cd-hero-copy { max-width: 100%; margin-bottom: 0; }
       .cd-hero-media {
@@ -861,12 +861,14 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       .cd-dl, .cd-btn-hero { padding: 8px 10px; font-size: 9px; gap: 3px; border-radius: 999px; }
       .cd-dl svg, .cd-btn-hero svg { width: 12px; height: 12px; }
 
-      .cd-cat-nav { gap: 14px; padding: 10px 12px; grid-column: auto; align-self: auto; margin-top: 0; }
-      .cd-cat-arrow { width: 40px; height: 40px; }
-      .cd-cat-arrow svg { width: 20px; height: 20px; }
-      .cd-cat-arrow.is-disabled { width: 40px; }
-      .cd-cat-current { font-size: clamp(16px, 5vw, 22px); }
+      .cd-cat-nav { gap: 16px; padding: 8px 12px 14px; grid-column: auto; align-self: auto; margin-top: 0; }
+      .cd-cat-arrow { width: 38px; height: 38px; }
+      .cd-cat-arrow svg { width: 18px; height: 18px; }
+      .cd-cat-arrow.is-disabled { width: 38px; }
+      .cd-cat-current { font-size: clamp(15px, 4.5vw, 20px); }
       .cd-year { display: none; }
+      .cd-hero-actions { margin-top: 14px; margin-bottom: 2px; }
+      .cd-hero-prods { margin-top: 4px; }
     }
 
     /* ── Modo PDF: cada slide una pagina, todo visible, sin deck ── */
