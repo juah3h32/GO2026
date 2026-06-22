@@ -111,9 +111,10 @@ function generalCoverHTML(lang, theme) {
   </div>`;
 }
 
-// ── Genera el PDF completo — sin preloadImages, imagenes Cloudinary w400 ──
-// Puppeteer carga las imagenes directo (optimizadas w400+q_auto:eco).
-// Sin preloadImages → ~15s mas rapido. Cabe en 60s Hobby.
+// ── Genera el PDF completo — preloadImages (base64) + domcontentloaded ──
+// Estrategia: bajar TODAS las imagenes a base64 (w400) en batches,
+// combinar en un solo HTML, renderizar con domcontentloaded (sin red).
+// 58 imagenes × 6 concurrencia × ~2s/lote ≈ 20s preload + 10s render = cabe en 60s.
 async function generateCombinedPDF(lang, theme) {
   const isRTL = lang === 'ar';
   const fontLink = lang === 'zh'
@@ -122,10 +123,13 @@ async function generateCombinedPDF(lang, theme) {
     ? '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&display=swap" rel="stylesheet">'
     : '';
 
-  // ── Fase 1: browser + buildHTML TODO en paralelo (sin preloadImages) ──
-  const [browserCfg, catJobs] = await Promise.all([
-    getBrowserConfig(),
-    Promise.all(CATALOGS.map(async (cat) => {
+  // ── Fase 1: browser en paralelo + catalogos en batches de 2 (preloadImages) ──
+  const browserCfgPromise = getBrowserConfig();
+
+  const catJobs = [];
+  for (let i = 0; i < CATALOGS.length; i += 2) {
+    const batch = CATALOGS.slice(i, i + 2);
+    const results = await Promise.all(batch.map(async (cat) => {
       try {
         const raw = await getCatalog(cat.slug);
         if (!raw.coverImg) raw.coverImg = cat.coverImgFolder + '/portada.webp';
@@ -133,17 +137,20 @@ async function generateCombinedPDF(lang, theme) {
         if (!raw.intro) raw.intro = { p1: { es: '' }, bioTitle: { es: '' }, p2: { es: '' } };
         if (!raw.styles) raw.styles = {};
         setCatFolders(cat.imgFolder, cat.coverImgFolder);
-        // Sin preloadImages: img() en buildHTML genera URLs Cloudinary w400
-        const html = buildHTML(theme, lang, raw);
+        const data = await preloadImages(raw);       // w400 base64, conc 6
+        const html = buildHTML(theme, lang, data);   // imagenes ya base64
         return { slug: cat.slug, html };
       } catch (e) {
         console.error('[catalogo-general] Build error ' + cat.slug, e);
         return null;
       }
-    }))
-  ]);
+    }));
+    catJobs.push(...results);
+  }
 
-  // ── Fase 2: Combinar TODO en un solo HTML ──
+  const browserCfg = await browserCfgPromise;
+
+  // ── Fase 2: Combinar TODO en un solo HTML (imagenes ya base64, sin red) ──
   const bodies = [];
   const styles = [];
 
@@ -163,14 +170,12 @@ async function generateCombinedPDF(lang, theme) {
   const extraCSS = '.pg.cover::after,.pg.cover.manyprods::after{content:none!important} .pg:last-child{page-break-after:auto}';
 
   const combinedHTML = `<!doctype html><html lang="${lang}" dir="${isRTL ? 'rtl' : 'ltr'}">
-<head><meta charset="utf-8">
-<link rel="preconnect" href="https://res.cloudinary.com" crossorigin>
-${fontLink}
+<head><meta charset="utf-8">${fontLink}
 <style>${uniqueCSS} ${extraCSS}</style>
 </head>
 <body>${bodies.join('')}</body></html>`;
 
-  // ── Fase 3: UN solo render — Puppeteer carga imagenes Cloudinary directo ──
+  // ── Fase 3: UN solo render — imagenes base64, sin red externa ──
   const { executablePath, args, headless } = browserCfg;
   const puppeteer = (await import('puppeteer-core')).default;
   const browser = await puppeteer.launch({ executablePath, args, headless });
@@ -178,14 +183,14 @@ ${fontLink}
   try {
     const page = await browser.newPage();
     await page.setViewport({ width: 1280, height: 720, deviceScaleFactor: 1.0 });
-    // 'load' en vez de networkidle2: mas rapido, deterministico
-    await page.setContent(combinedHTML, { waitUntil: 'load', timeout: 40_000 });
+    // domcontentloaded: sin red externa (todo base64), instantaneo
+    await page.setContent(combinedHTML, { waitUntil: 'domcontentloaded', timeout: 20_000 });
 
-    // Timeout safety: max 8s por imagen
+    // Esperar decodificacion de base64 (max 5s por imagen)
     await page.evaluate(() => Promise.all(
       Array.from(document.images).filter(img => !img.complete).map(img =>
         new Promise(resolve => {
-          const t = setTimeout(resolve, 8_000);
+          const t = setTimeout(resolve, 5_000);
           const done = () => { clearTimeout(t); resolve(); };
           img.onload = done; img.onerror = done;
         })
