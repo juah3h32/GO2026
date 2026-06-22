@@ -814,11 +814,16 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       .cd-table .td-c { white-space: normal; line-height: 1.2; }
 
       /* 3 botones siempre en 1 linea horizontal */
-      .cd-hero-actions { flex-wrap: nowrap; gap: 3px; justify-content: center; }
+      .cd-hero { padding-top: clamp(70px, 9vh, 100px); }
+      .cd-hero-title { font-size: clamp(48px, 10vw, 70px); }
+      .cd-hero-div { font-size: clamp(20px, 3.5vw, 30px); margin-bottom: 12px; }
+      .cd-hero-copy p { font-size: 12px; -webkit-line-clamp: 2; }
+      .cd-hero-prods span, .cd-hero-prods li { font-size: 11px; }
+      .cd-hero-actions { flex-wrap: nowrap; gap: 3px; justify-content: center; margin-top: 14px; }
       .cd-dl, .cd-btn-hero { padding: 8px 8px; font-size: 9px; gap: 3px; white-space: nowrap; border-radius: 999px; }
       .cd-dl svg, .cd-btn-hero svg { width: 11px; height: 11px; flex-shrink: 0; }
-      .cd-how-fab { display: none; } /* oculto, nav fixed ocupa ese espacio */
-    }
+      .cd-how-fab { display: none; }
+      .cd-year { display: none; }
 
     /* ── Navegacion mobile entre divisiones ── */
     .cd-mob-nav { display: none; }
@@ -844,7 +849,8 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
         position: fixed; bottom: 0; left: 0; right: 0; z-index: 9000;
         background: linear-gradient(transparent, var(--bg) 30%);
       }
-      .cd { padding-bottom: 60px; } /* espacio para nav fixed */
+      .cd { padding-bottom: 60px; }
+      #cdCatNav { display: none; } /* oculto en mobile, solo admin */
     }
 
     /* ── Modo PDF: cada slide una pagina, todo visible, sin deck ── */
