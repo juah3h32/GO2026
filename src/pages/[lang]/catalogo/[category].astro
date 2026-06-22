@@ -794,7 +794,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
     @media (max-width: 900px) {
       .cd-hero, .cd-hero-prodrow { display: flex; flex-direction: column; }
       .cd-hero-inner, .cd-hero-copy, .cd-hero-prods, .cd-cat-nav { grid-area: auto; }
-      .cd-hero-prods, .cd-hero-prodrow .cd-hero-prods { text-align: left; margin-top: 8px; }
+      .cd-hero-prods, .cd-hero-prodrow .cd-hero-prods { text-align: center; margin-top: 8px; }
       
       .cd-ficha-head { grid-template-columns: 1fr; gap: 20px; margin-bottom: 24px; text-align: left; }
       .cd-ficha-media { order: 1; justify-content: center; }
@@ -858,9 +858,10 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       }
       .cd-hero-media img { width: 100% !important; height: auto !important; }
       .cd-hero-actions { margin-top: 12px; margin-bottom: 2px; }
-      .cd-hero-prods { justify-self: start; text-align: left; margin-top: 4px; }
-      .cd-hero-prods ul { display: flex; flex-wrap: wrap; gap: 2px 12px; }
+      .cd-hero-prods { text-align: center; margin-top: 4px; }
+      .cd-hero-prods ul { display: flex; flex-wrap: wrap; gap: 2px 14px; justify-content: center; }
       .cd-hero-prods li { font-size: 11px; padding: 1px 0; }
+      .cd-prods-t { display: block; text-align: center; }
 
       .cd-hero-actions { flex-wrap: nowrap; gap: 4px; justify-content: center; }
       .cd-dl, .cd-btn-hero { padding: 8px 10px; font-size: 9px; gap: 3px; border-radius: 999px; }
@@ -872,8 +873,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       .cd-cat-arrow.is-disabled { width: 38px; }
       .cd-cat-current { font-size: clamp(15px, 4.5vw, 20px); }
       .cd-year { display: none; }
-      .cd-hero-actions { margin-top: 14px; margin-bottom: 2px; }
-      .cd-hero-prods { margin-top: 4px; }
+      .cd-hero-actions { margin-top: 12px; margin-bottom: 2px; }
     }
 
     /* ── Modo PDF: cada slide una pagina, todo visible, sin deck ── */
