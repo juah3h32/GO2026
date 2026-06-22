@@ -178,14 +178,14 @@ ${fontLink}
   try {
     const page = await browser.newPage();
     await page.setViewport({ width: 1280, height: 720, deviceScaleFactor: 1.0 });
-    // networkidle2: espera a que Cloudinary termine de servir todas las imagenes
-    await page.setContent(combinedHTML, { waitUntil: 'networkidle2', timeout: 50_000 });
+    // 'load' en vez de networkidle2: mas rapido, deterministico
+    await page.setContent(combinedHTML, { waitUntil: 'load', timeout: 40_000 });
 
-    // Timeout safety: max 10s por imagen colgada
+    // Timeout safety: max 8s por imagen
     await page.evaluate(() => Promise.all(
       Array.from(document.images).filter(img => !img.complete).map(img =>
         new Promise(resolve => {
-          const t = setTimeout(resolve, 10_000);
+          const t = setTimeout(resolve, 8_000);
           const done = () => { clearTimeout(t); resolve(); };
           img.onload = done; img.onerror = done;
         })
