@@ -939,20 +939,34 @@ async function notifyCategoria(categoria, buildMsg) {
 export async function notifyCategoriaRH(c) {
   const esEspera = c.en_lista_espera === 1 || c.en_lista_espera === true || c.esListaEspera === true;
   return notifyCategoria('rh', (nombre) => {
-    const saludo = nombre ? `*${nombre}*, hay` : 'Hay';
-    const tipo   = esEspera ? 'registro en *LISTA DE ESPERA*' : 'registro de candidato';
+    const saludo = nombre ? `*${nombre}*` : '';
     const tieneCV = !!(c.cvNombre || c.cv_nombre || c.cvBase64 || c.cv_base64);
-    return `${saludo} un nuevo ${tipo}, te comparto los datos:\n\n` +
-      (esEspera ? `*LISTA DE ESPERA* — se le avisara cuando se abra la vacante.\n\n` : '') +
+
+    if (esEspera) {
+      return `--- LISTA DE ESPERA ---\n\n` +
+        (saludo ? `${saludo}, nuevo registro en espera:\n\n` : 'Nuevo registro en lista de espera:\n\n') +
+        `Nombre: *${c.nombre || '—'}*\n` +
+        `Puesto: ${c.puesto || '—'}\n` +
+        (c.edad ? `Edad: ${c.edad}\n` : '') +
+        ((c.estado_rep || c.estado) ? `Estado: ${c.estado_rep || c.estado}${c.colonia ? ' / ' + c.colonia : ''}\n` : '') +
+        (c.telefono || c.whatsapp ? `Telefono: ${c.telefono || c.whatsapp}\n` : '') +
+        (c.email ? `Email: ${c.email}\n` : '') +
+        (tieneCV ? `CV: adjunto en el panel\n` : '') +
+        `\nSe le avisara cuando se abra una vacante que coincida.` +
+        `\n\nGestiona: Panel > Reclutamiento`;
+    }
+
+    return `--- NUEVO CANDIDATO ---\n\n` +
+      (saludo ? `${saludo}, nuevo registro:\n\n` : 'Nuevo registro de candidato:\n\n') +
       `Nombre: *${c.nombre || '—'}*\n` +
       `Puesto: ${c.puesto || '—'}\n` +
       (c.edad ? `Edad: ${c.edad}\n` : '') +
       ((c.estado_rep || c.estado) ? `Estado: ${c.estado_rep || c.estado}${c.colonia ? ' / ' + c.colonia : ''}\n` : '') +
       (c.telefono || c.whatsapp ? `Telefono: ${c.telefono || c.whatsapp}\n` : '') +
       (c.email ? `Email: ${c.email}\n` : '') +
-      (tieneCV ? `CV: adjunto en el panel de reclutamiento\n` : '') +
+      (tieneCV ? `CV: adjunto en el panel\n` : '') +
       (c.sessionId ? `Folio: ${String(c.sessionId).slice(0, 12)}\n` : '') +
-      `\nGestiona desde: Panel > Reclutamiento`;
+      `\nGestiona: Panel > Reclutamiento`;
   });
 }
 
@@ -1000,13 +1014,14 @@ export async function notifyCandidateEspera({ nombre, puesto, telefono }) {
   const phone = (telefono || '').replace(/\D/g, '');
   if (!phone || phone.length < 8) return { ok: false, error: 'Sin teléfono válido' };
   const mensaje =
+    `--- CONFIRMACION LISTA DE ESPERA ---\n\n` +
     `Hola ${nombre || 'candidato'},\n\n` +
-    `Recibimos tu solicitud para *${puesto || 'la vacante'}* y la enviamos al departamento de *Recursos Humanos* de Grupo Ortiz.\n\n` +
-    `*Que sigue?*\n` +
-    `- Tu perfil queda en nuestra *lista de espera* prioritaria.\n` +
-    `- En cuanto se abra una vacante que coincida con tu perfil, *te contactaremos* directamente por este medio.\n\n` +
-    `Si tienes dudas, responde a este mensaje y con gusto te ayudamos.\n\n` +
-    `_Este mensaje fue enviado automaticamente por el sistema de Reclutamiento de Grupo Ortiz._`;
+    `Recibimos tu solicitud para *${puesto || 'la vacante'}* y la enviamos a *Recursos Humanos* de Grupo Ortiz.\n\n` +
+    `*Que sigue:*\n` +
+    `- Tu perfil queda en *lista de espera* prioritaria.\n` +
+    `- En cuanto se abra una vacante que coincida, *te contactaremos* por este medio.\n\n` +
+    `Si tienes dudas, responde a este mensaje.\n\n` +
+    `_Sistema de Reclutamiento Grupo Ortiz._`;
   try {
     await sendWAText(phone, mensaje);
     return { ok: true, phone };
