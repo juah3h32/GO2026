@@ -842,7 +842,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
     .cd-mob-arrow.is-disabled { visibility: hidden; width: 40px; }
     .cd-mob-current {
       font-family: "Morganite", sans-serif; font-weight: 800;
-      font-size: 18px; letter-spacing: .06em; color: var(--o);
+      font-size: clamp(22px, 4vw, 32px); letter-spacing: .08em; color: var(--o);
       text-transform: uppercase; text-align: center;
     }
     .cd-mob-arrow svg { flex: none; }
@@ -868,7 +868,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       .cd-mob-arrow { width: 36px; height: 36px; }
       .cd-mob-arrow svg { width: 18px; height: 18px; }
       .cd-mob-arrow.is-disabled { width: 36px; }
-      .cd-mob-current { font-size: 16px; }
+      .cd-mob-current { font-size: clamp(20px, 5vw, 28px); letter-spacing: .08em; }
       .cd { padding-bottom: 54px; }
       #cdCatNav { display: none; } /* oculto en mobile, solo admin */
     }
