@@ -859,10 +859,12 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
 
       .cd-mob-nav {
         display: flex; align-items: center; justify-content: center;
-        gap: 14px; padding: 10px 16px max(16px, env(safe-area-inset-bottom));
-        position: fixed; bottom: 0; left: 0; right: 0; z-index: 9000;
-        background: linear-gradient(transparent, var(--bg) 25%);
+        gap: 14px; padding: 10px 16px 8px;
+        position: fixed; bottom: 30px; left: 0; right: 0; z-index: 9000;
+        pointer-events: none;
       }
+      .cd-mob-arrow, .cd-mob-current { pointer-events: auto; }
+      .cd-mob-arrow { background: var(--bg); box-shadow: 0 0 20px 10px var(--bg); }
       .cd-mob-arrow { width: 36px; height: 36px; }
       .cd-mob-arrow svg { width: 18px; height: 18px; }
       .cd-mob-arrow.is-disabled { width: 36px; }
