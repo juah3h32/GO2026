@@ -13,9 +13,8 @@ export default defineConfig({
   output: 'server',
   adapter: vercel({
     isr: false,
-    // PDFs catalogo: preloadImages batches + Puppeteer ~55s.
-    // 120s da margen para cold starts de Chromium.
-    maxDuration: 120,
+    // Hobby plan: max 60s. Individual PDF cabe, general usa HTML+print.
+    maxDuration: 60,
   }),
 
   server: {
