@@ -844,11 +844,14 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
     .cd-mob-arrow svg { flex: none; }
 
     @media (max-width: 900px) {
+      .cd-hero-media { right: auto !important; left: 50% !important; transform: translate(-50%, -50%) !important; width: min(70vw, 300px) !important; justify-content: center !important; }
+      .cd-hero-media > div { display: flex; justify-content: center; }
+
       .cd-mob-nav {
         display: flex; align-items: center; justify-content: center;
-        gap: 14px; padding: 6px 16px max(10px, env(safe-area-inset-bottom));
-        position: fixed; bottom: 4px; left: 0; right: 0; z-index: 9000;
-        background: linear-gradient(transparent, var(--bg) 20%);
+        gap: 14px; padding: 10px 16px max(16px, env(safe-area-inset-bottom));
+        position: fixed; bottom: 0; left: 0; right: 0; z-index: 9000;
+        background: linear-gradient(transparent, var(--bg) 25%);
       }
       .cd-mob-arrow { width: 36px; height: 36px; }
       .cd-mob-arrow svg { width: 18px; height: 18px; }
