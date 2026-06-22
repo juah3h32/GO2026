@@ -842,8 +842,13 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       .cd-hero-inner { max-width: 100%; }
       .cd-hero-copy { max-width: 100%; }
       .cd-hero-media, .cd-hero-media > div { display: flex; align-items: center; justify-content: center; }
-      .cd-hero-media { opacity: .14; right: auto; left: 50%; transform: translate(-50%, -50%); width: min(75vw, 340px); top: 45%; z-index: 0; }
-      .cd-hero-media img { width: 100%; object-fit: contain; }
+      .cd-hero-media {
+        opacity: .14; height: auto; contain: none;
+        left: 50%; right: auto; top: 48%;
+        transform: translate(-50%, -50%);
+        width: min(70vw, 300px); z-index: 0;
+      }
+      .cd-hero-media img, .cd-hero-media > div img { width: 100%; object-fit: contain; }
       .cd-hero-prods { justify-self: start; text-align: left; margin-top: 8px; }
       .cd-hero-prods ul { display: flex; flex-wrap: wrap; gap: 2px 12px; }
       .cd-hero-prods li { font-size: 11px; padding: 1px 0; }
