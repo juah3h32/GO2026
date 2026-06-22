@@ -173,6 +173,29 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
         </ul>
       </div>
       <div class="cd-year">2026</div>
+
+      <!-- Navegación entre divisiones (dentro del hero) -->
+      {(() => {
+        const cats = listCatalogsMeta();
+        const catIdx = cats.findIndex(c => c.slug === slug);
+        const prevCat = catIdx > 0 ? cats[catIdx - 1] : null;
+        const nextCat = catIdx < cats.length - 1 ? cats[catIdx + 1] : null;
+        return (
+          <nav class="cd-cat-nav" aria-label="Navegación entre catálogos">
+            {prevCat ? (
+              <a href={`/${currentLang}/catalogo/${prevCat.slug}`} class="cd-cat-arrow" aria-label={`Anterior: ${prevCat.title}`}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+              </a>
+            ) : <span class="cd-cat-arrow is-disabled"></span>}
+            <span class="cd-cat-current">{meta.title}</span>
+            {nextCat ? (
+              <a href={`/${currentLang}/catalogo/${nextCat.slug}`} class="cd-cat-arrow" aria-label={`Siguiente: ${nextCat.title}`}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+              </a>
+            ) : <span class="cd-cat-arrow is-disabled"></span>}
+          </nav>
+        );
+      })()}
     </section>
 
     <!-- ── FICHAS TECNICAS ──────────────────────────────────────── -->
@@ -324,29 +347,6 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       </div>
       <span>Deslizar para ver más</span>
     </div>
-
-    <!-- Navegación entre divisiones (solo flechas, sin nombres) -->
-    {(() => {
-      const cats = listCatalogsMeta();
-      const catIdx = cats.findIndex(c => c.slug === slug);
-      const prevCat = catIdx > 0 ? cats[catIdx - 1] : null;
-      const nextCat = catIdx < cats.length - 1 ? cats[catIdx + 1] : null;
-      return (
-        <nav class="cd-cat-nav" aria-label="Navegación entre catálogos">
-          {prevCat ? (
-            <a href={`/${currentLang}/catalogo/${prevCat.slug}`} class="cd-cat-arrow" aria-label={`Anterior: ${prevCat.title}`}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-            </a>
-          ) : <span class="cd-cat-arrow is-disabled"></span>}
-          <span class="cd-cat-current">{meta.title}</span>
-          {nextCat ? (
-            <a href={`/${currentLang}/catalogo/${nextCat.slug}`} class="cd-cat-arrow" aria-label={`Siguiente: ${nextCat.title}`}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-            </a>
-          ) : <span class="cd-cat-arrow is-disabled"></span>}
-        </nav>
-      );
-    })()}
 
     <!-- Floating ¿Cómo funciona? button -->
     <button class="cd-how-fab cd-ed-h" id="cdHowBtn" type="button" aria-label="¿Cómo funciona?">
@@ -820,6 +820,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
     .cd-cat-nav {
       display: flex; align-items: center; justify-content: center; gap: 16px;
       padding: 24px 20px; position: relative; z-index: 5;
+      grid-column: 1 / -1; align-self: end; margin-top: auto;
     }
     .cd-cat-arrow {
       display: flex; align-items: center; justify-content: center;
