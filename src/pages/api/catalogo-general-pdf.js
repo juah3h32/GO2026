@@ -232,73 +232,52 @@ async function generateCombinedPDF(lang, theme) {
   }
 }
 
-const BLOB_TOKEN = process.env.BLOB_READ_WRITE_TOKEN;
-
-async function fromBlob(blobPath, filename) {
-  if (!BLOB_TOKEN) return null;
-  try {
-    const { blobs } = await list({ prefix: blobPath, token: BLOB_TOKEN, limit: 1 });
-    if (!blobs.length) return null;
-    const r = await fetch(blobs[0].url);
-    if (!r.ok) return null;
-    const buf = Buffer.from(await r.arrayBuffer());
-    return new Response(buf, {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="${filename}"`,
-        'Content-Length': String(buf.length),
-        'Cache-Control': 'no-store',
-        'X-Cache': 'HIT',
-      },
-    });
-  } catch { return null; }
-}
-
-async function toBlob(blobPath, pdf) {
-  if (!BLOB_TOKEN) return;
-  try {
-    await put(blobPath, pdf, {
-      access: 'public',
-      contentType: 'application/pdf',
-      addRandomSuffix: false,
-      token: BLOB_TOKEN,
-    });
-    console.log('[catalogo-general] blob cached:', blobPath);
-  } catch (e) {
-    console.warn('[catalogo-general] blob upload error:', e.message);
-  }
-}
-
 export async function GET({ url }) {
   try {
-    const lang  = url.searchParams.get('lang')  || 'es';
-    const theme = url.searchParams.get('theme') || 'dark';
-    const bust  = url.searchParams.get('bust')  === 'true';
+    const lang     = url.searchParams.get('lang')  || 'es';
+    const theme    = url.searchParams.get('theme') || 'dark';
+    const bust     = url.searchParams.get('bust')  === 'true';
+    const token    = process.env.BLOB_READ_WRITE_TOKEN; // runtime, no module-load
     const filename = `Catalogo-General-${lang.toUpperCase()}-${theme}.pdf`;
     const blobPath = `catalogo-general/${filename}`;
 
-    // Invalidar cache si bust=true
-    if (bust && BLOB_TOKEN) {
+    // HIT: redirigir al blob URL — el cliente descarga del CDN directo
+    if (!bust && token) {
       try {
-        const { blobs } = await list({ prefix: blobPath, token: BLOB_TOKEN, limit: 1 });
-        if (blobs.length) await del(blobs[0].url, { token: BLOB_TOKEN });
-        console.log('[catalogo-general] cache invalidado:', filename);
-      } catch {}
+        const { blobs } = await list({ prefix: blobPath, token, limit: 1 });
+        if (blobs.length) {
+          console.log('[catalogo-general] cache HIT:', filename);
+          return Response.redirect(blobs[0].url, 307);
+        }
+      } catch (e) {
+        console.warn('[catalogo-general] blob list error:', e.message);
+      }
     }
 
-    // 1. Intentar desde Blob (cache)
-    if (!bust) {
-      const cached = await fromBlob(blobPath, filename);
-      if (cached) return cached;
-    }
-
-    // 2. Generar PDF
+    // MISS: generar PDF
     const pdf = await generateCombinedPDF(lang, theme);
 
-    // 3. Subir a Blob para siguientes peticiones
-    await toBlob(blobPath, pdf);
+    // Subir a Blob (bust = borrar primero si existe)
+    if (token) {
+      try {
+        if (bust) {
+          const { blobs } = await list({ prefix: blobPath, token, limit: 1 });
+          if (blobs.length) await del(blobs[0].url, { token });
+        }
+        const result = await put(blobPath, pdf, {
+          access: 'public',
+          contentType: 'application/pdf',
+          addRandomSuffix: false,
+          token,
+        });
+        console.log('[catalogo-general] blob MISS → cached:', result.url);
+        return Response.redirect(result.url, 307);
+      } catch (e) {
+        console.warn('[catalogo-general] blob upload error:', e.message);
+      }
+    }
 
+    // Fallback sin blob: servir directo
     return new Response(pdf, {
       status: 200,
       headers: {
@@ -306,7 +285,6 @@ export async function GET({ url }) {
         'Content-Disposition': `attachment; filename="${filename}"`,
         'Content-Length': String(pdf.length),
         'Cache-Control': 'no-store',
-        'X-Cache': 'MISS',
       },
     });
   } catch (err) {
