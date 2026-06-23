@@ -93,7 +93,7 @@ vite: {
           "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
           "font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net",
           "img-src 'self' data: https:",
-          "connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://t.contentsquare.net https://api.openai.com",
+          "connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://t.contentsquare.net https://api.openai.com https://*.public.blob.vercel-storage.com",
           "frame-src 'self' https://my.matterport.com",
           "media-src 'self' blob:",
           "worker-src 'self' blob:",
