@@ -1148,22 +1148,21 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
             if (mb) mb.textContent = (blob.size / 1024 / 1024).toFixed(1) + ' MB';
             if (txt) txt.textContent = 'COMPLETADO';
 
-            var blobUrl = URL.createObjectURL(blob);
-            var isMob = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-            if (isMob) {
-              window.open(blobUrl, '_blank');
-              setTimeout(function () { URL.revokeObjectURL(blobUrl); }, 10000);
-            } else {
-              var a = document.createElement('a');
-              var cleanTitle = (window.__cdTitle || 'Productos').replace(/\s+/g, '-');
-              var langCode = (window.__cdLang || 'es').toUpperCase();
-              a.href = blobUrl;
-              a.download = cleanTitle + '-' + langCode + '-' + theme + '.pdf';
-              document.body.appendChild(a);
-              a.click();
+            var isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+            var dlBlob = isIOS ? new Blob([blob], { type: 'application/octet-stream' }) : blob;
+            var blobUrl = URL.createObjectURL(dlBlob);
+            var a = document.createElement('a');
+            var cleanTitle = (window.__cdTitle || 'Productos').replace(/\s+/g, '-');
+            var langCode = (window.__cdLang || 'es').toUpperCase();
+            a.style.display = 'none';
+            a.href = blobUrl;
+            a.download = cleanTitle + '-' + langCode + '-' + theme + '.pdf';
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(function () {
               URL.revokeObjectURL(blobUrl);
-              document.body.removeChild(a);
-            }
+              if (a.parentNode) a.parentNode.removeChild(a);
+            }, 30000);
 
             setTimeout(function () {
               if (ov) ov.style.display = 'none';
@@ -1224,8 +1223,12 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
           if (fakePct >= 88) clearInterval(fakeTimer);
         }, 450);
 
-        fetch(url, { cache: 'no-store' })
+        var genAbort = new AbortController();
+        var genAbortTimer = setTimeout(function () { genAbort.abort(); }, 280000);
+
+        fetch(url, { cache: 'no-store', signal: genAbort.signal })
           .then(function (r) {
+            clearTimeout(genAbortTimer);
             if (!r.ok) throw new Error('Error ' + r.status);
             return r.blob();
           })
@@ -1235,20 +1238,19 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
             if (elGenMb) elGenMb.textContent = (blob.size / 1024 / 1024).toFixed(1) + ' MB';
             if (elGenTxt) elGenTxt.textContent = 'COMPLETADO';
 
-            var blobUrl = URL.createObjectURL(blob);
-            var isMob = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-            if (isMob) {
-              window.open(blobUrl, '_blank');
-              setTimeout(function () { URL.revokeObjectURL(blobUrl); }, 10000);
-            } else {
-              var a = document.createElement('a');
-              a.href = blobUrl;
-              a.download = 'Catalogo-General-' + lang.toUpperCase() + '-' + theme + '.pdf';
-              document.body.appendChild(a);
-              a.click();
+            var isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+            var dlBlob = isIOS ? new Blob([blob], { type: 'application/octet-stream' }) : blob;
+            var blobUrl = URL.createObjectURL(dlBlob);
+            var a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = blobUrl;
+            a.download = 'Catalogo-General-' + lang.toUpperCase() + '-' + theme + '.pdf';
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(function () {
               URL.revokeObjectURL(blobUrl);
-              document.body.removeChild(a);
-            }
+              if (a.parentNode) a.parentNode.removeChild(a);
+            }, 60000);
 
             setTimeout(function () {
               if (elGenOv) elGenOv.style.display = 'none';
@@ -1256,7 +1258,8 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
               if (dlGenTxt) dlGenTxt.textContent = original || 'Catálogo General';
             }, 1500);
           })
-          .catch(function () {
+          .catch(function (err) {
+            clearTimeout(genAbortTimer);
             clearInterval(fakeTimer);
             if (elGenProgress) elGenProgress.style.display = 'none';
             if (elGenErrCard) elGenErrCard.style.display = 'flex';
