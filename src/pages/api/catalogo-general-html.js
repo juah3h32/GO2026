@@ -122,12 +122,7 @@ ${fontLink}
 <style>${uniqueCSS} ${extraCSS}</style>
 <style>@media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }</style>
 </head>
-<body>
-<div style="position:fixed;top:0;left:0;right:0;z-index:99999;background:#fb670b;color:#fff;text-align:center;padding:12px;font-family:-apple-system,sans-serif;font-weight:700;font-size:14px;letter-spacing:.04em;">
-  📄 Catálogo General · Grupo Ortiz &nbsp;—&nbsp; El diálogo de impresión se abrirá automáticamente.<br><span style="font-weight:400;font-size:11px;opacity:.85;">Seleccioná "Guardar como PDF" en destino para descargar.</span>
-</div>
-<div style="height:48px;"></div>
-${bodies.join('')}
+<body>${bodies.join('')}
 <script>window.onload=function(){setTimeout(function(){window.print();},600);}</script>
 </html>`;
 
