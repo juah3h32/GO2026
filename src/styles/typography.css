@@ -38,8 +38,7 @@
 /* ── SECUNDARIAS ── */
 @font-face {
   font-family : 'Morganite';
-  src         : url('/fonts/Morganite-ExtraBold.woff2') format('woff2'),
-                url('/fonts/Morganite-ExtraBold.ttf')   format('truetype');
+  src         : url('/fonts/Morganite-ExtraBold.ttf') format('truetype');
   font-weight : 800;
   font-style  : normal;
   font-display: swap;

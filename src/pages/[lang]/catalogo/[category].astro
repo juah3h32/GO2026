@@ -28,6 +28,7 @@ const IMG_CAT = (n: string) => /^https?:\/\//.test(n) ? n : (n.startsWith('/') ?
 
 // Valores seguros para la portada
 const vc = visualCover || { scale: 1, offsetX: 0, offsetY: 0, rotate: 0 };
+const cloudName = import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME || 'dfuzfdrat';
 
 // Helper de traduccion para el JSON
 // Quita el simbolo ® de cualquier texto (regla: nunca debe salir en catalogo ni PDF)
@@ -908,13 +909,14 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
     :global(html[data-cd-printing]) footer { display: none !important; }
   </style>
 
-  <script is:inline define:vars={{ catalogStyles, slug, imgFolder, title: meta.title, cats: listCatalogsMeta(), lang: currentLang }}>
+  <script is:inline define:vars={{ catalogStyles, slug, imgFolder, title: meta.title, cats: listCatalogsMeta(), lang: currentLang, cloudName }}>
     window.__cdStyles = catalogStyles;
     window.__cdSlug = slug;
     window.__cdImgFolder = imgFolder;
     window.__cdTitle = title;
     window.__cdCats = cats;   // [{slug,title,division,products}] para el menu de divisiones (solo edicion)
     window.__cdLang = lang;
+    window.__cdCloud = cloudName;
   </script>
 
   <script is:inline>
@@ -1205,7 +1207,8 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
         var lang  = (window.__cdLang || 'es').toLowerCase();
         var theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
         var filename = 'Catalogo-General-' + lang.toUpperCase() + '-' + theme + '.pdf';
-        var apiUrl = '/api/catalogo-general-pdf?lang=' + lang + '&theme=' + theme;
+        var cloud = window.__cdCloud || 'dfuzfdrat';
+        var apiUrl = 'https://res.cloudinary.com/' + cloud + '/raw/upload/catalogo-general/Catalogo-General-' + lang.toUpperCase() + '-' + theme + '.pdf';
 
         resetGenOverlay();
         if (elGenOv) elGenOv.style.display = 'flex';

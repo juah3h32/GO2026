@@ -9,6 +9,7 @@ import { existsSync, readFileSync, writeFileSync, unlinkSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
 import { v2 as cloudinary } from 'cloudinary';
+import sharp from 'sharp';
 
 const LANGS  = ['es', 'en', 'pt', 'zh', 'ar'];
 const THEMES = ['light', 'dark'];
@@ -34,6 +35,38 @@ const LOCAL_CHROME = [
   '/usr/bin/chromium-browser',
   'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
 ];
+
+// Resize local image files to max 400px wide before base64 embedding
+async function resizeLocalImages(raw, imgFolder, coverFolder) {
+  const out = { ...raw, fichas: raw.fichas ? [...raw.fichas] : [] };
+  const cwd = process.cwd();
+
+  async function toResizedB64(relPath, maxW = 400) {
+    const abs = join(cwd, 'public', relPath);
+    if (!existsSync(abs)) return null;
+    try {
+      const buf = await sharp(abs).resize(maxW, null, { withoutEnlargement: true }).jpeg({ quality: 50 }).toBuffer();
+      return `data:image/jpeg;base64,${buf.toString('base64')}`;
+    } catch { return null; }
+  }
+
+  // Cover image (local path)
+  if (out.coverImg && !/^https?:\/\//.test(out.coverImg) && !/^data:/.test(out.coverImg)) {
+    const folder = out.coverImg.includes('/') ? '' : `images/${coverFolder}/`;
+    const b64 = await toResizedB64(folder + out.coverImg, 350);
+    if (b64) out.coverImg = b64;
+  }
+
+  // Product images (local filenames)
+  for (let i = 0; i < out.fichas.length; i++) {
+    const f = out.fichas[i];
+    if (f.img && !/^https?:\/\//.test(f.img) && !/^data:/.test(f.img)) {
+      const b64 = await toResizedB64(`images/${imgFolder}/${f.img}`, 280);
+      if (b64) out.fichas[i] = { ...f, img: b64 };
+    }
+  }
+  return out;
+}
 
 function getMorganiteFontFace() {
   try {
@@ -87,19 +120,22 @@ function generalCoverHTML(lang, theme, CATALOGS) {
 }
 
 async function uploadToCloudinary(pdfBuffer, lang, theme) {
-  const publicId = `catalogo-general/Catalogo-General-${lang.toUpperCase()}-${theme}`;
+  const publicId = `catalogo-general/Catalogo-General-${lang.toUpperCase()}-${theme}.pdf`;
   const tmpFile  = join(tmpdir(), `cg-${lang}-${theme}-${Date.now()}.pdf`);
   writeFileSync(tmpFile, pdfBuffer);
-  const result = await cloudinary.uploader.upload_large(tmpFile, {
-    resource_type: 'raw',
-    public_id:     publicId,
-    overwrite:     true,
-    invalidate:    true,
-    chunk_size:    10_000_000,
+  return new Promise((resolve, reject) => {
+    cloudinary.uploader.upload_large(tmpFile, {
+      resource_type: 'raw',
+      public_id:     publicId,
+      overwrite:     true,
+      invalidate:    true,
+      chunk_size:    10_000_000,
+    }, (error, result) => {
+      try { unlinkSync(tmpFile); } catch {}
+      if (error) reject(error);
+      else resolve(result);
+    });
   });
-  // Borrar temp despues de que Cloudinary termine internamente
-  setTimeout(() => { try { unlinkSync(tmpFile); } catch {} }, 5000);
-  return result;
 }
 
 async function main() {
@@ -133,7 +169,9 @@ async function main() {
           if (!raw.intro)   raw.intro   = { p1: { es: '' }, bioTitle: { es: '' }, p2: { es: '' } };
           if (!raw.styles)  raw.styles  = {};
           setCatFolders(cat.imgFolder, cat.coverImgFolder);
-          const data = await preloadImages(raw);
+          // Preload Cloudinary URLs + resize local files to keep PDF under 20MB
+          const preloaded = await preloadImages(raw);
+          const data = await resizeLocalImages(preloaded, cat.imgFolder, cat.coverImgFolder);
           return { cat, data };
         } catch (e) {
           console.error(`  ${cat.slug} ERROR: ${e.message}`);
@@ -153,9 +191,10 @@ async function main() {
         for (const { cat, data } of catJobs) {
           setCatFolders(cat.imgFolder, cat.coverImgFolder);
           const html = buildHTML(theme, lang, data);
-          const bm = html.match(/<body[^>]*>([\s\S]*)<\/body>/i);
-          const sm = html.match(/<style[^>]*>([\s\S]*)<\/style>/i);
-          if (bm) bodies.push(bm[1]);
+          // Extract only the cover page (first .pg.cover div) for the general catalog
+          const coverMatch = html.match(/<div class="pg cover[^"]*"[\s\S]*?(?=<div class="pg |<\/body>)/);
+          const sm = html.match(/<style[^>]*>([\s\S]*?)<\/style>/i);
+          if (coverMatch) bodies.push(coverMatch[0]);
           if (sm) styles.push(sm[1].replace(/@page\s*\{[^}]*\}/g, ''));
         }
 
@@ -173,7 +212,7 @@ async function main() {
         let pdf;
         try {
           const page = await browser.newPage();
-          await page.setViewport({ width: 1280, height: 720, deviceScaleFactor: 1.0 });
+          await page.setViewport({ width: 1280, height: 720, deviceScaleFactor: 0.5 });
           await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 60_000 });
           await page.evaluate(() => Promise.all(
             Array.from(document.images).filter(i => !i.complete).map(i =>
@@ -200,6 +239,7 @@ async function main() {
           await browser.close();
         }
 
+        console.log(`  [${lang}-${theme}] PDF size: ${(pdf.length / 1024 / 1024).toFixed(1)} MB — uploading...`);
         const result = await uploadToCloudinary(pdf, lang, theme);
         console.log(`  [${lang}-${theme}] OK — ${(pdf.length / 1024 / 1024).toFixed(1)} MB → ${result.secure_url}`);
         ok++;
