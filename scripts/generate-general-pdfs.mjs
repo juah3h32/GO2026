@@ -5,8 +5,9 @@
 // Uso completo:           node scripts/generate-general-pdfs.mjs
 // Solo un idioma/tema:    node scripts/generate-general-pdfs.mjs --lang=es --theme=dark
 
-import { existsSync, readFileSync } from 'fs';
+import { existsSync, readFileSync, writeFileSync, unlinkSync } from 'fs';
 import { join } from 'path';
+import { tmpdir } from 'os';
 import { v2 as cloudinary } from 'cloudinary';
 
 const LANGS  = ['es', 'en', 'pt', 'zh', 'ar'];
@@ -87,13 +88,18 @@ function generalCoverHTML(lang, theme, CATALOGS) {
 
 async function uploadToCloudinary(pdfBuffer, lang, theme) {
   const publicId = `catalogo-general/Catalogo-General-${lang.toUpperCase()}-${theme}`;
-  return new Promise((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_stream(
-      { resource_type: 'raw', public_id: publicId, overwrite: true, invalidate: true },
-      (err, result) => err ? reject(err) : resolve(result)
-    );
-    stream.end(pdfBuffer);
+  const tmpFile  = join(tmpdir(), `cg-${lang}-${theme}-${Date.now()}.pdf`);
+  writeFileSync(tmpFile, pdfBuffer);
+  const result = await cloudinary.uploader.upload_large(tmpFile, {
+    resource_type: 'raw',
+    public_id:     publicId,
+    overwrite:     true,
+    invalidate:    true,
+    chunk_size:    10_000_000,
   });
+  // Borrar temp despues de que Cloudinary termine internamente
+  setTimeout(() => { try { unlinkSync(tmpFile); } catch {} }, 5000);
+  return result;
 }
 
 async function main() {

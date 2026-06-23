@@ -1,15 +1,15 @@
 // src/lib/catalogs.js
 // Registro de catalogos. Agregar un catalogo nuevo = 1 entrada aqui + su seed JSON.
-import stretchSeed from '../data/catalogo-stretch.json';
-import acolchadoSeed from '../data/catalogo-acolchado.json';
-import arpillaSeed from '../data/catalogo-arpilla.json';
-import cuerdaSeed from '../data/catalogo-cuerda.json';
-import rafiaSeed from '../data/catalogo-rafia.json';
-import flexibleSeed from '../data/catalogo-flexible.json';
-import sacoSeed from '../data/catalogo-saco.json';
-import esquineroSeed from '../data/catalogo-esquinero.json';
-import naturizableSeed from '../data/catalogo-naturizable.json';
-import bolsasSeed from '../data/catalogo-bolsas.json';
+import stretchSeed from '../data/catalogo-stretch.json' with { type: 'json' };
+import acolchadoSeed from '../data/catalogo-acolchado.json' with { type: 'json' };
+import arpillaSeed from '../data/catalogo-arpilla.json' with { type: 'json' };
+import cuerdaSeed from '../data/catalogo-cuerda.json' with { type: 'json' };
+import rafiaSeed from '../data/catalogo-rafia.json' with { type: 'json' };
+import flexibleSeed from '../data/catalogo-flexible.json' with { type: 'json' };
+import sacoSeed from '../data/catalogo-saco.json' with { type: 'json' };
+import esquineroSeed from '../data/catalogo-esquinero.json' with { type: 'json' };
+import naturizableSeed from '../data/catalogo-naturizable.json' with { type: 'json' };
+import bolsasSeed from '../data/catalogo-bolsas.json' with { type: 'json' };
 
 export const CATALOGS = [
   {
