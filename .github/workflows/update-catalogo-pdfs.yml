@@ -1,0 +1,54 @@
+name: Update Catalogo General PDFs
+
+on:
+  repository_dispatch:
+    types: [catalogo-updated]
+  workflow_dispatch:
+    inputs:
+      lang:
+        description: 'Idioma especifico (dejar vacio = todos)'
+        required: false
+      theme:
+        description: 'Tema especifico: light o dark (dejar vacio = ambos)'
+        required: false
+
+jobs:
+  generate-and-upload:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chrome
+        run: |
+          wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo gpg --dearmor -o /usr/share/keyrings/google-chrome.gpg
+          echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
+          sudo apt-get update -q
+          sudo apt-get install -y google-chrome-stable
+
+      - name: Generate and upload PDFs
+        run: |
+          ARGS=""
+          if [ -n "${{ github.event.inputs.lang || github.event.client_payload.lang }}" ]; then
+            ARGS="$ARGS --lang=${{ github.event.inputs.lang || github.event.client_payload.lang }}"
+          fi
+          if [ -n "${{ github.event.inputs.theme || github.event.client_payload.theme }}" ]; then
+            ARGS="$ARGS --theme=${{ github.event.inputs.theme || github.event.client_payload.theme }}"
+          fi
+          npx tsx scripts/generate-general-pdfs.mjs $ARGS
+        env:
+          CHROME_PATH: /usr/bin/google-chrome-stable
+          PUBLIC_CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
+          PUBLIC_CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
+          CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}

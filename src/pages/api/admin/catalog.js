@@ -3,6 +3,20 @@
 import { verifyAdminToken } from '../../../lib/verifyAdminToken.ts';
 import { getCatalog, saveCatalog } from '../../../lib/catalog-store.js';
 
+async function triggerPdfRegeneration(slug) {
+  const pat = process.env.GITHUB_PAT;
+  if (!pat) return;
+  await fetch('https://api.github.com/repos/juah3h32/GO2026/dispatches', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${pat}`,
+      'Content-Type': 'application/json',
+      'Accept': 'application/vnd.github.v3+json',
+    },
+    body: JSON.stringify({ event_type: 'catalogo-updated', client_payload: { slug } }),
+  });
+}
+
 function canEditCatalog(role) {
   if (!role) return false;
   if (role.isAdminRole) return true;
@@ -35,6 +49,7 @@ export async function POST({ request, url }) {
     const slug = (body.__slug) || url.searchParams.get('slug') || 'stretch';
     delete body.__slug;
     await saveCatalog(slug, body);
+    triggerPdfRegeneration(slug).catch(() => {});
     return json({ success: true, message: 'Catálogo actualizado' });
   } catch (error) {
     console.error('Error al guardar catálogo:', error);
