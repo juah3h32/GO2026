@@ -1198,16 +1198,77 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
 
       function onDlGeneral(e) {
         e.preventDefault();
-        var lang = (window.__cdLang || 'es').toUpperCase();
+        if (dlGenBusy) return; dlGenBusy = true;
+        var original = dlGenTxt ? dlGenTxt.textContent : '';
+        elDlGen.setAttribute('aria-busy', 'true');
+
+        var lang  = (window.__cdLang || 'es').toLowerCase();
         var theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-        var filename = 'Catalogo-General-' + lang + '-' + theme + '.pdf';
-        var a = document.createElement('a');
-        a.style.display = 'none';
-        a.href = '/CATALOGO/' + filename;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(function () { if (a.parentNode) a.parentNode.removeChild(a); }, 1000);
+        var filename = 'Catalogo-General-' + lang.toUpperCase() + '-' + theme + '.pdf';
+        var apiUrl = '/api/catalogo-general-pdf?lang=' + lang + '&theme=' + theme;
+
+        resetGenOverlay();
+        if (elGenOv) elGenOv.style.display = 'flex';
+        var genTitle = elGenOv ? elGenOv.querySelector('.cd-gen-title') : null;
+        if (genTitle) genTitle.textContent = 'CATÁLOGO GENERAL';
+
+        var fakePct = 0;
+        var fakeTimer = setInterval(function () {
+          var step = fakePct < 40 ? (Math.random() * 1.6 + 1.4)
+                   : fakePct < 70 ? (Math.random() * 0.7 + 0.35)
+                   : (Math.random() * 0.12 + 0.04);
+          fakePct = Math.min(fakePct + step, 88);
+          if (elGenBar) elGenBar.style.width = Math.round(fakePct) + '%';
+          if (elGenMb) elGenMb.textContent = Math.round(fakePct) + '%';
+          if (fakePct >= 88) clearInterval(fakeTimer);
+        }, 450);
+
+        var abortCtrl = new AbortController();
+        var abortTimer = setTimeout(function () { abortCtrl.abort(); }, 290000);
+
+        fetch(apiUrl, { cache: 'no-store', signal: abortCtrl.signal })
+          .then(function (r) {
+            clearTimeout(abortTimer);
+            if (!r.ok) throw new Error('Error ' + r.status);
+            return r.blob();
+          })
+          .then(function (blob) {
+            clearInterval(fakeTimer);
+            if (elGenBar) elGenBar.style.width = '100%';
+            if (elGenMb) elGenMb.textContent = (blob.size / 1024 / 1024).toFixed(1) + ' MB';
+            if (elGenTxt) elGenTxt.textContent = 'COMPLETADO';
+
+            var isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+            var dlBlob = isIOS ? new Blob([blob], { type: 'application/octet-stream' }) : blob;
+            var blobUrl = URL.createObjectURL(dlBlob);
+            var a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = blobUrl;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(function () {
+              URL.revokeObjectURL(blobUrl);
+              if (a.parentNode) a.parentNode.removeChild(a);
+            }, 60000);
+
+            setTimeout(function () {
+              if (elGenOv) elGenOv.style.display = 'none';
+              dlGenBusy = false; elDlGen.removeAttribute('aria-busy');
+              if (dlGenTxt) dlGenTxt.textContent = original || 'Catálogo General';
+            }, 1500);
+          })
+          .catch(function () {
+            clearTimeout(abortTimer);
+            clearInterval(fakeTimer);
+            if (elGenProgress) elGenProgress.style.display = 'none';
+            if (elGenErrCard) elGenErrCard.style.display = 'flex';
+            setTimeout(function () {
+              if (elGenOv) elGenOv.style.display = 'none';
+              dlGenBusy = false; elDlGen.removeAttribute('aria-busy');
+              if (dlGenTxt) dlGenTxt.textContent = original || 'Catálogo General';
+            }, 4000);
+          });
       }
       if (elDlGen) elDlGen.addEventListener('click', onDlGeneral);
 

@@ -1,8 +1,10 @@
 // src/pages/api/catalogo-general-pdf.js
 // PDF unico con TODAS las divisiones — Catalogo General Grupo Ortiz.
+// Cache: Vercel Blob. Primera vez genera (~50s), siguiente: instantaneo.
 export const prerender = false;
 export const config = { maxDuration: 300 };
 
+import { put, list, del } from '@vercel/blob';
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { CATALOGS } from '../../lib/catalogs.js';
@@ -230,14 +232,72 @@ async function generateCombinedPDF(lang, theme) {
   }
 }
 
+const BLOB_TOKEN = process.env.BLOB_READ_WRITE_TOKEN;
+
+async function fromBlob(blobPath, filename) {
+  if (!BLOB_TOKEN) return null;
+  try {
+    const { blobs } = await list({ prefix: blobPath, token: BLOB_TOKEN, limit: 1 });
+    if (!blobs.length) return null;
+    const r = await fetch(blobs[0].url);
+    if (!r.ok) return null;
+    const buf = Buffer.from(await r.arrayBuffer());
+    return new Response(buf, {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': `attachment; filename="${filename}"`,
+        'Content-Length': String(buf.length),
+        'Cache-Control': 'no-store',
+        'X-Cache': 'HIT',
+      },
+    });
+  } catch { return null; }
+}
+
+async function toBlob(blobPath, pdf) {
+  if (!BLOB_TOKEN) return;
+  try {
+    await put(blobPath, pdf, {
+      access: 'public',
+      contentType: 'application/pdf',
+      addRandomSuffix: false,
+      token: BLOB_TOKEN,
+    });
+    console.log('[catalogo-general] blob cached:', blobPath);
+  } catch (e) {
+    console.warn('[catalogo-general] blob upload error:', e.message);
+  }
+}
+
 export async function GET({ url }) {
   try {
-    const lang = url.searchParams.get('lang') || 'es';
+    const lang  = url.searchParams.get('lang')  || 'es';
     const theme = url.searchParams.get('theme') || 'dark';
+    const bust  = url.searchParams.get('bust')  === 'true';
+    const filename = `Catalogo-General-${lang.toUpperCase()}-${theme}.pdf`;
+    const blobPath = `catalogo-general/${filename}`;
 
+    // Invalidar cache si bust=true
+    if (bust && BLOB_TOKEN) {
+      try {
+        const { blobs } = await list({ prefix: blobPath, token: BLOB_TOKEN, limit: 1 });
+        if (blobs.length) await del(blobs[0].url, { token: BLOB_TOKEN });
+        console.log('[catalogo-general] cache invalidado:', filename);
+      } catch {}
+    }
+
+    // 1. Intentar desde Blob (cache)
+    if (!bust) {
+      const cached = await fromBlob(blobPath, filename);
+      if (cached) return cached;
+    }
+
+    // 2. Generar PDF
     const pdf = await generateCombinedPDF(lang, theme);
-    const date = new Date().toISOString().slice(0, 10);
-    const filename = `Catalogo-General-Grupo-Ortiz-${date}.pdf`;
+
+    // 3. Subir a Blob para siguientes peticiones
+    await toBlob(blobPath, pdf);
 
     return new Response(pdf, {
       status: 200,
@@ -245,11 +305,15 @@ export async function GET({ url }) {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `attachment; filename="${filename}"`,
         'Content-Length': String(pdf.length),
-        'Cache-Control': 'no-store, no-cache, must-revalidate',
+        'Cache-Control': 'no-store',
+        'X-Cache': 'MISS',
       },
     });
   } catch (err) {
     console.error('[catalogo-general-pdf]', err);
-    return new Response(JSON.stringify({ ok: false, error: err.message }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+    return new Response(JSON.stringify({ ok: false, error: err.message }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 }
