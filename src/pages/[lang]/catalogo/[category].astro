@@ -1215,14 +1215,14 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
 
         var fakePct = 0;
         var fakeTimer = setInterval(function () {
-          var step = fakePct < 50 ? (Math.random() * 2.2 + 2.2)
-                   : fakePct < 80 ? (Math.random() * 1.0 + 0.5)
-                   : (Math.random() * 0.20 + 0.06);
+          var step = fakePct < 40 ? (Math.random() * 1.6 + 1.4)
+                   : fakePct < 70 ? (Math.random() * 0.7 + 0.35)
+                   : (Math.random() * 0.12 + 0.04);
           fakePct = Math.min(fakePct + step, 88);
           if (elGenBar) elGenBar.style.width = Math.round(fakePct) + '%';
           if (elGenMb) elGenMb.textContent = Math.round(fakePct) + '%';
           if (fakePct >= 88) clearInterval(fakeTimer);
-        }, 320);
+        }, 450);
 
         fetch(url, { cache: 'no-store' })
           .then(function (r) {

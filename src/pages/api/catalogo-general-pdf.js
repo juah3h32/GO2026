@@ -184,7 +184,7 @@ async function generateCombinedPDF(lang, theme) {
     const page = await browser.newPage();
     await page.setViewport({ width: 1280, height: 720, deviceScaleFactor: 1.0 });
     // domcontentloaded: sin red externa (todo base64), instantaneo
-    await page.setContent(combinedHTML, { waitUntil: 'domcontentloaded', timeout: 15_000 });
+    await page.setContent(combinedHTML, { waitUntil: 'domcontentloaded', timeout: 30_000 });
 
     // Esperar decodificacion de base64 (max 5s por imagen)
     await page.evaluate(() => Promise.all(
