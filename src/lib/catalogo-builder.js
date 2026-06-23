@@ -50,12 +50,12 @@ async function batchPromises(tasks, limit = 6) {
 }
 
 // Descarga una URL externa optimizada y la convierte a data-URI. Fallback: URL original.
-async function urlToBase64(url, maxWidth = 400) {
+async function urlToBase64(url, maxWidth = 300) {
   if (!url || !/^https?:\/\//.test(url)) return url;
   const optUrl = optimizeCloudinaryURL(url, maxWidth);
   try {
     const ctrl = new AbortController();
-    const t = setTimeout(() => ctrl.abort(), 6000);
+    const t = setTimeout(() => ctrl.abort(), 5000);
     const res = await fetch(optUrl, { signal: ctrl.signal });
     clearTimeout(t);
     if (!res.ok) return url;
@@ -70,14 +70,14 @@ async function urlToBase64(url, maxWidth = 400) {
 export async function preloadImages(data) {
   const out = { ...data };
   if (out.coverImg && /^https?:\/\//.test(out.coverImg)) {
-    out.coverImg = await urlToBase64(out.coverImg, 600); // portada: mas ancho
+    out.coverImg = await urlToBase64(out.coverImg, 500); // portada
   }
   if (Array.isArray(out.fichas) && out.fichas.length) {
     const tasks = out.fichas.map((f, i) => {
       const url = (f.img && /^https?:\/\//.test(f.img)) ? f.img : null;
-      return url ? () => urlToBase64(url, 400).then(b64 => { out.fichas[i] = { ...f, img: b64 }; }) : () => Promise.resolve();
+      return url ? () => urlToBase64(url, 300).then(b64 => { out.fichas[i] = { ...f, img: b64 }; }) : () => Promise.resolve();
     });
-    await batchPromises(tasks, 6);
+    await batchPromises(tasks, 8); // mas concurrencia = mas rapido
   }
   return out;
 }
@@ -92,7 +92,7 @@ function asset(relPath, mime) {
 function img(name) {
   if (!name) return '';
   if (/^data:/.test(name)) return name; // ya es base64 (preloaded)
-  if (/^https?:\/\//.test(name)) return optimizeCloudinaryURL(name, 400); // URL externa → optimizada para Puppeteer
+  if (/^https?:\/\//.test(name)) return optimizeCloudinaryURL(name, 300); // URL externa → w300
   if (name.startsWith('/')) return asset(name.replace(/^\//, ''), 'image/png');
   const folder = name.includes('portada') ? COVER_FOLDER : CURRENT_FOLDER;
   return asset(`images/${folder}/${name}`, 'image/png');

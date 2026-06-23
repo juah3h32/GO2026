@@ -127,8 +127,8 @@ async function generateCombinedPDF(lang, theme) {
   const browserCfgPromise = getBrowserConfig();
 
   const catJobs = [];
-  for (let i = 0; i < CATALOGS.length; i += 2) {
-    const batch = CATALOGS.slice(i, i + 2);
+  for (let i = 0; i < CATALOGS.length; i += 3) {
+    const batch = CATALOGS.slice(i, i + 3);
     const results = await Promise.all(batch.map(async (cat) => {
       try {
         const raw = await getCatalog(cat.slug);
@@ -184,13 +184,13 @@ async function generateCombinedPDF(lang, theme) {
     const page = await browser.newPage();
     await page.setViewport({ width: 1280, height: 720, deviceScaleFactor: 1.0 });
     // domcontentloaded: sin red externa (todo base64), instantaneo
-    await page.setContent(combinedHTML, { waitUntil: 'domcontentloaded', timeout: 20_000 });
+    await page.setContent(combinedHTML, { waitUntil: 'domcontentloaded', timeout: 15_000 });
 
     // Esperar decodificacion de base64 (max 5s por imagen)
     await page.evaluate(() => Promise.all(
       Array.from(document.images).filter(img => !img.complete).map(img =>
         new Promise(resolve => {
-          const t = setTimeout(resolve, 5_000);
+          const t = setTimeout(resolve, 3_000);
           const done = () => { clearTimeout(t); resolve(); };
           img.onload = done; img.onerror = done;
         })
