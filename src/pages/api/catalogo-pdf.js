@@ -8,7 +8,7 @@ import { existsSync } from 'fs';
 import { getCatalog } from '../../lib/catalog-store.js';
 import { getCatalogMeta } from '../../lib/catalogs.js';
 import { verifyAdminToken } from '../../lib/verifyAdminToken.ts';
-import { buildHTML, setCatFolders, preloadImages } from '../../lib/catalogo-builder.js';
+import { buildHTML, preloadImages } from '../../lib/catalogo-builder.js';
 
 // ── Chromium (igual que send-now.js) ──────────────────────────────────────────
 const LOCAL_CHROME = [
@@ -136,11 +136,9 @@ export async function GET({ url }) {
     const slug = url.searchParams.get('catalog') || 'digital-stretch-film';
 
     const meta = getCatalogMeta(slug);
-    setCatFolders(meta.imgFolder, meta.coverImgFolder);
-
     const rawData = await getCatalog(slug);
     const data = await preloadImages(rawData);
-    const html = buildHTML(theme, lang, data);
+    const html = buildHTML(theme, lang, data, meta.imgFolder, meta.coverImgFolder);
     if (url.searchParams.get('debug') === 'html') return new Response(html, { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
     const pdf = await generatePDF(html);
 
@@ -176,10 +174,8 @@ export async function POST({ request }) {
     const rawData = body.data || await getCatalog(slug);
 
     const meta = getCatalogMeta(slug);
-    setCatFolders(meta.imgFolder, meta.coverImgFolder);
-
     const data = await preloadImages(rawData);
-    const html = buildHTML(theme, lang, data);
+    const html = buildHTML(theme, lang, data, meta.imgFolder, meta.coverImgFolder);
     if ((body.format || 'html') === 'html') {
       return new Response(html, { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' } });
     }

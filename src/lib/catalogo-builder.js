@@ -6,9 +6,6 @@ import { readFileSync, existsSync } from 'fs';
 import { translations } from '../i18n';
 
 const ORANGE = '#fb670b';
-let CURRENT_FOLDER = 'stretch';
-let COVER_FOLDER = 'catalogos';
-let CAT_STYLES = {};
 
 const stripR = (s) => typeof s === 'string' ? s.replace(/®/g, '') : s;
 const T = (obj, lang) => {
@@ -20,12 +17,8 @@ const T = (obj, lang) => {
   return obj == null ? '' : stripR(obj);
 };
 
-export function setCatFolders(imgF, covF) { CURRENT_FOLDER = imgF || 'stretch'; COVER_FOLDER = covF || 'catalogos'; }
-
 // ── Optimizacion Cloudinary ──────────────────────────────────────────
-// Reduce el peso de las imagenes 70-80% sin perdida visible en PDF (1280x720).
-// f_auto = mejor formato (webp/avif), w_N = ancho maximo, q_auto:eco = calidad optima.
-function optimizeCloudinaryURL(url, maxWidth = 800) {
+function optimizeCloudinaryURL(url, maxWidth = 900) {
   if (!url || typeof url !== 'string') return url;
   if (!/res\.cloudinary\.com/.test(url)) return url;
   return url.replace(
@@ -49,12 +42,12 @@ async function batchPromises(tasks, limit = 6) {
 }
 
 // Descarga una URL externa optimizada y la convierte a data-URI. Fallback: URL original.
-async function urlToBase64(url, maxWidth = 300) {
+async function urlToBase64(url, maxWidth = 900) {
   if (!url || !/^https?:\/\//.test(url)) return url;
   const optUrl = optimizeCloudinaryURL(url, maxWidth);
   try {
     const ctrl = new AbortController();
-    const t = setTimeout(() => ctrl.abort(), 5000);
+    const t = setTimeout(() => ctrl.abort(), 8000);
     const res = await fetch(optUrl, { signal: ctrl.signal });
     clearTimeout(t);
     if (!res.ok) return url;
@@ -64,19 +57,23 @@ async function urlToBase64(url, maxWidth = 300) {
   } catch { return url; }
 }
 
-// Precarga todas las imagenes externas (Cloudinary) del data a base64
-// con concurrencia limitada y URLs optimizadas. Para Puppeteer sin peticiones de red.
+// Precarga todas las imagenes externas (Cloudinary) del data a base64.
+// Retorna SIEMPRE un objeto nuevo con fichas clonadas — sin mutar el original.
 export async function preloadImages(data) {
-  const out = { ...data };
+  // Deep-copy para no mutar el objeto que vino de Turso
+  const out = {
+    ...data,
+    fichas: Array.isArray(data.fichas) ? data.fichas.map(f => ({ ...f })) : data.fichas,
+  };
   if (out.coverImg && /^https?:\/\//.test(out.coverImg)) {
-    out.coverImg = await urlToBase64(out.coverImg, 1200); // portada — resolución alta
+    out.coverImg = await urlToBase64(out.coverImg, 1200);
   }
   if (Array.isArray(out.fichas) && out.fichas.length) {
     const tasks = out.fichas.map((f, i) => {
       const url = (f.img && /^https?:\/\//.test(f.img)) ? f.img : null;
-      return url ? () => urlToBase64(url, 900).then(b64 => { out.fichas[i] = { ...f, img: b64 }; }) : () => Promise.resolve();
+      return url ? () => urlToBase64(url, 900).then(b64 => { out.fichas[i] = { ...out.fichas[i], img: b64 }; }) : () => Promise.resolve();
     });
-    await batchPromises(tasks, 8); // mas concurrencia = mas rapido
+    await batchPromises(tasks, 8);
   }
   return out;
 }
@@ -88,18 +85,11 @@ function asset(relPath, mime) {
     return `data:${mime};base64,${readFileSync(abs).toString('base64')}`;
   } catch { return ''; }
 }
-function img(name) {
-  if (!name) return '';
-  if (/^data:/.test(name)) return name; // ya es base64 (preloaded)
-  if (/^https?:\/\//.test(name)) return optimizeCloudinaryURL(name, 300); // URL externa → w300
-  if (name.startsWith('/')) return asset(name.replace(/^\//, ''), 'image/png');
-  const folder = name.includes('portada') ? COVER_FOLDER : CURRENT_FOLDER;
-  return asset(`images/${folder}/${name}`, 'image/png');
-}
+
 function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 
-function styleStr(path) {
-  const s = CAT_STYLES[path]; if (!s) return '';
+function styleStr(path, styles) {
+  const s = (styles || {})[path]; if (!s) return '';
   const p = [];
   if (s.fontSize) p.push('font-size:' + s.fontSize);
   if (s.fontWeight) p.push('font-weight:' + s.fontWeight);
@@ -119,16 +109,16 @@ function header(t) {
   </div>`;
 }
 
-function tabla(f, t, fi) {
+function tabla(f, t, fi, styles) {
   const { specs = [], single, cols = {} } = f;
   if (single) {
-    const head = specs.map((s, j) => `<th class="${j % 2 === 0 ? 'o' : 'g'}"${styleStr(`fichas.${fi}.specs.${j}.c`)}>${esc(s.c)}</th>`).join('');
+    const head = specs.map((s, j) => `<th class="${j % 2 === 0 ? 'o' : 'g'}"${styleStr(`fichas.${fi}.specs.${j}.c`, styles)}>${esc(s.c)}</th>`).join('');
     const body = specs.map((s) => `<td class="n">${esc(s.min)}${s.uni ? (' ' + esc(s.uni)) : ''}</td>`).join('');
     return `<table class="t th"><thead><tr>${head}</tr></thead><tbody><tr>${body}</tr></tbody></table>`;
   }
   const rows = specs.map((s, j) => `
     <tr class="${s.hl ? 'hl' : ''}">
-      <td class="c"${styleStr(`fichas.${fi}.specs.${j}.c`)}>${esc(s.c)}</td>
+      <td class="c"${styleStr(`fichas.${fi}.specs.${j}.c`, styles)}>${esc(s.c)}</td>
       <td class="n">${esc(s.min)}</td>
       <td class="n">${esc(s.max)}</td>
       ${cols.tol ? `<td class="n">${esc(s.tol)}</td>` : ''}
@@ -171,17 +161,17 @@ function colorTabla(ct, ctl) {
   return `<table class="t ct"><thead><tr><th class="o">${esc(ctl.color)}</th><th class="g">${esc(ctl.in)}</th><th class="g">${esc(ctl.yd)}</th></tr></thead><tbody>${body}</tbody></table>`;
 }
 
-function paginaProducto(f, i, t, isDark, ctl) {
+function paginaProducto(f, i, t, isDark, ctl, imgFn, styles) {
   const mediaOverlay = f.soon ? `<div class="soon-overlay">
     <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
     <span>${esc(t.soon || "PRÓXIMAMENTE")}</span>
   </div>` : '';
-  const media = `<div class="media ${f.soon ? 'media-soon' : ''}"><div class="media-tf" style="transform: translate(${f.visual?.offsetX || 0}%, ${f.visual?.offsetY || 0}%) scale(${f.visual?.scale || 1}) rotate(${f.visual?.rotate || 0}deg); overflow: ${f.visual?.clip ? 'hidden' : 'visible'};"><img src="${img(f.img)}" alt="" style="transform: scale(${f.visual?.zoom || 1});${(f.visual?.clipTop || f.visual?.clipBottom) ? ` clip-path: inset(${f.visual?.clipTop || 0}% 0 ${f.visual?.clipBottom || 0}% 0);` : ''}"/></div>${mediaOverlay}</div>`;
-  const copy = `<div class="copy"><h2${styleStr(`fichas.${i}.nombre`)}>${esc(f.nombre)}</h2><p${styleStr(`fichas.${i}.desc`)}>${esc(f.desc)}</p></div>`;
+  const media = `<div class="media ${f.soon ? 'media-soon' : ''}"><div class="media-tf" style="transform: translate(${f.visual?.offsetX || 0}%, ${f.visual?.offsetY || 0}%) scale(${f.visual?.scale || 1}) rotate(${f.visual?.rotate || 0}deg); overflow: ${f.visual?.clip ? 'hidden' : 'visible'};"><img src="${imgFn(f.img)}" alt="" style="transform: scale(${f.visual?.zoom || 1});${(f.visual?.clipTop || f.visual?.clipBottom) ? ` clip-path: inset(${f.visual?.clipTop || 0}% 0 ${f.visual?.clipBottom || 0}% 0);` : ''}"/></div>${mediaOverlay}</div>`;
+  const copy = `<div class="copy"><h2${styleStr(`fichas.${i}.nombre`, styles)}>${esc(f.nombre)}</h2><p${styleStr(`fichas.${i}.desc`, styles)}>${esc(f.desc)}</p></div>`;
   const soonNote = f.soon ? `<div class="soon-note">${esc(t.soonNote || "")}</div>` : '';
   const tables = [];
   if (!f.soon) {
-    if (f.specs && f.specs.length) tables.push(tabla(f, t, i));
+    if (f.specs && f.specs.length) tables.push(tabla(f, t, i, styles));
     if (f.colorTable && f.colorTable.rows && f.colorTable.rows.length) tables.push(colorTabla(f.colorTable, ctl));
     if (f.matrix && f.matrix.rows && f.matrix.rows.length) tables.push(matrixTabla(f.matrix));
   }
@@ -195,7 +185,8 @@ function paginaProducto(f, i, t, isDark, ctl) {
   </div>`;
 }
 
-export function buildHTML(theme = 'dark', lang = 'es', data = {}) {
+// imgFolder y coverImgFolder se pasan explicitamente — sin estado global.
+export function buildHTML(theme = 'dark', lang = 'es', data = {}, imgFolder = 'stretch', coverImgFolder = 'catalogos') {
   const font = asset('fonts/Morganite-ExtraBold.ttf', 'font/ttf');
   const fontFace = font ? `@font-face{font-family:'Morganite';src:url('${font}') format('truetype');font-weight:800;font-style:normal;}` : '';
   const isRTL = lang === 'ar';
@@ -205,9 +196,21 @@ export function buildHTML(theme = 'dark', lang = 'es', data = {}) {
     : lang === 'ar'
     ? '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&display=swap" rel="stylesheet">'
     : '';
+
   const intro = data.intro, productos = data.productos, fichas = data.fichas, coverImg = data.coverImg, cover = data.cover || {};
   const vc = data.visualCover || { scale: 1, offsetX: 0, offsetY: 0, rotate: 0 };
-  CAT_STYLES = data.styles || {};
+  const styles = data.styles || {};
+
+  // img() es closure local — usa carpetas del argumento, sin estado global
+  function imgFn(name) {
+    if (!name) return '';
+    if (/^data:/.test(name)) return name;
+    if (/^https?:\/\//.test(name)) return optimizeCloudinaryURL(name, 900);
+    if (name.startsWith('/')) return asset(name.replace(/^\//, ''), 'image/png');
+    const folder = name.includes('portada') ? coverImgFolder : imgFolder;
+    return asset(`images/${folder}/${name}`, 'image/png');
+  }
+
   const UI = {
     es: { soon: 'PRÓXIMAMENTE', soonNote: 'Este producto estará disponible pronto.' },
     en: { soon: 'COMING SOON', soonNote: 'This product will be available soon.' },
@@ -262,18 +265,18 @@ export function buildHTML(theme = 'dark', lang = 'es', data = {}) {
     <div class="cover-grid">
       <div class="cover-left">
         <h1>
-          <span class="o" style="${styleStr('cover.t1')}">${esc(coverTr.t1 || '')}</span>
-          ${coverTr.t2 ? `<span class="gray" style="${styleStr('cover.t2')}">${esc(coverTr.t2)}</span>` : ''}
+          <span class="o" style="${styleStr('cover.t1', styles)}">${esc(coverTr.t1 || '')}</span>
+          ${coverTr.t2 ? `<span class="gray" style="${styleStr('cover.t2', styles)}">${esc(coverTr.t2)}</span>` : ''}
         </h1>
-        <div class="divis" style="${styleStr('cover.division')}">${esc(coverTr.division || t.division || "DIVISIÓN")}</div>
-        <p${styleStr('intro.p1')}>${esc(introTr.p1)}</p>
-        <p class="bio"${styleStr('intro.bioTitle')}>${esc(introTr.bioTitle)}</p>
-        <p${styleStr('intro.p2')}>${esc(introTr.p2)}</p>
+        <div class="divis" style="${styleStr('cover.division', styles)}">${esc(coverTr.division || t.division || "DIVISIÓN")}</div>
+        <p${styleStr('intro.p1', styles)}>${esc(introTr.p1)}</p>
+        <p class="bio"${styleStr('intro.bioTitle', styles)}>${esc(introTr.bioTitle)}</p>
+        <p${styleStr('intro.p2', styles)}>${esc(introTr.p2)}</p>
       </div>
       <div class="cover-right">
         <div class="cover-imgbox">
           <div class="cover-imgtf" style="transform: translate(${vc.offsetX}%, ${vc.offsetY}%) scale(${vc.scale}) rotate(${vc.rotate || 0}deg); overflow: ${vc.clip ? 'hidden' : 'visible'};">
-            <img src="${img(coverImg)}" alt="" style="transform: scale(${vc.zoom || 1});${(vc.clipTop || vc.clipBottom) ? ` clip-path: inset(${vc.clipTop || 0}% 0 ${vc.clipBottom || 0}% 0);` : ''}"/>
+            <img src="${imgFn(coverImg)}" alt="" style="transform: scale(${vc.zoom || 1});${(vc.clipTop || vc.clipBottom) ? ` clip-path: inset(${vc.clipTop || 0}% 0 ${vc.clipBottom || 0}% 0);` : ''}"/>
           </div>
         </div>
         ${manyProds ? '' : prodsBlock}
@@ -281,7 +284,7 @@ export function buildHTML(theme = 'dark', lang = 'es', data = {}) {
     </div>
     ${manyProds ? prodsBlock : ''}
   </div>`;
-  const productPages = fichasTr.map((f, i) => paginaProducto(f, i, t, isDark, ctl)).join('');
+  const productPages = fichasTr.map((f, i) => paginaProducto(f, i, t, isDark, ctl, imgFn, styles)).join('');
   return `<!doctype html><html lang="${lang}" dir="${isRTL ? 'rtl' : 'ltr'}"><head><meta charset="utf-8">${fontLink}<style>
     ${fontFace}
     @page { size: 1280px 720px; margin: 0; }

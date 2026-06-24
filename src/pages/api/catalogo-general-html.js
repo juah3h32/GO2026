@@ -6,7 +6,7 @@ export const prerender = false;
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { CATALOGS } from '../../lib/catalogs.js';
-import { buildHTML, setCatFolders } from '../../lib/catalogo-builder.js';
+import { buildHTML } from '../../lib/catalogo-builder.js';
 import { getCatalog } from '../../lib/catalog-store.js';
 
 // ── Morganite font ──
@@ -89,8 +89,7 @@ export async function GET({ url }) {
         if (!raw.cover) raw.cover = { t1: { es: cat.title }, t2: { es: '' }, division: { es: cat.division } };
         if (!raw.intro) raw.intro = { p1: { es: '' }, bioTitle: { es: '' }, p2: { es: '' } };
         if (!raw.styles) raw.styles = {};
-        setCatFolders(cat.imgFolder, cat.coverImgFolder);
-        return buildHTML(theme, lang, raw);
+        return buildHTML(theme, lang, raw, cat.imgFolder, cat.coverImgFolder);
       } catch (e) {
         console.error('[catalogo-general-html] Build error ' + cat.slug, e);
         return null;
