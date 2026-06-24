@@ -46,7 +46,7 @@ async function generatePDF(html) {
     const puppeteer = (await import('puppeteer-core')).default;
     browser = await puppeteer.launch({ executablePath, args, headless });
     const page = await browser.newPage();
-    await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1.0 });
+    await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 2 });
     await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 20_000 });
     // Esperar que todas las imagenes base64 esten decodificadas (max 10s por img)
     await page.evaluate(() => Promise.all(

@@ -28,10 +28,9 @@ export function setCatFolders(imgF, covF) { CURRENT_FOLDER = imgF || 'stretch'; 
 function optimizeCloudinaryURL(url, maxWidth = 800) {
   if (!url || typeof url !== 'string') return url;
   if (!/res\.cloudinary\.com/.test(url)) return url;
-  // Inserta transform params entre /upload/ y el resto
   return url.replace(
     /^(https:\/\/res\.cloudinary\.com\/[^/]+\/image\/upload)\/(v\d+\/)?(.+)$/,
-    `$1/f_auto,w_${maxWidth},q_auto:eco/$2$3`
+    `$1/f_auto,w_${maxWidth},q_auto:good/$2$3`
   );
 }
 
@@ -70,12 +69,12 @@ async function urlToBase64(url, maxWidth = 300) {
 export async function preloadImages(data) {
   const out = { ...data };
   if (out.coverImg && /^https?:\/\//.test(out.coverImg)) {
-    out.coverImg = await urlToBase64(out.coverImg, 800); // portada
+    out.coverImg = await urlToBase64(out.coverImg, 1200); // portada — resolución alta
   }
   if (Array.isArray(out.fichas) && out.fichas.length) {
     const tasks = out.fichas.map((f, i) => {
       const url = (f.img && /^https?:\/\//.test(f.img)) ? f.img : null;
-      return url ? () => urlToBase64(url, 600).then(b64 => { out.fichas[i] = { ...f, img: b64 }; }) : () => Promise.resolve();
+      return url ? () => urlToBase64(url, 900).then(b64 => { out.fichas[i] = { ...f, img: b64 }; }) : () => Promise.resolve();
     });
     await batchPromises(tasks, 8); // mas concurrencia = mas rapido
   }
