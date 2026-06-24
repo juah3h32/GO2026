@@ -920,10 +920,12 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
   </script>
 
   <script>
-    // pdf-lib: fusiona ArrayBuffers de PDFs en uno solo. Expuesto a scripts inline.
-    import { PDFDocument } from 'pdf-lib';
+    // pdf-lib: fusiona ArrayBuffers de PDFs en uno solo y numera paginas. Expuesto a scripts inline.
+    import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
     window.__pdfMerge = async function(arrayBuffers) {
       const merged = await PDFDocument.create();
+      // coverCount: cuantas paginas al inicio NO se numeran (portada general = 1)
+      const coverCount = 1;
       for (const buf of arrayBuffers) {
         try {
           const doc = await PDFDocument.load(buf, { ignoreEncryption: true });
@@ -931,6 +933,28 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
           pages.forEach(p => merged.addPage(p));
         } catch(e) { console.warn('[pdfMerge] skip:', e.message); }
       }
+      // Numerar paginas: empezar despues de la portada general
+      try {
+        const font = await merged.embedFont(StandardFonts.Helvetica);
+        const total = merged.getPageCount();
+        const numberedPages = total - coverCount;
+        for (let i = coverCount; i < total; i++) {
+          const page = merged.getPage(i);
+          const { width, height } = page.getSize();
+          const pageNum = i - coverCount + 1;
+          const txt = pageNum + ' / ' + numberedPages;
+          const fontSize = 9;
+          const tw = font.widthOfTextAtSize(txt, fontSize);
+          page.drawText(txt, {
+            x: width - tw - 20,
+            y: 14,
+            size: fontSize,
+            font,
+            color: rgb(0.55, 0.55, 0.55),
+            opacity: 0.65,
+          });
+        }
+      } catch(e) { console.warn('[pdfMerge] page numbers:', e.message); }
       return merged.save();
     };
   </script>
@@ -1236,8 +1260,13 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
 
         var done = 0;
 
+        // Portada general (en paralelo, no cuenta en progreso)
+        var coverPromise = fetch('/api/catalogo-general-pdf?lang=' + lang + '&theme=' + theme, { cache: 'no-store' })
+          .then(function(r) { return r.ok ? r.arrayBuffer() : null; })
+          .catch(function() { return null; });
+
         // Descarga todos los catalogos individuales en paralelo
-        var promises = cats.map(function(cat) {
+        var catPromises = cats.map(function(cat) {
           var url = '/api/catalogo-pdf?catalog=' + encodeURIComponent(cat.slug)
                   + '&lang=' + lang + '&theme=' + theme;
           return fetch(url, { cache: 'no-store' })
@@ -1255,12 +1284,15 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
             });
         });
 
-        Promise.all(promises)
-          .then(function(buffers) {
+        Promise.all([coverPromise, Promise.all(catPromises)])
+          .then(function(results) {
+            var coverBuf = results[0];
+            var catBufs  = results[1];
+            var allBufs  = coverBuf ? [coverBuf].concat(catBufs) : catBufs;
             if (elGenTxt) elGenTxt.textContent = 'UNIENDO PAGINAS...';
             if (elGenBar) elGenBar.style.width = '90%';
             if (!window.__pdfMerge) throw new Error('pdf-lib no disponible');
-            return window.__pdfMerge(buffers);
+            return window.__pdfMerge(allBufs);
           })
           .then(function(mergedBytes) {
             if (elGenBar) elGenBar.style.width = '100%';

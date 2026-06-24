@@ -70,12 +70,12 @@ async function urlToBase64(url, maxWidth = 300) {
 export async function preloadImages(data) {
   const out = { ...data };
   if (out.coverImg && /^https?:\/\//.test(out.coverImg)) {
-    out.coverImg = await urlToBase64(out.coverImg, 500); // portada
+    out.coverImg = await urlToBase64(out.coverImg, 800); // portada
   }
   if (Array.isArray(out.fichas) && out.fichas.length) {
     const tasks = out.fichas.map((f, i) => {
       const url = (f.img && /^https?:\/\//.test(f.img)) ? f.img : null;
-      return url ? () => urlToBase64(url, 300).then(b64 => { out.fichas[i] = { ...f, img: b64 }; }) : () => Promise.resolve();
+      return url ? () => urlToBase64(url, 600).then(b64 => { out.fichas[i] = { ...f, img: b64 }; }) : () => Promise.resolve();
     });
     await batchPromises(tasks, 8); // mas concurrencia = mas rapido
   }
