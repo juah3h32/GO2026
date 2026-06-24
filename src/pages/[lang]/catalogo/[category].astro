@@ -378,6 +378,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
 
   <!-- Overlay fullscreen descarga catálogo general -->
   <div class="cd-gen-overlay" id="cdGenOverlay" style="display:none">
+    <div class="cd-gen-year-bg" aria-hidden="true">2026</div>
     <div class="cd-gen-card" id="cdGenProgress">
       <div class="cd-gen-hd">
         <div class="cd-gen-sup">CATÁLOGO GENERAL</div>
@@ -552,8 +553,26 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       display: flex; align-items: center; justify-content: center;
       font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
       padding: 80px 20px 20px;
+      overflow: hidden;
     }
     :global(.dark) .cd-gen-overlay { background: #1b1b1c; }
+
+    .cd-gen-year-bg {
+      position: absolute;
+      top: 50%; left: 50%; transform: translate(-50%, -50%);
+      font-family: "Morganite", sans-serif; font-weight: 800;
+      font-size: clamp(280px, 55vw, 700px);
+      line-height: 1; letter-spacing: -.02em;
+      color: transparent;
+      -webkit-text-stroke: 2px rgba(0,0,0,.08);
+      text-stroke: 2px rgba(0,0,0,.08);
+      user-select: none; pointer-events: none;
+      white-space: nowrap;
+    }
+    :global(.dark) .cd-gen-year-bg {
+      -webkit-text-stroke: 2px rgba(255,255,255,.08);
+      text-stroke: 2px rgba(255,255,255,.08);
+    }
 
     .cd-gen-card {
       width: 100%; max-width: 560px;
