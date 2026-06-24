@@ -307,7 +307,7 @@ chatbot: {
     {
       img: "/images/bolsas/carruselB.webp",
       division: "BOLSAS",
-      descripcion: "Bolsas de polipropileno de alta resistencia. Versátiles y económicas, disponibles en múltiples tamaños para empaque industrial y comercial.",
+      descripcion: "Bolsas de polietileno de alta resistencia. Versátiles y económicas, disponibles en múltiples tamaños para empaque industrial y comercial.",
       slug: "bolsas",
       video: "GO/carrusel/bolsa4.mp4"
     },
@@ -1459,7 +1459,7 @@ footer: {
         { title: "Stretch film",     tag: "División 06", description: "Película estirable de alta claridad óptica. Asegura la integridad de la carga con eficiencia en costos. Incluye opción biodegradable.",                       img: "/images/divisiones/film-estirable.webp",    color: "#2c5f8a", slug: "stretch-film",       soon: false },
         { title: "Esquinero",        tag: "División 07", description: "Esquineros de cartón kraft para protección de bordes durante el almacenamiento y transporte. Distribución uniforme de presión y máxima estabilidad de carga.", img: "/images/divisiones/esquineros.webp",        color: "#7b3fa0", slug: "esquineros",         soon: false },
         { title: "Naturizable",      tag: "División 08", description: "Empaque sustentable que regresa a la tierra. Soluciones 100% Plant Based, reciclables y compostables para la industria alimentaria.",            img: "/images/divisiones/desechables.webp",       color: "#e05500", slug: "naturizable",        soon: false },
-        { title: "Bolsas",           tag: "División 09", description: "Bolsas de polipropileno de alta resistencia para empaque industrial y comercial. Versátiles, económicas y disponibles en múltiples tamaños y presentaciones.",  img: "/images/bolsas/bolsa.webp",                               color: "#c0392b", slug: "bolsas",             soon: false },
+        { title: "Bolsas",           tag: "División 09", description: "Bolsas de polietileno de alta resistencia para empaque industrial y comercial. Versátiles, económicas y disponibles en múltiples tamaños y presentaciones.",  img: "/images/bolsas/bolsa.webp",                               color: "#c0392b", slug: "bolsas",             soon: false },
         { title: "Acolchado",        tag: "División 10", description: "Lámina plástica para cubrir el suelo en siembras, cultivos y huertos. Controla malezas, conserva la humedad, regula la temperatura del terreno y evita la erosión para mayor productividad.",                img: "/images/divisiones/acolchado.webp",                       color: "#5d7a8a", slug: "acolchado",          soon: false }
       ]
     },

@@ -1444,7 +1444,7 @@ footer: {
         { title: "缠绕膜",     tag: "部门 06", description: "高光学清晰度的拉伸薄膜。以成本效益确保货物完整性。包含生物降解选项。",             img: "/images/divisiones/film-estirable.webp", color: "#2c5f8a", slug: "stretch-film",       soon: false },
         { title: "护角",       tag: "部门 07", description: "牛皮卡纸护角，保护存储和运输过程中的边缘。均匀分压，最大化货物稳定性。",           img: "/images/divisiones/esquineros.webp",     color: "#7b3fa0", slug: "esquineros",         soon: false },
         { title: "一次性用品", tag: "部门 10", description: "用于工业、食品和医疗的聚丙烯一次性产品。卫生、经济且高强度的解决方案。",           img: "/images/divisiones/desechables.webp",    color: "#e05500", slug: "desechables",        soon: true  },
-        { title: "袋子",       tag: "部门 09", description: "用于工业和商业包装的高强度聚丙烯袋。多功能、经济实惠，提供多种尺寸和规格。",         img: "/images/bolsas/bolsa.webp",                            color: "#c0392b", slug: "bolsas",             soon: false },
+        { title: "袋子",       tag: "部门 09", description: "用于工业和商业包装的高强度聚乙烯袋。多功能、经济实惠，提供多种尺寸和规格。",         img: "/images/bolsas/bolsa.webp",                            color: "#c0392b", slug: "bolsas",             soon: false },
         { title: "缓冲材料",   tag: "部门 10", description: "覆盖农作物和花园土壤的塑料地膜。防治杂草、保持土壤水分、调节地温、防止侵蚀，提高农业生产力。",             img: "/images/divisiones/acolchado.webp",                    color: "#5d7a8a", slug: "acolchado",          soon: false }
       ]
     },

@@ -306,7 +306,7 @@ export const en = {
     {
       img: "/images/bolsas/carruselB.webp",
       division: "BOLSAS",
-      descripcion: "High-strength polypropylene bags. Versatile and cost-effective, available in multiple sizes for industrial and commercial packaging.",
+      descripcion: "High-strength polyethylene bags. Versatile and cost-effective, available in multiple sizes for industrial and commercial packaging.",
       slug: "bolsas",
       video: "GO/carrusel/bolsa4.mp4"
     },
@@ -1459,7 +1459,7 @@ footer: {
         { title: "Stretch Film",      tag: "Division 06", description: "High optical clarity stretch film. Ensures load integrity with cost efficiency. Includes biodegradable option.",                                                   img: "/images/divisiones/film-estirable.webp", color: "#2c5f8a", slug: "stretch-film",       soon: false },
         { title: "Edge Protector",    tag: "Division 07", description: "Kraft cardboard edge protectors for edge protection during storage and transport. Uniform pressure distribution and maximum load stability.",                     img: "/images/divisiones/esquineros.webp",     color: "#7b3fa0", slug: "esquineros",         soon: false },
         { title: "Naturizable",      tag: "Division 08", description: "Sustainable packaging that returns to the earth. 100% Plant Based, recyclable and compostable solutions for the food industry.",                                    img: "/images/divisiones/desechables.webp",    color: "#e05500", slug: "naturizable",        soon: false },
-        { title: "Bags",             tag: "Division 09", description: "High-strength polypropylene bags for industrial and commercial packaging. Versatile, cost-effective and available in multiple sizes and presentations.",               img: "/images/bolsas/bolsa.webp",                            color: "#c0392b", slug: "bolsas",             soon: false },
+        { title: "Bags",             tag: "Division 09", description: "High-strength polyethylene bags for industrial and commercial packaging. Versatile, cost-effective and available in multiple sizes and presentations.",               img: "/images/bolsas/bolsa.webp",                            color: "#c0392b", slug: "bolsas",             soon: false },
         { title: "Padded",           tag: "Division 10", description: "Plastic mulch film placed over soil in crops, gardens and orchards. Controls weeds, retains moisture, regulates soil temperature and prevents erosion for greater agricultural productivity.",                            img: "/images/divisiones/acolchado.webp",                    color: "#5d7a8a", slug: "acolchado",          soon: false }
       ]
     },

@@ -291,7 +291,7 @@ export const pt = {
     {
       img: "/images/bolsas/carruselB.webp",
       division: "BOLSAS",
-      descripcion: "Bolsas de polipropileno de alta resistência. Versáteis e econômicas, disponíveis em múltiplos tamanhos para embalagem industrial e comercial.",
+      descripcion: "Bolsas de polietileno de alta resistência. Versáteis e econômicas, disponíveis em múltiplos tamanhos para embalagem industrial e comercial.",
       slug: "bolsas",
       video: "GO/carrusel/bolsa4.mp4"
     },
@@ -1445,7 +1445,7 @@ footer: {
         { title: "Stretch film",      tag: "Divisão 06", description: "Filme extensível de alta clareza óptica. Garante a integridade da carga com eficiência em custos. Inclui opção biodegradável.",                             img: "/images/divisiones/film-estirable.webp",    color: "#2c5f8a", slug: "stretch-film",       soon: false },
         { title: "Cantoneira",        tag: "Divisão 07", description: "Cantoneiras de papelão kraft para proteção de bordas durante o armazenamento e transporte. Distribuição uniforme de pressão e máxima estabilidade de carga.", img: "/images/divisiones/esquineros.webp",        color: "#7b3fa0", slug: "esquineros",         soon: false },
         { title: "Naturizable",       tag: "Divisão 08", description: "Embalagem sustentável que retorna à terra. Soluções 100% Plant Based, recicláveis e compostáveis para a indústria alimentar.",                        img: "/images/divisiones/desechables.webp",       color: "#e05500", slug: "naturizable",        soon: false },
-        { title: "Bolsas",            tag: "Divisão 09", description: "Bolsas de polipropileno de alta resistência para embalagem industrial e comercial. Versáteis, econômicas e disponíveis em múltiplos tamanhos e apresentações.", img: "/images/bolsas/bolsa.webp",                               color: "#c0392b", slug: "bolsas",             soon: false },
+        { title: "Bolsas",            tag: "Divisão 09", description: "Bolsas de polietileno de alta resistência para embalagem industrial e comercial. Versáteis, econômicas e disponíveis em múltiplos tamanhos e apresentações.", img: "/images/bolsas/bolsa.webp",                               color: "#c0392b", slug: "bolsas",             soon: false },
         { title: "Acolchoado",        tag: "Divisão 10", description: "Filme plástico para cobrir o solo em cultivos, hortas e jardins. Controla ervas daninhas, conserva a humidade, regula a temperatura do solo e previne a erosão para maior produtividade.",                          img: "/images/divisiones/acolchado.webp",                       color: "#5d7a8a", slug: "acolchado",          soon: false }
       ]
     },
