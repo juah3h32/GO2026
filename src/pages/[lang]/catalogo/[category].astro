@@ -359,16 +359,24 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
     </button>
   </main>
 
-  <!-- Overlay fullscreen descarga catálogo general (fuera de <main> para evitar stacking contexts) -->
+  <!-- Overlay fullscreen descarga catálogo general -->
   <div class="cd-gen-overlay" id="cdGenOverlay" style="display:none">
     <div class="cd-gen-card" id="cdGenProgress">
-      <div class="cd-gen-mb" id="cdGenMb">0%</div>
-      <div class="cd-gen-title">CATÁLOGO GENERAL</div>
-      <div class="cd-gen-sub">Grupo Ortiz · Todas las divisiones</div>
-      <div class="cd-gen-bar-wrap">
-        <div class="cd-gen-bar" id="cdGenBar"></div>
+      <div class="cd-gen-hd">
+        <div class="cd-gen-sup">CATÁLOGO GENERAL</div>
+        <div class="cd-gen-txt" id="cdGenTxt">PREPARANDO</div>
+        <div class="cd-gen-sub">GRUPO ORTIZ · TODAS LAS DIVISIONES</div>
       </div>
-      <div class="cd-gen-txt" id="cdGenTxt">DESCARGA EN CURSO</div>
+      <div class="cd-gen-grid" id="cdGenGrid"></div>
+      <div class="cd-gen-ft">
+        <div class="cd-gen-bar-wrap">
+          <div class="cd-gen-bar" id="cdGenBar"></div>
+        </div>
+        <div class="cd-gen-stats-row">
+          <span class="cd-gen-count" id="cdGenCount">0 / —</span>
+          <span class="cd-gen-mb" id="cdGenMb">0.0 MB</span>
+        </div>
+      </div>
     </div>
     <div class="cd-gen-card cd-gen-err-card" id="cdGenErrCard" style="display:none">
       <div class="cd-gen-err-icon">
@@ -522,57 +530,85 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
 
     /* ── Overlay fullscreen descarga ── */
     .cd-gen-overlay {
-      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      z-index: 999; /* debajo del navbar (1000) */
+      position: fixed; inset: 0; z-index: 999;
       background: #f5f5f7;
       display: flex; align-items: center; justify-content: center;
       font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
-      margin: 0; padding: 0;
-      padding-top: 80px; /* espacio para el navbar arriba */
+      padding: 80px 20px 20px;
     }
     :global(.dark) .cd-gen-overlay { background: #1b1b1c; }
+
     .cd-gen-card {
-      text-align: center; max-width: 480px; width: 90%;
-      display: flex; flex-direction: column; align-items: center; gap: 10px;
+      width: 100%; max-width: 560px;
+      display: flex; flex-direction: column; align-items: stretch; gap: 0;
     }
-    .cd-gen-title {
+
+    /* Header */
+    .cd-gen-hd { text-align: center; margin-bottom: 28px; }
+    .cd-gen-sup {
       font-family: "Morganite", sans-serif; font-weight: 800;
-      font-size: clamp(42px, 7vw, 72px); line-height: .9;
-      color: #fb670b; letter-spacing: .02em; text-transform: uppercase;
+      font-size: clamp(13px, 2vw, 16px); letter-spacing: .18em;
+      text-transform: uppercase; color: #fb670b; margin-bottom: 6px;
     }
+    .cd-gen-txt {
+      font-family: "Morganite", sans-serif; font-weight: 800;
+      font-size: clamp(52px, 10vw, 88px); line-height: .88;
+      color: #1b1b1c; letter-spacing: .02em; text-transform: uppercase;
+      margin: 0 0 8px;
+    }
+    :global(.dark) .cd-gen-txt { color: #f5f5f7; }
     .cd-gen-sub {
-      font-size: 13px; font-weight: 600; color: #6f6f72;
-      letter-spacing: .08em; text-transform: uppercase;
+      font-size: 11px; font-weight: 700; color: #6f6f72;
+      letter-spacing: .14em; text-transform: uppercase;
     }
     :global(.dark) .cd-gen-sub { color: #c9c9cc; }
-    .cd-gen-mb {
-      font-family: "Morganite", sans-serif; font-weight: 800;
-      font-size: clamp(72px, 14vw, 130px); letter-spacing: .02em;
-      color: #fb670b; line-height: 1;
+
+    /* Grid de indicadores (sin nombres) */
+    .cd-gen-grid {
+      display: flex; flex-wrap: wrap; gap: 8px;
+      justify-content: center; margin-bottom: 28px;
     }
+    .cd-gen-pill {
+      width: 40px; height: 8px; border-radius: 4px;
+      background: rgba(0,0,0,.18);
+      transition: background .35s ease, opacity .35s ease;
+      opacity: 1;
+    }
+    :global(.dark) .cd-gen-pill { background: rgba(255,255,255,.22); }
+    .cd-gen-pill.is-loading { animation: cdBarPulse 1.4s ease-in-out infinite; }
+    .cd-gen-pill.is-done { background: #fb670b; animation: none; opacity: 1; }
+    @keyframes cdBarPulse {
+      0%,100% { opacity: .35; }
+      50%      { opacity: .8;  }
+    }
+
+    /* Footer */
+    .cd-gen-ft { display: flex; flex-direction: column; gap: 10px; }
     .cd-gen-bar-wrap {
-      width: 100%; height: 6px; background: rgba(0,0,0,.10);
-      border-radius: 3px; overflow: hidden;
+      width: 100%; height: 4px; background: rgba(0,0,0,.10);
+      border-radius: 2px; overflow: hidden;
     }
     :global(.dark) .cd-gen-bar-wrap { background: rgba(255,255,255,.1); }
     .cd-gen-bar {
-      height: 100%; border-radius: 3px; background: #1b1b1c;
-      width: 0%; transition: width .35s cubic-bezier(.25,.46,.45,.94);
+      height: 100%; border-radius: 2px; background: #fb670b;
+      width: 0%; transition: width .4s cubic-bezier(.25,.46,.45,.94);
     }
-    :global(.dark) .cd-gen-bar { background: #ffffff; }
-    .cd-gen-txt {
+    .cd-gen-stats-row {
+      display: flex; justify-content: space-between; align-items: baseline;
+    }
+    .cd-gen-count {
       font-family: "Morganite", sans-serif; font-weight: 800;
-      font-size: 18px; letter-spacing: .12em;
-      text-transform: uppercase; color: #6f6f72; line-height: 1;
+      font-size: 22px; letter-spacing: .06em; color: #6f6f72;
     }
-    :global(.dark) .cd-gen-txt { color: #c9c9cc; }
+    :global(.dark) .cd-gen-count { color: #c9c9cc; }
+    .cd-gen-mb {
+      font-family: "Morganite", sans-serif; font-weight: 800;
+      font-size: 28px; letter-spacing: .04em; color: #fb670b; line-height: 1;
+    }
 
-    .cd-gen-err-card {
-      gap: 8px;
-    }
-    .cd-gen-err-icon {
-      color: #6f6f72; margin-bottom: 4px;
-    }
+    /* Error card */
+    .cd-gen-err-card { align-items: center; gap: 8px; text-align: center; }
+    .cd-gen-err-icon { color: #6f6f72; margin-bottom: 4px; }
     :global(.dark) .cd-gen-err-icon { color: #c9c9cc; }
     .cd-gen-err-title {
       font-family: "Morganite", sans-serif; font-weight: 800;
@@ -580,9 +616,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       text-transform: uppercase;
     }
     :global(.dark) .cd-gen-err-title { color: #f5f5f7; }
-    .cd-gen-err-msg {
-      font-size: 13px; color: #6f6f72; letter-spacing: .02em;
-    }
+    .cd-gen-err-msg { font-size: 13px; color: #6f6f72; letter-spacing: .02em; }
     :global(.dark) .cd-gen-err-msg { color: #c9c9cc; }
     .cd-gen-err-retry {
       margin-top: 8px; padding: 9px 24px;
@@ -1219,23 +1253,31 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       }
       if (elDl) elDl.addEventListener('click', onDl);
 
-      // ── Catálogo General — overlay centro de descarga ──
-      var elDlGen = document.getElementById('cdDownloadGeneral');
-      var dlGenTxt = elDlGen ? elDlGen.querySelector('.cd-dl-txt') : null;
-      var elGenOv = document.getElementById('cdGenOverlay');
-      var elGenBar = document.getElementById('cdGenBar');
-      var elGenTxt = document.getElementById('cdGenTxt');
-      var elGenMb = document.getElementById('cdGenMb');
+      // ── Catálogo General — overlay con grid de progreso ──
+      var elDlGen     = document.getElementById('cdDownloadGeneral');
+      var dlGenTxt    = elDlGen ? elDlGen.querySelector('.cd-dl-txt') : null;
+      var elGenOv     = document.getElementById('cdGenOverlay');
+      var elGenBar    = document.getElementById('cdGenBar');
+      var elGenTxt    = document.getElementById('cdGenTxt');
+      var elGenMb     = document.getElementById('cdGenMb');
+      var elGenCount  = document.getElementById('cdGenCount');
+      var elGenGrid   = document.getElementById('cdGenGrid');
       var elGenProgress = document.getElementById('cdGenProgress');
-      var elGenErrCard = document.getElementById('cdGenErrCard');
+      var elGenErrCard  = document.getElementById('cdGenErrCard');
       var dlGenBusy = false;
+
+      function pillDone(id) {
+        var p = document.getElementById(id);
+        if (p) { p.classList.remove('is-loading'); p.classList.add('is-done'); }
+      }
 
       function resetGenOverlay() {
         if (elGenErrCard) elGenErrCard.style.display = 'none';
         if (elGenProgress) elGenProgress.style.display = 'flex';
         if (elGenBar) elGenBar.style.width = '0%';
-        if (elGenMb) elGenMb.textContent = '0%';
-        if (elGenTxt) elGenTxt.textContent = 'DESCARGA EN CURSO';
+        if (elGenMb) elGenMb.textContent = '0.0 MB';
+        if (elGenTxt) elGenTxt.textContent = 'PREPARANDO';
+        if (elGenGrid) elGenGrid.innerHTML = '';
       }
 
       function onDlGeneral(e) {
@@ -1247,26 +1289,37 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
         var lang  = (window.__cdLang || 'es').toLowerCase();
         var theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
         var filename = 'Catalogo-General-Grupo-Ortiz-' + lang.toUpperCase() + '-' + theme + '.pdf';
-        var cats = window.__cdCats || [];
+        var cats  = window.__cdCats || [];
         var total = cats.length;
+        var done  = 0;
+        var totalBytes = 0;
 
         resetGenOverlay();
+
+        // Construir grid: 1 barra portada + N barras catálogos (sin texto)
+        if (elGenGrid) {
+          var html = '<div class="cd-gen-pill is-loading" id="cdGenPillCover"></div>';
+          cats.forEach(function(_, i) {
+            html += '<div class="cd-gen-pill is-loading" id="cdGenPill' + i + '"></div>';
+          });
+          elGenGrid.innerHTML = html;
+        }
+
+        if (elGenCount) elGenCount.textContent = '0 / ' + total;
         if (elGenOv) elGenOv.style.display = 'flex';
-        var genTitle = elGenOv ? elGenOv.querySelector('.cd-gen-title') : null;
-        if (genTitle) genTitle.textContent = 'CATÁLOGO GENERAL';
-        if (elGenTxt) elGenTxt.textContent = 'PREPARANDO...';
-        if (elGenBar) elGenBar.style.width = '0%';
-        if (elGenMb) elGenMb.textContent = '0/' + total;
 
-        var done = 0;
-
-        // Portada general (en paralelo, no cuenta en progreso)
+        // Portada general (en paralelo, sin contador de progreso)
         var coverPromise = fetch('/api/catalogo-general-pdf?lang=' + lang + '&theme=' + theme, { cache: 'no-store' })
           .then(function(r) { return r.ok ? r.arrayBuffer() : null; })
-          .catch(function() { return null; });
+          .then(function(buf) {
+            pillDone('cdGenPillCover');
+            if (buf) { totalBytes += buf.byteLength; if (elGenMb) elGenMb.textContent = (totalBytes/1024/1024).toFixed(1) + ' MB'; }
+            return buf;
+          })
+          .catch(function() { pillDone('cdGenPillCover'); return null; });
 
-        // Descarga todos los catalogos individuales en paralelo
-        var catPromises = cats.map(function(cat) {
+        // Catálogos individuales en paralelo
+        var catPromises = cats.map(function(cat, i) {
           var url = '/api/catalogo-pdf?catalog=' + encodeURIComponent(cat.slug)
                   + '&lang=' + lang + '&theme=' + theme;
           return fetch(url, { cache: 'no-store' })
@@ -1276,10 +1329,13 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
             })
             .then(function(buf) {
               done++;
+              totalBytes += buf.byteLength;
+              pillDone('cdGenPill' + i);
               var pct = Math.round((done / total) * 85);
-              if (elGenBar) elGenBar.style.width = pct + '%';
-              if (elGenMb) elGenMb.textContent = done + '/' + total;
-              if (elGenTxt) elGenTxt.textContent = done + ' DE ' + total + ' CATALOGOS';
+              if (elGenBar)   elGenBar.style.width = pct + '%';
+              if (elGenCount) elGenCount.textContent = done + ' / ' + total;
+              if (elGenMb)    elGenMb.textContent = (totalBytes / 1024 / 1024).toFixed(1) + ' MB';
+              if (elGenTxt)   elGenTxt.textContent = 'GENERANDO PDFS';
               return buf;
             });
         });
@@ -1289,41 +1345,36 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
             var coverBuf = results[0];
             var catBufs  = results[1];
             var allBufs  = coverBuf ? [coverBuf].concat(catBufs) : catBufs;
-            if (elGenTxt) elGenTxt.textContent = 'UNIENDO PAGINAS...';
-            if (elGenBar) elGenBar.style.width = '90%';
+            if (elGenTxt) elGenTxt.textContent = 'UNIENDO PÁGINAS';
+            if (elGenBar) elGenBar.style.width = '92%';
             if (!window.__pdfMerge) throw new Error('pdf-lib no disponible');
             return window.__pdfMerge(allBufs);
           })
           .then(function(mergedBytes) {
-            if (elGenBar) elGenBar.style.width = '100%';
-            if (elGenMb) elGenMb.textContent = (mergedBytes.byteLength / 1024 / 1024).toFixed(1) + ' MB';
-            if (elGenTxt) elGenTxt.textContent = 'COMPLETADO';
+            if (elGenBar)   elGenBar.style.width = '100%';
+            if (elGenMb)    elGenMb.textContent = (mergedBytes.byteLength / 1024 / 1024).toFixed(1) + ' MB';
+            if (elGenCount) elGenCount.textContent = total + ' / ' + total;
+            if (elGenTxt)   elGenTxt.textContent = 'COMPLETADO';
 
             var isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-            var type = isIOS ? 'application/octet-stream' : 'application/pdf';
-            var blob = new Blob([mergedBytes], { type: type });
+            var type  = isIOS ? 'application/octet-stream' : 'application/pdf';
+            var blob  = new Blob([mergedBytes], { type: type });
             var blobUrl = URL.createObjectURL(blob);
             var a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = blobUrl;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            setTimeout(function() {
-              URL.revokeObjectURL(blobUrl);
-              if (a.parentNode) a.parentNode.removeChild(a);
-            }, 60000);
+            a.style.display = 'none'; a.href = blobUrl; a.download = filename;
+            document.body.appendChild(a); a.click();
+            setTimeout(function() { URL.revokeObjectURL(blobUrl); if (a.parentNode) a.parentNode.removeChild(a); }, 60000);
 
             setTimeout(function() {
               if (elGenOv) elGenOv.style.display = 'none';
               dlGenBusy = false; elDlGen.removeAttribute('aria-busy');
               if (dlGenTxt) dlGenTxt.textContent = original || 'Catálogo General';
-            }, 1500);
+            }, 2000);
           })
           .catch(function(err) {
             console.error('[general PDF]', err);
             if (elGenProgress) elGenProgress.style.display = 'none';
-            if (elGenErrCard) elGenErrCard.style.display = 'flex';
+            if (elGenErrCard)  elGenErrCard.style.display = 'flex';
             setTimeout(function() {
               if (elGenOv) elGenOv.style.display = 'none';
               dlGenBusy = false; elDlGen.removeAttribute('aria-busy');
