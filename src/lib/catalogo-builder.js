@@ -17,13 +17,14 @@ const T = (obj, lang) => {
   return obj == null ? '' : stripR(obj);
 };
 
-// ── Optimizacion Cloudinary ──────────────────────────────────────────
+// ── Cloudinary URL — solo redimensiona, sin perdida de calidad ──────
 function optimizeCloudinaryURL(url, maxWidth = 900) {
   if (!url || typeof url !== 'string') return url;
   if (!/res\.cloudinary\.com/.test(url)) return url;
+  // q_100 = sin compresion adicional de Cloudinary. f_auto = mejor formato disponible.
   return url.replace(
     /^(https:\/\/res\.cloudinary\.com\/[^/]+\/image\/upload)\/(v\d+\/)?(.+)$/,
-    `$1/f_auto,w_${maxWidth},q_auto:good/$2$3`
+    `$1/f_auto,w_${maxWidth},q_100/$2$3`
   );
 }
 
@@ -66,12 +67,14 @@ export async function preloadImages(data) {
     fichas: Array.isArray(data.fichas) ? data.fichas.map(f => ({ ...f })) : data.fichas,
   };
   if (out.coverImg && /^https?:\/\//.test(out.coverImg)) {
-    out.coverImg = await urlToBase64(out.coverImg, 1200);
+    // 585px CSS × 2x dSF = 1170px efectivos → 1600px da margen sin upscale
+    out.coverImg = await urlToBase64(out.coverImg, 1600);
   }
   if (Array.isArray(out.fichas) && out.fichas.length) {
     const tasks = out.fichas.map((f, i) => {
       const url = (f.img && /^https?:\/\//.test(f.img)) ? f.img : null;
-      return url ? () => urlToBase64(url, 900).then(b64 => { out.fichas[i] = { ...out.fichas[i], img: b64 }; }) : () => Promise.resolve();
+      // 424px CSS × 2x dSF = 848px efectivos → 1000px da margen sin upscale
+      return url ? () => urlToBase64(url, 1000).then(b64 => { out.fichas[i] = { ...out.fichas[i], img: b64 }; }) : () => Promise.resolve();
     });
     await batchPromises(tasks, 8);
   }
