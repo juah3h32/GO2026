@@ -2480,7 +2480,7 @@ function Dash({ onClose, role, theme='dark', toggleTheme, fullscreen=false }) {
   const [activePresetId,setActivePresetId]=useState(_defPreset);
   const [activePeriod,setActivePeriod]=useState(()=>PERIOD_PRESETS.find(p=>p.id===_defPreset).getRange());
   const [customFrom,setCustomFrom]=useState(''), [customTo,setCustomTo]=useState('');
-  const [leads,setLeads]=useState([]), [leadsLoad,setLeadsLoad]=useState(false), [leadSearch,setLeadSearch]=useState(''), [leadStatusFilter,setLeadStatusFilter]=useState('all');
+  const [leads,setLeads]=useState([]), [leadsLoad,setLeadsLoad]=useState(false), [leadSearch,setLeadSearch]=useState(''), [leadStatusFilter,setLeadStatusFilter]=useState('all'), [resendingId,setResendingId]=useState(null), [resendResult,setResendResult]=useState({});
   const [convSessions,setConvSessions]=useState([]), [convLoading,setConvLoading]=useState(false);
   const [selectedConv,setSelectedConv]=useState(null), [convMessages,setConvMessages]=useState([]), [convMsgLoad,setConvMsgLoad]=useState(false);
   const [voiceCalls,setVoiceCalls]=useState([]), [vcLoading,setVcLoading]=useState(false), [selectedCall,setSelectedCall]=useState(null);
@@ -4327,6 +4327,31 @@ const ALL_TABS=[
                                 </span>
                               </div>
                             )}
+                          </div>
+                          {/* Fila 3: botón reenviar notificación */}
+                          <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                            <button onClick={async()=>{
+                              setResendingId(l.id);
+                              setResendResult(prev=>({...prev,[l.id]:null}));
+                              try {
+                                const r = await fetch('/api/analytics',{method:'POST',credentials:'include',
+                                  headers:{'Content-Type':'application/json'},
+                                  body:JSON.stringify({action:'resendLeadNotif',id:l.id})});
+                                const j = await r.json();
+                                setResendResult(prev=>({...prev,[l.id]:j.ok?'ok':'err'}));
+                              } catch { setResendResult(prev=>({...prev,[l.id]:'err'})); }
+                              setResendingId(null);
+                              setTimeout(()=>setResendResult(prev=>({...prev,[l.id]:null})),3000);
+                            }} disabled={resendingId===l.id}
+                              style={{ display:'inline-flex', alignItems:'center', gap:5, padding:'4px 12px',
+                                borderRadius:20, fontSize:10.5, fontWeight:600, cursor:'pointer',
+                                background:'transparent', border:`1.5px solid ${P.border}`,
+                                color:P.textDim, transition:'all 0.12s ease',
+                                opacity:resendingId===l.id?0.5:1 }}>
+                              {resendingId===l.id ? '...' : Icons.sync} Reenviar notif
+                            </button>
+                            {resendResult[l.id]==='ok' && <span style={{fontSize:10,color:'#22C55E',fontWeight:700}}>Enviado</span>}
+                            {resendResult[l.id]==='err' && <span style={{fontSize:10,color:'#EF4444',fontWeight:700}}>Error</span>}
                           </div>
                         </div>
                       );

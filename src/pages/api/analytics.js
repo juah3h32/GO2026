@@ -203,6 +203,24 @@ export async function POST({ request }) {
       return json({ ok: true });
     }
 
+    // ── REENVIAR notificación de un lead ─────────────────────────────────────
+    if (action === 'resendLeadNotif') {
+      const adminRole = await verifyAdminToken(request);
+      if (!adminRole) return json({ ok: false, error: 'No autorizado' }, 401);
+      const { id } = body;
+      if (!id) return json({ ok: false, error: 'Falta id' }, 400);
+      const leads = await readLeads();
+      const lead = leads.find(l => String(l.id) === String(id));
+      if (!lead) return json({ ok: false, error: 'Lead no encontrado' }, 404);
+      await notifyNewDistribuidor({
+        nombre:   lead.nombre   || '',
+        empresa:  lead.empresa  || '',
+        whatsapp: lead.whatsapp || '',
+        productos: lead.productos || '',
+      });
+      return json({ ok: true });
+    }
+
     // ── TRACKING descarga de catálogo PDF (público, fire-and-forget) ──────────
     if (action === 'catalogDownload') {
       const { slug = '', lang = 'es', type = 'individual' } = body;
