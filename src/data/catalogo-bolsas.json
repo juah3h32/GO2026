@@ -123,9 +123,9 @@
       "img": "/images/bolsas/15x25.webp",
       "lado": "",
       "desc": {
-        "es": "Bolsa de polipropileno compacta, ideal para empaque de productos pequeños. Perfecta para retail, empaque de semillas, especias y productos de consumo en porciones individuales. Alta resistencia al rasgado con acabado uniforme.",
-        "en": "Compact polypropylene bag, ideal for packaging small products. Perfect for retail, seed packaging, spices and individual-portion consumer products. High tear resistance with uniform finish.",
-        "pt": "Bolsa de polipropileno compacta, ideal para embalagem de produtos pequenos. Perfeita para varejo, embalagem de sementes, especiarias e produtos de consumo em porções individuais. Alta resistência ao rasgamento com acabamento uniforme.",
+        "es": "Bolsa de polietileno compacta, ideal para empaque de productos pequeños. Perfecta para retail, empaque de semillas, especias y productos de consumo en porciones individuales. Alta resistencia al rasgado con acabado uniforme.",
+        "en": "Compact polyethylene bag, ideal for packaging small products. Perfect for retail, seed packaging, spices and individual-portion consumer products. High tear resistance with uniform finish.",
+        "pt": "Bolsa de polietileno compacta, ideal para embalagem de produtos pequenos. Perfeita para varejo, embalagem de sementes, especiarias e produtos de consumo em porções individuais. Alta resistência ao rasgamento com acabamento uniforme.",
         "zh": "紧凑型聚丙烯袋，适合小产品包装。完美用于零售、种子包装、香料和单份消费品。高抗撕裂性，表面均匀。",
         "ar": "كيس بولي بروبيلين مدمج، مثالي لتعبئة المنتجات الصغيرة. مناسب لتجارة التجزئة وتعبئة البذور والتوابل ومنتجات الاستهلاك الفردي. مقاومة عالية للتمزق مع تشطيب منتظم."
       },
@@ -193,9 +193,9 @@
             "ar": "المادة"
           },
           "min": {
-            "es": "Polipropileno",
-            "en": "Polypropylene",
-            "pt": "Polipropileno",
+            "es": "Polietileno",
+            "en": "Polyethylene",
+            "pt": "Polietileno",
             "zh": "聚丙烯",
             "ar": "بولي بروبيلين"
           },
@@ -338,9 +338,9 @@
       "img": "/images/bolsas/18X25.png",
       "lado": "",
       "desc": {
-        "es": "Bolsa de polipropileno de tamaño estándar para empaque versátil de productos de mediano volumen. Ideal para granos, cereales, botanas y artículos de uso cotidiano con presentación limpia y resistente.",
-        "en": "Standard-size polypropylene bag for versatile packaging of medium-volume products. Ideal for grains, cereals, snacks and everyday items with a clean, durable presentation.",
-        "pt": "Bolsa de polipropileno de tamanho padrão para embalagem versátil de produtos de médio volume. Ideal para grãos, cereais, lanches e artigos de uso diário com apresentação limpa e durável.",
+        "es": "Bolsa de polietileno de tamaño estándar para empaque versátil de productos de mediano volumen. Ideal para granos, cereales, botanas y artículos de uso cotidiano con presentación limpia y resistente.",
+        "en": "Standard-size polyethylene bag for versatile packaging of medium-volume products. Ideal for grains, cereals, snacks and everyday items with a clean, durable presentation.",
+        "pt": "Bolsa de polietileno de tamanho padrão para embalagem versátil de produtos de médio volume. Ideal para grãos, cereais, lanches e artigos de uso diário com apresentação limpa e durável.",
         "zh": "标准尺寸聚丙烯袋，适用于中等体积产品的多功能包装。适合谷物、麦片、零食和日用品，外观整洁耐用。",
         "ar": "كيس بولي بروبيلين بحجم قياسي للتعبئة متعددة الاستخدامات لمنتجات الحجم المتوسط. مثالي للحبوب والمواد الغذائية والمنتجات اليومية بعرض نظيف ومتين."
       },
@@ -408,9 +408,9 @@
             "ar": "المادة"
           },
           "min": {
-            "es": "Polipropileno",
-            "en": "Polypropylene",
-            "pt": "Polipropileno",
+            "es": "Polietileno",
+            "en": "Polyethylene",
+            "pt": "Polietileno",
             "zh": "聚丙烯",
             "ar": "بولي بروبيلين"
           },
@@ -623,9 +623,9 @@
             "ar": "المادة"
           },
           "min": {
-            "es": "Polipropileno",
-            "en": "Polypropylene",
-            "pt": "Polipropileno",
+            "es": "Polietileno",
+            "en": "Polyethylene",
+            "pt": "Polietileno",
             "zh": "聚丙烯",
             "ar": "بولي بروبيلين"
           },
@@ -838,9 +838,9 @@
             "ar": "المادة"
           },
           "min": {
-            "es": "Polipropileno",
-            "en": "Polypropylene",
-            "pt": "Polipropileno",
+            "es": "Polietileno",
+            "en": "Polyethylene",
+            "pt": "Polietileno",
             "zh": "聚丙烯",
             "ar": "بولي بروبيلين"
           },
@@ -1053,9 +1053,9 @@
             "ar": "المادة"
           },
           "min": {
-            "es": "Polipropileno",
-            "en": "Polypropylene",
-            "pt": "Polipropileno",
+            "es": "Polietileno",
+            "en": "Polyethylene",
+            "pt": "Polietileno",
             "zh": "聚丙烯",
             "ar": "بولي بروبيلين"
           },
@@ -1198,9 +1198,9 @@
       "img": "/images/bolsas/35X45.png",
       "lado": "",
       "desc": {
-        "es": "Bolsa de polipropileno de gran capacidad para empaque de productos de alto volumen. Diseñada para cargas pesadas, materiales industriales y logística de distribución exigente. Acabado resistente de alta calidad.",
-        "en": "High-capacity polypropylene bag for large-volume product packaging. Designed for heavy loads, industrial materials and demanding distribution logistics. High-quality resistant finish.",
-        "pt": "Bolsa de polipropileno de alta capacidade para embalagem de produtos de alto volume. Projetada para cargas pesadas, materiais industriais e logística de distribuição exigente. Acabamento resistente de alta qualidade.",
+        "es": "Bolsa de polietileno de gran capacidad para empaque de productos de alto volumen. Diseñada para cargas pesadas, materiales industriales y logística de distribución exigente. Acabado resistente de alta calidad.",
+        "en": "High-capacity polyethylene bag for large-volume product packaging. Designed for heavy loads, industrial materials and demanding distribution logistics. High-quality resistant finish.",
+        "pt": "Bolsa de polietileno de alta capacidade para embalagem de produtos de alto volume. Projetada para cargas pesadas, materiais industriais e logística de distribuição exigente. Acabamento resistente de alta qualidade.",
         "zh": "大容量聚丙烯袋，适合大体积产品包装。专为重型载荷、工业材料和高要求配送物流而设计。高质量耐用表面处理。",
         "ar": "كيس بولي بروبيلين عالي السعة لتعبئة المنتجات كبيرة الحجم. مصمم للأحمال الثقيلة والمواد الصناعية ولوجستيات التوزيع المتطلبة. تشطيب عالي المقاومة والجودة."
       },
@@ -1268,9 +1268,9 @@
             "ar": "المادة"
           },
           "min": {
-            "es": "Polipropileno",
-            "en": "Polypropylene",
-            "pt": "Polipropileno",
+            "es": "Polietileno",
+            "en": "Polyethylene",
+            "pt": "Polietileno",
             "zh": "聚丙烯",
             "ar": "بولي بروبيلين"
           },
@@ -1483,9 +1483,9 @@
             "ar": "المادة"
           },
           "min": {
-            "es": "Polipropileno",
-            "en": "Polypropylene",
-            "pt": "Polipropileno",
+            "es": "Polietileno",
+            "en": "Polyethylene",
+            "pt": "Polietileno",
             "zh": "聚丙烯",
             "ar": "بولي بروبيلين"
           },
@@ -1698,9 +1698,9 @@
             "ar": "المادة"
           },
           "min": {
-            "es": "Polipropileno",
-            "en": "Polypropylene",
-            "pt": "Polipropileno",
+            "es": "Polietileno",
+            "en": "Polyethylene",
+            "pt": "Polietileno",
             "zh": "聚丙烯",
             "ar": "بولي بروبيلين"
           },
@@ -1913,9 +1913,9 @@
             "ar": "المادة"
           },
           "min": {
-            "es": "Polipropileno",
-            "en": "Polypropylene",
-            "pt": "Polipropileno",
+            "es": "Polietileno",
+            "en": "Polyethylene",
+            "pt": "Polietileno",
             "zh": "聚丙烯",
             "ar": "بولي بروبيلين"
           },

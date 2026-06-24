@@ -940,7 +940,7 @@ gallery: [
   // =================================================
   bolsas: {
     meta_title: "Bolsas | Grupo Ortiz",
-    meta_description: "Bolsas de polipropileno de alta resistencia para empaque industrial y comercial. Disponibles en 5 tamaños.",
+    meta_description: "Bolsas de polietileno de alta resistencia para empaque industrial y comercial. Disponibles en 5 tamaños.",
     back_aria: "Volver a productos",
     specs_title: "ESPECIFICACIONES TÉCNICAS",
 
@@ -957,8 +957,8 @@ gallery: [
         img:   "/images/bolsas/15x25.webp",
         thumb: "/images/bolsas/15x25.webp",
         link:  "#",
-        description: "Bolsa de polipropileno compacta, ideal para empaque de productos pequeños. Perfecta para retail, empaque de semillas, especias y productos de consumo en porciones individuales. Alta resistencia al rasgado con acabado uniforme.",
-        specs_values: { width: "15 cm", height: "25 cm", mat: "Polipropileno", use: "Retail" },
+        description: "Bolsa de polietileno compacta, ideal para empaque de productos pequeños. Perfecta para retail, empaque de semillas, especias y productos de consumo en porciones individuales. Alta resistencia al rasgado con acabado uniforme.",
+        specs_values: { width: "15 cm", height: "25 cm", mat: "Polietileno", use: "Retail" },
         gallery: ["/images/bolsas/15x25.webp"]
       },
       {
@@ -966,8 +966,8 @@ gallery: [
         img:   "/images/bolsas/18X25.png",
         thumb: "/images/bolsas/18X25.png",
         link:  "#",
-        description: "Bolsa de polipropileno de tamaño estándar para empaque versátil de productos de mediano volumen. Ideal para granos, cereales, botanas y artículos de uso cotidiano con presentación limpia y resistente.",
-        specs_values: { width: "18 cm", height: "25 cm", mat: "Polipropileno", use: "Empaque industrial" },
+        description: "Bolsa de polietileno de tamaño estándar para empaque versátil de productos de mediano volumen. Ideal para granos, cereales, botanas y artículos de uso cotidiano con presentación limpia y resistente.",
+        specs_values: { width: "18 cm", height: "25 cm", mat: "Polietileno", use: "Empaque industrial" },
         gallery: ["/images/bolsas/18X25_D.png", "/images/bolsas/18X25.png", "/images/bolsas/18X25_F.png"]
       },
       {
@@ -976,7 +976,7 @@ gallery: [
         thumb: "/images/bolsas/20X30.png",
         link:  "#",
         description: "Bolsa de mediano formato con alta capacidad volumétrica. Diseñada para el empaque de frutas, verduras, productos agrícolas y mercancía de mediano peso. Resistente al rasgado con acabado uniforme.",
-        specs_values: { width: "20 cm", height: "30 cm", mat: "Polipropileno", use: "Empaque agrícola" },
+        specs_values: { width: "20 cm", height: "30 cm", mat: "Polietileno", use: "Empaque agrícola" },
         gallery: ["/images/bolsas/20X30_D.png", "/images/bolsas/20X30.png", "/images/bolsas/20X30_F.png"]
       },
       {
@@ -985,7 +985,7 @@ gallery: [
         thumb: "/images/bolsas/25x35.webp",
         link:  "#",
         description: "Bolsa de gran formato ideal para el manejo de productos de mayor volumen. Perfecta para empaque de ropa, textiles, calzado y mercancía de distribución. Ofrece resistencia superior y excelente presentación.",
-        specs_values: { width: "25 cm", height: "35 cm", mat: "Polipropileno", use: "Distribución a granel" },
+        specs_values: { width: "25 cm", height: "35 cm", mat: "Polietileno", use: "Distribución a granel" },
         gallery: ["/images/bolsas/25x35_D.png", "/images/bolsas/25x35.webp", "/images/bolsas/25X35_F.png"]
       },
       {
@@ -994,7 +994,7 @@ gallery: [
         thumb: "/images/bolsas/30X40.png",
         link:  "#",
         description: "Bolsa de máxima capacidad para empaque industrial de gran volumen. Diseñada para cargas pesadas, materiales a granel y logística de distribución de alta demanda. Resistencia extrema con acabado de alta calidad.",
-        specs_values: { width: "30 cm", height: "40 cm", mat: "Polipropileno", use: "Logística industrial" },
+        specs_values: { width: "30 cm", height: "40 cm", mat: "Polietileno", use: "Logística industrial" },
         gallery: ["/images/bolsas/30X40_D.png", "/images/bolsas/30X40.png", "/images/bolsas/30X40_F.png"]
       },
       {
@@ -1002,8 +1002,8 @@ gallery: [
         img:   "/images/bolsas/35X45.png",
         thumb: "/images/bolsas/35X45.png",
         link:  "#",
-        description: "Bolsa de polipropileno de gran capacidad para empaque de productos de alto volumen. Diseñada para cargas pesadas, materiales industriales y logística de distribución exigente. Acabado resistente de alta calidad.",
-        specs_values: { width: "35 cm", height: "45 cm", mat: "Polipropileno", use: "Empaque industrial" },
+        description: "Bolsa de polietileno de gran capacidad para empaque de productos de alto volumen. Diseñada para cargas pesadas, materiales industriales y logística de distribución exigente. Acabado resistente de alta calidad.",
+        specs_values: { width: "35 cm", height: "45 cm", mat: "Polietileno", use: "Empaque industrial" },
         gallery: ["/images/bolsas/35X45_D.png", "/images/bolsas/35X45.png", "/images/bolsas/35X45_F.png"]
       },
       {
@@ -1012,7 +1012,7 @@ gallery: [
         thumb: "/images/bolsas/40X60.png",
         link:  "#",
         description: "Bolsa extra-grande para empaque y almacenamiento de productos voluminosos. Ideal para textiles, materiales de construcción ligeros y distribución a gran escala. Máxima resistencia estructural.",
-        specs_values: { width: "40 cm", height: "60 cm", mat: "Polipropileno", use: "Almacenamiento industrial" },
+        specs_values: { width: "40 cm", height: "60 cm", mat: "Polietileno", use: "Almacenamiento industrial" },
         gallery: ["/images/bolsas/40X60_D.png", "/images/bolsas/40X60.png", "/images/bolsas/40X60_F.png"]
       },
       {
@@ -1021,7 +1021,7 @@ gallery: [
         thumb: "/images/bolsas/50X70.png",
         link:  "#",
         description: "Bolsa de gran formato para cargas de alto peso y volumen. Diseñada para aplicaciones industriales de alta demanda, logística de exportación y almacenaje de materiales a granel. Resistencia extrema garantizada.",
-        specs_values: { width: "50 cm", height: "70 cm", mat: "Polipropileno", use: "Logística y exportación" },
+        specs_values: { width: "50 cm", height: "70 cm", mat: "Polietileno", use: "Logística y exportación" },
         gallery: ["/images/bolsas/50X70_D.png", "/images/bolsas/50X70.png", "/images/bolsas/50X70_F.png"]
       },
       {
@@ -1030,7 +1030,7 @@ gallery: [
         thumb: "/images/bolsas/60X90.png",
         link:  "#",
         description: "La bolsa de mayor capacidad del catálogo. Ideal para empaque industrial de gran escala, almacenamiento de insumos pesados y distribución masiva. Construida para soportar las exigencias más extremas.",
-        specs_values: { width: "60 cm", height: "90 cm", mat: "Polipropileno", use: "Industrial / Granel" },
+        specs_values: { width: "60 cm", height: "90 cm", mat: "Polietileno", use: "Industrial / Granel" },
         gallery: ["/images/bolsas/60X90_D.png", "/images/bolsas/60X90.png", "/images/bolsas/60X90_F.png"]
       }
     ]

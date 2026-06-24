@@ -938,7 +938,7 @@ arpillas: {
   // =================================================
   bolsas: {
     meta_title: "Bags | Grupo Ortiz",
-    meta_description: "High-strength polypropylene bags for industrial and commercial packaging. Available in 5 sizes.",
+    meta_description: "High-strength polyethylene bags for industrial and commercial packaging. Available in 5 sizes.",
     back_aria: "Back to products",
     specs_title: "TECHNICAL SPECIFICATIONS",
 
@@ -955,8 +955,8 @@ arpillas: {
         img:   "/images/bolsas/15x25.webp",
         thumb: "/images/bolsas/15x25.webp",
         link:  "#",
-        description: "Compact polypropylene bag, ideal for packaging small products. Perfect for retail, seed packaging, spices and individual-portion consumer products. High tear resistance with uniform finish.",
-        specs_values: { width: "15 cm", height: "25 cm", mat: "Polypropylene", use: "Retail" },
+        description: "Compact polyethylene bag, ideal for packaging small products. Perfect for retail, seed packaging, spices and individual-portion consumer products. High tear resistance with uniform finish.",
+        specs_values: { width: "15 cm", height: "25 cm", mat: "Polyethylene", use: "Retail" },
         gallery: ["/images/bolsas/15x25.webp"]
       },
       {
@@ -964,8 +964,8 @@ arpillas: {
         img:   "/images/bolsas/18X25.png",
         thumb: "/images/bolsas/18X25.png",
         link:  "#",
-        description: "Standard-size polypropylene bag for versatile packaging of medium-volume products. Ideal for grains, cereals, snacks and everyday items with a clean, durable presentation.",
-        specs_values: { width: "18 cm", height: "25 cm", mat: "Polypropylene", use: "Industrial packaging" },
+        description: "Standard-size polyethylene bag for versatile packaging of medium-volume products. Ideal for grains, cereals, snacks and everyday items with a clean, durable presentation.",
+        specs_values: { width: "18 cm", height: "25 cm", mat: "Polyethylene", use: "Industrial packaging" },
         gallery: ["/images/bolsas/18X25_D.png", "/images/bolsas/18X25.png", "/images/bolsas/18X25_F.png"]
       },
       {
@@ -974,7 +974,7 @@ arpillas: {
         thumb: "/images/bolsas/20X30.png",
         link:  "#",
         description: "Medium-format bag with high volumetric capacity. Designed for packaging fruits, vegetables, agricultural products and medium-weight merchandise. Tear-resistant with a uniform finish.",
-        specs_values: { width: "20 cm", height: "30 cm", mat: "Polypropylene", use: "Agricultural packaging" },
+        specs_values: { width: "20 cm", height: "30 cm", mat: "Polyethylene", use: "Agricultural packaging" },
         gallery: ["/images/bolsas/20X30_D.png", "/images/bolsas/20X30.png", "/images/bolsas/20X30_F.png"]
       },
       {
@@ -983,7 +983,7 @@ arpillas: {
         thumb: "/images/bolsas/25x35.webp",
         link:  "#",
         description: "Large-format bag ideal for handling higher-volume products. Perfect for clothing, textiles, footwear and bulk distribution merchandise. Superior resistance and excellent presentation.",
-        specs_values: { width: "25 cm", height: "35 cm", mat: "Polypropylene", use: "Bulk distribution" },
+        specs_values: { width: "25 cm", height: "35 cm", mat: "Polyethylene", use: "Bulk distribution" },
         gallery: ["/images/bolsas/25x35_D.png", "/images/bolsas/25x35.webp", "/images/bolsas/25X35_F.png"]
       },
       {
@@ -992,7 +992,7 @@ arpillas: {
         thumb: "/images/bolsas/30X40.png",
         link:  "#",
         description: "Maximum-capacity bag for large-volume industrial packaging. Designed for heavy loads, bulk materials and high-demand distribution logistics. Extreme resistance with high-quality finish.",
-        specs_values: { width: "30 cm", height: "40 cm", mat: "Polypropylene", use: "Industrial logistics" },
+        specs_values: { width: "30 cm", height: "40 cm", mat: "Polyethylene", use: "Industrial logistics" },
         gallery: ["/images/bolsas/30X40_D.png", "/images/bolsas/30X40.png", "/images/bolsas/30X40_F.png"]
       },
       {
@@ -1000,8 +1000,8 @@ arpillas: {
         img:   "/images/bolsas/35X45.png",
         thumb: "/images/bolsas/35X45.png",
         link:  "#",
-        description: "High-capacity polypropylene bag for large-volume product packaging. Designed for heavy loads, industrial materials and demanding distribution logistics. High-quality resistant finish.",
-        specs_values: { width: "35 cm", height: "45 cm", mat: "Polypropylene", use: "Industrial packaging" },
+        description: "High-capacity polyethylene bag for large-volume product packaging. Designed for heavy loads, industrial materials and demanding distribution logistics. High-quality resistant finish.",
+        specs_values: { width: "35 cm", height: "45 cm", mat: "Polyethylene", use: "Industrial packaging" },
         gallery: ["/images/bolsas/35X45_D.png", "/images/bolsas/35X45.png", "/images/bolsas/35X45_F.png"]
       },
       {
@@ -1010,7 +1010,7 @@ arpillas: {
         thumb: "/images/bolsas/40X60.png",
         link:  "#",
         description: "Extra-large bag for packaging and storing bulky products. Ideal for textiles, lightweight construction materials and large-scale distribution. Maximum structural strength.",
-        specs_values: { width: "40 cm", height: "60 cm", mat: "Polypropylene", use: "Industrial storage" },
+        specs_values: { width: "40 cm", height: "60 cm", mat: "Polyethylene", use: "Industrial storage" },
         gallery: ["/images/bolsas/40X60_D.png", "/images/bolsas/40X60.png", "/images/bolsas/40X60_F.png"]
       },
       {
@@ -1019,7 +1019,7 @@ arpillas: {
         thumb: "/images/bolsas/50X70.png",
         link:  "#",
         description: "Large-format bag for high-weight and high-volume loads. Designed for high-demand industrial applications, export logistics and bulk material storage. Guaranteed extreme resistance.",
-        specs_values: { width: "50 cm", height: "70 cm", mat: "Polypropylene", use: "Logistics & export" },
+        specs_values: { width: "50 cm", height: "70 cm", mat: "Polyethylene", use: "Logistics & export" },
         gallery: ["/images/bolsas/50X70_D.png", "/images/bolsas/50X70.png", "/images/bolsas/50X70_F.png"]
       },
       {
@@ -1028,7 +1028,7 @@ arpillas: {
         thumb: "/images/bolsas/60X90.png",
         link:  "#",
         description: "The largest-capacity bag in the catalog. Ideal for large-scale industrial packaging, heavy input storage and mass distribution. Built to withstand the most extreme demands.",
-        specs_values: { width: "60 cm", height: "90 cm", mat: "Polypropylene", use: "Industrial / Bulk" },
+        specs_values: { width: "60 cm", height: "90 cm", mat: "Polyethylene", use: "Industrial / Bulk" },
         gallery: ["/images/bolsas/60X90_D.png", "/images/bolsas/60X90.png", "/images/bolsas/60X90_F.png"]
       }
     ]

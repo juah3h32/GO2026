@@ -924,7 +924,7 @@ export const zh = {
   // =================================================
   bolsas: {
     meta_title: "袋子 | Grupo Ortiz",
-    meta_description: "用于工业和商业包装的高强度聚丙烯袋。提供5种尺寸。",
+    meta_description: "用于工业和商业包装的高强度聚乙烯袋。提供5种尺寸。",
     back_aria: "返回产品",
     specs_title: "技术规格",
 
@@ -941,8 +941,8 @@ export const zh = {
         img:   "/images/bolsas/15x25.webp",
         thumb: "/images/bolsas/15x25.webp",
         link:  "#",
-        description: "紧凑型聚丙烯袋，适合小产品包装。完美用于零售、种子包装、香料和单份消费品。高抗撕裂性，表面均匀。",
-        specs_values: { width: "15 厘米", height: "25 厘米", mat: "聚丙烯", use: "零售" },
+        description: "紧凑型聚乙烯袋，适合小产品包装。完美用于零售、种子包装、香料和单份消费品。高抗撕裂性，表面均匀。",
+        specs_values: { width: "15 厘米", height: "25 厘米", mat: "聚乙烯", use: "零售" },
         gallery: ["/images/bolsas/15x25.webp"]
       },
       {
@@ -950,8 +950,8 @@ export const zh = {
         img:   "/images/bolsas/18X25.png",
         thumb: "/images/bolsas/18X25.png",
         link:  "#",
-        description: "标准尺寸聚丙烯袋，适用于中等体积产品的多功能包装。适合谷物、麦片、零食和日用品，外观整洁耐用。",
-        specs_values: { width: "18 厘米", height: "25 厘米", mat: "聚丙烯", use: "工业包装" },
+        description: "标准尺寸聚乙烯袋，适用于中等体积产品的多功能包装。适合谷物、麦片、零食和日用品，外观整洁耐用。",
+        specs_values: { width: "18 厘米", height: "25 厘米", mat: "聚乙烯", use: "工业包装" },
         gallery: ["/images/bolsas/18X25_D.png", "/images/bolsas/18X25.png", "/images/bolsas/18X25_F.png"]
       },
       {
@@ -960,7 +960,7 @@ export const zh = {
         thumb: "/images/bolsas/20X30.png",
         link:  "#",
         description: "中等尺寸袋，体积容量大。专为水果、蔬菜、农产品和中等重量商品的包装而设计。抗撕裂，表面均匀。",
-        specs_values: { width: "20 厘米", height: "30 厘米", mat: "聚丙烯", use: "农业包装" },
+        specs_values: { width: "20 厘米", height: "30 厘米", mat: "聚乙烯", use: "农业包装" },
         gallery: ["/images/bolsas/20X30_D.png", "/images/bolsas/20X30.png", "/images/bolsas/20X30_F.png"]
       },
       {
@@ -969,7 +969,7 @@ export const zh = {
         thumb: "/images/bolsas/25x35.webp",
         link:  "#",
         description: "大尺寸袋，适合处理更大体积的产品。完美用于服装、纺织品、鞋类和散装配送商品。出色的耐用性和展示效果。",
-        specs_values: { width: "25 厘米", height: "35 厘米", mat: "聚丙烯", use: "散装配送" },
+        specs_values: { width: "25 厘米", height: "35 厘米", mat: "聚乙烯", use: "散装配送" },
         gallery: ["/images/bolsas/25x35_D.png", "/images/bolsas/25x35.webp", "/images/bolsas/25X35_F.png"]
       },
       {
@@ -978,7 +978,7 @@ export const zh = {
         thumb: "/images/bolsas/30X40.png",
         link:  "#",
         description: "最大容量袋，用于大体积工业包装。专为重载荷、散装材料和高需求配送物流而设计。极强耐用性，高质量表面处理。",
-        specs_values: { width: "30 厘米", height: "40 厘米", mat: "聚丙烯", use: "工业物流" },
+        specs_values: { width: "30 厘米", height: "40 厘米", mat: "聚乙烯", use: "工业物流" },
         gallery: ["/images/bolsas/30X40_D.png", "/images/bolsas/30X40.png", "/images/bolsas/30X40_F.png"]
       },
       {
@@ -986,8 +986,8 @@ export const zh = {
         img:   "/images/bolsas/35X45.png",
         thumb: "/images/bolsas/35X45.png",
         link:  "#",
-        description: "大容量聚丙烯袋，适合大体积产品包装。专为重型载荷、工业材料和高要求配送物流而设计。高质量耐用表面处理。",
-        specs_values: { width: "35 厘米", height: "45 厘米", mat: "聚丙烯", use: "工业包装" },
+        description: "大容量聚乙烯袋，适合大体积产品包装。专为重型载荷、工业材料和高要求配送物流而设计。高质量耐用表面处理。",
+        specs_values: { width: "35 厘米", height: "45 厘米", mat: "聚乙烯", use: "工业包装" },
         gallery: ["/images/bolsas/35X45_D.png", "/images/bolsas/35X45.png", "/images/bolsas/35X45_F.png"]
       },
       {
@@ -996,7 +996,7 @@ export const zh = {
         thumb: "/images/bolsas/40X60.png",
         link:  "#",
         description: "特大号袋，用于大体积产品的包装和储存。适合纺织品、轻型建材和大规模配送。最大结构强度。",
-        specs_values: { width: "40 厘米", height: "60 厘米", mat: "聚丙烯", use: "工业储存" },
+        specs_values: { width: "40 厘米", height: "60 厘米", mat: "聚乙烯", use: "工业储存" },
         gallery: ["/images/bolsas/40X60_D.png", "/images/bolsas/40X60.png", "/images/bolsas/40X60_F.png"]
       },
       {
@@ -1005,7 +1005,7 @@ export const zh = {
         thumb: "/images/bolsas/50X70.png",
         link:  "#",
         description: "大格式袋，适用于高重量、高体积载荷。专为高需求工业应用、出口物流和散装材料储存而设计。极强耐用性有保障。",
-        specs_values: { width: "50 厘米", height: "70 厘米", mat: "聚丙烯", use: "物流与出口" },
+        specs_values: { width: "50 厘米", height: "70 厘米", mat: "聚乙烯", use: "物流与出口" },
         gallery: ["/images/bolsas/50X70_D.png", "/images/bolsas/50X70.png", "/images/bolsas/50X70_F.png"]
       },
       {
@@ -1014,7 +1014,7 @@ export const zh = {
         thumb: "/images/bolsas/60X90.png",
         link:  "#",
         description: "目录中容量最大的袋子。适合大规模工业包装、重型原料储存和大批量配送。专为承受最极端需求而打造。",
-        specs_values: { width: "60 厘米", height: "90 厘米", mat: "聚丙烯", use: "工业 / 散装" },
+        specs_values: { width: "60 厘米", height: "90 厘米", mat: "聚乙烯", use: "工业 / 散装" },
         gallery: ["/images/bolsas/60X90_D.png", "/images/bolsas/60X90.png", "/images/bolsas/60X90_F.png"]
       }
     ]

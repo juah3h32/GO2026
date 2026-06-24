@@ -924,7 +924,7 @@ export const ar = {
   // =================================================
   bolsas: {
     meta_title: "أكياس | Grupo Ortiz",
-    meta_description: "أكياس بولي بروبيلين عالية المقاومة للتعبئة الصناعية والتجارية. متوفرة بـ 5 مقاسات.",
+    meta_description: "أكياس بولي إيثيلين عالية المقاومة للتعبئة الصناعية والتجارية. متوفرة بـ 5 مقاسات.",
     back_aria: "العودة إلى المنتجات",
     specs_title: "المواصفات التقنية",
 
@@ -941,8 +941,8 @@ export const ar = {
         img:   "/images/bolsas/15x25.webp",
         thumb: "/images/bolsas/15x25.webp",
         link:  "#",
-        description: "كيس بولي بروبيلين مدمج، مثالي لتعبئة المنتجات الصغيرة. مناسب لتجارة التجزئة وتعبئة البذور والتوابل ومنتجات الاستهلاك الفردي. مقاومة عالية للتمزق مع تشطيب منتظم.",
-        specs_values: { width: "15 سم", height: "25 سم", mat: "بولي بروبيلين", use: "تجارة التجزئة" },
+        description: "كيس بولي إيثيلين مدمج، مثالي لتعبئة المنتجات الصغيرة. مناسب لتجارة التجزئة وتعبئة البذور والتوابل ومنتجات الاستهلاك الفردي. مقاومة عالية للتمزق مع تشطيب منتظم.",
+        specs_values: { width: "15 سم", height: "25 سم", mat: "بولي إيثيلين", use: "تجارة التجزئة" },
         gallery: ["/images/bolsas/15x25.webp"]
       },
       {
@@ -950,8 +950,8 @@ export const ar = {
         img:   "/images/bolsas/18X25.png",
         thumb: "/images/bolsas/18X25.png",
         link:  "#",
-        description: "كيس بولي بروبيلين بحجم قياسي للتعبئة متعددة الاستخدامات لمنتجات الحجم المتوسط. مثالي للحبوب والمواد الغذائية والمنتجات اليومية بعرض نظيف ومتين.",
-        specs_values: { width: "18 سم", height: "25 سم", mat: "بولي بروبيلين", use: "تعبئة صناعية" },
+        description: "كيس بولي إيثيلين بحجم قياسي للتعبئة متعددة الاستخدامات لمنتجات الحجم المتوسط. مثالي للحبوب والمواد الغذائية والمنتجات اليومية بعرض نظيف ومتين.",
+        specs_values: { width: "18 سم", height: "25 سم", mat: "بولي إيثيلين", use: "تعبئة صناعية" },
         gallery: ["/images/bolsas/18X25_D.png", "/images/bolsas/18X25.png", "/images/bolsas/18X25_F.png"]
       },
       {
@@ -960,7 +960,7 @@ export const ar = {
         thumb: "/images/bolsas/20X30.png",
         link:  "#",
         description: "كيس متوسط الحجم بسعة حجمية عالية. مصمم لتعبئة الفواكه والخضروات والمنتجات الزراعية والبضائع متوسطة الوزن. مقاوم للتمزق مع تشطيب منتظم.",
-        specs_values: { width: "20 سم", height: "30 سم", mat: "بولي بروبيلين", use: "تعبئة زراعية" },
+        specs_values: { width: "20 سم", height: "30 سم", mat: "بولي إيثيلين", use: "تعبئة زراعية" },
         gallery: ["/images/bolsas/20X30_D.png", "/images/bolsas/20X30.png", "/images/bolsas/20X30_F.png"]
       },
       {
@@ -969,7 +969,7 @@ export const ar = {
         thumb: "/images/bolsas/25x35.webp",
         link:  "#",
         description: "كيس كبير الحجم مثالي للتعامل مع المنتجات ذات الحجم الأكبر. مناسب للملابس والمنسوجات والأحذية وبضائع التوزيع بالجملة. مقاومة فائقة وعرض ممتاز.",
-        specs_values: { width: "25 سم", height: "35 سم", mat: "بولي بروبيلين", use: "توزيع بالجملة" },
+        specs_values: { width: "25 سم", height: "35 سم", mat: "بولي إيثيلين", use: "توزيع بالجملة" },
         gallery: ["/images/bolsas/25x35_D.png", "/images/bolsas/25x35.webp", "/images/bolsas/25X35_F.png"]
       },
       {
@@ -978,7 +978,7 @@ export const ar = {
         thumb: "/images/bolsas/30X40.png",
         link:  "#",
         description: "كيس بأقصى سعة للتعبئة الصناعية بحجم كبير. مصمم للأحمال الثقيلة والمواد السائبة ولوجستيات التوزيع عالية الطلب. مقاومة قصوى مع تشطيب عالي الجودة.",
-        specs_values: { width: "30 سم", height: "40 سم", mat: "بولي بروبيلين", use: "لوجستيات صناعية" },
+        specs_values: { width: "30 سم", height: "40 سم", mat: "بولي إيثيلين", use: "لوجستيات صناعية" },
         gallery: ["/images/bolsas/30X40_D.png", "/images/bolsas/30X40.png", "/images/bolsas/30X40_F.png"]
       },
       {
@@ -986,8 +986,8 @@ export const ar = {
         img:   "/images/bolsas/35X45.png",
         thumb: "/images/bolsas/35X45.png",
         link:  "#",
-        description: "كيس بولي بروبيلين عالي السعة لتعبئة المنتجات كبيرة الحجم. مصمم للأحمال الثقيلة والمواد الصناعية ولوجستيات التوزيع المتطلبة. تشطيب عالي المقاومة والجودة.",
-        specs_values: { width: "35 سم", height: "45 سم", mat: "بولي بروبيلين", use: "تعبئة صناعية" },
+        description: "كيس بولي إيثيلين عالي السعة لتعبئة المنتجات كبيرة الحجم. مصمم للأحمال الثقيلة والمواد الصناعية ولوجستيات التوزيع المتطلبة. تشطيب عالي المقاومة والجودة.",
+        specs_values: { width: "35 سم", height: "45 سم", mat: "بولي إيثيلين", use: "تعبئة صناعية" },
         gallery: ["/images/bolsas/35X45_D.png", "/images/bolsas/35X45.png", "/images/bolsas/35X45_F.png"]
       },
       {
@@ -996,7 +996,7 @@ export const ar = {
         thumb: "/images/bolsas/40X60.png",
         link:  "#",
         description: "كيس كبير الحجم لتعبئة وتخزين المنتجات الضخمة. مثالي للمنسوجات ومواد البناء الخفيفة والتوزيع واسع النطاق. أقصى مقاومة هيكلية.",
-        specs_values: { width: "40 سم", height: "60 سم", mat: "بولي بروبيلين", use: "تخزين صناعي" },
+        specs_values: { width: "40 سم", height: "60 سم", mat: "بولي إيثيلين", use: "تخزين صناعي" },
         gallery: ["/images/bolsas/40X60_D.png", "/images/bolsas/40X60.png", "/images/bolsas/40X60_F.png"]
       },
       {
@@ -1005,7 +1005,7 @@ export const ar = {
         thumb: "/images/bolsas/50X70.png",
         link:  "#",
         description: "كيس كبير الحجم للأحمال عالية الوزن والحجم. مصمم للتطبيقات الصناعية عالية الطلب ولوجستيات التصدير وتخزين المواد السائبة. مقاومة قصوى مضمونة.",
-        specs_values: { width: "50 سم", height: "70 سم", mat: "بولي بروبيلين", use: "لوجستيات وتصدير" },
+        specs_values: { width: "50 سم", height: "70 سم", mat: "بولي إيثيلين", use: "لوجستيات وتصدير" },
         gallery: ["/images/bolsas/50X70_D.png", "/images/bolsas/50X70.png", "/images/bolsas/50X70_F.png"]
       },
       {
@@ -1014,7 +1014,7 @@ export const ar = {
         thumb: "/images/bolsas/60X90.png",
         link:  "#",
         description: "الكيس الأكبر سعة في الكتالوج. مثالي للتعبئة الصناعية واسعة النطاق وتخزين المدخلات الثقيلة والتوزيع الجماعي. مصمم لتحمل أشد المتطلبات قسوة.",
-        specs_values: { width: "60 سم", height: "90 سم", mat: "بولي بروبيلين", use: "صناعي / سائب" },
+        specs_values: { width: "60 سم", height: "90 سم", mat: "بولي إيثيلين", use: "صناعي / سائب" },
         gallery: ["/images/bolsas/60X90_D.png", "/images/bolsas/60X90.png", "/images/bolsas/60X90_F.png"]
       }
     ]
