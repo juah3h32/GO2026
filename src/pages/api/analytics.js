@@ -1,5 +1,5 @@
 // src/pages/api/analytics.js
-import { logInteraction, readAllData, resetData, saveLead, readLeads, resetLeads, saveRecruitmentLead, updateLeadStatus } from '../../lib/analytics-db';
+import { logInteraction, readAllData, resetData, saveLead, readLeads, resetLeads, saveRecruitmentLead, updateLeadStatus, trackCatalogDownload } from '../../lib/analytics-db';
 import { notifyNewDistribuidor } from '../../lib/notify.ts';
 import { notifyNewVacante } from '../../lib/notify.js';
 import { verifyAdminToken } from '../../lib/verifyAdminToken.ts';
@@ -200,6 +200,13 @@ export async function POST({ request }) {
       const { id, status } = body;
       if (!id || !status) return json({ ok: false, error: 'Faltan datos' }, 400);
       await updateLeadStatus(id, status);
+      return json({ ok: true });
+    }
+
+    // ── TRACKING descarga de catálogo PDF (público, fire-and-forget) ──────────
+    if (action === 'catalogDownload') {
+      const { slug = '', lang = 'es', type = 'individual' } = body;
+      try { await trackCatalogDownload(slug, lang, type); } catch {}
       return json({ ok: true });
     }
 

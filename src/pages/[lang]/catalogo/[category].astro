@@ -72,7 +72,11 @@ const fichasTr = fichas.map(f => {
   // pares para tabla simple a 2 columnas-par (llena el ancho, no se ve vacia)
   const specPairs = [];
   if (single) { for (let i = 0; i < specs.length; i += 2) specPairs.push([{ s: specs[i], i }, specs[i + 1] ? { s: specs[i + 1], i: i + 1 } : null]); }
-  return { ...f, nombre: T(f.nombre), desc: T(f.desc), specs, cols, single, specPairs };
+  const sections = Array.isArray(f.sections) ? f.sections.map(sec => ({
+    title: T(sec.title),
+    items: (sec.items || []).map(it => T(it)),
+  })) : [];
+  return { ...f, nombre: T(f.nombre), desc: T(f.desc), sections, specs, cols, single, specPairs };
 });
 
 const dc: any = (translations[currentLang] as any)?.digital_catalog || {};
@@ -209,6 +213,19 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
 
         {f.soon && (
           <div class="cd-soon-note reveal" style="--d:.12s">{t.soonNote}</div>
+        )}
+
+        {!f.soon && Array.isArray(f.sections) && f.sections.length > 0 && (
+          <div class="cd-sections reveal" style="--d:.10s">
+            {f.sections.map((sec) => (
+              <div class="cd-sec">
+                <div class="cd-sec-tag">{sec.title}</div>
+                <ul class="cd-sec-list">
+                  {(sec.items || []).map((item) => (<li>{item}</li>))}
+                </ul>
+              </div>
+            ))}
+          </div>
         )}
 
         {!f.soon && f.specs.length > 0 && f.single && (
@@ -738,6 +755,12 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
     .cd-mtable .mt-cell { background: var(--bg2); color: var(--table-text); white-space: pre-line; line-height: 1.45; font-variant-numeric: tabular-nums; }
     .cd-mtable tbody tr:nth-child(even) .mt-cell { background: var(--table-row-alt); }
     .cd-mtable-note { margin-top: 8px; font-size: 12px; color: var(--text-muted); font-style: italic; }
+    .cd-sections { position: relative; z-index: 4; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .cd-sec { background: var(--bg2); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+    .cd-sec-tag { background: var(--o); color: #fff; font-weight: 800; text-align: center; padding: 9px 16px; letter-spacing: .06em; font-size: 13px; }
+    .cd-sec-list { margin: 0; padding: 10px 16px 12px 30px; list-style: disc; }
+    .cd-sec-list li { font-size: 13px; color: var(--text-muted); line-height: 1.6; padding: 1px 0; }
+    @media (max-width: 640px) { .cd-sections { grid-template-columns: 1fr; } }
     .cd[data-deck-on] .cd-mtable-scroll { max-height: 38vh; overflow-y: auto; }
 
     /* ── Reveal ── */
@@ -1187,6 +1210,11 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
         elDl.setAttribute('aria-busy', 'true');
         if (dlTxt) dlTxt.textContent = 'Generando PDF…';
 
+        // Tracking — fire and forget
+        try { fetch('/api/analytics', { method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ action:'catalogDownload', slug: window.__cdSlug || '', lang: window.__cdLang || 'es', type:'individual' }) }); } catch(_) {}
+
+
         var theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
         var url = elDl.getAttribute('href') + '&theme=' + theme + '&t=' + Date.now();
 
@@ -1288,6 +1316,11 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
 
         var lang  = (window.__cdLang || 'es').toLowerCase();
         var theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+
+        // Tracking — fire and forget
+        try { fetch('/api/analytics', { method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ action:'catalogDownload', slug:'general', lang: lang, type:'general' }) }); } catch(_) {}
+
         var filename = 'Catalogo-General-Grupo-Ortiz-' + lang.toUpperCase() + '-' + theme + '.pdf';
         var cats  = window.__cdCats || [];
         var total = cats.length;

@@ -170,7 +170,13 @@ function paginaProducto(f, i, t, isDark, ctl, imgFn, styles) {
     <span>${esc(t.soon || "PRÓXIMAMENTE")}</span>
   </div>` : '';
   const media = `<div class="media ${f.soon ? 'media-soon' : ''}"><div class="media-tf" style="transform: translate(${f.visual?.offsetX || 0}%, ${f.visual?.offsetY || 0}%) scale(${f.visual?.scale || 1}) rotate(${f.visual?.rotate || 0}deg); overflow: ${f.visual?.clip ? 'hidden' : 'visible'};"><img src="${imgFn(f.img)}" alt="" style="transform: scale(${f.visual?.zoom || 1});${(f.visual?.clipTop || f.visual?.clipBottom) ? ` clip-path: inset(${f.visual?.clipTop || 0}% 0 ${f.visual?.clipBottom || 0}% 0);` : ''}"/></div>${mediaOverlay}</div>`;
-  const copy = `<div class="copy"><h2${styleStr(`fichas.${i}.nombre`, styles)}>${esc(f.nombre)}</h2><p${styleStr(`fichas.${i}.desc`, styles)}>${esc(f.desc)}</p></div>`;
+  const hasSections = Array.isArray(f.sections) && f.sections.length > 0;
+  const sectionsHTML = hasSections
+    ? `<div class="secs">${f.sections.map(sec =>
+        `<div class="sec"><span class="sec-tag">${esc(sec.title)}</span><ul class="sec-list">${(sec.items || []).map(it => `<li>${esc(it)}</li>`).join('')}</ul></div>`
+      ).join('')}</div>`
+    : '';
+  const copy = `<div class="copy"><h2${styleStr(`fichas.${i}.nombre`, styles)}>${esc(f.nombre)}</h2>${f.desc ? `<p${styleStr(`fichas.${i}.desc`, styles)}>${esc(f.desc)}</p>` : ''}${sectionsHTML}</div>`;
   const soonNote = f.soon ? `<div class="soon-note">${esc(t.soonNote || "")}</div>` : '';
   const tables = [];
   if (!f.soon) {
@@ -181,7 +187,7 @@ function paginaProducto(f, i, t, isDark, ctl, imgFn, styles) {
   return `<div class="pg prod">
     ${header(t)}
     <div class="pg-fit">
-      <div class="head">${copy}${media}</div>
+      <div class="head${hasSections ? ' has-sections' : ''}">${copy}${media}</div>
       ${soonNote}
       ${tables.join('')}
     </div>
@@ -243,7 +249,11 @@ export function buildHTML(theme = 'dark', lang = 'es', data = {}, imgFolder = 's
     const colorTable = (f.colorTable && Array.isArray(f.colorTable.rows) && f.colorTable.rows.length) ? {
       rows: f.colorTable.rows.map(r => ({ color: T(r.color, lang), in: T(r.in, lang), yd: T(r.yd, lang) }))
     } : null;
-    return { ...f, nombre: T(f.nombre, lang), desc: T(f.desc, lang), specs, cols, single, matrix, colorTable };
+    const sections = Array.isArray(f.sections) ? f.sections.map(sec => ({
+      title: T(sec.title, lang),
+      items: (sec.items || []).map(it => T(it, lang)),
+    })) : [];
+    return { ...f, nombre: T(f.nombre, lang), desc: T(f.desc, lang), sections, specs, cols, single, matrix, colorTable };
   });
   const CT_LABELS = {
     es: { color: 'Color', in: 'Medidas (pulgadas)', yd: 'Medidas (yardas)' },
@@ -359,5 +369,11 @@ export function buildHTML(theme = 'dark', lang = 'es', data = {}, imgFolder = 's
     .soon-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.35); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: #fff; z-index: 5; border-radius: 12px; }
     .soon-overlay span { font-family: 'Morganite', sans-serif; font-size: 38px; letter-spacing: .1em; font-weight: 800; }
     .soon-note { font-size: 16px; color: ${ORANGE}; font-weight: 700; margin-top: -10px; margin-bottom: 10px; }
+    .head.has-sections { height: auto; min-height: 200px; align-items: flex-start; padding-top: 8px; }
+    .secs { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 10px; }
+    .sec { border: 1px solid ${BORDER}; border-radius: 8px; overflow: hidden; background: ${BG2}; }
+    .sec-tag { display: block; background: ${ORANGE}; color: #fff; font-weight: 700; font-size: 12px; padding: 6px 14px; letter-spacing: .05em; text-align: center; }
+    .sec-list { margin: 0; padding: 8px 12px 10px 24px; }
+    .sec-list li { font-size: 12px; color: ${MUTED}; line-height: 1.5; padding: 1px 0; }
   </style></head><body>${portada}${productPages}</body></html>`;
 }

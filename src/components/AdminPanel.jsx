@@ -1388,6 +1388,88 @@ function MaintenanceModeSection({ P }) {
   );
 }
 
+// ── CATALOG DOWNLOADS SECTION — estadísticas de descargas de PDF ──────────────
+function CatalogDownloadsSection({ dlData, P, isMobile }) {
+  if (!dlData) return null;
+  const { total = 0, today: todayN = 0, bySlug = [], byLang = {} } = dlData;
+  const ORANGE = P.orange || '#fb670b';
+
+  // Etiquetas cortas por slug
+  function slugLabel(slug) {
+    return slug === 'general'
+      ? 'General'
+      : String(slug).replace('digital-', '').replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+  }
+
+  return (
+    <div style={{ background:P.surface, border:`1px solid ${P.border}`, borderRadius:12,
+      padding:'16px 20px', position:'relative', overflow:'hidden', boxShadow:`0 2px 16px rgba(0,0,0,0.30)`,
+      marginBottom:0 }}>
+      <div style={{ position:'absolute', top:0, left:0, right:0, height:2.5,
+        background:`linear-gradient(90deg,${ORANGE},${ORANGE}50,transparent)` }}/>
+      <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:14 }}>
+        <div style={{ width:32, height:32, borderRadius:8, background:`${ORANGE}14`,
+          border:`1px solid ${ORANGE}25`, display:'flex', alignItems:'center', justifyContent:'center',
+          flexShrink:0, color:ORANGE, fontSize:16 }}>
+          ↓
+        </div>
+        <div>
+          <div style={{ fontWeight:700, fontSize:13, color:P.text, letterSpacing:'-0.01em' }}>Descargas de catálogos PDF</div>
+          <div style={{ fontSize:10, color:P.textDim, marginTop:1 }}>Registradas al presionar el botón de descarga</div>
+        </div>
+        <div style={{ marginLeft:'auto', textAlign:'right' }}>
+          <div style={{ fontFamily:'Morganite,sans-serif', fontSize:28, fontWeight:800, color:ORANGE, lineHeight:1 }}>{total}</div>
+          <div style={{ fontSize:9, color:P.textDim }}>total · {todayN} hoy</div>
+        </div>
+      </div>
+
+      {bySlug.length > 0 && (
+        <div style={{ overflowX:'auto' }}>
+          <table style={{ width:'100%', borderCollapse:'collapse', fontSize:11 }}>
+            <thead>
+              <tr>
+                {['Catálogo','Individual','General','Total'].map(h => (
+                  <th key={h} style={{ textAlign: h==='Catálogo' ? 'left' : 'right', padding:'4px 8px',
+                    color:P.textDim, fontWeight:600, fontSize:9.5, textTransform:'uppercase',
+                    letterSpacing:'0.08em', borderBottom:`1px solid ${P.border}` }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {bySlug.map((r, i) => (
+                <tr key={r.slug} style={{ background: i%2===0 ? 'transparent' : `${P.border}30` }}>
+                  <td style={{ padding:'5px 8px', color:P.text, fontWeight:600 }}>{slugLabel(r.slug)}</td>
+                  <td style={{ padding:'5px 8px', color:P.textDim, textAlign:'right' }}>{r.individual || 0}</td>
+                  <td style={{ padding:'5px 8px', color:P.textDim, textAlign:'right' }}>{r.general || 0}</td>
+                  <td style={{ padding:'5px 8px', color:ORANGE, fontWeight:700, textAlign:'right' }}>{r.total}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {bySlug.length === 0 && (
+        <div style={{ textAlign:'center', color:P.textDim, fontSize:11, padding:'12px 0' }}>
+          Sin descargas registradas aún.
+        </div>
+      )}
+
+      {/* Idiomas */}
+      {total > 0 && (
+        <div style={{ display:'flex', gap:8, flexWrap:'wrap', marginTop:12 }}>
+          {Object.entries(byLang).filter(([,n])=>n>0).map(([l,n]) => (
+            <span key={l} style={{ fontSize:10, padding:'2px 8px', borderRadius:10,
+              background:`${ORANGE}12`, border:`1px solid ${ORANGE}25`, color:P.text }}>
+              {l.toUpperCase()} {n}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── PAGESPEED CONFIG SECTION — notificaciones de sistema ──────────────────────
 function PagespeedSection({ theme, P }) {
   const [cfg,      setCfg]      = useState({ phones: [], active: false, last_sent: null });
@@ -4462,7 +4544,10 @@ const ALL_TABS=[
 
         {/* ── CATALOGO VISUAL ── */}
         {tab==='catalog'&&canSee('catalogo')&&(
-          <div className="tab-content" key="catalog">
+          <div className="tab-content" key="catalog" style={{ display:'flex', flexDirection:'column', gap:16 }}>
+            {data?.catalogDownloads && (
+              <CatalogDownloadsSection dlData={data.catalogDownloads} P={P} isMobile={isMobile} />
+            )}
             <CatalogVisualEditor P={P} onClose={onClose} />
           </div>
         )}

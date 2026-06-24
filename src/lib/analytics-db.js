@@ -262,12 +262,15 @@ export async function readAllData() {
   `);
   const lastMessages = messagesRes.rows.reverse();
 
+  const catalogDownloads = await readCatalogDownloads().catch(() => ({ total: 0, today: 0, bySlug: [], byLang: {} }));
+
   return {
     totalSessions: counters.totalSessions || 0,
     totalMessages: counters.totalMessages || 0,
     totalWhatsApp: counters.totalWhatsApp || 0,
     totalPDFs:     counters.totalPDFs     || 0,
     daily, hourly, products, keywords, intents, lastMessages,
+    catalogDownloads,
   };
 }
 
@@ -1393,4 +1396,73 @@ export async function readPagespeedHistory(limit = 20) {
     issues:         (() => { try { return JSON.parse(row.issues); } catch { return []; } })(),
     created_at:     row.created_at,
   }));
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  CATALOG DOWNLOADS — tracking de descargas de PDF desde la página pública
+// ════════════════════════════════════════════════════════════════════════════
+
+let catalogDlReady = false;
+
+async function ensureCatalogDownloadsTable() {
+  if (catalogDlReady) return;
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS catalog_downloads (
+      id   INTEGER PRIMARY KEY AUTOINCREMENT,
+      ts   TEXT    NOT NULL DEFAULT (datetime('now')),
+      slug TEXT    NOT NULL DEFAULT '',
+      lang TEXT    NOT NULL DEFAULT 'es',
+      type TEXT    NOT NULL DEFAULT 'individual'
+    )
+  `);
+  try { await db.execute(`CREATE INDEX IF NOT EXISTS idx_cdl_ts   ON catalog_downloads(ts DESC)`); } catch {}
+  try { await db.execute(`CREATE INDEX IF NOT EXISTS idx_cdl_slug ON catalog_downloads(slug)`); } catch {}
+  catalogDlReady = true;
+}
+
+export async function trackCatalogDownload(slug, lang = 'es', type = 'individual') {
+  await ensureInit();
+  await ensureCatalogDownloadsTable();
+  await db.execute({
+    sql:  `INSERT INTO catalog_downloads (slug, lang, type) VALUES (?, ?, ?)`,
+    args: [String(slug).slice(0, 80), String(lang).slice(0, 10), type === 'general' ? 'general' : 'individual'],
+  });
+}
+
+export async function readCatalogDownloads() {
+  await ensureInit();
+  await ensureCatalogDownloadsTable();
+
+  const today = getTodayKey();
+
+  const [bySlugRes, byLangRes, todayRes, totalRes] = await Promise.all([
+    db.execute(`SELECT slug, type, COUNT(*) c FROM catalog_downloads GROUP BY slug, type ORDER BY c DESC`),
+    db.execute(`SELECT lang, COUNT(*) c FROM catalog_downloads GROUP BY lang`),
+    db.execute({ sql: `SELECT COUNT(*) c FROM catalog_downloads WHERE date(ts) = ?`, args: [today] }),
+    db.execute(`SELECT COUNT(*) c FROM catalog_downloads`),
+  ]);
+
+  const slugMap = {};
+  for (const r of bySlugRes.rows) {
+    const slug = r.slug;
+    if (!slugMap[slug]) slugMap[slug] = { slug, individual: 0, general: 0, total: 0 };
+    const count = Number(r.c);
+    if (r.type === 'general') slugMap[slug].general += count;
+    else slugMap[slug].individual += count;
+    slugMap[slug].total += count;
+  }
+  const bySlug = Object.values(slugMap).sort((a, b) => b.total - a.total);
+
+  const byLang = { es: 0, en: 0, pt: 0, zh: 0, ar: 0 };
+  for (const r of byLangRes.rows) {
+    const l = r.lang;
+    if (byLang[l] != null) byLang[l] = Number(r.c);
+  }
+
+  return {
+    total: Number(totalRes.rows[0]?.c || 0),
+    today: Number(todayRes.rows[0]?.c || 0),
+    bySlug,
+    byLang,
+  };
 }
