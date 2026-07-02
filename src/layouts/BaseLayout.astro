@@ -12,6 +12,7 @@ import Cursor from "../components/CustomCursor.astro";
 import DockMenu from "../components/DockMenu.astro";
 import BotGO from "../components/BotGO.jsx";
 import VideoFallbackGuard from "../components/VideoFallbackGuard.astro";
+import VideoLocalFallback from "../components/VideoLocalFallback.astro";
 import "../styles/global.css";
 import "../styles/typography.css";
 import "../styles/backgrounds.css";
@@ -35,6 +36,8 @@ const OG_LOCALE_MAP: Record<string, string> = {
 const canonicalUrl = `${BASE_URL}/${currentLang}/${canonicalSlug}`;
 const ogLocale = OG_LOCALE_MAP[currentLang] ?? "es_MX";
 
+const isDevMode = import.meta.env.DEV || Astro.url.hostname === "localhost" || Astro.url.hostname === "127.0.0.1";
+
 const lang = (currentLang && currentLang in translations) ? currentLang : "es";
 const t = translations[lang as keyof typeof translations] as any;
 const pwaTexts = (t && t.pwa) ? t.pwa : {
@@ -57,10 +60,12 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
     />
 
     {/* Gate de mantenimiento (las paginas son estaticas, no pasan por middleware):
-        consulta el estado y, si esta pagina esta en mantenimiento, redirige. */}
-    <script is:inline>
+        consulta el estado y, si esta pagina esta en mantenimiento, redirige.
+        En dev local nunca redirige, para poder seguir viendo/editando. */}
+    <script is:inline define:vars={{ isDevMode }}>
       (function () {
         try {
+          if (isDevMode) return;
           var p = location.pathname;
           if (p === '/mantenimiento' || p.indexOf('/stats') === 0) return;
           fetch('/api/maintenance-status?t=' + Date.now(), { cache: 'no-store' })
@@ -336,6 +341,7 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
     </script>
 
     <VideoFallbackGuard />
+    <VideoLocalFallback />
 
     <div id="dock-menu-wrapper">
       <DockMenu />
@@ -419,6 +425,17 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
     </script>
 
     <script>
+      // Ctrl+K registrado ANTES del load del AdminPanel para no perder pulsaciones tempranas.
+      (function () {
+        const handler = (e) => {
+          if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+            e.preventDefault();
+            window.dispatchEvent(new Event('admin:toggle'));
+          }
+        };
+        window.addEventListener('keydown', handler);
+      })();
+
       window.addEventListener("load", async () => {
         try {
           const [{ default: React }, { createRoot }, { default: AdminPanel }] =

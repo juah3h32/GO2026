@@ -3,7 +3,7 @@
 import * as googleTTS from 'google-tts-api';
 import { Buffer } from 'node:buffer';
 import { logInteraction, saveRecruitmentLead, readVacantes, markNotificadosVacante, checkDuplicateByPhone, checkDuplicateByName, checkDuplicateByEmail } from '../../lib/analytics-db.js';
-import { notifyNewVacante, notifyEsperaVacante, notifyEnglishLead } from '../../lib/notify';
+import { notifyNewVacante, notifyEsperaVacante, notifyEnglishLead } from '../../lib/notify.js';
 
 export const prerender = false;
 
@@ -22,7 +22,7 @@ const PRODUCT_ALIASES = {
   esquineros: ['esquinero','esquineros','esquinero kraft','cantonera','cantoneras','protector de esquina','esquineros de carton','eskinero','esquinro'],
   flexible:   ['empaque flexible','empaques flexibles','bobina','bobinas','stand up','standup','bolsa stand up','bolsa alto vacio','flexible','flexibles','pouch','empaque','empaques','bolsa impresa'],
   charola:    ['charola','charolas','charola naturizable','charola biodegradable','charola termoformable','charola para alimentos','charola compostable','charola ecologica','charola eco'],
-  bolsas:     ['bolsa pp','bolsas pp','bolsa polipropileno','bolsas polipropileno','bolsa transparente','bolsas transparentes','bolsa plastica','bolsas plasticas','bolsa 15x25','bolsa 18x25','bolsa 20x30','bolsa 25x35','bolsa 30x40','bolsa 35x45','bolsa 40x60','bolsa 50x70','bolsa 60x90','bolsas de pp'],
+  bolsas:     ['bolsa','bolsas','bolsa pe','bolsas pe','bolsa polietileno','bolsas polietileno','bolsa de polietileno','bolsas de polietileno','bolsa pp','bolsas pp','bolsa polipropileno','bolsas polipropileno','bolsa transparente','bolsas transparentes','bolsa plastica','bolsas plasticas','bolsa 15x25','bolsa 18x25','bolsa 20x30','bolsa 25x35','bolsa 30x40','bolsa 35x45','bolsa 40x60','bolsa 50x70','bolsa 60x90','bolsas de pp','bolsas de pe','bolsas plastico','bolsa de plastico','bolsas empaque'],
   acolchado:  ['acolchado','acolchados','mulch','mulching','acolchamiento','lamina acolchada','plastico acolchado','acolchado agricola','lámina acolchada'],
 };
 
@@ -263,6 +263,22 @@ JAMÁS digas que eres IA, robot o sistema. Nunca incluyas URLs.
 - Si no entiendes el mensaje, pregunta amable qué necesita. Nunca te quedes sin responder.
 
 ══════════════════════════════════════════
+  REGLA DE CONTEXTO DE PRODUCTO (CRÍTICA)
+══════════════════════════════════════════
+PRODUCTO ACTIVO: si en los últimos 4 mensajes del historial se habló de un producto específico (bolsas, rafia, stretch, etc.), ese es el PRODUCTO ACTIVO de la conversación.
+
+REGLA: Mientras haya un PRODUCTO ACTIVO, cualquier dato nuevo que dé el usuario (uso, medida, peso, contenido, destino) se interpreta como contexto ADICIONAL de ese producto — NO como solicitud de otro producto.
+
+Ejemplos correctos:
+- Hablando de bolsas → usuario dice "para toperes de comida" → responde con bolsas para ese uso (ej. bolsa 15×25 para envase individual), NO recomiendas Naturizable.
+- Hablando de bolsas → usuario dice "para 2 kg de semillas" → recomiendas bolsa 18×25 cm.
+- Hablando de rafia → usuario dice "para jitomates" → recomiendas rafia de atar para ese cultivo.
+
+CAMBIO DE PRODUCTO: solo cambia de producto activo si el usuario NOMBRA EXPLÍCITAMENTE otro producto ("ahora quiero stretch film", "cuéntame de los sacos", "necesito arpillas") o pregunta algo completamente distinto.
+
+Si el mensaje del usuario es ambiguo y podría ser contexto del producto activo O un cambio, asume que es contexto del producto activo y responde en ese marco. Si genuinamente no tiene sentido en el contexto actual, entonces sí cambia.
+
+══════════════════════════════════════════
   REGLA DE ORO — RESPUESTAS CORTAS
 ══════════════════════════════════════════
 - Máximo 2-3 líneas por respuesta. SIEMPRE.
@@ -270,11 +286,11 @@ JAMÁS digas que eres IA, robot o sistema. Nunca incluyas URLs.
 - Da un dato principal y pregunta si quiere saber más.
 
 ══════════════════════════════════════════
-  REGLA DE FORMATO — TIPOS DE PRODUCTO
+  REGLA DE FORMATO — TIPOS Y MEDIDAS DE PRODUCTO
 ══════════════════════════════════════════
-Si preguntan "¿qué tipos hay?":
-PASO 1 — Lista SOLO los nombres en **negritas**, sin descripción.
-PASO 2 — Si menciona uno específico: 2-3 líneas solo de ese tipo.
+Si preguntan "¿qué tipos hay?" o "¿qué medidas tienen?":
+PASO 1 — Lista SOLO los nombres/medidas en **negritas**, cada uno en su propia línea, sin descripción.
+PASO 2 — Si menciona uno específico: 2-3 líneas solo de ese tipo/medida.
 Nunca mezcles ambos pasos.
 
 ══════════════════════════════════════════
@@ -330,18 +346,22 @@ Contacto: WhatsApp ${waPhone} | atencionacliente@grupo-ortiz.com | Morelia, Mich
    Tipos disponibles: Charola 855 (cartón kraft antigrasa). Próximamente: Vaso de Celulosa, Contenedores.
    Usos: alimentos frescos, retail, supermercados, taqueros, carniceros, fruteros.
 
-9. BOLSAS PP — Polipropileno, alta resistencia al rasgado, acabado uniforme.
-   Medidas disponibles (ancho × alto):
-   15×25 cm — retail, semillas, especias, empaque individual.
-   18×25 cm — granos, cereales, botanas, uso cotidiano.
-   20×30 cm — frutas, verduras, productos agrícolas, mediano peso.
-   25×35 cm — ropa, textiles, calzado, distribución.
-   30×40 cm — cargas pesadas, materiales a granel, logística.
-   35×45 cm — alto volumen industrial, distribución exigente.
-   40×60 cm — textiles, materiales de construcción ligeros, gran escala.
-   50×70 cm — logística de exportación, materiales a granel, alto peso.
-   60×90 cm — empaque industrial máximo, insumos pesados, distribución masiva.
-   Material: Polipropileno (PP). Usos: retail, agrícola, industrial, logística, exportación.
+9. BOLSAS PE — Polietileno (PE), el mismo plástico resistente de las bolsas del super.
+   Medidas: 15×25 · 18×25 · 20×30 · 25×35 · 30×40 · 35×45 · 40×60 · 50×70 · 60×90 cm.
+   Usos: retail, agrícola, industrial, logística, exportación.
+   ⚠️ REGLA BOLSAS PE — PRIMERA MENCIÓN: di "bolsas de polietileno (PE) — el mismo plástico de las bolsas del super." Solo la primera vez.
+   ⚠️ REGLA BOLSAS PE — CUANDO LISTEN MEDIDAS: usa exactamente este bloque, cada medida en negrita en su propia línea, sin descripción:
+   **15×25 cm**
+   **18×25 cm**
+   **20×30 cm**
+   **25×35 cm**
+   **30×40 cm**
+   **35×45 cm**
+   **40×60 cm**
+   **50×70 cm**
+   **60×90 cm**
+   ¿Cuál te interesa? Te cuento para qué va mejor.
+   Solo agrega descripción de uso si el usuario pregunta por una medida específica.
 
 10. ACOLCHADO — Lámina plástica agrícola (mulch).
     Gramaje: tela 85 gr/m² + laminado 14 gr/m².
@@ -353,7 +373,10 @@ Contacto: WhatsApp ${waPhone} | atencionacliente@grupo-ortiz.com | Morelia, Mich
 ══════════════════════════════════════════
   MÓDULO RECOMENDACIÓN POR NECESIDAD
 ══════════════════════════════════════════
-Cuando el usuario describa un problema o necesidad (no nombre un producto), recomienda el más adecuado.
+⚠️ SOLO aplica este módulo si NO hay PRODUCTO ACTIVO en la conversación (ver REGLA DE CONTEXTO).
+Si hay producto activo, usa la info como contexto del producto actual, no para recomendar otro.
+
+Cuando el usuario describa un problema o necesidad SIN producto activo en historial, recomienda el más adecuado.
 Formato: 1 recomendación principal + 1 línea de por qué + pregunta de seguimiento.
 
 SIEMBRA / CULTIVO / HUERTO:

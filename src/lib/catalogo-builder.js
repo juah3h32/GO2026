@@ -42,7 +42,7 @@ async function batchPromises(tasks, limit = 6) {
   return results;
 }
 
-// Descarga una URL externa optimizada y la convierte a data-URI. Fallback: URL original.
+// Descarga una URL externa y la convierte a data-URI. Fallback: URL original.
 async function urlToBase64(url, maxWidth = 900) {
   if (!url || !/^https?:\/\//.test(url)) return url;
   const optUrl = optimizeCloudinaryURL(url, maxWidth);
@@ -58,23 +58,42 @@ async function urlToBase64(url, maxWidth = 900) {
   } catch { return url; }
 }
 
-// Precarga todas las imagenes externas (Cloudinary) del data a base64.
-// Retorna SIEMPRE un objeto nuevo con fichas clonadas — sin mutar el original.
-export async function preloadImages(data) {
-  // Deep-copy para no mutar el objeto que vino de Turso
+// Busca una imagen de Cloudinary en local primero (mismo nombre de archivo).
+// Prueba extensiones comunes — el filename en Cloudinary coincide con el archivo subido.
+function localFromCloudinary(url, folder) {
+  if (!url || !/res\.cloudinary\.com/.test(url) || !folder) return '';
+  const rawFile = url.split('/').pop()?.split('?')[0] || '';
+  if (!rawFile) return '';
+  const base = rawFile.replace(/\.[^.]+$/, '');
+  for (const [ext, mime] of [['png','image/png'],['webp','image/webp'],['jpg','image/jpeg'],['jpeg','image/jpeg']]) {
+    const r = asset(`images/${folder}/${base}.${ext}`, mime);
+    if (r) return r;
+  }
+  // intento con extension original
+  const mime = rawFile.endsWith('.webp') ? 'image/webp' : rawFile.endsWith('.png') ? 'image/png' : 'image/jpeg';
+  return asset(`images/${folder}/${rawFile}`, mime);
+}
+
+// Precarga imagenes externas del data a base64. Local primero, Cloudinary solo si no hay local.
+// Recibe imgFolder y coverImgFolder para buscar archivos en public/images/
+export async function preloadImages(data, imgFolder = '', coverImgFolder = '') {
   const out = {
     ...data,
     fichas: Array.isArray(data.fichas) ? data.fichas.map(f => ({ ...f })) : data.fichas,
   };
   if (out.coverImg && /^https?:\/\//.test(out.coverImg)) {
-    // 585px CSS × 2x dSF = 1170px efectivos → 1600px da margen sin upscale
-    out.coverImg = await urlToBase64(out.coverImg, 1600);
+    const local = localFromCloudinary(out.coverImg, coverImgFolder);
+    out.coverImg = local || await urlToBase64(out.coverImg, 1600);
   }
   if (Array.isArray(out.fichas) && out.fichas.length) {
     const tasks = out.fichas.map((f, i) => {
       const url = (f.img && /^https?:\/\//.test(f.img)) ? f.img : null;
-      // 424px CSS × 2x dSF = 848px efectivos → 1000px da margen sin upscale
-      return url ? () => urlToBase64(url, 1000).then(b64 => { out.fichas[i] = { ...out.fichas[i], img: b64 }; }) : () => Promise.resolve();
+      if (!url) return () => Promise.resolve();
+      return () => {
+        const local = localFromCloudinary(url, imgFolder);
+        if (local) { out.fichas[i] = { ...out.fichas[i], img: local }; return Promise.resolve(); }
+        return urlToBase64(url, 1000).then(b64 => { out.fichas[i] = { ...out.fichas[i], img: b64 }; });
+      };
     });
     await batchPromises(tasks, 8);
   }
@@ -100,6 +119,12 @@ function styleStr(path, styles) {
   if (s.textAlign) p.push('text-align:' + s.textAlign);
   if (s.color) p.push('color:' + s.color);
   return p.length ? ` style="${p.join(';')}"` : '';
+}
+
+// Helper para titulo de producto — misma estructura que ProductTitle.astro
+function productTitle(nombre, i, styles) {
+  const s = styleStr(`fichas.${i}.nombre`, styles);
+  return `<h2 class="cd-h2" data-cd-path="fichas.${i}.nombre"${s}>${esc(nombre)}</h2>`;
 }
 
 function header(t) {
@@ -176,7 +201,7 @@ function paginaProducto(f, i, t, isDark, ctl, imgFn, styles) {
         `<div class="sec"><span class="sec-tag">${esc(sec.title)}</span><ul class="sec-list">${(sec.items || []).map(it => `<li>${esc(it)}</li>`).join('')}</ul></div>`
       ).join('')}</div>`
     : '';
-  const copy = `<div class="copy"><h2${styleStr(`fichas.${i}.nombre`, styles)}>${esc(f.nombre)}</h2>${f.desc ? `<p${styleStr(`fichas.${i}.desc`, styles)}>${esc(f.desc)}</p>` : ''}${sectionsHTML}</div>`;
+  const copy = `<div class="copy">${productTitle(f.nombre, i, styles)}${f.desc ? `<p${styleStr(`fichas.${i}.desc`, styles)}>${esc(f.desc)}</p>` : ''}${sectionsHTML}</div>`;
   const soonNote = f.soon ? `<div class="soon-note">${esc(t.soonNote || "")}</div>` : '';
   const tables = [];
   if (!f.soon) {
@@ -200,21 +225,29 @@ export function buildHTML(theme = 'dark', lang = 'es', data = {}, imgFolder = 's
   const fontFace = font ? `@font-face{font-family:'Morganite';src:url('${font}') format('truetype');font-weight:800;font-style:normal;}` : '';
   const isRTL = lang === 'ar';
   const cjkAr = lang === 'zh' ? "'Noto Sans SC', " : lang === 'ar' ? "'Noto Naskh Arabic', " : '';
-  const fontLink = lang === 'zh'
-    ? '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;800&display=swap" rel="stylesheet">'
-    : lang === 'ar'
-    ? '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&display=swap" rel="stylesheet">'
-    : '';
+  // CJK fonts embedded as base64 (no network dependency in Puppeteer)
+  const cjkFontFace = lang === 'zh' ? (() => {
+    const r = asset('fonts/NotoSansSC-Regular-subset.woff2', 'font/woff2');
+    const b = asset('fonts/NotoSansSC-Bold-subset.woff2', 'font/woff2');
+    return (r ? `@font-face{font-family:'Noto Sans SC';src:url('${r}') format('woff2');font-weight:400;font-style:normal;}` : '')
+      + (b ? `@font-face{font-family:'Noto Sans SC';src:url('${b}') format('woff2');font-weight:700;font-style:normal;}` + `@font-face{font-family:'Noto Sans SC';src:url('${b}') format('woff2');font-weight:800;font-style:normal;}` : '');
+  })() : '';
+  const fontLink = '';
 
   const intro = data.intro, productos = data.productos, fichas = data.fichas, coverImg = data.coverImg, cover = data.cover || {};
   const vc = data.visualCover || { scale: 1, offsetX: 0, offsetY: 0, rotate: 0 };
   const styles = data.styles || {};
 
-  // img() es closure local — usa carpetas del argumento, sin estado global
+  // img() es closure local — local primero, Cloudinary URL solo si no hay archivo local
   function imgFn(name) {
     if (!name) return '';
     if (/^data:/.test(name)) return name;
-    if (/^https?:\/\//.test(name)) return optimizeCloudinaryURL(name, 900);
+    if (/^https?:\/\//.test(name)) {
+      const folder = name.toLowerCase().includes('portada') ? coverImgFolder : imgFolder;
+      const local = localFromCloudinary(name, folder);
+      if (local) return local;
+      return optimizeCloudinaryURL(name, 900);
+    }
     if (name.startsWith('/')) return asset(name.replace(/^\//, ''), 'image/png');
     const folder = name.includes('portada') ? coverImgFolder : imgFolder;
     return asset(`images/${folder}/${name}`, 'image/png');
@@ -298,8 +331,8 @@ export function buildHTML(theme = 'dark', lang = 'es', data = {}, imgFolder = 's
     ${manyProds ? prodsBlock : ''}
   </div>`;
   const productPages = fichasTr.map((f, i) => paginaProducto(f, i, t, isDark, ctl, imgFn, styles)).join('');
-  return `<!doctype html><html lang="${lang}" dir="${isRTL ? 'rtl' : 'ltr'}"><head><meta charset="utf-8">${fontLink}<style>
-    ${fontFace}
+  return `<!doctype html><html lang="${lang}" dir="${isRTL ? 'rtl' : 'ltr'}"><head><meta charset="utf-8"><style>
+    ${fontFace}${cjkFontFace}
     @page { size: 1280px 720px; margin: 0; }
     * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     body, td, th, p, li, span, div { font-family: ${cjkAr}Arial, Helvetica, sans-serif; }
@@ -313,8 +346,8 @@ export function buildHTML(theme = 'dark', lang = 'es', data = {}, imgFolder = 's
     .pg-fit { display: flex; flex-direction: column; gap: 24px; transform-origin: center center; }
     .bar { position: absolute; top: 40px; left: 80px; right: 80px; display: flex; justify-content: space-between; align-items: flex-start; }
     .logo { display: flex; flex-direction: column; line-height: .8; font-family: 'Morganite', sans-serif; font-weight: 800; }
-    .l1 { font-size: 20px; letter-spacing: .04em; color: ${TEXT}; }
-    .l2 { font-size: 30px; letter-spacing: .04em; color: ${ORANGE}; }
+    .l1 { font-size: 20px; letter-spacing: ${cjkAr ? '0' : '.04em'}; color: ${TEXT}; }
+    .l2 { font-size: 30px; letter-spacing: ${cjkAr ? '0' : '.04em'}; color: ${ORANGE}; }
     .site { display: flex; align-items: center; gap: 10px; font-size: 13px; letter-spacing: .14em; color: ${MUTED}; margin-top: 10px; }
     .line { width: 50px; height: 2px; background: ${ORANGE}; }
     .cover-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 40px; height: 100%; align-items: center; }
@@ -322,7 +355,7 @@ export function buildHTML(theme = 'dark', lang = 'es', data = {}, imgFolder = 's
     .cover-left h1 { font-family: 'Morganite', ${cjkAr}sans-serif; font-weight: 800; font-size: 160px; line-height: .8; letter-spacing: .01em; margin: 0; display: flex; flex-wrap: wrap; gap: 0 .22em; max-width: 100%; }
     .cover-left h1 span { display: inline; }
     .o { color: ${ORANGE}; } .gray { color: #9a9a9c; }
-    .divis { font-family: 'Morganite', sans-serif; font-weight: 800; font-size: 42px; letter-spacing: .04em; margin: 8px 0 24px; }
+    .divis { font-family: 'Morganite', ${cjkAr}sans-serif; font-weight: 800; font-size: 42px; letter-spacing: ${cjkAr ? '0' : '.04em'}; margin: 8px 0 24px; }
     .cover-left p { font-size: 15px; line-height: 1.5; color: ${MUTED}; margin: 0 0 12px; max-width: 70%; }
     .cover-left .bio { color: ${ORANGE}; font-weight: 700; margin-top: 12px; margin-bottom: 8px; font-size: 18px; }
     .cover-right { position: relative; height: 100%; }
@@ -334,7 +367,7 @@ export function buildHTML(theme = 'dark', lang = 'es', data = {}, imgFolder = 's
     .prods ul { list-style: none; margin: 10px 0 0; padding: 0; }
     .prods li { font-size: 15px; color: ${MUTED}; padding: 4px 0; font-weight: 600; }
     .cover.manyprods .cover-imgbox { top: 35%; }
-    .prods-row { position: absolute; left: 80px; right: 80px; bottom: 40px; top: auto; text-align: left; z-index: 5; display: flex; align-items: baseline; gap: 8px 18px; flex-wrap: wrap; }
+    .prods-row { position: absolute; left: 80px; right: 80px; bottom: 40px; top: auto; text-align: start; z-index: 5; display: flex; align-items: baseline; gap: 8px 18px; flex-wrap: wrap; }
     .prods-row ul { display: flex; flex-wrap: wrap; gap: 4px 22px; margin: 0; padding: 0; list-style: none; }
     .prods-row li { padding: 0; }
     .head { display: grid; grid-template-columns: minmax(0,1.2fr) minmax(0,1fr); gap: 50px; align-items: center; margin: 0; height: 288px; }
@@ -342,15 +375,15 @@ export function buildHTML(theme = 'dark', lang = 'es', data = {}, imgFolder = 's
     .media-tf { width: 100%; height: 100%; display: flex; align-items: center; justify-content: flex-end; }
     .media img { width: 100%; max-width: 424px; max-height: 307px; object-fit: contain; filter: drop-shadow(0 25px 40px rgba(0,0,0,${isDark ? 0.6 : 0.2})); pointer-events: none; }
     .copy { position: relative; z-index: 2; }
-    .copy h2 { font-family: 'Morganite', sans-serif; font-weight: 800; font-size: 84px; line-height: .85; margin: 0 0 16px; color: ${TEXT}; white-space: nowrap; }
+    .copy h2 { font-family: 'Morganite', ${cjkAr}sans-serif; font-weight: 800; font-size: ${cjkAr ? '64px' : '84px'}; line-height: .85; margin: 0 0 16px; color: ${TEXT}; white-space: ${cjkAr ? 'normal' : 'nowrap'}; }
     .copy p { font-size: 16px; line-height: 1.5; color: ${MUTED}; margin: 0; max-width: 95%; }
     .t { width: 100%; border-collapse: collapse; font-size: 14.5px; position: relative; z-index: 3; background: ${BG}; }
     .t th, .t td { padding: 9px 14px; text-align: center; border: 1px solid ${BORDER}; }
-    .t thead th { font-weight: 800; color: #fff; font-size: 14.5px; letter-spacing: .02em; }
+    .t thead th { font-weight: 800; color: #fff; font-size: 14.5px; letter-spacing: ${cjkAr ? '0' : '.02em'}; }
     .t .o { background: ${ORANGE}; } .t .g { background: #333; }
     .t tbody td { background: ${BG2}; color: ${TEXT}; }
     .t tbody tr:nth-child(even) td { background: ${ROW_ALT}; }
-    .t .c { text-align: left; color: ${TEXT}; font-weight: 400; text-transform: capitalize; }
+    .t .c { text-align: start; color: ${TEXT}; font-weight: 400; text-transform: capitalize; }
     .t .n { color: ${TEXT}; font-weight: 400; }
     .t .hl td { background: rgba(251,103,11,0.04); }
     .t .hl .c { color: ${ORANGE}; font-weight: 600; }
@@ -361,13 +394,13 @@ export function buildHTML(theme = 'dark', lang = 'es', data = {}, imgFolder = 's
     .mtitle { background: ${ORANGE}; color: #fff; font-weight: 800; text-align: center; padding: 9px 10px; font-size: 14px; letter-spacing: .02em; border: 1px solid ${BORDER}; border-bottom: none; }
     .t.mt { font-size: 11.5px; table-layout: auto; }
     .t.mt th, .t.mt td { padding: 8px 8px; }
-    .t.mt .c { text-align: left; white-space: nowrap; font-weight: 600; }
+    .t.mt .c { text-align: start; white-space: nowrap; font-weight: 600; }
     .mnote { font-style: italic; color: ${MUTED}; font-size: 12px; margin-top: 8px; }
     .t.ct { font-size: 12px; }
-    .t.ct .c { text-align: left; white-space: nowrap; font-weight: 600; }
+    .t.ct .c { text-align: start; white-space: nowrap; font-weight: 600; }
     .media-soon img { filter: blur(5px) grayscale(0.2); }
     .soon-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.35); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: #fff; z-index: 5; border-radius: 12px; }
-    .soon-overlay span { font-family: 'Morganite', sans-serif; font-size: 38px; letter-spacing: .1em; font-weight: 800; }
+    .soon-overlay span { font-family: 'Morganite', ${cjkAr}sans-serif; font-size: 38px; letter-spacing: .1em; font-weight: 800; }
     .soon-note { font-size: 16px; color: ${ORANGE}; font-weight: 700; margin-top: -10px; margin-bottom: 10px; }
     .head.has-sections { height: auto; min-height: 200px; align-items: flex-start; padding-top: 8px; }
     .secs { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 10px; }

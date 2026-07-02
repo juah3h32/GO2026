@@ -1014,6 +1014,26 @@
   .field-group:focus-within > label {
     color: var(--dist-primary);
   }
+  .optional-tag {
+    text-transform: none;
+    font-weight: 400;
+    opacity: 0.6;
+    letter-spacing: normal;
+  }
+
+  /* Marcado de error instantaneo (WhatsApp / correo) */
+  .field-group.field-error > label {
+    color: #dc2626;
+  }
+  .field-group.field-error input {
+    border-color: #dc2626 !important;
+    animation: fieldErrorShake 0.35s ease;
+  }
+  @keyframes fieldErrorShake {
+    0%, 100% { transform: translateX(0); }
+    25%      { transform: translateX(-4px); }
+    75%      { transform: translateX(4px); }
+  }
 
   /* Inputs */
   .field-group input {
@@ -1082,6 +1102,26 @@
     color       : #ffffff;
     box-shadow  : 0 4px 16px rgba(251,103,11,0.35);
     transform   : translateY(-2px) scale(1.04);
+  }
+
+  /* Opt-in de novedades por correo */
+  .subscribe-optin {
+    display    : flex;
+    align-items: flex-start;
+    gap        : 10px;
+    margin-top : 6px;
+    cursor     : pointer;
+    font-size  : 0.82rem;
+    line-height: 1.4;
+    color      : var(--dist-text-muted, #6f6f72);
+  }
+  .subscribe-optin input {
+    flex-shrink: 0;
+    width      : 18px;
+    height     : 18px;
+    margin-top : 1px;
+    accent-color: var(--dist-primary);
+    cursor     : pointer;
   }
 
   /* Botón Submit */

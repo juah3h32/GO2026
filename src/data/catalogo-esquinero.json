@@ -71,7 +71,7 @@
         "zh": "牛皮纸护角",
         "ar": "حافة كرافت بنية"
       },
-      "img": "/images/esquinero/esquinero.png",
+      "img": "esquinero.png",
       "lado": "",
       "desc": {
         "es": "Fabricado para proteger bordes y esquinas durante el transporte y almacenamiento, este esquinero distribuye la presión de manera uniforme, evitando deformaciones y daños en la mercancía. Su estructura ofrece resistencia y estabilidad en aplicaciones de embalaje exigentes.",
@@ -163,7 +163,7 @@
         "zh": "白色牛皮纸护角",
         "ar": "حافة كرافت بيضاء"
       },
-      "img": "/images/esquinero/esquinerob.png",
+      "img": "esquinerob.png",
       "lado": "",
       "desc": {
         "es": "Fabricado para proteger bordes y esquinas durante el transporte y almacenamiento, este esquinero distribuye la presión de manera uniforme, evitando deformaciones y daños en la mercancía. Su estructura ofrece resistencia y estabilidad en aplicaciones de embalaje exigentes.",

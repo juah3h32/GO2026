@@ -77,10 +77,15 @@ export const onRequest = defineMiddleware(async (context, next) => {
   // Bloquear service worker de desarrollo
   if (path === '/dev-sw.js') return new Response(null, { status: 404 });
 
+  // En local (npm run dev, incluido el tunnel) no hay headers de Vercel → ip='unknown'.
+  // Tambien se usa para saltar mantenimiento: en dev se sigue viendo/editando la
+  // pagina real aunque este "bajada" en produccion.
+  const isDev = import.meta.env.DEV || url.hostname === 'localhost' || url.hostname === '127.0.0.1';
+
   // ── Gate de mantenimiento: si el sitio esta "bajado", los visitantes ven la
-  // pantalla de mantenimiento. Se excluyen /stats (panel), /api (admin reactiva)
-  // y assets, para poder reactivar y no romper estilos de la propia pantalla.
-  const exentoMant = path.startsWith('/api/') || path.startsWith('/stats')
+  // pantalla de mantenimiento. Se excluyen /stats (panel), /api (admin reactiva),
+  // assets, y el entorno de dev local (para poder seguir editando).
+  const exentoMant = isDev || path.startsWith('/api/') || path.startsWith('/stats')
     || path === '/mantenimiento' || path.startsWith('/_astro/')
     || path.startsWith('/fonts/') || path.startsWith('/images/') || path.startsWith('/styles/')
     || /\.(css|js|mjs|png|jpg|jpeg|webp|svg|gif|ico|woff2?|mp4|webm|json|txt|xml)$/i.test(path);
@@ -99,10 +104,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const isAdmin = ADMIN_PATHS.some(p => path.startsWith(p));
   const isApi   = path.startsWith('/api/');
 
-  // En local no hay headers de Vercel → ip='unknown' → todos comparten clave → 429 inmediato.
-  // El rate limiter solo aplica en producción.
-  const isDev = import.meta.env.DEV || url.hostname === 'localhost' || url.hostname === '127.0.0.1';
-
+  // El rate limiter solo aplica en producción (isDev ya calculado arriba).
   if (!isDev && (isChat || isLead || isAdmin || isApi)) {
     const rawIp = req.headers.get('x-vercel-forwarded-for')
                 || req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()

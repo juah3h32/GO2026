@@ -120,7 +120,7 @@
         "zh": "袋子 15×25 厘米",
         "ar": "كيس 15×25 سم"
       },
-      "img": "/images/bolsas/15x25.webp",
+      "img": "15x25.png",
       "lado": "",
       "desc": {
         "es": "Bolsa de polietileno compacta, ideal para empaque de productos pequeños. Perfecta para retail, empaque de semillas, especias y productos de consumo en porciones individuales. Alta resistencia al rasgado con acabado uniforme.",
@@ -335,7 +335,7 @@
         "zh": "袋子 18×25 厘米",
         "ar": "كيس 18×25 سم"
       },
-      "img": "/images/bolsas/18X25.png",
+      "img": "18X25.png",
       "lado": "",
       "desc": {
         "es": "Bolsa de polietileno de tamaño estándar para empaque versátil de productos de mediano volumen. Ideal para granos, cereales, botanas y artículos de uso cotidiano con presentación limpia y resistente.",
@@ -550,7 +550,7 @@
         "zh": "袋子 20×30 厘米",
         "ar": "كيس 20×30 سم"
       },
-      "img": "/images/bolsas/20X30.png",
+      "img": "20X30.png",
       "lado": "",
       "desc": {
         "es": "Bolsa de mediano formato con alta capacidad volumétrica. Diseñada para el empaque de frutas, verduras, productos agrícolas y mercancía de mediano peso. Resistente al rasgado con acabado uniforme.",
@@ -765,7 +765,7 @@
         "zh": "袋子 25×35 厘米",
         "ar": "كيس 25×35 سم"
       },
-      "img": "/images/bolsas/25x35.webp",
+      "img": "25x35.png",
       "lado": "",
       "desc": {
         "es": "Bolsa de gran formato ideal para el manejo de productos de mayor volumen. Perfecta para empaque de ropa, textiles, calzado y mercancía de distribución. Ofrece resistencia superior y excelente presentación.",
@@ -980,7 +980,7 @@
         "zh": "袋子 30×40 厘米",
         "ar": "كيس 30×40 سم"
       },
-      "img": "/images/bolsas/30X40.png",
+      "img": "30X40.png",
       "lado": "",
       "desc": {
         "es": "Bolsa de máxima capacidad para empaque industrial de gran volumen. Diseñada para cargas pesadas, materiales a granel y logística de distribución de alta demanda. Resistencia extrema con acabado de alta calidad.",
@@ -1195,7 +1195,7 @@
         "zh": "袋子 35×45 厘米",
         "ar": "كيس 35×45 سم"
       },
-      "img": "/images/bolsas/35X45.png",
+      "img": "35X45.png",
       "lado": "",
       "desc": {
         "es": "Bolsa de polietileno de gran capacidad para empaque de productos de alto volumen. Diseñada para cargas pesadas, materiales industriales y logística de distribución exigente. Acabado resistente de alta calidad.",
@@ -1410,7 +1410,7 @@
         "zh": "袋子 40×60 厘米",
         "ar": "كيس 40×60 سم"
       },
-      "img": "/images/bolsas/40X60.png",
+      "img": "40X60.png",
       "lado": "",
       "desc": {
         "es": "Bolsa extra-grande para empaque y almacenamiento de productos voluminosos. Ideal para textiles, materiales de construcción ligeros y distribución a gran escala. Máxima resistencia estructural.",
@@ -1625,7 +1625,7 @@
         "zh": "袋子 50×70 厘米",
         "ar": "كيس 50×70 سم"
       },
-      "img": "/images/bolsas/50X70.png",
+      "img": "50X70.png",
       "lado": "",
       "desc": {
         "es": "Bolsa de gran formato para cargas de alto peso y volumen. Diseñada para aplicaciones industriales de alta demanda, logística de exportación y almacenaje de materiales a granel. Resistencia extrema garantizada.",
@@ -1840,7 +1840,7 @@
         "zh": "袋子 60×90 厘米",
         "ar": "كيس 60×90 سم"
       },
-      "img": "/images/bolsas/60X90.png",
+      "img": "60X90.png",
       "lado": "",
       "desc": {
         "es": "La bolsa de mayor capacidad del catálogo. Ideal para empaque industrial de gran escala, almacenamiento de insumos pesados y distribución masiva. Construida para soportar las exigencias más extremas.",

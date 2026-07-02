@@ -3,7 +3,6 @@ import ReactMarkdown from 'react-markdown';
 import './BotGO.css';
 import { translations } from '../i18n';
 
-console.log('🚀 BotGO v4 (Astro Ready) CARGADO'); 
 
 const RobotIcon = ({ className }) => (
   <svg className={className} viewBox="0 0 100 100" fill="none">

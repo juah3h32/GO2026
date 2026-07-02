@@ -85,7 +85,7 @@
         "zh": "圆织网袋",
         "ar": "كيس شبكي دائري (ARPILLA CIRCULAR)"
       },
-      "img": "/images/arpillas/arpilla.webp",
+      "img": "arpilla.png",
       "lado": "",
       "desc": {
         "es": "Fabricada con polipropileno 100% virgen y construcción rafia, esta arpilla ofrece alta resistencia y excelente rendimiento en aplicaciones de empaque y almacenamiento. Su calidad garantiza durabilidad y un desempeño confiable en el manejo de diversos productos.",
@@ -134,7 +134,7 @@
         "zh": "圆织单丝网袋",
         "ar": "كيس شبكي دائري أحادي الخيط (ARPILLA MONOFILAMENTO CIRCULAR)"
       },
-      "img": "/images/arpillas/arpilla2.webp",
+      "img": "arpilla2.png",
       "lado": "",
       "desc": {
         "es": "Fabricada con polipropileno 100% virgen y construcción rafia/monofilamento, esta arpilla ofrece alta resistencia y excelente rendimiento en aplicaciones de empaque y almacenamiento. Su estructura proporciona durabilidad y desempeño confiable en el manejo y protección de diversos productos.",
@@ -173,7 +173,7 @@
         "zh": "侧缝网袋",
         "ar": "كيس شبكي بخياطة جانبية (ARPILLA COSTURA LATERAL)"
       },
-      "img": "/images/arpillas/arpilla3.webp",
+      "img": "arpilla3.png",
       "lado": "",
       "desc": {
         "es": "Fabricada con polipropileno 100% virgen y construcción rafia/monofilamento, esta arpilla ofrece alta resistencia y excelente desempeño en aplicaciones de empaque y almacenamiento. Su estructura garantiza durabilidad y confiabilidad en el manejo de distintos productos.",
@@ -222,7 +222,7 @@
         "zh": "覆膜标签网袋",
         "ar": "كيس شبكي بملصق مصفح (ARPILLA ETIQUETA LAMINADA)"
       },
-      "img": "/images/arpillas/arpilla4.webp",
+      "img": "arpilla4.png",
       "lado": "",
       "desc": {
         "es": "Fabricada con polipropileno 100% virgen y construcción rafia/rafia, esta arpilla ofrece alta resistencia y excelente desempeño en procesos de empaque y almacenamiento. Su tejido garantiza durabilidad y confiabilidad para aplicaciones exigentes tanto en el mercado nacional como de exportación.",

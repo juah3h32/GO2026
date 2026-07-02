@@ -48,6 +48,8 @@ async function generatePDF(html) {
     const page = await browser.newPage();
     await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 2 });
     await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 20_000 });
+    // Wait for fonts (needed for CJK/AR) without blocking hard if unavailable
+    try { await Promise.race([page.evaluate(() => document.fonts.ready), new Promise(r => setTimeout(r, 6000))]); } catch (_) {}
     // Esperar que todas las imagenes base64 esten decodificadas (max 10s por img)
     await page.evaluate(() => Promise.all(
       Array.from(document.images).filter(img => !img.complete).map(img =>
@@ -94,7 +96,7 @@ async function generatePDFFromSlides(target) {
     const page = await browser.newPage();
     await page.setViewport({ width: SHOT_W, height: SHOT_H, deviceScaleFactor: 3 });
     await page.goto(target, { waitUntil: 'networkidle2', timeout: 60_000 });
-    try { await page.evaluateHandle('document.fonts.ready'); } catch (e) {}
+    try { await Promise.race([page.evaluate(() => document.fonts.ready), new Promise(r => setTimeout(r, 6000))]); } catch (e) {}
 
     const n = await page.evaluate(() => window.__cdN || 0);
     if (!n) throw new Error('modo captura no disponible');
@@ -137,7 +139,7 @@ export async function GET({ url }) {
 
     const meta = getCatalogMeta(slug);
     const rawData = await getCatalog(slug);
-    const data = await preloadImages(rawData);
+    const data = await preloadImages(rawData, meta.imgFolder, meta.coverImgFolder);
     const html = buildHTML(theme, lang, data, meta.imgFolder, meta.coverImgFolder);
     if (url.searchParams.get('debug') === 'html') return new Response(html, { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
     const pdf = await generatePDF(html);
@@ -174,7 +176,7 @@ export async function POST({ request }) {
     const rawData = body.data || await getCatalog(slug);
 
     const meta = getCatalogMeta(slug);
-    const data = await preloadImages(rawData);
+    const data = await preloadImages(rawData, meta.imgFolder, meta.coverImgFolder);
     const html = buildHTML(theme, lang, data, meta.imgFolder, meta.coverImgFolder);
     if ((body.format || 'html') === 'html') {
       return new Response(html, { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' } });

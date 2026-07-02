@@ -43,6 +43,7 @@ const tyWords    = [
 const CLOUD = import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME;
 const poster = (src: string) =>
   `https://res.cloudinary.com/${CLOUD}/video/upload/f_jpg,q_auto,so_0/${src}.jpg`;
+const toLocalVideo = (cldPath: string) => `/videos/${cldPath.replace(/^GO\//, '')}.mp4`;
 ---
 
 <BaseLayout
@@ -70,6 +71,18 @@ const poster = (src: string) =>
       playsinline
       preload="metadata"
       poster={poster(th.hero.video)}
+      data-poster-fallback="/images/home/planta-produccion.webp"
+    ></video>
+    <video
+      data-role="fallback"
+      class="hero__video hero__video--fill"
+      src={toLocalVideo(th.hero.video)}
+      autoplay
+      muted
+      loop
+      playsinline
+      preload="metadata"
+      style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;"
     ></video>
   </div>
 
@@ -249,6 +262,7 @@ const poster = (src: string) =>
     <div class="parallax-section__bg">
       <video
         data-src={`https://res.cloudinary.com/${CLOUD}/video/upload/q_auto:best/GO/home/4K.mp4`}
+        data-local-fallback="/videos/home/4K.mp4"
         muted
         playsinline
         loop
@@ -344,6 +358,18 @@ const poster = (src: string) =>
       playsinline
       preload="none"
       poster={poster(th.global.video)}
+      data-poster-fallback="/images/home/planta-produccion.webp"
+    ></video>
+    <video
+      data-role="fallback"
+      class="global__video"
+      src={toLocalVideo(th.global.video)}
+      autoplay
+      muted
+      loop
+      playsinline
+      preload="none"
+      style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;"
     ></video>
   </div>
   <div class="global__video-overlay"></div>

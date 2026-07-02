@@ -1,6 +1,21 @@
 // src/i18n/zh.js
 
 export const zh = {
+  digital_catalog: {
+    title: "产品目录 | Grupo Ortiz",
+    titlePart1: "产品",
+    titlePart2: "目录",
+    downloadPDF: "下载 PDF",
+    distributor: "成为分销商",
+    products: "产品",
+    characteristics: "特性",
+    measurement: "测量",
+    tolerances: "公差",
+    unit: "单位",
+    testMethod: "测试方法",
+    min: "最小值",
+    max: "最大值"
+  },
   // =================================================
   // 导航栏
   // =================================================
@@ -72,6 +87,18 @@ export const zh = {
     // ── 移动端提示条 ──
     pillLabelSmall: '有什么',
     pillLabelBig:   '可以帮助您？',
+
+    // ── 订阅更新（对话结束时） ──
+    subscribeTitle:          '想接收最新资讯吗？',
+    subscribeSubtitle:       '通过电子邮件获取新产品、更新和独家内容资讯。',
+    subscribeNamePlaceholder:  '您的姓名',
+    subscribeEmailPlaceholder: '您的电子邮箱',
+    subscribeSubmit:          '订阅',
+    subscribeSubmitting:      '发送中...',
+    subscribeDismiss:         '不用了，谢谢',
+    subscribeSuccessTitle:    '完成！您已订阅',
+    subscribeSuccessSubtitle: '有新资讯时我们会通过邮件通知您。',
+    subscribeError:           '订阅失败，请重试。',
   },
 
   pwa: {
@@ -283,21 +310,21 @@ export const zh = {
     },
     {
       img: "carrusel/nuev2a.png",
-      division: "NATURIZABLE",
+      division: "自然降解",
       descripcion: "回归大地的可持续包装。100%植物基、可回收可堆肥的食品行业解决方案。",
       slug: "naturizable",
       video: "GO/carrusel/charola.mp4"
     },
     {
       img: "/images/bolsas/carruselB.webp",
-      division: "BOLSAS",
+      division: "袋子",
       descripcion: "高强度聚丙烯袋。多功能、经济实惠，提供多种尺寸用于工业和商业包装。",
       slug: "bolsas",
       video: "GO/carrusel/bolsa4.mp4"
     },
     {
       img: "carrusel/carrusel_acolchado.png",
-      division: "ACOLCHADO",
+      division: "农用地膜",
       descripcion: "农用地膜，用于覆盖农作物、菜园和果园的土壤。防治杂草、保持水分、调节土壤温度。",
       slug: "acolchado",
       video: "GO/carrusel/acolchadoV.mp4"
@@ -1419,7 +1446,7 @@ footer: {
       title_top:    "我们是拉丁美洲",
       title_bot:    "主要制造商",
       video: "GO/home/hero",
-      typewriter_prefix: "MANUFACTURER OF",
+      typewriter_prefix: "制造商",
       subtitle:     "65 年以上为五大洲的行业制造高工程解决方案。",
       btn_products: "我们的产品",
       btn_about:    "了解更多",

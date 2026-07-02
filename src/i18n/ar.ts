@@ -1,6 +1,21 @@
 // src/i18n/ar.js
 
 export const ar = {
+  digital_catalog: {
+    title: "كتالوج المنتجات | Grupo Ortiz",
+    titlePart1: "كتالوج",
+    titlePart2: "المنتجات",
+    downloadPDF: "تحميل PDF",
+    distributor: "أصبح موزعاً",
+    products: "المنتجات",
+    characteristics: "الخصائص",
+    measurement: "القياس",
+    tolerances: "التفاوتات",
+    unit: "الوحدة",
+    testMethod: "طريقة الاختبار",
+    min: "الحد الأدنى",
+    max: "الحد الأقصى"
+  },
   // =================================================
   // شريط التنقل
   // =================================================
@@ -72,6 +87,18 @@ export const ar = {
     // ── شريط الجوال ──
     pillLabelSmall: 'كيف يمكنني',
     pillLabelBig:   'مساعدتك اليوم؟',
+
+    // ── الاشتراك لتلقي الجديد (عند إنهاء المحادثة) ──
+    subscribeTitle:          'هل تريد تلقي آخر الأخبار؟',
+    subscribeSubtitle:       'اطّلع على المنتجات الجديدة والتحديثات والمحتوى الحصري عبر البريد الإلكتروني.',
+    subscribeNamePlaceholder:  'اسمك',
+    subscribeEmailPlaceholder: 'بريدك الإلكتروني',
+    subscribeSubmit:          'اشترك',
+    subscribeSubmitting:      'جارٍ الإرسال...',
+    subscribeDismiss:         'لا شكراً',
+    subscribeSuccessTitle:    'تم! أنت مشترك الآن',
+    subscribeSuccessSubtitle: 'سنُرسل لك بريداً عند توفر أي جديد.',
+    subscribeError:           'تعذّر الاشتراك. حاول مرة أخرى.',
   },
 
   pwa: {
@@ -283,21 +310,21 @@ export const ar = {
     },
     {
       img: "carrusel/nuev2a.png",
-      division: "NATURIZABLE",
+      division: "قابل للتحلل",
       descripcion: "تغليف مستدام يعود إلى الأرض. حلول 100% نباتية، قابلة لإعادة التدوير والتسميد لصناعة الأغذية.",
       slug: "naturizable",
       video: "GO/carrusel/charola.mp4"
     },
     {
       img: "/images/bolsas/carruselB.webp",
-      division: "BOLSAS",
+      division: "أكياس",
       descripcion: "أكياس بولي بروبيلين عالية المقاومة. متعددة الاستخدامات واقتصادية، متوفرة بمقاسات متعددة للتعبئة الصناعية والتجارية.",
       slug: "bolsas",
       video: "GO/carrusel/bolsa4.mp4"
     },
     {
       img: "carrusel/carrusel_acolchado.png",
-      division: "ACOLCHADO",
+      division: "غطاء أرضي",
       descripcion: "غطاء زراعي لتغطية التربة في الزراعة والحدائق. يكافح الأعشاب الضارة، يحافظ على الرطوبة وينظّم درجة حرارة التربة.",
       slug: "acolchado",
       video: "GO/carrusel/acolchadoV.mp4"
@@ -1420,7 +1447,7 @@ footer: {
       title_top:    "نحن الشركة المصنّعة",
       title_bot:    "الرائدة في أمريكا اللاتينية",
       video: "GO/home/hero",
-      typewriter_prefix: "MANUFACTURER OF",
+      typewriter_prefix: "صانع",
       subtitle:     "أكثر من 65 عاماً في تصنيع حلول هندسية متقدمة للصناعات في القارات الخمس.",
       btn_products: "منتجاتنا",
       btn_about:    "اعرف أكثر",

@@ -1,6 +1,806 @@
 {
   "commits": [
     {
+      "hash": "d465430",
+      "date": "2026-06-24",
+      "message": "feat(admin): botón reenviar notificación por lead de distribuidor",
+      "rawMessage": "feat(admin): botón reenviar notificación por lead de distribuidor",
+      "type": "feat",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "db67933",
+      "date": "2026-06-24",
+      "message": "fix(catalogo): centrar verticalmente el 2026 en overlay de descarga",
+      "rawMessage": "fix(catalogo): centrar verticalmente el 2026 en overlay de descarga",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "447efc5",
+      "date": "2026-06-24",
+      "message": "feat(catalogo): 2026 centrado y grande como textura de fondo en overlay de descarga",
+      "rawMessage": "feat(catalogo): 2026 centrado y grande como textura de fondo en overlay de descarga",
+      "type": "feat",
+      "area": "General"
+    },
+    {
+      "hash": "83c572f",
+      "date": "2026-06-24",
+      "message": "fix(i18n): polipropileno → polietileno en carrusel y divisiones bolsas",
+      "rawMessage": "fix(i18n): polipropileno → polietileno en carrusel y divisiones bolsas",
+      "type": "fix",
+      "area": "Productos"
+    },
+    {
+      "hash": "f312ed9",
+      "date": "2026-06-24",
+      "message": "fix(catalogo+i18n): corregir material polipropileno → polietileno en bolsas y bolsa vacío",
+      "rawMessage": "fix(catalogo+i18n): corregir material polipropileno → polietileno en bolsas y bolsa vacío",
+      "type": "fix",
+      "area": "Productos"
+    },
+    {
+      "hash": "9a165f9",
+      "date": "2026-06-24",
+      "message": "feat(catalogo+analytics): tracking de descargas PDF + nuevo producto Bolsa Vacío",
+      "rawMessage": "feat(catalogo+analytics): tracking de descargas PDF + nuevo producto Bolsa Vacío",
+      "type": "feat",
+      "area": "Productos"
+    },
+    {
+      "hash": "862e04c",
+      "date": "2026-06-24",
+      "message": "fix(catalogo): CATALOGO GENERAL label mas grande en overlay",
+      "rawMessage": "fix(catalogo): CATALOGO GENERAL label mas grande en overlay",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "b9dc235",
+      "date": "2026-06-24",
+      "message": "feat(catalogo): overlay — status text grande y prominente arriba del layout",
+      "rawMessage": "feat(catalogo): overlay — status text grande y prominente arriba del layout",
+      "type": "feat",
+      "area": "General"
+    },
+    {
+      "hash": "f06c694",
+      "date": "2026-06-24",
+      "message": "fix(catalogo): maxima calidad imagenes — q_100, portadas 1600px, productos 1000px",
+      "rawMessage": "fix(catalogo): maxima calidad imagenes — q_100, portadas 1600px, productos 1000px",
+      "type": "fix",
+      "area": "Productos"
+    },
+    {
+      "hash": "21b2661",
+      "date": "2026-06-24",
+      "message": "refactor(catalogo): eliminar estado global setCatFolders — sin condiciones de carrera",
+      "rawMessage": "refactor(catalogo): eliminar estado global setCatFolders — sin condiciones de carrera",
+      "type": "refactor",
+      "area": "General"
+    },
+    {
+      "hash": "fa59664",
+      "date": "2026-06-24",
+      "message": "fix(catalogo): calidad de imagenes — q_auto:good, 1200/900px, deviceScaleFactor 2x",
+      "rawMessage": "fix(catalogo): calidad de imagenes — q_auto:good, 1200/900px, deviceScaleFactor 2x",
+      "type": "fix",
+      "area": "Media"
+    },
+    {
+      "hash": "260d221",
+      "date": "2026-06-24",
+      "message": "feat(catalogo): general PDF con portada, numeracion y mayor calidad de imagenes",
+      "rawMessage": "feat(catalogo): general PDF con portada, numeracion y mayor calidad de imagenes",
+      "type": "feat",
+      "area": "Media"
+    },
+    {
+      "hash": "7c0fbff",
+      "date": "2026-06-23",
+      "message": "catalogo general — descarga completa via merge client-side con pdf-lib",
+      "rawMessage": "feat: catalogo general — descarga completa via merge client-side con pdf-lib",
+      "type": "feat",
+      "area": "General"
+    },
+    {
+      "hash": "2df93cc",
+      "date": "2026-06-23",
+      "message": "catalogo general descarga directo desde Cloudinary — PDFs pre-generados",
+      "rawMessage": "fix: catalogo general descarga directo desde Cloudinary — PDFs pre-generados",
+      "type": "fix",
+      "area": "Media"
+    },
+    {
+      "hash": "e848bcc",
+      "date": "2026-06-23",
+      "message": "regeneracion automatica de PDFs via GitHub Actions",
+      "rawMessage": "feat: regeneracion automatica de PDFs via GitHub Actions",
+      "type": "feat",
+      "area": "General"
+    },
+    {
+      "hash": "197d4b0",
+      "date": "2026-06-23",
+      "message": "script sube PDFs generales a Cloudinary via upload_large",
+      "rawMessage": "feat: script sube PDFs generales a Cloudinary via upload_large",
+      "type": "feat",
+      "area": "Media"
+    },
+    {
+      "hash": "ef07917",
+      "date": "2026-06-23",
+      "message": "catalogo general via Cloudinary — sin timeout de Vercel",
+      "rawMessage": "feat: catalogo general via Cloudinary — sin timeout de Vercel",
+      "type": "feat",
+      "area": "Media"
+    },
+    {
+      "hash": "18e9cc9",
+      "date": "2026-06-23",
+      "message": "agregar Vercel Blob a connect-src del CSP",
+      "rawMessage": "fix: agregar Vercel Blob a connect-src del CSP",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "c3bc937",
+      "date": "2026-06-23",
+      "message": "blob redirect 307 en vez de re-servir PDF en memoria",
+      "rawMessage": "fix: blob redirect 307 en vez de re-servir PDF en memoria",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "1f0f80a",
+      "date": "2026-06-23",
+      "message": "eliminar PDFs estaticos de public/CATALOGO",
+      "rawMessage": "chore: eliminar PDFs estaticos de public/CATALOGO",
+      "type": "chore",
+      "area": "General"
+    },
+    {
+      "hash": "34aa96b",
+      "date": "2026-06-23",
+      "message": "cache Vercel Blob para catalogo general PDF",
+      "rawMessage": "feat: cache Vercel Blob para catalogo general PDF",
+      "type": "feat",
+      "area": "General"
+    },
+    {
+      "hash": "a67fe78",
+      "date": "2026-06-23",
+      "message": "descarga general desde PDF estatico en public/CATALOGO/",
+      "rawMessage": "feat: descarga general desde PDF estatico en public/CATALOGO/",
+      "type": "feat",
+      "area": "General"
+    },
+    {
+      "hash": "725bd9e",
+      "date": "2026-06-23",
+      "message": "descarga directa de PDF en todos los dispositivos sin abrir nueva pestaña",
+      "rawMessage": "fix: descarga directa de PDF en todos los dispositivos sin abrir nueva pestaña",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "b30a154",
+      "date": "2026-06-22",
+      "message": "mas tiempo — fake progress 45s, timeout 30s",
+      "rawMessage": "fix: mas tiempo — fake progress 45s, timeout 30s",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "0fcbd05",
+      "date": "2026-06-22",
+      "message": "revert banner en HTML endpoint",
+      "rawMessage": "fix: revert banner en HTML endpoint",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "fb89208",
+      "date": "2026-06-22",
+      "message": "w300, concurrencia 8, batches 3, timeouts reducidos",
+      "rawMessage": "perf: w300, concurrencia 8, batches 3, timeouts reducidos",
+      "type": "perf",
+      "area": "Performance"
+    },
+    {
+      "hash": "4a5aaf1",
+      "date": "2026-06-22",
+      "message": "nombre de archivo incluye tema (dark/light)",
+      "rawMessage": "feat: nombre de archivo incluye tema (dark/light)",
+      "type": "feat",
+      "area": "General"
+    },
+    {
+      "hash": "cad06e8",
+      "date": "2026-06-22",
+      "message": "overlay dice 'DESCARGA EN CURSO' en vez de 'GENERANDO'",
+      "rawMessage": "fix: overlay dice 'DESCARGA EN CURSO' en vez de 'GENERANDO'",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "cff3713",
+      "date": "2026-06-22",
+      "message": "preloadImages (base64) + domcontentloaded — general confiable",
+      "rawMessage": "fix: preloadImages (base64) + domcontentloaded — general confiable",
+      "type": "fix",
+      "area": "Media"
+    },
+    {
+      "hash": "7b90b1d",
+      "date": "2026-06-22",
+      "message": "networkidle2→load (40s), image timeout 8s — cabe en 60s Hobby",
+      "rawMessage": "fix: networkidle2→load (40s), image timeout 8s — cabe en 60s Hobby",
+      "type": "fix",
+      "area": "Media"
+    },
+    {
+      "hash": "06b5a78",
+      "date": "2026-06-22",
+      "message": "overlay muestra nombre del catalogo individual",
+      "rawMessage": "fix: overlay muestra nombre del catalogo individual",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "facddca",
+      "date": "2026-06-22",
+      "message": "overlay centro de descarga para ambos botones",
+      "rawMessage": "feat: overlay centro de descarga para ambos botones",
+      "type": "feat",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "76bebcb",
+      "date": "2026-06-22",
+      "message": "solo 2 botones en mobile, mas grandes",
+      "rawMessage": "fix: solo 2 botones en mobile, mas grandes",
+      "type": "fix",
+      "area": "Performance"
+    },
+    {
+      "hash": "5102bfc",
+      "date": "2026-06-22",
+      "message": "pagina fija en mobile — sin scroll, viewport completo",
+      "rawMessage": "fix: pagina fija en mobile — sin scroll, viewport completo",
+      "type": "fix",
+      "area": "Performance"
+    },
+    {
+      "hash": "33bba72",
+      "date": "2026-06-22",
+      "message": "nombre division mas grande — clamp(20px,5vw,28px)",
+      "rawMessage": "fix: nombre division mas grande — clamp(20px,5vw,28px)",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "32f979d",
+      "date": "2026-06-22",
+      "message": "nav mobile bottom:30px, box-shadow para visibilidad",
+      "rawMessage": "fix: nav mobile bottom:30px, box-shadow para visibilidad",
+      "type": "fix",
+      "area": "Performance"
+    },
+    {
+      "hash": "5263f72",
+      "date": "2026-06-22",
+      "message": "ocultar footer en mobile en pagina catalogo",
+      "rawMessage": "fix: ocultar footer en mobile en pagina catalogo",
+      "type": "fix",
+      "area": "Performance"
+    },
+    {
+      "hash": "ea2033c",
+      "date": "2026-06-22",
+      "message": "solo portada en mobile — sin scroll, sin fichas, sin deck",
+      "rawMessage": "fix: solo portada en mobile — sin scroll, sin fichas, sin deck",
+      "type": "fix",
+      "area": "Performance"
+    },
+    {
+      "hash": "24a7059",
+      "date": "2026-06-22",
+      "message": "tipografia mobile usa clamp() nativo del desktop",
+      "rawMessage": "fix: tipografia mobile usa clamp() nativo del desktop",
+      "type": "fix",
+      "area": "Performance"
+    },
+    {
+      "hash": "fddc753",
+      "date": "2026-06-22",
+      "message": "eliminar right:-18% del primer @media, centrado limpio",
+      "rawMessage": "fix: eliminar right:-18% del primer @media, centrado limpio",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "5015ca5",
+      "date": "2026-06-22",
+      "message": "imagen portada centrada mobile + flechas mas arriba",
+      "rawMessage": "fix: imagen portada centrada mobile + flechas mas arriba",
+      "type": "fix",
+      "area": "Media"
+    },
+    {
+      "hash": "eaa5e47",
+      "date": "2026-06-22",
+      "message": "nav mobile mas arriba (bottom:4px), flechas 36px",
+      "rawMessage": "fix: nav mobile mas arriba (bottom:4px), flechas 36px",
+      "type": "fix",
+      "area": "Performance"
+    },
+    {
+      "hash": "f8ece62",
+      "date": "2026-06-22",
+      "message": "CSS unclosed block — faltaba } en @media 900px",
+      "rawMessage": "fix: CSS unclosed block — faltaba } en @media 900px",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "0c75738",
+      "date": "2026-06-22",
+      "message": "mobile — tipografia reducida, padding-top menor, sin duplicados",
+      "rawMessage": "fix: mobile — tipografia reducida, padding-top menor, sin duplicados",
+      "type": "fix",
+      "area": "Performance"
+    },
+    {
+      "hash": "8dba7f2",
+      "date": "2026-06-22",
+      "message": "nav mobile fixed al fondo, visible siempre",
+      "rawMessage": "fix: nav mobile fixed al fondo, visible siempre",
+      "type": "fix",
+      "area": "Performance"
+    },
+    {
+      "hash": "6ea1ade",
+      "date": "2026-06-22",
+      "message": "botones mas compactos mobile — padding 8px, font 9px, gap 3px",
+      "rawMessage": "fix: botones mas compactos mobile — padding 8px, font 9px, gap 3px",
+      "type": "fix",
+      "area": "Performance"
+    },
+    {
+      "hash": "be2de66",
+      "date": "2026-06-22",
+      "message": "solo mobile — 3 botones horizontales + flechas navegacion",
+      "rawMessage": "feat: solo mobile — 3 botones horizontales + flechas navegacion",
+      "type": "feat",
+      "area": "Performance"
+    },
+    {
+      "hash": "64dacbb",
+      "date": "2026-06-22",
+      "message": "revert: vuelve al layout original del catalogo digital",
+      "rawMessage": "revert: vuelve al layout original del catalogo digital",
+      "type": "update",
+      "area": "General"
+    },
+    {
+      "hash": "4a1c222",
+      "date": "2026-06-22",
+      "message": "nav solo mobile, desktop sin cambios",
+      "rawMessage": "fix: nav solo mobile, desktop sin cambios",
+      "type": "fix",
+      "area": "Performance"
+    },
+    {
+      "hash": "6036e0e",
+      "date": "2026-06-22",
+      "message": "productos alineados a la izquierda + padding-left",
+      "rawMessage": "fix: productos alineados a la izquierda + padding-left",
+      "type": "fix",
+      "area": "Productos"
+    },
+    {
+      "hash": "4c2938e",
+      "date": "2026-06-22",
+      "message": "productos centrados en mobile",
+      "rawMessage": "fix: productos centrados en mobile",
+      "type": "fix",
+      "area": "Productos"
+    },
+    {
+      "hash": "9f7fc57",
+      "date": "2026-06-22",
+      "message": "inner div transform:none — corrige offset que movia imagen",
+      "rawMessage": "fix: inner div transform:none — corrige offset que movia imagen",
+      "type": "fix",
+      "area": "Media"
+    },
+    {
+      "hash": "01c9aa1",
+      "date": "2026-06-22",
+      "message": "ajuste fino mobile — nav mas arriba, padding reducido, simetria",
+      "rawMessage": "fix: ajuste fino mobile — nav mas arriba, padding reducido, simetria",
+      "type": "fix",
+      "area": "Performance"
+    },
+    {
+      "hash": "1127308",
+      "date": "2026-06-22",
+      "message": "nav arriba de productos, flexbox en mobile, año oculto",
+      "rawMessage": "fix: nav arriba de productos, flexbox en mobile, año oculto",
+      "type": "fix",
+      "area": "Productos"
+    },
+    {
+      "hash": "c9cb6a9",
+      "date": "2026-06-22",
+      "message": "nav flechas dentro del hero — siempre visible",
+      "rawMessage": "fix: nav flechas dentro del hero — siempre visible",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "f2e6abe",
+      "date": "2026-06-22",
+      "message": "general con overlay progreso + mismo formato descarga que individual",
+      "rawMessage": "fix: general con overlay progreso + mismo formato descarga que individual",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "ca4ed51",
+      "date": "2026-06-22",
+      "message": "grid mobile 2 rows (sin empty copy), spacing simetrico",
+      "rawMessage": "fix: grid mobile 2 rows (sin empty copy), spacing simetrico",
+      "type": "fix",
+      "area": "Performance"
+    },
+    {
+      "hash": "47fde36",
+      "date": "2026-06-22",
+      "message": "position relative + reset total en mobile, removido right:-18%",
+      "rawMessage": "fix: position relative + reset total en mobile, removido right:-18%",
+      "type": "fix",
+      "area": "Performance"
+    },
+    {
+      "hash": "62330ed",
+      "date": "2026-06-22",
+      "message": "contain:none + height:auto para centrado real en mobile",
+      "rawMessage": "fix: contain:none + height:auto para centrado real en mobile",
+      "type": "fix",
+      "area": "Performance"
+    },
+    {
+      "hash": "da180ad",
+      "date": "2026-06-22",
+      "message": "imagen centrada — justify-content center + inner div",
+      "rawMessage": "fix: imagen centrada — justify-content center + inner div",
+      "type": "fix",
+      "area": "Media"
+    },
+    {
+      "hash": "36a0ccb",
+      "date": "2026-06-22",
+      "message": "misma opacidad original (.14) pero centrada en mobile",
+      "rawMessage": "fix: misma opacidad original (.14) pero centrada en mobile",
+      "type": "fix",
+      "area": "Performance"
+    },
+    {
+      "hash": "9ccdada",
+      "date": "2026-06-22",
+      "message": "imagen portada centrada en mobile (no esquinada)",
+      "rawMessage": "fix: imagen portada centrada en mobile (no esquinada)",
+      "type": "fix",
+      "area": "Media"
+    },
+    {
+      "hash": "422315e",
+      "date": "2026-06-22",
+      "message": "nav solo flechas circulares, sin nombres de otras divisiones",
+      "rawMessage": "fix: nav solo flechas circulares, sin nombres de otras divisiones",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "91b7dbc",
+      "date": "2026-06-22",
+      "message": "mobile — 3 botones caben, nav arrows mas grandes, division visible",
+      "rawMessage": "fix: mobile — 3 botones caben, nav arrows mas grandes, division visible",
+      "type": "fix",
+      "area": "i18n"
+    },
+    {
+      "hash": "876250d",
+      "date": "2026-06-22",
+      "message": "syntax error — JSX en vez de template literals en nav",
+      "rawMessage": "fix: syntax error — JSX en vez de template literals en nav",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "eba793f",
+      "date": "2026-06-22",
+      "message": "solo portada + nav entre divisiones + 3 botones horizontales",
+      "rawMessage": "feat: solo portada + nav entre divisiones + 3 botones horizontales",
+      "type": "feat",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "8c572e3",
+      "date": "2026-06-22",
+      "message": "mismo sistema PDF que reportes — fetch→blob→a.click con iOS fallback",
+      "rawMessage": "fix: mismo sistema PDF que reportes — fetch→blob→a.click con iOS fallback",
+      "type": "fix",
+      "area": "Media"
+    },
+    {
+      "hash": "bea6448",
+      "date": "2026-06-22",
+      "message": "iframe download para ambos catalogos + script generacion local",
+      "rawMessage": "fix: iframe download para ambos catalogos + script generacion local",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "949ce3b",
+      "date": "2026-06-22",
+      "message": "iframe download + overlay — descarga nativa, sin nueva pestana",
+      "rawMessage": "fix: iframe download + overlay — descarga nativa, sin nueva pestana",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "04af007",
+      "date": "2026-06-22",
+      "message": "general sin preloadImages, w400, descarga directa",
+      "rawMessage": "fix: general sin preloadImages, w400, descarga directa",
+      "type": "fix",
+      "area": "Media"
+    },
+    {
+      "hash": "c302a18",
+      "date": "2026-06-22",
+      "message": "Hobby plan max 60s — general usa HTML+print, no Puppeteer",
+      "rawMessage": "fix: Hobby plan max 60s — general usa HTML+print, no Puppeteer",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "1cb08cd",
+      "date": "2026-06-22",
+      "message": "maxDuration 60→120 en adapter Vercel (raiz del timeout)",
+      "rawMessage": "fix: maxDuration 60→120 en adapter Vercel (raiz del timeout)",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "9d55502",
+      "date": "2026-06-22",
+      "message": "batches de 2 catalogos — evita saturar Cloudinary",
+      "rawMessage": "fix: batches de 2 catalogos — evita saturar Cloudinary",
+      "type": "fix",
+      "area": "Media"
+    },
+    {
+      "hash": "deeaeef",
+      "date": "2026-06-22",
+      "message": "general PDF con preloadImages + render unificado + descarga directa",
+      "rawMessage": "fix: general PDF con preloadImages + render unificado + descarga directa",
+      "type": "fix",
+      "area": "Media"
+    },
+    {
+      "hash": "0ada9ce",
+      "date": "2026-06-22",
+      "message": "PDF via window.print() — cero Puppeteer, instantaneo",
+      "rawMessage": "feat: PDF via window.print() — cero Puppeteer, instantaneo",
+      "type": "feat",
+      "area": "General"
+    },
+    {
+      "hash": "d52f0c8",
+      "date": "2026-06-22",
+      "message": "revert batches approach — mas fiable que HTML combinado",
+      "rawMessage": "fix: revert batches approach — mas fiable que HTML combinado",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "df0cb4d",
+      "date": "2026-06-22",
+      "message": "timeout safety en image wait (15s general, 10s individual)",
+      "rawMessage": "fix: timeout safety en image wait (15s general, 10s individual)",
+      "type": "fix",
+      "area": "Media"
+    },
+    {
+      "hash": "e85dbc3",
+      "date": "2026-06-22",
+      "message": "maxima velocidad — w500, domcontentloaded, timeouts reducidos",
+      "rawMessage": "perf: maxima velocidad — w500, domcontentloaded, timeouts reducidos",
+      "type": "perf",
+      "area": "Performance"
+    },
+    {
+      "hash": "a0f630a",
+      "date": "2026-06-22",
+      "message": "catalogo-general — render unificado, single HTML + single page.pdf()",
+      "rawMessage": "perf: catalogo-general — render unificado, single HTML + single page.pdf()",
+      "type": "perf",
+      "area": "Performance"
+    },
+    {
+      "hash": "abe7e88",
+      "date": "2026-06-22",
+      "message": "PDF — Cloudinary transforms, concurrencia, preconnect",
+      "rawMessage": "perf: PDF — Cloudinary transforms, concurrencia, preconnect",
+      "type": "perf",
+      "area": "Media"
+    },
+    {
+      "hash": "9c4e459",
+      "date": "2026-06-22",
+      "message": "PDF catalogo — networkidle2, revert preloadImages en general",
+      "rawMessage": "fix: PDF catalogo — networkidle2, revert preloadImages en general",
+      "type": "fix",
+      "area": "Media"
+    },
+    {
+      "hash": "5b18953",
+      "date": "2026-06-22",
+      "message": "PDF catalogo — preloadImages, page size, chromium import",
+      "rawMessage": "fix: PDF catalogo — preloadImages, page size, chromium import",
+      "type": "fix",
+      "area": "Media"
+    },
+    {
+      "hash": "af72f95",
+      "date": "2026-06-22",
+      "message": "fix critico: CV se guardaba corrupto por atob sobre data URL",
+      "rawMessage": "fix critico: CV se guardaba corrupto por atob sobre data URL",
+      "type": "update",
+      "area": "Reclutamiento"
+    },
+    {
+      "hash": "50bf4c5",
+      "date": "2026-06-22",
+      "message": "mensajes claramente distinguibles por tipo de registro",
+      "rawMessage": "mensajes claramente distinguibles por tipo de registro",
+      "type": "update",
+      "area": "General"
+    },
+    {
+      "hash": "421e9a6",
+      "date": "2026-06-22",
+      "message": "cero emojis en todos los mensajes del bot",
+      "rawMessage": "cero emojis en todos los mensajes del bot",
+      "type": "update",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "63cd018",
+      "date": "2026-06-22",
+      "message": "fix notificaciones: fallback permisos + log cuando sin destinatarios",
+      "rawMessage": "fix notificaciones: fallback permisos + log cuando sin destinatarios",
+      "type": "update",
+      "area": "Media"
+    },
+    {
+      "hash": "afb1708",
+      "date": "2026-06-22",
+      "message": "reenviar: envía CV real adjunto sin generar PDF",
+      "rawMessage": "reenviar: envía CV real adjunto sin generar PDF",
+      "type": "update",
+      "area": "Reclutamiento"
+    },
+    {
+      "hash": "54b37de",
+      "date": "2026-06-22",
+      "message": "fix reenviar: usa notifyCategoriaRH directo sin PDF (funciona en Vercel)",
+      "rawMessage": "fix reenviar: usa notifyCategoriaRH directo sin PDF (funciona en Vercel)",
+      "type": "update",
+      "area": "General"
+    },
+    {
+      "hash": "2a4ed5c",
+      "date": "2026-06-22",
+      "message": "envía WhatsApp al candidato cuando queda en lista de espera",
+      "rawMessage": "envía WhatsApp al candidato cuando queda en lista de espera",
+      "type": "update",
+      "area": "General"
+    },
+    {
+      "hash": "053f5bc",
+      "date": "2026-06-22",
+      "message": "detecta documentos/CV en webhook WhatsApp + limpia archivo vacío",
+      "rawMessage": "detecta documentos/CV en webhook WhatsApp + limpia archivo vacío",
+      "type": "update",
+      "area": "Reclutamiento"
+    },
+    {
+      "hash": "e37718f",
+      "date": "2026-06-22",
+      "message": "botón reenviar registros + notificación mejorada + fix CV",
+      "rawMessage": "botón reenviar registros + notificación mejorada + fix CV",
+      "type": "update",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "39b51b0",
+      "date": "2026-06-22",
+      "message": "progreso fake ajustado a ~50s (match con nuevo tiempo real)",
+      "rawMessage": "progreso fake ajustado a ~50s (match con nuevo tiempo real)",
+      "type": "update",
+      "area": "General"
+    },
+    {
+      "hash": "01870b6",
+      "date": "2026-06-22",
+      "message": "velocidad maxima: sin preloadImages, todo paralelo, scale 1.0",
+      "rawMessage": "velocidad maxima: sin preloadImages, todo paralelo, scale 1.0",
+      "type": "update",
+      "area": "Media"
+    },
+    {
+      "hash": "ffa8f41",
+      "date": "2026-06-22",
+      "message": "render paralelo 3 paginas concurrentes para catalogo general",
+      "rawMessage": "render paralelo 3 paginas concurrentes para catalogo general",
+      "type": "update",
+      "area": "General"
+    },
+    {
+      "hash": "d53a311",
+      "date": "2026-06-22",
+      "message": "timeout 180→300 + maneja respuesta no-JSON del servidor",
+      "rawMessage": "fix: timeout 180→300 + maneja respuesta no-JSON del servidor",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "7cd7037",
+      "date": "2026-06-22",
+      "message": "optimiza velocidad PDF + corrige barra de progreso",
+      "rawMessage": "optimiza velocidad PDF + corrige barra de progreso",
+      "type": "update",
+      "area": "Performance"
+    },
+    {
+      "hash": "48df77f",
+      "date": "2026-06-22",
+      "message": "refactor catalogo general PDF: render individual + merge pdf-lib",
+      "rawMessage": "refactor catalogo general PDF: render individual + merge pdf-lib",
+      "type": "update",
+      "area": "General"
+    },
+    {
+      "hash": "dcb96a3",
+      "date": "2026-06-22",
+      "message": "fix catálogo general PDF: precarga imágenes a base64 + domcontentloaded",
+      "rawMessage": "fix catálogo general PDF: precarga imágenes a base64 + domcontentloaded",
+      "type": "update",
+      "area": "General"
+    },
+    {
+      "hash": "1b4a2e7",
+      "date": "2026-06-22",
+      "message": "elimina medida 15x20 de bolsas - no existe en GO2026",
+      "rawMessage": "elimina medida 15x20 de bolsas - no existe en GO2026",
+      "type": "update",
+      "area": "Productos"
+    },
+    {
+      "hash": "f156e19",
+      "date": "2026-06-22",
+      "message": "catalog mouse lag + general PDF error",
+      "rawMessage": "fix: catalog mouse lag + general PDF error",
+      "type": "fix",
+      "area": "General"
+    },
+    {
       "hash": "9afb965",
       "date": "2026-06-22",
       "message": "general catalog PDF — request interception + parallel chromium+data load",
@@ -2338,75 +3138,76 @@
     }
   ],
   "stats": {
-    "total": 292,
+    "total": 392,
     "byType": {
-      "fix": 93,
-      "perf": 4,
-      "refactor": 1,
-      "feat": 53,
-      "update": 15,
-      "chore": 6,
+      "feat": 69,
+      "fix": 154,
+      "refactor": 2,
+      "chore": 7,
+      "perf": 8,
+      "update": 32,
       "style": 9,
       "docs": 1,
       "release": 110
     },
     "byArea": {
-      "General": 202,
-      "Media": 28,
-      "Performance": 8,
-      "i18n": 5,
-      "Admin/API": 26,
-      "Productos": 19,
-      "Reclutamiento": 2,
+      "Admin/API": 31,
+      "General": 243,
+      "Productos": 27,
+      "Media": 49,
+      "Performance": 29,
+      "i18n": 6,
+      "Reclutamiento": 5,
       "UI": 2
     },
     "byMonth": {
-      "2026-06": 134,
+      "2026-06": 234,
       "2026-05": 33,
       "2026-04": 29,
       "2026-03": 96
     },
     "byAreaType": {
+      "Admin/API": {
+        "feat": 11,
+        "update": 4,
+        "fix": 13,
+        "style": 2,
+        "docs": 1
+      },
       "General": {
-        "fix": 50,
-        "refactor": 1,
-        "feat": 24,
-        "update": 7,
-        "chore": 5,
+        "fix": 73,
+        "feat": 32,
+        "refactor": 2,
+        "chore": 6,
+        "update": 15,
         "style": 5,
         "release": 110
       },
-      "Media": {
-        "perf": 2,
+      "Productos": {
+        "fix": 12,
+        "feat": 10,
         "update": 3,
-        "fix": 19,
-        "feat": 4
-      },
-      "Performance": {
-        "fix": 2,
-        "update": 1,
-        "feat": 4,
+        "chore": 1,
         "perf": 1
       },
-      "i18n": {
-        "feat": 3,
-        "fix": 2
+      "Media": {
+        "fix": 34,
+        "feat": 7,
+        "perf": 3,
+        "update": 5
       },
-      "Admin/API": {
-        "feat": 8,
-        "fix": 13,
-        "style": 2,
-        "update": 2,
-        "docs": 1
-      },
-      "Productos": {
-        "fix": 6,
-        "feat": 9,
-        "chore": 1,
-        "perf": 1,
+      "Performance": {
+        "perf": 4,
+        "fix": 18,
+        "feat": 5,
         "update": 2
       },
+      "i18n": {
+        "fix": 3,
+        "feat": 3
+      },
       "Reclutamiento": {
+        "update": 3,
         "fix": 1,
         "feat": 1
       },
@@ -2415,5 +3216,5 @@
       }
     }
   },
-  "generatedAt": "2026-06-22T18:38:05.400Z"
+  "generatedAt": "2026-06-30T15:09:31.618Z"
 }

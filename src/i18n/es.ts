@@ -87,6 +87,18 @@ chatbot: {
   // ── Pill móvil ──
   pillLabelSmall: '¿En qué puedo',
   pillLabelBig:   'AYUDARTE HOY?',
+
+  // ── Suscripción a novedades (al cerrar la conversación) ──
+  subscribeTitle:          '¿Quieres recibir novedades?',
+  subscribeSubtitle:       'Entérate de nuevos productos, actualizaciones y contenido exclusivo por correo.',
+  subscribeNamePlaceholder:  'Tu nombre',
+  subscribeEmailPlaceholder: 'Tu correo electrónico',
+  subscribeSubmit:          'Suscribirme',
+  subscribeSubmitting:      'Enviando...',
+  subscribeDismiss:         'No, gracias',
+  subscribeSuccessTitle:    '¡Listo! Ya estás suscrito',
+  subscribeSuccessSubtitle: 'Te avisaremos por correo cuando haya novedades.',
+  subscribeError:           'No se pudo suscribir. Intenta de nuevo.',
 },
 
   pwa: {

@@ -293,7 +293,7 @@
         "zh": "自动",
         "ar": "تلقائي"
       },
-      "img": "",
+      "img": "stretch2.png",
       "lado": "",
       "desc": {
         "es": "Para maquinas de envoltura de baja y media velocidad. Estiramiento de hasta 250%, mayor eficiencia y menor costo por pallet. Garantizada para elongaciones que no excedan el 250%.",
@@ -487,7 +487,7 @@
         "zh": "手动预拉伸",
         "ar": "يدوي مسبق الشد"
       },
-      "img": "",
+      "img": "manual.png",
       "lado": "",
       "desc": {
         "es": "Pelicula de aplicacion manual de alto rendimiento y el menor calibre del mercado. Viene preestirada y lista para usar, sin requerir fuerza del usuario; mayor eficiencia y desempeno.",
@@ -681,7 +681,7 @@
         "zh": "手动捆绑",
         "ar": "ربط يدوي"
       },
-      "img": "",
+      "img": "banding.png",
       "lado": "",
       "desc": {
         "es": "Pelicula stretch de alto rendimiento para aplicaciones manuales. Rollos de 3 a 12 pulgadas para manejo agil y preciso; alternativa tecnica superior al amarre tradicional. Sujecion segura, excelente estiramiento y proteccion contra polvo y humedad.",
@@ -875,7 +875,7 @@
         "zh": "核心",
         "ar": "كورليس"
       },
-      "img": "",
+      "img": "coreles.png",
       "lado": "",
       "desc": {
         "es": "Pelicula de envoltura manual con estiramiento moderado; el usuario la aplica sin equipo automatico. Rollos muy ligeros, faciles de aplicar en pallets.",
@@ -1069,7 +1069,7 @@
         "zh": "手动刚性",
         "ar": "يدوي صلب"
       },
-      "img": "",
+      "img": "rigido.png",
       "lado": "",
       "desc": {
         "es": "Formulado para envoltura manual con estiramiento limitado. Excepcional retencion de carga y resistencia a perforaciones; solucion de empaque innovadora.",

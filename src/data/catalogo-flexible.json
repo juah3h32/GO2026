@@ -64,15 +64,15 @@
       "es": "FLEXIBLE",
       "en": "FLEXIBLE",
       "pt": "FLEXÍVEL",
-      "zh": "FLEXIBLE",
-      "ar": "FLEXIBLE"
+      "zh": "软包装",
+      "ar": "تغليف مرن"
     },
     "t2": {
       "es": "PACKAGING",
       "en": "PACKAGING",
       "pt": "PACKAGING",
-      "zh": "PACKAGING",
-      "ar": "PACKAGING"
+      "zh": "包装",
+      "ar": "تغليف"
     },
     "division": {
       "es": "DIVISIÓN",
@@ -92,7 +92,7 @@
         "zh": "印刷卷材",
         "ar": "بكرة مطبوعة"
       },
-      "img": "",
+      "img": "bobina.png",
       "lado": "",
       "desc": {
         "es": "Nuestros rollos están disponibles en una amplia variedad de laminados, grosores y acabados, con capacidad de impresión de alta resolución de hasta 10 colores y 133 líneas por pulgada. Diseñados pensando en la calidad y la flexibilidad, nuestros productos cumplen con los más altos estándares. Ancho máximo de rollo: 44.88 pulgadas; ancho máximo de impresión: 57.08 pulgadas.",
@@ -154,7 +154,7 @@
         "zh": "通用立式袋",
         "ar": "كيس قائم عام"
       },
-      "img": "",
+      "img": "standup.png",
       "lado": "",
       "desc": {
         "es": "Nuestras bolsas genéricas tipo stand-up son soluciones versátiles y prácticas, ideales para presentar y proteger productos alimenticios secos o húmedos, polvos, líquidos, cosméticos, artículos del hogar y productos químicos. Fabricadas con materiales de alta barrera, ofrecen una excelente protección contra la humedad, el oxígeno y contaminantes externos, preservando la frescura y calidad del contenido.",
@@ -315,7 +315,7 @@
         "zh": "X ORGANICS 立式袋",
         "ar": "كيس قائم X ORGANICS"
       },
-      "img": "",
+      "img": "organics.png",
       "lado": "",
       "desc": {
         "es": "Nuestra línea de bolsas tipo stand-up X Organics presenta diseños versátiles y llamativos, creados para adaptarse a una amplia gama de productos. Desde motivos florales y frutales hasta dulces y más, nuestros diseños brindan a su empaque un aspecto profesional y atractivo, con diferentes opciones para elegir el diseño que mejor se adapte a su producto.",
@@ -440,7 +440,7 @@
         "zh": "定制袋",
         "ar": "كيس مخصص"
       },
-      "img": "",
+      "img": "personalizada.png",
       "lado": "",
       "desc": {
         "es": "Ofrecemos diversas estructuras y materiales adaptados a las necesidades específicas de su producto, ya sea para alimentos secos, líquidos, polvos o artículos sensibles. Ajustamos el tamaño para adaptarse a su producto, desde barreras de alta protección hasta laminados especiales que mejoran la durabilidad y frescura.",
@@ -543,7 +543,7 @@
         "zh": "真空袋",
         "ar": "أكياس التفريغ"
       },
-      "img": "",
+      "img": "vacio.png",
       "lado": "",
       "desc": {
         "es": "Las bolsas de vacío de polietileno están diseñadas para maximizar la frescura y la vida útil de productos delicados. Son ideales para alimentos perecederos como carnes, quesos, embutidos y productos frescos, protegiéndolos eficazmente del oxígeno, la humedad y otros contaminantes.",
@@ -562,10 +562,34 @@
             "ar": "المزايا"
           },
           "items": [
-            { "es": "Preservación prolongada de los alimentos.", "en": "Prolonged food preservation.", "pt": "Preservação prolongada dos alimentos.", "zh": "食物长期保鲜。", "ar": "حفظ الطعام لفترة طويلة." },
-            { "es": "Protección contra la humedad, el oxígeno y los contaminantes.", "en": "Protection against moisture, oxygen and contaminants.", "pt": "Proteção contra umidade, oxigênio e contaminantes.", "zh": "防潮、防氧及防污染。", "ar": "الحماية من الرطوبة والأكسجين والملوثات." },
-            { "es": "Reducción de desperdicios y vida útil extendida.", "en": "Waste reduction and extended shelf life.", "pt": "Redução de desperdícios e vida útil estendida.", "zh": "减少浪费，延长保质期。", "ar": "تقليل الهدر وإطالة العمر الافتراضي." },
-            { "es": "Almacenamiento compacto y eficiente.", "en": "Compact and efficient storage.", "pt": "Armazenamento compacto e eficiente.", "zh": "紧凑高效的存储方式。", "ar": "تخزين مضغوط وفعّال." }
+            {
+              "es": "Preservación prolongada de los alimentos.",
+              "en": "Prolonged food preservation.",
+              "pt": "Preservação prolongada dos alimentos.",
+              "zh": "食物长期保鲜。",
+              "ar": "حفظ الطعام لفترة طويلة."
+            },
+            {
+              "es": "Protección contra la humedad, el oxígeno y los contaminantes.",
+              "en": "Protection against moisture, oxygen and contaminants.",
+              "pt": "Proteção contra umidade, oxigênio e contaminantes.",
+              "zh": "防潮、防氧及防污染。",
+              "ar": "الحماية من الرطوبة والأكسجين والملوثات."
+            },
+            {
+              "es": "Reducción de desperdicios y vida útil extendida.",
+              "en": "Waste reduction and extended shelf life.",
+              "pt": "Redução de desperdícios e vida útil estendida.",
+              "zh": "减少浪费，延长保质期。",
+              "ar": "تقليل الهدر وإطالة العمر الافتراضي."
+            },
+            {
+              "es": "Almacenamiento compacto y eficiente.",
+              "en": "Compact and efficient storage.",
+              "pt": "Armazenamento compacto e eficiente.",
+              "zh": "紧凑高效的存储方式。",
+              "ar": "تخزين مضغوط وفعّال."
+            }
           ]
         },
         {
@@ -577,14 +601,37 @@
             "ar": "العيوب"
           },
           "items": [
-            { "es": "Requiere maquinaria especializada para el sellado al vacío.", "en": "Requires specialized machinery for vacuum sealing.", "pt": "Requer maquinaria especializada para selagem a vácuo.", "zh": "需要专用真空封口设备。", "ar": "يتطلب معدات متخصصة لإغلاق التفريغ." },
-            { "es": "No todos los productos son compatibles con este tipo de embalaje.", "en": "Not all products are compatible with this type of packaging.", "pt": "Nem todos os produtos são compatíveis com este tipo de embalagem.", "zh": "并非所有产品均适用此类包装。", "ar": "ليست جميع المنتجات متوافقة مع هذا النوع من التغليف." },
-            { "es": "Mayor costo inicial en comparación con el embalaje convencional.", "en": "Higher initial cost compared to conventional packaging.", "pt": "Maior custo inicial em comparação com a embalagem convencional.", "zh": "与传统包装相比，初期成本较高。", "ar": "تكلفة أولية أعلى مقارنة بالتغليف التقليدي." }
+            {
+              "es": "Requiere maquinaria especializada para el sellado al vacío.",
+              "en": "Requires specialized machinery for vacuum sealing.",
+              "pt": "Requer maquinaria especializada para selagem a vácuo.",
+              "zh": "需要专用真空封口设备。",
+              "ar": "يتطلب معدات متخصصة لإغلاق التفريغ."
+            },
+            {
+              "es": "No todos los productos son compatibles con este tipo de embalaje.",
+              "en": "Not all products are compatible with this type of packaging.",
+              "pt": "Nem todos os produtos são compatíveis com este tipo de embalagem.",
+              "zh": "并非所有产品均适用此类包装。",
+              "ar": "ليست جميع المنتجات متوافقة مع هذا النوع من التغليف."
+            },
+            {
+              "es": "Mayor costo inicial en comparación con el embalaje convencional.",
+              "en": "Higher initial cost compared to conventional packaging.",
+              "pt": "Maior custo inicial em comparação com a embalagem convencional.",
+              "zh": "与传统包装相比，初期成本较高。",
+              "ar": "تكلفة أولية أعلى مقارنة بالتغليف التقليدي."
+            }
           ]
         }
       ],
       "specs": [],
-      "matrix": { "title": "", "note": "", "headers": [], "rows": [] },
+      "matrix": {
+        "title": "",
+        "note": "",
+        "headers": [],
+        "rows": []
+      },
       "visual": {
         "scale": 1,
         "offsetX": 0,

@@ -128,6 +128,50 @@ export async function notifyNewDistribuidor(lead: {
 
 
 // ══════════════════════════════════════════════════════════════════════════════
+// SUSCRIPTORES — notificacion por correo (via Resend) al recibir un registro nuevo
+// ══════════════════════════════════════════════════════════════════════════════
+
+async function sendResendEmail(to: string, subject: string, html: string) {
+  const apiKey = import.meta.env.RESEND_API_KEY;
+  if (!apiKey) {
+    console.warn('⚠️ RESEND_API_KEY no configurada, saltando email...');
+    return;
+  }
+  const from = import.meta.env.NOTIFY_EMAIL_FROM || 'BotGO <onboarding@resend.dev>';
+
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+    body: JSON.stringify({ from, to, subject, html }),
+    signal: AbortSignal.timeout(6000),
+  });
+
+  if (!res.ok) {
+    console.error(`❌ Resend error: HTTP ${res.status} — ${await res.text()}`);
+  } else {
+    console.log('✅ Email de notificación enviado OK');
+  }
+}
+
+export async function notifyNewSubscriberEmail(sub: { nombre: string; email: string; source: string }) {
+  const to = import.meta.env.NOTIFY_EMAIL_TO;
+  if (!to) {
+    console.warn('⚠️ NOTIFY_EMAIL_TO no configurado, saltando notificación de suscriptor...');
+    return;
+  }
+  const origen = sub.source === 'botgo' ? 'BotGO (chat)' : 'Formulario de distribuidor';
+  const html = `
+    <h2>🔔 Nuevo suscriptor</h2>
+    <p><b>Nombre:</b> ${sub.nombre || '—'}</p>
+    <p><b>Correo:</b> ${sub.email}</p>
+    <p><b>Origen:</b> ${origen}</p>
+    <p style="color:#888;font-size:12px;">${new Date().toLocaleString('es-MX', { timeZone: 'America/Mexico_City' })}</p>
+  `;
+  await sendResendEmail(to, '🔔 Nuevo suscriptor — BotGO', html).catch((e) => console.error('notifyNewSubscriberEmail:', e?.message || e));
+}
+
+
+// ══════════════════════════════════════════════════════════════════════════════
 // VACANTES / RH
 // ══════════════════════════════════════════════════════════════════════════════
 
@@ -172,12 +216,13 @@ export async function notifyNewVacante(lead: {
   whatsapp: string;
   email:    string;
   mensaje:  string;
+  [key: string]: any;
 }) {
   const topic = import.meta.env.NOTIFY_NTFY_TOPIC_RH;
   const token = import.meta.env.NOTIFY_NTFY_TOKEN_RH;
   const phone = import.meta.env.EVOLUTION_PHONE_RH;
 
-  const tasks: Promise<void>[] = [];
+  const tasks: Promise<any>[] = [];
 
   if (topic && token) {
     tasks.push(notifyNtfyVacante(token, topic));
@@ -190,6 +235,20 @@ export async function notifyNewVacante(lead: {
   } else {
     console.warn('⚠️ EVOLUTION_PHONE_RH no configurado, saltando notificación WhatsApp...');
   }
+
+  // Notificar a números autorizados con categoría 'rh'
+  tasks.push(
+    import('./notify.js')
+      .then((m: any) => m.notifyCategoriaRH({
+        nombre:   lead.nombre,
+        puesto:   lead.puesto,
+        telefono: lead.whatsapp || lead.telefono || '',
+        email:    lead.email,
+        cvNombre: lead.cvNombre || '',
+        en_lista_espera: lead.en_lista_espera || false,
+      }))
+      .catch((e: any) => console.warn('[notify.ts] notifyCategoriaRH:', e.message))
+  );
 
   await Promise.allSettled(tasks);
 }

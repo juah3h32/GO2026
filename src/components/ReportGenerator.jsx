@@ -56,7 +56,7 @@ function filterLeadsByPeriod(leads, from, to) {
 // ── Logo ──────────────────────────────────────────────────────────────────────
 async function fetchLogoBase64() {
   try {
-    const res = await fetch('/images/logoN.png');
+    const res = await fetch('/images/logo/logoN.png');
     if (!res.ok) return null;
     const blob = await res.blob();
     return await new Promise((resolve) => {
@@ -1311,6 +1311,188 @@ ${C(`
 </body></html>`;
   }
 
+  // ── REPORTE PRODUCTOS — líneas de producto · consultas · señales de cierre ──
+  if (reportType === 'productos') {
+    const BLACK = '#000000';
+    const ORANGE = '#FB670B';
+    const ORANGE_DARK = '#D4530A';
+    const GRAY_MID = '#898980';
+    const GRAY_LIGHT = '#C4C3B5';
+    const C_BLUE = '#0088DD';
+    const C_GREEN = '#22C55E';
+    const C_PURP = '#9B59B6';
+
+    // helpers — same as Resumen
+    const S = (t,c,b)=>`<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;padding-bottom:6px;border-bottom:1.5px solid ${c}30;"><div style="width:3px;height:16px;background:${c};border-radius:2px;flex-shrink:0;"></div><span style="font-family:'Barlow',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.20em;text-transform:uppercase;color:rgba(255,255,255,0.55);flex:1;">${t}</span>${b?`<span style="font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:800;color:${c};">${b}</span>`:''}</div>`;
+    const C = (content)=>`<div style="background:#111111;border-radius:8px;border:1px solid rgba(255,255,255,0.10);padding:9px 11px;display:flex;flex-direction:column;overflow:hidden;">${content}</div>`;
+    const mini3 = (items)=>items.map(([l,v,c])=>`<div style="flex:1;background:#1A1A1A;border-radius:6px;padding:7px 4px;text-align:center;border:1px solid rgba(255,255,255,0.10);"><div style="font-family:'Barlow Condensed',sans-serif;font-size:25px;font-weight:800;color:${c};line-height:1;">${v}</div><div style="font-family:'Barlow',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.10em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-top:3px;">${l}</div></div>`).join('');
+
+    const prods = data?.products || {};
+    const kws   = data?.keywords || {};
+    const ints  = data?.intents  || {};
+    const closingSignals = data?.closingSignals || [];
+    const totalMsg  = data?.totalMessages || 0;
+    const totalWA   = data?.totalWhatsApp || 0;
+    const totalPDF  = data?.totalPDFs    || 0;
+
+    const ALL_LINES = [
+      { key:'rafia',       label:'Rafia',           sub:'hilo PP · agrícola',              color:ORANGE,   cat:7 },
+      { key:'sacos',       label:'Sacos',            sub:'tejido PP · granel',              color:C_BLUE,   cat:7 },
+      { key:'cuerdas',     label:'Cuerdas',          sub:'cordaje · cables',                color:C_GREEN,  cat:7 },
+      { key:'arpillas',    label:'Arpillas',         sub:'redes de embalaje',               color:C_PURP,   cat:7 },
+      { key:'bolsas',      label:'Bolsas',           sub:'plástico · PE',                   color:GRAY_MID, cat:7 },
+      { key:'stretch',     label:'Stretch Film',     sub:'film estirable',                  color:GRAY_MID, cat:7 },
+      { key:'esquineros',  label:'Esquineros',       sub:'protección de paleta',            color:GRAY_MID, cat:7 },
+      { key:'flexible',    label:'Empaques Flex.',   sub:'laminados · BOPP',                color:GRAY_MID, cat:7 },
+      { key:'acolchado',   label:'Acolchado',         sub:'protección · foam',               color:GRAY_MID, cat:7 },
+      { key:'charola',     label:'Charola',           sub:'naturizable · compostable · eco', color:GRAY_MID, cat:0 },
+    ];
+
+    const totalProdMenciones = ALL_LINES.reduce((s,l)=>s+(prods[l.key]||0),0);
+    const maxMenciones = Math.max(...ALL_LINES.map(l=>prods[l.key]||0), 1);
+
+    const kwEntries = Object.entries(kws).sort(([,a],[,b])=>b-a).slice(0,7);
+    const maxKw = kwEntries[0]?.[1] || 1;
+
+    const intTotal = Object.values(ints).reduce((s,v)=>s+v, 0) || totalMsg;
+    const pct = (n) => intTotal > 0 ? Math.round(n/intTotal*100) : 0;
+
+    const INT_COLORS = { compra:C_GREEN, pdf:C_BLUE, reclutamiento:'#FBBC04', otro:GRAY_MID };
+    const INT_LABELS = { compra:'Compra / WhatsApp', pdf:'Catálogo / PDF', reclutamiento:'Reclutamiento', otro:'General / Otro' };
+
+    const todayFmt = new Date().toLocaleDateString('es-MX',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+    const periodo  = periodMeta?.label || periodMeta?.preset || 'Acumulado';
+
+    // Product ranking rows
+    const prodRows = ALL_LINES.map((l,idx)=>{
+      const count=prods[l.key]||0;
+      const w=Math.round(count/maxMenciones*100);
+      const isTop=count===maxMenciones&&count>0;
+      const isActive=count>0;
+      return `<div style="margin-bottom:${idx<ALL_LINES.length-1?'3px':'0'};"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1px;"><div style="display:flex;align-items:baseline;gap:5px;"><span style="font-family:'Barlow Condensed',sans-serif;font-size:${isTop?13:11}px;font-weight:800;letter-spacing:0.05em;color:${isActive?'#FFFFFF':'rgba(255,255,255,0.28)'};text-transform:uppercase;">${l.label}</span><span style="font-family:'Barlow',sans-serif;font-size:8px;color:rgba(255,255,255,0.28);">${l.sub}</span></div><span style="font-family:'Barlow Condensed',sans-serif;font-size:${isTop?20:16}px;font-weight:800;color:${isActive?l.color:'rgba(255,255,255,0.15)'};flex-shrink:0;line-height:1;">${isActive?count:'—'}</span></div><div style="height:3px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden;"><div style="width:${w}%;height:100%;background:${isTop?`linear-gradient(90deg,${l.color},${ORANGE_DARK})`:l.color+'80'};border-radius:2px;"></div></div></div>`;
+    }).join('');
+
+    // Header KPI cells
+    const kpiCells = [
+      [totalProdMenciones||'—','Menciones prod.',ORANGE],
+      [totalMsg||'—','Mensajes',C_BLUE],
+      [totalPDF||'—','PDFs desc.',GRAY_MID],
+      [totalWA||'—','WhatsApp',C_GREEN],
+      ['70','Fichas cat.',C_PURP],
+    ].map(([v,l,c],i,a)=>`<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 4px;text-align:center;border-right:${i<a.length-1?'1px solid rgba(255,255,255,0.07)':'none'};position:relative;"><div style="position:absolute;bottom:0;left:20%;right:20%;height:1.5px;background:${c};opacity:0.5;border-radius:1px;"></div><div style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:800;color:${c};line-height:1;">${v}</div><div style="font-family:'Barlow',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.13em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-top:2px;">${l}</div></div>`).join('');
+
+    // Donut for intents
+    const intentPairs = Object.entries(ints).sort(([,a],[,b])=>b-a);
+    const iColors = [C_GREEN, C_BLUE, '#FBBC04', GRAY_MID, ORANGE];
+    const donutTotal = intentPairs.reduce((s,[,v])=>s+v,0)||1;
+    let dAngle=-90;
+    const donutSliceArr=[];
+    intentPairs.slice(0,4).forEach(([k,v],i)=>{
+      const sweep=(v/donutTotal)*360;
+      const a1=dAngle*Math.PI/180,a2=(dAngle+sweep)*Math.PI/180;
+      const r=54,cx=60,cy=60;
+      const x1=(cx+r*Math.cos(a1)).toFixed(1),y1=(cy+r*Math.sin(a1)).toFixed(1);
+      const x2=(cx+r*Math.cos(a2)).toFixed(1),y2=(cy+r*Math.sin(a2)).toFixed(1);
+      const lg=sweep>180?1:0;
+      donutSliceArr.push(`<path d="M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${lg} 1 ${x2} ${y2} Z" fill="${iColors[i%iColors.length]}" opacity="0.90"/>`);
+      dAngle+=sweep;
+    });
+    const donutSlices=donutSliceArr.join('');
+
+    // Intent legend rows
+    const intentListRows=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">${intentPairs.slice(0,4).map(([k,v],i)=>`<div style="background:#1A1A1A;border-radius:5px;padding:6px 7px;"><div style="display:flex;align-items:center;gap:4px;margin-bottom:3px;"><div style="width:6px;height:6px;border-radius:1px;background:${iColors[i%iColors.length]};flex-shrink:0;"></div><span style="font-family:'Barlow',sans-serif;font-size:8px;font-weight:600;color:rgba(255,255,255,0.55);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${INT_LABELS[k]||k}</span></div><div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:#FFFFFF;line-height:1;">${pct(v)}<span style="font-size:12px;color:rgba(255,255,255,0.50);">%</span></div><div style="font-family:'Barlow',sans-serif;font-size:9px;color:rgba(255,255,255,0.30);">${v} msgs</div></div>`).join('')}</div>`;
+
+    // Keyword rows
+    const kwRows=kwEntries.length
+      ?kwEntries.map(([w,c])=>{
+          const wp=Math.round(c/maxKw*100);
+          const kwColor=['sacos','cuerdas','rafia','arpillas'].some(p=>w.includes(p))?C_BLUE:w==='comprar'?C_GREEN:w.includes('pdf')||w.includes('cat')?C_BLUE:GRAY_MID;
+          return `<div style="display:flex;align-items:center;gap:6px;"><span style="font-family:'Barlow',sans-serif;font-size:11px;font-weight:600;color:rgba(255,255,255,0.72);min-width:72px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${w.charAt(0).toUpperCase()+w.slice(1)}</span><div style="flex:1;height:4px;background:rgba(255,255,255,0.10);border-radius:2px;overflow:hidden;"><div style="width:${wp}%;height:100%;background:${kwColor};border-radius:2px;"></div></div><span style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:rgba(255,255,255,0.50);min-width:20px;text-align:right;">${c}</span></div>`;
+        }).join('')
+      :`<div style="font-family:'Barlow',sans-serif;font-size:10px;color:rgba(255,255,255,0.30);text-align:center;padding:8px 0;">Sin datos de keywords</div>`;
+
+    // Catalog coverage rows
+    const CATALOG_NAMES=['Rafia','Sacos','Cuerdas','Arpillas','Bolsas','Stretch','Esquineros','Flex.','Acolchado'];
+    const catalogRows=CATALOG_NAMES.map((name,i)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:2.5px 0;border-bottom:1px solid rgba(255,255,255,0.06);"><span style="font-family:'Barlow',sans-serif;font-size:10px;color:${i<4?'rgba(255,255,255,0.72)':'rgba(255,255,255,0.38)'};">${name}</span><span style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;color:${i<4?C_PURP:'rgba(255,255,255,0.22)'};">7</span></div>`).join('')
+      +`<div style="display:flex;justify-content:space-between;align-items:center;padding:2.5px 0;"><span style="font-family:'Barlow',sans-serif;font-size:10px;color:rgba(255,255,255,0.28);">Charola</span><span style="font-family:'Barlow',sans-serif;font-size:9px;color:rgba(255,255,255,0.22);">pendiente</span></div>`;
+
+    // Closing signals rows
+    const csRows=closingSignals.length>0
+      ?closingSignals.slice(0,5).map(s=>`<div style="padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.07);"><div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-family:'Barlow',sans-serif;font-size:11px;color:rgba(255,255,255,0.80);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${s.msg||s.message_text||s.text||'—'}</span>${s.qty?`<span style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;color:${ORANGE};flex-shrink:0;margin-left:6px;">${s.qty}</span>`:''}</div>${s.product?`<div style="font-family:'Barlow',sans-serif;font-size:9px;color:rgba(255,255,255,0.35);margin-top:1px;">${s.product}</div>`:''}</div>`).join('')
+      :`<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:12px 0;"><div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;color:rgba(255,255,255,0.30);margin-bottom:4px;">Sin se&#xF1;ales a&#xFA;n</div><div style="font-family:'Barlow',sans-serif;font-size:10px;color:rgba(255,255,255,0.25);line-height:1.5;">&ldquo;me da 5 toneladas&rdquo;<br>aparecerá aquí</div></div>`;
+
+    return `<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="UTF-8">
+<title>BotGO · Líneas de Producto · ${todayFmt}</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700;800&family=Barlow+Condensed:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html,body{width:100%;height:100%;}
+  body{background:#000000;font-family:'Barlow',Helvetica,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  @media print{@page{size:A4 landscape;margin:0;} html,body{height:100%;}}
+</style>
+</head><body>
+<div style="width:100%;height:100vh;display:flex;flex-direction:column;background:#000000;">
+
+  <!-- HEADER -->
+  <div style="background:${BLACK};display:flex;align-items:stretch;flex-shrink:0;position:relative;">
+    <div style="position:absolute;top:0;left:0;right:0;height:2.5px;background:linear-gradient(90deg,${ORANGE},${ORANGE_DARK},${C_BLUE},${C_GREEN});"></div>
+    <div style="padding:8px 14px;display:flex;align-items:center;gap:9px;border-right:1px solid rgba(255,255,255,0.08);flex-shrink:0;">
+      ${logoBase64?`<img src="${logoBase64}" style="height:24px;width:auto;filter:brightness(0) invert(1);display:block;"/>`:`<div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:#fff;">GO</div>`}
+      <div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:#fff;letter-spacing:0.04em;text-transform:uppercase;line-height:1;">Grupo Ortiz</div>
+        <div style="font-family:'Barlow',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.22em;color:rgba(255,255,255,0.45);text-transform:uppercase;">Líneas de Producto · BotGO</div>
+      </div>
+    </div>
+    ${kpiCells}
+    <div style="padding:6px 14px;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;border-left:1px solid rgba(255,255,255,0.08);flex-shrink:0;gap:1px;min-width:120px;">
+      <div style="font-family:'Barlow',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.20em;text-transform:uppercase;color:rgba(255,255,255,0.40);">Período</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:rgba(255,255,255,0.92);text-align:right;line-height:1.2;text-transform:uppercase;">${periodo}</div>
+      <div style="font-family:'Barlow',sans-serif;font-size:10px;font-weight:600;color:rgba(255,255,255,0.35);">${todayFmt}</div>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div style="flex:1;display:flex;flex-direction:column;padding:5px 8px 0;gap:5px;min-height:0;">
+
+    <!-- FILA 1 -->
+    <div style="flex:1.4;display:grid;grid-template-columns:2.2fr 1fr;gap:6px;min-height:0;">
+
+      ${C(`${S('Líneas de Producto · Consultas en chatbot',ORANGE,'')}<div style="flex:1;display:flex;flex-direction:column;justify-content:space-between;min-height:0;">${prodRows}</div>`)}
+
+      ${C(`${S('Intenciones · distribución',GRAY_MID,'')}<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;"><svg viewBox="0 0 120 120" style="width:100%;max-width:200px;height:auto;display:block;margin:0 auto;">${donutSlices}<circle cx="60" cy="60" r="32" fill="#111111"/><text x="60" y="56" text-anchor="middle" font-family="'Barlow Condensed',Helvetica" font-size="18" font-weight="800" fill="#FFFFFF">${intTotal}</text><text x="60" y="68" text-anchor="middle" font-family="'Barlow',Helvetica" font-size="7" fill="${GRAY_MID}">MSGS</text></svg><div style="width:100%;">${intentListRows}</div></div>`)}
+
+    </div>
+
+    <!-- FILA 2 -->
+    <div style="flex:1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;min-height:0;">
+
+      ${C(`${S('Keywords más usadas',C_BLUE,'')}<div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:5px;">${kwRows}</div>`)}
+
+      ${C(`${S('Catálogo Digital · cobertura',C_PURP,'')}<div style="display:flex;gap:4px;margin-bottom:6px;">${mini3([['Fichas totales','70',C_PURP],['Líneas rastreadas','10',ORANGE],['Cat. pendiente','1',GRAY_MID]])}</div><div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;">${catalogRows}</div>`)}
+
+      ${C(`${S('Señales de cierre',ORANGE,closingSignals.length>0?String(closingSignals.length):'')}<div style="font-family:'Barlow',sans-serif;font-size:9px;color:rgba(255,255,255,0.35);line-height:1.4;margin-bottom:6px;">Cantidades (ton · kg · pallets) o expresiones de pedido — tabla <span style="color:${ORANGE};font-weight:700;">closing_signals</span></div><div style="flex:1;display:flex;flex-direction:column;min-height:0;">${csRows}</div>`)}
+
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div style="padding:4px 12px;background:${BLACK};display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+    <span style="font-family:'Barlow',sans-serif;font-size:10px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.35);">Grupo Ortiz · BotGO Analytics · Confidencial</span>
+    <div style="display:flex;align-items:center;gap:5px;">
+      <div style="width:14px;height:1.5px;background:${ORANGE};border-radius:1px;"></div>
+      <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:rgba(255,255,255,0.60);letter-spacing:0.06em;">LÍNEAS DE PRODUCTO</span>
+      <div style="width:14px;height:1.5px;background:${ORANGE};border-radius:1px;"></div>
+    </div>
+    <span style="font-family:'Barlow',sans-serif;font-size:10px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.35);">${todayFmt}</span>
+  </div>
+
+</div>
+</body></html>`;
+  }
+
   // ── REPORTE COMPARATIVO — comparativo (basado en diseño resumen) ──────────
   if (reportType === 'comparativo') {
     const now_ms = Date.now();
@@ -2058,7 +2240,7 @@ export function DownloadReportButton({ data, periodMeta = null, style = {}, repo
         return { startDate: daysAgo(487), endDate: today };
       })();
 
-      const [analysis, logoBase64, leadsRes, candidatesRes, scData] = await Promise.all([
+      const [analysis, logoBase64, leadsRes, candidatesRes, scData, closingSigsRes] = await Promise.all([
         generateAnalysis(data, periodo),
         fetchLogoBase64(),
         fetch('/api/analytics',   {method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'getLeads'})}).then(r=>r.json()).catch(()=>({ok:false,leads:[]})),
@@ -2066,11 +2248,15 @@ export function DownloadReportButton({ data, periodMeta = null, style = {}, repo
         reportType === 'resumen' || reportType === 'comparativo'
           ? fetch('/api/search-console', {method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(scDateRange)}).then(r=>r.json()).catch(()=>({ok:false}))
           : Promise.resolve(null),
+        fetch('/api/analytics', {method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'getClosingSignals',limit:100})}).then(r=>r.json()).catch(()=>({ok:false,signals:[]})),
       ]);
 
       const allLeads   = leadsRes?.ok      ? (leadsRes.leads          || []) : [];
       const leads      = filterLeadsByPeriod(allLeads, periodMeta?.from, periodMeta?.to);
       const candidates = candidatesRes?.ok ? (candidatesRes.candidates || []) : [];
+      const closingSignalsFetched = closingSigsRes?.ok ? (closingSigsRes.signals || []) : [];
+      // Merge closing signals into data so buildReportHTML can access them
+      const dataWithSignals = { ...data, closingSignals: closingSignalsFetched };
 
       // Para comparativo: calcular datos del período anterior (mismo tamaño, justo atrás)
       let prevData = null;
@@ -2098,7 +2284,7 @@ export function DownloadReportButton({ data, periodMeta = null, style = {}, repo
       }
 
       setStatus('building');
-      const html = buildReportHTML(data, periodMeta, analysis, logoBase64, leads, candidates, reportType, scData, prevData);
+      const html = buildReportHTML(dataWithSignals, periodMeta, analysis, logoBase64, leads, candidates, reportType, scData, prevData);
 
       const slug = periodMeta?.preset==='today' ? 'hoy'
                  : periodMeta?.preset==='7d'    ? '7dias'
@@ -2108,7 +2294,7 @@ export function DownloadReportButton({ data, periodMeta = null, style = {}, repo
                  : periodMeta?.from && periodMeta?.to ? `${periodMeta.from}_${periodMeta.to}`
                  : new Date().toISOString().split('T')[0];
 
-      const prefix   = reportType==='distribuidor' ? 'distribuidores' : reportType==='reclutamiento' ? 'reclutamiento' : reportType==='resumen' ? 'resumen' : reportType==='comparativo' ? 'comparativo' : 'botgo';
+      const prefix   = reportType==='distribuidor' ? 'distribuidores' : reportType==='reclutamiento' ? 'reclutamiento' : reportType==='resumen' ? 'resumen' : reportType==='comparativo' ? 'comparativo' : reportType==='productos' ? 'productos' : 'botgo';
       const filename = `reporte-${prefix}-${slug}.pdf`;
 
       setStatus('exporting');
@@ -2176,7 +2362,7 @@ export function DownloadReportButton({ data, periodMeta = null, style = {}, repo
     setTimeout(() => { setStatus('idle'); setErrMsg(null); }, 4000);
   };
 
-  const TYPE_IDLE = { general:'↓ General', distribuidor:'↓ Distribuidores', reclutamiento:'↓ Reclutamiento', resumen:'↓ Resumen', comparativo:'↓ Comparativo' };
+  const TYPE_IDLE = { general:'↓ General', productos:'↓ Productos', distribuidor:'↓ Distribuidores', reclutamiento:'↓ Reclutamiento', resumen:'↓ Resumen', comparativo:'↓ Comparativo' };
   const labels = { idle: TYPE_IDLE[reportType] || '↓ PDF', analyzing:'Analizando…', building:'Generando…', exporting:'Exportando…', done:'✓ Listo' };
 
   return (

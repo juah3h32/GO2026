@@ -205,6 +205,13 @@ body {
   letter-spacing : var(--pd-h1-ls) !important;
   margin-bottom  : var(--pd-h1-gap); text-align: left;
 }
+
+/* ── ProductTitle component — mismo diseño que catalogo digital ── */
+.cd-h2 {
+  font-family: "MorganitePro", "Morganite", Impact, Arial Black, sans-serif;
+  font-weight: 800;
+  letter-spacing: .01em;
+}
 .text-area p {
   font-family    : var(--font-body);
   font-size      : clamp(0.82rem, 0.95vw, 1rem);

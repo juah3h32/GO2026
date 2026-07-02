@@ -194,7 +194,7 @@ const firstCatalogImg = catalogsData.length > 0 ? catalogsData[0].image : null;
       z-index       : 1;
     }
     .hero-lang-name {
-      font-family   : var(--font-display, 'MorganitePro', sans-serif);
+      font-family   : var(--font-display, 'MorganitePro', "PingFang SC", sans-serif);
       font-size     : clamp(1.1rem, 1.4vw, 1.4rem);
       font-weight   : 800;
       letter-spacing: 0.05em;
@@ -274,7 +274,7 @@ const firstCatalogImg = catalogsData.length > 0 ? catalogsData[0].image : null;
     <section class="hero-section">
       <div class="hero-video-container">
         <div class="video-wrapper">
-          <video autoplay muted loop playsinline preload="metadata" poster={heroPoster}>
+          <video autoplay muted loop playsinline preload="metadata" poster={heroPoster} data-poster-fallback="/images/catalogo/img1.webp">
             <source src={heroVideo} type="video/mp4">
           </video>
           <div class="hero-overlay"></div>

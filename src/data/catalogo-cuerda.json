@@ -92,7 +92,7 @@
         "zh": "五金绳",
         "ar": "حبل أدوات"
       },
-      "img": "/images/cuerdas/CuerdaT1.webp",
+      "img": "CuerdaT1.png",
       "lado": "",
       "desc": {
         "es": "Cuerda de polipropileno 100% virgen, amplia variedad de presentaciones, calibres y colores (sólidos o combinados), reforzadas o personalizadas. Para manufactura, almacenes, ferreterías, talleres y maquinado.",
@@ -238,7 +238,7 @@
         "zh": "温室绳",
         "ar": "حبل الدفيئة"
       },
-      "img": "/images/cuerdas/CuerdaNegra.webp",
+      "img": "CuerdaNegra.png",
       "lado": "",
       "desc": {
         "es": "Cable de polipropileno con filtro UV para sector marítimo o alta exposición solar. Prolonga vida útil; resistencia y durabilidad para macrotúneles. Ideal para fresas, zarzamoras, arándanos, pimientos y tomates.",
@@ -354,7 +354,7 @@
         "zh": "生态绳",
         "ar": "حبل بيئي"
       },
-      "img": "/images/cuerdas/CuerdaEco.png",
+      "img": "CuerdaEco.png",
       "lado": "",
       "desc": {
         "es": "Cuerda de polipropileno, amplia variedad de presentaciones, calibres y colores (sólidos o combinados), con refuerzo o personalización. Para industrias, almacenes, centrales de abasto, ferreterías y talleres.",
@@ -490,7 +490,7 @@
         "zh": "加固绳",
         "ar": "حبل معزز"
       },
-      "img": "",
+      "img": "CuerdaReforzada.png",
       "lado": "",
       "desc": {
         "es": "Cable de polipropileno con filtro UV para actividades de alta exposición solar. Prolonga su vida útil; el filtro UV garantiza durabilidad y mayor resistencia.",
@@ -626,7 +626,7 @@
         "zh": "彩色黑绳",
         "ar": "حبل أسود ملون"
       },
-      "img": "",
+      "img": "CuerdaColorida.png",
       "lado": "",
       "desc": {
         "es": "Amplia variedad de presentaciones, calibres y colores (sólidos o combinados), reforzadas, personalizadas o rígidas. Alta resistencia y rendimiento; suave para nudos. Ideal para sujeción de cargas ligeras y pesadas.",

@@ -48,3 +48,24 @@ export function getCatalogMeta(slug) {
 export function listCatalogsMeta() {
   return CATALOGS.map(c => ({ slug: c.slug, title: c.title, division: c.division, products: (c.seed?.fichas || []).length }));
 }
+
+// Titulo de cada division traducido — usado en picker de divisiones y portada del PDF general.
+export const DIV_TITLES = {
+  'digital-stretch-film':  { es: 'Stretch Film',       en: 'Stretch Film',          pt: 'Stretch Film',          zh: '拉伸膜',       ar: 'فيلم تمديد' },
+  'digital-acolchado':     { es: 'Acolchado',           en: 'Padding',               pt: 'Acolchoado',            zh: '填充垫',       ar: 'مبطن' },
+  'digital-arpilla':       { es: 'Arpilla',             en: 'Mesh Bag',              pt: 'Arpilha',               zh: '网袋',         ar: 'كيس شبكي' },
+  'digital-cuerda':        { es: 'Cuerda',              en: 'Rope',                  pt: 'Corda',                 zh: '绳索',         ar: 'حبل' },
+  'digital-rafia':         { es: 'Rafia',               en: 'Raffia',                pt: 'Ráfia',                 zh: '拉菲草',       ar: 'رافيا' },
+  'digital-flexible':      { es: 'Empaque Flexible',    en: 'Flexible Packaging',    pt: 'Embalagem Flexível',    zh: '软包装',       ar: 'تغليف مرن' },
+  'digital-saco':          { es: 'Saco',                en: 'Woven Bag',             pt: 'Saco',                  zh: '编织袋',       ar: 'كيس' },
+  'digital-esquinero':     { es: 'Esquinero',           en: 'Corner Guard',          pt: 'Cantoneira',            zh: '护角',         ar: 'حامي الزوايا' },
+  'digital-naturizable':   { es: 'Naturizable',         en: 'Biodegradable',         pt: 'Naturizável',           zh: '可降解',       ar: 'قابل للتحلل' },
+  'digital-bolsas':        { es: 'Bolsas',              en: 'Bags',                  pt: 'Bolsas',                zh: '袋子',         ar: 'أكياس' },
+};
+
+// Palabra generica "DIVISION" traducida — usada como subtitulo en la portada del PDF general.
+export const DIVISION_WORD = { es: 'DIVISIÓN', en: 'DIVISION', pt: 'DIVISÃO', zh: '部门', ar: 'قسم' };
+
+export function getDivTitle(slug, lang) {
+  return DIV_TITLES[slug]?.[lang] || DIV_TITLES[slug]?.es || slug;
+}

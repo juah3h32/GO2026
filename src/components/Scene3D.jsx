@@ -14,7 +14,6 @@ function Model({ url }) {
   });
 
   useEffect(() => {
-    console.log('Model loaded:', scene);
     scene.traverse((child) => {
       if (child.isMesh) {
         child.castShadow = true;
@@ -68,8 +67,6 @@ function Loader() {
 }
 
 export default function Scene3D() {
-  console.log('Scene3D rendering...');
-  
   return (
     <div style={{ width: '100%', height: '100%' }}>
       <Canvas

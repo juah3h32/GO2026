@@ -1,4 +1,5 @@
 // src/sw.js — Service Worker personalizado (injectManifest strategy)
+self.__WB_DISABLE_DEV_LOGS = true;
 import { cleanupOutdatedCaches, precacheAndRoute } from 'workbox-precaching';
 import { registerRoute } from 'workbox-routing';
 import { NetworkFirst, NetworkOnly } from 'workbox-strategies';

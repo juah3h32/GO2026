@@ -1,6 +1,21 @@
 // src/i18n/pt.js
 
 export const pt = {
+  digital_catalog: {
+    title: "Catálogo de Produtos | Grupo Ortiz",
+    titlePart1: "CATÁLOGO DE",
+    titlePart2: "PRODUTOS",
+    downloadPDF: "Baixar PDF",
+    distributor: "Quero ser distribuidor",
+    products: "Produtos",
+    characteristics: "CARACTERÍSTICAS",
+    measurement: "MEDIÇÃO",
+    tolerances: "TOLERÂNCIAS",
+    unit: "UNIDADE",
+    testMethod: "MÉTODO DE TESTE",
+    min: "MÍNIMO",
+    max: "MÁXIMO"
+  },
   // =================================================
   // BARRA DE NAVEGAÇÃO
   // =================================================
@@ -72,6 +87,18 @@ export const pt = {
     // ── Pílula mobile ──
     pillLabelSmall: 'Como posso',
     pillLabelBig:   'TE AJUDAR HOJE?',
+
+    // ── Inscrição para novidades (ao encerrar a conversa) ──
+    subscribeTitle:          'Quer receber novidades?',
+    subscribeSubtitle:       'Fique por dentro de novos produtos, atualizações e conteúdo exclusivo por e-mail.',
+    subscribeNamePlaceholder:  'Seu nome',
+    subscribeEmailPlaceholder: 'Seu e-mail',
+    subscribeSubmit:          'Inscrever-me',
+    subscribeSubmitting:      'Enviando...',
+    subscribeDismiss:         'Não, obrigado',
+    subscribeSuccessTitle:    'Pronto! Você está inscrito',
+    subscribeSuccessSubtitle: 'Avisaremos por e-mail quando houver novidades.',
+    subscribeError:           'Não foi possível inscrever. Tente novamente.',
   },
 
   pwa: {
@@ -283,7 +310,7 @@ export const pt = {
     },
     {
       img: "carrusel/nuev2a.png",
-      division: "NATURIZABLE",
+      division: "NATURIZÁVEL",
       descripcion: "Embalagem sustentável que retorna à terra. Soluções 100% Plant Based, recicláveis e compostáveis para a indústria alimentar.",
       slug: "naturizable",
       video: "GO/carrusel/charola.mp4"
@@ -297,7 +324,7 @@ export const pt = {
     },
     {
       img: "carrusel/carrusel_acolchado.png",
-      division: "ACOLCHADO",
+      division: "COBERTURA",
       descripcion: "Mulch agrícola para cobrir o solo em cultivos, hortas e jardins. Controla ervas daninhas, conserva a humidade e regula a temperatura do solo.",
       slug: "acolchado",
       video: "GO/carrusel/acolchadoV.mp4"
@@ -1420,7 +1447,7 @@ footer: {
       title_top:    "SOMOS O PRINCIPAL",
       title_bot:    "FABRICANTE DA AMÉRICA LATINA",
       video: "GO/home/hero",
-      typewriter_prefix: "MANUFACTURER OF",
+      typewriter_prefix: "FABRICANTE DE",
       subtitle:     "Mais de 65 anos fabricando soluções de alta engenharia para indústrias nos cinco continentes.",
       btn_products: "Nossos Produtos",
       btn_about:    "Saiba Mais",

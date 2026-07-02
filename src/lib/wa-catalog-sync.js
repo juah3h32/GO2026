@@ -28,61 +28,162 @@ export function saveCatalogJSON(catalogFile, data) {
   }
 }
 
-export async function translateText(text) {
+const LANGS_TRANSLATE = ['en', 'pt', 'zh', 'ar'];
+
+// Prompt mínimo que obliga a Claude a devolver JSON limpio con los 4 idiomas
+function translatePrompt(text) {
+  return `Translate this text to EN (English), PT (Portuguese), ZH (Chinese), AR (Arabic).
+Industrial catalog tone. Keep numbers, units, symbols unchanged.
+Return ONLY valid JSON, no markdown, no extra text:
+{"en":"english text","pt":"texto português","zh":"中文文本","ar":"النص العربي"}
+
+Text: """${text}"""`;
+}
+
+function extractJSON(content) {
+  // Intenta varias estrategias para extraer el JSON de la respuesta de Claude
+  const strategies = [
+    // Estrategia 1: match directo de objeto JSON con 4 claves de 2 letras
+    () => {
+      const m = content.match(/\{[^}]*"(?:en|pt|zh|ar)"[^}]*"(?:en|pt|zh|ar)"[^}]*"(?:en|pt|zh|ar)"[^}]*"(?:en|pt|zh|ar)"[^}]*\}/i);
+      return m ? m[0] : null;
+    },
+    // Estrategia 2: encontrar el primer { y el ultimo }, asumir que es el JSON
+    () => {
+      const start = content.indexOf('{');
+      const end = content.lastIndexOf('}');
+      if (start === -1 || end === -1 || end <= start) return null;
+      return content.substring(start, end + 1);
+    },
+  ];
+  for (const s of strategies) {
+    try {
+      const candidate = s();
+      if (!candidate) continue;
+      const parsed = JSON.parse(candidate);
+      if (typeof parsed === 'object' && parsed !== null) return parsed;
+    } catch {}
+  }
+  return null;
+}
+
+function validateTranslations(translated, originalText) {
+  if (!translated || typeof translated !== 'object') return false;
+  const missing = LANGS_TRANSLATE.filter(l => !translated[l] || typeof translated[l] !== 'string' || translated[l].trim() === '');
+  if (missing.length > 0) {
+    console.warn(`[wa-catalog-sync] Faltan idiomas: ${missing.join(', ')}`);
+    return false;
+  }
+  // Detecta fuga de español a otros idiomas (texto corto: idéntico al original)
+  for (const l of LANGS_TRANSLATE) {
+    if (translated[l] === originalText && originalText.length > 3) {
+      console.warn(`[wa-catalog-sync] ${l} idéntico a español — posible fuga`);
+      return false;
+    }
+  }
+  return true;
+}
+
+export async function translateText(text, retries = 2) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     console.warn('[wa-catalog-sync] No ANTHROPIC_API_KEY');
-    return { es: text, en: text, pt: text, zh: text, ar: text };
+    return null; // Devolver null para que updateCatalogField use existing translations
   }
 
-  const prompt = `Translate to EN, PT, ZH, AR. Keep tone professional. Return JSON: {"en":"...","pt":"...","zh":"...","ar":"..."}
-Text: "${text}"`;
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+        },
+        body: JSON.stringify({
+          model: 'claude-opus-4-8',
+          max_tokens: 1024,
+          messages: [{ role: 'user', content: translatePrompt(text) }],
+        }),
+      });
 
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: 'claude-opus-4-8',
-        max_tokens: 1024,
-        messages: [{ role: 'user', content: prompt }],
-      }),
-    });
+      if (!res.ok) {
+        console.error(`[wa-catalog-sync] API ${res.status} (intento ${attempt}/${retries})`);
+        if (attempt < retries) continue;
+        return null;
+      }
 
-    if (!res.ok) {
-      console.error(`[wa-catalog-sync] API ${res.status}`);
+      const data = await res.json();
+      const content = data.content?.[0]?.text || '';
+      const translations = extractJSON(content);
+
+      if (!translations) {
+        console.error(`[wa-catalog-sync] JSON no parseable (intento ${attempt}/${retries}): ${content.substring(0, 120)}`);
+        if (attempt < retries) continue;
+        return null;
+      }
+
+      // Construir resultado: español es el texto original, resto de la traducción
+      const result = { es: text };
+      for (const l of LANGS_TRANSLATE) {
+        result[l] = translations[l] || '';
+      }
+
+      if (!validateTranslations(result, text)) {
+        if (attempt < retries) {
+          console.warn(`[wa-catalog-sync] Reintentando traduccion (${attempt}/${retries})...`);
+          continue;
+        }
+        return null;
+      }
+
+      return result;
+    } catch (e) {
+      console.error(`[wa-catalog-sync] Translate error (intento ${attempt}/${retries}): ${e.message}`);
+      if (attempt < retries) continue;
       return null;
     }
-
-    const data = await res.json();
-    const content = data.content?.[0]?.text || '';
-    const jsonMatch = content.match(/\{[^{}]*"[a-z]{2}"[^{}]*\}/i);
-    if (!jsonMatch) return null;
-
-    const translations = JSON.parse(jsonMatch[0]);
-    return {
-      es: text,
-      en: translations.en || text,
-      pt: translations.pt || text,
-      zh: translations.zh || text,
-      ar: translations.ar || text,
-    };
-  } catch (e) {
-    console.error(`[wa-catalog-sync] Translate: ${e.message}`);
-    return null;
   }
+
+  return null;
 }
 
 export async function updateCatalogField(catalogData, field, value) {
   if (!catalogData) return null;
 
-  let translated = await translateText(value);
+  const translated = await translateText(value);
+
+  // Si la traducción falló, NO sobrescribir otros idiomas con español.
+  // Solo actualizar español y preservar el resto.
   if (!translated) {
-    translated = { es: value, en: value, pt: value, zh: value, ar: value };
+    console.warn('[wa-catalog-sync] Traduccion fallo — actualizando solo español');
+    const partial = JSON.parse(JSON.stringify(catalogData));
+    const safeSet = (obj, lang) => {
+      if (obj && typeof obj === 'object' && lang in (obj || {})) {
+        obj[lang] = value;
+      }
+    };
+
+    switch (field) {
+      case 'descripcion':
+      case 'p1':
+        safeSet(partial.intro?.p1, 'es');
+        break;
+      case 'p2':
+        safeSet(partial.intro?.p2, 'es');
+        break;
+      case 'titulo':
+      case 't1':
+        safeSet(partial.cover?.t1, 'es');
+        break;
+      case 't2':
+        safeSet(partial.cover?.t2, 'es');
+        break;
+      default:
+        console.warn(`[wa-catalog-sync] Campo no soportado: ${field}`);
+        return null;
+    }
+    return partial;
   }
 
   const updated = JSON.parse(JSON.stringify(catalogData));

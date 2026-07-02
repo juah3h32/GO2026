@@ -5,18 +5,22 @@ export const prerender = false;
 
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
-import { CATALOGS } from '../../lib/catalogs.js';
+import { CATALOGS, getDivTitle, DIVISION_WORD } from '../../lib/catalogs.js';
 import { buildHTML } from '../../lib/catalogo-builder.js';
 import { getCatalog } from '../../lib/catalog-store.js';
 
-// ── Morganite font ──
-function getMorganiteFontFace() {
+// ── Fonts (self-hosteadas, sin red) ──
+function asset(relPath, mime) {
   try {
-    const abs = join(process.cwd(), 'public', 'fonts', 'Morganite-ExtraBold.ttf');
+    const abs = join(process.cwd(), 'public', relPath);
     if (!existsSync(abs)) return '';
-    const b64 = readFileSync(abs).toString('base64');
-    return `@font-face{font-family:'Morganite';src:url('data:font/ttf;base64,${b64}') format('truetype');font-weight:800;font-style:normal;}`;
+    return `data:${mime};base64,${readFileSync(abs).toString('base64')}`;
   } catch { return ''; }
+}
+
+function getMorganiteFontFace() {
+  const b64 = asset('fonts/Morganite-ExtraBold.ttf', 'font/ttf');
+  return b64 ? `@font-face{font-family:'Morganite';src:url('${b64}') format('truetype');font-weight:800;font-style:normal;}` : '';
 }
 
 // ── CSS portada ──
@@ -26,35 +30,40 @@ function wrapCSS(theme, lang) {
   const TEXT = isDark ? '#ffffff' : '#1b1b1c';
   const MUTED = isDark ? '#c9c9cc' : '#6f6f72';
   const ORANGE = '#fb670b';
+  const langFont = lang === 'zh' ? 'Noto Sans SC' : lang === 'ar' ? 'Noto Naskh Arabic' : '';
+  // Cadena de fallback: Morganite para latin/numeros, fuente del idioma para CJK/AR.
+  const TXT_FONT = `'Morganite'${langFont ? `, '${langFont}'` : ''}, sans-serif`;
   return `
     .pg.gc { display: flex; align-items: center; justify-content: center; background: ${BG}; }
-    .gchero { text-align: center; width: 100%; display: flex; flex-direction: column; align-items: center; }
-    .gclogo { font-family: 'Morganite', sans-serif; font-weight: 800; font-size: 18px; letter-spacing: .16em; text-indent: .16em; color: ${MUTED}; margin-bottom: 8px; }
-    .gctitle { font-family: 'Morganite', sans-serif; font-weight: 800; font-size: 96px; letter-spacing: .02em; color: ${ORANGE}; margin: 0; line-height: .9; }
-    .gcsub { font-family: 'Morganite', sans-serif; font-weight: 800; font-size: 28px; letter-spacing: .08em; text-indent: .08em; color: ${MUTED}; margin-top: 8px; text-transform: uppercase; }
+    .gchero { text-align: center; width: 100%; display: flex; flex-direction: column; align-items: center; font-family: ${langFont ? `'${langFont}', ` : ''}Arial, Helvetica, sans-serif; }
+    .gclogo { font-family: ${TXT_FONT}; font-weight: 800; font-size: 18px; letter-spacing: .16em; text-indent: .16em; color: ${MUTED}; margin-bottom: 8px; }
+    .gctitle { font-family: ${TXT_FONT}; font-weight: 800; font-size: 96px; letter-spacing: .02em; color: ${ORANGE}; margin: 0; line-height: .9; }
+    .gcsub { font-family: ${TXT_FONT}; font-weight: 800; font-size: 28px; letter-spacing: .08em; text-indent: .08em; color: ${MUTED}; margin-top: 8px; text-transform: uppercase; }
     .gcd { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 16px; margin-top: 44px; max-width: 820px; }
     .di { display: flex; align-items: center; gap: 8px; padding: 10px 16px; border: 1px solid rgba(0,0,0,.08); border-radius: 12px; background: ${isDark ? 'rgba(255,255,255,.04)' : '#fff'}; }
-    .din { font-family: 'Morganite', sans-serif; font-weight: 800; font-size: 28px; color: ${ORANGE}; min-width: 36px; text-align: right; }
+    .din { font-family: ${TXT_FONT}; font-weight: 800; font-size: 28px; color: ${ORANGE}; min-width: 36px; text-align: right; }
     .dit { display: flex; flex-direction: column; }
-    .dname { font-family: 'Morganite', sans-serif; font-weight: 800; font-size: 20px; letter-spacing: .04em; text-transform: uppercase; }
+    .dname { font-family: ${TXT_FONT}; font-weight: 800; font-size: 20px; letter-spacing: .04em; text-transform: uppercase; }
     .dsub { font-size: 10px; color: ${MUTED}; }
-    .gcfooter { font-family: 'Morganite', sans-serif; font-weight: 800; font-size: 32px; letter-spacing: .12em; text-indent: .12em; color: ${MUTED}; margin-top: 40px; text-transform: uppercase; text-align: center; }
+    .gcfooter { font-family: ${TXT_FONT}; font-weight: 800; font-size: 32px; letter-spacing: .12em; text-indent: .12em; color: ${MUTED}; margin-top: 40px; text-transform: uppercase; text-align: center; }
     .gcyear { position: absolute; right: 44px; bottom: 10px; font-family: 'Morganite', sans-serif; font-weight: 800; font-size: 140px; color: ${ORANGE}; opacity: .1; line-height: 1; }
   `;
 }
 
 // ── Portada ──
+const COVER_LABELS = {
+  es: { title: 'CATÁLOGO GENERAL', subtitle: 'TODAS LAS DIVISIONES GRUPO ORTIZ', footer: 'Soluciones en Polímeros Plásticos' },
+  en: { title: 'GENERAL CATALOG', subtitle: 'ALL DIVISIONS GRUPO ORTIZ', footer: 'Plastic Polymer Solutions' },
+  pt: { title: 'CATÁLOGO GERAL', subtitle: 'TODAS AS DIVISÕES GRUPO ORTIZ', footer: 'Soluções em Polímeros Plásticos' },
+  zh: { title: '总目录', subtitle: '所有部门 · Grupo Ortiz', footer: '塑料聚合物解决方案' },
+  ar: { title: 'الكتالوج العام', subtitle: 'جميع الأقسام · Grupo Ortiz', footer: 'حلول البوليمرات البلاستيكية' }
+};
+
 function generalCoverHTML(lang, theme) {
-  const labels = {
-    es: { title: 'CATÁLOGO GENERAL', subtitle: 'TODAS LAS DIVISIONES GRUPO ORTIZ', footer: 'Soluciones en Polímeros Plásticos' },
-    en: { title: 'GENERAL CATALOG', subtitle: 'ALL DIVISIONS GRUPO ORTIZ', footer: 'Plastic Polymer Solutions' },
-    pt: { title: 'CATÁLOGO GERAL', subtitle: 'TODAS AS DIVISÕES GRUPO ORTIZ', footer: 'Soluções em Polímeros Plásticos' },
-    zh: { title: '总目录', subtitle: '所有部门 · Grupo Ortiz', footer: '塑料聚合物解决方案' },
-    ar: { title: 'الكتالوج العام', subtitle: 'جميع الأقسام · Grupo Ortiz', footer: 'حلول البوليمرات البلاستيكية' }
-  };
-  const l = labels[lang] || labels.es;
+  const l = COVER_LABELS[lang] || COVER_LABELS.es;
+  const divisionWord = DIVISION_WORD[lang] || DIVISION_WORD.es;
   const divisions = CATALOGS.map((c, i) =>
-    `<div class="di"><span class="din">${String(i + 1).padStart(2, '0')}</span><div class="dit"><span class="dname">${c.title}</span><span class="dsub">${c.division}</span></div></div>`
+    `<div class="di"><span class="din">${String(i + 1).padStart(2, '0')}</span><div class="dit"><span class="dname">${getDivTitle(c.slug, lang)}</span><span class="dsub">${divisionWord}</span></div></div>`
   ).join('');
 
   return `<div class="pg gc">
@@ -75,11 +84,19 @@ export async function GET({ url }) {
     const theme = url.searchParams.get('theme') || 'dark';
     const isRTL = lang === 'ar';
 
-    const fontLink = lang === 'zh'
-      ? '<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;800&display=swap" rel="stylesheet">'
-      : lang === 'ar'
-      ? '<link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&display=swap" rel="stylesheet">'
-      : '';
+    // Google Fonts pedido con &text= = solo trae los glifos realmente usados (subset on-the-fly).
+    let fontLink = '';
+    if (lang === 'zh' || lang === 'ar') {
+      const l = COVER_LABELS[lang];
+      const divisionWord = DIVISION_WORD[lang] || DIVISION_WORD.es;
+      const textChars = [...new Set([l.title, l.subtitle, l.footer, divisionWord,
+        ...CATALOGS.map(c => getDivTitle(c.slug, lang))].join(''))]
+        .filter(ch => ch.charCodeAt(0) > 0x2000)
+        .join('');
+      fontLink = lang === 'zh'
+        ? `<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;800&text=${encodeURIComponent(textChars)}&display=block" rel="stylesheet">`
+        : `<link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&text=${encodeURIComponent(textChars)}&display=block" rel="stylesheet">`;
+    }
 
     // Construir todas las divisiones en paralelo
     const catJobs = await Promise.all(CATALOGS.map(async (cat) => {

@@ -85,7 +85,7 @@
         "zh": "黄麻绳",
         "ar": "خيط الجوت"
       },
-      "img": "/images/rafias/atar.png",
+      "img": "atar.png",
       "lado": "",
       "desc": {
         "es": "Rafia fibrilada T1 de polipropileno 100% virgen, sin alteraciones físicas ante los elementos. Gran resistencia y rendimiento para agrícola, avícola y horticultura. Variedad de colores y opción filtro UV.",
@@ -183,7 +183,7 @@
         "zh": "生态黄麻",
         "ar": "جوت بيئي"
       },
-      "img": "/images/rafias/Eco.png",
+      "img": "Eco.png",
       "lado": "",
       "desc": {
         "es": "Rafia ECO de polipropileno 100% virgen, enfoque ecológico. Excelente resistencia y durabilidad, resistente a la intemperie. Para agrícola, avícola y horticultura. Variedad de colores y opción filtro UV.",
@@ -278,7 +278,7 @@
         "zh": "黑色纤维拉菲",
         "ar": "رافيا ليفية سوداء"
       },
-      "img": "/images/rafias/negra.png",
+      "img": "negra.png",
       "lado": "",
       "desc": {
         "es": "Hilo fibrilado de polipropileno 100% virgen, durabilidad y resistencia incluso en exteriores. Adecuado para agrícola, avícola y hortícola. Color negro con opción de filtro UV.",
@@ -370,7 +370,7 @@
         "zh": "吹塑拉菲",
         "ar": "رافيا منفوخة"
       },
-      "img": "",
+      "img": "soplada.png",
       "lado": "",
       "desc": {
         "es": "Diseñada para aplicaciones de alto rendimiento; resistencia y versatilidad. Para sectores industriales, agrícolas y de empaque: almacenes, fábricas, ferreterías y talleres. Disponible con protección UV.",

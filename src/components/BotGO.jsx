@@ -37,6 +37,7 @@ const PRODUCTOS_LISTA = [
   'stretch film', 'pelicula stretch', 'película stretch', 'stretch', 'empaque flexible',
   'empaque', 'esquineros', 'esquinero', 'cuerdas', 'cuerda', 'arpillas', 'arpilla',
   'malla', 'sacos', 'saco', 'rafia', 'flexible',
+  'bolsas pe', 'bolsa pe', 'bolsas polietileno', 'bolsa polietileno', 'bolsas plasticas', 'bolsa plastica', 'bolsas', 'bolsa',
 ];
 
 const PRODUCT_CARDS = {
@@ -48,6 +49,10 @@ const PRODUCT_CARDS = {
   esquineros: { name: 'Esquineros Kraft',   desc: 'Protección de bordes · exportación',           slug: 'esquineros',         color: '#f59e0b' },
   flexible:   { name: 'Empaques Flexibles', desc: 'Pouch, alto vacío, doypack',                   slug: 'empaques-flexibles', color: '#14b8a6' },
   charola:    { name: 'Charola Naturizable',desc: 'Biodegradable · retail y alimentos frescos',   slug: 'catalogo',           color: '#84cc16' },
+  bolsas:     { name: 'Bolsas PE',          desc: 'Polietileno · 9 medidas · retail e industrial', slug: 'bolsas',             color: '#6366f1' },
+  bolsa:      { name: 'Bolsas PE',          desc: 'Polietileno · 9 medidas · retail e industrial', slug: 'bolsas',             color: '#6366f1' },
+  'bolsas pe':         { name: 'Bolsas PE', desc: 'Polietileno · 9 medidas · retail e industrial', slug: 'bolsas',             color: '#6366f1' },
+  'bolsas polietileno':{ name: 'Bolsas PE', desc: 'Polietileno · 9 medidas · retail e industrial', slug: 'bolsas',             color: '#6366f1' },
 };
 
 // ─── ICONS ────────────────────────────────────────────────────────────────────
@@ -427,11 +432,18 @@ const MessageRenderer = ({ content, isAssistant }) => {
   );
 };
 
-const MessageActions = ({ waLink, pdfData, distLink, t }) => {
+const MessageActions = ({ waLink, pdfData, distLink, t, product }) => {
   if (!waLink && !pdfData && !distLink) return null;
+  const handleWAClick = () => {
+    fetch('/api/analytics', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'waClick', product: product || null, lang: 'es' }),
+    }).catch(() => {});
+  };
   return (
     <div className="msg-actions">
-      {waLink    && <a href={waLink}      target="_blank" rel="noopener noreferrer" className="msg-action-btn msg-action-wa"><WhatsAppIcon /><span>{t?.salesBtn || 'Cotizar por WhatsApp'}</span></a>}
+      {waLink    && <a href={waLink} target="_blank" rel="noopener noreferrer" className="msg-action-btn msg-action-wa" onClick={handleWAClick}><WhatsAppIcon /><span>{t?.salesBtn || 'Cotizar por WhatsApp'}</span></a>}
       {pdfData   && <a href={pdfData.url} target="_blank" rel="noopener noreferrer" className="msg-action-btn msg-action-pdf"><PdfIcon /><span>{t?.pdfBtn || 'Ver catálogo PDF'}</span></a>}
    {distLink && (
   <a 
@@ -609,6 +621,100 @@ const CVUploadButton = ({ onFileSelect, cvSubido, uploading, t }) => {
 };
 
 // ─── PRE-REGISTRO REVIEW (revisar antes de confirmar) ────────────────────────
+const SubscribeCard = ({ t, onSubscribe, onDismiss }) => {
+  const [visible,     setVisible]     = useState(false);
+  const [nombre,      setNombre]      = useState('');
+  const [email,       setEmail]       = useState('');
+  const [submitting,  setSubmitting]  = useState(false);
+  const [done,        setDone]        = useState(false);
+  const [error,       setError]       = useState('');
+
+  useEffect(() => {
+    const timer = setTimeout(() => setVisible(true), 120);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  const puedeEnviar = nombre.trim().length > 0 && emailValido && !submitting;
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!puedeEnviar) return;
+    setSubmitting(true);
+    setError('');
+    try {
+      await onSubscribe({ nombre: nombre.trim(), email: email.trim() });
+      setDone(true);
+      setTimeout(onDismiss, 2200);
+    } catch {
+      setError(t?.subscribeError || 'No se pudo suscribir. Intenta de nuevo.');
+    }
+    setSubmitting(false);
+  };
+
+  return (
+    <div className={`subscribe-card ${visible ? 'subscribe-card-visible' : ''}`} role="status" aria-live="polite">
+      {done ? (
+        <div className="subscribe-success">
+          <div className="subscribe-success-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </div>
+          <p className="subscribe-title">{t?.subscribeSuccessTitle || '¡Listo! Ya estás suscrito'}</p>
+          <p className="subscribe-subtitle">{t?.subscribeSuccessSubtitle || 'Te avisaremos por correo cuando haya novedades.'}</p>
+        </div>
+      ) : (
+        <>
+          <div className="subscribe-header">
+            <div className="subscribe-icon">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            </div>
+            <div className="subscribe-titles">
+              <p className="subscribe-title">{t?.subscribeTitle || '¿Quieres recibir novedades?'}</p>
+              <p className="subscribe-subtitle">{t?.subscribeSubtitle || 'Entérate de nuevos productos, actualizaciones y contenido exclusivo por correo.'}</p>
+            </div>
+          </div>
+
+          <form className="subscribe-fields" onSubmit={handleSubmit}>
+            <input
+              className="subscribe-input"
+              type="text"
+              value={nombre}
+              onChange={e => setNombre(e.target.value)}
+              placeholder={t?.subscribeNamePlaceholder || 'Tu nombre'}
+              maxLength={120}
+              disabled={submitting}
+            />
+            <input
+              className="subscribe-input"
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder={t?.subscribeEmailPlaceholder || 'Tu correo electrónico'}
+              maxLength={160}
+              disabled={submitting}
+            />
+            {error && <p className="subscribe-error">{error}</p>}
+            <div className="subscribe-actions">
+              <button type="button" className="subscribe-dismiss-btn" onClick={onDismiss} disabled={submitting}>
+                {t?.subscribeDismiss || 'No, gracias'}
+              </button>
+              <button
+                type="submit"
+                className={`subscribe-submit-btn${submitting ? ' subscribe-submit-btn--loading' : ''}`}
+                disabled={!puedeEnviar}
+              >
+                {submitting ? (
+                  <><span className="pre-registro-spinner" />{t?.subscribeSubmitting || 'Enviando...'}</>
+                ) : (t?.subscribeSubmit || 'Suscribirme')}
+              </button>
+            </div>
+          </form>
+        </>
+      )}
+    </div>
+  );
+};
+
 const PreRegistroReview = ({ candidato, t, onConfirmar }) => {
   const [visible, setVisible] = useState(false);
   const [campos, setCampos] = useState({
@@ -1134,6 +1240,7 @@ export default function BotGO({ language = 'es' }) {
   const [candidatoRegistrado,  setCandidatoRegistrado]  = useState(null);
   const [preRegistroPendiente, setPreRegistroPendiente] = useState(null);
   const [vacancyCards,         setVacancyCards]         = useState(null);
+  const [showSubscribe,        setShowSubscribe]        = useState(false);
   const [mounted,    setMounted]    = useState(false);
   const [isMobile,   setIsMobile]   = useState(false);
   const [isHomePage, setIsHomePage] = useState(false);
@@ -1349,7 +1456,7 @@ export default function BotGO({ language = 'es' }) {
   }, [isOpen, viewMode]);
 
   // Cierre completo — solo para el botón X explícito
-  const handleCloseChat = useCallback(() => {
+  const finishCloseChat = useCallback(() => {
     if (recRef.current) {
       abortedRef.current = true;
       try { recRef.current.abort(); } catch {}
@@ -1359,6 +1466,7 @@ export default function BotGO({ language = 'es' }) {
     setIsOpen(false);
     setViewMode('voice');
     setVoiceActivated(false);
+    setShowSubscribe(false);
     setMessages([{
       role: 'assistant', content: t.greeting,
       waLink: null, pdfData: null, distLink: null, isDuplicate: false,
@@ -1376,6 +1484,32 @@ export default function BotGO({ language = 'es' }) {
     try { window.focus(); } catch {}
     window.dispatchEvent(new Event('pwa:bot-close'));
   }, [t.greeting]);
+
+  // Al terminar la conversacion (boton X): invita a suscribirse antes de cerrar,
+  // solo si hubo conversacion real y aun no se le pregunto en esta sesion/dispositivo.
+  const handleCloseChat = useCallback(() => {
+    const huboConversacion = messagesRef.current.length > 1;
+    let yaPreguntado = true;
+    try { yaPreguntado = !!localStorage.getItem('botgo-subscribe-seen'); } catch {}
+
+    if (huboConversacion && !yaPreguntado && !showSubscribe) {
+      try { localStorage.setItem('botgo-subscribe-seen', '1'); } catch {}
+      setViewMode('chat'); // la card de suscripcion vive en el DOM del modo chat
+      setShowSubscribe(true);
+      return;
+    }
+    finishCloseChat();
+  }, [finishCloseChat, showSubscribe]);
+
+  const handleSubscribe = useCallback(async ({ nombre, email }) => {
+    const res = await fetch('/api/analytics', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'subscribe', nombre, email, lang: currentLangCode }),
+    });
+    const result = await res.json();
+    if (!result.ok) throw new Error(result.error || 'subscribe failed');
+  }, [currentLangCode]);
 
   // Confirmación del registro: guarda en DB y pasa a pantalla de éxito
   const handleConfirmarRegistro = useCallback(async (datos) => {
@@ -2036,6 +2170,7 @@ export default function BotGO({ language = 'es' }) {
       setMessages(prev => [...prev, {
         role: 'assistant', content: replyText,
         waLink, pdfData, distLink,
+        product: prodFinal || null,
         showCVUpload: accionCV && !cvSubido,
         isDuplicate,
         quickReplies, quickRepliesUsed: false,
@@ -2316,7 +2451,7 @@ export default function BotGO({ language = 'es' }) {
                       </div>
                     )}
                     {msg.role === 'assistant' && (msg.waLink || msg.pdfData || msg.distLink) && (
-                      <MessageActions waLink={msg.waLink} pdfData={msg.pdfData} distLink={msg.distLink} t={t} />
+                      <MessageActions waLink={msg.waLink} pdfData={msg.pdfData} distLink={msg.distLink} t={t} product={msg.product} />
                     )}
                     {msg.role === 'assistant' && msg.isDuplicate && <DuplicateNotice />}
                     {msg.role === 'assistant' && msg.quickReplies && (
@@ -2361,6 +2496,13 @@ export default function BotGO({ language = 'es' }) {
                 />
               )}
               {candidatoRegistrado && <RecruitmentConfirmation candidato={candidatoRegistrado} t={t} />}
+              {showSubscribe && (
+                <SubscribeCard
+                  t={t}
+                  onSubscribe={handleSubscribe}
+                  onDismiss={finishCloseChat}
+                />
+              )}
               <div ref={messagesEndRef} />
             </div>
             <div className="botgo-footer-curve">

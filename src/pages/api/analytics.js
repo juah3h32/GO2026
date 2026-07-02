@@ -1,7 +1,15 @@
 // src/pages/api/analytics.js
-import { logInteraction, readAllData, resetData, saveLead, readLeads, resetLeads, saveRecruitmentLead, updateLeadStatus, trackCatalogDownload } from '../../lib/analytics-db';
-import { notifyNewDistribuidor } from '../../lib/notify.ts';
+import { logInteraction, readAllData, resetData, saveLead, readLeads, resetLeads, saveSubscriber, readSubscribers, saveRecruitmentLead, updateLeadStatus, trackCatalogDownload, getClosingSignals, logWAClick, getProductCountsFiltered, getConfig, setConfig } from '../../lib/analytics-db';
+import { notifyNewDistribuidor, notifyNewSubscriberEmail } from '../../lib/notify.ts';
 import { notifyNewVacante } from '../../lib/notify.js';
+
+const SUBSCRIBER_NOTIF_KEY = 'notify_email_subscribers';
+async function maybeNotifySubscriberEmail(sub) {
+  try {
+    const on = await getConfig(SUBSCRIBER_NOTIF_KEY);
+    if (on === '1') await notifyNewSubscriberEmail(sub);
+  } catch (e) { console.error('maybeNotifySubscriberEmail:', e?.message || e); }
+}
 import { verifyAdminToken } from '../../lib/verifyAdminToken.ts';
 
 export const prerender = false;
@@ -47,9 +55,10 @@ function filterByDateRange(data, from, to) {
   const intents  = {};
   const products = {};
   rawFiltered.forEach(item => {
-    if (item.intent)  intents[item.intent]   = (intents[item.intent]   || 0) + 1;
-    if (item.product) products[item.product] = (products[item.product] || 0) + 1;
-    if (!item.product && item.accionPDF) {
+    if (item.intent) intents[item.intent] = (intents[item.intent] || 0) + 1;
+    const prod = item.product || item.prod || null;
+    if (prod) products[prod] = (products[prod] || 0) + 1;
+    if (!prod && item.accionPDF) {
       products[item.accionPDF] = (products[item.accionPDF] || 0) + 1;
     }
   });
@@ -74,7 +83,7 @@ export async function POST({ request }) {
     const body            = await request.json();
     const { action = '' } = body;
 
-    const ADMIN_ACTIONS = ['get', 'reset', 'getLeads', 'resetLeads'];
+    const ADMIN_ACTIONS = ['get', 'reset', 'getLeads', 'resetLeads', 'getSubscribers', 'getSubscriberNotifSetting', 'setSubscriberNotifSetting'];
     if (ADMIN_ACTIONS.includes(action)) {
       const adminRole = await verifyAdminToken(request);
       if (!adminRole) return json({ ok: false, error: 'No autorizado' }, 401);
@@ -85,8 +94,14 @@ export async function POST({ request }) {
       const raw  = await readAllData();
       const from = body.from || null;
       const to   = body.to   || null;
-      const data = (from || to) ? filterByDateRange(raw, from, to) : raw;
-      return json({ ok: true, data });
+      if (from || to) {
+        const filtered = filterByDateRange(raw, from, to);
+        // Products: full-scan de la tabla messages por rango (no limitado a 100)
+        const filteredProducts = await getProductCountsFiltered({ from, to });
+        filtered.products = Object.keys(filteredProducts).length ? filteredProducts : raw.products;
+        return json({ ok: true, data: filtered });
+      }
+      return json({ ok: true, data: raw });
     }
 
     // ── RESET analytics ───────────────────────────────────────────────────────
@@ -124,20 +139,30 @@ export async function POST({ request }) {
 
     // ── GUARDAR lead de distribuidor ──────────────────────────────────────────
     if (action === 'lead') {
-      const { nombre, empresa, whatsapp, email, productos, comentarios = '' } = body;
+      const { nombre, empresa, whatsapp, email, productos, comentarios = '', subscribe, lang = '' } = body;
 
-      if (!nombre || !whatsapp) {
-        return json({ ok: false, error: 'nombre y whatsapp son requeridos' }, 400);
+      if (!nombre || (!whatsapp && !email)) {
+        return json({ ok: false, error: 'nombre y al menos un dato de contacto (WhatsApp o correo) son requeridos' }, 400);
       }
       if (String(nombre).length > 120)   return json({ ok: false, error: 'Nombre muy largo' }, 400);
-      if (String(whatsapp).length > 25)  return json({ ok: false, error: 'Teléfono inválido' }, 400);
-      if (!/^[\d\s\+\-\(\)]{7,}$/.test(String(whatsapp))) return json({ ok: false, error: 'Formato de teléfono inválido' }, 400);
+      if (whatsapp) {
+        if (String(whatsapp).length > 25)  return json({ ok: false, error: 'Teléfono inválido' }, 400);
+        if (!/^[\d\s\+\-\(\)]{7,}$/.test(String(whatsapp))) return json({ ok: false, error: 'Formato de teléfono inválido' }, 400);
+      }
       if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email))) return json({ ok: false, error: 'Email inválido' }, 400);
       if (empresa    && String(empresa).length > 120)    return json({ ok: false, error: 'Empresa muy larga' }, 400);
       if (comentarios && String(comentarios).length > 500) return json({ ok: false, error: 'Comentario muy largo' }, 400);
 
       // 1) Guardar SIEMPRE primero (es lo que confirma el "registro exitoso").
       await saveLead({ nombre, empresa, whatsapp, email, productos, comentarios });
+
+      // 1b) Opt-in de novedades — fusiona este lead con la lista de suscriptores
+      //     (misma tabla que usa el bot) para poder mandarles correo despues.
+      if (subscribe && email) {
+        await saveSubscriber({ nombre, email, lang, source: 'distribuidor' })
+          .catch((e) => console.error('saveSubscriber (distribuidor):', e?.message || e));
+        maybeNotifySubscriberEmail({ nombre, email, source: 'distribuidor' });
+      }
 
       // 2) Notificar con TOPE de 4s: el registro ya quedo guardado, no debemos
       //    colgar al usuario en "Enviando" esperando ntfy/WhatsApp (sin timeout
@@ -147,6 +172,22 @@ export async function POST({ request }) {
         .catch((e) => console.error('notif distribuidor:', e?.message || e));
       await Promise.race([notifP, new Promise((r) => setTimeout(r, 4000))]);
 
+      return json({ ok: true });
+    }
+
+    // ── GUARDAR suscriptor del bot (novedades / contenido exclusivo por correo) ─
+    if (action === 'subscribe') {
+      const { nombre, email, lang = '' } = body;
+
+      if (!nombre || !email) {
+        return json({ ok: false, error: 'nombre y email son requeridos' }, 400);
+      }
+      if (String(nombre).length > 120) return json({ ok: false, error: 'Nombre muy largo' }, 400);
+      if (String(email).length > 160)  return json({ ok: false, error: 'Email muy largo' }, 400);
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email))) return json({ ok: false, error: 'Email inválido' }, 400);
+
+      await saveSubscriber({ nombre, email, lang, source: 'botgo' });
+      maybeNotifySubscriberEmail({ nombre, email, source: 'botgo' });
       return json({ ok: true });
     }
 
@@ -185,6 +226,22 @@ export async function POST({ request }) {
     if (action === 'getLeads') {
       const leads = await readLeads();
       return json({ ok: true, leads });
+    }
+
+    // ── LEER suscriptores (bot + opt-in distribuidor) ─────────────────────────
+    if (action === 'getSubscribers') {
+      const subscribers = await readSubscribers();
+      return json({ ok: true, subscribers });
+    }
+
+    // ── Toggle: notificarme por correo cuando llega un suscriptor nuevo ───────
+    if (action === 'getSubscriberNotifSetting') {
+      const value = await getConfig(SUBSCRIBER_NOTIF_KEY).catch(() => null);
+      return json({ ok: true, enabled: value === '1' });
+    }
+    if (action === 'setSubscriberNotifSetting') {
+      await setConfig(SUBSCRIBER_NOTIF_KEY, body.enabled ? '1' : '0');
+      return json({ ok: true });
     }
 
     // ── RESET leads de distribuidores ─────────────────────────────────────────
@@ -228,6 +285,22 @@ export async function POST({ request }) {
       return json({ ok: true });
     }
 
+    // ── WA click — señal de cierre directa, sin auth (evento del chatbot) ────
+    if (action === 'waClick') {
+      const { product = null, lang = 'es', sessionId = '' } = body;
+      await logWAClick(product, lang, sessionId);
+      return json({ ok: true });
+    }
+
+    // ── GET closing signals ───────────────────────────────────────────────────
+    if (action === 'getClosingSignals') {
+      const adminRole = await verifyAdminToken(request);
+      if (!adminRole) return json({ ok: false, error: 'No autorizado' }, 401);
+      const { limit = 100 } = body;
+      const signals = await getClosingSignals({ limit });
+      return json({ ok: true, signals });
+    }
+
     // ── Acción desconocida ────────────────────────────────────────────────────
     return json({ ok: false, error: `Acción desconocida: "${action}"` }, 400);
 
@@ -247,8 +320,13 @@ export async function GET({ request, url }) {
     const from   = params.get('from') || null;
     const to     = params.get('to')   || null;
     const raw    = await readAllData();
-    const data   = (from || to) ? filterByDateRange(raw, from, to) : raw;
-    return json({ ok: true, data });
+    if (from || to) {
+      const filtered = filterByDateRange(raw, from, to);
+      const filteredProducts = await getProductCountsFiltered({ from, to });
+      filtered.products = Object.keys(filteredProducts).length ? filteredProducts : raw.products;
+      return json({ ok: true, data: filtered });
+    }
+    return json({ ok: true, data: raw });
   } catch (err) {
     console.error('❌ analytics GET:', err.message);
     return json({ ok: false, error: err.message }, 500);

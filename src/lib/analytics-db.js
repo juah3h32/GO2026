@@ -26,10 +26,22 @@ async function ensureInit() {
 
     CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, ts TEXT NOT NULL DEFAULT (datetime('now')), user_msg TEXT NOT NULL DEFAULT '', bot_reply TEXT, lang TEXT NOT NULL DEFAULT 'es', intent TEXT NOT NULL DEFAULT 'otro', product TEXT);
 
-    CREATE INDEX IF NOT EXISTS idx_messages_ts  ON messages(ts DESC);
-    CREATE INDEX IF NOT EXISTS idx_daily_date   ON daily(date DESC);
-    CREATE INDEX IF NOT EXISTS idx_products_count   ON products(count DESC);
-    CREATE INDEX IF NOT EXISTS idx_keywords_count   ON keywords(count DESC);
+    CREATE TABLE IF NOT EXISTS closing_signals (
+      id         INTEGER PRIMARY KEY AUTOINCREMENT,
+      ts         TEXT NOT NULL DEFAULT (datetime('now')),
+      product    TEXT,
+      msg        TEXT NOT NULL DEFAULT '',
+      qty        TEXT,
+      lang       TEXT NOT NULL DEFAULT 'es',
+      session_id TEXT NOT NULL DEFAULT ''
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_messages_ts      ON messages(ts DESC);
+    CREATE INDEX IF NOT EXISTS idx_daily_date        ON daily(date DESC);
+    CREATE INDEX IF NOT EXISTS idx_products_count    ON products(count DESC);
+    CREATE INDEX IF NOT EXISTS idx_keywords_count    ON keywords(count DESC);
+    CREATE INDEX IF NOT EXISTS idx_closing_ts        ON closing_signals(ts DESC);
+    CREATE INDEX IF NOT EXISTS idx_closing_product   ON closing_signals(product);
   `);
 
   const hourInitQueries = [];
@@ -43,6 +55,21 @@ async function ensureInit() {
   // Safe migration: add session_id to existing messages table if missing
   try { await db.execute(`ALTER TABLE messages ADD COLUMN session_id TEXT NOT NULL DEFAULT ''`); } catch {}
   try { await db.execute(`CREATE INDEX IF NOT EXISTS idx_messages_session ON messages(session_id)`); } catch {}
+
+  // Pre-poblar todas las líneas de producto conocidas con count=0 si no existen aún
+  const knownProducts = ['rafia','cuerdas','sacos','arpillas','esquineros','flexible','stretch','bolsas','acolchado','charola'];
+  // Migrar naturizable → charola si existe como entrada separada
+  try {
+    const nat = await db.execute({ sql: 'SELECT count FROM products WHERE name=?', args: ['naturizable'] });
+    if (nat.rows.length > 0) {
+      const natCount = nat.rows[0].count || 0;
+      await db.execute({ sql: 'UPDATE products SET count = count + ? WHERE name=?', args: [natCount, 'charola'] });
+      await db.execute({ sql: 'DELETE FROM products WHERE name=?', args: ['naturizable'] });
+    }
+  } catch {}
+  for (const p of knownProducts) {
+    try { await db.execute({ sql: 'INSERT OR IGNORE INTO products (name, count) VALUES (?, 0)', args: [p] }); } catch {}
+  }
 
   // WhatsApp entrantes via webhook
   try {
@@ -123,14 +150,24 @@ function getCurrentHour() { return new Date().getHours(); }
 const KEYWORD_LIST = [
   'precio','cotizar','cotización','presupuesto','comprar','pedido',
   'rafia','stretch','cuerdas','sacos','arpillas','esquineros','flexible',
+  'bolsas','acolchado','naturizable','charola','charolas','charola naturizable',
   'catálogo','pdf','ficha','envíame','descargar',
   'empleo','trabajo','vacante','cv',
   'certificación','calidad','entrega','medidas','colores',
 ];
 
-const PRODUCT_LIST = [
-  'rafia','stretch','cuerdas','cuerda','sacos','saco',
-  'arpillas','arpilla','esquineros','esquinero','flexible','empaque',
+// canonical → variantes que detecta en el texto del chat
+const PRODUCT_MAP = [
+  { canonical: 'rafia',        variants: ['rafia'] },
+  { canonical: 'cuerdas',      variants: ['cuerdas','cuerda'] },
+  { canonical: 'sacos',        variants: ['sacos','saco'] },
+  { canonical: 'arpillas',     variants: ['arpillas','arpilla'] },
+  { canonical: 'esquineros',   variants: ['esquineros','esquinero'] },
+  { canonical: 'flexible',     variants: ['flexible','empaque','empaques','empaques flexibles'] },
+  { canonical: 'stretch',      variants: ['stretch','stretch film'] },
+  { canonical: 'bolsas',       variants: ['bolsas','bolsa'] },
+  { canonical: 'acolchado',    variants: ['acolchado'] },
+  { canonical: 'charola',      variants: ['charola','charolas','naturizable','charola naturizable'] },
 ];
 
 export function detectKeywords(text) {
@@ -140,7 +177,19 @@ export function detectKeywords(text) {
 
 export function detectProduct(text) {
   const lower = text.toLowerCase();
-  return PRODUCT_LIST.find(p => lower.includes(p)) || null;
+  const match = PRODUCT_MAP.find(p => p.variants.some(v => lower.includes(v)));
+  return match ? match.canonical : null;
+}
+
+// Detecta señales de cierre: cantidades, unidades, intención de compra concreta
+export function detectClosingSignal(text) {
+  const lower = text.toLowerCase();
+  const qtyMatch = lower.match(/\d[\d,\.]*\s*(ton(?:eladas?)?|tonelaje|kg|kilos?|kgs?|pallets?|costales?|bultos?|piezas?|rollos?|metros?|m²|unidades?|sacos?)/i);
+  if (qtyMatch) return { detected: true, qty: qtyMatch[0].trim() };
+  if (/me\s+d[aá][ns]?\b|d[eé]me\b|dame\b|ponme\b|quiero\s+\d|necesito\s+\d|pedir\s+\d|hacer\s+pedido|cuánto\s+cuesta|cu[aá]nto\s+vale|precio\s+por\s+ton|precio\s+kilo/.test(lower)) {
+    return { detected: true, qty: null };
+  }
+  return { detected: false, qty: null };
 }
 
 export function detectIntent(text, accionWA, accionPDF) {
@@ -169,6 +218,7 @@ export async function logInteraction({
   const intent   = detectIntent(userMessage, accionWA, accionPDF);
   const product  = detectProduct(userMessage) || accionPDF || null;
   const keywords = detectKeywords(userMessage);
+  const closing  = detectClosingSignal(userMessage);
 
   const stmts = [];
   stmts.push({ sql: 'UPDATE counters SET value = value + ? WHERE key = ?', args: [1, 'totalMessages'] });
@@ -200,7 +250,58 @@ export async function logInteraction({
     args: [userMessage.substring(0,400), botReply?.substring(0,600) || null, language, intent, product, sessionId||''],
   });
 
+  if (closing.detected) {
+    stmts.push({
+      sql:  "INSERT INTO closing_signals (ts,product,msg,qty,lang,session_id) VALUES (datetime('now'),?,?,?,?,?)",
+      args: [product, userMessage.substring(0,400), closing.qty || null, language, sessionId||''],
+    });
+  }
+
   await db.batch(stmts, 'write');
+}
+
+// ── Clic en botón Cotizar por WhatsApp → señal de cierre directa ────────────
+export async function logWAClick(product = null, lang = 'es', sessionId = '') {
+  await ensureInit();
+  const today = getTodayKey();
+  await db.batch([
+    { sql: "INSERT INTO closing_signals (ts,product,msg,qty,lang,session_id) VALUES (datetime('now'),?,?,?,?,?)",
+      args: [product, 'Click botón Cotizar por WhatsApp', null, lang, sessionId] },
+    { sql: 'INSERT INTO daily (date,wa) VALUES (?,1) ON CONFLICT(date) DO UPDATE SET wa=wa+1', args: [today] },
+  ], 'write');
+}
+
+// ── Señales de cierre — mensajes con cantidad/pedido concreto ────────────────
+export async function getClosingSignals({ limit = 50 } = {}) {
+  await ensureInit();
+  const r = await db.execute({ sql: `SELECT ts, product, msg, qty, lang FROM closing_signals ORDER BY ts DESC LIMIT ?`, args: [limit] });
+  return r.rows.map(x => ({ ts: x.ts, product: x.product, msg: x.msg, qty: x.qty, lang: x.lang }));
+}
+
+// ── Mensajes por división (count de products table + desglose intent) ─────────
+export async function mensajesPorDivision() {
+  await ensureInit();
+  const r = await db.execute(`
+    SELECT product, COUNT(*) AS total,
+      SUM(CASE WHEN intent='compra' THEN 1 ELSE 0 END) AS compra,
+      SUM(CASE WHEN intent='pdf'    THEN 1 ELSE 0 END) AS pdf
+    FROM messages
+    WHERE product IS NOT NULL AND product != ''
+    GROUP BY product ORDER BY total DESC
+  `);
+  return r.rows.map(x => ({ product: x.product, total: Number(x.total), compra: Number(x.compra), pdf: Number(x.pdf) }));
+}
+
+// ── Conteo de productos por rango de fechas (full-scan, no limitado a 100) ───
+export async function getProductCountsFiltered({ from = null, to = null } = {}) {
+  await ensureInit();
+  let sql = `SELECT product, COUNT(*) AS c FROM messages WHERE product IS NOT NULL AND product != ''`;
+  const args = [];
+  if (from) { sql += ` AND ts >= ?`; args.push(from + 'T00:00:00'); }
+  if (to)   { sql += ` AND ts <= ?`; args.push(to   + 'T23:59:59'); }
+  sql += ` GROUP BY product ORDER BY c DESC`;
+  const r = await db.execute({ sql, args });
+  return Object.fromEntries(r.rows.map(x => [x.product, Number(x.c)]));
 }
 
 // ── Ranking de PDFs enviados por producto (intent='pdf' en messages) ──────────
@@ -396,6 +497,33 @@ export async function resetLeads() {
   await db.execute({ sql: 'DELETE FROM distribuidor_leads', args: [] });
 }
 
+// ─── SUSCRIPTORES (bot — novedades/contenido exclusivo por correo) ────────────
+async function ensureSubscribersTable() {
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS subscribers (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      ts TEXT NOT NULL DEFAULT (datetime('now')),
+      nombre TEXT NOT NULL DEFAULT '', email TEXT NOT NULL DEFAULT '',
+      lang TEXT NOT NULL DEFAULT '', source TEXT NOT NULL DEFAULT 'botgo'
+    )
+  `);
+  await db.execute(`CREATE UNIQUE INDEX IF NOT EXISTS idx_subscribers_email ON subscribers(email)`);
+}
+
+export async function saveSubscriber({ nombre, email, lang = '', source = 'botgo' }) {
+  await ensureInit(); await ensureSubscribersTable();
+  await db.execute({
+    sql: `INSERT INTO subscribers (nombre, email, lang, source) VALUES (?, ?, ?, ?)
+          ON CONFLICT(email) DO UPDATE SET nombre = excluded.nombre, lang = excluded.lang`,
+    args: [nombre || '', email || '', lang || '', source || 'botgo'],
+  });
+}
+export async function readSubscribers() {
+  await ensureInit(); await ensureSubscribersTable();
+  const res = await db.execute(`SELECT id, ts, nombre, email, lang, source FROM subscribers ORDER BY id DESC LIMIT 1000`);
+  return res.rows;
+}
+
 // ════════════════════════════════════════════════════════════════════════════
 //  RECRUITMENT LEADS — con soporte completo de CV (base64 + tipo)
 // ════════════════════════════════════════════════════════════════════════════
@@ -483,11 +611,23 @@ export async function saveRecruitmentLead({
       // Requiere que coincida el contacto Y el puesto para considerar duplicado
       const puestoNorm = (puesto || '').trim().toLowerCase();
       const { rows } = await db.execute({
-        sql:  `SELECT id, nombre, email, telefono, puesto FROM recruitment_leads WHERE (${contactConditions.join(' OR ')}) AND LOWER(TRIM(COALESCE(puesto,''))) = ? LIMIT 1`,
+        sql:  `SELECT id, nombre, email, telefono, puesto, cv_base64, cv_nombre FROM recruitment_leads WHERE (${contactConditions.join(' OR ')}) AND LOWER(TRIM(COALESCE(puesto,''))) = ? LIMIT 1`,
         args: [...contactArgs, puestoNorm],
       });
       if (rows.length > 0) {
         const existing = rows[0];
+        // Si el duplicado no tiene CV y el nuevo intento sí trae CV → actualizar
+        if (cvBase64 && !existing.cv_base64) {
+          try {
+            await db.execute({
+              sql:  `UPDATE recruitment_leads SET cv_nombre=?, cv_base64=?, cv_tipo=? WHERE id=?`,
+              args: [cvNombre || existing.cv_nombre || '', cvBase64, cvTipo || '', Number(existing.id)],
+            });
+            console.log(`📎 CV actualizado en duplicado #${existing.id}: ${cvNombre}`);
+          } catch (cvErr) {
+            console.warn('⚠️ No se pudo actualizar CV en duplicado:', cvErr.message);
+          }
+        }
         console.log(`⚠️ Duplicado: #${existing.id} — ${existing.nombre} ya registrado para "${existing.puesto}"`);
         return { id: Number(existing.id), duplicate: true, existingNombre: existing.nombre, existingPuesto: existing.puesto };
       }
@@ -1200,11 +1340,13 @@ export async function getWAAuthorizedByCategory(categoria) {
   for (const row of r.rows) {
     let cats = [];
     let perms = [];
-    try { cats = JSON.parse(row[4] || '[]'); } catch {}
-    try { perms = typeof row[3] === 'string' ? JSON.parse(row[3]) : (Array.isArray(row[3]) ? row[3] : []); } catch {}
+    try { cats  = JSON.parse(row.categories  || '[]'); } catch {}
+    try { perms = JSON.parse(row.permissions || '[]'); } catch {}
+    if (!Array.isArray(cats))  cats  = [];
+    if (!Array.isArray(perms)) perms = [];
     // Match directo por categoría o fallback por permisos
     if (cats.includes(categoria) || perms.includes('*') || perms.includes(PERM_MAP[categoria] || '')) {
-      out.push({ id: row[0], phone: row[1], name: row[2] });
+      out.push({ id: row.id, phone: row.phone, name: row.name });
     }
   }
   return out;

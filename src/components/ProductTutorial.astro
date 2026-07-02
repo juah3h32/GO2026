@@ -1,0 +1,854 @@
+---
+// Shared component: multi-select visual styles + FAB + tutorial modal
+import { listCatalogsMeta } from '../lib/catalogs.js';
+const lang = (Astro.params.lang as string) || 'es';
+
+const divisionImgs: Record<string, string> = {
+  'digital-stretch-film':  '/images/divisiones/film-estirable.webp',
+  'digital-acolchado':     '/images/divisiones/acolchado.webp',
+  'digital-arpilla':       '/images/divisiones/arpilla.webp',
+  'digital-cuerda':        '/images/divisiones/cuerdas.webp',
+  'digital-rafia':         '/images/divisiones/rafia.webp',
+  'digital-flexible':      '/images/divisiones/bolsa.webp',
+  'digital-saco':          '/images/divisiones/sacos.webp',
+  'digital-esquinero':     '/images/divisiones/esquineros.webp',
+  'digital-naturizable':   '/images/divisiones/desechables.webp',
+  'digital-bolsas':        '/images/divisiones/bolsas.webp',
+};
+
+const TUTS: Record<string, {
+  btn: string; selected: string; quote: string;
+  step01Title: string; step01Sub: string; step01DescM: string; step01DescD: string;
+  step02Title: string; step02SubM: string; step02SubD: string; step02DescM: string; step02DescD: string;
+  step03Title: string; step03Sub: string; step03Desc: string;
+  selectedBadge: string; selectedBadgeSub: string;
+  finish: string; counter: string;
+}> = {
+  es: {
+    btn: '¿Cómo funciona?', selected: 'seleccionados', quote: 'Cotizar',
+    step01Title: 'Ver', step01Sub: 'Explora los tipos de producto',
+    step01DescM: 'Toca cualquier producto para ver su ficha técnica con especificaciones, materiales y presentaciones disponibles.',
+    step01DescD: 'Haz clic en cualquier producto para ver su ficha técnica con especificaciones, materiales y presentaciones disponibles.',
+    step02Title: 'Seleccionar', step02SubM: 'Mantén presionado para activar', step02SubD: 'Clic largo para activar el modo selección',
+    step02DescM: 'Mantén presionado un producto para activar el modo selección. Una vez activo, un solo toque marca o desmarca. Desmarca todos para salir del modo.',
+    step02DescD: 'Mantén presionado el mouse 450ms en un producto para activar el modo selección. Se iluminará en verde con una palomita. Haz clic en los demás productos que quieras incluir.',
+    step03Title: 'Comprar', step03Sub: 'Haz clic en el botón naranja',
+    step03Desc: 'Cuando encuentres el producto que buscas, presiona el botón naranja "Comprar". Te conectamos directamente por WhatsApp para ayudarte con precios y disponibilidad.',
+    selectedBadge: 'PRODUCTO SELECCIONADO', selectedBadgeSub: 'Aparece marcado en verde',
+    finish: 'TERMINAR ✓', counter: 'de',
+  },
+  en: {
+    btn: 'How it works?', selected: 'selected', quote: 'Quote',
+    step01Title: 'View', step01Sub: 'Browse product types',
+    step01DescM: 'Tap any product to see its technical sheet with specifications, materials and available presentations.',
+    step01DescD: 'Click any product to see its technical sheet with specifications, materials and available presentations.',
+    step02Title: 'Select', step02SubM: 'Hold to activate', step02SubD: 'Long-click to activate selection mode',
+    step02DescM: 'Hold a product to activate selection mode. Once active, a single tap marks or unmarks. Unmark all to exit.',
+    step02DescD: 'Hold the mouse 450ms on a product to activate selection mode. It will highlight in green with a checkmark. Click other products to include them.',
+    step03Title: 'Buy', step03Sub: 'Click the orange button',
+    step03Desc: 'When you find the product you want, press the orange "Buy" button. We connect you directly via WhatsApp for pricing and availability.',
+    selectedBadge: 'PRODUCT SELECTED', selectedBadgeSub: 'Highlighted in green',
+    finish: 'DONE ✓', counter: 'of',
+  },
+  pt: {
+    btn: 'Como funciona?', selected: 'selecionados', quote: 'Cotar',
+    step01Title: 'Ver', step01Sub: 'Explore os tipos de produto',
+    step01DescM: 'Toque em qualquer produto para ver sua ficha técnica com especificações, materiais e apresentações disponíveis.',
+    step01DescD: 'Clique em qualquer produto para ver sua ficha técnica com especificações, materiais e apresentações disponíveis.',
+    step02Title: 'Selecionar', step02SubM: 'Pressione para ativar', step02SubD: 'Clique longo para ativar o modo seleção',
+    step02DescM: 'Pressione um produto para ativar o modo seleção. Uma vez ativo, um toque marca ou desmarca. Desmarque todos para sair.',
+    step02DescD: 'Pressione o mouse 450ms em um produto para ativar o modo seleção. Ele será destacado em verde. Clique nos demais produtos para incluí-los.',
+    step03Title: 'Comprar', step03Sub: 'Clique no botão laranja',
+    step03Desc: 'Quando encontrar o produto desejado, pressione o botão laranja "Comprar". Conectamos você pelo WhatsApp para preços e disponibilidade.',
+    selectedBadge: 'PRODUTO SELECIONADO', selectedBadgeSub: 'Destacado em verde',
+    finish: 'CONCLUIR ✓', counter: 'de',
+  },
+  ar: {
+    btn: 'كيف يعمل؟', selected: 'محدد', quote: 'طلب سعر',
+    step01Title: 'عرض', step01Sub: 'استعرض أنواع المنتجات',
+    step01DescM: 'اضغط على أي منتج لعرض بطاقته التقنية مع المواصفات والمواد والعروض المتاحة.',
+    step01DescD: 'انقر على أي منتج لعرض بطاقته التقنية مع المواصفات والمواد والعروض المتاحة.',
+    step02Title: 'تحديد', step02SubM: 'اضغط مطولاً للتفعيل', step02SubD: 'انقر مطولاً لتفعيل وضع التحديد',
+    step02DescM: 'اضغط مطولاً على منتج لتفعيل وضع التحديد. بمجرد التفعيل، لمسة واحدة تحدد أو تلغي التحديد.',
+    step02DescD: 'اضغط 450 مللي ثانية على منتج لتفعيل وضع التحديد. سيتم تمييزه باللون الأخضر. انقر على المنتجات الأخرى لتضمينها.',
+    step03Title: 'شراء', step03Sub: 'انقر على الزر البرتقالي',
+    step03Desc: 'عند العثور على المنتج المطلوب، اضغط على الزر البرتقالي "شراء". سنتواصل معك مباشرة عبر واتساب للأسعار والتوفر.',
+    selectedBadge: 'المنتج محدد', selectedBadgeSub: 'مميز باللون الأخضر',
+    finish: 'إنهاء ✓', counter: 'من',
+  },
+  zh: {
+    btn: '如何使用？', selected: '已选', quote: '询价',
+    step01Title: '查看', step01Sub: '浏览产品类型',
+    step01DescM: '点击任意产品查看其技术规格、材料和可用规格说明。',
+    step01DescD: '点击任意产品查看其技术规格、材料和可用规格说明。',
+    step02Title: '选择', step02SubM: '长按激活', step02SubD: '长按激活选择模式',
+    step02DescM: '长按产品激活选择模式。激活后，单次点击可标记或取消标记。取消所有标记可退出模式。',
+    step02DescD: '按住鼠标450毫秒激活选择模式。产品会以绿色高亮显示。点击其他产品将其加入选择。',
+    step03Title: '购买', step03Sub: '点击橙色按钮',
+    step03Desc: '找到所需产品后，按橙色"购买"按钮。我们将通过WhatsApp直接为您提供价格和库存信息。',
+    selectedBadge: '产品已选择', selectedBadgeSub: '绿色高亮显示',
+    finish: '完成 ✓', counter: '/',
+  },
+};
+
+const t = TUTS[lang] ?? TUTS.es;
+---
+
+<style is:global>
+  /* ── Multi-select visual styles ─────────────────────────────────── */
+  .thumb-item { position: relative; }
+  .thumb-item.selected {
+    overflow: visible !important;
+    border-color: rgba(22,191,120,0.85) !important;
+    box-shadow: 0 0 0 1px rgba(22,191,120,0.6), 0 4px 20px rgba(22,191,120,0.22) !important;
+    transform: scale(1.09) !important;
+    z-index: 10;
+  }
+  .thumb-item.selected img { border-radius: clamp(4px, 0.6vw, 10px); }
+  @media (max-width: 1024px) { .thumb-item.selected img { border-radius: 50%; } }
+  .thumb-item.selected::after {
+    content: "";
+    position: absolute;
+    top: -7px; right: -7px;
+    width: 19px; height: 19px;
+    background: #16bf78 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 10'%3E%3Cpolyline points='1.5 5.5 4.5 8.5 10.5 1.5' stroke='%23fff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E") center / 11px no-repeat;
+    border-radius: 50%;
+    border: 2px solid rgba(0,0,0,0.2);
+    z-index: 20;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+  }
+  .thumb-item:not(.pressing) { transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease; }
+  .thumb-item.pressing { transform: scale(0.88) !important; transition: transform 0.15s ease !important; opacity: 0.75; }
+
+  /* ── FAB selección múltiple (solo mobile) ────────────────────────── */
+  .mst-fab { display: none; }
+  @media (max-width: 1024px) {
+    .mst-fab {
+      display: flex; position: fixed; bottom: 28px; left: 50%;
+      transform: translateX(-50%) translateY(90px);
+      z-index: 9999; align-items: center; gap: 10px;
+      background: rgba(14,14,14,0.9); backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.1); border-radius: 60px;
+      padding: 10px 10px 10px 20px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05) inset;
+      opacity: 0; pointer-events: none;
+      transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), opacity 0.25s ease;
+      white-space: nowrap;
+    }
+    .mst-fab.mst-fab-visible { transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: auto; }
+    .mst-fab-count { font-size: 22px; font-weight: 800; color: #16bf78; line-height: 1; min-width: 22px; text-align: center; }
+    .mst-fab-label { font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.55); letter-spacing: 0.01em; }
+    .mst-fab-cta {
+      display: flex; align-items: center; gap: 7px;
+      background: #fb670b; color: #fff; border: none; border-radius: 50px;
+      padding: 10px 18px; font-size: 13px; font-weight: 700; cursor: pointer;
+      letter-spacing: 0.02em; margin-left: 6px;
+      transition: background 0.2s, transform 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .mst-fab-cta:active { transform: scale(0.95); background: #d95800; }
+    .thumb-item.selected {
+      box-shadow: 0 0 0 3px rgba(22,191,120,0.75), 0 0 20px rgba(22,191,120,0.25) !important;
+      transform: scale(1.13) !important;
+    }
+    .thumb-item.selected img { border-radius: 50%; }
+    .thumb-item.selected::after { top: -6px; right: -6px; width: 18px; height: 18px; }
+  }
+
+  /* ── Tutorial keyframes ──────────────────────────────────────────── */
+  @keyframes arpiTutPulse {
+    0%,100% { box-shadow: 0 0 0 3px #FB670B, 0 0 0 8px rgba(251,103,11,.3), 0 0 24px rgba(251,103,11,.5); }
+    50%      { box-shadow: 0 0 0 3px #FB670B, 0 0 0 14px rgba(251,103,11,.12), 0 0 44px rgba(251,103,11,.75); }
+  }
+  @keyframes arpiHoldRing {
+    0%,15%   { stroke-dashoffset: 151; opacity: 1; }
+    75%,85%  { stroke-dashoffset: 0;   opacity: 1; }
+    92%,100% { stroke-dashoffset: 0;   opacity: 0; }
+  }
+  @keyframes arpiHoldBadge {
+    0%,74%  { opacity: 0; transform: scale(0.4); }
+    85%,100%{ opacity: 1; transform: scale(1); }
+  }
+  @keyframes arpiArrowSlide {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(5px); }
+  }
+  @keyframes arpiDotPulse {
+    0%,100% { transform: scale(1);   opacity: 1; }
+    50%      { transform: scale(1.3); opacity: 0.7; }
+  }
+  @keyframes arpiDotRing {
+    0%   { transform: scale(1);   opacity: 0.8; }
+    60%  { transform: scale(2.8); opacity: 0; }
+    100% { transform: scale(2.8); opacity: 0; }
+  }
+
+  /* ── Botón ¿Cómo funciona? ───────────────────────────────────────── */
+  .arpi-how-fab {
+    position: fixed;
+    bottom: 26px;
+    left: 20px;
+    z-index: 9001;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: #fb670b;
+    border: none;
+    border-radius: 999px;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    font-family: inherit;
+    letter-spacing: .4px;
+    box-shadow: 0 6px 24px rgba(251,103,11,.45);
+    transition: box-shadow .22s, transform .22s;
+  }
+  .arpi-how-fab:hover { box-shadow: 0 10px 32px rgba(251,103,11,.65); transform: translateY(-2px); }
+
+  @media (max-width: 768px) {
+    .arpi-how-fab {
+      /* Pestaña pegada al borde derecho, a media pantalla */
+      left: auto;
+      right: 0;
+      bottom: auto;
+      top: 50%;
+      transform: translateY(-50%);
+      border-radius: 12px 0 0 12px;
+      padding: 14px 10px;
+      flex-direction: column;
+      gap: 6px;
+      writing-mode: vertical-rl;
+      font-size: 10px;
+      letter-spacing: .3px;
+      box-shadow: -4px 4px 18px rgba(251,103,11,.45);
+    }
+    .arpi-how-fab:hover { transform: translateY(-50%) translateX(-3px); }
+    .arpi-how-fab svg { transform: rotate(90deg); }
+  }
+</style>
+
+<!-- FAB selección múltiple -->
+<div class="mst-fab" id="mst-fab">
+  <span class="mst-fab-count" id="mst-fab-count">0</span>
+  <span class="mst-fab-label" id="mst-fab-label">{t.selected}</span>
+  <button class="mst-fab-cta" id="mst-fab-cta" aria-label={t.quote}>
+    {t.quote}
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5 12h14M12 5l7 7-7 7"/>
+    </svg>
+  </button>
+</div>
+
+<!-- Botón ¿Cómo funciona? -->
+<button class="arpi-how-fab" id="arpiHowBtn" type="button" aria-label={t.btn}>
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+  <span>{t.btn}</span>
+</button>
+
+<!-- Pestaña divisiones -->
+<button class="pt-divflap" id="ptDivFlap" type="button" aria-label="Ver todas las divisiones">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+  <span class="pt-divflap-label">CATÁLOGO</span>
+</button>
+
+<!-- Modal divisiones -->
+<div class="pt-divov" id="ptDivOv" aria-modal="true" role="dialog" aria-label="Seleccionar división">
+  <div class="pt-divmodal">
+    <div class="pt-divhd">
+      <div class="pt-divsup">CATÁLOGOS DIGITALES</div>
+      <h2 class="pt-divtitle">DIVISIONES</h2>
+      <button class="pt-divclose" id="ptDivClose" type="button" aria-label="Cerrar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="pt-divgrid">
+      {listCatalogsMeta().map((cat, i) => (
+        <a href={`/${lang}/catalogo/${cat.slug}`}
+           class="pt-dpcard"
+           style={`--dpimg: url('${divisionImgs[cat.slug] || '/images/divisiones/film-estirable.webp'}')`}>
+          <div class="pt-dpcard__bg"></div>
+          <div class="pt-dpcard__overlay"></div>
+          <span class="pt-dpcard__num">{String(i + 1).padStart(2, '0')}</span>
+          <div class="pt-dpcard__content">
+            <span class="pt-dpcard__tag">DIVISIÓN</span>
+            <h3 class="pt-dpcard__title">{cat.title}</h3>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</div>
+
+<style>
+  /* ── Pestaña divisiones ── */
+  .pt-divflap {
+    position: fixed; left: 0; top: 28%;
+    z-index: 9999;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    padding: 14px 10px 16px;
+    background: #fb670b; color: #fff;
+    border: none; border-radius: 0 14px 14px 0;
+    cursor: pointer;
+    transform: translateX(-100%);
+    transition: transform .45s cubic-bezier(.34,1.4,.64,1);
+    box-shadow: 3px 0 18px rgba(251,103,11,.35);
+  }
+  .pt-divflap.is-visible { transform: translateX(0); }
+  .pt-divflap svg { flex: none; }
+  .pt-divflap-label {
+    font-size: 9px; font-weight: 800; letter-spacing: .18em;
+    writing-mode: vertical-rl; transform: rotate(180deg);
+    font-family: "NeueMontreal", sans-serif; text-transform: uppercase;
+  }
+
+  /* ── Overlay ── */
+  .pt-divov {
+    position: fixed; inset: 0; z-index: 100001;
+    display: flex; align-items: center; justify-content: center;
+    padding: clamp(12px, 3vw, 28px);
+    background: rgba(0,0,0,.55); backdrop-filter: blur(6px);
+    opacity: 0; pointer-events: none; transition: opacity .3s;
+  }
+  .pt-divov.is-open { opacity: 1; pointer-events: auto; }
+
+  /* ── Modal ── */
+  .pt-divmodal {
+    background: #ffffff !important; color: #1a1a1a !important;
+    border-radius: 22px;
+    width: 100%; max-width: 960px;
+    max-height: 90vh; overflow-y: auto;
+    box-shadow: 0 40px 100px rgba(0,0,0,.45), 0 0 0 1px rgba(0,0,0,.06);
+    display: flex; flex-direction: column;
+    transform: translateY(20px) scale(.97);
+    transition: transform .32s cubic-bezier(.32,0,.15,1);
+  }
+  :global(html.dark) .pt-divmodal { background: #ffffff !important; color: #1a1a1a !important; }
+  .pt-divov.is-open .pt-divmodal { transform: translateY(0) scale(1); }
+
+  /* Header modal */
+  .pt-divhd {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    padding: 28px 30px 18px; flex: none;
+    border-bottom: 1px solid rgba(0,0,0,.07); position: relative;
+  }
+  .pt-divsup {
+    position: absolute; top: 18px; left: 30px;
+    font-size: 10px; font-weight: 700; letter-spacing: .18em;
+    text-transform: uppercase; color: rgba(0,0,0,.4);
+  }
+  .pt-divtitle {
+    font-family: "Morganite", "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif; font-weight: 800;
+    font-size: clamp(38px, 6vw, 58px); letter-spacing: .08em;
+    text-transform: uppercase; color: #fb670b; line-height: 1;
+    margin: 0; padding-top: 16px;
+  }
+  .pt-divclose {
+    display: flex; align-items: center; justify-content: center; flex: none;
+    width: 38px; height: 38px; border-radius: 50%;
+    border: none; background: rgba(0,0,0,.07); color: #1a1a1a;
+    cursor: pointer; position: relative;
+    transition: background .22s, color .22s, transform .22s cubic-bezier(.34,1.4,.64,1);
+  }
+  .pt-divclose:hover { background: #fb670b; color: #fff; transform: scale(1.1) rotate(90deg); }
+
+  /* Grid */
+  .pt-divgrid {
+    padding: 22px 22px 26px;
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;
+  }
+  @media (max-width: 780px) { .pt-divgrid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 480px) { .pt-divgrid { grid-template-columns: repeat(2, 1fr); } }
+
+  /* Cards */
+  .pt-dpcard {
+    position: relative; border-radius: 14px; overflow: hidden;
+    aspect-ratio: 3/4; display: block; text-decoration: none;
+    background: #f0f0f0;
+  }
+  .pt-dpcard__bg {
+    position: absolute; inset: 0;
+    background-image: var(--dpimg); background-size: cover; background-position: center;
+    transition: transform .5s cubic-bezier(.16,1,.3,1);
+  }
+  .pt-dpcard:hover .pt-dpcard__bg { transform: scale(1.08); }
+  .pt-dpcard__overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0) 30%, rgba(0,0,0,.72) 100%);
+    transition: background .35s;
+  }
+  .pt-dpcard:hover .pt-dpcard__overlay {
+    background: linear-gradient(180deg, rgba(251,103,11,.12) 0%, rgba(251,103,11,.38) 40%, rgba(180,60,0,.85) 100%);
+  }
+  .pt-dpcard__num {
+    position: absolute; top: 10px; right: 12px;
+    font-family: "Morganite", "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif; font-size: clamp(2.2rem, 4vw, 3.6rem);
+    font-weight: 800; line-height: 1; color: rgba(251,103,11,.32);
+    letter-spacing: .04em; pointer-events: none; z-index: 2;
+    transition: color .35s;
+  }
+  .pt-dpcard:hover .pt-dpcard__num { color: rgba(251,103,11,.7); }
+  .pt-dpcard__content {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 10px 12px 12px; z-index: 3;
+    transform: translateY(6px); transition: transform .35s cubic-bezier(.16,1,.3,1);
+  }
+  .pt-dpcard:hover .pt-dpcard__content { transform: translateY(0); }
+  .pt-dpcard__tag {
+    display: block; font-size: 8px; font-weight: 700; letter-spacing: .16em;
+    text-transform: uppercase; color: rgba(255,255,255,.6); margin-bottom: 2px;
+  }
+  .pt-dpcard__title {
+    font-family: "Morganite", "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif; font-weight: 800;
+    font-size: clamp(1.1rem, 2.2vw, 1.5rem); letter-spacing: .06em;
+    text-transform: uppercase; color: #fff; line-height: 1.1; margin: 0;
+  }
+
+  /* Navbar cuando modal activo */
+  :global(.montfort-header[data-ptdiv] .logo img) { filter: brightness(0) invert(1) !important; }
+  :global(.montfort-header[data-ptdiv] .nav-text) { color: #ffffff !important; }
+  :global(.montfort-header[data-ptdiv] .nav-text-link) { color: #ffffff !important; }
+</style>
+
+<script is:inline define:vars={{ lang }}>
+(function() {
+  function initPtDivPick() {
+    var flap    = document.getElementById('ptDivFlap');
+    var overlay = document.getElementById('ptDivOv');
+    var closeBtn= document.getElementById('ptDivClose');
+    if (!flap || !overlay) return;
+
+    var hdr = document.querySelector('.montfort-header');
+
+    function navOn() {
+      if (!hdr) return;
+      hdr.style.setProperty('--text-main', '#ffffff');
+      hdr.dataset.ptdiv = '1';
+    }
+    function navOff() {
+      if (!hdr) return;
+      hdr.style.removeProperty('--text-main');
+      delete hdr.dataset.ptdiv;
+    }
+
+    function open() {
+      overlay.classList.add('is-open');
+      navOn();
+      flap.classList.remove('is-visible');
+    }
+    function close() {
+      overlay.classList.remove('is-open');
+      navOff();
+      flap.classList.add('is-visible');
+    }
+
+    setTimeout(function() { flap.classList.add('is-visible'); }, 800);
+
+    flap.addEventListener('click', open);
+    if (closeBtn) closeBtn.addEventListener('click', close);
+    overlay.addEventListener('click', function(e) { if (e.target === overlay) close(); });
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && overlay.classList.contains('is-open')) close();
+    });
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initPtDivPick);
+  else initPtDivPick();
+  document.addEventListener('astro:page-load', initPtDivPick);
+})();
+</script>
+
+<script is:inline define:vars={{ t }}>
+(function () {
+  var O = '#FB670B';
+  var MG = '"Morganite","PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif';
+  var SF = "-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif";
+  function mk(tag, css) { var e = document.createElement(tag); if (css) e.style.cssText = css; return e; }
+  var spots = [];
+  function hl(els) {
+    unhl();
+    els.forEach(function(el) {
+      if (!el) return;
+      var r = el.getBoundingClientRect();
+      if (!r.width || !r.height) return;
+      var cs = getComputedStyle(el);
+      var brRaw = cs.borderRadius || '0px';
+      var br = (brRaw === '0px' || brRaw === '0px 0px 0px 0px') ? '14px' : brRaw;
+      var clone = el.cloneNode(true);
+      clone.style.setProperty('position', 'fixed', 'important');
+      clone.style.setProperty('top', r.top + 'px', 'important');
+      clone.style.setProperty('left', r.left + 'px', 'important');
+      clone.style.setProperty('width', r.width + 'px', 'important');
+      clone.style.setProperty('height', r.height + 'px', 'important');
+      clone.style.setProperty('margin', '0', 'important');
+      clone.style.setProperty('transform', 'none', 'important');
+      clone.style.setProperty('z-index', '100001', 'important');
+      clone.style.setProperty('pointer-events', 'none', 'important');
+      clone.style.setProperty('box-sizing', 'border-box', 'important');
+      document.body.appendChild(clone); spots.push(clone);
+      var sp = document.createElement('div');
+      sp.style.cssText = 'position:fixed;pointer-events:none;z-index:100002;box-sizing:border-box;border-radius:' + br + ';animation:arpiTutPulse 1.15s ease-in-out infinite;top:' + r.top + 'px;left:' + r.left + 'px;width:' + r.width + 'px;height:' + r.height + 'px;';
+      document.body.appendChild(sp); spots.push(sp);
+    });
+  }
+  function unhl() { spots.forEach(function(s) { if (s.parentNode) s.parentNode.removeChild(s); }); spots = []; }
+
+  function openHowModal() {
+    if (document.getElementById('arpiHowOv')) return;
+    var cur = 0;
+    var ov = document.createElement('div'); ov.id = 'arpiHowOv';
+    ov.style.cssText = 'position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.4);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);';
+    var card = document.createElement('div'); card.id = 'arpiHowCard';
+    card.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:calc(100% - 40px);max-width:370px;border-radius:20px;overflow:hidden;z-index:100003;box-shadow:0 32px 80px rgba(0,0,0,.35),0 0 0 1px rgba(0,0,0,.06);background:#fff;font-family:' + SF + ';';
+    var oldBO = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    function close() { unhl(); ov.remove(); card.remove(); document.body.style.overflow = oldBO; document.removeEventListener('keydown', onEsc); }
+    function onEsc(e) { if (e.key === 'Escape') close(); }
+    document.addEventListener('keydown', onEsc);
+    var isMobile = window.innerWidth <= 1024;
+
+    var steps = [
+      /* ── 01 VER ── */
+      {
+        num: '01', title: t.step01Title,
+        subtitle: t.step01Sub,
+        desc: isMobile ? t.step01DescM : t.step01DescD,
+        enter: function () {
+          var thumbs = Array.prototype.slice.call(document.querySelectorAll('.thumb-item'));
+          if (thumbs.length) hl(thumbs);
+        },
+        leave: unhl,
+        demo: function () {
+          var row = mk('div','display:flex;gap:10px;align-items:center;justify-content:center;padding:4px 0;');
+          var thumbEls = Array.prototype.slice.call(document.querySelectorAll('.thumb-item'), 0, 4);
+          thumbEls.forEach(function(th, i) {
+            var img = th.querySelector('img');
+            var isFirst = i === 0;
+            var size = isFirst ? '58px' : '42px';
+            var c = mk('div','width:'+size+';height:'+size+';border-radius:50%;background:#EBEBEB;flex-shrink:0;overflow:hidden;box-sizing:border-box;transition:all .2s;'
+              + (isFirst ? 'border:2.5px solid '+O+';box-shadow:0 0 0 4px rgba(251,103,11,.15);' : 'opacity:.52;'));
+            if (img && img.src) {
+              var im = mk('img','width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;');
+              im.src = img.src; c.appendChild(im);
+            }
+            row.appendChild(c);
+          });
+          return row;
+        }
+      },
+      /* ── 02 SELECCIONAR ── */
+      {
+        num: '02', title: t.step02Title,
+        subtitle: isMobile ? t.step02SubM : t.step02SubD,
+        desc: isMobile ? t.step02DescM : t.step02DescD,
+        enter: function () {
+          var sel = document.querySelector('.thumb-item.active') || document.querySelector('.thumb-item');
+          if (sel) hl([sel]);
+        },
+        leave: unhl,
+        demo: function () {
+          var wrap = mk('div','display:flex;align-items:center;gap:12px;width:100%;');
+
+          // ── Círculo animado hold ────────────────────────────────
+          var pw = mk('div','position:relative;width:56px;height:56px;flex-shrink:0;display:flex;align-items:center;justify-content:center;');
+          // Punto central naranja
+          var dot = mk('div','width:22px;height:22px;border-radius:50%;background:#fb670b;opacity:.9;');
+          pw.appendChild(dot);
+          // SVG ring — arpiHoldRing usa dashoffset 151 → r=24, circunf≈151
+          var svgEl = document.createElementNS('http://www.w3.org/2000/svg','svg');
+          svgEl.setAttribute('width','56'); svgEl.setAttribute('height','56'); svgEl.setAttribute('viewBox','0 0 56 56');
+          svgEl.style.cssText = 'position:absolute;top:0;left:0;overflow:visible;';
+          var bgC = document.createElementNS('http://www.w3.org/2000/svg','circle');
+          bgC.setAttribute('cx','28'); bgC.setAttribute('cy','28'); bgC.setAttribute('r','24');
+          bgC.setAttribute('fill','none'); bgC.setAttribute('stroke','rgba(251,103,11,.15)'); bgC.setAttribute('stroke-width','3');
+          var fgC = document.createElementNS('http://www.w3.org/2000/svg','circle');
+          fgC.setAttribute('cx','28'); fgC.setAttribute('cy','28'); fgC.setAttribute('r','24');
+          fgC.setAttribute('fill','none'); fgC.setAttribute('stroke','#fb670b'); fgC.setAttribute('stroke-width','3');
+          fgC.setAttribute('stroke-dasharray','151'); fgC.setAttribute('stroke-linecap','round');
+          fgC.style.cssText = 'transform:rotate(-90deg);transform-origin:28px 28px;animation:arpiHoldRing 2s ease-in-out infinite;';
+          svgEl.appendChild(bgC); svgEl.appendChild(fgC);
+          pw.appendChild(svgEl);
+          // Badge verde que aparece al completar
+          var badgeAnim = mk('div','position:absolute;top:-4px;right:-4px;width:18px;height:18px;background:#16bf78;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1.5px solid #fff;animation:arpiHoldBadge 2s ease-in-out infinite;');
+          badgeAnim.innerHTML = '<svg width="9" height="7" viewBox="0 0 9 7" fill="none"><polyline points="1,3.5 3.5,6 8,1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+          pw.appendChild(badgeAnim);
+
+          // ── Tarjeta resultado ───────────────────────────────────
+          var res = mk('div','flex:1;min-width:0;display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:12px;background:#F0FFF7;border:1.5px solid rgba(22,191,120,.3);box-sizing:border-box;');
+          var thumb = mk('div','position:relative;width:44px;height:44px;flex-shrink:0;border-radius:50%;background:#DDEEDD;overflow:visible;border:2px solid #16bf78;box-shadow:0 0 0 3px rgba(22,191,120,.2);');
+          var firstImg = document.querySelector('.thumb-item img');
+          if (firstImg && firstImg.src) {
+            var previewImg = mk('img','width:100%;height:100%;object-fit:cover;display:block;border-radius:50%;');
+            previewImg.src = firstImg.src; thumb.appendChild(previewImg);
+          }
+          var badge = mk('div','position:absolute;top:-5px;right:-5px;width:17px;height:17px;background:#16bf78;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #fff;z-index:2;box-shadow:0 1px 4px rgba(0,0,0,.2);');
+          badge.innerHTML = '<svg width="9" height="7" viewBox="0 0 9 7" fill="none"><polyline points="1,3.5 3.5,6 8,1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+          thumb.appendChild(badge);
+          var txt = mk('div','flex:1;min-width:0;');
+          var t1 = mk('div','font-family:'+MG+';font-weight:800;font-size:17px;letter-spacing:.3px;color:#0e5c2e;line-height:1.1;'); t1.textContent = t.selectedBadge;
+          var t2 = mk('div','font-size:11px;color:rgba(0,0,0,.45);margin-top:3px;'); t2.textContent = t.selectedBadgeSub;
+          txt.appendChild(t1); txt.appendChild(t2);
+          res.appendChild(thumb); res.appendChild(txt);
+
+          wrap.appendChild(pw);
+          wrap.appendChild(res);
+          return wrap;
+        }
+      },
+      /* ── 03 COMPRAR ── */
+      {
+        num: '03', title: t.step03Title,
+        subtitle: t.step03Sub,
+        desc: t.step03Desc,
+        enter: function () {
+          var btn = document.getElementById('truck-cta-btn');
+          if (btn) hl([btn]);
+        },
+        leave: unhl,
+        demo: function () {
+          var wrap = mk('div','display:flex;align-items:center;justify-content:center;gap:12px;width:100%;');
+
+          // Left side: Orange button COMPRAR — ancho, no alto
+          var btn = mk('div','background:#fb670b;color:#fff;border-radius:50px;padding:10px 52px;font-size:20px;font-weight:800;font-family:'+MG+';letter-spacing:2px;text-transform:uppercase;box-shadow:0 6px 22px rgba(251,103,11,.5);white-space:nowrap;flex-shrink:0;');
+          btn.textContent = t.step03Title.toUpperCase();
+
+          // Middle: Arrow animated
+          var arrow = mk('div','display:flex;align-items:center;justify-content:center;flex-shrink:0;animation:arpiArrowSlide 1.2s ease-in-out infinite;');
+          arrow.innerHTML = '<svg width="28" height="16" viewBox="0 0 36 20" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+            '<path d="M2 10H30" stroke="#fb670b" stroke-width="3" stroke-linecap="round"/>' +
+            '<path d="M22 2L30 10L22 18" stroke="#fb670b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>' +
+            '</svg>';
+
+          // Right side: WhatsApp green icon
+          var waIcon = mk('div','width:52px;height:52px;flex-shrink:0;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(37,211,102,.45);');
+          waIcon.innerHTML = '<svg width="26" height="26" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.5 2C6.262 2 2 6.262 2 11.5c0 1.757.476 3.403 1.299 4.821L2 22l5.785-1.277A9.465 9.465 0 0 0 11.5 21c5.238 0 9.5-4.262 9.5-9.5S16.738 2 11.5 2z"/></svg>';
+          
+          wrap.appendChild(btn);
+          wrap.appendChild(arrow);
+          wrap.appendChild(waIcon);
+          return wrap;
+        }
+      }
+    ];
+
+    function render() {
+      card.innerHTML = '';
+      var s = steps[cur];
+      var isLast = cur === steps.length - 1;
+      var topBar = mk('div','display:flex;justify-content:space-between;align-items:center;padding:18px 20px 0;');
+      var dots = mk('div','display:flex;gap:5px;align-items:center;');
+      steps.forEach(function(_,i){
+        var d = mk('div','height:3px;border-radius:2px;transition:all .35s;');
+        d.style.background = i===cur ? O : 'rgba(0,0,0,.12)';
+        d.style.width = i===cur ? '24px' : '8px';
+        dots.appendChild(d);
+      });
+      var rightTop = mk('div','display:flex;align-items:center;gap:10px;');
+      var stepLbl = mk('span','font-size:12px;font-weight:600;color:rgba(0,0,0,.35);');
+      stepLbl.textContent = (cur+1) + ' ' + t.counter + ' ' + steps.length;
+      var xb = mk('button','width:28px;height:28px;border-radius:50%;border:none;background:rgba(0,0,0,.07);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;color:rgba(0,0,0,.45);padding:0;');
+      xb.type='button'; xb.innerHTML='&times;'; xb.onclick=function(){s.leave();close();};
+      rightTop.appendChild(stepLbl); rightTop.appendChild(xb);
+      topBar.appendChild(dots); topBar.appendChild(rightTop);
+      card.appendChild(topBar);
+      var hero = mk('div','padding:20px 24px 18px;');
+      var numEl = mk('div','font-family:'+MG+';font-weight:800;font-size:72px;line-height:.85;color:'+O+';letter-spacing:-2px;'); numEl.textContent = s.num;
+      var titleEl = mk('div','font-family:'+MG+';font-weight:800;font-size:32px;text-transform:uppercase;color:#111;line-height:1;margin-top:6px;letter-spacing:.3px;'); titleEl.textContent = s.title;
+      var subEl = mk('div','font-size:13px;color:rgba(0,0,0,.42);margin-top:6px;line-height:1.4;font-weight:500;'); subEl.textContent = s.subtitle;
+      var descEl = mk('div','font-size:13px;color:rgba(0,0,0,.6);margin-top:8px;line-height:1.55;'); descEl.textContent = s.desc;
+      hero.appendChild(numEl); hero.appendChild(titleEl); hero.appendChild(subEl); hero.appendChild(descEl);
+      card.appendChild(hero);
+      card.appendChild(mk('div','height:1px;background:rgba(0,0,0,.07);'));
+      var body = mk('div','padding:18px 20px;height:90px;display:flex;align-items:center;justify-content:center;box-sizing:border-box;');
+      body.appendChild(s.demo());
+      card.appendChild(body);
+      card.appendChild(mk('div','height:1px;background:rgba(0,0,0,.07);'));
+      var foot = mk('div','padding:14px 20px 18px;display:flex;gap:8px;');
+      if (cur > 0) {
+        var bp = mk('button','flex:0 0 auto;padding:16px 20px;border-radius:12px;border:none;background:#EBEBEB;color:#333;cursor:pointer;font-family:'+MG+';font-size:20px;font-weight:800;letter-spacing:.3px;white-space:nowrap;display:flex;align-items:center;gap:8px;');
+        bp.type='button';
+        var bpArr = mk('span','font-size:13px;opacity:.45;'); bpArr.textContent = '←';
+        var bpTxt = mk('span','font-family:'+MG+';font-weight:800;font-size:20px;'); bpTxt.textContent = steps[cur-1].num;
+        bp.appendChild(bpArr); bp.appendChild(bpTxt);
+        bp.onclick=function(){s.leave();cur--;render();}; foot.appendChild(bp);
+      }
+      var bn = mk('button','flex:1;padding:16px;border-radius:12px;border:none;background:'+O+';color:#fff;cursor:pointer;font-family:'+MG+';font-size:22px;font-weight:800;letter-spacing:.4px;box-shadow:0 4px 18px rgba(251,103,11,.38);display:flex;align-items:center;justify-content:center;gap:8px;');
+      bn.type='button';
+      if (isLast) {
+        bn.textContent = t.finish;
+      } else {
+        var bnTxt = mk('span','font-family:'+MG+';font-weight:800;font-size:22px;letter-spacing:.5px;text-transform:uppercase;');
+        bnTxt.textContent = steps[cur+1].num + ' ' + steps[cur+1].title.toUpperCase();
+        var bnArr = mk('span','font-size:16px;opacity:.65;'); bnArr.textContent = '→';
+        bn.appendChild(bnTxt); bn.appendChild(bnArr);
+      }
+      bn.onclick=function(e){e.stopPropagation();if(isLast){s.leave();close();}else{s.leave();cur++;render();}};
+      foot.appendChild(bn);
+      card.appendChild(foot);
+      s.enter();
+    }
+    document.body.appendChild(ov);
+    document.body.appendChild(card);
+    render();
+  }
+
+  function bind() {
+    var b = document.getElementById('arpiHowBtn');
+    if (!b || b.__arpiHb) return;
+    b.__arpiHb = true;
+    b.addEventListener('click', openHowModal);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind);
+  else bind();
+  document.addEventListener('astro:page-load', bind);
+  document.addEventListener('astro:after-swap', bind);
+
+  // ── Hint animado: aparece solo al presionar un thumb ─────────
+  var _hw = null;
+  function removeHint() {
+    if (_hw && _hw.parentNode) _hw.parentNode.removeChild(_hw);
+    _hw = null;
+  }
+  function showPressHint(thumb) {
+    removeHint();
+    var SZ = 44;
+    // Posición: borde izquierdo del contenedor de thumbs, centrado verticalmente
+    var container = document.getElementById('thumbnails-container') || thumb.parentElement;
+    var rc = container.getBoundingClientRect();
+    var r  = thumb.getBoundingClientRect();
+    var topPos  = r.top + r.height / 2 - SZ / 2;
+    var leftPos = rc.left - SZ - 8;
+
+    var hw = document.createElement('div');
+    hw.style.cssText = 'position:fixed;pointer-events:none;z-index:9998;'
+      + 'width:' + SZ + 'px;height:' + SZ + 'px;'
+      + 'top:' + topPos + 'px;left:' + leftPos + 'px;'
+      + 'display:flex;align-items:center;justify-content:center;';
+
+    var dot = document.createElement('div');
+    dot.style.cssText = 'width:16px;height:16px;border-radius:50%;background:#fb670b;opacity:.9;position:absolute;';
+    hw.appendChild(dot);
+
+    var cx = SZ / 2, cy = SZ / 2, rad = SZ / 2 - 4;
+    var circ = (2 * Math.PI * rad).toFixed(1);
+    var svgEl = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svgEl.setAttribute('width', SZ); svgEl.setAttribute('height', SZ);
+    svgEl.setAttribute('viewBox', '0 0 ' + SZ + ' ' + SZ);
+    svgEl.style.cssText = 'position:absolute;top:0;left:0;overflow:visible;';
+
+    var bgC = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    bgC.setAttribute('cx', cx); bgC.setAttribute('cy', cy); bgC.setAttribute('r', rad);
+    bgC.setAttribute('fill', 'none'); bgC.setAttribute('stroke', 'rgba(251,103,11,.18)'); bgC.setAttribute('stroke-width', '3');
+
+    var fgC = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    fgC.setAttribute('cx', cx); fgC.setAttribute('cy', cy); fgC.setAttribute('r', rad);
+    fgC.setAttribute('fill', 'none'); fgC.setAttribute('stroke', '#fb670b'); fgC.setAttribute('stroke-width', '3');
+    fgC.setAttribute('stroke-dasharray', circ); fgC.setAttribute('stroke-linecap', 'round');
+    // 0.5s = dura lo mismo que el long press (450ms), sin repetir
+    fgC.style.cssText = 'transform:rotate(-90deg);transform-origin:' + cx + 'px ' + cy + 'px;'
+      + 'animation:arpiHoldRing 0.5s ease-in-out 1 forwards;';
+
+    svgEl.appendChild(bgC); svgEl.appendChild(fgC);
+    hw.appendChild(svgEl);
+
+    var bdg = document.createElement('div');
+    bdg.style.cssText = 'position:absolute;top:-4px;right:-4px;width:16px;height:16px;'
+      + 'background:#16bf78;border-radius:50%;display:flex;align-items:center;justify-content:center;'
+      + 'border:2px solid #fff;animation:arpiHoldBadge 0.5s ease-in-out 1 forwards;';
+    bdg.innerHTML = '<svg width="8" height="6" viewBox="0 0 9 7" fill="none"><polyline points="1,3.5 3.5,6 8,1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    hw.appendChild(bdg);
+
+    document.body.appendChild(hw);
+    _hw = hw;
+  }
+
+  function bindHint() {
+    document.querySelectorAll('.thumb-item').forEach(function(thumb) {
+      if (thumb.__hintBound) return;
+      thumb.__hintBound = true;
+      thumb.addEventListener('mousedown',  function() { showPressHint(thumb); });
+      thumb.addEventListener('touchstart', function() { showPressHint(thumb); }, { passive: true });
+      thumb.addEventListener('mouseup',    removeHint);
+      thumb.addEventListener('mouseleave', removeHint);
+      thumb.addEventListener('touchend',   removeHint);
+      thumb.addEventListener('touchcancel',removeHint);
+    });
+  }
+
+  function initHint() { bindHint(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initHint);
+  else initHint();
+  document.addEventListener('astro:page-load', function() {
+    document.querySelectorAll('.thumb-item').forEach(function(t) { delete t.__hintBound; });
+    bindHint();
+  });
+  document.addEventListener('astro:after-swap', function() {
+    document.querySelectorAll('.thumb-item').forEach(function(t) { delete t.__hintBound; });
+    bindHint();
+  });
+
+  // Fly-to-button animation — called by each page's fabCta handler
+  window.__arpiAnimateFlyToBtn = function(selectedSet, btnEl, onDone) {
+    var thumbEls = [];
+    selectedSet.forEach(function(idx) {
+      var el = document.querySelector('.thumb-item[data-index="' + idx + '"]');
+      if (el) thumbEls.push(el);
+    });
+    if (!thumbEls.length) { onDone(); return; }
+
+    var btnRect = btnEl.getBoundingClientRect();
+    var btnCX = btnRect.left + btnRect.width / 2;
+    var btnCY = btnRect.top + btnRect.height / 2;
+    var total = thumbEls.length;
+    var done = 0;
+
+    thumbEls.forEach(function(thumb, i) {
+      var rect = thumb.getBoundingClientRect();
+      var sz = rect.width;
+      var img = thumb.querySelector('img');
+
+      var clone = document.createElement('div');
+      clone.style.cssText = 'position:fixed;left:' + rect.left + 'px;top:' + rect.top + 'px;'
+        + 'width:' + sz + 'px;height:' + sz + 'px;border-radius:50%;overflow:hidden;'
+        + 'z-index:2147483647;pointer-events:none;'
+        + 'border:2.5px solid #16bf78;box-shadow:0 0 14px rgba(22,191,120,.7);'
+        + 'transition:none;';
+      if (img) {
+        var ic = document.createElement('img');
+        ic.src = img.src;
+        ic.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+        clone.appendChild(ic);
+      }
+      document.body.appendChild(clone);
+
+      var delay = i * 55;
+      setTimeout(function() {
+        var dx = btnCX - (rect.left + sz / 2);
+        var dy = btnCY - (rect.top  + sz / 2);
+        clone.style.transition = 'transform 0.42s cubic-bezier(0.55,0,0.2,1), opacity 0.38s ease 0.08s';
+        clone.style.transform = 'translate(' + dx + 'px,' + dy + 'px) scale(0.18)';
+        clone.style.opacity = '0';
+      }, delay + 16);
+
+      setTimeout(function() {
+        if (clone.parentNode) clone.parentNode.removeChild(clone);
+        done++;
+        if (done === total) {
+          // pulse the button
+          var prev = btnEl.style.cssText;
+          btnEl.style.transition = 'transform 0.12s ease, box-shadow 0.12s ease';
+          btnEl.style.transform = 'scale(1.18)';
+          btnEl.style.boxShadow = '0 0 24px rgba(251,103,11,.85)';
+          setTimeout(function() {
+            btnEl.style.transform = '';
+            btnEl.style.boxShadow = '';
+            setTimeout(onDone, 80);
+          }, 130);
+        }
+      }, delay + 440);
+    });
+  };
+})();
+</script>

@@ -19,6 +19,12 @@ const CLOUD = import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME;
 const cldVideo = (src?: string) =>
   !src || src.startsWith('/') || src.startsWith('http') ? (src || '')
   : `https://res.cloudinary.com/${CLOUD}/video/upload/q_auto:best/${src}`;
+const localVideo = (src?: string) => {
+  if (!src) return '';
+  if (src.startsWith('GO/home/')) return `/videos/home/${src.replace(/^GO\/home\//, '')}`;
+  if (src.startsWith('GO/impacto/')) return `/videos/impacto/${src.replace(/^GO\/impacto\//, '')}`;
+  return '';
+};
 const timelineItems = ti.timeline.items.map((it: any) => ({
   ...it,
   img: cldVideo(it.img),
@@ -32,7 +38,7 @@ const timelineItems = ti.timeline.items.map((it: any) => ({
     <!-- HERO -->
     <section class="hero-tesla">
       <div class="hero-tesla-bg">
-        <video autoplay muted loop playsinline preload="metadata" class="hero-tesla-video">
+        <video autoplay muted loop playsinline preload="metadata" class="hero-tesla-video" data-local-fallback={localVideo(ti.hero.video)}>
           <source src={cldVideo(ti.hero.video)} type="video/mp4">
         </video>
         <div class="hero-tesla-overlay"></div>
@@ -218,7 +224,7 @@ const timelineItems = ti.timeline.items.map((it: any) => ({
     <!-- OCÉANOS -->
     <section class="oceanos-section">
       <div class="oceanos-hero">
-        <video autoplay muted loop playsinline preload="metadata" class="oceanos-bg-video">
+        <video autoplay muted loop playsinline preload="metadata" class="oceanos-bg-video" data-local-fallback={localVideo(ti.oceanos.hero_video)}>
           <source src={cldVideo(ti.oceanos.hero_video)} type="video/mp4">
         </video>
         <div class="oceanos-hero-overlay"></div>
@@ -287,7 +293,7 @@ const timelineItems = ti.timeline.items.map((it: any) => ({
           {ti.oceanos.partners.map((partner) => (
             <div class="oceanos-partner-card">
               <div class="oceanos-partner-logo">
-                <video autoplay muted loop playsinline preload="metadata" poster={partner.poster}>
+                <video autoplay muted loop playsinline preload="metadata" poster={partner.poster} data-local-fallback={localVideo(partner.video)}>
                   <source src={cldVideo(partner.video)} type="video/mp4">
                 </video>
               </div>

@@ -39,44 +39,74 @@ const {
       gsap.set(box, { x: -24, y: -6 });
     };
 
-    const getActiveProductData = () => {
-      const activeThumb = document.querySelector(".thumb-item.active");
-      if (!activeThumb) return null;
-      const productIndex = parseInt(activeThumb.dataset.index || "0");
+    const parseProduct = (product) => ({
+      name: product.name || "Producto",
+      description: product.description || "",
+      specs: product.specs_values
+        ? {
+            load: product.specs_values.load || "",
+            unit: product.specs_values.unit || "",
+            material: product.specs_values.mat || "",
+            weight: product.specs_values.weight || "",
+            resistance: product.specs_values.resist || "",
+            charge: product.specs_values.charge || "",
+          }
+        : null,
+    });
+
+    const getAllSelectedData = () => {
       const mainContainer = document.querySelector(".main-container");
       if (!mainContainer) return null;
       const productsData = JSON.parse(mainContainer.dataset.products || "[]");
-      const product = productsData[productIndex];
-      if (!product) return null;
-      return {
-        name: product.name || "Producto",
-        description: product.description || "",
-        specs: product.specs_values
-          ? {
-              load: product.specs_values.load || "",
-              unit: product.specs_values.unit || "",
-              material: product.specs_values.mat || "",
-              weight: product.specs_values.weight || "",
-              resistance: product.specs_values.resist || "",
-              charge: product.specs_values.charge || "",
-            }
-          : null,
-      };
+      const selectedThumbs = document.querySelectorAll(".thumb-item.selected");
+      if (selectedThumbs.length > 0) {
+        return Array.from(selectedThumbs)
+          .map(t => {
+            const p = productsData[parseInt(t.dataset.index || "0")];
+            return p ? parseProduct(p) : null;
+          })
+          .filter(Boolean);
+      }
+      const activeThumb = document.querySelector(".thumb-item.active");
+      if (!activeThumb) return null;
+      const p = productsData[parseInt(activeThumb.dataset.index || "0")];
+      return p ? parseProduct(p) : null;
     };
 
-    const buildWhatsAppMessage = (productData) => {
-      if (!productData) return encodeURIComponent("Hola! Me interesa cotizar sus productos.");
+    const buildWhatsAppMessage = (data) => {
+      if (!data) return encodeURIComponent("Hola! Me interesa cotizar sus productos.");
+      if (Array.isArray(data)) {
+        let msg = `Hola! Me interesa cotizar los siguientes ${data.length} productos:\n\n`;
+        data.forEach((p, i) => {
+          msg += `${i + 1}. *${p.name}*\n`;
+          if (p.description) msg += `${p.description}\n`;
+          if (p.specs) {
+            const lines = [
+              p.specs.load       && `• Carga: ${p.specs.load}`,
+              p.specs.unit       && `• Unidad: ${p.specs.unit}`,
+              p.specs.material   && `• Material: ${p.specs.material}`,
+              p.specs.weight     && `• Peso: ${p.specs.weight}`,
+              p.specs.resistance && `• Resistencia: ${p.specs.resistance}`,
+              p.specs.charge     && `• Capacidad: ${p.specs.charge}`,
+            ].filter(Boolean);
+            if (lines.length) msg += lines.join("\n") + "\n";
+          }
+          msg += "\n";
+        });
+        msg += "¿Podrían proporcionarme más información y precios?";
+        return encodeURIComponent(msg);
+      }
       let message = "Hola! Me interesa cotizar el siguiente producto:\n\n";
-      message += `📦 *${productData.name}*\n`;
-      if (productData.description) message += `${productData.description}\n`;
-      if (productData.specs) {
+      message += `📦 *${data.name}*\n`;
+      if (data.description) message += `${data.description}\n`;
+      if (data.specs) {
         message += "\n*Especificaciones:*\n";
-        if (productData.specs.load)       message += `• Carga: ${productData.specs.load}\n`;
-        if (productData.specs.unit)       message += `• Unidad: ${productData.specs.unit}\n`;
-        if (productData.specs.material)   message += `• Material: ${productData.specs.material}\n`;
-        if (productData.specs.weight)     message += `• Peso: ${productData.specs.weight}\n`;
-        if (productData.specs.resistance) message += `• Resistencia: ${productData.specs.resistance}\n`;
-        if (productData.specs.charge)     message += `• Capacidad: ${productData.specs.charge}\n`;
+        if (data.specs.load)       message += `• Carga: ${data.specs.load}\n`;
+        if (data.specs.unit)       message += `• Unidad: ${data.specs.unit}\n`;
+        if (data.specs.material)   message += `• Material: ${data.specs.material}\n`;
+        if (data.specs.weight)     message += `• Peso: ${data.specs.weight}\n`;
+        if (data.specs.resistance) message += `• Resistencia: ${data.specs.resistance}\n`;
+        if (data.specs.charge)     message += `• Capacidad: ${data.specs.charge}\n`;
       }
       message += "\n¿Podrían proporcionarme más información y precio?";
       return encodeURIComponent(message);
@@ -85,12 +115,62 @@ const {
     button.addEventListener("click", (e) => {
       e.preventDefault();
       const whatsappNumber = button.dataset.whatsapp || "5214431234567";
-      const productData = getActiveProductData();
+      const productData = getAllSelectedData();
 
       if (!button.classList.contains("done") && !button.classList.contains("animation")) {
         button.classList.add("animation");
 
-        gsap.to(truck, { x: 4, opacity: 1, duration: 0.4, ease: "power2.out" });
+        // Collect thumbs: selected first, fallback to active
+        const thumbEls: Element[] = Array.from(document.querySelectorAll('.thumb-item.selected'));
+        if (thumbEls.length === 0) {
+          const active = document.querySelector('.thumb-item.active');
+          if (active) thumbEls.push(active);
+        }
+
+        gsap.to(truck, {
+          x: 4, opacity: 1, duration: 0.4, ease: "power2.out",
+          onComplete() {
+            const backEl = truck.querySelector('.back') as HTMLElement | null;
+            if (backEl && thumbEls.length > 0) {
+              const br = backEl.getBoundingClientRect();
+              const bCX = br.left + br.width  / 2;
+              const bCY = br.top  + br.height / 2;
+              thumbEls.forEach((thumb, i) => {
+                const r   = thumb.getBoundingClientRect();
+                const img = thumb.querySelector('img') as HTMLImageElement | null;
+                // Use computed border-radius from the actual thumb element
+                const computedBr = window.getComputedStyle(thumb).borderRadius || '8px';
+                // Show at 1.4× size so the product is clearly visible
+                const displaySz = Math.max(r.width, r.height) * 1.4;
+                const clone = document.createElement('div');
+                clone.style.cssText = 'position:fixed;'
+                  + 'left:' + (r.left + r.width  / 2 - displaySz / 2) + 'px;'
+                  + 'top:'  + (r.top  + r.height / 2 - displaySz / 2) + 'px;'
+                  + 'width:' + displaySz + 'px;height:' + displaySz + 'px;'
+                  + 'border-radius:' + computedBr + ';overflow:hidden;'
+                  + 'z-index:2147483647;pointer-events:none;'
+                  + 'box-shadow:0 2px 10px rgba(0,0,0,.35);';
+                if (img) {
+                  const ic = document.createElement('img');
+                  ic.src = img.src;
+                  ic.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
+                  clone.appendChild(ic);
+                }
+                document.body.appendChild(clone);
+                gsap.to(clone, {
+                  x: bCX - (r.left + r.width  / 2),
+                  y: bCY - (r.top  + r.height / 2),
+                  scale: 0.12,
+                  opacity: 0,
+                  duration: 0.75,
+                  delay: i * 0.14,
+                  ease: 'power1.inOut',
+                  onComplete() { if (clone.parentNode) clone.parentNode.removeChild(clone); }
+                });
+              });
+            }
+          }
+        });
         gsap.to(button, { "--box-s": 1, "--box-o": 1, duration: 0.3, delay: 0.5 });
         gsap.to(box, { x: 0, duration: 0.4, delay: 0.7 });
         gsap.to(button, { "--hx": -5, "--bx": 50, duration: 0.18, delay: 0.92 });

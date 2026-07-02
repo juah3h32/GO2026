@@ -1953,6 +1953,97 @@ html.dark .rp-step--pending .rp-step-label { color: #555; }
 }
 
 /* =========================================
+   21b. SUBSCRIBE CARD (novedades por correo)
+   ========================================= */
+.subscribe-card {
+  margin: 12px 6px 4px 6px;
+  padding: 14px;
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+  border: 1.5px solid #fdba74;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  max-width: 100%;
+  box-sizing: border-box;
+  opacity: 0;
+  transform: translateY(10px) scale(0.97);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.subscribe-card-visible { opacity: 1; transform: translateY(0) scale(1); }
+
+.subscribe-header { display: flex; align-items: flex-start; gap: 10px; }
+.subscribe-icon {
+  flex-shrink: 0; width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(251,103,11,0.13);
+  display: flex; align-items: center; justify-content: center;
+  color: #FB670B;
+}
+.subscribe-titles { flex: 1; min-width: 0; }
+.subscribe-title { font-size: 0.84rem; font-weight: 700; color: #9a3412; margin: 0 0 2px 0; line-height: 1.3; }
+.subscribe-subtitle { font-size: 0.73rem; color: #c2410c; margin: 0; line-height: 1.4; }
+
+.subscribe-fields { display: flex; flex-direction: column; gap: 8px; }
+.subscribe-input {
+  width: 100%; box-sizing: border-box;
+  background: rgba(255,255,255,0.9);
+  border: 1.5px solid #fdba74;
+  border-radius: 10px;
+  padding: 9px 12px;
+  font-size: 0.8rem;
+  color: #7c2d12; font-weight: 600;
+  outline: none;
+}
+.subscribe-input::placeholder { color: #c2782f; opacity: 0.75; font-weight: 500; }
+.subscribe-input:focus { border-color: #FB670B; box-shadow: 0 0 0 2px rgba(251,103,11,0.2); }
+.subscribe-input:disabled { opacity: 0.6; }
+
+.subscribe-error { font-size: 0.72rem; color: #b91c1c; margin: 0; }
+
+.subscribe-actions { display: flex; align-items: center; gap: 8px; margin-top: 2px; }
+.subscribe-dismiss-btn {
+  flex-shrink: 0; background: none; border: none; cursor: pointer;
+  font-size: 0.76rem; font-weight: 600; color: #a05a2c;
+  padding: 8px 6px; border-radius: 8px;
+  transition: background 0.15s;
+}
+.subscribe-dismiss-btn:hover:not(:disabled) { background: rgba(0,0,0,0.05); }
+.subscribe-dismiss-btn:disabled { opacity: 0.5; cursor: default; }
+
+.subscribe-submit-btn {
+  flex: 1;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 11px 14px;
+  background: linear-gradient(135deg, #FB670B 0%, #e05500 100%);
+  color: #fff; border: none; border-radius: 12px;
+  font-size: 0.8rem; font-weight: 700; letter-spacing: 0.01em;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(251,103,11,0.35);
+  transition: opacity 0.18s, transform 0.12s, box-shadow 0.18s;
+}
+.subscribe-submit-btn:hover:not(:disabled) { opacity: 0.93; transform: translateY(-1px); box-shadow: 0 5px 14px rgba(251,103,11,0.4); }
+.subscribe-submit-btn:active:not(:disabled) { transform: translateY(0); box-shadow: 0 2px 6px rgba(251,103,11,0.3); }
+.subscribe-submit-btn:disabled { opacity: 0.55; cursor: default; box-shadow: none; }
+.subscribe-submit-btn--loading { background: linear-gradient(135deg, #c45509, #a34608); }
+
+.subscribe-success { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; padding: 6px 4px; }
+.subscribe-success-icon {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: rgba(34,197,94,0.15); color: #16a34a;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 4px;
+}
+.subscribe-success .subscribe-title { color: #14532d; }
+.subscribe-success .subscribe-subtitle { color: #4b7a5a; }
+
+@media (max-width: 359px) {
+  .subscribe-card { padding: 11px 10px; gap: 9px; }
+  .subscribe-title { font-size: 0.8rem; }
+  .subscribe-subtitle { font-size: 0.7rem; }
+  .subscribe-submit-btn { font-size: 0.76rem; padding: 10px 12px; }
+}
+
+/* =========================================
    22. BOTÃ“N PDF EN FOOTER
    ========================================= */
 .action-btn-pdf-footer {

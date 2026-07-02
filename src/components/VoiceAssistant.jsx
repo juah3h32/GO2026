@@ -33,7 +33,6 @@ export default function VoiceAssistant() {
     setMessages(prev => [...prev, { role: 'user', content: text }]);
     if (!isVoiceMode) setInputText(""); 
 
-    console.log("🚀 Enviando:", { message: text, isVoice: isVoiceMode });
 
     try {
       const res = await fetch('/api/chat', { // <--- BARRA IMPORTANTE
@@ -43,7 +42,6 @@ export default function VoiceAssistant() {
       });
 
       const data = await res.json();
-      console.log("✅ Recibido:", data);
 
       setMessages(prev => [...prev, { role: 'go', content: data.reply }]);
 

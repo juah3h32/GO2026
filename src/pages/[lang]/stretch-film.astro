@@ -6,6 +6,8 @@ export const prerender = true;  // ← AGREGAR ESTA LÍNEA
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import BuyButton from "../../components/BuyButton.astro";
 import Footer from "../../components/Footer.astro";
+import ProductTitle from "../../components/ProductTitle.astro";
+import ProductTutorial from "../../components/ProductTutorial.astro";
 import { languages, translations } from "../../i18n";
 
 export function getStaticPaths() {
@@ -40,6 +42,10 @@ const videoUrl = (src: string) => {
   if (/^https?:\/\//.test(src)) return src;
   return CLOUD ? `https://res.cloudinary.com/${CLOUD}/video/upload/q_auto:best/${src.replace(/^\//, "").replace(/\.mp4$/, "")}.mp4` : src;
 };
+const localVideo = (src: string) => {
+  const file = src.replace(/^GO\/stretch\//, '').replace(/\.mp4$/, '');
+  return `/videos/stretch/${file}.mp4`;
+};
 ---
 
 <BaseLayout
@@ -61,9 +67,11 @@ const videoUrl = (src: string) => {
         class={`video-bg ${index === 0 ? 'visible' : ''}`}
         data-video-index={index}
         src={videoUrl(prod.video || '')}
+        data-local-fallback={localVideo(prod.video || '')}
         autoplay muted playsinline
         preload={index === 0 ? 'metadata' : 'none'}
         poster={index === 0 ? videoPoster(prod.video || '') : undefined}
+        data-poster-fallback={index === 0 ? prod.img : undefined}
       />
     ))}
     <div class="video-overlay"></div>
@@ -82,9 +90,7 @@ const videoUrl = (src: string) => {
       </a>
     
       <div class="text-area" style="max-width: 550px; align-items: flex-start;">
-        <h1 id="product-title" class="fade-in-text anim-text" style="text-align: left; width: 100%;">
-          {firstProduct.name}
-        </h1>
+        <ProductTitle as="h1" id="product-title" nombre={firstProduct.name} reveal={false} className="fade-in-text anim-text" />
         <p id="product-desc" class="fade-in-text anim-text" style="text-align: left; width: 100%; line-height: 1.5;">
           {firstProduct.description}
         </p>
@@ -258,34 +264,126 @@ function updateVideo(idx) {
     // ════════════════════════════════════════════════════════════
     // ✅ LISTENERS MINIATURAS — FIX CRÍTICO PARA MÓVIL
     // ════════════════════════════════════════════════════════════
+    const selectedSet = new Set();
+    let isMultiMode = false;
+
+    function updateFab() {
+      const n = selectedSet.size;
+      const fab = document.getElementById('mst-fab');
+      const fabCount = document.getElementById('mst-fab-count');
+      const fabLabel = document.getElementById('mst-fab-label');
+      if (fab) {
+        if (fabCount) fabCount.textContent = n;
+        if (fabLabel) fabLabel.textContent = n === 1 ? 'seleccionado' : 'seleccionados';
+        if (n > 0) fab.classList.add('mst-fab-visible');
+        else       fab.classList.remove('mst-fab-visible');
+        const buyBtn = document.getElementById('truck-cta-btn');
+        if (buyBtn) {
+          if (n > 0 && window.innerWidth <= 768) buyBtn.style.display = 'none';
+          else buyBtn.style.display = '';
+        }
+      }
+      if (n === 0) isMultiMode = false;
+    }
+
+    function applySelection(idx) {
+      const thumb = document.querySelector('.thumb-item[data-index="' + idx + '"]');
+      if (!thumb) return;
+      if (selectedSet.has(idx)) {
+        selectedSet.delete(idx);
+        thumb.classList.remove('selected');
+      } else {
+        selectedSet.add(idx);
+        thumb.classList.add('selected');
+        thumb.classList.remove('thumb-mobile-hidden');
+      }
+      if (navigator.vibrate) navigator.vibrate(30);
+      updateFab();
+      if (selectedSet.size === 0) isMultiMode = false;
+    }
+
     const thumbs = document.querySelectorAll('.thumb-item');
 
     thumbs.forEach((thumb) => {
       const idx = parseInt(thumb.dataset.index, 10);
       if (isNaN(idx)) return;
 
+      // ── Long press desktop ──────────────────────────────
+      let mouseTimer = null, didMouseLong = false;
+      thumb.addEventListener('mousedown', function(e) {
+        if (e.button !== 0) return;
+        didMouseLong = false;
+        mouseTimer = setTimeout(function() {
+          didMouseLong = true;
+          if (!isMultiMode) { isMultiMode = true; }
+          applySelection(idx);
+        }, 450);
+      });
+      thumb.addEventListener('mouseup', function() { clearTimeout(mouseTimer); });
+      thumb.addEventListener('mouseleave', function() { clearTimeout(mouseTimer); });
+
+      // ── Long press touch ────────────────────────────────
+      let pressTimer = null, didLongPress = false;
       thumb.addEventListener('touchstart', function(e) {
         e.stopPropagation();
+        didLongPress = false;
+        thumb.classList.add('pressing');
+        pressTimer = setTimeout(function() {
+          didLongPress = true;
+          thumb.classList.remove('pressing');
+          if (!isMultiMode) { isMultiMode = true; }
+          applySelection(idx);
+        }, 450);
       }, { passive: true });
-
+      thumb.addEventListener('touchmove', function() {
+        clearTimeout(pressTimer);
+        thumb.classList.remove('pressing');
+        didLongPress = false;
+      }, { passive: true });
       thumb.addEventListener('touchend', function(e) {
-        e.stopPropagation();
+        clearTimeout(pressTimer);
+        thumb.classList.remove('pressing');
+        if (didLongPress) { didLongPress = false; return; }
         e.preventDefault();
+        if (isMultiMode) { applySelection(idx); return; }
         selectProduct(idx);
       }, { passive: false });
 
+      // ── Click desktop ───────────────────────────────────
       thumb.addEventListener('click', function(e) {
-        e.stopPropagation();
+        if (didMouseLong) { didMouseLong = false; return; }
+        if (isMultiMode) { applySelection(idx); return; }
         selectProduct(idx);
       });
 
       thumb.addEventListener('keydown', function(e) {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
+          if (isMultiMode) { applySelection(idx); return; }
           selectProduct(idx);
         }
       });
     });
+
+    const fabCta = document.getElementById('mst-fab-cta');
+    if (fabCta) {
+      fabCta.addEventListener('click', function() {
+        if (selectedSet.size === 0) return;
+        let msg = 'Hola! Me interesa cotizar los siguientes productos de Stretch Film:\n\n';
+        let i = 1;
+        selectedSet.forEach(function(idx) {
+          const p = products[idx];
+          if (p) { msg += i + '. *' + (p.name || p.label || 'Producto ' + idx) + '*\n'; i++; }
+        });
+        msg += '\n\xBFPodr\xEDan darme m\xE1s informaci\xF3n y precios?';
+        const url = 'https://wa.me/5214432072593?text=' + encodeURIComponent(msg);
+        if (window.__arpiAnimateFlyToBtn) {
+          window.__arpiAnimateFlyToBtn(selectedSet, fabCta, function() { window.open(url, '_blank'); });
+        } else {
+          window.open(url, '_blank');
+        }
+      });
+    }
 
     // ── Drag para expandir tarjeta en móvil ─────────────────────
     const textArea = document.querySelector('.text-area');
@@ -382,5 +480,9 @@ function updateVideo(idx) {
   document.addEventListener("astro:after-swap", initTransition);
   </script>
 
+
+
+
+  <ProductTutorial />
   <Footer currentLang={currentLang} />
 </BaseLayout>

@@ -1,0 +1,68 @@
+---
+// VideoLocalFallback.astro
+// Cubre <video data-local-fallback="..."> y <video data-poster-fallback="...">
+// Si Cloudinary falla (error o timeout), cambia al local automaticamente.
+---
+<script>
+  function attachLocalFallbacks() {
+    // ── Video src fallback ────────────────────────────────────────────────────
+    document.querySelectorAll<HTMLVideoElement>('video[data-local-fallback]').forEach((vid) => {
+      if ((vid as any).__localFbAttached) return;
+      (vid as any).__localFbAttached = true;
+      const local = vid.dataset.localFallback!;
+      if (!local) return;
+
+      let switched = false;
+      let timer: ReturnType<typeof setTimeout> | null = null;
+
+      function switchToLocal() {
+        if (switched) return;
+        const cur = vid.currentSrc || vid.getAttribute('src') || '';
+        if (cur && (cur.endsWith(local) || cur.includes(local))) return;
+        switched = true;
+        if (timer) clearTimeout(timer);
+        vid.src = local;
+        vid.load();
+        if (vid.autoplay) vid.play().catch(() => {});
+      }
+
+      function startTimer() {
+        if (timer || switched) return;
+        timer = setTimeout(() => { if (vid.readyState < 2) switchToLocal(); }, 3000);
+        vid.addEventListener('canplay', () => { if (timer) clearTimeout(timer); }, { once: true });
+        vid.addEventListener('playing', () => { if (timer) clearTimeout(timer); }, { once: true });
+      }
+
+      vid.addEventListener('error', switchToLocal, { capture: true });
+
+      // Lazy-loaded videos (data-src) have no src yet — start timer only once src is assigned
+      if (vid.getAttribute('src')) {
+        startTimer();
+      } else {
+        const mo = new MutationObserver(() => {
+          if (vid.getAttribute('src')) { mo.disconnect(); startTimer(); }
+        });
+        mo.observe(vid, { attributes: true, attributeFilter: ['src'] });
+      }
+    });
+
+    // ── Video poster fallback ─────────────────────────────────────────────────
+    document.querySelectorAll<HTMLVideoElement>('video[data-poster-fallback]').forEach((vid) => {
+      if ((vid as any).__posterFbAttached) return;
+      (vid as any).__posterFbAttached = true;
+      const local = vid.dataset.posterFallback!;
+      if (!local || !vid.poster) return;
+      // skip if poster is already local
+      if (!vid.poster.includes('cloudinary')) return;
+
+      const img = new Image();
+      const timer = setTimeout(() => { vid.poster = local; }, 4000);
+      img.onload = () => clearTimeout(timer);
+      img.onerror = () => { clearTimeout(timer); vid.poster = local; };
+      img.src = vid.poster;
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', attachLocalFallbacks);
+  document.addEventListener('astro:page-load', attachLocalFallbacks);
+</script>

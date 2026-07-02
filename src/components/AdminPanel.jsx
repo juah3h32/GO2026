@@ -2481,6 +2481,8 @@ function Dash({ onClose, role, theme='dark', toggleTheme, fullscreen=false }) {
   const [activePeriod,setActivePeriod]=useState(()=>PERIOD_PRESETS.find(p=>p.id===_defPreset).getRange());
   const [customFrom,setCustomFrom]=useState(''), [customTo,setCustomTo]=useState('');
   const [leads,setLeads]=useState([]), [leadsLoad,setLeadsLoad]=useState(false), [leadSearch,setLeadSearch]=useState(''), [leadStatusFilter,setLeadStatusFilter]=useState('all'), [resendingId,setResendingId]=useState(null), [resendResult,setResendResult]=useState({});
+  const [subscribers,setSubscribers]=useState([]), [subscribersLoad,setSubscribersLoad]=useState(false), [subscriberSearch,setSubscriberSearch]=useState(''), [emailsCopied,setEmailsCopied]=useState(false);
+  const [subscriberNotifOn,setSubscriberNotifOn]=useState(false), [subscriberNotifSaving,setSubscriberNotifSaving]=useState(false);
   const [convSessions,setConvSessions]=useState([]), [convLoading,setConvLoading]=useState(false);
   const [selectedConv,setSelectedConv]=useState(null), [convMessages,setConvMessages]=useState([]), [convMsgLoad,setConvMsgLoad]=useState(false);
   const [voiceCalls,setVoiceCalls]=useState([]), [vcLoading,setVcLoading]=useState(false), [selectedCall,setSelectedCall]=useState(null);
@@ -2510,6 +2512,24 @@ const isMarketing = role.name === 'Marketing';
     try{ const r=await fetch('/api/analytics',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'getLeads'})}); const j=await r.json(); if(j.ok)setLeads(j.leads||[]); }catch(e){console.error(e);}
     setLeadsLoad(false);
   },[]);
+
+  const loadSubscribers=useCallback(async()=>{
+    setSubscribersLoad(true);
+    try{ const r=await fetch('/api/analytics',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'getSubscribers'})}); const j=await r.json(); if(j.ok)setSubscribers(j.subscribers||[]); }catch(e){console.error(e);}
+    setSubscribersLoad(false);
+  },[]);
+
+  const loadSubscriberNotifSetting=useCallback(async()=>{
+    try{ const r=await fetch('/api/analytics',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'getSubscriberNotifSetting'})}); const j=await r.json(); if(j.ok)setSubscriberNotifOn(!!j.enabled); }catch(e){console.error(e);}
+  },[]);
+
+  const toggleSubscriberNotif=useCallback(async()=>{
+    const next=!subscriberNotifOn;
+    setSubscriberNotifOn(next); setSubscriberNotifSaving(true);
+    try{ await fetch('/api/analytics',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'setSubscriberNotifSetting',enabled:next})}); }
+    catch(e){ console.error(e); setSubscriberNotifOn(!next); }
+    setSubscriberNotifSaving(false);
+  },[subscriberNotifOn]);
 
   const updateLeadStatusLocal = useCallback(async(id, newStatus) => {
     setLeads(prev => prev.map(l => l.id===id ? {...l, status: newStatus} : l));
@@ -2570,6 +2590,7 @@ const isMarketing = role.name === 'Marketing';
   },[]);
 
   useEffect(()=>{ if(tab==='distribuidores')loadLeads(); },[tab]);
+  useEffect(()=>{ if(tab==='suscriptores'){ loadSubscribers(); loadSubscriberNotifSetting(); } },[tab]);
   useEffect(()=>{ if(tab==='overview'||tab==='console')loadSC(activePeriod?.from,activePeriod?.to); },[tab]);
   // Rueda del mouse: garantizar scroll del contenedor principal.
   // Si un scrolleable interno (listas, transcripciones) puede consumir el delta, se respeta.
@@ -3294,6 +3315,7 @@ const ALL_TABS=[
     {id:'products',label:'Productos',      icon:'◆'},
     {id:'conversations',label:'Conversaciones',icon:'◧'},
     {id:'distribuidores',label:'Distribuidores',icon:'◑'},
+    {id:'suscriptores',label:'Suscriptores',   icon:'✉'},
     {id:'whatsapp',label:'WhatsApp',       icon:'◬'},
     {id:'recruitment',label:'Reclutamiento',icon:'◒'},
     {id:'ai',label:'Análisis IA',          icon:'✦'},
@@ -3313,6 +3335,7 @@ const ALL_TABS=[
     if (t.id === 'changelog') return canSeeChangelog;
     if (t.id === 'whatsapp')  return canSeeWhatsapp;
     if (t.id === 'catalog')   return canSee('catalogo');
+    if (t.id === 'suscriptores') return canSee('suscriptores')||canSee('distribuidores');
     // Tabs fusionadas: visibles si el usuario tiene CUALQUIER permiso interno
     if (t.id === 'products')      return canSee('products')||canSee('keywords');
     if (t.id === 'conversations') return canSee('conversations')||canSee('messages')||canSee('llamadas');
@@ -3324,7 +3347,7 @@ const ALL_TABS=[
   // los grupos/tabs que el usuario tiene permitidos.
   const TAB_GROUPS=[
     { label:'Panel',     ids:['overview','console','activity'] },
-    { label:'Comercial', ids:['products','conversations','distribuidores','recruitment'] },
+    { label:'Comercial', ids:['products','conversations','distribuidores','suscriptores','recruitment'] },
     { label:'Análisis',  ids:['ai','reportes','changelog'] },
     { label:'Gestión',   ids:['whatsapp','catalog','users'] },
   ];
@@ -4363,6 +4386,94 @@ const ALL_TABS=[
           </div>
         )}
 
+        {/* ── SUSCRIPTORES (bot + opt-in distribuidor, fusionados para email marketing) ── */}
+        {tab==='suscriptores'&&(canSee('suscriptores')||canSee('distribuidores'))&&(
+          <div className="tab-content" key="subs">
+            {(() => {
+              const q = subscriberSearch.trim().toLowerCase();
+              const filtered = !q ? subscribers : subscribers.filter(s =>
+                (s.nombre||'').toLowerCase().includes(q) || (s.email||'').toLowerCase().includes(q));
+              const fromBot   = subscribers.filter(s=>s.source==='botgo').length;
+              const fromDist  = subscribers.filter(s=>s.source==='distribuidor').length;
+              const copyEmails = async () => {
+                const emails = filtered.map(s=>s.email).filter(Boolean).join(', ');
+                try { await navigator.clipboard.writeText(emails); setEmailsCopied(true); setTimeout(()=>setEmailsCopied(false),2000); }
+                catch(e){ console.error(e); }
+              };
+              return (
+                <>
+                  <div style={{ display:'grid', gridTemplateColumns:isMobile?'1fr 1fr':'repeat(auto-fit,minmax(175px,1fr))', gap:10, marginBottom:16 }}>
+                    <StatCard label="Total"       value={subscribers.length} sub="suscriptores acumulados" color={P.orange}     icon="✉"/>
+                    <StatCard label="Vía bot"     value={fromBot}            sub="BotGO"                   color={P.grayLight}  icon="🤖"/>
+                    <StatCard label="Vía distribuidor" value={fromDist}      sub="opt-in en formulario"     color={P.orangeWarm} icon="🤝"/>
+                  </div>
+                  <div className="card-hover" style={{ ...CARD, display:'flex', alignItems:'center', justifyContent:'space-between', gap:12, flexWrap:'wrap' }}>
+                    <CardTopBar/>
+                    <div>
+                      <p style={{ ...ST, marginBottom:2 }}>Notificarme por correo</p>
+                      <p style={{ fontSize:11.5, color:P.textSub, margin:0 }}>Recibe un correo cada vez que llegue un suscriptor nuevo (bot o distribuidor).</p>
+                    </div>
+                    <button onClick={toggleSubscriberNotif} disabled={subscriberNotifSaving}
+                      style={{ position:'relative', width:44, height:24, borderRadius:20, flexShrink:0,
+                        background:subscriberNotifOn?P.orange:P.border2, border:`1px solid ${subscriberNotifOn?P.orange:P.border}`,
+                        cursor:subscriberNotifSaving?'default':'pointer', transition:'background .18s, border-color .18s', opacity:subscriberNotifSaving?0.6:1 }}
+                      aria-label="Activar o desactivar notificación por correo" aria-pressed={subscriberNotifOn}>
+                      <span style={{ position:'absolute', top:2, left:subscriberNotifOn?22:2, width:18, height:18, borderRadius:'50%',
+                        background:'#fff', transition:'left .18s', boxShadow:'0 1px 3px rgba(0,0,0,.3)' }}/>
+                    </button>
+                  </div>
+                  <div className="card-hover" style={CARD}>
+                    <CardTopBar/>
+                    <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:16, flexWrap:'wrap', gap:8 }}>
+                      <p style={{ ...ST, marginBottom:0 }}>Suscriptores (novedades por correo)</p>
+                      <div style={{ display:'flex', gap:6, alignItems:'center', flexWrap:'wrap' }}>
+                        <Tag color={P.orange}>{filtered.length} de {subscribers.length}</Tag>
+                        <button onClick={copyEmails} disabled={filtered.length===0} className="btn-base"
+                          style={{ padding:'5px 10px', borderRadius:7, fontSize:11, fontWeight:600,
+                            background:emailsCopied?'#22C55E22':P.border2, border:`1px solid ${emailsCopied?'#22C55E':P.border}`,
+                            color:emailsCopied?'#22C55E':P.textSub, cursor:filtered.length===0?'default':'pointer',
+                            display:'flex', alignItems:'center', gap:5, opacity:filtered.length===0?0.5:1 }}>
+                          {emailsCopied ? Icons.check : Icons.file} {emailsCopied?'Copiado':'Copiar correos'}
+                        </button>
+                        <button onClick={loadSubscribers} className="btn-base"
+                          style={{ padding:'5px 10px', borderRadius:7, fontSize:11, fontWeight:500,
+                            background:P.border2, border:`1px solid ${P.border}`,
+                            color:P.textSub, cursor:'pointer', display:'flex', alignItems:'center', gap:4 }}>
+                          {Icons.sync}
+                        </button>
+                      </div>
+                    </div>
+                    <input value={subscriberSearch} onChange={e=>setSubscriberSearch(e.target.value)} placeholder="Buscar por nombre o correo..."
+                      style={{ width:'100%', boxSizing:'border-box', padding:'8px 12px', borderRadius:8, marginBottom:12,
+                        background:P.surface3, border:`1px solid ${P.border}`, color:P.text, fontSize:12.5, outline:'none' }}/>
+                    {subscribersLoad ? (
+                      <p style={{ ...ST, fontWeight:400 }}>Cargando...</p>
+                    ) : filtered.length===0 ? (
+                      <p style={{ ...ST, fontWeight:400 }}>Sin suscriptores{q?' que coincidan con la búsqueda':''}.</p>
+                    ) : (
+                      <div style={{ display:'flex', flexDirection:'column', gap:6, maxHeight:480, overflowY:'auto' }}>
+                        {filtered.map(s => (
+                          <div key={s.id} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:10,
+                            padding:'9px 12px', borderRadius:9, background:P.surface3, border:`1px solid ${P.border}`, flexWrap:'wrap' }}>
+                            <div style={{ display:'flex', flexDirection:'column', gap:2, minWidth:0 }}>
+                              <span style={{ fontSize:12.5, fontWeight:600, color:P.text }}>{s.nombre||'—'}</span>
+                              <span style={{ fontSize:11.5, color:P.textSub }}>{s.email}</span>
+                            </div>
+                            <div style={{ display:'flex', alignItems:'center', gap:8, flexShrink:0 }}>
+                              <Tag color={s.source==='botgo'?P.grayLight:P.orangeWarm} size={9}>{s.source==='botgo'?'Bot':'Distribuidor'}</Tag>
+                              <span style={{ fontSize:10.5, color:P.textDim }}>{s.ts ? String(s.ts).slice(0,10) : ''}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </>
+              );
+            })()}
+          </div>
+        )}
+
         {/* ── RECRUITMENT (incluye Vacantes) ── */}
         {tab==='recruitment'&&(canSee('recruitment')||canSee('vacantes'))&&(
           <div className="tab-content" key="rc">
@@ -4495,7 +4606,7 @@ const ALL_TABS=[
               {[
                 { type:'resumen',       label:'Resumen',        desc:'Vista ejecutiva · 1 página completa', icon:Icons.bar,     accent:'#A855F7' },
                 { type:'comparativo',   label:'Comparativo',    desc:'Comparativo · este período vs anterior', icon:Icons.bar, accent:'#EC4899' },
-                { type:'general',       label:'General',        desc:'Analytics · Distrib. · RH',           icon:Icons.bar,     accent:P.orange },
+                { type:'productos',      label:'Productos',      desc:'Líneas · consultas · señales cierre', icon:Icons.bar,     accent:P.orange },
                 { type:'distribuidor',  label:'Distribuidores', desc:'Red de distribución · solicitudes',   icon:Icons.truck,   accent:'#0077CC' },
                 { type:'reclutamiento', label:'Reclutamiento',  desc:'Candidatos · pipeline de talento',    icon:Icons.recruit, accent:'#22C55E' },
               ].map(rt=>(
@@ -4648,11 +4759,9 @@ export default function AdminPanel({ autoOpen = false }) {
   }, [theme]);
 
   useEffect(()=>{
-    const fn=e=>{
-      if((e.ctrlKey||e.metaKey)&&e.key==='k'){ e.preventDefault(); setVisible(s=>!s); }
-    };
-    window.addEventListener('keydown',fn);
-    return()=>window.removeEventListener('keydown',fn);
+    const fn=()=>setVisible(s=>!s);
+    window.addEventListener('admin:toggle',fn);
+    return()=>window.removeEventListener('admin:toggle',fn);
   },[]);
 
   useEffect(()=>{

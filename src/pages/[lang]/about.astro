@@ -72,7 +72,7 @@ function getValorIcon(title: string): string {
       <!-- TIMELINE -->
       <div class="tl-block">
         <div class="tl-video-background-container">
-          <video class="tl-video-background" autoplay loop muted playsinline preload="none" poster={qs.timeline.video_poster}>
+          <video class="tl-video-background" autoplay loop muted playsinline preload="none" poster={qs.timeline.video_poster} data-local-fallback="/videos/nosotros/background.mp4">
             <source src={toVideoSrc(qs.timeline.video_bg)} type="video/mp4"  />
           </video>
         </div>

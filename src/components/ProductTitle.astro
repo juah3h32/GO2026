@@ -1,0 +1,19 @@
+---
+// Componente reutilizable para titulo de producto.
+// Usado en catalogos digitales (h2 + reveal) y en paginas legacy de producto (h1 + id).
+// Misma estructura visual — fuente Morganite, peso 800, espaciado consistente.
+export interface Props {
+  nombre: string;
+  idx?: number;         // indice de ficha — solo catalogos (genera data-cd-path)
+  as?: 'h1' | 'h2';    // tag HTML (default h2)
+  id?: string;          // id opcional (legacy pages)
+  reveal?: boolean;     // clase reveal para GSAP (default true en catalogo, false en legacy)
+  className?: string;   // clases extra
+}
+const { nombre, idx, as: Tag = 'h2', id, reveal = true, className = "" } = Astro.props;
+---
+<Tag
+  class={`cd-h2${reveal ? " reveal" : ""}${className ? " " + className : ""}`}
+  data-cd-path={idx != null ? `fichas.${idx}.nombre` : undefined}
+  {...(id ? { id } : {})}
+>{nombre}</Tag>

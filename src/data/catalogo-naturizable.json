@@ -50,8 +50,8 @@
       "es": "NATURIZABLE",
       "en": "NATURIZABLE",
       "pt": "NATURIZABLE",
-      "zh": "NATURIZABLE",
-      "ar": "NATURIZABLE"
+      "zh": "可降解",
+      "ar": "قابل للتحلل"
     },
     "t2": {
       "es": "",
@@ -78,7 +78,7 @@
         "zh": "托盘 855",
         "ar": "طبق 855"
       },
-      "img": "/images/divisiones/detallec.webp",
+      "img": "charola.png",
       "lado": "",
       "desc": {
         "es": "Empaque que sostiene la comida con dignidad. Sirve al taquero, al carnicero, al frutero, al chef — y cuando termina, regresa a la tierra sin pedir permiso. Sostenemos al mundo. Una charola a la vez.",
@@ -212,7 +212,7 @@
         "zh": "纤维素杯",
         "ar": "كوب سيليلوز"
       },
-      "img": "/images/divisiones/vaso.webp",
+      "img": "/images/naturizable/naturizable-2-1782859410679.png",
       "soon": true,
       "lado": "",
       "desc": {
@@ -347,7 +347,7 @@
         "zh": "容器",
         "ar": "حاويات"
       },
-      "img": "/images/divisiones/contenedor.webp",
+      "img": "/images/naturizable/naturizable-1-1782859402472.png",
       "soon": true,
       "lado": "",
       "desc": {

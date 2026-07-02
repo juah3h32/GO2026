@@ -87,6 +87,18 @@ export const en = {
     // ── Mobile pill ──
     pillLabelSmall: 'How can I',
     pillLabelBig:   'HELP YOU TODAY?',
+
+    // ── Subscribe for updates (on conversation close) ──
+    subscribeTitle:          'Want to get updates?',
+    subscribeSubtitle:       'Get news about new products, updates and exclusive content by email.',
+    subscribeNamePlaceholder:  'Your name',
+    subscribeEmailPlaceholder: 'Your email address',
+    subscribeSubmit:          'Subscribe',
+    subscribeSubmitting:      'Sending...',
+    subscribeDismiss:         'No, thanks',
+    subscribeSuccessTitle:    'All set! You\'re subscribed',
+    subscribeSuccessSubtitle: 'We\'ll email you when there\'s news.',
+    subscribeError:           'Could not subscribe. Please try again.',
   },
 
   pwa: {
@@ -305,14 +317,14 @@ export const en = {
     },
     {
       img: "/images/bolsas/carruselB.webp",
-      division: "BOLSAS",
+      division: "BAGS",
       descripcion: "High-strength polyethylene bags. Versatile and cost-effective, available in multiple sizes for industrial and commercial packaging.",
       slug: "bolsas",
       video: "GO/carrusel/bolsa4.mp4"
     },
     {
       img: "carrusel/carrusel_acolchado.png",
-      division: "ACOLCHADO",
+      division: "MULCH",
       descripcion: "Agricultural mulch film for covering soil in crops, gardens and orchards. Controls weeds, retains moisture and regulates soil temperature.",
       slug: "acolchado",
       video: "GO/carrusel/acolchadoV.mp4"

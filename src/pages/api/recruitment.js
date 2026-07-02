@@ -1,5 +1,5 @@
 // src/pages/api/recruitment.js
-import { notifyNewVacante, notifyCandidateEspera } from '../../lib/notify';
+import { notifyNewVacante, notifyCandidateEspera } from '../../lib/notify.js';
 import { verifyAdminToken } from '../../lib/verifyAdminToken.ts';
 import {
   saveRecruitmentLead,

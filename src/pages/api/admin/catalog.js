@@ -29,7 +29,7 @@ export async function GET({ request, url }) {
   try {
     const role = await verifyAdminToken(request).catch(() => null);
     if (!canEditCatalog(role)) return unauthorized();
-    const slug = url.searchParams.get('slug') || 'stretch';
+    const slug = url.searchParams.get('slug') || 'digital-stretch-film';
     const data = await getCatalog(slug);
     return json(data);
   } catch (error) {
@@ -46,7 +46,7 @@ export async function POST({ request, url }) {
     if (!body || typeof body !== 'object' || !Array.isArray(body.fichas)) {
       return json({ error: 'Formato de catálogo inválido' }, 400);
     }
-    const slug = (body.__slug) || url.searchParams.get('slug') || 'stretch';
+    const slug = (body.__slug) || url.searchParams.get('slug') || 'digital-stretch-film';
     delete body.__slug;
     await saveCatalog(slug, body);
     triggerPdfRegeneration(slug).catch(() => {});
