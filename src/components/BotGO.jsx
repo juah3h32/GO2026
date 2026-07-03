@@ -1531,16 +1531,21 @@ export default function BotGO({ language = 'es' }) {
         fd.append('comentarios',   datos.comentarios   || '');
         fd.append('sessionId',     sessionIdRef.current);
         fd.append('esListaEspera', datos.esListaEspera ? '1' : '0');
-        // CV como binario — evita overhead del 33% de base64
-        try {
-          // quitar prefijo data:application/pdf;base64, si existe
-          const b64 = cvActual.base64.includes(',') ? cvActual.base64.split(',')[1] : cvActual.base64;
-          const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
-          const blob  = new Blob([bytes], { type: cvActual.tipo || 'application/octet-stream' });
-          fd.append('cv', blob, cvActual.nombre || 'cv');
-        } catch (e) {
-          console.error('Error decodificando CV:', e.message);
-          fd.append('cvNombre', cvActual.nombre || '');
+        // CV como binario — usa el File original si está disponible (evita
+        // el round-trip atob()/Uint8Array que podía fallar y perder el archivo).
+        if (cvActual.file instanceof Blob) {
+          fd.append('cv', cvActual.file, cvActual.nombre || cvActual.file.name || 'cv');
+        } else {
+          try {
+            // quitar prefijo data:application/pdf;base64, si existe
+            const b64 = cvActual.base64.includes(',') ? cvActual.base64.split(',')[1] : cvActual.base64;
+            const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+            const blob  = new Blob([bytes], { type: cvActual.tipo || 'application/octet-stream' });
+            fd.append('cv', blob, cvActual.nombre || 'cv');
+          } catch (e) {
+            console.error('Error decodificando CV:', e.message);
+            fd.append('cvNombre', cvActual.nombre || '');
+          }
         }
         fetchOpts = { method: 'POST', body: fd };
       } else {
@@ -1814,7 +1819,7 @@ export default function BotGO({ language = 'es' }) {
         reader.onerror = () => reject(new Error('Error leyendo archivo'));
         reader.readAsDataURL(file);
       });
-      const cvData = { nombre: file.name, tipo: file.type, base64, tamaño: file.size };
+      const cvData = { nombre: file.name, tipo: file.type, base64, tamaño: file.size, file };
       try {
         const formData = new FormData();
         formData.append('cv', file);
@@ -1822,7 +1827,7 @@ export default function BotGO({ language = 'es' }) {
         const res = await fetch('/api/recruitment', { method: 'POST', body: formData });
         if (res.ok) {
           const data = await res.json();
-          const finalCv = data.ok ? (data.cv || cvData) : cvData;
+          const finalCv = data.ok ? { ...(data.cv || cvData), file } : cvData;
           setCvSubido(finalCv);
           setCvPendiente(finalCv);
         } else {

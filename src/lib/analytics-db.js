@@ -517,6 +517,8 @@ export async function saveSubscriber({ nombre, email, lang = '', source = 'botgo
           ON CONFLICT(email) DO UPDATE SET nombre = excluded.nombre, lang = excluded.lang`,
     args: [nombre || '', email || '', lang || '', source || 'botgo'],
   });
+  // Sync a GO Pulse — best-effort, no bloquea ni rompe el guardado local.
+  import('./gopulse.js').then(({ syncSubscriberToGoPulse }) => syncSubscriberToGoPulse(email, 'web_form')).catch(() => {});
 }
 export async function readSubscribers() {
   await ensureInit(); await ensureSubscribersTable();
@@ -651,7 +653,7 @@ export async function saveRecruitmentLead({
              cvNombre, cvBase64, cvTipo, mensaje, comentarios, sessionId, en_lista_espera ? 1 : 0],
     });
   } catch (err1) {
-    console.warn('⚠️ INSERT completo falló, intentando sin CV base64:', err1.message);
+    console.error(`⚠️ INSERT completo falló (CV ${cvNombre || 's/n'}, ${cvBase64.length} bytes b64) — CV se perderá:`, err1.code || '', err1.message);
 
     // ── Intento 2: sin cv_base64/cv_tipo (columnas pueden no existir aún) ──
     try {
