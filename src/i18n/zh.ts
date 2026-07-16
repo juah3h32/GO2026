@@ -1255,6 +1255,7 @@ footer: {
   catalog:          "产品目录",
   cta_button:       "我想成为经销商",
   rights:           "版权所有。",
+  privacy_notice:   "隐私声明",
 
   // 联络资讯 — 墨西哥
   region_mexico:    "墨西哥",

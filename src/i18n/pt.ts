@@ -1255,6 +1255,7 @@ footer: {
   catalog:          "Catálogo",
   cta_button:       "Quero ser Distribuidor",
   rights:           "Todos os direitos reservados.",
+  privacy_notice:   "Aviso de Privacidade",
 
   // Contato — México
   region_mexico:    "México",

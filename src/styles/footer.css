@@ -191,12 +191,15 @@ footer {
 /* --- SECCIÓN INFERIOR --- */
 .bottom-section {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 20px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 15px 20px;
 }
 
 .social-icons {
+  order: 1;
   display: flex;
   gap: 15px;
 }
@@ -222,10 +225,26 @@ footer {
 }
 
 .copyright {
+  order: 2;
+  flex: 1 1 auto;
   color: #666;
   font-size: 11px;
   text-align: center;
   letter-spacing: 1px;
+}
+
+.privacy-link {
+  order: 3;
+  color: #666;
+  font-size: 11px;
+  white-space: nowrap;
+  letter-spacing: 1px;
+  text-decoration: underline;
+  transition: color 0.3s ease;
+}
+
+.privacy-link:hover {
+  color: var(--color-primary);
 }
 
 /* --- RESPONSIVE --- */
@@ -280,6 +299,16 @@ footer {
   .btn-orange {
     width: 100%;
     max-width: 250px;
+  }
+
+  .bottom-section {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .copyright,
+  .privacy-link {
+    text-align: center;
   }
 }
 a.contact-address:hover {

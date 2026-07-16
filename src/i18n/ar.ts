@@ -1255,6 +1255,7 @@ footer: {
   catalog:          "الكتالوج",
   cta_button:       "أريد أن أكون موزعاً",
   rights:           "جميع الحقوق محفوظة.",
+  privacy_notice:   "إشعار الخصوصية",
 
   // تواصل — المكسيك
   region_mexico:    "المكسيك",
