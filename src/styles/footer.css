@@ -235,16 +235,24 @@ footer {
 
 .privacy-link {
   order: 3;
-  color: #666;
-  font-size: 11px;
+  display: inline-flex;
+  align-items: center;
   white-space: nowrap;
-  letter-spacing: 1px;
-  text-decoration: underline;
-  transition: color 0.3s ease;
+  color: #ccc;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  text-decoration: none;
+  padding: 7px 16px;
+  border: 1px solid #555;
+  border-radius: 20px;
+  transition: all 0.3s ease;
 }
 
 .privacy-link:hover {
-  color: var(--color-primary);
+  color: #fff;
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
 }
 
 /* --- RESPONSIVE --- */
