@@ -46,8 +46,8 @@ try {
     { cwd: root, encoding: 'utf-8', timeout: 10000, stdio: ['pipe', 'pipe', 'ignore'] }
   );
 } catch (e) {
-  console.error('Error ejecutando git log:', e.message);
-  process.exit(1);
+  console.warn('gen-changelog: sin historial de git disponible, se omite changelog.json —', e.message);
+  process.exit(0);
 }
 
 const commits = output
