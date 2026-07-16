@@ -2467,6 +2467,51 @@ const TAB_ALIAS = { keywords:'products', messages:'conversations', llamadas:'con
 function Dash({ onClose, role, theme='dark', toggleTheme, fullscreen=false }) {
   const P = useP();
   const w=useWindowWidth(), isMobile=w<640, isTablet=w<900;
+
+  // Interruptor del link publico /preview-identidad (Helvetica + Dorado).
+  // Vive en server (global_config), no en localStorage: si esta apagado,
+  // esa URL muestra la pantalla de mantenimiento (502) para cualquiera.
+  const [previewLinkOn, setPreviewLinkOn] = useState(null); // null = cargando
+  const [previewBusy, setPreviewBusy] = useState(false);
+  useEffect(() => {
+    fetch('/api/admin/preview-identity', { credentials:'include' })
+      .then(r => r.json()).then(j => { if (j.ok) setPreviewLinkOn(!!j.enabled); })
+      .catch(() => setPreviewLinkOn(false));
+  }, []);
+  const togglePreviewLink = async () => {
+    if (previewBusy || previewLinkOn === null) return;
+    // Ya esta activo → nada que prender, solo abrir la pagina a verla.
+    if (previewLinkOn) { window.open('/preview-identidad', '_blank'); return; }
+    const next = true;
+    setPreviewBusy(true);
+    try {
+      const r = await fetch('/api/admin/preview-identity', {
+        method:'POST', credentials:'include', headers:{ 'Content-Type':'application/json' },
+        body: JSON.stringify({ enabled: next }),
+      });
+      const j = await r.json();
+      if (j.ok) {
+        setPreviewLinkOn(!!j.enabled);
+        if (j.enabled) window.open('/preview-identidad', '_blank');
+      }
+    } catch {}
+    setPreviewBusy(false);
+  };
+  const stopPreviewLink = async (e) => {
+    e.stopPropagation();
+    if (previewBusy || !previewLinkOn) return;
+    setPreviewBusy(true);
+    try {
+      const r = await fetch('/api/admin/preview-identity', {
+        method:'POST', credentials:'include', headers:{ 'Content-Type':'application/json' },
+        body: JSON.stringify({ enabled: false }),
+      });
+      const j = await r.json();
+      if (j.ok) setPreviewLinkOn(!!j.enabled);
+    } catch {}
+    setPreviewBusy(false);
+  };
+
   const [data,setData]=useState(null), [loading,setLoading]=useState(true);
   const [summary,setSummary]=useState(''), [genAI,setGenAI]=useState(false);
   const [tab,setTab]=useState(TAB_ALIAS[role.tabs[0]]||role.tabs[0]), [last,setLast]=useState(null);
@@ -2855,6 +2900,10 @@ function WAWebhookTab({ P, isMobile }) {
     e.stopPropagation();
     setAddErr('');
     if (!addPhone.trim()) return;
+    if (!addPerms.includes('*') && addCats.length === 0) {
+      setAddErr('Selecciona al menos una categoria (RH, clientes...) o "*" — sin esto el numero no recibira notificaciones.');
+      return;
+    }
     setAddLoading(true);
     try {
       const d = await api({ action: 'authorized_add', phone: addPhone.trim(), name: addName.trim(), permissions: addPerms, categories: addCats });
@@ -2865,6 +2914,10 @@ function WAWebhookTab({ P, isMobile }) {
   }
 
   async function handleSaveEdit(item) {
+    if (!editPerms.includes('*') && editCats.length === 0) {
+      alert('Selecciona al menos una categoria (RH, clientes...) o "*" — sin esto el numero no recibira notificaciones.');
+      return;
+    }
     try {
       await api({ action: 'authorized_update', id: item.id, name: item.name, permissions: editPerms, active: editActive, categories: editCats });
       setEditId(null);
@@ -3478,6 +3531,41 @@ const ALL_TABS=[
                   : <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
                 }
               </button>
+            )}
+            {/* Link publico /preview-identidad (Helvetica + dorado): un clic activa y abre */}
+            {role.canDownload&&(
+              <div title={previewLinkOn?undefined:'Activar y abrir vista previa'}
+                style={{ display:'flex', alignItems:'stretch', flexShrink:0, whiteSpace:'nowrap',
+                  borderRadius:8, overflow:'hidden',
+                  border:`1px solid ${previewLinkOn?'#d4af37':P.border}`,
+                  background:previewLinkOn?'#d4af3715':P.border2,
+                  opacity:previewLinkOn===null?0.5:1,
+                  transition:'all 0.14s ease' }}>
+                <button onClick={togglePreviewLink} disabled={previewBusy||previewLinkOn===null}
+                  title={previewLinkOn?'Abrir vista previa (Helvetica + Dorado)':undefined}
+                  style={{ padding:'7px 10px', border:'none', background:'transparent',
+                    color:previewLinkOn?'#d4af37':P.textSub,
+                    cursor:(previewBusy||previewLinkOn===null)?'wait':'pointer',
+                    fontSize:11, fontWeight:600, letterSpacing:'-0.01em', whiteSpace:'nowrap',
+                    transition:'background 0.14s ease', display:'flex', alignItems:'center', gap:6 }}
+                  onMouseEnter={e=>{if(previewLinkOn)e.currentTarget.style.background='#d4af3720';}}
+                  onMouseLeave={e=>{e.currentTarget.style.background='transparent';}}>
+                  <span style={{ width:6, height:6, borderRadius:'50%', flexShrink:0,
+                    background:previewLinkOn?'#d4af37':P.textSub,
+                    boxShadow:previewLinkOn?'0 0 6px #d4af37':'none' }}/>
+                  {!isMobile&&'Preview'}
+                </button>
+                {previewLinkOn&&(
+                  <button onClick={stopPreviewLink} disabled={previewBusy} title="Apagar link de vista previa"
+                    style={{ padding:'7px 9px', border:'none', borderLeft:'1px solid #d4af3740',
+                      background:'transparent', color:'#d4af37', cursor:previewBusy?'wait':'pointer',
+                      display:'flex', alignItems:'center', flexShrink:0, transition:'all 0.14s ease' }}
+                    onMouseEnter={e=>{e.currentTarget.style.background='#ef444422';e.currentTarget.style.color='#ef4444';}}
+                    onMouseLeave={e=>{e.currentTarget.style.background='transparent';e.currentTarget.style.color='#d4af37';}}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                )}
+              </div>
             )}
             <button onClick={onClose} title="Cerrar sesión"
               style={{ display:'flex', alignItems:'center', gap:6, padding:'7px 13px', borderRadius:9,
@@ -4395,6 +4483,11 @@ const ALL_TABS=[
                 (s.nombre||'').toLowerCase().includes(q) || (s.email||'').toLowerCase().includes(q));
               const fromBot   = subscribers.filter(s=>s.source==='botgo').length;
               const fromDist  = subscribers.filter(s=>s.source==='distribuidor').length;
+              const fromRecl  = subscribers.filter(s=>s.source==='reclutamiento').length;
+              const gpSynced  = subscribers.filter(s=>s.gopulse_status==='synced').length;
+              const gpFailed  = subscribers.filter(s=>s.gopulse_status==='failed').length;
+              const SOURCE_LABEL = { botgo:'Bot', distribuidor:'Distribuidor', reclutamiento:'Reclutamiento' };
+              const SOURCE_COLOR = { botgo:P.grayLight, distribuidor:P.orangeWarm, reclutamiento:P.orange };
               const copyEmails = async () => {
                 const emails = filtered.map(s=>s.email).filter(Boolean).join(', ');
                 try { await navigator.clipboard.writeText(emails); setEmailsCopied(true); setTimeout(()=>setEmailsCopied(false),2000); }
@@ -4406,6 +4499,8 @@ const ALL_TABS=[
                     <StatCard label="Total"       value={subscribers.length} sub="suscriptores acumulados" color={P.orange}     icon="✉"/>
                     <StatCard label="Vía bot"     value={fromBot}            sub="BotGO"                   color={P.grayLight}  icon="🤖"/>
                     <StatCard label="Vía distribuidor" value={fromDist}      sub="opt-in en formulario"     color={P.orangeWarm} icon="🤝"/>
+                    <StatCard label="Vía reclutamiento" value={fromRecl}     sub="auto-suscritos al aplicar" color={P.orange}    icon="📋"/>
+                    <StatCard label="Conectados a GoPulse" value={gpSynced} sub={gpFailed>0?`${gpFailed} con error de envío`:'envío de correos'} color={gpFailed>0?P.err:P.ok} icon="📰"/>
                   </div>
                   <div className="card-hover" style={{ ...CARD, display:'flex', alignItems:'center', justifyContent:'space-between', gap:12, flexWrap:'wrap' }}>
                     <CardTopBar/>
@@ -4460,7 +4555,14 @@ const ALL_TABS=[
                               <span style={{ fontSize:11.5, color:P.textSub }}>{s.email}</span>
                             </div>
                             <div style={{ display:'flex', alignItems:'center', gap:8, flexShrink:0 }}>
-                              <Tag color={s.source==='botgo'?P.grayLight:P.orangeWarm} size={9}>{s.source==='botgo'?'Bot':'Distribuidor'}</Tag>
+                              <Tag color={SOURCE_COLOR[s.source] || P.grayLight} size={9}>{SOURCE_LABEL[s.source] || s.source || '—'}</Tag>
+                              <span title={s.gopulse_synced_at ? `Último intento: ${String(s.gopulse_synced_at).slice(0,16)}` : 'Aún no sincronizado'}
+                                style={{ display:'flex', alignItems:'center', gap:4, fontSize:9.5, fontWeight:700, letterSpacing:'0.03em',
+                                  padding:'2px 7px', borderRadius:20, textTransform:'uppercase',
+                                  color: s.gopulse_status==='synced'?P.ok:s.gopulse_status==='failed'?P.err:P.warn,
+                                  background: s.gopulse_status==='synced'?P.okDim:s.gopulse_status==='failed'?P.errDim:P.warnDim }}>
+                                {s.gopulse_status==='synced'?'GoPulse ✓':s.gopulse_status==='failed'?'GoPulse ✗':'GoPulse ⋯'}
+                              </span>
                               <span style={{ fontSize:10.5, color:P.textDim }}>{s.ts ? String(s.ts).slice(0,10) : ''}</span>
                             </div>
                           </div>

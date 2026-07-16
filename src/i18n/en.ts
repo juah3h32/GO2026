@@ -90,9 +90,10 @@ export const en = {
 
     // ── Subscribe for updates (on conversation close) ──
     subscribeTitle:          'Want to get updates?',
-    subscribeSubtitle:       'Get news about new products, updates and exclusive content by email.',
+    subscribeSubtitle:       'New products, promotions and exclusive content straight to your inbox.',
     subscribeNamePlaceholder:  'Your name',
     subscribeEmailPlaceholder: 'Your email address',
+    subscribeTrust:           'No spam. Unsubscribe anytime.',
     subscribeSubmit:          'Subscribe',
     subscribeSubmitting:      'Sending...',
     subscribeDismiss:         'No, thanks',

@@ -90,9 +90,10 @@ export const zh = {
 
     // ── 订阅更新（对话结束时） ──
     subscribeTitle:          '想接收最新资讯吗？',
-    subscribeSubtitle:       '通过电子邮件获取新产品、更新和独家内容资讯。',
+    subscribeSubtitle:       '新产品、促销活动和独家内容直接发送到您的邮箱。',
     subscribeNamePlaceholder:  '您的姓名',
     subscribeEmailPlaceholder: '您的电子邮箱',
+    subscribeTrust:           '绝无垃圾邮件，随时可取消订阅。',
     subscribeSubmit:          '订阅',
     subscribeSubmitting:      '发送中...',
     subscribeDismiss:         '不用了，谢谢',

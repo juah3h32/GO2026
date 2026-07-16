@@ -508,6 +508,12 @@ async function ensureSubscribersTable() {
     )
   `);
   await db.execute(`CREATE UNIQUE INDEX IF NOT EXISTS idx_subscribers_email ON subscribers(email)`);
+  for (const sql of [
+    `ALTER TABLE subscribers ADD COLUMN gopulse_status    TEXT DEFAULT 'pending'`,
+    `ALTER TABLE subscribers ADD COLUMN gopulse_synced_at TEXT`,
+  ]) {
+    try { await db.execute(sql); } catch { /* columna ya existe */ }
+  }
 }
 
 export async function saveSubscriber({ nombre, email, lang = '', source = 'botgo' }) {
@@ -517,12 +523,29 @@ export async function saveSubscriber({ nombre, email, lang = '', source = 'botgo
           ON CONFLICT(email) DO UPDATE SET nombre = excluded.nombre, lang = excluded.lang`,
     args: [nombre || '', email || '', lang || '', source || 'botgo'],
   });
-  // Sync a GO Pulse — best-effort, no bloquea ni rompe el guardado local.
-  import('./gopulse.js').then(({ syncSubscriberToGoPulse }) => syncSubscriberToGoPulse(email, 'web_form')).catch(() => {});
+
+  // Sync a GO Pulse — se espera para poder catalogar el resultado (synced/failed)
+  // en el dashboard. No rompe el guardado local si falla.
+  const clean = String(email || '').trim().toLowerCase();
+  let gopulseOk = false;
+  try {
+    const { syncSubscriberToGoPulse } = await import('./gopulse.js');
+    const r = await syncSubscriberToGoPulse(email, source || 'botgo');
+    gopulseOk = !!r?.ok;
+  } catch { /* gopulseOk queda false */ }
+
+  if (clean) {
+    try {
+      await db.execute({
+        sql: `UPDATE subscribers SET gopulse_status = ?, gopulse_synced_at = datetime('now') WHERE email = ?`,
+        args: [gopulseOk ? 'synced' : 'failed', clean],
+      });
+    } catch { /* no crítico para el guardado local */ }
+  }
 }
 export async function readSubscribers() {
   await ensureInit(); await ensureSubscribersTable();
-  const res = await db.execute(`SELECT id, ts, nombre, email, lang, source FROM subscribers ORDER BY id DESC LIMIT 1000`);
+  const res = await db.execute(`SELECT id, ts, nombre, email, lang, source, gopulse_status, gopulse_synced_at FROM subscribers ORDER BY id DESC LIMIT 1000`);
   return res.rows;
 }
 

@@ -466,6 +466,7 @@ function CandidateCard({ candidate, onStatusChange, onDelete, onRequestDelete, e
   const C = useC();
   const [updating,  setUpdating]  = useState(false);
   const [resending, setResending] = useState(false);
+  const [resendResult, setResendResult] = useState(null); // { kind:'ok'|'warn'|'error', title, text }
   
   // PROTECCIÓN: Validamos que candidate exista antes de pasarlo a funciones de estatus
   const currentStatus = candidate ? getStatus(candidate) : 'nuevo';
@@ -492,12 +493,20 @@ const handleResend = async () => {
   try {
     const r = await fetch('/api/recruitment', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'resend', id: candidate.id }) });
     const j = await r.json();
-    if (!j.ok) { alert('Error: ' + (j.error || 'No se pudo reenviar')); return; }
-    const msg = j.tieneCV
-      ? `Enviado a ${j.sent} RH · CV adjunto a ${j.cvSent}`
-      : `Enviado a ${j.sent} RH · sin CV`;
-    alert(msg);
-  } catch(e) { console.error(e); alert('Error al reenviar'); }
+    if (!j.ok) {
+      setResendResult({ kind:'error', title:'Error al reenviar', text: j.error || 'No se pudo reenviar' });
+      return;
+    }
+    if (!j.sent) {
+      setResendResult({ kind:'warn', title:'0 numeros RH configurados', text:'Revisa Admin > WhatsApp > Numeros: falta activar categoria "RH" en algun numero.' });
+      return;
+    }
+    setResendResult({
+      kind: 'ok',
+      title: 'Reenviado',
+      text: j.tieneCV ? `Enviado a ${j.sent} RH · CV adjunto a ${j.cvSent}` : `Enviado a ${j.sent} RH · sin CV`,
+    });
+  } catch(e) { console.error(e); setResendResult({ kind:'error', title:'Error al reenviar', text:'Fallo de conexión.' }); }
   setResending(false);
 };
 
@@ -514,7 +523,14 @@ const handleResend = async () => {
 
   if (!candidate) return null; // Si por alguna razón no hay objeto, no renderizamos nada
 
+  const RESEND_STYLE = {
+    ok:    { color: C.green,  dim: C.greenDim,  icon: Ic.check },
+    warn:  { color: C.amber,  dim: C.amberDim,  icon: Ic.info },
+    error: { color: C.red,    dim: C.redDim,    icon: Ic.xmark },
+  };
+
   return (
+    <>
     <div style={{ display:'flex', background: expanded ? `${sm.color}18` : `${sm.color}0e`, border:`1px solid ${expanded ? sm.color+'70' : sm.color+'45'}`, borderRadius:10, overflow:'hidden', transition:'border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease', boxShadow: expanded ? `0 2px 14px ${sm.color}25` : `0 1px 3px ${sm.color}15`, animation: recent ? 'newCardIn 0.4s ease both' : 'none' }}>
 
       {/* Status side bar */}
@@ -711,6 +727,53 @@ const handleResend = async () => {
 
       </div>
     </div>
+
+    {/* ── MODAL RESULTADO REENVÍO ── */}
+    {resendResult && createPortal(
+      <div style={{
+        position:'fixed', inset:0, zIndex:99999999,
+        background:'rgba(6,5,4,0.75)',
+        backdropFilter:'blur(16px)',
+        display:'flex', alignItems:'center', justifyContent:'center',
+        padding:16, animation:'fadeIn 0.18s ease',
+      }} onClick={() => setResendResult(null)}>
+        <div onClick={e => e.stopPropagation()} style={{
+          background: C.surface2,
+          border:`1px solid ${C.border}`,
+          borderRadius:14, width:'100%', maxWidth:380,
+          overflow:'hidden', position:'relative',
+          boxShadow: '0 24px 64px rgba(0,0,0,0.45)',
+          animation:'newCardIn 0.22s cubic-bezier(0.16,1,0.3,1) both',
+        }}>
+          <div style={{ position:'absolute', top:0, left:0, right:0, height:2.5, background:`linear-gradient(90deg,${RESEND_STYLE[resendResult.kind].color},${RESEND_STYLE[resendResult.kind].color}90,transparent)` }}/>
+
+          <div style={{ padding:'24px 24px 16px', display:'flex', alignItems:'center', gap:12 }}>
+            <div style={{ width:40, height:40, borderRadius:10, background: RESEND_STYLE[resendResult.kind].dim, border:`1px solid ${RESEND_STYLE[resendResult.kind].color}40`, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, color: RESEND_STYLE[resendResult.kind].color }}>
+              {RESEND_STYLE[resendResult.kind].icon}
+            </div>
+            <div>
+              <p style={{ fontWeight:700, fontSize:15, margin:'0 0 3px', color:C.text, letterSpacing:'-0.02em' }}>{resendResult.title}</p>
+              <p style={{ fontSize:11, margin:0, color:C.textDim }}>Reclutamiento · WhatsApp</p>
+            </div>
+          </div>
+
+          <div style={{ height:1, background:C.border2, margin:'0 24px' }}/>
+
+          <div style={{ padding:'14px 24px' }}>
+            <p style={{ fontSize:13, lineHeight:1.65, margin:0, color:C.textSub, whiteSpace:'pre-line' }}>{resendResult.text}</p>
+          </div>
+
+          <div style={{ padding:'12px 24px 20px' }}>
+            <button onClick={() => setResendResult(null)}
+              style={{ width:'100%', padding:'10px 0', borderRadius:9, fontSize:12, fontWeight:700, cursor:'pointer', border:'none', color:'#fff', background: RESEND_STYLE[resendResult.kind].color, transition:'opacity 0.13s ease' }}>
+              Entendido
+            </button>
+          </div>
+        </div>
+      </div>,
+      document.body
+    )}
+    </>
   );
 }
 

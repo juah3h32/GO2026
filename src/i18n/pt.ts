@@ -90,9 +90,10 @@ export const pt = {
 
     // ── Inscrição para novidades (ao encerrar a conversa) ──
     subscribeTitle:          'Quer receber novidades?',
-    subscribeSubtitle:       'Fique por dentro de novos produtos, atualizações e conteúdo exclusivo por e-mail.',
+    subscribeSubtitle:       'Novos produtos, promoções e conteúdo exclusivo direto no seu e-mail.',
     subscribeNamePlaceholder:  'Seu nome',
     subscribeEmailPlaceholder: 'Seu e-mail',
+    subscribeTrust:           'Sem spam. Cancele quando quiser.',
     subscribeSubmit:          'Inscrever-me',
     subscribeSubmitting:      'Enviando...',
     subscribeDismiss:         'Não, obrigado',

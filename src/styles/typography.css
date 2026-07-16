@@ -356,6 +356,97 @@ html.dark {
   --arrow-hover-icon : #ffffff;
 }
 
+/* ============================================================================
+   VISTA PREVIA ADMIN — solo toggle en memoria, nunca persiste (ver AdminPanel.jsx)
+   ============================================================================ */
+html.admin-preview-identity {
+  --font-display    : Helvetica, Arial, sans-serif;
+  --font-title      : Helvetica, Arial, sans-serif;
+  --font-titles     : Helvetica, Arial, sans-serif;
+  --font-subtitle   : Helvetica, Arial, sans-serif;
+  --font-body       : Helvetica, Arial, sans-serif;
+  --font-decorative : Helvetica, Arial, sans-serif;
+  --font-ui         : Helvetica, Arial, sans-serif;
+  --clr-accent      : #d4af37;
+  --clr-accent-dark : #b8952e;
+  --arrow-bg         : #d4af37;
+  --arrow-hover-bg   : #b8952e;
+  /* Variables de color propias de otros archivos (footer.css, backgrounds.css, Nadbar.astro) */
+  --color-primary   : #d4af37;
+  --tech-orange     : #d4af37;
+  --btn-bg          : #d4af37;
+  --btn-glow        : rgba(212,175,55,0.6);
+
+  /* Helvetica ocupa mas que Morganite al mismo tamaño — se reduce solo en preview */
+  --fs-display-xl  : clamp(2.5rem,  5.5vw, 5rem);
+  --fs-display-lg  : clamp(1.8rem,  3.3vw, 3.8rem);
+  --fs-display-md  : clamp(1.2rem,  1.8vw, 2rem);
+  --fs-display-sm  : clamp(1rem,    1.4vw, 1.5rem);
+  --fs-display-xs  : clamp(0.85rem, 1.1vw, 1.1rem);
+  --fs-subtitle-lg : clamp(1.2rem,  1.9vw, 1.7rem);
+  --fs-subtitle-md : clamp(1rem,    1.4vw, 1.3rem);
+  --fs-subtitle-sm : clamp(0.85rem, 1vw,   1rem);
+}
+
+/* Titulos de home.css con font-size fijo (no usan las variables --fs-*) —
+   se sobrescriben aparte porque si no, Helvetica se ve gigante ahi tambien. */
+html.admin-preview-identity .hero__heading--center .hero__heading-top    { font-size: clamp(2rem,   4.8vw, 5.6rem); }
+html.admin-preview-identity .hero__heading--center .hero__heading-bottom { font-size: clamp(1.1rem,  2.6vw, 3.2rem); }
+html.admin-preview-identity .hero__heading-top    { font-size: clamp(2rem,   4vw,   4.25rem); }
+html.admin-preview-identity .hero__stat-num       { font-size: clamp(1.6rem, 2.5vw, 2.6rem); }
+html.admin-preview-identity .div-card__num        { font-size: clamp(2.2rem, 3.5vw, 3.5rem); }
+html.admin-preview-identity .div-card__title      { font-size: clamp(1.6rem, 2.4vw, 2.5rem); }
+html.admin-preview-identity .certs__title         { font-size: clamp(1.8rem, 3.6vw, 4.4rem); }
+html.admin-preview-identity .global__num          { font-size: clamp(1.9rem, 2.8vw, 3rem); }
+html.admin-preview-identity .cta__heading         { font-size: clamp(1.6rem, min(3.6vw,4.5vh), 4.5rem); }
+
+/* Naranjas escritos como rgba(251,103,11,x) directo — no usan --clr-accent,
+   asi que --clr-accent no los cambia solo. Version dorada de cada uno. */
+html.admin-preview-identity .btn--solid:hover { box-shadow: 0 8px 24px rgba(212,175,55,.25); }
+html.admin-preview-identity .hero__heading-bottom em { text-shadow: 0 0 60px rgba(212,175,55,0.5); }
+html.admin-preview-identity .hero__heading--center .hero__heading-bottom em { text-shadow: 0 0 80px rgba(212,175,55,0.5); }
+html.admin-preview-identity .hero__stat::before { background: radial-gradient(circle at 50% 0%, rgba(212,175,55,0.45) 0%, transparent 70%); }
+html.admin-preview-identity .hero__stat:hover {
+  background: rgba(212,175,55,0.22); border-color: rgba(212,175,55,0.65);
+  box-shadow: 0 20px 52px rgba(212,175,55,0.35), inset 0 0 0 1px rgba(212,175,55,0.45);
+}
+html.admin-preview-identity .hero__stat:hover .hero__stat-num { text-shadow: 0 0 40px rgba(212,175,55,0.65); }
+html.admin-preview-identity .div-card:hover .div-card__overlay {
+  background: linear-gradient(180deg, rgba(212,175,55,0.15) 0%, rgba(212,175,55,0.55) 40%, rgba(184,149,46,0.92) 100%);
+}
+html.admin-preview-identity .div-card__num { color: rgba(212,175,55,0.30); }
+html.admin-preview-identity .div-card:hover .div-card__num { color: rgba(212,175,55,0.65); text-shadow: 0 0 40px rgba(212,175,55,0.4); }
+html.admin-preview-identity .porque__badge { box-shadow: 0 10px 32px rgba(212,175,55,0.35); }
+html.admin-preview-identity .global__stat:hover {
+  background: rgba(212,175,55,0.45);
+  box-shadow: inset 0 0 0 1px rgba(212,175,55,0.7), 0 0 40px rgba(212,175,55,0.25);
+}
+html.admin-preview-identity .cta::before { background: radial-gradient(circle, rgba(212,175,55,0.06) 0%, transparent 70%); }
+
+/* Naranjas del menu (Nadbar.astro) escritos literal, no via variable —
+   !important porque Nadbar es un componente Astro con estilos ya scoped. */
+html.admin-preview-identity .btn-primary { box-shadow: 0 4px 15px rgba(212,175,55,0.3) !important; }
+html.admin-preview-identity .btn-primary:hover {
+  background-color: #d4af37 !important;
+  box-shadow: 0 8px 25px rgba(212,175,55,0.6) !important;
+}
+html.admin-preview-identity .globe-btn { box-shadow: 0 4px 15px rgba(212,175,55,0.3) !important; }
+html.admin-preview-identity .globe-btn:hover { box-shadow: 0 6px 20px rgba(212,175,55,0.5) !important; }
+html.admin-preview-identity .lang-pill-btn { box-shadow: 0 4px 10px rgba(212,175,55,0.3) !important; }
+html.admin-preview-identity .lang-pill-btn:hover { box-shadow: 0 6px 15px rgba(212,175,55,0.5) !important; }
+html.admin-preview-identity .back-arrow-btn:hover {
+  background: #d4af37 !important;
+  border-color: #d4af37 !important;
+}
+
+/* Icono robot del chat (BotGO.jsx) — SVG con fill/stroke literal en el markup.
+   Se engancha por valor de atributo, asi cubre todos los usos del icono sin
+   tener que listar cada className. */
+html.admin-preview-identity svg [fill="#FB670B"]        { fill: #d4af37 !important; }
+html.admin-preview-identity svg [stroke="#FB670B"]       { stroke: #d4af37 !important; }
+html.admin-preview-identity svg stop[stop-color="#FB670B"] { stop-color: #d4af37 !important; }
+html.admin-preview-identity .nav-item.active .nav-text { text-shadow: 0 0 10px rgba(212,175,55,0.4) !important; }
+
 
 /* ============================================================================
    RESET BASE

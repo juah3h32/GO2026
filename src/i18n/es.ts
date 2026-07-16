@@ -90,9 +90,10 @@ chatbot: {
 
   // ── Suscripción a novedades (al cerrar la conversación) ──
   subscribeTitle:          '¿Quieres recibir novedades?',
-  subscribeSubtitle:       'Entérate de nuevos productos, actualizaciones y contenido exclusivo por correo.',
+  subscribeSubtitle:       'Nuevos productos, promociones y contenido exclusivo directo a tu correo.',
   subscribeNamePlaceholder:  'Tu nombre',
   subscribeEmailPlaceholder: 'Tu correo electrónico',
+  subscribeTrust:           'Sin spam. Cancela cuando quieras.',
   subscribeSubmit:          'Suscribirme',
   subscribeSubmitting:      'Enviando...',
   subscribeDismiss:         'No, gracias',

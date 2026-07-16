@@ -90,9 +90,10 @@ export const ar = {
 
     // ── الاشتراك لتلقي الجديد (عند إنهاء المحادثة) ──
     subscribeTitle:          'هل تريد تلقي آخر الأخبار؟',
-    subscribeSubtitle:       'اطّلع على المنتجات الجديدة والتحديثات والمحتوى الحصري عبر البريد الإلكتروني.',
+    subscribeSubtitle:       'منتجات جديدة وعروض ومحتوى حصري مباشرة إلى بريدك الإلكتروني.',
     subscribeNamePlaceholder:  'اسمك',
     subscribeEmailPlaceholder: 'بريدك الإلكتروني',
+    subscribeTrust:           'بدون رسائل مزعجة. يمكنك إلغاء الاشتراك في أي وقت.',
     subscribeSubmit:          'اشترك',
     subscribeSubmitting:      'جارٍ الإرسال...',
     subscribeDismiss:         'لا شكراً',

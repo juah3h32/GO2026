@@ -13,7 +13,16 @@ import {
   deleteRecruiterNote,
   readVacantes,
   markNotificadosVacante,
+  saveSubscriber,
 } from '../../lib/analytics-db.js';
+
+// Auto-suscribe al candidato a novedades/promociones con los datos que ya dio
+// en la conversación — evita pedirle de nuevo su correo con la subscribe-card.
+function autoSuscribirCandidato(nombre, email) {
+  if (!email) return;
+  saveSubscriber({ nombre, email, source: 'reclutamiento' })
+    .catch(e => console.warn('⚠️ auto-suscripción de candidato falló:', e.message));
+}
 
 export const prerender = false;
 
@@ -89,6 +98,7 @@ export async function POST({ request }) {
           mensaje: '', comentarios, sessionId,
           en_lista_espera,
         });
+        autoSuscribirCandidato(nombre, email);
 
         try {
           if (en_lista_espera) {
@@ -204,6 +214,7 @@ export async function POST({ request }) {
         sessionId,
         en_lista_espera,
       });
+      autoSuscribirCandidato(nombre, email);
 
       // ── Duplicado detectado: no re-registrar ni notificar ─────────────────
       if (saved?.duplicate) {

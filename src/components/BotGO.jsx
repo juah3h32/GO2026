@@ -670,7 +670,7 @@ const SubscribeCard = ({ t, onSubscribe, onDismiss }) => {
             </div>
             <div className="subscribe-titles">
               <p className="subscribe-title">{t?.subscribeTitle || '¿Quieres recibir novedades?'}</p>
-              <p className="subscribe-subtitle">{t?.subscribeSubtitle || 'Entérate de nuevos productos, actualizaciones y contenido exclusivo por correo.'}</p>
+              <p className="subscribe-subtitle">{t?.subscribeSubtitle || 'Nuevos productos, promociones y contenido exclusivo directo a tu correo.'}</p>
             </div>
           </div>
 
@@ -693,6 +693,10 @@ const SubscribeCard = ({ t, onSubscribe, onDismiss }) => {
               maxLength={160}
               disabled={submitting}
             />
+            <p className="subscribe-trust">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              {t?.subscribeTrust || 'Sin spam. Cancela cuando quieras.'}
+            </p>
             {error && <p className="subscribe-error">{error}</p>}
             <div className="subscribe-actions">
               <button type="button" className="subscribe-dismiss-btn" onClick={onDismiss} disabled={submitting}>
@@ -965,6 +969,12 @@ const RecruitmentConfirmation = ({ candidato, t }) => {
             );
           })}
         </div>
+
+        {campos.email && (
+          <p className="conf-edit-hint" style={{ marginTop: 8 }}>
+            Te suscribimos con {campos.email} a novedades y promociones. Puedes darte de baja cuando quieras.
+          </p>
+        )}
       </div>
     </div>
   );
@@ -1486,20 +1496,22 @@ export default function BotGO({ language = 'es' }) {
   }, [t.greeting]);
 
   // Al terminar la conversacion (boton X): invita a suscribirse antes de cerrar,
-  // solo si hubo conversacion real y aun no se le pregunto en esta sesion/dispositivo.
+  // solo si hubo conversacion real, aun no se le pregunto en esta sesion/dispositivo,
+  // y no quedo ya auto-suscrito (ver nota abajo: registro de candidato ya lo suscribe).
   const handleCloseChat = useCallback(() => {
     const huboConversacion = messagesRef.current.length > 1;
+    const yaAutoSuscrito   = !!candidatoRegistrado?.email;
     let yaPreguntado = true;
     try { yaPreguntado = !!localStorage.getItem('botgo-subscribe-seen'); } catch {}
 
-    if (huboConversacion && !yaPreguntado && !showSubscribe) {
+    if (huboConversacion && !yaPreguntado && !showSubscribe && !yaAutoSuscrito) {
       try { localStorage.setItem('botgo-subscribe-seen', '1'); } catch {}
       setViewMode('chat'); // la card de suscripcion vive en el DOM del modo chat
       setShowSubscribe(true);
       return;
     }
     finishCloseChat();
-  }, [finishCloseChat, showSubscribe]);
+  }, [finishCloseChat, showSubscribe, candidatoRegistrado]);
 
   const handleSubscribe = useCallback(async ({ nombre, email }) => {
     const res = await fetch('/api/analytics', {
