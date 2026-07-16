@@ -149,7 +149,11 @@ const getLink = (slug: string) => {
         &copy; {new Date().getFullYear()} Grupo Ortiz, SA. de CV. {t.footer.rights}
       </p>
       <a href="/aviso/aviso-de-privacidad.pdf" target="_blank" rel="noopener noreferrer" class="privacy-link">
-        {t.footer.privacy_notice}
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2 4 5v6c0 5.25 3.4 9.74 8 11 4.6-1.26 8-5.75 8-11V5z"/>
+          <path d="m9.5 12 1.8 1.8L15 10"/>
+        </svg>
+        <span>{t.footer.privacy_notice}</span>
       </a>
     </div>
   </div>

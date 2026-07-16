@@ -234,9 +234,12 @@ footer {
 }
 
 .privacy-link {
+  position: relative;
   order: 3;
   display: inline-flex;
   align-items: center;
+  gap: 6px;
+  overflow: hidden;
   white-space: nowrap;
   color: #ccc;
   font-size: 11px;
@@ -245,14 +248,45 @@ footer {
   padding: 7px 16px;
   border: 1px solid #555;
   border-radius: 20px;
-  transition: all 0.3s ease;
+  isolation: isolate;
+  transition: color 0.35s ease, border-color 0.35s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.privacy-link:hover {
-  color: #fff;
+.privacy-link::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
   background-color: var(--color-primary);
+  transform: translateX(-100%);
+  transition: transform 0.35s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.privacy-link svg {
+  flex-shrink: 0;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.privacy-link:hover,
+.privacy-link:focus-visible {
+  color: #fff;
   border-color: var(--color-primary);
   transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(251, 103, 11, 0.35);
+}
+
+.privacy-link:hover::before,
+.privacy-link:focus-visible::before {
+  transform: translateX(0);
+}
+
+.privacy-link:hover svg,
+.privacy-link:focus-visible svg {
+  transform: scale(1.15) rotate(-4deg);
+}
+
+.privacy-link:active {
+  transform: translateY(0);
 }
 
 /* --- RESPONSIVE --- */
