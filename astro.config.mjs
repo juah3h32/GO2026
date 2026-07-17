@@ -15,6 +15,11 @@ export default defineConfig({
     isr: false,
     // Hobby plan: max 60s. Individual PDF cabe, general usa HTML+print.
     maxDuration: 60,
+    // Rutas dinamicas tipo join(process.cwd(),'public',relPath) hacen que node-file-trace
+    // no pueda resolver el archivo exacto y arrastre TODA public/ (700+MB) a la función.
+    // public/videos (531MB) nunca se lee server-side (catalogo-builder, capture-slide, etc.
+    // solo leen public/images para generar catálogos/PDFs) — excluirlo basta para bajar de 250MB.
+    excludeFiles: ['public/videos/**'],
   }),
 
   server: {
