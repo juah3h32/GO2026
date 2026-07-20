@@ -72,57 +72,68 @@ import "../styles/typography.css";
   html, body {
     margin: 0;
     padding: 0;
-    min-height: 100%;
+    height: 100%;
     background: #0F0E0C;
     font-family: 'NeueMontreal', sans-serif;
+    overflow: hidden;
+    overscroll-behavior: none;
   }
   .redes-page {
-    min-height: 100vh;
+    height: 100dvh;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 40px 20px;
+    padding: clamp(14px, 4vh, 40px) 20px;
+    overflow: hidden;
   }
   .redes-card {
     width: 100%;
     max-width: 420px;
+    height: 100%;
+    max-height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     text-align: center;
   }
   .redes-logo {
-    width: 140px;
+    width: clamp(90px, 16vh, 140px);
     height: auto;
-    margin-bottom: 28px;
+    margin-bottom: clamp(12px, 3vh, 28px);
+    flex-shrink: 0;
   }
   .redes-tag {
     color: #a3a3a3;
-    font-size: 13px;
+    font-size: clamp(11px, 1.6vh, 13px);
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    margin: 0 0 24px 0;
+    margin: 0 0 clamp(12px, 3vh, 24px) 0;
+    flex-shrink: 0;
   }
   .redes-list {
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: clamp(8px, 1.8vh, 14px);
+    flex-shrink: 1;
+    min-height: 0;
   }
   .redes-link {
     display: flex;
     align-items: center;
     gap: 14px;
     width: 100%;
-    padding: 16px 20px;
+    padding: clamp(10px, 2vh, 16px) 20px;
     border-radius: 14px;
     border: 1px solid rgba(255,255,255,0.12);
     background: rgba(255,255,255,0.03);
     color: #fff;
     text-decoration: none;
-    font-size: 15px;
+    font-size: clamp(13px, 1.8vh, 15px);
     font-weight: 500;
     transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+    flex-shrink: 0;
   }
   .redes-link:hover {
     border-color: #fb670b;
@@ -141,8 +152,9 @@ import "../styles/typography.css";
     text-align: left;
   }
   .redes-copy {
-    margin-top: 32px;
+    margin-top: clamp(12px, 3vh, 32px);
     color: #6b6b6b;
-    font-size: 12px;
+    font-size: 11px;
+    flex-shrink: 0;
   }
 </style>
