@@ -6,6 +6,23 @@ import tailwind from '@astrojs/tailwind';
 import AstroPWA from '@vite-pwa/astro';
 import vercel from '@astrojs/vercel';
 import path from 'path';
+import fs from 'fs';
+
+// excludeFiles de @astrojs/vercel@9 hace match EXACTO de string, no soporta
+// globs ('public/videos/**' nunca matcheaba nada). Hay que listar cada archivo.
+function listFilesRecursive(dir) {
+  let out = [];
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) out = out.concat(listFilesRecursive(full));
+    else out.push(full);
+  }
+  return out;
+}
+const videosDir = path.join(process.cwd(), 'public', 'videos');
+const excludedVideoFiles = fs.existsSync(videosDir)
+  ? listFilesRecursive(videosDir).map((f) => path.relative(process.cwd(), f))
+  : [];
 
 export default defineConfig({
   site: 'https://grupo-ortiz.com',
@@ -19,7 +36,7 @@ export default defineConfig({
     // no pueda resolver el archivo exacto y arrastre TODA public/ (700+MB) a la función.
     // public/videos (531MB) nunca se lee server-side (catalogo-builder, capture-slide, etc.
     // solo leen public/images para generar catálogos/PDFs) — excluirlo basta para bajar de 250MB.
-    excludeFiles: ['public/videos/**'],
+    excludeFiles: excludedVideoFiles,
   }),
 
   server: {
