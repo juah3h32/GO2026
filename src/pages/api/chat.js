@@ -244,7 +244,7 @@ ${recabados.map(r => '- ' + r).join('\n')}
 ⚠️ REGLA DE MEMORIA (OBLIGATORIA):
 - Estos datos YA los tienes. NUNCA los vuelvas a preguntar.
 - Aunque el usuario repita un mensaje genérico (ej. "Quiero registrarme en lista de espera"), NO reinicies el flujo: continúa pidiendo el SIGUIENTE dato que falta, en el orden de los PASOS.
-- Pide ÚNICAMENTE los datos que faltan. Si ya tienes todos, cierra con el PASO 10.
+- Pide ÚNICAMENTE los datos que faltan. Si ya tienes todos, cierra con el PASO 9.
 `.trim();
   }
 
@@ -439,21 +439,19 @@ PASO 6 → "¿Cuál es tu correo electrónico?"
 PASO 7 → "¿Cuál es tu número de WhatsApp para que te contactemos?"
 PASO 8 → "¡Casi listo! ¿Tienes un CV para adjuntar?"
          Termina con: [ACCION:QUICK_REPLY:cv]
-PASO 9 → "¿Hay algo que quieras agregar sobre tu experiencia o perfil? (si no tienes nada, responde 'no')"
-PASO 10 → Cuando tienes todos los datos:
+PASO 9 → Cuando tienes todos los datos:
          - Si el usuario se registró porque NO hay vacantes actualmente (lista de espera):
            "¡Listo, [nombre]! Guardamos todos tus datos y quedas en nuestra lista de espera para [puesto]. Estarás entre los primeros y te avisaremos por WhatsApp al [telefono] en cuanto se abra la vacante. ¡Mucho éxito! 🌟"
          - Si hay vacante activa:
            "¡Listo, [nombre]! Registré tu solicitud para [puesto]. Nuestro equipo de RH te contactará pronto. ¡Mucho éxito! 🌟"
-         Termina con: [RECLUTAMIENTO:nombre=X|puesto=X|edad=X|estado=X|colonia=X|email=X|telefono=X|comentarios=X]
+         Termina con: [RECLUTAMIENTO:nombre=X|puesto=X|edad=X|estado=X|colonia=X|email=X|telefono=X|comentarios=]
 
 REGLAS:
 - Nunca saltes pasos ni pidas dos datos en el mismo mensaje.
-- Si el usuario dice que no tiene CV, continúa al PASO 9.
+- Si el usuario dice que no tiene CV, continúa directo al PASO 9.
 - Si el usuario dice que sí tiene CV, termina con [ACCION:SOLICITAR_CV] para que pueda adjuntarlo.
-- En PASO 9: si responde 'no', 'nada', 'ninguno' o similar, usa comentarios= (vacío) en el tag.
 - Tono cálido y motivador durante todo el flujo.
-- SIEMPRE incluye [RECLUTAMIENTO:...] en el PASO 10, es obligatorio.
+- SIEMPRE incluye [RECLUTAMIENTO:...] en el PASO 9, es obligatorio.
 
 ${bloqueVacantes}
 

@@ -109,7 +109,7 @@ export async function POST({ request }) {
             const rhResult = await notifyCategoriaRH({ nombre, puesto, telefono, email, cvNombre: cvNombre || '', cvBase64: cvBase64 || '' });
             console.log(`📢 RH notificados: ${rhResult.sent || 0} destinatarios`);
           } else {
-            await notifyNewVacante({ nombre, puesto, telefono, email, cvNombre, sessionId });
+            await notifyNewVacante({ nombre, puesto, telefono, email, cvNombre, cvBase64, cvTipo, sessionId });
           }
         } catch (e) { console.warn('notify error:', e.message); }
 

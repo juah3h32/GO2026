@@ -342,7 +342,6 @@ const RECRUIT_STEPS = [
   { key: 'email',       label: 'Email',   Icon: RpIcons.email,   regex: /correo|email|e-mail/i },
   { key: 'tel',         label: 'Tel',     Icon: RpIcons.tel,     regex: /whatsapp|tel[eé]fono|n[uú]mero.*contact/i },
   { key: 'cv',          label: 'CV',      Icon: RpIcons.cv,      regex: /tienes.*cv|adjunta.*cv|cv.*disponible/i },
-  { key: 'comentarios', label: 'Nota',    Icon: RpIcons.cv,      regex: /algo.*agregar|algo.*compartir|comentario|experiencia.*perfil/i },
 ];
 
 function calcularPasoActual(messages) {
@@ -1772,6 +1771,7 @@ export default function BotGO({ language = 'es' }) {
     setMessages(prev => prev.map((m, i) => i === msgIdx ? { ...m, quickRepliesUsed: true } : m));
     if (opt.action === 'solicitar_cv') {
       setViewMode('chat');
+      setCvSubido(null); // si ya había uno de un intento previo, no bloquear el botón de subir
       setMostrarSubirCV(true);
       await new Promise(r => setTimeout(r, 50));
       await sendMessage(null, 'Sí, tengo mi CV para adjuntar', false);

@@ -938,7 +938,7 @@ async function notifyCategoria(categoria, buildMsg) {
 // Nuevo candidato → categoría 'rh'
 export async function notifyCategoriaRH(c) {
   const esEspera = c.en_lista_espera === 1 || c.en_lista_espera === true || c.esListaEspera === true;
-  return notifyCategoria('rh', (nombre) => {
+  const result = await notifyCategoria('rh', (nombre) => {
     const saludo = nombre ? `*${nombre}*` : '';
     const tieneCV = !!(c.cvNombre || c.cv_nombre || c.cvBase64 || c.cv_base64);
 
@@ -968,6 +968,25 @@ export async function notifyCategoriaRH(c) {
       (c.sessionId ? `Folio: ${String(c.sessionId).slice(0, 12)}\n` : '') +
       `\nGestiona: Panel > Reclutamiento`;
   });
+
+  // Ademas del texto, mandar el archivo real del CV (si vino adjunto).
+  const cvBase64 = c.cvBase64 || c.cv_base64 || '';
+  const cvNombre = c.cvNombre || c.cv_nombre || '';
+  if (cvBase64 && cvNombre) {
+    try {
+      const { getWAAuthorizedByCategory } = await import('./analytics-db.js');
+      const subs   = await getWAAuthorizedByCategory('rh');
+      const buffer = Buffer.from(cvBase64, 'base64');
+      const cvTipo = c.cvTipo || c.cv_tipo || 'application/pdf';
+      for (const s of subs) {
+        try {
+          await sendWADocumentRaw(s.phone, buffer, cvNombre, cvTipo);
+        } catch (e) { console.warn(`[notify-cat:rh] CV → ****${String(s.phone).slice(-4)}:`, e.message); }
+      }
+    } catch (e) { console.warn('[notify-cat:rh] envío de CV falló:', e.message); }
+  }
+
+  return result;
 }
 
 // Nuevo distribuidor → categoría 'clientes'
