@@ -676,7 +676,7 @@ export async function saveRecruitmentLead({
              cvNombre, cvBase64, cvTipo, mensaje, comentarios, sessionId, en_lista_espera ? 1 : 0],
     });
   } catch (err1) {
-    console.error(`⚠️ INSERT completo falló (CV ${cvNombre || 's/n'}, ${cvBase64.length} bytes b64) — CV se perderá:`, err1.code || '', err1.message);
+    console.error(`⚠️ INSERT completo falló (CV ${cvNombre || 's/n'}, ${cvBase64.length} bytes b64):`, err1.code || '', err1.message);
 
     // ── Intento 2: sin cv_base64/cv_tipo (columnas pueden no existir aún) ──
     try {
@@ -690,6 +690,20 @@ export async function saveRecruitmentLead({
         args: [nombre, email, telefono, puesto, edad, estado_rep, colonia,
                cvNombre, mensaje, sessionId],
       });
+
+      // El INSERT chico funcionó → probar CV por separado en UPDATE aislado.
+      // No lo tiramos solo porque el INSERT grande falló.
+      if (cvBase64) {
+        const newId = Number(result.lastInsertRowid);
+        try {
+          await db.execute({
+            sql:  `UPDATE recruitment_leads SET cv_base64=?, cv_tipo=? WHERE id=?`,
+            args: [cvBase64, cvTipo, newId],
+          });
+        } catch (cvErr) {
+          console.error(`⚠️ UPDATE de CV aislado también falló para #${newId} — CV se perderá:`, cvErr.code || '', cvErr.message);
+        }
+      }
     } catch (err2) {
       console.warn('⚠️ INSERT sin CV falló, usando mínimo:', err2.message);
 
