@@ -1548,6 +1548,23 @@ footer: {
       title_em: "juntos",
       sub:      "Descubra como nossas soluções podem transformar sua operação",
       btn:      "Fale Conosco"
+    },
+
+    newsletter: {
+      tag:              "Fique por dentro",
+      title:            "Não perca",
+      title_em:         "nossas novidades",
+      sub:              "Receba promoções, novos produtos e conteúdo exclusivo direto no seu e-mail.",
+      name_placeholder:  "Seu nome",
+      email_placeholder: "Seu e-mail",
+      terms_pre:        "Aceito o",
+      terms_link:       "aviso de privacidade",
+      btn:              "Inscrever-me",
+      btn_sending:      "Enviando...",
+      success_title:    "Pronto! Você está inscrito",
+      success_sub:      "Avisaremos por e-mail quando houver novidades.",
+      error:            "Não foi possível inscrever. Tente novamente.",
+      error_terms:      "Você deve aceitar o aviso de privacidade."
     }
   }
 

@@ -621,12 +621,13 @@ const CVUploadButton = ({ onFileSelect, cvSubido, uploading, t }) => {
 
 // ─── PRE-REGISTRO REVIEW (revisar antes de confirmar) ────────────────────────
 const SubscribeCard = ({ t, onSubscribe, onDismiss }) => {
-  const [visible,     setVisible]     = useState(false);
-  const [nombre,      setNombre]      = useState('');
-  const [email,       setEmail]       = useState('');
-  const [submitting,  setSubmitting]  = useState(false);
-  const [done,        setDone]        = useState(false);
-  const [error,       setError]       = useState('');
+  const [visible,        setVisible]        = useState(false);
+  const [nombre,         setNombre]         = useState('');
+  const [email,          setEmail]          = useState('');
+  const [aceptaTerminos, setAceptaTerminos] = useState(false);
+  const [submitting,     setSubmitting]     = useState(false);
+  const [done,           setDone]           = useState(false);
+  const [error,          setError]          = useState('');
 
   useEffect(() => {
     const timer = setTimeout(() => setVisible(true), 120);
@@ -634,7 +635,7 @@ const SubscribeCard = ({ t, onSubscribe, onDismiss }) => {
   }, []);
 
   const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
-  const puedeEnviar = nombre.trim().length > 0 && emailValido && !submitting;
+  const puedeEnviar = nombre.trim().length > 0 && emailValido && aceptaTerminos && !submitting;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -696,6 +697,20 @@ const SubscribeCard = ({ t, onSubscribe, onDismiss }) => {
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
               {t?.subscribeTrust || 'Sin spam. Cancela cuando quieras.'}
             </p>
+            <label className="subscribe-terms">
+              <input
+                type="checkbox"
+                checked={aceptaTerminos}
+                onChange={e => setAceptaTerminos(e.target.checked)}
+                disabled={submitting}
+              />
+              <span>
+                {t?.subscribeTermsPre || 'Acepto el'}{' '}
+                <a href="/aviso/aviso-de-privacidad.pdf" target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}>
+                  {t?.subscribeTermsLink || 'aviso de privacidad'}
+                </a>
+              </span>
+            </label>
             {error && <p className="subscribe-error">{error}</p>}
             <div className="subscribe-actions">
               <button type="button" className="subscribe-dismiss-btn" onClick={onDismiss} disabled={submitting}>

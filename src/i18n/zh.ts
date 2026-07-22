@@ -1547,6 +1547,23 @@ footer: {
       title_em: "合作",
       sub:      "探索我们的解决方案如何改变您的运营",
       btn:      "联系我们"
+    },
+
+    newsletter: {
+      tag:              "保持联系",
+      title:            "不要错过",
+      title_em:         "我们的最新动态",
+      sub:              "直接通过邮件接收促销信息、新产品和独家内容。",
+      name_placeholder:  "您的姓名",
+      email_placeholder: "您的邮箱",
+      terms_pre:        "我同意",
+      terms_link:       "隐私声明",
+      btn:              "订阅",
+      btn_sending:      "发送中...",
+      success_title:    "完成！您已订阅",
+      success_sub:      "有新消息时我们会通过邮件通知您。",
+      error:            "订阅失败，请重试。",
+      error_terms:      "您必须同意隐私声明。"
     }
   }
 

@@ -1034,6 +1034,13 @@
     25%      { transform: translateX(-4px); }
     75%      { transform: translateX(4px); }
   }
+  /* Productos de interes: checkbox va oculto tras .select-btn, el error se marca en la grilla */
+  .products-field.field-error .selection-grid {
+    outline: 2px solid #dc2626;
+    outline-offset: 6px;
+    border-radius: 10px;
+    animation: fieldErrorShake 0.35s ease;
+  }
 
   /* Inputs */
   .field-group input {
@@ -1123,6 +1130,13 @@
     accent-color: var(--dist-primary);
     cursor     : pointer;
   }
+  .subscribe-optin a {
+    color          : var(--dist-primary);
+    text-decoration: underline;
+    font-weight    : 600;
+  }
+  .subscribe-optin input:disabled { cursor: not-allowed; opacity: 0.5; }
+  .subscribe-optin:has(input:disabled) { cursor: not-allowed; opacity: 0.5; }
 
   /* Botón Submit */
   .submit-btn {
@@ -1188,6 +1202,16 @@
 
   html.dark .submit-btn::before { background: #ffffff; }
   html.dark .submit-btn:hover   { color: #000000; }
+
+  .submit-btn:disabled {
+    background : #d4d4d4;
+    color      : #8a8a8a;
+    cursor     : not-allowed;
+    pointer-events: none;
+    box-shadow : none;
+    transform  : none;
+  }
+  html.dark .submit-btn:disabled { background: #3a3a3a; color: #737373; }
 
   /* =========================================
      DOTS DE CARRUSEL

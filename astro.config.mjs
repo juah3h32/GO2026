@@ -27,6 +27,11 @@ const excludedVideoFiles = fs.existsSync(videosDir)
 export default defineConfig({
   site: 'https://grupo-ortiz.com',
 
+  // checkOrigin bloqueaba con 403 todo POST multipart (subida de CV) detrás
+  // del proxy de Vercel, aunque viniera del propio sitio — por eso el CV
+  // nunca se guardaba. Rutas admin ya están protegidas con verifyAdminToken.
+  security: { checkOrigin: false },
+
   output: 'server',
   adapter: vercel({
     isr: false,

@@ -1547,6 +1547,23 @@ footer: {
       title_em: "together",
       sub:      "Discover how our solutions can transform your operation",
       btn:      "Contact Us"
+    },
+
+    newsletter: {
+      tag:              "Stay in the loop",
+      title:            "Don't miss",
+      title_em:         "our latest news",
+      sub:              "Get promotions, new products, and exclusive content straight to your inbox.",
+      name_placeholder:  "Your name",
+      email_placeholder: "Your email",
+      terms_pre:        "I accept the",
+      terms_link:       "privacy notice",
+      btn:              "Subscribe",
+      btn_sending:      "Sending...",
+      success_title:    "You're all set!",
+      success_sub:      "We'll email you whenever there's news.",
+      error:            "Couldn't subscribe. Please try again.",
+      error_terms:      "You must accept the privacy notice."
     }
   }
 

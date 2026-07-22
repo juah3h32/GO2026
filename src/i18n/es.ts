@@ -1547,6 +1547,23 @@ footer: {
       title_em: "juntos",
       sub:      "Descubre cómo nuestras soluciones pueden transformar tu operación",
       btn:      "Contáctanos"
+    },
+
+    newsletter: {
+      tag:              "Mantente al día",
+      title:            "No te pierdas",
+      title_em:         "nuestras novedades",
+      sub:              "Recibe promociones, nuevos productos y contenido exclusivo directo a tu correo.",
+      name_placeholder:  "Tu nombre",
+      email_placeholder: "Tu correo electrónico",
+      terms_pre:        "Acepto el",
+      terms_link:       "aviso de privacidad",
+      btn:              "Suscribirme",
+      btn_sending:      "Enviando...",
+      success_title:    "¡Listo! Ya estás suscrito",
+      success_sub:      "Te avisaremos por correo cuando haya novedades.",
+      error:            "No se pudo suscribir. Intenta de nuevo.",
+      error_terms:      "Debes aceptar el aviso de privacidad."
     }
   }
 

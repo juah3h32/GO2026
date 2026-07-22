@@ -2007,6 +2007,16 @@ html.dark .rp-step--pending .rp-step-label { color: #555; }
 }
 .subscribe-trust svg { flex-shrink: 0; }
 
+.subscribe-terms {
+  display: flex; align-items: flex-start; gap: 6px;
+  font-size: 0.72rem; color: #52525b; margin: 2px 0 0 1px;
+  cursor: pointer; line-height: 1.35;
+}
+.subscribe-terms input[type="checkbox"] {
+  flex-shrink: 0; margin-top: 2px; width: 14px; height: 14px; accent-color: #FB670B; cursor: pointer;
+}
+.subscribe-terms a { color: #FB670B; text-decoration: underline; font-weight: 600; }
+
 .subscribe-error { font-size: 0.72rem; color: #dc2626; margin: 0; font-weight: 600; }
 
 .subscribe-actions { display: flex; align-items: center; gap: 6px; margin-top: 2px; }

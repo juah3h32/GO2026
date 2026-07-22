@@ -4,7 +4,7 @@
 
 const GOPULSE_URL = 'https://gopulsenews.com/api/v1/integration/subscribe';
 
-export async function syncSubscriberToGoPulse(email, source = 'web_form') {
+export async function syncSubscriberToGoPulse(email, nombre = '', source = 'web_form') {
   const apiKey = process.env.GOPULSE_API_KEY;
   if (!apiKey) { console.warn('⚠️ GOPULSE_API_KEY no configurada — se omite sync'); return { ok: false, reason: 'sin_api_key' }; }
 
@@ -17,7 +17,7 @@ export async function syncSubscriberToGoPulse(email, source = 'web_form') {
     const res = await fetch(GOPULSE_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-API-Key': apiKey },
-      body: JSON.stringify({ email: clean, source }),
+      body: JSON.stringify({ email: clean, name: String(nombre || '').trim(), source }),
       signal: controller.signal,
     }).finally(() => clearTimeout(timeout));
 

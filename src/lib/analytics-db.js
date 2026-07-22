@@ -530,7 +530,7 @@ export async function saveSubscriber({ nombre, email, lang = '', source = 'botgo
   let gopulseOk = false;
   try {
     const { syncSubscriberToGoPulse } = await import('./gopulse.js');
-    const r = await syncSubscriberToGoPulse(email, source || 'botgo');
+    const r = await syncSubscriberToGoPulse(email, nombre, source || 'botgo');
     gopulseOk = !!r?.ok;
   } catch { /* gopulseOk queda false */ }
 

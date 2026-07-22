@@ -93,11 +93,6 @@ const optionalLabel = currentLang === 'en' ? 'optional'
   : currentLang === 'ar' ? 'اختياري'
   : currentLang === 'zh' ? '选填'
   : 'opcional';
-const contactRequiredMsg = currentLang === 'en' ? 'Enter a WhatsApp number or an email address.'
-  : currentLang === 'pt' ? 'Informe um número de WhatsApp ou um e-mail.'
-  : currentLang === 'ar' ? 'أدخل رقم واتساب أو بريداً إلكترونياً.'
-  : currentLang === 'zh' ? '请填写 WhatsApp 号码或电子邮箱。'
-  : 'Ingresa un número de WhatsApp o un correo electrónico.';
 const emailInvalidMsg = currentLang === 'en' ? 'Enter a valid email address.'
   : currentLang === 'pt' ? 'Informe um e-mail válido.'
   : currentLang === 'ar' ? 'أدخل بريداً إلكترونياً صحيحاً.'
@@ -113,6 +108,31 @@ const subscribeLabel = currentLang === 'en' ? 'I want to receive news about prod
   : currentLang === 'ar' ? 'أريد تلقي أخبار المنتجات والمحتوى الحصري عبر البريد الإلكتروني'
   : currentLang === 'zh' ? '我想通过电子邮件接收产品资讯和独家内容'
   : 'Quiero recibir novedades de productos y contenido exclusivo por correo';
+const termsPreLabel = currentLang === 'en' ? 'I accept the'
+  : currentLang === 'pt' ? 'Aceito o'
+  : currentLang === 'ar' ? 'أوافق على'
+  : currentLang === 'zh' ? '我同意'
+  : 'Acepto el';
+const termsLinkLabel = currentLang === 'en' ? 'privacy notice'
+  : currentLang === 'pt' ? 'aviso de privacidade'
+  : currentLang === 'ar' ? 'إشعار الخصوصية'
+  : currentLang === 'zh' ? '隐私声明'
+  : 'aviso de privacidad';
+const termsRequiredMsg = currentLang === 'en' ? 'You must accept the privacy notice.'
+  : currentLang === 'pt' ? 'Você deve aceitar o aviso de privacidade.'
+  : currentLang === 'ar' ? 'يجب الموافقة على إشعار الخصوصية.'
+  : currentLang === 'zh' ? '您必须同意隐私声明。'
+  : 'Debes aceptar el aviso de privacidad.';
+const phoneInvalidMsg = currentLang === 'en' ? 'Enter a valid WhatsApp number (7 to 15 digits).'
+  : currentLang === 'pt' ? 'Informe um número de WhatsApp válido (7 a 15 dígitos).'
+  : currentLang === 'ar' ? 'أدخل رقم واتساب صحيحاً (من 7 إلى 15 رقماً).'
+  : currentLang === 'zh' ? '请输入有效的 WhatsApp 号码（7 到 15 位数字）。'
+  : 'Ingresa un número de WhatsApp válido (de 7 a 15 dígitos).';
+const productsRequiredMsg = currentLang === 'en' ? 'Select at least one product you are interested in.'
+  : currentLang === 'pt' ? 'Selecione ao menos um produto de seu interesse.'
+  : currentLang === 'ar' ? 'اختر منتجاً واحداً على الأقل يهمك.'
+  : currentLang === 'zh' ? '请至少选择一个您感兴趣的产品。'
+  : 'Selecciona al menos un producto de tu interés.';
 ---
 
 <BaseLayout title={metaTitle} description={metaDesc} canonicalSlug="distribuidor/" currentLang={currentLang}>
@@ -161,8 +181,10 @@ const subscribeLabel = currentLang === 'en' ? 'I want to receive news about prod
         data-success={form.success_msg}
         data-sending={sendingMsg}
         data-error={errorMsg}
-        data-contact-required={contactRequiredMsg}
         data-email-invalid={emailInvalidMsg}
+        data-terms-required={termsRequiredMsg}
+        data-phone-invalid={phoneInvalidMsg}
+        data-products-required={productsRequiredMsg}
       >{form.success_msg}</div>
       <p class="reveal-sub" id="revealSub" data-sub={successSub}></p>
     </div>
@@ -260,7 +282,7 @@ const subscribeLabel = currentLang === 'en' ? 'I want to receive news about prod
       </div>
 
       <div class="form-inputs">
-        <form id="distribuidor-form">
+        <form id="distribuidor-form" novalidate>
           <div class="input-row">
             <div class="field-group">
               <label for="name">{form.labels.name}</label>
@@ -274,11 +296,11 @@ const subscribeLabel = currentLang === 'en' ? 'I want to receive news about prod
           <div class="input-row">
             <div class="field-group">
               <label for="whatsapp">{form.labels.whatsapp}</label>
-              <input type="tel" id="whatsapp" name="whatsapp" autocomplete="tel" inputmode="tel" pattern="[\d\s\+]{7,}" title="Solo números (puede incluir + de código de país)" />
+              <input type="tel" id="whatsapp" name="whatsapp" autocomplete="tel" inputmode="tel" pattern="[\d\s\+]{7,}" maxlength="17" title="Solo números, de 7 a 15 dígitos (puede incluir + de código de país)" />
             </div>
             <div class="field-group">
               <label for="email">{form.labels.email}</label>
-              <input type="email" id="email" name="email" autocomplete="email" />
+              <input type="email" id="email" name="email" autocomplete="email" required />
             </div>
           </div>
 
@@ -287,13 +309,12 @@ const subscribeLabel = currentLang === 'en' ? 'I want to receive news about prod
             <div class="selection-grid">
               {
                 form.products_list &&
-                  form.products_list.map((prod: any, index: number) => (
+                  form.products_list.map((prod: any) => (
                     <label class="select-btn">
                       <input
                         type="checkbox"
                         name="products"
                         value={prod}
-                        checked={index === 0}
                       />
                       <span>{prod}</span>
                     </label>
@@ -305,6 +326,14 @@ const subscribeLabel = currentLang === 'en' ? 'I want to receive news about prod
           <label class="subscribe-optin">
             <input type="checkbox" id="subscribe" name="subscribe" checked />
             <span>{subscribeLabel}</span>
+          </label>
+
+          <label class="subscribe-optin" id="acceptTermsGroup">
+            <input type="checkbox" id="acceptTerms" name="acceptTerms" required />
+            <span>
+              {termsPreLabel}{' '}
+              <a href="/aviso/aviso-de-privacidad.pdf" target="_blank" rel="noopener noreferrer">{termsLinkLabel}</a>
+            </span>
           </label>
 
           <button type="submit" class="submit-btn">
@@ -501,31 +530,65 @@ const subscribeLabel = currentLang === 'en' ? 'I want to receive news about prod
     var newForm = formEl.cloneNode(true);
     formEl.parentNode.replaceChild(newForm, formEl);
 
-    // Quita el marcado rojo en cuanto el usuario empieza a corregir.
-    // Si al menos uno de los dos (WhatsApp o correo) ya tiene contenido,
-    // el requisito "al menos uno" se cumple y se limpian AMBOS campos.
+    // El boton de enviar solo se activa cuando acepta el aviso de privacidad,
+    // y solo puede aceptarlo si antes marco "quiero recibir novedades".
+    var termsElInit    = newForm.querySelector('[name="acceptTerms"]');
+    var subscribeElInit = newForm.querySelector('[name="subscribe"]');
+    var submitBtnEl    = newForm.querySelector(".submit-btn");
+
+    function syncTermsAvailability() {
+      if (!termsElInit || !subscribeElInit) return;
+      termsElInit.disabled = !subscribeElInit.checked;
+      if (!subscribeElInit.checked) termsElInit.checked = false;
+    }
+    function syncSubmitState() {
+      if (!termsElInit || !submitBtnEl) return;
+      submitBtnEl.disabled = !termsElInit.checked;
+    }
+
+    if (termsElInit && subscribeElInit && submitBtnEl) {
+      syncTermsAvailability();
+      syncSubmitState();
+      subscribeElInit.addEventListener("change", function () {
+        syncTermsAvailability();
+        syncSubmitState();
+      });
+      termsElInit.addEventListener("change", syncSubmitState);
+    }
+
+    // Quita el marcado rojo del campo en cuanto el usuario empieza a corregirlo.
     var emailElEarly = newForm.querySelector('[name="email"]');
     function clearFieldError(el) {
       var group = el.closest(".field-group");
       if (group) group.classList.remove("field-error");
     }
     function onContactInput() {
-      var wVal = whatsappEl ? whatsappEl.value.trim() : "";
-      var eVal = emailElEarly ? emailElEarly.value.trim() : "";
-      if (wVal || eVal) {
-        if (whatsappEl)    clearFieldError(whatsappEl);
-        if (emailElEarly)  clearFieldError(emailElEarly);
-      }
+      if (whatsappEl) clearFieldError(whatsappEl);
     }
-    if (emailElEarly) emailElEarly.addEventListener("input", onContactInput);
+    if (emailElEarly) emailElEarly.addEventListener("input", function () { clearFieldError(emailElEarly); });
+    var productsGroupEarly = newForm.querySelector(".products-field");
+    if (productsGroupEarly) {
+      productsGroupEarly.querySelectorAll('input[name="products"]').forEach(function (cb) {
+        cb.addEventListener("change", function () { productsGroupEarly.classList.remove("field-error"); });
+      });
+    }
 
     // WhatsApp/Tel: solo numeros — permite "+" de codigo de pais SOLO al inicio
     // (funciona para cualquier pais: +52, +1, +34, +55, etc.)
     var whatsappEl = newForm.querySelector('[name="whatsapp"]');
+    var MAX_PHONE_DIGITS = 15; // E.164: maximo 15 digitos en un numero internacional
+    function capPhoneDigits(v) {
+      var seen = 0;
+      return v.replace(/\d/g, function (d) {
+        seen++;
+        return seen <= MAX_PHONE_DIGITS ? d : "";
+      });
+    }
     if (whatsappEl) {
       whatsappEl.addEventListener("input", function (e) {
         var v = e.target.value.replace(/[^\d\s\+]/g, "");
         v = v.replace(/(?!^)\+/g, "");
+        v = capPhoneDigits(v);
         e.target.value = v;
         onContactInput();
       });
@@ -533,6 +596,7 @@ const subscribeLabel = currentLang === 'en' ? 'I want to receive news about prod
         e.preventDefault();
         var text = (e.clipboardData || window.clipboardData).getData("text");
         var clean = text.replace(/[^\d\s\+]/g, "").replace(/(?!^)\+/g, "");
+        clean = capPhoneDigits(clean);
         var el = e.target;
         var start = el.selectionStart, end = el.selectionEnd;
         el.value = el.value.slice(0, start) + clean + el.value.slice(end);
@@ -569,24 +633,47 @@ const subscribeLabel = currentLang === 'en' ? 'I want to receive news about prod
       var whatsappGroup = whatsappEl ? whatsappEl.closest(".field-group") : null;
       var emailElNow    = newForm.querySelector('[name="email"]');
       var emailGroup    = emailElNow ? emailElNow.closest(".field-group") : null;
+      var productsGroup = newForm.querySelector(".products-field");
       function clearFieldErrors() {
         if (whatsappGroup) whatsappGroup.classList.remove("field-error");
         if (emailGroup)    emailGroup.classList.remove("field-error");
+        if (productsGroup) productsGroup.classList.remove("field-error");
       }
       clearFieldErrors();
 
-      // 0) Validacion: al menos WhatsApp o correo, y si hay correo, formato valido.
-      var emailOk = !payload.email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email);
-      var contactOk = !!(payload.whatsapp || payload.email);
-      if (!contactOk || !emailOk) {
-        if (!contactOk) {
-          if (whatsappGroup) whatsappGroup.classList.add("field-error");
-          if (emailGroup)    emailGroup.classList.add("field-error");
-        } else if (!emailOk) {
+      // 0) Validacion: debe aceptar el aviso de privacidad.
+      var termsEl = newForm.querySelector('[name="acceptTerms"]');
+      if (termsEl && !termsEl.checked) {
+        if (txt) txt.textContent = d.termsRequired || "Debes aceptar el aviso de privacidad.";
+        if (sub) sub.textContent = "";
+        reveal.classList.add("active", "error");
+        setTimeout(function () { reveal.classList.remove("active", "error"); }, 2800);
+        return;
+      }
+
+      // 0) Validacion: al menos un producto de interes seleccionado.
+      if (!payload.productos) {
+        if (productsGroup) productsGroup.classList.add("field-error");
+        if (txt) txt.textContent = d.productsRequired || "Selecciona al menos un producto de tu interés.";
+        if (sub) sub.textContent = "";
+        reveal.classList.add("active", "error");
+        setTimeout(function () { reveal.classList.remove("active", "error"); }, 2800);
+        return;
+      }
+
+      // 0) Validacion: correo obligatorio con formato valido; WhatsApp opcional, 7-15 digitos si viene.
+      var phoneDigits = (payload.whatsapp || "").replace(/\D/g, "").length;
+      var phoneOk = !payload.whatsapp || (phoneDigits >= 7 && phoneDigits <= 15);
+      var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email || "");
+      var contactOk = emailOk;
+      if (!contactOk || !phoneOk) {
+        if (!emailOk) {
           if (emailGroup) emailGroup.classList.add("field-error");
+        } else if (!phoneOk) {
+          if (whatsappGroup) whatsappGroup.classList.add("field-error");
         }
-        if (txt) txt.textContent = !contactOk ? (d.contactRequired || "Ingresa un número de WhatsApp o un correo electrónico.")
-                                               : (d.emailInvalid    || "Ingresa un correo electrónico válido.");
+        if (txt) txt.textContent = !emailOk ? (d.emailInvalid || "Ingresa un correo electrónico válido.")
+                                             : (d.phoneInvalid || "Ingresa un número de WhatsApp válido (de 7 a 15 dígitos).");
         if (sub) sub.textContent = "";
         reveal.classList.add("active", "error");
         setTimeout(function () { reveal.classList.remove("active", "error"); }, 2800);

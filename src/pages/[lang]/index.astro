@@ -396,23 +396,43 @@ const toLocalVideo = (cldPath: string) => `/videos/${cldPath.replace(/^GO\//, ''
 
 
 <!-- ═══════════════════════════════════════
-     CTA
+     NEWSLETTER (antes: CTA "Trabajemos juntos")
 ═══════════════════════════════════════ -->
-<section class="cta">
-  <div class="cta__inner">
-    <p class="section-tag">{th.cta.tag}</p>
-    <h2 class="cta__heading">{th.cta.title} <em>{th.cta.title_em}</em></h2>
-    <p class="cta__sub">{th.cta.sub}</p>
-    <a href={`/${currentLang}/distribuidor#statsRow`} class="btn btn--solid btn--xl">
-      {th.cta.btn}
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-        <path d="M5 12h14M12 5l7 7-7 7"/>
-      </svg>
-    </a>
+<section class="newsletter">
+  <div class="newsletter__inner">
+    <div class="newsletter__copy">
+      <p class="section-tag">{th.newsletter.tag}</p>
+      <h2 class="newsletter__heading">{th.newsletter.title} <em>{th.newsletter.title_em}</em></h2>
+      <p class="newsletter__sub">{th.newsletter.sub}</p>
+    </div>
+
+    <form
+      class="newsletter__form"
+      id="newsletterForm"
+      data-lang={currentLang}
+      data-sending-text={th.newsletter.btn_sending}
+      data-success-text={th.newsletter.success_sub}
+      data-error-text={th.newsletter.error}
+      data-error-terms={th.newsletter.error_terms}
+    >
+      <div class="newsletter__fields">
+        <input type="text" name="nombre" class="newsletter__input" placeholder={th.newsletter.name_placeholder} maxlength="120" required />
+        <input type="email" name="email" class="newsletter__input" placeholder={th.newsletter.email_placeholder} maxlength="160" required />
+      </div>
+      <label class="newsletter__terms">
+        <input type="checkbox" id="newsletterTerms" required />
+        <span>
+          {th.newsletter.terms_pre}{' '}
+          <a href="/aviso/aviso-de-privacidad.pdf" target="_blank" rel="noopener noreferrer">{th.newsletter.terms_link}</a>
+        </span>
+      </label>
+      <p class="newsletter__msg" id="newsletterMsg" role="status" aria-live="polite"></p>
+      <button type="submit" class="btn btn--solid" id="newsletterBtn">
+        <span id="newsletterBtnText">{th.newsletter.btn}</span>
+      </button>
+    </form>
   </div>
 </section>
-
-
 
 
 
@@ -454,10 +474,63 @@ function initVideoFade() {
     .forEach(el => el.classList.add('is-loaded'));
 }
 
+/* ---- NEWSLETTER ---- */
+function initNewsletter() {
+  const form = document.getElementById('newsletterForm');
+  if (!form || form.dataset.bound) return;
+  form.dataset.bound = '1';
+
+  const msgEl     = document.getElementById('newsletterMsg');
+  const termsEl   = document.getElementById('newsletterTerms');
+  const btn       = document.getElementById('newsletterBtn');
+  const btnText   = document.getElementById('newsletterBtnText');
+  const originalBtnText = btnText.textContent;
+
+  btn.disabled = !termsEl.checked;
+  termsEl.addEventListener('change', () => { btn.disabled = !termsEl.checked; });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    msgEl.textContent = '';
+    msgEl.classList.remove('is-error', 'is-success');
+
+    if (!termsEl.checked) {
+      msgEl.textContent = form.dataset.errorTerms;
+      msgEl.classList.add('is-error');
+      return;
+    }
+
+    const nombre = form.nombre.value.trim();
+    const email  = form.email.value.trim();
+
+    btn.disabled = true;
+    btnText.textContent = form.dataset.sendingText;
+
+    try {
+      const res  = await fetch('/api/analytics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'subscribe', nombre, email, lang: form.dataset.lang }),
+      });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || 'error');
+      msgEl.textContent = form.dataset.successText;
+      msgEl.classList.add('is-success');
+      form.reset();
+    } catch {
+      msgEl.textContent = form.dataset.errorText;
+      msgEl.classList.add('is-error');
+    }
+    btn.disabled = false;
+    btnText.textContent = originalBtnText;
+  });
+}
+
 /* ---- INIT ---- */
 function init() {
   initCounters();
   initVideoFade();
+  initNewsletter();
 }
 
 document.addEventListener('DOMContentLoaded', init);
