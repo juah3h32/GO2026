@@ -337,8 +337,8 @@ chatbot: {
   // PÁGINA: NATURIZABLE
   // =================================================
   naturizable: {
-    meta_title: "Naturizable | Grupo Ortiz",
-    meta_description: "Empaque sustentable 100% Plant Based que regresa a la tierra. Charolas reciclables y compostables para la industria alimentaria.",
+    meta_title: "Naturizable en Morelia | Grupo Ortiz",
+    meta_description: "Charolas y empaque sustentable 100% Plant Based fabricado en Morelia, Michoacán. Reciclable y compostable para la industria alimentaria en toda la República.",
     back_aria: "Volver",
     coming_soon_badge: "Próximamente",
     specs_title: "ESPECIFICACIONES TÉCNICAS",
@@ -405,7 +405,8 @@ chatbot: {
   // PÁGINA: STRETCH FILM (Película Estirable)
   // =================================================
   stretch_film: {
-    meta_title: "Película Estirable | Grupo Ortiz",
+    meta_title: "Stretch Film en Morelia | Comprar | Grupo Ortiz",
+    meta_description: "Stretch film y película estirable fabricados en Morelia, Michoacán. Alta resistencia para embalaje industrial. Cotiza con el fabricante directo.",
     back_aria: "Volver a productos",
     specs_title: "ESPECIFICACIONES TÉCNICAS",
 
@@ -509,7 +510,8 @@ gallery: [
   // PÁGINA: CUERDAS
   // =================================================
   cuerdas: {
-    meta_title: "Cuerdas | Grupo Ortiz",
+    meta_title: "Cuerdas en Morelia | Comprar | Grupo Ortiz",
+    meta_description: "Cuerdas de polipropileno fabricadas en Morelia, Michoacán. Alta resistencia para uso industrial y agrícola. Cotiza con el fabricante directo.",
     back_aria: "Volver",
     loading: "Cargando...",
     specs_title: "ESPECIFICACIONES TÉCNICAS",
@@ -569,7 +571,8 @@ gallery: [
   // PÁGINA: RAFIAS
   // =================================================
   rafias: {
-    meta_title: "Rafias | Grupo Ortiz",
+    meta_title: "Rafia en Morelia | Comprar | Grupo Ortiz",
+    meta_description: "Rafia de polipropileno fabricada en Morelia, Michoacán. Ideal para tejido y empaque industrial. Cotiza con el fabricante directo.",
     back_aria: "Volver",
     specs_title: "ESPECIFICACIONES TÉCNICAS",
 
@@ -639,7 +642,8 @@ gallery: [
   // PÁGINA: ARPILLAS
   // =================================================
   arpillas: {
-    meta_title: "Arpillas | Grupo Ortiz",
+    meta_title: "Arpillas en Morelia | Comprar | Grupo Ortiz",
+    meta_description: "Arpillas de polipropileno fabricadas en Morelia, Michoacán. Alta resistencia para empaque y almacenamiento. Cotiza con el fabricante directo.",
     back_aria: "Volver",
     specs_title: "ESPECIFICACIONES TÉCNICAS",
 
@@ -731,7 +735,8 @@ gallery: [
   // PÁGINA: SACOS
   // =================================================
   sacos: {
-    meta_title: "Sacos | Grupo Ortiz",
+    meta_title: "Sacos en Morelia | Comprar | Grupo Ortiz",
+    meta_description: "Sacos de rafia y polipropileno fabricados en Morelia, Michoacán. Alta resistencia para empaque industrial y agrícola. Cotiza con el fabricante directo.",
     back_aria: "Volver a productos",
     specs_title: "ESPECIFICACIONES TÉCNICAS",
 
@@ -805,7 +810,8 @@ gallery: [
   // PÁGINA: ESQUINEROS
   // =================================================
   esquineros: {
-    meta_title: "Esquineros | Grupo Ortiz",
+    meta_title: "Esquineros en Morelia | Comprar | Grupo Ortiz",
+    meta_description: "Esquineros de cartón y polipropileno fabricados en Morelia, Michoacán. Protección de carga para embalaje industrial. Cotiza con el fabricante directo.",
     back_aria: "Volver",
     specs_title: "ESPECIFICACIONES TÉCNICAS",
 
@@ -860,7 +866,8 @@ gallery: [
   // PÁGINA: EMPAQUES FLEXIBLES
   // =================================================
   flexible_packaging: {
-    meta_title: "Empaques Flexibles | Grupo Ortiz",
+    meta_title: "Empaques Flexibles en Morelia | Grupo Ortiz",
+    meta_description: "Empaques flexibles fabricados en Morelia, Michoacán para la industria alimentaria e industrial. Cotiza con el fabricante directo.",
     back_aria: "Volver a productos",
     specs_title: "ESPECIFICACIONES TÉCNICAS",
 
@@ -952,8 +959,8 @@ gallery: [
   // PÁGINA: BOLSAS
   // =================================================
   bolsas: {
-    meta_title: "Bolsas | Grupo Ortiz",
-    meta_description: "Bolsas de polietileno de alta resistencia para empaque industrial y comercial. Disponibles en 5 tamaños.",
+    meta_title: "Bolsas en Morelia | Comprar | Grupo Ortiz",
+    meta_description: "Bolsas de polietileno de alta resistencia fabricadas en Morelia, Michoacán. Empaque industrial y comercial en 5 tamaños. Cotiza con el fabricante directo.",
     back_aria: "Volver a productos",
     specs_title: "ESPECIFICACIONES TÉCNICAS",
 
@@ -1053,8 +1060,8 @@ gallery: [
   // PÁGINA: ACOLCHADO
   // =================================================
   acolchado: {
-    meta_title: "Acolchado | Grupo Ortiz",
-    meta_description: "Material acolchado de polipropileno para protección y amortiguamiento industrial. Alta resistencia al impacto.",
+    meta_title: "Acolchado en Morelia | Comprar | Grupo Ortiz",
+    meta_description: "Material acolchado de polipropileno fabricado en Morelia, Michoacán. Protección y amortiguamiento industrial de alta resistencia. Cotiza con el fabricante directo.",
     back_aria: "Volver a productos",
     specs_title: "ESPECIFICACIONES TÉCNICAS",
     specs_labels: {
@@ -1441,8 +1448,8 @@ footer: {
   // PÁGINA: HOME (Index)
   // =================================================
   home: {
-    meta_title: "Grupo Ortiz | Fabricante de Polímeros y Empaques en México",
-    meta_description: "Más de 65 años fabricando stretch film, sacos, cuerdas, rafia, arpillas y empaques flexibles. Líder en polímeros plásticos en México y Latinoamérica.",
+    meta_title: "Grupo Ortiz | Fabricante de Polímeros en Morelia, México",
+    meta_description: "Fabricante en Morelia, Michoacán desde 1959: stretch film, sacos, cuerdas, rafia, arpillas y empaques flexibles. Líder en polímeros plásticos en México y Latinoamérica.",
     hero: {
       eyebrow:      "Desde 1959",
       title_top:    "SOMOS EL PRINCIPAL",

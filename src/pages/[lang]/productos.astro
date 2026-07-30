@@ -68,7 +68,12 @@ const firstProductImg =
   productsList.length > 0 ? resolveImg(productsList[0].img) : null;
 ---
 
-<BaseLayout title={`${t.nav.products} | Grupo Ortiz`} canonicalSlug="productos/" currentLang={currentLang}>
+<BaseLayout
+  title={`${t.nav.products} en Morelia | Grupo Ortiz`}
+  description="Catálogo completo de sacos, arpillas, bolsas, rafia, cuerdas y stretch film fabricados en Morelia, Michoacán. Cotiza con el fabricante directo."
+  canonicalSlug="productos/"
+  currentLang={currentLang}
+>
   {
     firstProductImg && (
       <link rel="preload" as="image" href={firstProductImg} slot="head" />

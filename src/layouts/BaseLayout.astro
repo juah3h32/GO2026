@@ -19,8 +19,8 @@ import "../styles/backgrounds.css";
 // fonts-inline.css (118KB base64) loaded non-blocking — see script below
 
 const {
-  title = "Grupo Ortiz | Fabricante de Polímeros y Empaques en México",
-  description = "Más de 65 años fabricando stretch film, sacos, cuerdas, rafia, arpillas y empaques flexibles. Líder en polímeros plásticos en México y Latinoamérica.",
+  title = "Grupo Ortiz | Fabricante de Polímeros en Morelia, México",
+  description = "Fabricante en Morelia, Michoacán desde 1959: stretch film, sacos, cuerdas, rafia, arpillas y empaques flexibles. Líder en polímeros plásticos en México y Latinoamérica.",
   author = "Grupo Ortiz",
   currentLang = "es",
   canonicalSlug = "",
@@ -144,6 +144,30 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
     {description && <meta name="twitter:description" content={description} />}
     <meta name="twitter:image" content="https://grupo-ortiz.com/images/og-preview.jpg" />
     <meta name="twitter:site" content="@GrupoOrtiz" />
+
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Grupo Ortiz",
+      "url": BASE_URL,
+      "logo": `${BASE_URL}/favicon-512x512.png`,
+      "foundingDate": "1959",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Morelia",
+        "addressRegion": "Michoacán",
+        "addressCountry": "MX",
+      },
+      "areaServed": ["Morelia", "Michoacán", "México"],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "+52-443-207-2593",
+        "contactType": "customer service",
+        "email": "atencionacliente@grupo-ortiz.com",
+        "areaServed": "MX",
+        "availableLanguage": ["Spanish", "English"],
+      },
+    })} />
 
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png" />
