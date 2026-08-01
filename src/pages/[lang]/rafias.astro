@@ -9,6 +9,7 @@ import Footer from "../../components/Footer.astro";
 import ProductTitle from "../../components/ProductTitle.astro";
 import ProductTutorial from "../../components/ProductTutorial.astro";
 import { languages, translations } from "../../i18n";
+import { getRelatedProducts, LOCALITY_TAG_TEXT, RELATED_PRODUCTS_HEADING } from "../../lib/catalogs.js";
 
 export function getStaticPaths() {
   return Object.keys(languages).map((lang) => ({
@@ -31,6 +32,10 @@ const specs = [
   { label: specsLabels.usage,  id: "spec-usage",  tag: firstProduct.specs_values.usage },
 ];
 
+const relatedProducts = getRelatedProducts('rafias', currentLang);
+const localityTag = LOCALITY_TAG_TEXT[currentLang] || LOCALITY_TAG_TEXT.es;
+const relatedHeading = RELATED_PRODUCTS_HEADING[currentLang] || RELATED_PRODUCTS_HEADING.es;
+
 const CLOUD = import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME;
 const videoPoster = (src: string) =>
   CLOUD ? `https://res.cloudinary.com/${CLOUD}/video/upload/f_jpg,q_auto,so_0/${src.replace(/^\//, "").replace(/\.mp4$/, "")}.jpg` : '';
@@ -52,6 +57,24 @@ const localVideo = (src: string) => {
 >
   <Fragment slot="head">
     {CLOUD && <link rel="preload" as="image" href={videoPoster(firstProduct.video || '')} fetchpriority="high" />}
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": firstProduct.name,
+      "description": firstProduct.description,
+      "image": `https://grupo-ortiz.com${firstProduct.img}`,
+      "brand": { "@type": "Brand", "name": "Grupo Ortiz" },
+      "areaServed": "Morelia, Michoacán, México",
+    })} />
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": t.nav?.home || "Inicio", "item": `https://grupo-ortiz.com/${currentLang}/` },
+        { "@type": "ListItem", "position": 2, "name": t.nav?.products || "Productos", "item": `https://grupo-ortiz.com/${currentLang}/productos/` },
+        { "@type": "ListItem", "position": 3, "name": firstProduct.name, "item": `https://grupo-ortiz.com/${currentLang}/rafias/` },
+      ],
+    })} />
   </Fragment>
 
   <div id="wipe-transition" class="wipe-container"></div>
@@ -84,6 +107,7 @@ const localVideo = (src: string) => {
     
       <div class="text-area" style="max-width: 550px; align-items: flex-start;">
         <ProductTitle as="h1" id="product-title" nombre={firstProduct.name} reveal={false} className="fade-in-text anim-text" />
+        <p class="product-locality fade-in-text anim-text">{localityTag}</p>
         <p id="product-desc" class="fade-in-text anim-text" style="text-align: left; width: 100%; line-height: 1.5;">
           {firstProduct.description}
         </p>
@@ -96,6 +120,15 @@ const localVideo = (src: string) => {
                 <span class="spec-label">{spec.label}</span>
                 <span class="spec-value" id={spec.id}>{spec.tag}</span>
               </div>
+            ))}
+          </div>
+        </div>
+
+        <div class="related-products fade-in-text anim-text">
+          <h3 class="related-products-title">{relatedHeading}</h3>
+          <div class="related-products-list">
+            {relatedProducts.map((rp) => (
+              <a class="related-products-link" href={`/${currentLang}/${rp.slug}`}>{rp.label}</a>
             ))}
           </div>
         </div>
@@ -129,7 +162,7 @@ const localVideo = (src: string) => {
             id="product-hero-img"
             class="product-hero-img"
             src={firstProduct.img}
-            alt={firstProduct.name}
+            alt={`${firstProduct.name} en Morelia, Michoacán`}
           />
         </div>
 
@@ -246,7 +279,7 @@ function updateVideo(idx) {
 
       if (heroImg && products[idx] && products[idx].img) {
         heroImg.src = products[idx].img;
-        heroImg.alt = products[idx].name || '';
+        heroImg.alt = (products[idx].name || '') + ' en Morelia, Michoacán';
       }
 
       updateContent(idx);

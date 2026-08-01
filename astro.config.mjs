@@ -7,6 +7,16 @@ import AstroPWA from '@vite-pwa/astro';
 import vercel from '@astrojs/vercel';
 import path from 'path';
 import fs from 'fs';
+import { CATALOGS } from './src/lib/catalogs.js';
+
+// catalogo/[category].astro es SSR puro (prerender = false: lee Turso en cada
+// request para reflejar ediciones del admin al instante). @astrojs/sitemap solo
+// indexa rutas prerenderizadas, asi que estas paginas no aparecerian en el sitemap
+// por si solas — se agregan a mano via customPages.
+const CATALOG_LANGS = ['es', 'en', 'pt', 'ar', 'zh'];
+const catalogCustomPages = CATALOGS.flatMap((c) =>
+  CATALOG_LANGS.map((lang) => `https://grupo-ortiz.com/${lang}/catalogo/${c.slug}/`)
+);
 
 // excludeFiles de @astrojs/vercel@9 hace match EXACTO de string, no soporta
 // globs ('public/videos/**' nunca matcheaba nada). Hay que listar cada archivo.
@@ -53,7 +63,7 @@ export default defineConfig({
   integrations: [
     react(),
     mdx(),
-    sitemap(),
+    sitemap({ customPages: catalogCustomPages }),
     tailwind(),
     AstroPWA({
       registerType: 'autoUpdate',

@@ -57,21 +57,12 @@ const steps = [
 <BaseLayout
   title="Vacantes en Morelia | Empleos Grupo Ortiz"
   description="Únete al equipo de Grupo Ortiz en Morelia, Michoacán. Vacantes disponibles en producción, almacén, logística, ventas y más. Regístrate con nuestro asistente virtual."
+  canonicalSlug="vacantes/"
   currentLang={currentLang}
 >
 
   <Fragment slot="head">
     <link rel="preload" as="image" href={posterUrl} fetchpriority="high" />
-
-    <script type="application/ld+json">{JSON.stringify({
-      "@context":"https://schema.org",
-      "@type":"Organization",
-      "name":"Grupo Ortiz",
-      "url":"https://grupo-ortiz.com",
-      "logo":"https://grupo-ortiz.com/images/logoN.png",
-      "address":{"@type":"PostalAddress","addressLocality":"Morelia","addressRegion":"Michoacán","addressCountry":"MX"},
-      "contactPoint":{"@type":"ContactPoint","telephone":"+52-443-207-2593","contactType":"Human Resources"}
-    })}</script>
 
     <style is:inline>
       html.ocultar-salto { 

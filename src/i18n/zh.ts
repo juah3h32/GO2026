@@ -1084,7 +1084,8 @@ export const zh = {
   // 页面：经销商（完整落地页）
   // =================================================
   distribuidor: {
-    meta_title: "经销商 Grupo Ortiz | 官方合作伙伴",
+    meta_title: "经销商 Grupo Ortiz | 莫雷利亚官方合作伙伴",
+    meta_description: "成为 Grupo Ortiz 经销商，自1959年起在莫雷利亚（米却肯州）生产制造。库存保证，无中间商，自有物流。",
     hero: {
       subtitle: "批发商门户",
       title: "倍增 <br>您的<span>利润</span>",
@@ -1123,7 +1124,8 @@ export const zh = {
   // 页面：关于我们
   // =================================================
   quienes_somos: {
-    meta_title: "关于我们 | Grupo Ortiz",
+    meta_title: "关于我们 | Grupo Ortiz，自1959年在莫雷利亚制造",
+    meta_description: "Grupo Ortiz：自1959年起在墨西哥莫雷利亚（米却肯州）生产麻袋、编织袋、绳索及柔性包装。了解我们的历史。",
 
     timeline: {
       title_white:   "我们的",

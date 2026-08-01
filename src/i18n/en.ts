@@ -1083,7 +1083,8 @@ arpillas: {
   // PAGE: DISTRIBUTOR (Full Landing)
   // =================================================
   distribuidor: {
-    meta_title: "Grupo Ortiz Distributor | Official Partner",
+    meta_title: "Grupo Ortiz Distributor | Official Partner in Morelia",
+    meta_description: "Become a Grupo Ortiz distributor, manufacturer in Morelia, Michoacán since 1959. Guaranteed stock, no middlemen, in-house logistics.",
     hero: {
       subtitle: "Wholesale Portal",
       title: "Multiply <br>your <span>Profits</span>",
@@ -1122,7 +1123,8 @@ arpillas: {
   // PAGE: ABOUT US
   // =================================================
   quienes_somos: {
-    meta_title: "About Us | Grupo Ortiz",
+    meta_title: "About Us | Grupo Ortiz, Manufacturer in Morelia since 1959",
+    meta_description: "Grupo Ortiz: manufacturer of sacks, burlap, twine and flexible packaging in Morelia, Michoacán since 1959. Learn our history.",
 
     timeline: {
       title_white:   "OUR",

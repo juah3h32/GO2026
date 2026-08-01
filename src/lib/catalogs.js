@@ -69,3 +69,55 @@ export const DIVISION_WORD = { es: 'DIVISIÓN', en: 'DIVISION', pt: 'DIVISÃO', 
 export function getDivTitle(slug, lang) {
   return DIV_TITLES[slug]?.[lang] || DIV_TITLES[slug]?.es || slug;
 }
+
+// Etiqueta plural de cada pagina de producto (para anchor text de "productos relacionados").
+export const PRODUCT_PAGE_LABELS = {
+  'sacos':               { es: 'Sacos',              en: 'Woven Bags',      pt: 'Sacos',               zh: '编织袋',   ar: 'أكياس' },
+  'arpillas':            { es: 'Arpillas',            en: 'Mesh Bags',       pt: 'Arpilhas',            zh: '网袋',     ar: 'أكياس شبكية' },
+  'bolsas':              { es: 'Bolsas',              en: 'Bags',            pt: 'Bolsas',              zh: '袋子',     ar: 'أكياس' },
+  'cuerdas':             { es: 'Cuerdas',             en: 'Ropes',           pt: 'Cordas',              zh: '绳索',     ar: 'حبال' },
+  'rafias':              { es: 'Rafias',              en: 'Raffia',          pt: 'Ráfias',              zh: '拉菲草',   ar: 'رافيا' },
+  'esquineros':          { es: 'Esquineros',          en: 'Corner Guards',   pt: 'Cantoneiras',         zh: '护角',     ar: 'حماية الزوايا' },
+  'stretch-film':        { es: 'Stretch Film',        en: 'Stretch Film',    pt: 'Stretch Film',        zh: '拉伸膜',   ar: 'فيلم تمديد' },
+  'acolchado':           { es: 'Acolchado',           en: 'Padding',         pt: 'Acolchoado',          zh: '填充垫',   ar: 'مبطن' },
+  'naturizable':         { es: 'Naturizable',         en: 'Biodegradable',   pt: 'Naturizável',         zh: '可降解',   ar: 'قابل للتحلل' },
+  'empaques-flexibles':  { es: 'Empaques Flexibles',  en: 'Flexible Packaging', pt: 'Embalagens Flexíveis', zh: '软包装', ar: 'تغليف مرن' },
+};
+
+// Mapa de productos complementarios — usado para internal linking contextual
+// ("productos relacionados") entre las 10 paginas de producto.
+export const RELATED_PRODUCTS = {
+  'sacos':              ['rafias', 'arpillas', 'cuerdas'],
+  'arpillas':           ['sacos', 'rafias', 'empaques-flexibles'],
+  'bolsas':             ['empaques-flexibles', 'naturizable', 'stretch-film'],
+  'cuerdas':            ['rafias', 'esquineros', 'sacos'],
+  'rafias':             ['sacos', 'arpillas', 'cuerdas'],
+  'esquineros':         ['cuerdas', 'stretch-film', 'empaques-flexibles'],
+  'stretch-film':       ['empaques-flexibles', 'esquineros', 'naturizable'],
+  'acolchado':          ['empaques-flexibles', 'naturizable', 'bolsas'],
+  'naturizable':        ['bolsas', 'empaques-flexibles', 'acolchado'],
+  'empaques-flexibles': ['bolsas', 'stretch-film', 'naturizable'],
+};
+
+export const LOCALITY_TAG_TEXT = {
+  es: 'Hecho en Morelia, Michoacán',
+  en: 'Made in Morelia, Michoacán',
+  pt: 'Feito em Morelia, Michoacán',
+  zh: '产自莫雷利亚，米却肯州',
+  ar: 'صُنع في موريليا، ميتشواكان',
+};
+
+export const RELATED_PRODUCTS_HEADING = {
+  es: 'Productos relacionados en Morelia',
+  en: 'Related products in Morelia',
+  pt: 'Produtos relacionados em Morelia',
+  zh: '莫雷利亚相关产品',
+  ar: 'منتجات ذات صلة في موريليا',
+};
+
+export function getRelatedProducts(slug, lang) {
+  return (RELATED_PRODUCTS[slug] || []).map((s) => ({
+    slug: s,
+    label: PRODUCT_PAGE_LABELS[s]?.[lang] || PRODUCT_PAGE_LABELS[s]?.es || s,
+  }));
+}

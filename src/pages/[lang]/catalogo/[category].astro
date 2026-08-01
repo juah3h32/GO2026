@@ -108,6 +108,21 @@ const ui: any = UI[currentLang] || UI.es;
 const getDivTitle = (s: string) => (DIV_TITLES[s]?.[currentLang]) || (DIV_TITLES[s]?.es) || s;
 
 const ctTitle: any = { es: 'Catálogo de Productos | Grupo Ortiz', en: 'Product Catalog | Grupo Ortiz', pt: 'Catálogo de Produtos | Grupo Ortiz', zh: '产品目录 | Grupo Ortiz', ar: 'كتالوج المنتجات | Grupo Ortiz' };
+
+// Title/description por división — evita contenido duplicado entre los 10 catálogos
+// (antes todas las divisiones compartían el mismo title/description de Stretch Film).
+const divTitle = getDivTitle(slug);
+const CD_META_TEMPLATES: any = {
+  es: { title: (d: string) => `Catálogo de ${d} en Morelia | Grupo Ortiz`, desc: (d: string) => `Catálogo digital de ${d} de Grupo Ortiz, fabricante en Morelia, Michoacán desde 1959. Especificaciones técnicas completas.` },
+  en: { title: (d: string) => `${d} Catalog | Grupo Ortiz, Morelia`, desc: (d: string) => `Digital catalog of ${d} from Grupo Ortiz, manufacturer in Morelia, Michoacán since 1959. Full technical specifications.` },
+  pt: { title: (d: string) => `Catálogo de ${d} em Morelia | Grupo Ortiz`, desc: (d: string) => `Catálogo digital de ${d} da Grupo Ortiz, fabricante em Morelia, Michoacán desde 1959. Especificações técnicas completas.` },
+  zh: { title: (d: string) => `${d}目录 | Grupo Ortiz 莫雷利亚`, desc: (d: string) => `Grupo Ortiz ${d}数字目录，自1959年起在莫雷利亚（米却肯州）生产制造。完整技术规格。` },
+  ar: { title: (d: string) => `كتالوج ${d} | Grupo Ortiz موريليا`, desc: (d: string) => `الكتالوج الرقمي لـ ${d} من Grupo Ortiz، المصنّعة في موريليا، ميتشواكان منذ عام 1959. مواصفات تقنية كاملة.` },
+};
+const cdMeta = CD_META_TEMPLATES[currentLang] || CD_META_TEMPLATES.es;
+const pageTitle = divTitle ? cdMeta.title(divTitle) : (dc.title || ctTitle[currentLang] || ctTitle.es);
+const pageDescription = divTitle ? cdMeta.desc(divTitle) : "Catálogo digital de Grupo Ortiz, fabricante en Morelia, Michoacán desde 1959.";
+
 const t: any = {
   catalogTitle: dc.title || ctTitle[currentLang] || ctTitle.es,
   catalogTitlePart1: dc.titlePart1 || ui.titlePart1,
@@ -141,8 +156,8 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
 ---
 
 <BaseLayout
-  title={t.catalogTitle || "Catálogo de Productos — Stretch Film | Grupo Ortiz"}
-  description="Catálogo digital de la división Stretch Film de Grupo Ortiz: Manual Convencional, Banding, Preestirado, Automático y Rígido con especificaciones técnicas."
+  title={pageTitle}
+  description={pageDescription}
   canonicalSlug={`catalogo/${slug}/`}
   currentLang={currentLang}
   moveLogoMobile={true}

@@ -1084,7 +1084,8 @@ export const pt = {
   // PÁGINA: DISTRIBUIDOR (Landing Completa)
   // =================================================
   distribuidor: {
-    meta_title: "Distribuidor Grupo Ortiz | Parceiro Oficial",
+    meta_title: "Distribuidor Grupo Ortiz | Parceiro Oficial em Morelia",
+    meta_description: "Torne-se distribuidor da Grupo Ortiz, fabricante em Morelia, Michoacán desde 1959. Estoque garantido, sem intermediários, logística própria.",
     hero: {
       subtitle: "Portal Atacadista",
       title: "Multiplique <br>seus <span>Lucros</span>",
@@ -1123,7 +1124,8 @@ export const pt = {
   // PÁGINA: QUEM SOMOS
   // =================================================
   quienes_somos: {
-    meta_title: "Quem Somos | Grupo Ortiz",
+    meta_title: "Quem Somos | Grupo Ortiz, Fabricante em Morelia desde 1959",
+    meta_description: "Grupo Ortiz: fabricante de sacos, aniagem, rafia e embalagens flexíveis em Morelia, Michoacán desde 1959. Conheça nossa história.",
 
     timeline: {
       title_white:   "NOSSA",

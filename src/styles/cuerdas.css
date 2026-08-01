@@ -1367,3 +1367,56 @@ model-viewer::part(default-progress-mask) { display: none !important; opacity: 0
     transform: none !important; /* Desactivar scale de cuerdas.css para que la lupa sea precisa */
   }
 }
+
+/* =================================================================
+   SEO LOCAL — subtitulo de localidad + productos relacionados
+   ================================================================= */
+.product-locality {
+  font-size: clamp(0.7rem, 0.85vw, 0.9rem);
+  color: var(--text-color);
+  opacity: 0.6;
+  letter-spacing: 0.02em;
+  margin: 2px 0 10px;
+}
+
+.related-products {
+  width: 100%;
+  margin-top: clamp(10px, 1.4vw, 18px);
+  margin-bottom: clamp(10px, 1.4vw, 18px);
+}
+
+.related-products-title {
+  font-size: clamp(0.55rem, 0.7vw, 0.85rem);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.75;
+  border-left: 4px solid var(--tech-orange);
+  padding-left: 10px;
+  margin-bottom: 8px;
+  color: var(--text-color);
+}
+
+.related-products-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.related-products-link {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--spec-border);
+  background: var(--spec-bg);
+  color: var(--text-color);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: clamp(0.65rem, 0.75vw, 0.85rem);
+  text-decoration: none;
+  transition: transform .25s ease, border-color .25s ease, background .25s ease;
+}
+
+.related-products-link:hover {
+  transform: translateY(-2px);
+  border-color: var(--tech-orange);
+  color: var(--tech-orange);
+}

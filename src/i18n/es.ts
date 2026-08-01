@@ -2,7 +2,7 @@
 
 export const es = {
   digital_catalog: {
-    title: "Catálogo de Productos | Grupo Ortiz",
+    title: "Catálogo de Productos en Morelia | Grupo Ortiz",
     titlePart1: "CATÁLOGO DE",
     titlePart2: "PRODUCTOS",
     downloadPDF: "Descargar PDF",
@@ -1092,7 +1092,8 @@ gallery: [
   // PÁGINA: DISTRIBUIDOR (Landing Completa)
   // =================================================
   distribuidor: {
-    meta_title: "Distribuidor Grupo Ortiz | Socio Oficial",
+    meta_title: "Distribuidor Grupo Ortiz | Socio Oficial en Morelia",
+    meta_description: "Conviértete en distribuidor de Grupo Ortiz, fabricante en Morelia, Michoacán desde 1959. Stock garantizado, sin intermediarios y logística propia.",
     hero: {
       subtitle: "Portal Mayorista",
       title: "Multiplica <br>tus <span>Ganancias</span>",
@@ -1131,7 +1132,8 @@ gallery: [
   // PÁGINA: QUIÉNES SOMOS
   // =================================================
   quienes_somos: {
-    meta_title: "Quiénes Somos | Grupo Ortiz",
+    meta_title: "Quiénes Somos | Grupo Ortiz, Fabricante en Morelia desde 1959",
+    meta_description: "Grupo Ortiz: fabricante de sacos, arpillas, rafia y empaques flexibles en Morelia, Michoacán desde 1959. Conoce nuestra historia y trayectoria.",
 
     timeline: {
       title_white:   "NUESTRA",
