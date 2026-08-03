@@ -1,6 +1,158 @@
 {
   "commits": [
     {
+      "hash": "3cbf84f",
+      "date": "2026-07-30",
+      "message": "SEO local Morelia en paginas de producto + schema Organization",
+      "rawMessage": "fix: SEO local Morelia en paginas de producto + schema Organization",
+      "type": "fix",
+      "area": "Productos"
+    },
+    {
+      "hash": "1cc4385",
+      "date": "2026-07-22",
+      "message": "CV/recruitment, subscripciones, y validacion de formularios",
+      "rawMessage": "fix: CV/recruitment, subscripciones, y validacion de formularios",
+      "type": "fix",
+      "area": "Reclutamiento"
+    },
+    {
+      "hash": "ea7af7c",
+      "date": "2026-07-20",
+      "message": "cambiar texto precargado del link de WhatsApp en redes",
+      "rawMessage": "fix: cambiar texto precargado del link de WhatsApp en redes",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "fc9df88",
+      "date": "2026-07-20",
+      "message": "precargar mensaje en link de WhatsApp de la pagina de redes",
+      "rawMessage": "fix: precargar mensaje en link de WhatsApp de la pagina de redes",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "32898ab",
+      "date": "2026-07-20",
+      "message": "boton de CV atorado, envio de CV por WhatsApp, quitar paso Nota, agregar WA en redes",
+      "rawMessage": "fix: boton de CV atorado, envio de CV por WhatsApp, quitar paso Nota, agregar WA en redes",
+      "type": "fix",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "9b75ecd",
+      "date": "2026-07-20",
+      "message": "no perder CV cuando falla el INSERT completo en recruitment_leads",
+      "rawMessage": "fix: no perder CV cuando falla el INSERT completo en recruitment_leads",
+      "type": "fix",
+      "area": "Reclutamiento"
+    },
+    {
+      "hash": "603fa2f",
+      "date": "2026-07-20",
+      "message": "Bloquea scroll en mobile y ajusta layout de redes a cualquier alto",
+      "rawMessage": "Bloquea scroll en mobile y ajusta layout de redes a cualquier alto",
+      "type": "update",
+      "area": "Performance"
+    },
+    {
+      "hash": "9648022",
+      "date": "2026-07-20",
+      "message": "Actualiza link de LinkedIn en redes y footer",
+      "rawMessage": "Actualiza link de LinkedIn en redes y footer",
+      "type": "update",
+      "area": "General"
+    },
+    {
+      "hash": "8c927e7",
+      "date": "2026-07-20",
+      "message": "Corrige exclusion de public/videos en build de Vercel",
+      "rawMessage": "Corrige exclusion de public/videos en build de Vercel",
+      "type": "update",
+      "area": "Media"
+    },
+    {
+      "hash": "a08f482",
+      "date": "2026-07-20",
+      "message": "Agrega TikTok a la pagina de redes",
+      "rawMessage": "Agrega TikTok a la pagina de redes",
+      "type": "update",
+      "area": "General"
+    },
+    {
+      "hash": "07aa968",
+      "date": "2026-07-20",
+      "message": "Agrega pagina linktree de redes sociales",
+      "rawMessage": "Agrega pagina linktree de redes sociales",
+      "type": "update",
+      "area": "General"
+    },
+    {
+      "hash": "ccfa41c",
+      "date": "2026-07-16",
+      "message": "fix(deploy): excluir public/videos del bundle de la función serverless",
+      "rawMessage": "fix(deploy): excluir public/videos del bundle de la función serverless",
+      "type": "fix",
+      "area": "Media"
+    },
+    {
+      "hash": "d6a389c",
+      "date": "2026-07-16",
+      "message": "Mejora animación del botón de aviso de privacidad",
+      "rawMessage": "Mejora animación del botón de aviso de privacidad",
+      "type": "update",
+      "area": "UI"
+    },
+    {
+      "hash": "fd6037d",
+      "date": "2026-07-16",
+      "message": "fix(build): no abortar el build si git log falla en prebuild",
+      "rawMessage": "fix(build): no abortar el build si git log falla en prebuild",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "fcc0fc2",
+      "date": "2026-07-16",
+      "message": "Rediseña botón de aviso de privacidad en footer",
+      "rawMessage": "Rediseña botón de aviso de privacidad en footer",
+      "type": "update",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "613b3bd",
+      "date": "2026-07-16",
+      "message": "Agrega aviso de privacidad al footer",
+      "rawMessage": "Agrega aviso de privacidad al footer",
+      "type": "update",
+      "area": "General"
+    },
+    {
+      "hash": "a82dbbe",
+      "date": "2026-07-16",
+      "message": "fix(reclutamiento): resolver bug de 0 notificaciones RH por WhatsApp",
+      "rawMessage": "fix(reclutamiento): resolver bug de 0 notificaciones RH por WhatsApp",
+      "type": "fix",
+      "area": "Reclutamiento"
+    },
+    {
+      "hash": "57ce5af",
+      "date": "2026-07-03",
+      "message": "CV de reclutamiento se perdía en el registro final; add: sync suscriptores a GO Pulse",
+      "rawMessage": "fix: CV de reclutamiento se perdía en el registro final; add: sync suscriptores a GO Pulse",
+      "type": "fix",
+      "area": "Reclutamiento"
+    },
+    {
+      "hash": "c6307fa",
+      "date": "2026-07-02",
+      "message": "feat(naturizable): swap vaso/contenedor images + sync pending work",
+      "rawMessage": "feat(naturizable): swap vaso/contenedor images + sync pending work",
+      "type": "feat",
+      "area": "Productos"
+    },
+    {
       "hash": "d465430",
       "date": "2026-06-24",
       "message": "feat(admin): botón reenviar notificación por lead de distribuidor",
@@ -3138,83 +3290,85 @@
     }
   ],
   "stats": {
-    "total": 392,
+    "total": 411,
     "byType": {
-      "feat": 69,
-      "fix": 154,
+      "fix": 164,
+      "update": 40,
+      "feat": 70,
       "refactor": 2,
       "chore": 7,
       "perf": 8,
-      "update": 32,
       "style": 9,
       "docs": 1,
       "release": 110
     },
     "byArea": {
-      "Admin/API": 31,
-      "General": 243,
-      "Productos": 27,
-      "Media": 49,
-      "Performance": 29,
-      "i18n": 6,
-      "Reclutamiento": 5,
-      "UI": 2
+      "Productos": 29,
+      "Reclutamiento": 9,
+      "General": 250,
+      "Admin/API": 33,
+      "Performance": 30,
+      "Media": 51,
+      "UI": 3,
+      "i18n": 6
     },
     "byMonth": {
+      "2026-07": 19,
       "2026-06": 234,
       "2026-05": 33,
       "2026-04": 29,
       "2026-03": 96
     },
     "byAreaType": {
-      "Admin/API": {
-        "feat": 11,
-        "update": 4,
-        "fix": 13,
-        "style": 2,
-        "docs": 1
-      },
-      "General": {
-        "fix": 73,
-        "feat": 32,
-        "refactor": 2,
-        "chore": 6,
-        "update": 15,
-        "style": 5,
-        "release": 110
-      },
       "Productos": {
-        "fix": 12,
-        "feat": 10,
+        "fix": 13,
+        "feat": 11,
         "update": 3,
         "chore": 1,
         "perf": 1
       },
-      "Media": {
-        "fix": 34,
-        "feat": 7,
-        "perf": 3,
-        "update": 5
+      "Reclutamiento": {
+        "fix": 5,
+        "update": 3,
+        "feat": 1
+      },
+      "General": {
+        "fix": 76,
+        "update": 19,
+        "feat": 32,
+        "refactor": 2,
+        "chore": 6,
+        "style": 5,
+        "release": 110
+      },
+      "Admin/API": {
+        "fix": 14,
+        "update": 5,
+        "feat": 11,
+        "style": 2,
+        "docs": 1
       },
       "Performance": {
+        "update": 3,
         "perf": 4,
         "fix": 18,
-        "feat": 5,
-        "update": 2
+        "feat": 5
+      },
+      "Media": {
+        "update": 6,
+        "fix": 35,
+        "feat": 7,
+        "perf": 3
+      },
+      "UI": {
+        "update": 1,
+        "style": 2
       },
       "i18n": {
         "fix": 3,
         "feat": 3
-      },
-      "Reclutamiento": {
-        "update": 3,
-        "fix": 1,
-        "feat": 1
-      },
-      "UI": {
-        "style": 2
       }
     }
   },
-  "generatedAt": "2026-06-30T15:09:31.618Z"
+  "generatedAt": "2026-08-01T19:21:58.093Z"
 }

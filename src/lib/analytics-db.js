@@ -141,6 +141,21 @@ async function ensureInit() {
       )
     `);
   } catch {}
+
+  // Numeros de WhatsApp para pulseras NFC + numero principal de /redes
+  try {
+    await db.execute(`
+      CREATE TABLE IF NOT EXISTS redes_numbers (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        slug        TEXT    UNIQUE NOT NULL,
+        label       TEXT    NOT NULL DEFAULT '',
+        phone       TEXT    NOT NULL,
+        active      INTEGER NOT NULL DEFAULT 1,
+        is_default  INTEGER NOT NULL DEFAULT 0,
+        created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
+      )
+    `);
+  } catch {}
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -1447,6 +1462,65 @@ export async function updateWAAuthorized({ id, name, permissions, active, catego
 export async function deleteWAAuthorized(id) {
   await ensureInit();
   await db.execute({ sql: `DELETE FROM wa_authorized WHERE id=?`, args: [id] });
+}
+
+// ── Numeros WhatsApp para pulseras NFC ───────────────────────────────────────
+export async function getRedesNumbers() {
+  await ensureInit();
+  const r = await db.execute(`SELECT id, slug, label, phone, active, is_default, created_at FROM redes_numbers ORDER BY id DESC`);
+  return r.rows.map(row => ({
+    id:         row[0],
+    slug:       row[1],
+    label:      row[2],
+    phone:      row[3],
+    active:     row[4] === 1,
+    is_default: row[5] === 1,
+    created_at: row[6],
+  }));
+}
+
+export async function getRedesNumberBySlug(slug) {
+  await ensureInit();
+  const r = await db.execute({ sql: `SELECT id, slug, label, phone, active FROM redes_numbers WHERE slug=?`, args: [slug] });
+  if (!r.rows.length) return null;
+  const row = r.rows[0];
+  return { id: row[0], slug: row[1], label: row[2], phone: row[3], active: row[4] === 1 };
+}
+
+export async function getDefaultRedesNumber() {
+  await ensureInit();
+  const r = await db.execute(`SELECT id, slug, label, phone FROM redes_numbers WHERE is_default=1 LIMIT 1`);
+  if (!r.rows.length) return null;
+  const row = r.rows[0];
+  return { id: row[0], slug: row[1], label: row[2], phone: row[3] };
+}
+
+export async function addRedesNumber({ slug, label = '', phone }) {
+  await ensureInit();
+  const r = await db.execute({
+    sql:  `INSERT INTO redes_numbers (slug, label, phone) VALUES (?,?,?)`,
+    args: [slug, label, String(phone).replace(/\D/g, '')],
+  });
+  return r.lastInsertRowid;
+}
+
+export async function updateRedesNumber({ id, label, phone, active }) {
+  await ensureInit();
+  await db.execute({
+    sql:  `UPDATE redes_numbers SET label=?, phone=?, active=? WHERE id=?`,
+    args: [label, String(phone).replace(/\D/g, ''), active ? 1 : 0, id],
+  });
+}
+
+export async function deleteRedesNumber(id) {
+  await ensureInit();
+  await db.execute({ sql: `DELETE FROM redes_numbers WHERE id=?`, args: [id] });
+}
+
+export async function setDefaultRedesNumber(id) {
+  await ensureInit();
+  await db.execute(`UPDATE redes_numbers SET is_default=0`);
+  await db.execute({ sql: `UPDATE redes_numbers SET is_default=1 WHERE id=?`, args: [id] });
 }
 
 // ── WAGO Config ───────────────────────────────────────────────────────────────

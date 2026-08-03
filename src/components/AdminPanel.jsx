@@ -2749,7 +2749,7 @@ const CAT_OPTIONS = [
   { id: 'clientes', label: 'Atención a clientes — distribuidores',  desc: 'Recibe la info de cada distribuidor nuevo' },
 ];
 
-function WAWebhookTab({ P, isMobile }) {
+function WAWebhookTab({ P, isMobile, isRH }) {
   const [subTab, setSubTab]   = useState('conexion');
   const [msgs, setMsgs]       = useState([]);
   const [msgsLoading, setMsgsLoading] = useState(false);
@@ -2778,6 +2778,23 @@ function WAWebhookTab({ P, isMobile }) {
   const [editActive, setEditActive] = useState(true);
 
   const [copied, setCopied] = useState(false);
+
+  // pulseras NFC — numeros de WhatsApp configurables
+  const [bracelets, setBracelets]           = useState([]);
+  const [braceletsLoading, setBraceletsLoading] = useState(false);
+  const [bLabel, setBLabel]   = useState('');
+  const [bPhone, setBPhone]   = useState('');
+  const [bErr, setBErr]       = useState('');
+  const [bSaving, setBSaving] = useState(false);
+  const [bCopiedId, setBCopiedId] = useState(null);
+  const [redesLinkCopied, setRedesLinkCopied] = useState(false);
+
+  const redesPageLink = typeof window !== 'undefined' ? `${window.location.origin}/redes` : '/redes';
+  const copyRedesLink = () => {
+    navigator.clipboard.writeText(redesPageLink);
+    setRedesLinkCopied(true);
+    setTimeout(() => setRedesLinkCopied(false), 2000);
+  };
 
   // Conexión WhatsApp — WAHooks (campos sueltos) o WAGO (clave wago_v1_)
   const [wagoConfig, setWagoConfig]     = useState(null);
@@ -2883,6 +2900,7 @@ function WAWebhookTab({ P, isMobile }) {
       const itv = setInterval(pollWhatsApp, 6000);
       return () => clearInterval(itv);
     } else if (subTab === 'numeros') { loadAuthorized(); loadBotPause(); }
+    else if (subTab === 'pulseras') { loadBracelets(); }
   }, [subTab]);
 
   async function handleSend(e) {
@@ -2953,6 +2971,58 @@ function WAWebhookTab({ P, isMobile }) {
     setArr(arr.includes(id) ? arr.filter(x => x !== id) : [...arr.filter(x => x !== '*'), id]);
   }
 
+  const apiB = (body) => fetch('/api/admin/redes-numbers', {
+    method: 'POST', credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  }).then(r => r.json());
+
+  async function loadBracelets() {
+    setBraceletsLoading(true);
+    const d = await apiB({ action: 'list' }).catch(() => ({}));
+    if (d.ok) setBracelets(d.numbers || []);
+    setBraceletsLoading(false);
+  }
+
+  async function handleAddBracelet(e) {
+    e.preventDefault();
+    setBErr('');
+    if (!bLabel.trim() || !bPhone.trim()) { setBErr('Completa nombre y telefono'); return; }
+    setBSaving(true);
+    try {
+      const d = await apiB({ action: 'add', label: bLabel.trim(), phone: bPhone.trim() });
+      if (d.ok) {
+        setBLabel(''); setBPhone('');
+        loadBracelets();
+      } else setBErr(d.error || 'Error al agregar');
+    } catch { setBErr('Error de conexión'); }
+    setBSaving(false);
+  }
+
+  async function handleSetDefaultBracelet(id) {
+    await apiB({ action: 'set_default', id }).catch(() => {});
+    loadBracelets();
+  }
+
+  async function handleToggleActiveBracelet(item) {
+    await apiB({ action: 'update', id: item.id, label: item.label, phone: item.phone, active: !item.active }).catch(() => {});
+    loadBracelets();
+  }
+
+  async function handleDeleteBracelet(id) {
+    if (!window.confirm('Eliminar esta pulsera?')) return;
+    await apiB({ action: 'delete', id }).catch(() => {});
+    loadBracelets();
+  }
+
+  const braceletLink = item => `${window.location.origin}/redes/${item.slug}`;
+
+  function copyBraceletLink(item) {
+    navigator.clipboard.writeText(braceletLink(item));
+    setBCopiedId(item.id);
+    setTimeout(() => setBCopiedId(null), 2000);
+  }
+
   const CARD = { background: P.surface, border: `1px solid ${P.border}`, borderRadius: 12, padding: '18px 20px', marginBottom: 14,
     position: 'relative', overflow: 'hidden', boxShadow: '0 2px 16px rgba(0,0,0,0.25)' };
   const LABEL = { fontSize: 10.5, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: P.textDim, marginBottom: 10 };
@@ -2967,6 +3037,7 @@ function WAWebhookTab({ P, isMobile }) {
   const SUB_TABS = [
     { id: 'conexion', label: 'Conexion y mensajes' },
     { id: 'numeros',  label: 'Numeros autorizados' },
+    ...(isRH ? [] : [{ id: 'pulseras', label: 'Pulseras NFC' }]),
     { id: 'comandos', label: 'Comandos disponibles' },
   ];
 
@@ -3330,6 +3401,91 @@ function WAWebhookTab({ P, isMobile }) {
         </div>
       )}
 
+      {/* ── PULSERAS NFC ── */}
+      {subTab === 'pulseras' && !isRH && (
+        <div>
+          <div style={CARD}>
+            <p style={LABEL}>Link tipo Linktree — pagina de redes</p>
+            <p style={{ fontSize: 11, color: P.textDim, marginBottom: 10, lineHeight: 1.6 }}>
+              Link fijo con todas las redes (Facebook, Instagram, LinkedIn, TikTok, WhatsApp).
+              Usalo en la bio de Instagram o donde necesites un solo link para todo.
+            </p>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+              <code style={{ ...INPUT, flex: '1 1 200px', wordBreak: 'break-all', fontFamily: 'monospace', fontSize: 11, display: 'block', padding: '6px 10px' }}>
+                {redesPageLink}
+              </code>
+              <button onClick={copyRedesLink}
+                style={{ ...BTN_SM, border: `1px solid ${redesLinkCopied ? P.orange : P.border}`, color: redesLinkCopied ? P.orange : P.textSub }}>
+                {redesLinkCopied ? 'Copiado' : 'Copiar'}
+              </button>
+            </div>
+          </div>
+
+          <div style={CARD}>
+            <p style={LABEL}>Agregar pulsera</p>
+            <p style={{ fontSize: 11, color: P.textDim, marginBottom: 10, lineHeight: 1.6 }}>
+              Genera un link corto <code style={{ fontSize: 11, background: P.surface2, padding: '1px 5px', borderRadius: 4 }}>/redes/nombre</code> —
+              muestra todas las redes y el WhatsApp solo abre si tocan el contacto.
+              Si el numero cambia despues, se actualiza aqui sin reprogramar la pulsera.
+            </p>
+            <form onSubmit={handleAddBracelet}>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
+                <input value={bLabel} onChange={e => setBLabel(e.target.value)}
+                  placeholder="Nombre (ej. Recepcion, Ventas 1)"
+                  style={{ ...INPUT, flex: '1 1 160px', minWidth: 120 }}/>
+                <input value={bPhone} onChange={e => setBPhone(e.target.value)} placeholder="Telefono (521234567890)"
+                  style={{ ...INPUT, flex: '0 0 180px' }}/>
+              </div>
+              <button type="submit" disabled={bSaving}
+                style={{ padding: '7px 18px', background: P.orange, border: 'none', borderRadius: 8, color: '#fff', fontSize: 12, fontWeight: 600, cursor: bSaving ? 'not-allowed' : 'pointer', opacity: bSaving ? 0.7 : 1 }}>
+                {bSaving ? '...' : 'Agregar'}
+              </button>
+              {bErr && <p style={{ fontSize: 11, color: '#f87171', marginTop: 6 }}>{bErr}</p>}
+            </form>
+          </div>
+
+          <div style={CARD}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+              <p style={{ ...LABEL, marginBottom: 0 }}>Pulseras registradas</p>
+              <button onClick={loadBracelets} style={BTN_SM}>{braceletsLoading ? '...' : 'Actualizar'}</button>
+            </div>
+            {braceletsLoading && <p style={{ fontSize: 12, color: P.textDim, textAlign: 'center', padding: '24px 0' }}>Cargando...</p>}
+            {!braceletsLoading && bracelets.length === 0 && <p style={{ fontSize: 12, color: P.textDim, textAlign: 'center', padding: '32px 0' }}>Sin pulseras registradas</p>}
+            {!braceletsLoading && bracelets.map(item => (
+              <div key={item.id} style={{ borderBottom: `1px solid ${P.border2}`, paddingBottom: 12, marginBottom: 12 }}>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginBottom: 6 }}>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: item.active ? P.text : P.textDim }}>{item.label || item.phone}</span>
+                  <span style={{ fontSize: 11, color: P.textSub }}>{item.phone}</span>
+                  {item.is_default && <span style={{ fontSize: 9, background: P.okDim, color: P.orange, borderRadius: 5, padding: '1px 7px', fontWeight: 700 }}>Principal</span>}
+                  {!item.active && <span style={{ fontSize: 9, color: '#f87171', border: '1px solid #f87171', borderRadius: 5, padding: '1px 5px' }}>Inactivo</span>}
+                </div>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8, flexWrap: 'wrap' }}>
+                  <code style={{ ...INPUT, flex: '1 1 200px', wordBreak: 'break-all', fontFamily: 'monospace', fontSize: 11, display: 'block', padding: '6px 10px' }}>
+                    {typeof window !== 'undefined' ? braceletLink(item) : `/redes/${item.slug}`}
+                  </code>
+                  <button onClick={() => copyBraceletLink(item)}
+                    style={{ ...BTN_SM, border: `1px solid ${bCopiedId === item.id ? P.orange : P.border}`, color: bCopiedId === item.id ? P.orange : P.textSub }}>
+                    {bCopiedId === item.id ? 'Copiado' : 'Copiar'}
+                  </button>
+                </div>
+                <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
+                  {!item.is_default && (
+                    <button onClick={() => handleSetDefaultBracelet(item.id)} style={BTN_SM}>Usar como principal</button>
+                  )}
+                  <button onClick={() => handleToggleActiveBracelet(item)}
+                    style={{ ...BTN_SM, color: item.active ? '#f59e0b' : '#22C55E',
+                      border: `1px solid ${item.active ? 'rgba(245,158,11,0.35)' : 'rgba(34,197,94,0.35)'}` }}>
+                    {item.active ? 'Desactivar' : 'Activar'}
+                  </button>
+                  <button onClick={() => handleDeleteBracelet(item.id)}
+                    style={{ ...BTN_SM, color: '#f87171', border: '1px solid rgba(248,113,113,0.3)' }}>Eliminar</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* ── COMANDOS DISPONIBLES ── */}
       {subTab === 'comandos' && (
         <div style={CARD}>
@@ -3381,7 +3537,7 @@ const ALL_TABS=[
   // ✅ CORRECCIÓN FINAL: Permitimos nombres de Admin y banderas de Admin, PERO bloqueamos a RH explícitamente.
   const canSeeReportes  = !isRH && (role.name === 'Admin' || role.name === 'Super Admin' || role.role === 'Administrador' || isAdmin || isOnlyAdmin || role.tabs.includes('reportes'));
   const canSeeChangelog = isAdmin || isOnlyAdmin || role.tabs.includes('changelog');
-  const canSeeWhatsapp  = isAdmin || isOnlyAdmin || role.tabs.includes('whatsapp');
+  const canSeeWhatsapp  = isOnlyAdmin;
 
   const TABS=ALL_TABS.filter(t => {
     if (t.id === 'reportes')  return canSeeReportes;
@@ -4776,7 +4932,7 @@ const ALL_TABS=[
         {/* ── WHATSAPP WEBHOOK ── */}
         {canSeeWhatsapp&&(
           <div className="tab-content" key="wa" style={{ display: tab==='whatsapp' ? undefined : 'none' }}>
-            <WAWebhookTab P={P} isMobile={isMobile}/>
+            <WAWebhookTab P={P} isMobile={isMobile} isRH={isRH}/>
           </div>
         )}
 

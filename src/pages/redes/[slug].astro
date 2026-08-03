@@ -1,0 +1,36 @@
+---
+// Pagina de pulsera NFC: misma vista de /redes (todas las redes), pero el
+// boton de WhatsApp abre el numero de esta pulsera especifica. El usuario
+// decide si toca WhatsApp — no hay redirect automatico al aterrizar.
+export const prerender = false;
+import "../../styles/typography.css";
+import RedesCard from "../../components/RedesCard.astro";
+import { getRedesNumberBySlug, getDefaultRedesNumber } from "../../lib/analytics-db.js";
+
+const FALLBACK_PHONE = '524433575815';
+const { slug } = Astro.params;
+const row = await getRedesNumberBySlug(slug).catch(() => null);
+
+let waPhone;
+if (row && row.active) {
+  waPhone = row.phone;
+} else {
+  const defaultNumber = await getDefaultRedesNumber().catch(() => null);
+  waPhone = defaultNumber?.phone || FALLBACK_PHONE;
+}
+---
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Grupo Ortiz · Redes</title>
+  <meta name="description" content="Todas las redes sociales de Grupo Ortiz en un solo lugar." />
+  <meta name="robots" content="noindex, follow" />
+  <meta name="theme-color" content="#0F0E0C" />
+  <link rel="icon" href="/favicon.ico" sizes="32x32" />
+</head>
+<body>
+  <RedesCard waPhone={waPhone} />
+</body>
+</html>
