@@ -472,7 +472,7 @@ chatbot: {
         ]
       },
       {
-        name: 'CORELES',
+        name: 'CORELESS',
 img: '/images/stretch/coreles.png',
 video: "GO/stretch/fondo",
 link: '#',
