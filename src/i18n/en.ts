@@ -1374,6 +1374,15 @@ footer: {
       ]
     },
 
+    arboles: {
+      eyebrow:     "SOCIAL RESPONSIBILITY",
+      title:       "We Plant",
+      title_orange:"Green Areas",
+      desc:        "At Grupo Ortiz we believe environmental commitment starts at home. That's why we launched the Green Areas campaign: reforestation days where our team plants trees in community spaces, giving back to the earth part of what it gives us.",
+      img:         "/images/impacto/responsabilidad-social.jpg",
+      tags: ["Reforestation", "GO Volunteering", "Caring for the planet"]
+    },
+
     stats: {
       recycled: "Tonnes Recycled",
       female:   "% Female Workforce",

@@ -1374,6 +1374,15 @@ footer: {
       ]
     },
 
+    arboles: {
+      eyebrow:     "社会责任",
+      title:       "我们种植",
+      title_orange:"绿色空间",
+      desc:        "Grupo Ortiz 相信环保承诺始于自身行动。为此我们发起了“绿色空间”活动:我们的团队在社区场地开展植树活动,回馈大地的馈赠。",
+      img:         "/images/impacto/responsabilidad-social.jpg",
+      tags: ["植树造林", "GO 志愿服务", "守护地球"]
+    },
+
     stats: {
       recycled: "回收吨数",
       female:   "% 女性员工",

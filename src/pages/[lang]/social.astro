@@ -314,6 +314,30 @@ const timelineItems = ti.timeline.items.map((it: any) => ({
       </div>
     </section>
 
+    <!-- ÁREAS VERDES (Responsabilidad Social — reforestación) -->
+    <section class="arboles-section">
+      <div class="container-tesla">
+        <div class="arboles-card">
+          <div class="arboles-img">
+            <img src={ti.arboles.img} alt="Campaña Áreas Verdes — reforestación Grupo Ortiz" loading="lazy">
+          </div>
+          <div class="arboles-info">
+            <div class="hero-tesla-label">{ti.arboles.eyebrow}</div>
+            <h2 class="section-title">
+              <span class="title-line-normal">{ti.arboles.title}</span>
+              <span class="title-line-orange">{ti.arboles.title_orange}</span>
+            </h2>
+            <p class="arboles-desc">{ti.arboles.desc}</p>
+            <div class="arboles-tags">
+              {ti.arboles.tags.map((tag) => (
+                <span class="arboles-tag">{tag}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- TIMELINE (ProgressSlider) -->
     <ImpactoTimeline
       client:visible

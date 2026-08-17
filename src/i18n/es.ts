@@ -1381,6 +1381,15 @@ footer: {
       ]
     },
 
+    arboles: {
+      eyebrow:     "RESPONSABILIDAD SOCIAL",
+      title:       "Sembramos",
+      title_orange:"Áreas Verdes",
+      desc:        "En Grupo Ortiz creemos que el compromiso ambiental empieza en casa. Por eso lanzamos la campaña Áreas Verdes: jornadas de reforestación donde nuestro equipo planta árboles en espacios de la comunidad, devolviendo a la tierra parte de lo que nos da.",
+      img:         "/images/impacto/responsabilidad-social.jpg",
+      tags: ["Reforestación", "Voluntariado GO", "Cuidado del planeta"]
+    },
+
     stats: {
       recycled: "Toneladas Recicladas",
       female:   "% Plantilla Femenina",
