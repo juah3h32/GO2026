@@ -76,12 +76,12 @@ const toLocalVideo = (cldPath: string) => `/videos/${cldPath.replace(/^GO\//, ''
     <video
       data-role="fallback"
       class="hero__video hero__video--fill"
-      src={toLocalVideo(th.hero.video)}
+      data-src={toLocalVideo(th.hero.video)}
       autoplay
       muted
       loop
       playsinline
-      preload="metadata"
+      preload="none"
       style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;"
     ></video>
   </div>
@@ -363,7 +363,7 @@ const toLocalVideo = (cldPath: string) => `/videos/${cldPath.replace(/^GO\//, ''
     <video
       data-role="fallback"
       class="global__video"
-      src={toLocalVideo(th.global.video)}
+      data-src={toLocalVideo(th.global.video)}
       autoplay
       muted
       loop
@@ -435,6 +435,71 @@ const toLocalVideo = (cldPath: string) => `/videos/${cldPath.replace(/^GO\//, ''
 </section>
 
 
+<!-- ═══════════════════════════════════════
+     VOZ DE NUESTROS CLIENTES (Biblioteca) —
+     preview de videos, se carga en vivo desde /api/biblioteca.
+     Oculto por completo si aun no hay videos subidos.
+═══════════════════════════════════════ -->
+{/* Seccion Voz de Clientes / Historias oculta temporalmente
+<section class="voz-clientes" id="voz-clientes" hidden>
+  <div class="voz-clientes__head">
+    <p class="section-tag">{t.biblioteca.eyebrow}</p>
+    <h2 class="section-heading">
+      {t.biblioteca.title_top}<br><em>{t.biblioteca.title_bottom}</em>
+    </h2>
+    <p class="voz-clientes__sub">{t.biblioteca.subtitle}</p>
+  </div>
+  <div class="voz-clientes__grid" id="voz-clientes-grid"></div>
+  <a href={`/${currentLang}/biblioteca`} class="btn btn--solid mt-xl">
+    {t.biblioteca.ver_todos}
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+  </a>
+</section>
+*/}
+
+<script define:vars={{ VOZ_LANG: currentLang }}>
+  (function () {
+    function playIconSvg() {
+      return '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+    }
+
+    function cardHtml(v) {
+      const poster = v.poster || '';
+      return (
+        '<a class="voz-clientes__card" href="/' + VOZ_LANG + '/biblioteca">' +
+          '<div class="voz-clientes__thumb"' + (poster ? ' style="background-image:url(\'' + poster.replace(/'/g, "\\'") + '\')"' : '') + '>' +
+            '<span class="voz-clientes__play">' + playIconSvg() + '</span>' +
+          '</div>' +
+          '<div class="voz-clientes__caption">' +
+            '<span class="voz-clientes__cliente">' + (v.cliente || '') + '</span>' +
+            (v.empresa ? '<span class="voz-clientes__empresa">' + v.empresa + '</span>' : '') +
+          '</div>' +
+        '</a>'
+      );
+    }
+
+    async function initVozClientes() {
+      const section = document.getElementById('voz-clientes');
+      const grid = document.getElementById('voz-clientes-grid');
+      if (!section || !grid || section.dataset.loaded) return;
+      section.dataset.loaded = 'true';
+
+      try {
+        const r = await fetch('/api/biblioteca');
+        const j = await r.json();
+        const videos = (j.videos || []).slice(0, 4);
+        if (!videos.length) return;
+        grid.innerHTML = videos.map(cardHtml).join('');
+        section.hidden = false;
+      } catch (e) {
+        // silencioso: si falla, la seccion simplemente no se muestra
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', initVozClientes);
+    document.addEventListener('astro:page-load', initVozClientes);
+  })();
+</script>
 
 
 <script is:inline>

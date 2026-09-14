@@ -982,6 +982,18 @@
     line-height: 1;
   }
 
+  .leads-counter {
+    display     : flex;
+    align-items : center;
+    gap         : 8px;
+    margin      : 4px 0 0;
+    font-family : var(--font-body);
+    font-size   : var(--fs-body-xs);
+    color       : rgba(255,255,255,0.65);
+  }
+  .leads-counter i { color: var(--dist-primary); font-size: 15px; }
+  .leads-counter strong { color: #fff; font-weight: 800; }
+
   .form-inputs {
     padding: 56px 52px;
     background: var(--form-inputs-bg);
@@ -1415,4 +1427,274 @@
     .card     { flex: 0 0 82vw !important; }
     .selection-grid { grid-template-columns: repeat(3, 1fr) !important; }
     .select-btn span { font-size: 7px; padding: 10px 2px; }
+  }
+
+  /* =========================================
+     BADGE DE ACTIVIDAD EN VIVO — prueba social
+     ========================================= */
+  .dist-live-badge {
+    position       : fixed;
+    bottom         : 24px;
+    left           : 50%;
+    transform      : translateX(-50%);
+    z-index        : 997;
+    display        : flex;
+    align-items    : center;
+    gap            : 9px;
+    background     : rgba(24,24,27,0.92);
+    backdrop-filter: blur(4px);
+    color          : #fff;
+    font-family    : var(--font-body);
+    font-size      : 13px;
+    font-weight    : 700;
+    padding        : 11px 20px;
+    border-radius  : 30px;
+    box-shadow     : 0 8px 22px rgba(0,0,0,0.3);
+    white-space    : nowrap;
+    animation      : distLiveBadgeEnter 0.4s ease both;
+    pointer-events : none;
+  }
+
+  @keyframes distLiveBadgeEnter {
+    0%   { transform: translateX(-50%) translateY(16px); opacity: 0; }
+    100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+  }
+
+  .dist-live-badge__dot {
+    width        : 8px;
+    height       : 8px;
+    border-radius: 50%;
+    background   : #6bcf6b;
+    flex-shrink  : 0;
+    animation    : distLiveBadgePulse 1.6s ease-in-out infinite;
+  }
+
+  @keyframes distLiveBadgePulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: 0.4; transform: scale(0.7); }
+  }
+
+  @media (max-width: 640px) {
+    .dist-live-badge {
+      font-size: 11.5px;
+      padding  : 9px 16px;
+      max-width: calc(100vw - 32px);
+      white-space: normal;
+      text-align: center;
+      bottom   : 90px;
+    }
+  }
+
+  /* =========================================
+     COUNTDOWN FLOTANTE — oferta de arranque distribuidores
+     ========================================= */
+  .dist-countdown {
+    position     : fixed;
+    bottom       : 24px;
+    left         : 24px;
+    z-index      : 998;
+    width        : 330px;
+    background   : #18181b;
+    border       : 1px solid rgba(251,103,11,0.35);
+    border-radius: 18px;
+    padding      : 18px 20px 20px;
+    box-shadow   : 0 14px 34px rgba(0,0,0,0.4);
+    animation    : distCountdownEnter 0.5s cubic-bezier(.34,1.56,.64,1) both;
+  }
+
+  @keyframes distCountdownEnter {
+    0%   { transform: translateY(24px) scale(0.92); opacity: 0; }
+    100% { transform: translateY(0) scale(1); opacity: 1; }
+  }
+
+  .dist-countdown__close {
+    display: none;
+  }
+
+  .dist-countdown__eyebrow {
+    display       : flex;
+    align-items   : center;
+    gap           : 8px;
+    margin        : 0 0 10px;
+    font-family   : var(--font-display);
+    font-size     : 24px;
+    font-weight   : 800;
+    line-height   : 1.25;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color         : var(--dist-primary);
+  }
+  .dist-countdown__eyebrow i {
+    font-size: 25px;
+    flex-shrink: 0;
+  }
+
+  .dist-countdown__headline {
+    margin        : 0 0 16px;
+    font-family   : var(--font-display);
+    font-size     : 23px;
+    font-weight   : 800;
+    line-height   : 1.45;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color         : #fff;
+  }
+
+  .dist-countdown__segments {
+    display        : flex;
+    align-items    : center;
+    justify-content: center;
+    gap            : 7px;
+    margin-bottom  : 12px;
+  }
+
+  .dist-countdown__seg {
+    display      : flex;
+    flex-direction: column;
+    align-items  : center;
+    gap          : 4px;
+    background   : rgba(251,103,11,0.12);
+    border       : 1px solid rgba(251,103,11,0.3);
+    border-radius: 10px;
+    padding      : 9px 10px;
+    min-width    : 60px;
+  }
+
+  .dist-countdown__num {
+    font-family    : var(--font-display);
+    font-size      : 31px;
+    color          : #fff;
+    font-variant-numeric: tabular-nums;
+    line-height    : 1;
+  }
+
+  .dist-countdown__unit {
+    font-family   : var(--font-body);
+    font-size     : 11px;
+    font-weight   : 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color         : rgba(255,255,255,0.5);
+  }
+
+  .dist-countdown__caption {
+    margin     : 0 0 14px;
+    text-align : center;
+    font-family: var(--font-body);
+    font-size  : 13px;
+    color      : rgba(255,255,255,0.5);
+  }
+
+  .dist-countdown__cta {
+    width          : 100%;
+    display        : flex;
+    align-items    : center;
+    justify-content: center;
+    gap            : 8px;
+    background     : var(--dist-primary);
+    color          : #fff;
+    border         : none;
+    border-radius  : 30px;
+    padding        : 14px 16px;
+    font-family    : var(--font-body);
+    font-size      : 16px;
+    font-weight    : 800;
+    text-decoration: none;
+    cursor         : pointer;
+    transition     : filter 0.2s, transform 0.2s;
+  }
+  .dist-countdown__cta:hover {
+    filter   : brightness(1.12);
+    transform: translateY(-1px);
+  }
+
+  /* ── Mobile: pestaña colapsada en el borde (mismo patron que HOTEL/CountdownFloat) ── */
+  .dist-countdown-tab {
+    position     : fixed;
+    top          : 60%;
+    left         : 0;
+    transform    : translateY(-50%);
+    z-index      : 998;
+    display      : flex;
+    flex-direction: column;
+    align-items  : center;
+    gap          : 10px;
+    background   : var(--dist-primary);
+    border       : none;
+    border-radius: 0 14px 14px 0;
+    padding      : 18px 11px 20px;
+    box-shadow   : 4px 4px 18px rgba(0,0,0,0.28);
+    cursor       : pointer;
+    animation    : distCountdownTabEnter 0.5s cubic-bezier(.34,1.56,.64,1) both;
+  }
+
+  @keyframes distCountdownTabEnter {
+    0%   { transform: translateY(-50%) translateX(-100%); }
+    100% { transform: translateY(-50%) translateX(0); }
+  }
+
+  .dist-countdown-tab__icon {
+    font-size : 24px;
+    line-height: 1;
+    color     : #fff;
+  }
+
+  .dist-countdown-tab__text {
+    writing-mode  : vertical-rl;
+    transform     : rotate(180deg);
+    font-family   : var(--font-display);
+    font-size     : 18px;
+    font-weight   : 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color         : #fff;
+    white-space   : nowrap;
+  }
+
+  @media (max-width: 640px) {
+    .dist-countdown {
+      width  : calc(100vw - 32px);
+      max-width: 320px;
+      bottom : 16px;
+      left   : 16px;
+      padding: 16px 18px 18px;
+    }
+    .dist-countdown__headline { font-size: 20px; line-height: 1.4; letter-spacing: 0.02em; }
+    .dist-countdown__seg { min-width: 50px; padding: 8px 8px; }
+    .dist-countdown__num { font-size: 25px; }
+    .dist-countdown__unit { font-size: 9.5px; }
+
+    .dist-countdown--mobile {
+      position : fixed;
+      top      : 60%;
+      bottom   : auto;
+      left     : 16px;
+      transform: translateY(-50%);
+      animation: distCountdownCardEnter 0.35s ease both;
+    }
+
+    @keyframes distCountdownCardEnter {
+      0%   { transform: translateY(-50%) scale(0.9); opacity: 0; }
+      100% { transform: translateY(-50%) scale(1); opacity: 1; }
+    }
+
+    .dist-countdown--mobile .dist-countdown__close {
+      display        : flex;
+      align-items    : center;
+      justify-content: center;
+      position       : absolute;
+      top            : 10px;
+      right          : 10px;
+      width          : 24px;
+      height         : 24px;
+      border-radius  : 50%;
+      background     : rgba(255,255,255,0.1);
+      border         : none;
+      color          : #fff;
+      cursor         : pointer;
+    }
+    .dist-countdown--mobile .dist-countdown__eyebrow,
+    .dist-countdown--mobile .dist-countdown__headline {
+      padding-right: 24px;
+    }
   }

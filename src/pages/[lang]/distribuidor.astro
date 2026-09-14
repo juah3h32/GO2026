@@ -133,6 +133,43 @@ const productsRequiredMsg = currentLang === 'en' ? 'Select at least one product 
   : currentLang === 'ar' ? 'اختر منتجاً واحداً على الأقل يهمك.'
   : currentLang === 'zh' ? '请至少选择一个您感兴趣的产品。'
   : 'Selecciona al menos un producto de tu interés.';
+
+// Contador real de leads (mes en curso) + countdown a fin de mes
+const leadsCounterSuffix = currentLang === 'en' ? 'companies registered this month'
+  : currentLang === 'pt' ? 'empresas se cadastraram este mês'
+  : currentLang === 'ar' ? 'شركة سجّلت هذا الشهر'
+  : currentLang === 'zh' ? '家企业本月已注册'
+  : 'empresas se registraron este mes';
+const countdownEyebrow = currentLang === 'en' ? 'LIMITED-TIME LAUNCH OFFER'
+  : currentLang === 'pt' ? 'OFERTA DE LANÇAMENTO POR TEMPO LIMITADO'
+  : currentLang === 'ar' ? 'عرض إطلاق لفترة محدودة'
+  : currentLang === 'zh' ? '限时启动优惠'
+  : 'OFERTA DE ARRANQUE POR TIEMPO LIMITADO';
+const countdownHeadline = currentLang === 'en' ? 'For new distributors'
+  : currentLang === 'pt' ? 'Para novos distribuidores'
+  : currentLang === 'ar' ? 'للموزعين الجدد'
+  : currentLang === 'zh' ? '新经销商专享'
+  : 'Para nuevos distribuidores';
+const countdownCaption = currentLang === 'en' ? 'Ends this month'
+  : currentLang === 'pt' ? 'Termina este mês'
+  : currentLang === 'ar' ? 'ينتهي هذا الشهر'
+  : currentLang === 'zh' ? '本月截止'
+  : 'Termina este mes';
+const countdownCta = currentLang === 'en' ? 'Apply now'
+  : currentLang === 'pt' ? 'Aplicar agora'
+  : currentLang === 'ar' ? 'قدّم الآن'
+  : currentLang === 'zh' ? '立即申请'
+  : 'Solicitar ahora';
+const countdownUnits = currentLang === 'en' ? { d: 'days', h: 'hrs', m: 'min', s: 'sec' }
+  : currentLang === 'pt' ? { d: 'dias', h: 'hrs', m: 'min', s: 'seg' }
+  : currentLang === 'ar' ? { d: 'يوم', h: 'س', m: 'د', s: 'ث' }
+  : currentLang === 'zh' ? { d: '天', h: '时', m: '分', s: '秒' }
+  : { d: 'días', h: 'hrs', m: 'min', s: 'seg' };
+const liveViewersSuffix = currentLang === 'en' ? 'people viewing this offer right now'
+  : currentLang === 'pt' ? 'pessoas vendo esta oferta agora'
+  : currentLang === 'ar' ? 'شخص يشاهد هذا العرض الآن'
+  : currentLang === 'zh' ? '人正在浏览此优惠'
+  : 'personas viendo esta oferta ahora';
 ---
 
 <BaseLayout title={metaTitle} description={metaDesc} canonicalSlug="distribuidor/" currentLang={currentLang}>
@@ -279,6 +316,11 @@ const productsRequiredMsg = currentLang === 'en' ? 'Select at least one product 
             <i class="ri-whatsapp-line"></i> 443 207 2593
           </span>
         </div>
+
+        <p id="leadsCounter" class="leads-counter" data-suffix={leadsCounterSuffix} hidden>
+          <i class="ri-building-line"></i>
+          <span><strong id="leadsCounterVal">0</strong> {leadsCounterSuffix}</span>
+        </p>
       </div>
 
       <div class="form-inputs">
@@ -345,6 +387,47 @@ const productsRequiredMsg = currentLang === 'en' ? 'Select at least one product 
     </section>
 
   </div><!-- /distribuidor-container -->
+
+  <!-- Badge de actividad en vivo (prueba social) -->
+  <div class="dist-live-badge" id="distLiveBadge" data-suffix={liveViewersSuffix} hidden>
+    <span class="dist-live-badge__dot"></span>
+    <span id="distLiveBadgeText">&nbsp;</span>
+  </div>
+
+  <!-- Countdown flotante: oferta de arranque para nuevos distribuidores -->
+  <button
+    type="button"
+    class="dist-countdown-tab"
+    id="distCountdownTab"
+    aria-label="Ver oferta por tiempo limitado"
+    hidden
+  >
+    <i class="ri-flashlight-line dist-countdown-tab__icon"></i>
+    <span class="dist-countdown-tab__text">OFERTA</span>
+  </button>
+
+  <div
+    class="dist-countdown"
+    id="distCountdown"
+    data-units={JSON.stringify(countdownUnits)}
+  >
+    <button type="button" class="dist-countdown__close" id="distCountdownClose" aria-label="Cerrar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <p class="dist-countdown__eyebrow"><i class="ri-flashlight-line"></i> {countdownEyebrow}</p>
+    <p class="dist-countdown__headline">{countdownHeadline}</p>
+    <div class="dist-countdown__segments" id="distCountdownSegments">
+      <div class="dist-countdown__seg"><span class="dist-countdown__num" data-u="d">00</span><span class="dist-countdown__unit">{countdownUnits.d}</span></div>
+      <div class="dist-countdown__seg"><span class="dist-countdown__num" data-u="h">00</span><span class="dist-countdown__unit">{countdownUnits.h}</span></div>
+      <div class="dist-countdown__seg"><span class="dist-countdown__num" data-u="m">00</span><span class="dist-countdown__unit">{countdownUnits.m}</span></div>
+      <div class="dist-countdown__seg"><span class="dist-countdown__num" data-u="s">00</span><span class="dist-countdown__unit">{countdownUnits.s}</span></div>
+    </div>
+    <p class="dist-countdown__caption">{countdownCaption}</p>
+    <a href="#formulario" class="dist-countdown__cta">
+      {countdownCta}
+      <i class="ri-arrow-right-line"></i>
+    </a>
+  </div>
 
   <script>
   import gsap from 'gsap';
@@ -729,6 +812,132 @@ const productsRequiredMsg = currentLang === 'en' ? 'Select at least one product 
   }
 
   // ─────────────────────────────────────────────────────────────
+  // PRUEBA SOCIAL: badge de "personas viendo esta oferta" (numero
+  // simulado, sin backend — solo percepcion de actividad en vivo).
+  // ─────────────────────────────────────────────────────────────
+  var _distLiveBadgeTimer = null;
+
+  function initLiveBadge() {
+    var badge = document.getElementById('distLiveBadge');
+    var textEl = document.getElementById('distLiveBadgeText');
+    if (!badge || !textEl) return;
+    var suffix = badge.dataset.suffix || 'personas viendo esta oferta ahora';
+
+    function randomViewers() {
+      return Math.floor(Math.random() * (420 - 18 + 1)) + 18;
+    }
+
+    function render() {
+      textEl.textContent = randomViewers() + ' ' + suffix;
+    }
+
+    render();
+    badge.hidden = false;
+
+    if (_distLiveBadgeTimer) clearInterval(_distLiveBadgeTimer);
+    _distLiveBadgeTimer = setInterval(render, 22000 + Math.floor(Math.random() * 8000));
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // URGENCIA: contador real de leads + countdown a fin de mes
+  // ─────────────────────────────────────────────────────────────
+  var _distCountdownTimer = null;
+
+  function initUrgencyWidgets() {
+    // Contador real (dato del servidor, oculto si es 0 — nunca inventado)
+    var counterEl = document.getElementById('leadsCounter');
+    var counterVal = document.getElementById('leadsCounterVal');
+    if (counterEl && counterVal) {
+      fetch('/api/distribuidor-stats')
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (d && d.ok && d.count > 0) {
+            counterVal.textContent = d.count;
+            counterEl.hidden = false;
+          }
+        })
+        .catch(function () {});
+    }
+
+    // Countdown a fin de mes calendario (fecha real, se reinicia cada mes)
+    var countdownEl = document.getElementById('distCountdown');
+    if (!countdownEl) return;
+    var units = {};
+    try { units = JSON.parse(countdownEl.dataset.units || '{}'); } catch (e) {}
+
+    function tick() {
+      var now = new Date();
+      var endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+      var diff = Math.max(0, endOfMonth - now);
+      var d = Math.floor(diff / 86400000);
+      var h = Math.floor((diff % 86400000) / 3600000);
+      var m = Math.floor((diff % 3600000) / 60000);
+      var s = Math.floor((diff % 60000) / 1000);
+      var vals = { d: d, h: h, m: m, s: s };
+      var nums = countdownEl.querySelectorAll('.dist-countdown__num');
+      nums.forEach(function (el) {
+        var key = el.getAttribute('data-u');
+        el.textContent = String(vals[key]).padStart(2, '0');
+      });
+    }
+
+    if (_distCountdownTimer) clearInterval(_distCountdownTimer);
+    tick();
+    _distCountdownTimer = setInterval(tick, 1000);
+
+    var cta = countdownEl.querySelector('.dist-countdown__cta');
+    if (cta) {
+      cta.addEventListener('click', function (e) {
+        var target = document.getElementById('formulario');
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    }
+
+    // Mobile: colapsar en pestaña lateral (mismo patron que HOTEL/CountdownFloat)
+    var tab = document.getElementById('distCountdownTab');
+    var closeBtn = document.getElementById('distCountdownClose');
+    if (!tab) return;
+
+    function isMobileView() { return window.innerWidth <= 640; }
+
+    function applyMobileState() {
+      if (isMobileView()) {
+        countdownEl.classList.add('dist-countdown--mobile');
+        if (!countdownEl.classList.contains('dist-countdown--expanded')) {
+          countdownEl.hidden = true;
+          tab.hidden = false;
+        }
+      } else {
+        countdownEl.classList.remove('dist-countdown--mobile', 'dist-countdown--expanded');
+        countdownEl.hidden = false;
+        tab.hidden = true;
+      }
+    }
+
+    tab.onclick = function () {
+      countdownEl.classList.add('dist-countdown--expanded');
+      countdownEl.hidden = false;
+      tab.hidden = true;
+    };
+    if (closeBtn) {
+      closeBtn.onclick = function () {
+        countdownEl.classList.remove('dist-countdown--expanded');
+        countdownEl.hidden = true;
+        tab.hidden = false;
+      };
+    }
+
+    applyMobileState();
+    if (!window._distCountdownResizeBound) {
+      window._distCountdownResizeBound = true;
+      window.addEventListener('resize', applyMobileState);
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────
   // ARRANQUE — robusto: carga normal (DOMContentLoaded) + SPA si hubiera
   // ViewTransitions (astro:page-load) + bfcache (pageshow).
   // BUG previo: solo escuchaba astro:page-load, que NO dispara sin ViewTransitions
@@ -739,6 +948,8 @@ const productsRequiredMsg = currentLang === 'en' ? 'Select at least one product 
     try { initDistribuidor(); } catch (e) { console.warn("init distribuidor:", e); }
     // Garantiza el handler del form pase lo que pase (idempotente: clona el form).
     try { setupFormSubmission(); } catch (e) { console.warn("form distribuidor:", e); }
+    try { initUrgencyWidgets(); } catch (e) { console.warn("urgency distribuidor:", e); }
+    try { initLiveBadge(); } catch (e) { console.warn("live badge distribuidor:", e); }
   }
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", bootDistribuidor, { once: true });
