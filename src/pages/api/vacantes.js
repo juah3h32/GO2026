@@ -1,5 +1,5 @@
 // src/pages/api/vacantes.js
-import { saveVacante, readVacantes, updateVacante, deleteVacante, toggleVacante, getConfig, setConfig, getListaEspera, markNotificadosVacante, asignarEsperaAVacante } from '../../lib/analytics-db.js';
+import { saveVacante, readVacantes, updateVacante, deleteVacante, toggleVacante, getConfig, setConfig, getListaEspera, markNotificadosVacante, asignarEsperaAVacante, getVacanteOwner } from '../../lib/analytics-db.js';
 import { verifyAdminToken } from '../../lib/verifyAdminToken.ts';
 import { notifyEsperaVacante } from '../../lib/notify.js';
 import { sendPushToAll } from '../../lib/push.js';
@@ -34,16 +34,30 @@ export async function POST({ request }) {
 
     const adminRole = await verifyAdminToken(request);
     if (!adminRole) return json({ ok: false, error: 'No autorizado' }, 401);
+    const isAdmin = !!adminRole.isAdminRole;
+    const myId    = adminRole.id ?? null;
+
+    // Cada RH ve solo sus vacantes; Admin las ve todas.
+    async function checkOwnVacante(id) {
+      if (isAdmin) return true;
+      const owner = await getVacanteOwner(id);
+      return owner !== undefined && myId != null && Number(owner) === Number(myId);
+    }
 
     if (action === 'list') {
-      const vacantes = await readVacantes(false);
+      const { filterUserId } = body;
+      const vacantes = (isAdmin && filterUserId != null)
+        ? await readVacantes(false, { isAdmin: false, rhUserId: Number(filterUserId) })
+        : await readVacantes(false, { isAdmin, rhUserId: myId });
       return json({ ok: true, vacantes });
     }
 
     if (action === 'create') {
       const { titulo, area, tipo, ubicacion, horario, salario, descripcion, requisitos, activa, orden, multiples, empresa } = body;
       if (!titulo?.trim()) return json({ ok: false, error: 'El título es obligatorio.' }, 400);
-      const result = await saveVacante({ titulo, area, tipo, ubicacion, horario, salario, descripcion, requisitos, activa, orden, multiples, empresa });
+      // RH → dueño es quien la crea. Admin → queda en la bolsa general (sin dueño).
+      const rh_user_id = isAdmin ? null : myId;
+      const result = await saveVacante({ titulo, area, tipo, ubicacion, horario, salario, descripcion, requisitos, activa, orden, multiples, empresa, rh_user_id });
 
       // Notificación push + asignar candidatos en espera si se publica activa
       if (activa) {
@@ -68,6 +82,7 @@ export async function POST({ request }) {
     if (action === 'update') {
       const { id, titulo, area, tipo, ubicacion, horario, salario, descripcion, requisitos, activa, orden, multiples, empresa } = body;
       if (!id) return json({ ok: false, error: 'ID requerido.' }, 400);
+      if (!(await checkOwnVacante(id))) return json({ ok: false, error: 'No autorizado.' }, 403);
       // Leer estado anterior para saber si se está activando por primera vez
       const prevList = await readVacantes(false);
       const prev = prevList.find(v => v.id === id);
@@ -92,12 +107,14 @@ export async function POST({ request }) {
     }
 
     if (action === 'delete') {
+      if (!(await checkOwnVacante(body.id))) return json({ ok: false, error: 'No autorizado.' }, 403);
       await deleteVacante(body.id);
       return json({ ok: true });
     }
 
     if (action === 'toggle') {
       const { id, activa } = body;
+      if (!(await checkOwnVacante(id))) return json({ ok: false, error: 'No autorizado.' }, 403);
       await toggleVacante(id, activa);
       // Enviar push + asignar espera al activar una vacante existente
       if (activa) {
@@ -137,6 +154,7 @@ export async function POST({ request }) {
     if (action === 'notificar-espera') {
       const { vacanteId, ids, urlVacantes } = body;
       if (!vacanteId || !ids?.length) return json({ ok: false, error: 'vacanteId e ids requeridos.' }, 400);
+      if (!(await checkOwnVacante(vacanteId))) return json({ ok: false, error: 'No autorizado.' }, 403);
       const vacantes = await readVacantes(false);
       const vacante  = vacantes.find(v => v.id === vacanteId);
       if (!vacante) return json({ ok: false, error: 'Vacante no encontrada.' }, 404);

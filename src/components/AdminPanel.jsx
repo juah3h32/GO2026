@@ -10,6 +10,7 @@ import ReportScheduler from './ReportScheduler';
 import VacantesTab from './VacantesTab';
 import ChangelogTab from './ChangelogTab';
 import CatalogVisualEditor from './CatalogVisualEditor';
+import BibliotecaTab from './BibliotecaTab';
 
 // ── COUNTRY CODES (GSC alpha-3) → nombre + bandera ───────────────────────────
 const COUNTRY_MAP = {
@@ -213,37 +214,25 @@ const GLOBAL_CSS = `
     box-shadow:0 4px 16px rgba(0,0,0,0.22), 0 0 0 1px rgba(251,103,11,0.06) !important;
   }
 
-  /* ── TABS ── */
+  /* ── TABS (grupos con desplegable) ── */
   .tabs-row {
-    padding: 6px 16px !important;
+    padding: 8px 16px !important;
     border-bottom: 1px solid ${P.border} !important;
-    gap: 2px !important;
+    gap: 6px !important;
     align-items: center;
   }
-  .tab-btn {
-    position: relative;
-    border: none;
-    border-radius: 8px;
-    display: flex; align-items: center; gap: 6px;
+  .tab-group-btn {
     transition: background 0.18s cubic-bezier(0.4,0,0.2,1),
                 color 0.18s cubic-bezier(0.4,0,0.2,1),
-                box-shadow 0.18s cubic-bezier(0.4,0,0.2,1),
-                transform 0.14s cubic-bezier(0.4,0,0.2,1);
-    transform: translateY(0px);
+                box-shadow 0.18s cubic-bezier(0.4,0,0.2,1);
   }
-  .tab-btn:hover:not(.active) {
+  .tab-group-btn.active {
+    box-shadow: 0 3px 14px ${P.orange}50, 0 1px 4px ${P.orange}30;
+  }
+  .tab-group-btn:hover:not(.active) {
     background: ${P.border2} !important;
     color: ${P.text} !important;
-    transform: translateY(-1px);
   }
-  .tab-btn.active {
-    background: ${P.orange} !important;
-    color: #fff !important;
-    border-radius: 8px;
-    box-shadow: 0 3px 14px ${P.orange}50, 0 1px 4px ${P.orange}30;
-    transform: translateY(-1px);
-  }
-  .tab-btn.active::after { display: none; }
 
   /* ── BUTTONS ── */
   .btn-base {
@@ -422,39 +411,19 @@ const GLOBAL_CSS = `
   [data-theme="light"] .dash-header > div:first-child {
     display: none !important;
   }
-  /* Tabs row: white bg, underline style */
+  /* Tabs row: grupos con desplegable, fondo blanco */
   [data-theme="light"] .tabs-row {
     background: #FFFFFF !important;
     border-bottom: 1px solid #E5E7EB !important;
-    padding: 0 22px !important;
-    gap: 0 !important;
+    padding: 8px 22px !important;
   }
-  [data-theme="light"] .tab-btn {
-    border-radius: 0 !important;
-    padding: 13px 16px !important;
-    font-weight: 500 !important;
-    color: #6B7280 !important;
-    border: none !important;
-    border-bottom: 2px solid transparent !important;
-    margin-bottom: -1px !important;
-    background: transparent !important;
-  }
-  [data-theme="light"] .tabs-row {
-    background: #FFFFFF !important;
-  }
-  [data-theme="light"] .tab-btn:hover:not(.active) {
+  [data-theme="light"] .tab-group-btn:hover:not(.active) {
     background: #F3F4F6 !important;
     color: #111827 !important;
   }
-  [data-theme="light"] .tab-btn.active {
-    background: #FB670B !important;
-    color: #fff !important;
-    border-bottom: none !important;
-    border-radius: 8px !important;
-    font-weight: 600 !important;
+  [data-theme="light"] .tab-group-btn.active {
     box-shadow: 0 3px 14px rgba(251,103,11,0.40), 0 1px 4px rgba(251,103,11,0.25) !important;
   }
-  [data-theme="light"] .tab-btn.active::after { display: none !important; }
   /* Content: flat off-white background */
   [data-theme="light"] .dash-content {
     background: #F8F9FB !important;
@@ -1696,19 +1665,6 @@ function PeriodSelector({ activeId, onSelect, customFrom, customTo, setCustomFro
   );
 }
 
-// ── PASSWORD STRENGTH ─────────────────────────────────────────────────────────
-function getStrength(pw) {
-  if (!pw) return { score:0, label:'', color:'transparent' };
-  let s=0;
-  if (pw.length>=8) s++;  if (pw.length>=12) s++;
-  if (/[A-Z]/.test(pw)) s++;  if (/[0-9]/.test(pw)) s++;  if (/[^A-Za-z0-9]/.test(pw)) s++;
-  if (s<=1) return {score:s,label:'Muy débil', color:P.grayMid};
-  if (s===2) return {score:s,label:'Débil',    color:P.grayLight};
-  if (s===3) return {score:s,label:'Regular',  color:P.grayLight};
-  if (s===4) return {score:s,label:'Fuerte',   color:P.orange};
-  return {score:5,label:'Muy fuerte',color:P.orange};
-}
-
 // ── SYSTEM USERS ──────────────────────────────────────────────────────────────
 // Tabs disponibles para asignar permisos
 const ALL_PERMS = [
@@ -1732,6 +1688,7 @@ const PERM_GROUPS = [
       {id:'conversations', label:'Conversaciones'},
       {id:'distribuidores',label:'Distribuidores'},
       {id:'catalogo',      label:'Catálogo Visual'},
+      {id:'biblioteca',    label:'Biblioteca de videos'},
     ],
   },
   {
@@ -1763,8 +1720,8 @@ function UserManageCard({ user, onUpdate }) {
   const P = useP();
   const [open,setOpen]         = useState(false);
   const [activeTab,setActiveTab] = useState('perms');
-  const [pw,setPw]             = useState(''), [confirm,setConfirm] = useState('');
-  const [showPw,setShowPw]     = useState(false), [showCf,setShowCf] = useState(false);
+  const [genPw,setGenPw]       = useState(null); // contraseña generada tras "renovar" — visible una sola vez
+  const [copied,setCopied]     = useState(false);
   const [newName,setNewName]   = useState('');
   const [selTabs,setSelTabs]   = useState(user.tabs||[]);
   const [canDl,setCanDl]       = useState(user.canDownload);
@@ -1772,22 +1729,19 @@ function UserManageCard({ user, onUpdate }) {
   const [loading,setLoading]   = useState(false);
   const [status,setStatus]     = useState(null), [msg,setMsg] = useState('');
   const [dispName,setDispName] = useState(user.name);
-  const pwRef = useRef(null), nameRef = useRef(null);
+  const nameRef = useRef(null);
 
-  const strength = getStrength(pw);
-  const match = pw&&confirm&&pw===confirm, mismatch = pw&&confirm&&pw!==confirm;
-  const canSavePw   = pw.length>=6&&match&&!loading;
   const canSaveName = newName.trim().length>=2&&newName.trim()!==dispName&&!loading;
   const uc = user.color||'#FB670B';
 
   const handleOpen = (tab='perms') => {
     setOpen(true); setActiveTab(tab);
-    setPw(''); setConfirm(''); setNewName('');
+    setGenPw(null); setCopied(false); setNewName('');
     setSelTabs(user.tabs||[]); setCanDl(user.canDownload); setIsActive(user.active);
     setStatus(null); setMsg('');
-    setTimeout(()=>(tab==='name'?nameRef:pwRef).current?.focus(), 120);
+    setTimeout(()=>(tab==='name'?nameRef:null)?.current?.focus(), 120);
   };
-  const handleCancel = () => { setOpen(false); setStatus(null); setMsg(''); };
+  const handleCancel = () => { setOpen(false); setStatus(null); setMsg(''); setGenPw(null); };
   const toggleTab = id => setSelTabs(s => s.includes(id) ? s.filter(x=>x!==id) : [...s,id]);
 
   const api = async body => {
@@ -1795,12 +1749,15 @@ function UserManageCard({ user, onUpdate }) {
     return r.json();
   };
 
-  const handleSavePw = async () => {
-    if(!canSavePw) return; setLoading(true); setStatus(null);
-    const j = await api({action:'changePassword', id:user.id, newPassword:pw});
-    if(j.ok){setStatus('ok');setMsg('Contraseña actualizada');setTimeout(()=>{setOpen(false);setPw('');setConfirm('');setStatus(null);},2000);}
+  const handleGenPw = async () => {
+    setLoading(true); setStatus(null);
+    const j = await api({action:'changePassword', id:user.id});
+    if(j.ok){ setGenPw(j.generatedPassword); setStatus('ok'); setMsg('Contraseña renovada'); }
     else{setStatus('error');setMsg(j.error||'Error');}
     setLoading(false);
+  };
+  const copyGenPw = () => {
+    navigator.clipboard?.writeText(genPw||'').then(()=>{setCopied(true);setTimeout(()=>setCopied(false),2000);});
   };
   const handleSaveName = async () => {
     if(!canSaveName) return; setLoading(true); setStatus(null);
@@ -1941,25 +1898,25 @@ function UserManageCard({ user, onUpdate }) {
           {/* ── CONTRASEÑA ── */}
           {activeTab==='password'&&(
             <div style={{ display:'flex',flexDirection:'column',gap:10 }}>
-              <div style={{ position:'relative' }}>
-                <input ref={pwRef} type={showPw?'text':'password'} placeholder="Nueva contraseña (mín. 6 caracteres)" value={pw} onChange={e=>{setPw(e.target.value);setStatus(null);}} style={fld}
-                  onFocus={e=>{e.target.style.borderColor='rgba(251,103,11,0.45)';e.target.style.boxShadow='0 0 0 3px rgba(251,103,11,0.08)';}}
-                  onBlur={e=>{e.target.style.borderColor=P.border;e.target.style.boxShadow='none';}}/>
-                <button onClick={()=>setShowPw(s=>!s)} style={{ position:'absolute',right:12,top:'50%',transform:'translateY(-50%)',background:'none',border:'none',cursor:'pointer',color:P.textDim,padding:2 }}><EyeIcon open={showPw}/></button>
-              </div>
-              {pw&&<div style={{ display:'flex',alignItems:'center',gap:8 }}><div style={{ flex:1,height:3,background:P.border,borderRadius:2,overflow:'hidden' }}><div style={{ height:'100%',width:`${(strength.score/5)*100}%`,background:strength.color,borderRadius:2,transition:'width 0.32s ease' }}/></div><span style={{ color:strength.color,fontSize:10,fontWeight:600,minWidth:66,textAlign:'right' }}>{strength.label}</span></div>}
-              <div style={{ position:'relative' }}>
-                <input type={showCf?'text':'password'} placeholder="Confirmar contraseña" value={confirm} onChange={e=>{setConfirm(e.target.value);setStatus(null);}} style={{ ...fld,borderColor:mismatch?P.gray+'90':match?P.orange+'60':P.border,paddingRight:42 }}/>
-                <button onClick={()=>setShowCf(s=>!s)} style={{ position:'absolute',right:12,top:'50%',transform:'translateY(-50%)',background:'none',border:'none',cursor:'pointer',color:P.textDim,padding:2 }}><EyeIcon open={showCf}/></button>
-              </div>
-              {mismatch&&<p style={{ color:P.grayMid,fontSize:11,margin:0 }}>Las contraseñas no coinciden</p>}
-              {status&&<div style={{ padding:'9px 13px',borderRadius:9,fontSize:11,background:status==='ok'?P.okDim:P.errDim,border:`1px solid ${status==='ok'?P.orange+'35':P.gray+'35'}`,color:status==='ok'?P.orange:P.grayMid,display:'flex',alignItems:'center',gap:8 }}>{status==='ok'?Icons.check:Icons.alert} {msg}</div>}
-              <div style={{ display:'flex',gap:8 }}>
-                <button onClick={handleSavePw} disabled={!canSavePw} style={{ flex:1,padding:'11px 0',borderRadius:9,border:'none',cursor:canSavePw?'pointer':'not-allowed',background:canSavePw?P.orange:P.surface2,color:canSavePw?'#fff':P.textDim,fontSize:12,fontWeight:600,transition:'all 0.15s ease',display:'flex',alignItems:'center',justifyContent:'center',gap:8,boxShadow:canSavePw?`0 4px 14px ${P.orange}35`:'none' }}>
-                  {loading?<>{spin}Guardando...</>:'Guardar contraseña'}
-                </button>
-                <button onClick={handleCancel} style={{ padding:'11px 16px',borderRadius:9,border:`1px solid ${P.border}`,background:'transparent',color:P.textSub,fontSize:12,fontWeight:500,cursor:'pointer' }}>Cancelar</button>
-              </div>
+              {!genPw ? (<>
+                <p style={{ color:P.textDim,fontSize:11,margin:0,lineHeight:1.6 }}>Se generará una contraseña segura al azar. {dispName} deberá cambiarla al iniciar sesión.</p>
+                {status==='error'&&<div style={{ padding:'9px 13px',borderRadius:9,fontSize:11,background:P.errDim,border:`1px solid ${P.gray}35`,color:P.grayMid,display:'flex',alignItems:'center',gap:8 }}>{Icons.alert} {msg}</div>}
+                <div style={{ display:'flex',gap:8 }}>
+                  <button onClick={handleGenPw} disabled={loading} style={{ flex:1,padding:'11px 0',borderRadius:9,border:'none',cursor:loading?'not-allowed':'pointer',background:loading?P.surface2:P.orange,color:loading?P.textDim:'#fff',fontSize:12,fontWeight:600,transition:'all 0.15s ease',display:'flex',alignItems:'center',justifyContent:'center',gap:8,boxShadow:!loading?`0 4px 14px ${P.orange}35`:'none' }}>
+                    {loading?<>{spin}Generando...</>:'Renovar contraseña'}
+                  </button>
+                  <button onClick={handleCancel} style={{ padding:'11px 16px',borderRadius:9,border:`1px solid ${P.border}`,background:'transparent',color:P.textSub,fontSize:12,fontWeight:500,cursor:'pointer' }}>Cancelar</button>
+                </div>
+              </>) : (<>
+                <div style={{ background:P.surface2,border:`1px dashed ${P.orange}50`,borderRadius:10,padding:'14px 16px',display:'flex',alignItems:'center',justifyContent:'space-between',gap:10 }}>
+                  <span style={{ fontFamily:'monospace',fontSize:16,fontWeight:700,color:P.text,letterSpacing:'0.04em',wordBreak:'break-all' }}>{genPw}</span>
+                  <button onClick={copyGenPw} style={{ flexShrink:0,padding:'7px 12px',borderRadius:7,border:`1px solid ${P.orange}45`,background:copied?P.okDim:'transparent',color:P.orange,fontSize:11,fontWeight:600,cursor:'pointer' }}>{copied?'✓ Copiado':'Copiar'}</button>
+                </div>
+                <div style={{ background:P.errDim,border:`1px solid ${P.gray}30`,borderRadius:8,padding:'9px 13px',fontSize:11,color:P.grayMid,lineHeight:1.5 }}>
+                  {Icons.alert} No se volverá a mostrar. Compártela con {dispName} — se le pedirá cambiarla al iniciar sesión.
+                </div>
+                <button onClick={handleCancel} style={{ width:'100%',padding:'11px 0',borderRadius:9,border:'none',cursor:'pointer',background:P.orange,color:'#fff',fontSize:12.5,fontWeight:700 }}>Entendido, cerrar</button>
+              </>)}
             </div>
           )}
 
@@ -1990,12 +1947,13 @@ function AddUserModal({ onClose, onCreated }) {
   const P = useP();
   const COLORS = ['#FB670B','#22C55E','#0077CC','#A855F7','#EC4899','#F59E0B','#8A8A7A','#64748B'];
   const [name,setName]       = useState('');
-  const [pw,setPw]           = useState(''), [confirm,setConfirm] = useState('');
   const [selTabs,setSelTabs] = useState([]);
   const [canDl,setCanDl]     = useState(false);
   const [color,setColor]     = useState('#8A8A7A');
   const [loading,setLoading] = useState(false);
   const [err,setErr]         = useState('');
+  const [created,setCreated] = useState(null); // { name, password } tras crear — se muestra UNA sola vez
+  const [copied,setCopied]   = useState(false);
 
   // Mantener el cursor personalizado encima del backdrop del portal
   useEffect(() => {
@@ -2003,19 +1961,48 @@ function AddUserModal({ onClose, onCreated }) {
     if (cursor) document.body.appendChild(cursor);
   }, []);
 
-  const match    = pw&&confirm&&pw===confirm;
-  const mismatch = pw&&confirm&&pw!==confirm;
-  const canSave  = name.trim().length>=2&&pw.length>=6&&match&&!loading;
+  const canSave  = name.trim().length>=2&&!loading;
   const toggleTab = id => setSelTabs(s=>s.includes(id)?s.filter(x=>x!==id):[...s,id]);
 
   const handleSave = async () => {
     if(!canSave) return; setLoading(true); setErr('');
     const r = await fetch('/api/admin/users',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({action:'addUser',name:name.trim(),password:pw,tabs:selTabs,canDownload:canDl,color})});
+      body:JSON.stringify({action:'addUser',name:name.trim(),tabs:selTabs,canDownload:canDl,color})});
     const j = await r.json();
-    if(j.ok){onCreated();onClose();}else{setErr(j.error||'Error al crear');}
+    if(j.ok){ onCreated(); setCreated({ name:name.trim(), password:j.generatedPassword }); }
+    else{setErr(j.error||'Error al crear');}
     setLoading(false);
   };
+
+  const copyPw = () => {
+    navigator.clipboard?.writeText(created?.password||'').then(()=>{setCopied(true);setTimeout(()=>setCopied(false),2000);});
+  };
+
+  // ── Pantalla de éxito: contraseña generada, visible solo esta vez ──────────
+  if (created) return (
+    <div style={{ position:'fixed',inset:0,zIndex:2147483647,background:'rgba(8,7,6,0.82)',backdropFilter:'blur(12px)',overflowY:'auto' }}>
+      <div style={{ display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100%',padding:20 }}>
+        <div style={{ background:P.surface,border:`1px solid ${P.border2}`,borderRadius:18,width:'100%',maxWidth:440,
+          boxShadow:'0 40px 120px rgba(0,0,0,0.85)',animation:'fadeUp 0.25s cubic-bezier(0.16,1,0.3,1)',padding:'28px 26px' }}>
+          <div style={{ display:'flex',alignItems:'center',gap:10,marginBottom:16 }}>
+            <div style={{ width:36,height:36,borderRadius:9,background:P.okDim,border:`1px solid ${P.orange}30`,display:'flex',alignItems:'center',justifyContent:'center',color:P.orange }}>{Icons.check}</div>
+            <div>
+              <div style={{ fontWeight:700,fontSize:14,color:P.text }}>Usuario creado: {created.name}</div>
+              <div style={{ fontSize:10.5,color:P.textDim }}>Contraseña generada — guárdala ahora</div>
+            </div>
+          </div>
+          <div style={{ background:P.surface2,border:`1px dashed ${P.orange}50`,borderRadius:10,padding:'14px 16px',display:'flex',alignItems:'center',justifyContent:'space-between',gap:10,marginBottom:10 }}>
+            <span style={{ fontFamily:'monospace',fontSize:16,fontWeight:700,color:P.text,letterSpacing:'0.04em',wordBreak:'break-all' }}>{created.password}</span>
+            <button onClick={copyPw} style={{ flexShrink:0,padding:'7px 12px',borderRadius:7,border:`1px solid ${P.orange}45`,background:copied?P.okDim:'transparent',color:P.orange,fontSize:11,fontWeight:600,cursor:'pointer' }}>{copied?'✓ Copiado':'Copiar'}</button>
+          </div>
+          <div style={{ background:P.errDim,border:`1px solid ${P.gray}30`,borderRadius:8,padding:'9px 13px',fontSize:11,color:P.grayMid,lineHeight:1.5,marginBottom:16 }}>
+            {Icons.alert} No se volverá a mostrar. Compártela con {created.name} — se le pedirá cambiarla al iniciar sesión.
+          </div>
+          <button onClick={onClose} style={{ width:'100%',padding:'11px 0',borderRadius:9,border:'none',cursor:'pointer',background:P.orange,color:'#fff',fontSize:12.5,fontWeight:700 }}>Entendido, cerrar</button>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div style={{ position:'fixed',inset:0,zIndex:2147483647,background:'rgba(8,7,6,0.82)',backdropFilter:'blur(12px)',
@@ -2054,16 +2041,8 @@ function AddUserModal({ onClose, onCreated }) {
             </div>
           </div>
           {/* Contraseña */}
-          <div>
-            <div style={{ fontSize:9.5,fontWeight:700,letterSpacing:'0.12em',textTransform:'uppercase',color:P.textDim,marginBottom:6 }}>Contraseña</div>
-            <div style={{ display:'flex',flexDirection:'column',gap:7 }}>
-              <input type="password" value={pw} onChange={e=>setPw(e.target.value)} placeholder="Mínimo 6 caracteres"
-                style={{ width:'100%',background:P.surface2,border:`1px solid ${P.border}`,borderRadius:9,padding:'10px 14px',color:P.text,fontSize:12.5,outline:'none',boxSizing:'border-box' }}
-                onFocus={e=>e.target.style.borderColor='rgba(251,103,11,0.45)'} onBlur={e=>e.target.style.borderColor=P.border}/>
-              <input type="password" value={confirm} onChange={e=>setConfirm(e.target.value)} placeholder="Confirmar contraseña"
-                style={{ width:'100%',background:P.surface2,border:`1px solid ${mismatch?'rgba(239,68,68,0.5)':match?'rgba(251,103,11,0.45)':P.border}`,borderRadius:9,padding:'10px 14px',color:P.text,fontSize:12.5,outline:'none',boxSizing:'border-box' }}
-                onFocus={e=>e.target.style.borderColor='rgba(251,103,11,0.45)'} onBlur={e=>e.target.style.borderColor=P.border}/>
-            </div>
+          <div style={{ padding:'10px 13px',borderRadius:9,background:P.surface2,border:`1px solid ${P.border}`,fontSize:11,color:P.textDim,lineHeight:1.5 }}>
+            Se generará una contraseña segura automáticamente. Se mostrará una sola vez al crear el usuario.
           </div>
           {/* Secciones */}
           <div style={{ display:'flex',flexDirection:'column',gap:10 }}>
@@ -2171,7 +2150,7 @@ function UsersTab() {
       )}
 
       {showAdd && createPortal(
-        <AddUserModal onClose={() => setShowAdd(false)} onCreated={() => { setShowAdd(false); loadUsers(); }}/>,
+        <AddUserModal onClose={() => setShowAdd(false)} onCreated={loadUsers}/>,
         document.body
       )}
     </div>
@@ -2450,6 +2429,85 @@ function Login({ onLogin }) {
   );
 
   return null;
+}
+
+// ── CAMBIO DE CONTRASEÑA OBLIGATORIO — primer login tras alta/renovación ──────
+function ForcePasswordChange({ role, onDone }) {
+  const P = useP();
+  const [current,setCurrent]   = useState('');
+  const [next,setNext]         = useState('');
+  const [confirm,setConfirm]   = useState('');
+  const [showC,setShowC]       = useState(false), [showN,setShowN] = useState(false);
+  const [loading,setLoading]   = useState(false);
+  const [err,setErr]           = useState('');
+  const cardRef = useRef(null);
+
+  const match    = next&&confirm&&next===confirm;
+  const mismatch = next&&confirm&&next!==confirm;
+  const canSave  = current.length>0 && next.length>=8 && match && !loading;
+
+  const shake = () => { const el=cardRef.current; if(!el) return; [-7,7,-4,4,-2,2,0].forEach((x,i)=>setTimeout(()=>{el.style.transform=`translateX(${x}px)`;},i*50)); };
+
+  const submit = async (e) => {
+    e.preventDefault(); if(!canSave) return;
+    setLoading(true); setErr('');
+    try {
+      const r = await fetch('/api/auth', { method:'POST', credentials:'include', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ action:'selfChangePassword', currentPassword:current, newPassword:next }) });
+      const j = await r.json();
+      if (j.ok) onDone({ ...role, mustChangePassword:false });
+      else { setErr(j.error||'Error al cambiar contraseña'); shake(); }
+    } catch { setErr('Error de conexión'); shake(); }
+    setLoading(false);
+  };
+
+  const fld = (hasErr=false) => ({
+    width:'100%', background:P.surface2, border:`1px solid ${hasErr?P.gray+'80':P.border}`,
+    borderRadius:10, padding:'13px 44px 13px 16px', color:P.text, fontSize:13, outline:'none',
+    boxSizing:'border-box', transition:'border-color 0.15s ease, box-shadow 0.15s ease',
+  });
+  const eyeBtnStyle = { position:'absolute', right:13, top:'50%', transform:'translateY(-50%)', background:'none', border:'none', cursor:'pointer', color:P.textDim, padding:2 };
+
+  return (
+    <div ref={cardRef} className="scanline-wrap" style={{ padding:'44px 40px 40px', transition:'transform 0.05s ease' }}>
+      <div style={{ position:'absolute', top:0, left:0, right:0, height:3,
+        background:`linear-gradient(90deg,transparent,${P.orange},${P.orangeWarm},transparent)`, opacity:0.7 }}/>
+      <div style={{ textAlign:'center', marginBottom:24 }}>
+        <h2 style={{ fontWeight:700, fontSize:19, color:P.text, letterSpacing:'-0.03em', marginBottom:6 }}>Cambia tu contraseña</h2>
+        <p style={{ color:P.textSub, fontSize:12, lineHeight:1.6, margin:0 }}>
+          Hola <span style={{ color:P.text, fontWeight:600 }}>{role?.name}</span> — por seguridad, define una contraseña propia antes de continuar.
+        </p>
+      </div>
+      <form onSubmit={submit} style={{ display:'flex', flexDirection:'column', gap:11 }}>
+        <div style={{ position:'relative' }}>
+          <input type={showC?'text':'password'} value={current} onChange={e=>{setCurrent(e.target.value);setErr('');}}
+            placeholder="Contraseña actual" autoFocus style={fld(!!err)}/>
+          <button type="button" onClick={()=>setShowC(s=>!s)} style={eyeBtnStyle}><EyeIcon open={showC}/></button>
+        </div>
+        <div style={{ position:'relative' }}>
+          <input type={showN?'text':'password'} value={next} onChange={e=>{setNext(e.target.value);setErr('');}}
+            placeholder="Contraseña nueva (mín. 8 caracteres)" style={fld()}/>
+          <button type="button" onClick={()=>setShowN(s=>!s)} style={eyeBtnStyle}><EyeIcon open={showN}/></button>
+        </div>
+        <input type={showN?'text':'password'} value={confirm} onChange={e=>{setConfirm(e.target.value);setErr('');}}
+          placeholder="Confirmar contraseña nueva" style={{ ...fld(), borderColor:mismatch?P.gray+'90':match?P.orange+'60':P.border, paddingRight:16 }}/>
+        {mismatch&&<p style={{ color:P.grayMid, fontSize:11, margin:0 }}>Las contraseñas no coinciden</p>}
+        {err&&(
+          <div style={{ background:P.errDim, border:`1px solid ${P.gray}38`, borderRadius:8,
+            padding:'9px 13px', color:P.grayLight, fontSize:11, display:'flex', alignItems:'center', gap:7 }}>
+            <span style={{ color:P.grayMid }}>{Icons.alert}</span> {err}
+          </div>
+        )}
+        <button type="submit" disabled={!canSave} style={{
+          background:canSave?P.orange:P.surface3, color:canSave?'#fff':P.textDim,
+          border:'none', borderRadius:10, padding:'13px 0', fontSize:13, fontWeight:600,
+          cursor:canSave?'pointer':'not-allowed', transition:'all 0.16s ease',
+          boxShadow:canSave?`0 4px 20px ${P.orange}40`:'none', width:'100%' }}>
+          {loading ? 'Guardando…' : 'Cambiar y continuar →'}
+        </button>
+      </form>
+    </div>
+  );
 }
 
 // ── SC METRIC DEFS (used in Dash + Console toggle cards) ─────────────────────
@@ -3532,6 +3590,7 @@ const ALL_TABS=[
     {id:'changelog',label:'Historial',     icon:'◭'},
     {id:'users',label:'Usuarios',          icon:'◴'},
     {id:'catalog',label:'Catálogo Visual', icon:'📷'},
+    {id:'biblioteca',label:'Biblioteca',   icon:'▶'},
   ];
   
   // ✅ CORRECCIÓN FINAL: Permitimos nombres de Admin y banderas de Admin, PERO bloqueamos a RH explícitamente.
@@ -3558,7 +3617,7 @@ const ALL_TABS=[
     { label:'Panel',     ids:['overview','console','activity'] },
     { label:'Comercial', ids:['products','conversations','distribuidores','suscriptores','recruitment'] },
     { label:'Análisis',  ids:['ai','reportes','changelog'] },
-    { label:'Gestión',   ids:['whatsapp','catalog','users'] },
+    { label:'Gestión',   ids:['whatsapp','catalog','biblioteca','users'] },
   ];
   const groupedTabs = (() => {
     const used = new Set();
@@ -3751,33 +3810,51 @@ const ALL_TABS=[
 
       {/* ── TABS ── */}
       {!isMobile ? (
-        <div className="tabs-row" style={{ display:'flex', alignItems:'center', overflowX:'auto',
-          background:P.surface, flexShrink:0 }}>
-          {groupedTabs.map((g,gi)=>(
-            <span key={g.label} style={{ display:'inline-flex', alignItems:'center', flexShrink:0 }}>
-              {gi>0 && <span aria-hidden="true" style={{ width:1, height:18, background:P.border, margin:'0 8px', flexShrink:0, opacity:0.6 }} />}
-              {g.tabs.map(t=>(
-                <button key={t.id} onClick={()=>setTab(t.id)}
-                  className={`tab-btn ${tab===t.id?'active':''}`}
-                  title={g.label}
-                  style={{ background:'transparent',
-                    color:tab===t.id?'#fff':P.textDim,
-                    border:'none', padding:'7px 13px',
-                    cursor:'pointer', fontSize:12,
-                    fontWeight:tab===t.id?600:400,
-                    whiteSpace:'nowrap',
-                    letterSpacing:'-0.01em' }}>
-                  {t.label}
-                  {t.id==='distribuidores'&&leads.length>0&&(
-                    <span style={{ marginLeft:5,
-                      background: tab===t.id ? 'rgba(255,255,255,0.28)' : P.okDim,
-                      color: tab===t.id ? '#fff' : P.orange,
-                      borderRadius:10, padding:'1px 7px', fontSize:9, fontWeight:700 }}>{leads.length}</span>
-                  )}
+        <div className="tabs-row" style={{ display:'flex', alignItems:'center', gap:6,
+          background:P.surface, flexShrink:0, position:'relative' }}>
+          {groupedTabs.map((g)=>{
+            const groupActive = g.tabs.some(t=>t.id===tab);
+            const activeLabel = g.tabs.find(t=>t.id===tab)?.label;
+            return (
+              <div key={g.label} style={{ position:'relative' }}>
+                <button onClick={()=>setOpenGroup(og=>og===g.label?null:g.label)}
+                  className={`tab-group-btn ${groupActive?'active':''}`}
+                  style={{ display:'flex', alignItems:'center', gap:7,
+                    background: groupActive ? P.orange : 'transparent',
+                    color: groupActive ? '#fff' : P.textDim,
+                    border:'none', borderRadius:8, padding:'8px 14px',
+                    cursor:'pointer', fontSize:12.5,
+                    fontWeight: groupActive ? 600 : 500,
+                    whiteSpace:'nowrap' }}>
+                  {groupActive ? activeLabel : g.label}
+                  <span style={{ display:'flex', opacity:0.75,
+                    transform: openGroup===g.label ? 'rotate(180deg)' : 'rotate(0)',
+                    transition:'transform 0.18s ease' }}>{Icons.chevron}</span>
                 </button>
-              ))}
-            </span>
-          ))}
+                {openGroup===g.label && (
+                  <div style={{ position:'absolute', top:'calc(100% + 6px)', left:0, minWidth:210,
+                    background:P.surface, border:`1px solid ${P.border}`, borderRadius:10,
+                    boxShadow:'0 12px 40px rgba(0,0,0,0.35)', zIndex:200, overflow:'hidden',
+                    animation:'fadeUp 0.15s ease' }}>
+                    {g.tabs.map(t=>(
+                      <button key={t.id} onClick={()=>{setTab(t.id);setOpenGroup(null);}}
+                        style={{ width:'100%', display:'flex', alignItems:'center', justifyContent:'space-between', gap:8,
+                          padding:'10px 15px', background:tab===t.id?P.okDim:'transparent',
+                          border:'none', color:tab===t.id?P.orange:P.textSub, fontSize:12,
+                          fontWeight:tab===t.id?600:400, cursor:'pointer', textAlign:'left' }}>
+                        <span>{t.label}</span>
+                        {t.id==='distribuidores'&&leads.length>0&&(
+                          <span style={{ background: tab===t.id ? P.orange : P.okDim,
+                            color: tab===t.id ? '#fff' : P.orange,
+                            borderRadius:10, padding:'1px 7px', fontSize:9, fontWeight:700 }}>{leads.length}</span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       ) : (
         <div style={{ padding:'8px 14px', borderBottom:`1px solid ${P.border}`,
@@ -3833,7 +3910,7 @@ const ALL_TABS=[
           display: isMobile ? 'block' : (tab==='overview'||tab==='console') ? 'flex' : 'block',
           flexDirection:'column'
         }}
-        onClick={()=>menuOpen&&setMenuOpen(false)}>
+        onClick={()=>{ if(menuOpen) setMenuOpen(false); if(openGroup) setOpenGroup(null); }}>
 
         {loading&&tab!=='distribuidores'&&tab!=='recruitment'&&tab!=='users'&&tab!=='changelog'&&<Spinner/>}
 
@@ -4751,7 +4828,7 @@ const ALL_TABS=[
                 })}
               </div>
             )}
-            {recSub==='candidatos'&&canSee('recruitment')&&<RecruitmentTab canDelete={isOnlyAdmin || role.name === 'RH'} theme={theme}/>}
+            {recSub==='candidatos'&&canSee('recruitment')&&<RecruitmentTab canDelete={isOnlyAdmin || role.name === 'RH'} theme={theme} role={role}/>}
             {recSub==='vacantes'&&canSee('vacantes')&&<VacantesTab theme={theme}/>}
           </div>
         )}
@@ -4946,6 +5023,13 @@ const ALL_TABS=[
           </div>
         )}
 
+        {/* ── BIBLIOTECA DE VIDEOS ── */}
+        {tab==='biblioteca'&&canSee('biblioteca')&&(
+          <div className="tab-content" key="biblioteca">
+            <BibliotecaTab theme={theme}/>
+          </div>
+        )}
+
         {/* ── HISTORIAL DE MEJORAS ── */}
         {tab==='changelog'&&canSeeChangelog&&(
           <div className="tab-content" key="clog">
@@ -5066,6 +5150,13 @@ export default function AdminPanel({ autoOpen = false }) {
                   boxShadow:`0 48px 120px rgba(0,0,0,0.80), 0 0 0 1px ${palette.orange}18`,
                   position:'relative', overflow:'hidden' }}>
                   <Login onLogin={r=>setRole(r)}/>
+                </div>
+              : role.mustChangePassword
+              ? <div style={{ background:palette.surface, border:`1px solid ${palette.border}`,
+                  borderRadius:18, width:'94vw', maxWidth:400,
+                  boxShadow:`0 48px 120px rgba(0,0,0,0.80), 0 0 0 1px ${palette.orange}18`,
+                  position:'relative', overflow:'hidden' }}>
+                  <ForcePasswordChange role={role} onDone={r=>setRole(r)}/>
                 </div>
               : <Dash onClose={()=>{setVisible(false);setRole(null);}} role={role} theme={theme} toggleTheme={toggleTheme} fullscreen={false}/>
             }

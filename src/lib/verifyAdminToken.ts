@@ -34,12 +34,14 @@ export async function verifyAdminToken(request: Request) {
     }
 
     return payload.role as {
+      id?:         number;
       name:        string;
       color:       string;
       tabs:        string[];
       canDownload: boolean;
       canDelete:   boolean;
       isAdminRole?: boolean;
+      mustChangePassword?: boolean;
     };
   } catch (err) {
     console.warn('[verifyAdminToken] Verificación fallida:', err instanceof Error ? err.message : 'Error desconocido');

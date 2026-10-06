@@ -496,6 +496,13 @@ export async function saveLead({ nombre, empresa, whatsapp, email, productos, co
   await ensureInit(); await ensureLeadsTable();
   await db.execute({ sql: `INSERT INTO distribuidor_leads (nombre, empresa, whatsapp, email, productos, comentarios) VALUES (?, ?, ?, ?, ?, ?)`, args: [nombre||'', empresa||'', whatsapp||'', email||'', productos||'', comentarios||''] });
 }
+export async function getDistribuidorLeadsCountThisMonth() {
+  await ensureInit(); await ensureLeadsTable();
+  const res = await db.execute(
+    `SELECT COUNT(*) as cnt FROM distribuidor_leads WHERE ts >= date('now','start of month')`
+  );
+  return Number(res.rows?.[0]?.cnt || 0);
+}
 export async function readLeads() {
   await ensureInit(); await ensureLeadsTable();
   const res = await db.execute(`SELECT id, ts, nombre, empresa, whatsapp, email, productos, comentarios, status FROM distribuidor_leads ORDER BY id DESC LIMIT 500`);
@@ -600,6 +607,7 @@ async function ensureRecruitmentTable() {
     `ALTER TABLE recruitment_leads ADD COLUMN en_lista_espera   INTEGER DEFAULT 0`,
     `ALTER TABLE recruitment_leads ADD COLUMN notificado_vacante INTEGER DEFAULT 0`,
     `ALTER TABLE recruitment_leads ADD COLUMN prioridad          INTEGER DEFAULT 0`,
+    `ALTER TABLE recruitment_leads ADD COLUMN rh_user_id         INTEGER DEFAULT NULL`,
   ];
   for (const sql of migraciones) {
     try { await db.execute(sql); } catch { /* columna ya existe */ }
@@ -626,6 +634,7 @@ export async function saveRecruitmentLead({
   comentarios     = '',
   sessionId       = '',
   en_lista_espera = 0,
+  rh_user_id      = null,
 }) {
   await ensureInit();
   await ensureRecruitmentTable();
@@ -745,7 +754,11 @@ export async function saveRecruitmentLead({
   }
 
   const id = Number(result.lastInsertRowid);
-  console.log(`💾 Candidato #${id} guardado → ${nombre} | ${puesto} | ${estado_rep} | CV: ${cvNombre || 'sin CV'}`);
+  if (rh_user_id != null) {
+    try { await db.execute({ sql: `UPDATE recruitment_leads SET rh_user_id=? WHERE id=?`, args: [rh_user_id, id] }); }
+    catch (e) { console.warn('⚠️ No se pudo asignar rh_user_id:', e.message); }
+  }
+  console.log(`💾 Candidato #${id} guardado → ${nombre} | ${puesto} | ${estado_rep} | CV: ${cvNombre || 'sin CV'} | RH: ${rh_user_id ?? 'general'}`);
   return { id };
 }
 
@@ -793,13 +806,22 @@ export async function checkDuplicateByEmail(email) {
 }
 
 // ── Leer candidatos — incluye cv_base64 y cv_tipo ────────────────────────────
-export async function readRecruitmentLeads() {
+// opts.isAdmin=true (default) → sin filtro, ve todo (uso interno/legacy).
+// opts.isAdmin=false → SOLO candidatos de rhUserId; sin rhUserId → [] (fail-closed).
+export async function readRecruitmentLeads({ isAdmin = true, rhUserId = null } = {}) {
   await ensureInit();
   await ensureRecruitmentTable();
 
-  const res = await db.execute(
-    `SELECT * FROM recruitment_leads ORDER BY id DESC LIMIT 500`
-  );
+  let sql  = `SELECT * FROM recruitment_leads`;
+  const args = [];
+  if (!isAdmin) {
+    if (!rhUserId) return [];
+    sql += ` WHERE rh_user_id = ?`;
+    args.push(rhUserId);
+  }
+  sql += ` ORDER BY id DESC LIMIT 500`;
+
+  const res = await db.execute({ sql, args });
 
   return res.rows.map(r => ({
     id:         r.id         ?? null,
@@ -823,7 +845,32 @@ export async function readRecruitmentLeads() {
     en_lista_espera:     r.en_lista_espera     ? 1 : 0,
     notificado_vacante:  r.notificado_vacante  ? 1 : 0,
     prioridad:           r.prioridad           ? 1 : 0,
+    rh_user_id:          r.rh_user_id          ?? null,
   }));
+}
+
+// ── Dueño actual de un candidato (para checks de ownership) ──────────────────
+export async function getLeadOwner(id) {
+  await ensureInit();
+  await ensureRecruitmentTable();
+  const r = await db.execute({ sql: `SELECT rh_user_id FROM recruitment_leads WHERE id = ?`, args: [id] });
+  if (!r.rows.length) return undefined;
+  return r.rows[0].rh_user_id ?? null;
+}
+
+// ── Dueño del candidato al que pertenece una nota (para checks de ownership) ──
+export async function getNoteCandidateOwner(noteId) {
+  await ensureInit();
+  await ensureNotesTable();
+  await ensureRecruitmentTable();
+  const r = await db.execute({
+    sql:  `SELECT rl.rh_user_id AS owner, n.candidate_id AS candidate_id
+           FROM recruiter_notes n JOIN recruitment_leads rl ON rl.id = n.candidate_id
+           WHERE n.id = ?`,
+    args: [noteId],
+  });
+  if (!r.rows.length) return undefined;
+  return { owner: r.rows[0].owner ?? null, candidateId: r.rows[0].candidate_id };
 }
 
 // ── Lista de espera: candidatos sin vacante activa al momento de registrarse ──
@@ -1116,6 +1163,7 @@ async function ensureVacantesTable() {
     `ALTER TABLE vacantes ADD COLUMN requisitos TEXT DEFAULT ''`,
     `ALTER TABLE vacantes ADD COLUMN multiples INTEGER NOT NULL DEFAULT 0`,
     `ALTER TABLE vacantes ADD COLUMN empresa TEXT NOT NULL DEFAULT ''`,
+    `ALTER TABLE vacantes ADD COLUMN rh_user_id INTEGER DEFAULT NULL`,
   ];
   
   for (const sql of migraciones) {
@@ -1125,26 +1173,34 @@ async function ensureVacantesTable() {
   vacantesReady = true;
 }
 
-export async function saveVacante({ titulo, area, tipo = '', ubicacion = 'Morelia, Mich.', horario = '', salario = '', descripcion = '', requisitos = '', activa = true, orden = 0, multiples = false, empresa = '' }) {
+export async function saveVacante({ titulo, area, tipo = '', ubicacion = 'Morelia, Mich.', horario = '', salario = '', descripcion = '', requisitos = '', activa = true, orden = 0, multiples = false, empresa = '', rh_user_id = null }) {
   await ensureInit();
   await ensureVacantesTable();
   const result = await db.execute({
-    sql:  `INSERT INTO vacantes (titulo, area, tipo, ubicacion, horario, salario, descripcion, requisitos, activa, orden, multiples, empresa) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    args: [titulo, area, tipo, ubicacion, horario, salario, descripcion, requisitos, activa ? 1 : 0, orden, multiples ? 1 : 0, empresa || ''],
+    sql:  `INSERT INTO vacantes (titulo, area, tipo, ubicacion, horario, salario, descripcion, requisitos, activa, orden, multiples, empresa, rh_user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    args: [titulo, area, tipo, ubicacion, horario, salario, descripcion, requisitos, activa ? 1 : 0, orden, multiples ? 1 : 0, empresa || '', rh_user_id],
   });
   return { id: Number(result.lastInsertRowid) };
 }
 
-export async function readVacantes(onlyActive = false) {
-  await ensureInit(); 
+// opts.isAdmin=true (default) → sin filtro, ve todo (uso interno/legacy/pública).
+// opts.isAdmin=false → SOLO vacantes de rhUserId; sin rhUserId → [] (fail-closed).
+export async function readVacantes(onlyActive = false, { isAdmin = true, rhUserId = null } = {}) {
+  await ensureInit();
   await ensureVacantesTable();
-  
-  const sql = onlyActive 
-    ? `SELECT * FROM vacantes WHERE activa = 1 ORDER BY orden ASC, id ASC` 
-    : `SELECT * FROM vacantes ORDER BY orden ASC, id ASC`;
-    
-  const res = await db.execute(sql);
-  
+
+  const where = [];
+  const args  = [];
+  if (onlyActive) where.push('activa = 1');
+  if (!isAdmin) {
+    if (!rhUserId) return [];
+    where.push('rh_user_id = ?');
+    args.push(rhUserId);
+  }
+  const sql = `SELECT * FROM vacantes${where.length ? ' WHERE ' + where.join(' AND ') : ''} ORDER BY orden ASC, id ASC`;
+
+  const res = await db.execute({ sql, args });
+
   return res.rows.map(r => ({
     id:          r.id,
     titulo:      r.titulo,
@@ -1158,7 +1214,17 @@ export async function readVacantes(onlyActive = false) {
     activa:      !!r.activa,
     multiples:   !!r.multiples,
     empresa:     r.empresa || '',
+    rh_user_id:  r.rh_user_id ?? null,
   }));
+}
+
+// ── Dueño actual de una vacante (para checks de ownership) ───────────────────
+export async function getVacanteOwner(id) {
+  await ensureInit();
+  await ensureVacantesTable();
+  const r = await db.execute({ sql: `SELECT rh_user_id FROM vacantes WHERE id = ?`, args: [id] });
+  if (!r.rows.length) return undefined;
+  return r.rows[0].rh_user_id ?? null;
 }
 
 export async function updateVacante({ id, titulo, area, tipo, ubicacion, horario, salario, descripcion, requisitos, activa, orden, multiples = false, empresa = '' }) {
@@ -1180,6 +1246,93 @@ export async function toggleVacante(id, activa) {
   await ensureInit();
   await ensureVacantesTable();
   await db.execute({ sql: `UPDATE vacantes SET activa=? WHERE id=?`, args: [activa ? 1 : 0, id] });
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  BIBLIOTECA — videos (testimonios/producto/fabricacion) de la pagina publica
+// ════════════════════════════════════════════════════════════════════════════
+
+let bibliotecaReady = false;
+
+async function ensureBibliotecaTable() {
+  if (bibliotecaReady) return;
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS biblioteca_videos (
+      id            INTEGER PRIMARY KEY AUTOINCREMENT,
+      categoria     TEXT    NOT NULL DEFAULT 'testimonios',
+      cliente       TEXT    NOT NULL DEFAULT '',
+      empresa       TEXT    NOT NULL DEFAULT '',
+      titulo        TEXT    NOT NULL DEFAULT '',
+      cloudinary_id TEXT    NOT NULL DEFAULT '',
+      poster        TEXT    NOT NULL DEFAULT '',
+      activo        INTEGER NOT NULL DEFAULT 1,
+      orden         INTEGER NOT NULL DEFAULT 0,
+      created_at    TEXT    NOT NULL DEFAULT (datetime('now'))
+    )
+  `);
+
+  // Migraciones incrementales (try/catch: ignorar si la columna ya existe)
+  try { await db.execute(`ALTER TABLE biblioteca_videos ADD COLUMN ubicacion TEXT DEFAULT ''`); } catch { /* ya existe */ }
+  try { await db.execute(`ALTER TABLE biblioteca_videos ADD COLUMN destacado INTEGER NOT NULL DEFAULT 0`); } catch { /* ya existe */ }
+  try { await db.execute(`ALTER TABLE biblioteca_videos ADD COLUMN duracion INTEGER NOT NULL DEFAULT 0`); } catch { /* ya existe */ }
+  try { await db.execute(`ALTER TABLE biblioteca_videos ADD COLUMN producto TEXT DEFAULT ''`); } catch { /* ya existe */ }
+
+  bibliotecaReady = true;
+}
+
+export async function saveBibliotecaVideo({ categoria = 'testimonios', cliente = '', empresa = '', titulo = '', ubicacion = '', producto = '', cloudinaryId = '', poster = '', activo = true, destacado = false, duracion = 0, orden = 0 }) {
+  await ensureInit();
+  await ensureBibliotecaTable();
+  const result = await db.execute({
+    sql:  `INSERT INTO biblioteca_videos (categoria, cliente, empresa, titulo, ubicacion, producto, cloudinary_id, poster, activo, destacado, duracion, orden) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    args: [categoria, cliente, empresa, titulo, ubicacion, producto, cloudinaryId, poster, activo ? 1 : 0, destacado ? 1 : 0, duracion || 0, orden],
+  });
+  return { id: Number(result.lastInsertRowid) };
+}
+
+export async function readBibliotecaVideos(onlyActive = false) {
+  await ensureInit();
+  await ensureBibliotecaTable();
+  const sql = onlyActive
+    ? `SELECT * FROM biblioteca_videos WHERE activo = 1 ORDER BY orden ASC, id DESC`
+    : `SELECT * FROM biblioteca_videos ORDER BY orden ASC, id DESC`;
+  const res = await db.execute(sql);
+  return res.rows.map(r => ({
+    id:           r.id,
+    categoria:    r.categoria,
+    cliente:      r.cliente,
+    empresa:      r.empresa || '',
+    titulo:       r.titulo || '',
+    ubicacion:    r.ubicacion || '',
+    producto:     r.producto || '',
+    cloudinaryId: r.cloudinary_id,
+    poster:       r.poster || '',
+    activo:       !!r.activo,
+    destacado:    !!r.destacado,
+    duracion:     r.duracion || 0,
+    orden:        r.orden,
+  }));
+}
+
+export async function updateBibliotecaVideo({ id, categoria, cliente, empresa, titulo, ubicacion, producto, cloudinaryId, poster, activo, destacado, duracion, orden }) {
+  await ensureInit();
+  await ensureBibliotecaTable();
+  await db.execute({
+    sql:  `UPDATE biblioteca_videos SET categoria=?, cliente=?, empresa=?, titulo=?, ubicacion=?, producto=?, cloudinary_id=?, poster=?, activo=?, destacado=?, duracion=?, orden=? WHERE id=?`,
+    args: [categoria, cliente || '', empresa || '', titulo || '', ubicacion || '', producto || '', cloudinaryId || '', poster || '', activo ? 1 : 0, destacado ? 1 : 0, duracion || 0, orden || 0, id],
+  });
+}
+
+export async function deleteBibliotecaVideo(id) {
+  await ensureInit();
+  await ensureBibliotecaTable();
+  await db.execute({ sql: `DELETE FROM biblioteca_videos WHERE id=?`, args: [id] });
+}
+
+export async function toggleBibliotecaVideo(id, activo) {
+  await ensureInit();
+  await ensureBibliotecaTable();
+  await db.execute({ sql: `UPDATE biblioteca_videos SET activo=? WHERE id=?`, args: [activo ? 1 : 0, id] });
 }
 
 // ── WhatsApp entrantes via webhook ────────────────────────────────────────────
@@ -1404,6 +1557,38 @@ export async function getWAAuthorizedByCategory(categoria) {
     }
   }
   return out;
+}
+
+// Teléfono WA vinculado a un usuario RH especifico (users.id) — enrutamiento individual
+export async function getWAPhoneByUserId(userId) {
+  await ensureInit();
+  if (!userId) return null;
+  try { await db.execute(`ALTER TABLE wa_authorized ADD COLUMN user_id INTEGER DEFAULT NULL`); } catch {}
+  const r = await db.execute({
+    sql:  `SELECT phone, name FROM wa_authorized WHERE user_id = ? AND active = 1 LIMIT 1`,
+    args: [userId],
+  });
+  return r.rows[0] ? { phone: r.rows[0].phone, name: r.rows[0].name } : null;
+}
+
+// Números con permiso '*' (ven todo, sin importar dueño) — oversight/catch-all
+export async function getWAWildcardRecipients() {
+  await ensureInit();
+  const r = await db.execute(`SELECT phone, name, permissions FROM wa_authorized WHERE active=1`);
+  const out = [];
+  for (const row of r.rows) {
+    let perms = [];
+    try { perms = JSON.parse(row.permissions || '[]'); } catch {}
+    if (Array.isArray(perms) && perms.includes('*')) out.push({ phone: row.phone, name: row.name });
+  }
+  return out;
+}
+
+// Vincula un numero de wa_authorized a un usuario RH (users.id) — enrutamiento individual
+export async function setWAUserLink(waId, userId) {
+  await ensureInit();
+  try { await db.execute(`ALTER TABLE wa_authorized ADD COLUMN user_id INTEGER DEFAULT NULL`); } catch {}
+  await db.execute({ sql: `UPDATE wa_authorized SET user_id = ? WHERE id = ?`, args: [userId, waId] });
 }
 
 export async function getWAAuthorizedByPhone(phone) {

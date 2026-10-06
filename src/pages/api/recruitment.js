@@ -14,7 +14,21 @@ import {
   readVacantes,
   markNotificadosVacante,
   saveSubscriber,
+  getLeadOwner,
+  getNoteCandidateOwner,
 } from '../../lib/analytics-db.js';
+
+// Busca, entre las vacantes activas, la que corresponde al "puesto" escrito/elegido
+// por el candidato — para heredar su dueño (rh_user_id) al guardar el lead.
+function matchVacante(puesto, vacantesActivas) {
+  if (!puesto || !vacantesActivas?.length) return null;
+  const norm = s => (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  const pLow = norm(puesto);
+  return vacantesActivas.find(v => {
+    const vLow = norm(v.titulo);
+    return vLow && (vLow.includes(pLow) || pLow.includes(vLow));
+  }) || null;
+}
 
 // Auto-suscribe al candidato a novedades/promociones con los datos que ya dio
 // en la conversación — evita pedirle de nuevo su correo con la subscribe-card.
@@ -75,9 +89,10 @@ export async function POST({ request }) {
         }
 
         let en_lista_espera = esListaEspera ? 1 : 0;
-        if (!esListaEspera) {
-          try {
-            const vacantesActivas = (await readVacantes(true)) || [];
+        let rh_user_id = null;
+        try {
+          const vacantesActivas = (await readVacantes(true)) || [];
+          if (!esListaEspera) {
             if (!vacantesActivas.length) {
               en_lista_espera = 1;
             } else if (puesto) {
@@ -88,15 +103,16 @@ export async function POST({ request }) {
               );
               if (!hay) en_lista_espera = 1;
             }
-          } catch {}
-        }
+          }
+          rh_user_id = matchVacante(puesto, vacantesActivas)?.rh_user_id ?? null;
+        } catch {}
 
         const saved = await saveRecruitmentLead({
           nombre, email, telefono, puesto, edad,
           estado_rep: estado, colonia,
           cvNombre, cvBase64, cvTipo,
           mensaje: '', comentarios, sessionId,
-          en_lista_espera,
+          en_lista_espera, rh_user_id,
         });
         autoSuscribirCandidato(nombre, email);
 
@@ -106,10 +122,10 @@ export async function POST({ request }) {
             notifyCandidateEspera({ nombre, puesto, telefono }).catch(e => console.warn('notify candidato:', e.message));
             // 2. Avisar a RH por categoría
             const { notifyCategoriaRH } = await import('../../lib/notify.js');
-            const rhResult = await notifyCategoriaRH({ nombre, puesto, telefono, email, cvNombre: cvNombre || '', cvBase64: cvBase64 || '' });
+            const rhResult = await notifyCategoriaRH({ nombre, puesto, telefono, email, cvNombre: cvNombre || '', cvBase64: cvBase64 || '', rh_user_id });
             console.log(`📢 RH notificados: ${rhResult.sent || 0} destinatarios`);
           } else {
-            await notifyNewVacante({ nombre, puesto, telefono, email, cvNombre, cvBase64, cvTipo, sessionId });
+            await notifyNewVacante({ nombre, puesto, telefono, email, cvNombre, cvBase64, cvTipo, sessionId, rh_user_id });
           }
         } catch (e) { console.warn('notify error:', e.message); }
 
@@ -154,9 +170,19 @@ export async function POST({ request }) {
     const { action } = body;
 
     const ADMIN_ACTIONS = ['list', 'listPending', 'updateStatus', 'updateLead', 'delete', 'reset', 'addNote', 'getNotes', 'deleteNote', 'notificar-espera', 'resend'];
+    let isAdmin = false, myId = null;
     if (ADMIN_ACTIONS.includes(action)) {
       const adminRole = await verifyAdminToken(request);
       if (!adminRole) return json({ ok: false, error: 'No autorizado' }, 401);
+      isAdmin = !!adminRole.isAdminRole;
+      myId    = adminRole.id ?? null;
+    }
+
+    // Cada RH ve/edita solo sus candidatos; Admin los ve/edita todos.
+    async function checkOwnLead(id) {
+      if (isAdmin) return true;
+      const owner = await getLeadOwner(id);
+      return owner !== undefined && myId != null && Number(owner) === Number(myId);
     }
 
     // ── save: guardar candidato completo ──────────────────────────────────
@@ -184,9 +210,10 @@ export async function POST({ request }) {
 
       // Determinar lista de espera: puede venir del frontend o se detecta aquí
       let en_lista_espera = esListaEspera ? 1 : 0;
-      if (!esListaEspera) {
-        try {
-          const vacantesActivas = (await readVacantes(true)) || [];
+      let rh_user_id = null;
+      try {
+        const vacantesActivas = (await readVacantes(true)) || [];
+        if (!esListaEspera) {
           if (!vacantesActivas.length) {
             en_lista_espera = 1;
           } else if (puesto) {
@@ -198,8 +225,9 @@ export async function POST({ request }) {
             );
             if (!hayMatch) en_lista_espera = 1;
           }
-        } catch { /* si falla la consulta, no forzamos lista espera */ }
-      }
+        }
+        rh_user_id = matchVacante(puesto, vacantesActivas)?.rh_user_id ?? null;
+      } catch { /* si falla la consulta, no forzamos lista espera */ }
 
       const saved = await saveRecruitmentLead({
         nombre, email, telefono, puesto,
@@ -212,6 +240,7 @@ export async function POST({ request }) {
         mensaje,
         comentarios,
         sessionId,
+        rh_user_id,
         en_lista_espera,
       });
       autoSuscribirCandidato(nombre, email);
@@ -237,7 +266,7 @@ export async function POST({ request }) {
         await notifyNewVacante({
           nombre, puesto, edad, estado, colonia,
           whatsapp: telefono, email, cvNombre, mensaje: comentarios || mensaje,
-          en_lista_espera,
+          en_lista_espera, rh_user_id,
         });
         console.log('✅ Notificación RH enviada');
       } catch (err) {
@@ -248,8 +277,12 @@ export async function POST({ request }) {
     }
 
     // ── list: listar candidatos ───────────────────────────────────────────
+    // filterUserId: solo Admin puede pedir el corte de UN RH especifico (para reportes comparativos)
     if (action === 'list') {
-      const candidates = await readRecruitmentLeads();
+      const { filterUserId } = body;
+      const candidates = (isAdmin && filterUserId != null)
+        ? await readRecruitmentLeads({ isAdmin: false, rhUserId: Number(filterUserId) })
+        : await readRecruitmentLeads({ isAdmin, rhUserId: myId });
       const formatted  = candidates.map(c => ({
         ...c,
         statusLabel: STATUS_LABELS[c.status] || c.status || 'Nuevo',
@@ -264,6 +297,7 @@ export async function POST({ request }) {
       if (!VALID_STATUSES.includes(nuevoEstado)) {
         return json({ ok: false, error: `Estado inválido. Usa: ${VALID_STATUSES.join(', ')}` }, 400);
       }
+      if (!(await checkOwnLead(id))) return json({ ok: false, error: 'No autorizado.' }, 403);
       const ok = await updateRecruitmentStatus(id, nuevoEstado);
       if (!ok) return json({ ok: false, error: 'Candidato no encontrado.' }, 404);
       return json({ ok: true });
@@ -280,6 +314,7 @@ export async function POST({ request }) {
       };
       const dbCampo = CAMPO_MAP[campo];
       if (!dbCampo) return json({ ok: false, error: 'Campo no permitido.' }, 400);
+      if (!(await checkOwnLead(id))) return json({ ok: false, error: 'No autorizado.' }, 403);
       await updateRecruitmentLead(id, { [dbCampo]: valor });
       return json({ ok: true });
     }
@@ -287,12 +322,14 @@ export async function POST({ request }) {
     // ── delete ────────────────────────────────────────────────────────────
     if (action === 'delete') {
       if (!body.id) return json({ ok: false, error: 'ID requerido.' }, 400);
+      if (!(await checkOwnLead(body.id))) return json({ ok: false, error: 'No autorizado.' }, 403);
       await deleteRecruitmentLead(body.id);
       return json({ ok: true });
     }
 
     // ── reset ─────────────────────────────────────────────────────────────
     if (action === 'reset') {
+      if (!isAdmin) return json({ ok: false, error: 'Solo Admin puede borrar todo.' }, 403);
       await resetRecruitmentLeads();
       return json({ ok: true });
     }
@@ -302,6 +339,7 @@ export async function POST({ request }) {
       const { candidateId, nota } = body;
       if (!candidateId) return json({ ok: false, error: 'candidateId requerido' }, 400);
       if (!nota?.trim()) return json({ ok: false, error: 'Nota vacía' }, 400);
+      if (!(await checkOwnLead(candidateId))) return json({ ok: false, error: 'No autorizado.' }, 403);
       const result = await addRecruiterNote({ candidateId, nota });
       return json({ ok: true, id: result.id });
     }
@@ -310,6 +348,7 @@ export async function POST({ request }) {
     if (action === 'getNotes') {
       const { candidateId } = body;
       if (!candidateId) return json({ ok: false, error: 'candidateId requerido' }, 400);
+      if (!(await checkOwnLead(candidateId))) return json({ ok: false, error: 'No autorizado.' }, 403);
       const notes = await getRecruiterNotes(candidateId);
       return json({ ok: true, notes });
     }
@@ -318,6 +357,11 @@ export async function POST({ request }) {
     if (action === 'deleteNote') {
       const { noteId } = body;
       if (!noteId) return json({ ok: false, error: 'noteId requerido' }, 400);
+      if (!isAdmin) {
+        const info = await getNoteCandidateOwner(noteId);
+        const owned = info !== undefined && myId != null && Number(info.owner) === Number(myId);
+        if (!owned) return json({ ok: false, error: 'No autorizado.' }, 403);
+      }
       await deleteRecruiterNote(noteId);
       return json({ ok: true });
     }
@@ -332,14 +376,16 @@ export async function POST({ request }) {
     if (action === 'resend') {
       const { id } = body;
       if (!id) return json({ ok: false, error: 'ID de candidato requerido' }, 400);
+      if (!(await checkOwnLead(id))) return json({ ok: false, error: 'No autorizado.' }, 403);
 
       const candidates = await readRecruitmentLeads();
       const candidate = candidates.find(c => c.id === Number(id));
       if (!candidate) return json({ ok: false, error: 'Candidato no encontrado' }, 404);
 
-      const { notifyCategoriaRH, sendWADocumentRaw } = await import('../../lib/notify.js');
+      const { notifyCategoriaRH } = await import('../../lib/notify.js');
 
-      // 1. Texto a todos los RH
+      // Texto + CV (si tiene) — al RH dueño del candidato (o bolsa general si no tiene dueño)
+      const tieneCV = !!(candidate.cv_base64 && candidate.cv_nombre);
       const resultRH = await notifyCategoriaRH({
         nombre: candidate.nombre,
         puesto: candidate.puesto,
@@ -350,34 +396,18 @@ export async function POST({ request }) {
         email: candidate.email,
         cvNombre: candidate.cv_nombre,
         cvBase64: candidate.cv_base64,
+        cvTipo: candidate.cv_tipo,
         mensaje: candidate.mensaje || candidate.comentarios,
+        rh_user_id: candidate.rh_user_id,
       });
-
-      // 2. Si tiene CV, enviar el archivo a los RH
-      let cvSent = 0;
-      const tieneCV = !!(candidate.cv_base64 && candidate.cv_nombre);
-      if (tieneCV) {
-        try {
-          const decoded = Buffer.from(candidate.cv_base64, 'base64');
-          const { getWAAuthorizedByCategory } = await import('../../lib/analytics-db.js');
-          const subs = await getWAAuthorizedByCategory('rh').catch(() => []);
-          for (const s of subs) {
-            try {
-              await sendWADocumentRaw(s.phone, decoded, candidate.cv_nombre, candidate.cv_tipo);
-              cvSent++;
-            } catch (e) { console.warn('resend CV a', String(s.phone).slice(-4), e.message); }
-          }
-        } catch (e) { console.error('resend CV error:', e.message); }
-      }
 
       return json({
         ok: true,
         sent: resultRH.sent || 0,
-        cvSent,
         tieneCV,
         nota: tieneCV
-          ? `Notificación enviada a ${resultRH.sent || 0} RH · CV adjunto a ${cvSent}`
-          : `Notificación enviada a ${resultRH.sent || 0} RH · sin CV`,
+          ? `Notificación + CV enviados a ${resultRH.sent || 0} destinatario(s)`
+          : `Notificación enviada a ${resultRH.sent || 0} destinatario(s) · sin CV`,
       });
     }
 
@@ -392,9 +422,11 @@ export async function POST({ request }) {
 // ════════════════════════════════════════════════════════════════
 //  GET
 // ════════════════════════════════════════════════════════════════
-export async function GET() {
+export async function GET({ request }) {
   try {
-    const candidates = await readRecruitmentLeads();
+    const adminRole = await verifyAdminToken(request);
+    if (!adminRole) return json({ ok: false, error: 'No autorizado' }, 401);
+    const candidates = await readRecruitmentLeads({ isAdmin: !!adminRole.isAdminRole, rhUserId: adminRole.id ?? null });
     const formatted  = candidates.map(c => ({
       ...c,
       statusLabel: STATUS_LABELS[c.status] || c.status || 'Nuevo',

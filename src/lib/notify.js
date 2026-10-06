@@ -935,10 +935,36 @@ async function notifyCategoria(categoria, buildMsg) {
   return { sent };
 }
 
-// Nuevo candidato → categoría 'rh'
+// Resuelve a quién avisar de un candidato/vacante según su dueño (rh_user_id):
+// 1) el número WA vinculado a ESE RH específico (si existe el link en wa_authorized.user_id)
+// 2) números con permiso '*' (ven todo, oversight) — siempre, sin importar dueño
+// 3) sin dueño (bolsa general / RH no vinculado aún) → fallback a toda la categoría 'rh'
+async function resolveRHRecipients(rhUserId) {
+  const { getWAPhoneByUserId, getWAWildcardRecipients, getWAAuthorizedByCategory } = await import('./analytics-db.js');
+  const out = [];
+  const seen = new Set();
+  const add = (r) => { if (r?.phone && !seen.has(r.phone)) { seen.add(r.phone); out.push(r); } };
+
+  if (rhUserId) {
+    const owner = await getWAPhoneByUserId(rhUserId).catch(() => null);
+    if (owner) add(owner);
+  }
+
+  const wildcard = await getWAWildcardRecipients().catch(() => []);
+  wildcard.forEach(add);
+
+  if (!rhUserId) {
+    const general = await getWAAuthorizedByCategory('rh').catch(() => []);
+    general.forEach(add);
+  }
+
+  return out;
+}
+
+// Nuevo candidato → se enruta al RH dueño de la vacante (c.rh_user_id); sin dueño → bolsa general
 export async function notifyCategoriaRH(c) {
   const esEspera = c.en_lista_espera === 1 || c.en_lista_espera === true || c.esListaEspera === true;
-  const result = await notifyCategoria('rh', (nombre) => {
+  const buildMsg = (nombre) => {
     const saludo = nombre ? `*${nombre}*` : '';
     const tieneCV = !!(c.cvNombre || c.cv_nombre || c.cvBase64 || c.cv_base64);
 
@@ -967,26 +993,41 @@ export async function notifyCategoriaRH(c) {
       (tieneCV ? `CV: adjunto en el panel\n` : '') +
       (c.sessionId ? `Folio: ${String(c.sessionId).slice(0, 12)}\n` : '') +
       `\nGestiona: Panel > Reclutamiento`;
-  });
+  };
 
-  // Ademas del texto, mandar el archivo real del CV (si vino adjunto).
+  const subs = await resolveRHRecipients(c.rh_user_id);
+  if (!subs.length) {
+    console.warn('[notify-rh] Sin destinatarios — ni dueño vinculado ni números con categoría "rh"/"*"');
+    return { sent: 0 };
+  }
+
+  let sent = 0;
+  for (let i = 0; i < subs.length; i++) {
+    const s = subs[i];
+    try {
+      await sendWAText(s.phone, buildMsg(s.name || ''));
+      sent++;
+      if (i < subs.length - 1) {
+        await new Promise(r => setTimeout(r, 1500 + Math.floor(Math.random() * 2000)));
+      }
+    } catch (e) { console.error(`[notify-rh] →${String(s.phone).slice(-4)}:`, e.message); }
+  }
+
+  // Ademas del texto, mandar el archivo real del CV (si vino adjunto) — a los mismos destinatarios.
   const cvBase64 = c.cvBase64 || c.cv_base64 || '';
   const cvNombre = c.cvNombre || c.cv_nombre || '';
   if (cvBase64 && cvNombre) {
-    try {
-      const { getWAAuthorizedByCategory } = await import('./analytics-db.js');
-      const subs   = await getWAAuthorizedByCategory('rh');
-      const buffer = Buffer.from(cvBase64, 'base64');
-      const cvTipo = c.cvTipo || c.cv_tipo || 'application/pdf';
-      for (const s of subs) {
-        try {
-          await sendWADocumentRaw(s.phone, buffer, cvNombre, cvTipo);
-        } catch (e) { console.warn(`[notify-cat:rh] CV → ****${String(s.phone).slice(-4)}:`, e.message); }
-      }
-    } catch (e) { console.warn('[notify-cat:rh] envío de CV falló:', e.message); }
+    const buffer = Buffer.from(cvBase64, 'base64');
+    const cvTipo = c.cvTipo || c.cv_tipo || 'application/pdf';
+    for (const s of subs) {
+      try {
+        await sendWADocumentRaw(s.phone, buffer, cvNombre, cvTipo);
+      } catch (e) { console.warn(`[notify-rh] CV → ****${String(s.phone).slice(-4)}:`, e.message); }
+    }
   }
 
-  return result;
+  console.log(`[notify-rh] enviadas ${sent}/${subs.length}${c.rh_user_id ? ` (dueño=${c.rh_user_id})` : ' (bolsa general)'}`);
+  return { sent };
 }
 
 // Nuevo distribuidor → categoría 'clientes'

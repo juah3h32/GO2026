@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useCallback, useRef, createContext, useContext } from 'react';
 import { createPortal } from 'react-dom';
 import { descargarPerfilPDF, exportarTodoCSV, exportarTodoPDF } from '../lib/recruitmentExport.js';
+import { DownloadRHReportButton } from './ReportGenerator';
 
 // ── PALETAS ───────────────────────────────────────────────────────────────────
 const DARK_C = {
@@ -504,7 +505,7 @@ const handleResend = async () => {
     setResendResult({
       kind: 'ok',
       title: 'Reenviado',
-      text: j.tieneCV ? `Enviado a ${j.sent} RH · CV adjunto a ${j.cvSent}` : `Enviado a ${j.sent} RH · sin CV`,
+      text: j.tieneCV ? `Enviado a ${j.sent} destinatario(s) · CV adjunto` : `Enviado a ${j.sent} destinatario(s) · sin CV`,
     });
   } catch(e) { console.error(e); setResendResult({ kind:'error', title:'Error al reenviar', text:'Fallo de conexión.' }); }
   setResending(false);
@@ -780,7 +781,7 @@ const handleResend = async () => {
 // ══════════════════════════════════════════════════════════════════════════════
 const AUTO_REFRESH_MS = 20_000;
 
-export default function RecruitmentTab({ canDelete = false, theme = 'dark' }) {
+export default function RecruitmentTab({ canDelete = false, theme = 'dark', role = null }) {
   const palette = theme === 'dark' ? DARK_C : LIGHT_C;
   const C = palette;
 
@@ -1106,6 +1107,9 @@ const confirmDelete = async () => {
                   color={C.purple} border={`1px solid ${C.purple}28`}
                   disabled={iaReporting}
                 />
+                <div style={{ width:150 }}>
+                  <DownloadRHReportButton role={role} style={{ fontSize:10, padding:'0 10px', height:28, width:'auto' }} />
+                </div>
               </>)}
             </div>
           </div>

@@ -16,6 +16,40 @@ export const POST: APIRoute = async ({ request }) => {
     const SECRET = new TextEncoder().encode(jwtSecret);
     const body   = await request.json();
 
+    // ── Autocambio de contraseña — el propio usuario logueado cambia la suya ──
+    if (body.action === 'selfChangePassword') {
+      const myRole = await verifyAdminToken(request);
+      if (!myRole?.id) return new Response(JSON.stringify({ ok: false, error: 'No autorizado' }), { status: 401 });
+
+      const { currentPassword, newPassword } = body as { currentPassword: string; newPassword: string };
+      if (!currentPassword || !newPassword) {
+        return new Response(JSON.stringify({ ok: false, error: 'Faltan datos' }), { status: 400 });
+      }
+      if (newPassword.length < 8) {
+        return new Response(JSON.stringify({ ok: false, error: 'Mínimo 8 caracteres' }), { status: 400 });
+      }
+
+      const turso = getTurso();
+      const row = await turso.execute({ sql: 'SELECT password FROM users WHERE id = ? AND active = 1', args: [myRole.id] });
+      if (!row.rows.length) return new Response(JSON.stringify({ ok: false, error: 'Usuario no encontrado' }), { status: 404 });
+
+      const stored = row.rows[0].password as string;
+      const valid = stored.startsWith('$2b$') || stored.startsWith('$2a$')
+        ? await bcrypt.compare(currentPassword, stored)
+        : stored === currentPassword;
+      if (!valid) {
+        await new Promise(r => setTimeout(r, 400));
+        return new Response(JSON.stringify({ ok: false, error: 'Contraseña actual incorrecta' }), { status: 401 });
+      }
+
+      const hashed = await bcrypt.hash(newPassword, 12);
+      try { await turso.execute(`ALTER TABLE users ADD COLUMN must_change_password INTEGER NOT NULL DEFAULT 0`); } catch {}
+      await turso.execute({ sql: 'UPDATE users SET password = ?, must_change_password = 0 WHERE id = ?', args: [hashed, myRole.id] });
+
+      console.log(`✅ Autocambio de contraseña — usuario id=${myRole.id}`);
+      return new Response(JSON.stringify({ ok: true }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    }
+
     // ── Cambio de contraseña ──────────────────────────────────────────────
     if (body.action === 'changePassword') {
       const adminRole = await verifyAdminToken(request);
@@ -187,12 +221,14 @@ const row      = result.rows[0];
     const isRHRole    = !isAdminRole && parsedTabs.includes('recruitment');
 
     const role = {
+      id:             Number(row.id),             // id numérico del usuario — separa BD de candidatos/vacantes por dueño
       name:           roleName,
       color:          row.color as string,
       tabs:           parsedTabs,
       canDownload:    isAdminRole,
       canDelete:      isAdminRole || isRHRole,   // Admin y RH pueden eliminar candidatos
       isAdminRole,                                // true solo para Admin (acceso completo)
+      mustChangePassword: Boolean(row.must_change_password),
     };
    
     

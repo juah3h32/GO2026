@@ -2414,4 +2414,255 @@ export function DownloadReportButton({ data, periodMeta = null, style = {}, repo
   );
 }
 
+// ════════════════════════════════════════════════════════════════════════════
+//  REPORTE RH — cada líder de RH ve solo sus propias métricas (siloed).
+//  Admin ve un comparativo lado a lado de todos los líderes de RH.
+// ════════════════════════════════════════════════════════════════════════════
+function buildRHReportHTML(sections, isAdmin, logoBase64) {
+  const now      = new Date();
+  const todayFmt = now.toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City', day: '2-digit', month: 'short', year: 'numeric' });
+  const now_ms   = Date.now();
+
+  const S = (t, c, b) => `<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;padding-bottom:6px;border-bottom:1.5px solid ${c}30;">
+    <div style="width:3px;height:16px;background:${c};border-radius:2px;flex-shrink:0;"></div>
+    <span style="font-family:'Barlow',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.20em;text-transform:uppercase;color:rgba(255,255,255,0.55);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${t}</span>
+    ${b ? `<span style="font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:800;color:${c};flex-shrink:0;">${b}</span>` : ''}
+  </div>`;
+  const C = (content) => `<div style="background:#111111;border-radius:10px;border:1px solid rgba(255,255,255,0.10);padding:16px 18px;display:flex;flex-direction:column;overflow:hidden;">${content}</div>`;
+  const mini3 = (items) => items.map(([l, v, c]) => `
+    <div style="flex:1;background:#1A1A1A;border-radius:6px;padding:9px 4px;text-align:center;border:1px solid rgba(255,255,255,0.10);">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:27px;font-weight:800;color:${c};line-height:1;">${v}</div>
+      <div style="font-family:'Barlow',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.10em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-top:3px;">${l}</div>
+    </div>`).join('');
+
+  const PALETTE = ['#22C55E', '#0088DD', '#FB670B', '#A855F7', '#FBBC04', '#EF4444'];
+
+  const built = sections.map((s, i) => {
+    const candidates = s.candidates || [];
+    const total   = candidates.length;
+    const conCv   = candidates.filter(c => c.cv_nombre).length;
+    const semana  = candidates.filter(c => { const d = parseTursoDate(c.created_at || c.ts); return d && (now_ms - d.getTime()) < 7 * 24 * 60 * 60 * 1000; }).length;
+    const mes     = candidates.filter(c => { const d = parseTursoDate(c.created_at || c.ts); return d && (now_ms - d.getTime()) < 30 * 24 * 60 * 60 * 1000; }).length;
+    const puestos = {};
+    candidates.forEach(c => { if (c.puesto) puestos[c.puesto] = (puestos[c.puesto] || 0) + 1; });
+    const topPuestos = Object.entries(puestos).sort(([, a], [, b]) => b - a).slice(0, 4);
+    return { name: s.name, total, conCv, semana, mes, topPuestos, color: PALETTE[i % PALETTE.length] };
+  });
+
+  const card = (b) => C(`
+    ${S(b.name, b.color, b.total.toLocaleString('es-MX'))}
+    <div style="flex:1;display:flex;flex-direction:column;gap:7px;">
+      <div style="display:flex;gap:6px;">${mini3([['Semana', b.semana, b.color], ['Mes', b.mes, b.color], ['Con CV', b.conCv, b.conCv > 0 ? b.color : 'rgba(255,255,255,0.25)']])}</div>
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;gap:0;">
+        ${b.topPuestos.length ? b.topPuestos.map(([p, v], i) => `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.07);">
+          <span style="font-family:'Barlow',sans-serif;font-size:11.5px;color:${i === 0 ? '#FFFFFF' : 'rgba(255,255,255,0.65)'};font-weight:${i === 0 ? 700 : 500};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:170px;">${p}</span>
+          <span style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:${i === 0 ? b.color : 'rgba(255,255,255,0.30)'};">${v}</span>
+        </div>`).join('') : `<div style="font-family:'Barlow',sans-serif;font-size:10px;color:rgba(255,255,255,0.30);text-align:center;padding:6px 0;">Sin datos</div>`}
+      </div>
+    </div>
+  `);
+
+  const totalGeneral = built.reduce((a, b) => a + b.total, 0);
+  const gridCols = built.length <= 1 ? '1fr' : built.length === 2 ? '1fr 1fr' : built.length === 3 ? '1fr 1fr 1fr' : 'repeat(auto-fit,minmax(260px,1fr))';
+
+  return `<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="UTF-8">
+<title>BotGO · Resumen RH · ${todayFmt}</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700;800&family=Barlow+Condensed:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html,body{width:100%;height:100%;}
+  body{background:#000000;font-family:'Barlow',Helvetica,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  @media print{@page{size:A4 landscape;margin:0;} html,body{height:100%;}}
+</style>
+</head><body>
+<div style="width:100%;height:100vh;display:flex;flex-direction:column;background:#000000;">
+
+  <!-- HEADER -->
+  <div style="background:${BLACK};display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:relative;padding:14px 20px;">
+    <div style="position:absolute;top:0;left:0;right:0;height:2.5px;background:linear-gradient(90deg,${ORANGE},${ORANGE_DARK},#0088DD,#22C55E);"></div>
+    <div style="display:flex;align-items:center;gap:9px;">
+      ${logoBase64 ? `<img src="${logoBase64}" style="height:26px;width:auto;filter:brightness(0) invert(1);display:block;"/>` : `<div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:#fff;">GO</div>`}
+      <div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:#fff;letter-spacing:0.04em;text-transform:uppercase;line-height:1;">Grupo Ortiz</div>
+        <div style="font-family:'Barlow',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.22em;color:rgba(255,255,255,0.45);text-transform:uppercase;">${isAdmin ? 'Comparativo RH · BotGO' : 'Resumen RH · BotGO'}</div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:1px;">
+      <div style="font-family:'Barlow',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.20em;text-transform:uppercase;color:rgba(255,255,255,0.40);">Corte</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:rgba(255,255,255,0.92);">${todayFmt}</div>
+      ${isAdmin ? `<div style="font-family:'Barlow',sans-serif;font-size:10px;font-weight:600;color:rgba(255,255,255,0.35);">Total: ${totalGeneral} candidatos</div>` : ''}
+    </div>
+  </div>
+
+  <!-- CUERPO -->
+  <div style="flex:1;display:flex;align-items:${built.length <= 1 ? 'center' : 'stretch'};justify-content:center;padding:28px;min-height:0;">
+    <div style="width:100%;max-width:${built.length <= 1 ? '480px' : '1200px'};display:grid;grid-template-columns:${gridCols};gap:16px;">
+      ${built.map(card).join('')}
+    </div>
+  </div>
+
+  <div style="flex-shrink:0;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(255,255,255,0.08);">
+    <span style="font-family:'Barlow',sans-serif;font-size:9px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.35);">Grupo Ortiz · BotGO · Módulo de Reclutamiento</span>
+    <span style="font-family:'Barlow',sans-serif;font-size:9px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.35);">${todayFmt}</span>
+  </div>
+</div>
+</body></html>`;
+}
+
+export function DownloadRHReportButton({ role, style = {} }) {
+  const [busy, setBusy]     = useState(false);
+  const [status, setStatus] = useState('idle');
+  const [errMsg, setErrMsg] = useState(null);
+
+  const isAdmin = !!role?.isAdminRole;
+
+  const download = async () => {
+    setBusy(true);
+    setStatus('building');
+    try {
+      const fetchCandidatos = (filterUserId) => fetch('/api/recruitment', {
+        method: 'POST', credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(filterUserId != null ? { action: 'list', filterUserId } : { action: 'list' }),
+      }).then(r => r.json()).catch(() => ({ ok: false, candidates: [] }));
+
+      let sections = [];
+
+      if (isAdmin) {
+        const usersRes = await fetch('/api/admin/users', { credentials: 'include' }).then(r => r.json()).catch(() => ({ ok: false, users: [] }));
+        const rhLeaders = (usersRes?.users || []).filter(u => u.active && !u.canDownload && (u.tabs || []).includes('recruitment'));
+        if (rhLeaders.length) {
+          sections = await Promise.all(rhLeaders.map(u =>
+            fetchCandidatos(u.id).then(r => ({ name: u.name, candidates: r?.ok ? (r.candidates || []) : [] }))
+          ));
+        } else {
+          const r = await fetchCandidatos();
+          sections = [{ name: 'General', candidates: r?.ok ? (r.candidates || []) : [] }];
+        }
+      } else {
+        const r = await fetchCandidatos();
+        sections = [{ name: role?.name || 'RH', candidates: r?.ok ? (r.candidates || []) : [] }];
+      }
+
+      const logoBase64 = await fetchLogoBase64().catch(() => null);
+      const html = buildRHReportHTML(sections, isAdmin, logoBase64);
+
+      const slug     = now => now.toISOString().split('T')[0];
+      const filename = `reporte-rh-${isAdmin ? 'comparativo' : 'propio'}-${slug(new Date())}.pdf`;
+
+      setStatus('exporting');
+
+      try {
+        const response = await fetch('/api/export-pdf', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ html, filename }),
+        });
+
+        if (response.ok) {
+          const blob  = await response.blob();
+          const url   = window.URL.createObjectURL(blob);
+          const isMob = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+          if (isMob) {
+            window.open(url, '_blank');
+            setTimeout(() => window.URL.revokeObjectURL(url), 10_000);
+          } else {
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+          }
+          setStatus('done');
+          setBusy(false);
+          setTimeout(() => { setStatus('idle'); setErrMsg(null); }, 4000);
+          return;
+        } else {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error || 'Error en el servidor de PDF');
+        }
+      } catch (apiErr) {
+        console.warn('[PDF API Fallback RH]', apiErr);
+        const blob    = new Blob([html], { type: 'text/html;charset=utf-8' });
+        const blobUrl = URL.createObjectURL(blob);
+        const isMob   = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        if (isMob) {
+          window.open(blobUrl, '_blank');
+          setTimeout(() => URL.revokeObjectURL(blobUrl), 10_000);
+        } else {
+          const a = document.createElement('a');
+          a.href = blobUrl;
+          a.download = filename.replace('.pdf', '.html');
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setTimeout(() => URL.revokeObjectURL(blobUrl), 5_000);
+        }
+      }
+
+      setStatus('done');
+    } catch (e) {
+      console.error('[RH PDF]', e);
+      setErrMsg(String(e?.message || e).slice(0, 120));
+      setStatus('idle');
+    }
+    setBusy(false);
+    setTimeout(() => { setStatus('idle'); setErrMsg(null); }, 4000);
+  };
+
+  const labels = { idle: isAdmin ? '↓ Comparativo RH' : '↓ Mi Resumen RH', building: 'Generando…', exporting: 'Exportando…', done: '✓ Listo' };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 4, width: '100%' }}>
+      <button
+        onClick={download}
+        disabled={busy}
+        style={{
+          padding: '8px 16px',
+          borderRadius: 9,
+          fontSize: 11,
+          fontWeight: 700,
+          cursor: busy ? 'not-allowed' : 'pointer',
+          fontFamily: "'Barlow',system-ui,sans-serif",
+          letterSpacing: '0.08em',
+          textTransform: 'uppercase',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 7,
+          border: errMsg ? '1px solid rgba(239,68,68,0.45)' : `1px solid rgba(251,103,11,0.35)`,
+          background: errMsg ? 'rgba(239,68,68,0.09)' : busy ? 'rgba(38,38,38,0.15)' : 'rgba(251,103,11,0.09)',
+          color: errMsg ? '#f87171' : busy ? GRAY_D : ORANGE,
+          transition: 'all 0.2s ease',
+          backdropFilter: 'blur(4px)',
+          width: '100%',
+          justifyContent: 'center',
+          ...style,
+        }}
+      >
+        {busy ? (
+          <>
+            <div style={{
+              width: 11, height: 11, borderRadius: '50%',
+              border: `2px solid rgba(251,103,11,0.20)`,
+              borderTop: `2px solid ${ORANGE}`,
+              animation: 'spin 0.75s linear infinite',
+            }} />
+            {labels[status]}
+          </>
+        ) : errMsg ? '✕ Error' : labels[status]}
+      </button>
+      {errMsg && (
+        <div style={{ fontSize: 9.5, color: 'rgba(248,113,113,0.85)', lineHeight: 1.4, fontFamily: "'Barlow',system-ui,sans-serif", padding: '3px 2px' }}>
+          {errMsg}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default DownloadReportButton;
