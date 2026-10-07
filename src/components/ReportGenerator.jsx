@@ -27,6 +27,25 @@ function parseTursoDate(ts) {
     return isNaN(d.getTime()) ? null : d;
   } catch { return null; }
 }
+// Agrupa texto libre (estado, empresa) ignorando mayúsculas/acentos/espacios —
+// "Michoacán", "michoacan" y "MICHOACAN " cuentan como el mismo valor.
+// La etiqueta mostrada es la variante original más frecuente de cada grupo.
+function groupByNormalized(values, topN = 4) {
+  const groups = {};
+  (values || []).forEach(raw => {
+    const v = (raw || '').trim();
+    if (!v) return;
+    const key = v.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+    if (!groups[key]) groups[key] = { count: 0, labels: {} };
+    groups[key].count++;
+    groups[key].labels[v] = (groups[key].labels[v] || 0) + 1;
+  });
+  return Object.values(groups)
+    .map(g => [Object.entries(g.labels).sort(([, a], [, b]) => b - a)[0][0], g.count])
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, topN);
+}
+
 function fmtFechaHoraReporte(ts) {
   const d = parseTursoDate(ts);
   if (!d) return '—';
@@ -66,6 +85,28 @@ async function fetchLogoBase64() {
       reader.readAsDataURL(blob);
     });
   } catch { return null; }
+}
+
+// ── Fuente de marca para encabezados de reporte (Morganite ExtraBold) ────────
+async function fetchMorganiteBase64() {
+  try {
+    const res = await fetch('/fonts/Morganite-ExtraBold.ttf');
+    if (!res.ok) return null;
+    const blob = await res.blob();
+    return await new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror  = () => resolve(null);
+      reader.readAsDataURL(blob);
+    });
+  } catch { return null; }
+}
+
+// CSS @font-face embebido (base64) — los reportes se renderizan en una pestaña aislada
+// de Puppeteer sin acceso a /src/styles, así que la fuente va inline en cada documento.
+function morganiteFontFace(morganiteBase64) {
+  if (!morganiteBase64) return '';
+  return `@font-face{font-family:'Morganite';src:url(${morganiteBase64}) format('truetype');font-weight:800;font-style:normal;font-display:block;}`;
 }
 
 // ── Gráfica de líneas (actividad) ─────────────────────────────────────────────
@@ -570,9 +611,7 @@ function buildReclutamientoSection(candidates) {
   const topPuestos = Object.entries(puestoCount).sort(([,a],[,b]) => b-a).slice(0,6);
   const maxPuesto  = topPuestos[0]?.[1] || 1;
 
-  const estadoCount = {};
-  candidates.forEach(c => { const e=(c.estado_rep||'').trim(); if(e) estadoCount[e]=(estadoCount[e]||0)+1; });
-  const topEstados = Object.entries(estadoCount).sort(([,a],[,b]) => b-a).slice(0,5);
+  const topEstados = groupByNormalized(candidates.map(c => c.estado_rep), 5);
 
   const byDay = {};
   candidates.forEach(c => {
@@ -819,7 +858,7 @@ function buildReclutamientoCover(candidates, periodo, logoBase64, todayFmt) {
 
 // ── HTML principal ─────────────────────────────────────────────────────────────
 // reportType: 'general' | 'distribuidor' | 'reclutamiento'
-export function buildReportHTML(data, periodMeta=null, analysis=null, logoBase64=null, leads=[], candidates=[], reportType='general', scData=null, prevData=null) {
+export function buildReportHTML(data, periodMeta=null, analysis=null, logoBase64=null, leads=[], candidates=[], reportType='general', scData=null, prevData=null, morganiteBase64=null) {
   const now=new Date(), today=now.toISOString().split('T')[0];
   const todayFmt=now.toLocaleDateString('es-MX',{timeZone:'America/Mexico_City',day:'2-digit',month:'short',year:'2-digit'});
   const yest=new Date(now); yest.setDate(yest.getDate()-1);
@@ -963,8 +1002,175 @@ export function buildReportHTML(data, periodMeta=null, analysis=null, logoBase64
     <div class="card-body">${content}</div>
   </div>`;
 
+  // ── DISTRIBUIDORES — 1 sola slide, mismo lenguaje visual que Resumen/Productos ──
+  if (reportType === 'distribuidor') {
+    const now_ms = Date.now();
+    const C_BLUE = '#0088DD', C_GREEN = '#22C55E';
+
+    const total  = leads.length;
+    const semana = leads.filter(l => { const d = parseTursoDate(l.ts); return d && (now_ms - d.getTime()) < 7 * 24 * 60 * 60 * 1000; }).length;
+    const mes    = leads.filter(l => { const d = parseTursoDate(l.ts); return d && (now_ms - d.getTime()) < 30 * 24 * 60 * 60 * 1000; }).length;
+    const hoyStr = new Date().toISOString().split('T')[0];
+    const hoy    = leads.filter(l => (l.ts || '').startsWith(hoyStr)).length;
+
+    const empresasSet = new Set(leads.map(l => (l.empresa || '').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')).filter(Boolean));
+
+    const _prodRaw = {};
+    leads.forEach(l => { (l.productos || '').split(',').forEach(p => { const t = p.trim().toLowerCase(); if (t) _prodRaw[t] = (_prodRaw[t] || 0) + 1; }); });
+    const prodCount = {}, _prodSkip = new Set();
+    Object.keys(_prodRaw).sort().forEach(k => { const pl = k + 's'; if (_prodRaw[pl] !== undefined) { prodCount[k] = (_prodRaw[k] || 0) + _prodRaw[pl]; _prodSkip.add(pl); } });
+    Object.entries(_prodRaw).forEach(([k, v]) => { if (!_prodSkip.has(k) && prodCount[k] === undefined) prodCount[k] = v; });
+    const topProductos = Object.entries(prodCount).sort(([, a], [, b]) => b - a).slice(0, 6);
+    const maxProducto  = topProductos[0]?.[1] || 1;
+
+    const topEmpresas = groupByNormalized(leads.map(l => l.empresa), 4);
+
+    const byDay = {};
+    leads.forEach(l => { const d = parseTursoDate(l.ts); if (d) { const k = d.toISOString().slice(0, 10); byDay[k] = (byDay[k] || 0) + 1; } });
+
+    const recientes = [...leads].slice(0, 4);
+
+    const resumenTexto = total
+      ? `Se registraron ${total} solicitud${total === 1 ? '' : 'es'} de distribuidor en el período (${semana} esta semana, ${mes} en 30 días), de ${empresasSet.size} empresa${empresasSet.size === 1 ? '' : 's'} distinta${empresasSet.size === 1 ? '' : 's'}.` +
+        (topProductos.length ? ` El producto más solicitado fue "${topProductos[0][0]}" con ${topProductos[0][1]} mención${topProductos[0][1] === 1 ? '' : 'es'}.` : '')
+      : 'No se registraron solicitudes de distribuidor en este período.';
+
+    const S = (t, c, b) => `<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;padding-bottom:6px;border-bottom:1.5px solid ${c}30;">
+      <div style="width:3px;height:16px;background:${c};border-radius:2px;flex-shrink:0;"></div>
+      <span style="font-family:'Barlow',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.20em;text-transform:uppercase;color:rgba(255,255,255,0.55);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${t}</span>
+      ${b ? `<span style="font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:800;color:${c};flex-shrink:0;">${b}</span>` : ''}
+    </div>`;
+    const C = (content) => `<div style="background:#111111;border-radius:8px;border:1px solid rgba(255,255,255,0.10);padding:9px 11px;display:flex;flex-direction:column;overflow:hidden;">${content}</div>`;
+    const mini3 = (items) => items.map(([l, v, c]) => `
+      <div style="flex:1;background:#1A1A1A;border-radius:6px;padding:7px 4px;text-align:center;border:1px solid rgba(255,255,255,0.10);">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:25px;font-weight:800;color:${c};line-height:1;">${v}</div>
+        <div style="font-family:'Barlow',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.10em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-top:3px;">${l}</div>
+      </div>`).join('');
+
+    return `<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="UTF-8">
+<title>BotGO · Distribuidores · ${today}</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700;800&family=Barlow+Condensed:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html,body{width:100%;height:100%;}
+  body{background:#000000;font-family:'Barlow',Helvetica,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  @media print{@page{size:A4 landscape;margin:0;} html,body{height:100%;}}
+  ${morganiteFontFace(morganiteBase64)}
+</style>
+</head><body>
+<div style="width:100%;height:100vh;display:flex;flex-direction:column;background:#000000;">
+
+  <!-- HEADER -->
+  <div style="background:${BLACK};display:flex;align-items:stretch;flex-shrink:0;position:relative;">
+    <div style="position:absolute;top:0;left:0;right:0;height:2.5px;background:linear-gradient(90deg,${C_BLUE},${ORANGE},${ORANGE_DARK},${C_GREEN});"></div>
+    <div style="padding:8px 14px;display:flex;align-items:center;gap:9px;border-right:1px solid rgba(255,255,255,0.08);flex-shrink:0;">
+      ${logoBase64 ? `<img src="${logoBase64}" style="height:24px;width:auto;filter:brightness(0) invert(1);display:block;"/>` : `<div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:#fff;">GO</div>`}
+      <div>
+        <div style="font-family:'Morganite','Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:#fff;letter-spacing:0.04em;text-transform:uppercase;line-height:1;">Grupo Ortiz</div>
+        <div style="font-family:'Barlow',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.22em;color:rgba(255,255,255,0.45);text-transform:uppercase;">Resumen Distribuidores · BotGO</div>
+      </div>
+    </div>
+    ${[
+      [total.toLocaleString('es-MX'), 'Solicitudes', C_BLUE],
+      [semana, 'Semana', C_BLUE],
+      [mes, 'Mes', 'rgba(255,255,255,0.75)'],
+      [hoy, 'Hoy', hoy > 0 ? ORANGE : 'rgba(255,255,255,0.30)'],
+      [empresasSet.size, 'Empresas', C_GREEN],
+    ].map(([v, l, c], i, a) => `
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 4px;text-align:center;border-right:${i < a.length - 1 ? '1px solid rgba(255,255,255,0.07)' : 'none'};position:relative;">
+        <div style="position:absolute;bottom:0;left:20%;right:20%;height:1.5px;background:${c};opacity:0.5;border-radius:1px;"></div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:800;color:${c};line-height:1;">${v}</div>
+        <div style="font-family:'Barlow',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.13em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-top:2px;">${l}</div>
+      </div>`).join('')}
+    <div style="padding:6px 14px;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;border-left:1px solid rgba(255,255,255,0.08);flex-shrink:0;gap:1px;min-width:120px;">
+      <div style="font-family:'Barlow',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.20em;text-transform:uppercase;color:rgba(255,255,255,0.40);">Período</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:rgba(255,255,255,0.92);text-align:right;line-height:1.2;text-transform:uppercase;">${periodo}</div>
+      <div style="font-family:'Barlow',sans-serif;font-size:10px;font-weight:600;color:rgba(255,255,255,0.35);">${todayFmt}</div>
+    </div>
+  </div>
+
+  <!-- RESUMEN DEL PERÍODO -->
+  <div style="flex-shrink:0;background:#0D0D0D;border-bottom:1px solid rgba(255,255,255,0.10);padding:9px 14px;display:flex;align-items:center;gap:12px;">
+    <div style="flex-shrink:0;background:${C_BLUE};border-radius:5px;padding:4px 9px;display:flex;align-items:center;justify-content:center;min-width:32px;min-height:28px;">
+      <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;color:#fff;letter-spacing:0.07em;text-transform:uppercase;line-height:1;">R</span>
+    </div>
+    <div style="width:1px;height:30px;background:rgba(255,255,255,0.12);flex-shrink:0;"></div>
+    <div style="flex:1;min-width:0;">
+      <div style="font-family:'Barlow',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.48);margin-bottom:4px;">Resumen del período</div>
+      <div style="font-family:'Barlow',sans-serif;font-size:13px;font-weight:500;color:rgba(255,255,255,0.85);line-height:1.55;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">${resumenTexto}</div>
+    </div>
+  </div>
+
+  <!-- CUERPO -->
+  <div style="flex:1;display:flex;flex-direction:column;padding:5px 8px 8px;gap:5px;min-height:0;">
+
+    <!-- FILA 1 -->
+    <div style="flex:1.15;display:grid;grid-template-columns:2.5fr 1fr;gap:6px;min-height:0;">
+      ${C(`
+        ${S('Solicitudes · últimos 14 días', C_BLUE, '')}
+        <div style="flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0;width:100%;">
+          <svg viewBox="0 0 680 130" style="width:100%;height:auto;display:block;overflow:visible;">${buildLeadsLineSVG(byDay)}</svg>
+        </div>
+      `)}
+      ${C(`
+        ${S('Top Productos', ORANGE_DARK, '')}
+        <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-start;">
+          ${topProductos.length ? topProductos.map(([label, val], i) => { const pct = Math.round(val / maxProducto * 100), isTop = i === 0; return `
+            <div style="margin-bottom:6px;">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:1px;">
+                <span style="font-family:'Barlow',sans-serif;font-size:12px;font-weight:600;color:${isTop ? '#FFFFFF' : 'rgba(255,255,255,0.72)'};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:140px;text-transform:capitalize;">${label}</span>
+                <span style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:${isTop ? ORANGE : 'rgba(255,255,255,0.40)'};flex-shrink:0;margin-left:4px;">${val}</span>
+              </div>
+              <div style="height:3px;background:rgba(255,255,255,0.12);border-radius:2px;overflow:hidden;"><div style="width:${pct}%;height:100%;background:${isTop ? `linear-gradient(90deg,${ORANGE},${ORANGE_DARK})` : 'rgba(255,255,255,0.25)'};border-radius:2px;"></div></div>
+            </div>`; }).join('') : `<div style="color:rgba(255,255,255,0.30);font-size:9px;text-align:center;">Sin datos</div>`}
+        </div>
+      `)}
+    </div>
+
+    <!-- FILA 2 -->
+    <div style="flex:1;display:grid;grid-template-columns:1.15fr 1fr 1.15fr;gap:6px;min-height:0;">
+      ${C(`
+        ${S('Top Empresas', C_GREEN, '')}
+        <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-start;">
+          ${topEmpresas.length ? topEmpresas.map(([e, n], i) => `
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.07);">
+              <span style="font-family:'Barlow',sans-serif;font-size:11.5px;color:${i === 0 ? '#FFFFFF' : 'rgba(255,255,255,0.65)'};font-weight:${i === 0 ? 700 : 500};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:150px;">${e}</span>
+              <span style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:${i === 0 ? C_GREEN : 'rgba(255,255,255,0.30)'};">${n}</span>
+            </div>`).join('') : `<div style="color:rgba(255,255,255,0.30);font-size:9px;text-align:center;">Sin datos</div>`}
+        </div>
+      `)}
+      ${C(`
+        ${S('Distribuidores', C_BLUE, total.toLocaleString('es-MX'))}
+        <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:5px;">
+          <div style="display:flex;gap:5px;">${mini3([['Semana', semana, C_BLUE], ['Mes', mes, C_BLUE], ['Hoy', hoy, hoy > 0 ? ORANGE : 'rgba(255,255,255,0.25)']])}</div>
+        </div>
+      `)}
+      ${C(`
+        ${S('Contactos recientes', 'rgba(255,255,255,0.55)', '')}
+        <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-start;">
+          ${recientes.length ? recientes.map(l => `
+            <div style="padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.07);">
+              <div style="font-family:'Barlow',sans-serif;font-size:11px;font-weight:700;color:rgba(255,255,255,0.85);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${l.nombre || '—'}</div>
+              <div style="font-family:'Barlow',sans-serif;font-size:9.5px;color:rgba(255,255,255,0.45);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${l.empresa || 'Sin empresa'}</div>
+            </div>`).join('') : `<div style="color:rgba(255,255,255,0.30);font-size:9px;text-align:center;">Sin datos</div>`}
+        </div>
+      `)}
+    </div>
+
+  </div>
+
+  <div style="flex-shrink:0;padding:8px 14px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(255,255,255,0.08);">
+    <span style="font-family:'Barlow',sans-serif;font-size:9px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.35);">Grupo Ortiz · BotGO · Red de Distribución</span>
+    <span style="font-family:'Barlow',sans-serif;font-size:9px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.35);">${todayFmt}</span>
+  </div>
+</div>
+</body></html>`;
+  }
+
   const analysisBlock        = buildAnalysisBlock(analysis);
-  const distribSection       = (reportType==='general'||reportType==='distribuidor') ? buildDistribuidoresSection(leads) : '';
+  const distribSection       = (reportType==='general') ? buildDistribuidoresSection(leads) : '';
   const reclutamientoSection = (reportType==='general'||reportType==='reclutamiento') ? buildReclutamientoSection(candidates) : '';
 
   // ── RESUMEN EJECUTIVO — 1 página, CEO-level ───────────────────────────────────
@@ -1070,6 +1276,7 @@ export function buildReportHTML(data, periodMeta=null, analysis=null, logoBase64
   html,body{width:100%;height:100%;}
   body{background:#000000;font-family:'Barlow',Helvetica,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   @media print{@page{size:A4 landscape;margin:0;} html,body{height:100%;}}
+  ${morganiteFontFace(morganiteBase64)}
 </style>
 </head><body>
 <div style="width:100%;height:100vh;display:flex;flex-direction:column;background:#000000;">
@@ -1080,7 +1287,7 @@ export function buildReportHTML(data, periodMeta=null, analysis=null, logoBase64
     <div style="padding:8px 14px;display:flex;align-items:center;gap:9px;border-right:1px solid rgba(255,255,255,0.08);flex-shrink:0;">
       ${logoBase64?`<img src="${logoBase64}" style="height:24px;width:auto;filter:brightness(0) invert(1);display:block;"/>`:`<div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:#fff;">GO</div>`}
       <div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:#fff;letter-spacing:0.04em;text-transform:uppercase;line-height:1;">Grupo Ortiz</div>
+        <div style="font-family:'Morganite','Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:#fff;letter-spacing:0.04em;text-transform:uppercase;line-height:1;">Grupo Ortiz</div>
         <div style="font-family:'Barlow',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.22em;color:rgba(255,255,255,0.45);text-transform:uppercase;">Resumen Ejecutivo · BotGO</div>
       </div>
     </div>
@@ -1431,6 +1638,7 @@ ${C(`
   html,body{width:100%;height:100%;}
   body{background:#000000;font-family:'Barlow',Helvetica,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   @media print{@page{size:A4 landscape;margin:0;} html,body{height:100%;}}
+  ${morganiteFontFace(morganiteBase64)}
 </style>
 </head><body>
 <div style="width:100%;height:100vh;display:flex;flex-direction:column;background:#000000;">
@@ -1441,7 +1649,7 @@ ${C(`
     <div style="padding:8px 14px;display:flex;align-items:center;gap:9px;border-right:1px solid rgba(255,255,255,0.08);flex-shrink:0;">
       ${logoBase64?`<img src="${logoBase64}" style="height:24px;width:auto;filter:brightness(0) invert(1);display:block;"/>`:`<div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:#fff;">GO</div>`}
       <div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:#fff;letter-spacing:0.04em;text-transform:uppercase;line-height:1;">Grupo Ortiz</div>
+        <div style="font-family:'Morganite','Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:#fff;letter-spacing:0.04em;text-transform:uppercase;line-height:1;">Grupo Ortiz</div>
         <div style="font-family:'Barlow',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.22em;color:rgba(255,255,255,0.45);text-transform:uppercase;">Líneas de Producto · BotGO</div>
       </div>
     </div>
@@ -1600,7 +1808,8 @@ ${C(`
   @media print{@page{size:A4 landscape;margin:0;} html,body{height:100%;}}
   .hdr-num{font-family:'Inter',sans-serif;font-size:22px;font-weight:600;letter-spacing:-0.02em;line-height:1;font-variant-numeric:tabular-nums;}
   .hdr-lbl{font-family:'Inter',sans-serif;font-size:9px;font-weight:500;letter-spacing:0.05em;text-transform:uppercase;color:rgba(255,255,255,0.40);margin-top:3px;}
-  .hdr-title{font-family:'Inter',sans-serif;font-size:14px;font-weight:600;color:#fff;letter-spacing:-0.01em;line-height:1;}
+  .hdr-title{font-family:'Morganite','Inter',sans-serif;font-size:16px;font-weight:800;color:#fff;letter-spacing:-0.01em;line-height:1;text-transform:uppercase;}
+  ${morganiteFontFace(morganiteBase64)}
   .hdr-sub{font-family:'Inter',sans-serif;font-size:9px;font-weight:400;letter-spacing:0.06em;color:rgba(255,255,255,0.32);text-transform:uppercase;margin-top:3px;}
   .hdr-period-lbl{font-family:'Inter',sans-serif;font-size:8px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.32);}
   .hdr-period-val{font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:rgba(255,255,255,0.90);letter-spacing:-0.01em;text-align:right;line-height:1.3;}
@@ -2240,9 +2449,10 @@ export function DownloadReportButton({ data, periodMeta = null, style = {}, repo
         return { startDate: daysAgo(487), endDate: today };
       })();
 
-      const [analysis, logoBase64, leadsRes, candidatesRes, scData, closingSigsRes] = await Promise.all([
+      const [analysis, logoBase64, morganiteBase64, leadsRes, candidatesRes, scData, closingSigsRes] = await Promise.all([
         generateAnalysis(data, periodo),
         fetchLogoBase64(),
+        fetchMorganiteBase64(),
         fetch('/api/analytics',   {method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'getLeads'})}).then(r=>r.json()).catch(()=>({ok:false,leads:[]})),
         fetch('/api/recruitment', {method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'list'})}).then(r=>r.json()).catch(()=>({ok:false,candidates:[]})),
         reportType === 'resumen' || reportType === 'comparativo'
@@ -2284,7 +2494,7 @@ export function DownloadReportButton({ data, periodMeta = null, style = {}, repo
       }
 
       setStatus('building');
-      const html = buildReportHTML(dataWithSignals, periodMeta, analysis, logoBase64, leads, candidates, reportType, scData, prevData);
+      const html = buildReportHTML(dataWithSignals, periodMeta, analysis, logoBase64, leads, candidates, reportType, scData, prevData, morganiteBase64);
 
       const slug = periodMeta?.preset==='today' ? 'hoy'
                  : periodMeta?.preset==='7d'    ? '7dias'
@@ -2420,7 +2630,7 @@ export function DownloadReportButton({ data, periodMeta = null, style = {}, repo
 // ════════════════════════════════════════════════════════════════════════════
 // Una slide completa (mismo lenguaje visual que el Resumen Ejecutivo BotGO) para UN líder de RH.
 // isAdmin=true → cada slide se etiqueta con el nombre del líder (comparativo, una slide por persona).
-function buildRHSlide(sec, logoBase64, isAdmin) {
+function buildRHSlide(sec, logoBase64, isAdmin, morganiteBase64) {
   const now      = new Date();
   const todayFmt = now.toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City', day: '2-digit', month: 'short', year: 'numeric' });
   const now_ms   = Date.now();
@@ -2449,9 +2659,7 @@ function buildRHSlide(sec, logoBase64, isAdmin) {
   const pipelinePairs  = pipelineKeys.map(k => [STATUS_MAP[k], pipeline[k]]);
   const pipelineColors = pipelineKeys.map(k => STATUS_COLOR[k]);
 
-  const estadoCount = {};
-  candidates.forEach(c => { const e = (c.estado_rep || '').trim(); if (e) estadoCount[e] = (estadoCount[e] || 0) + 1; });
-  const topEstados = Object.entries(estadoCount).sort(([, a], [, b]) => b - a).slice(0, 4);
+  const topEstados = groupByNormalized(candidates.map(c => c.estado_rep), 4);
 
   const byDay = {};
   candidates.forEach(c => { const d = parseTursoDate(c.created_at || c.ts); if (d) { const k = d.toISOString().slice(0, 10); byDay[k] = (byDay[k] || 0) + 1; } });
@@ -2494,7 +2702,7 @@ function buildRHSlide(sec, logoBase64, isAdmin) {
       <div style="padding:8px 14px;display:flex;align-items:center;gap:9px;border-right:1px solid rgba(255,255,255,0.08);flex-shrink:0;">
         ${logoBase64 ? `<img src="${logoBase64}" style="height:24px;width:auto;filter:brightness(0) invert(1);display:block;"/>` : `<div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:#fff;">GO</div>`}
         <div>
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:#fff;letter-spacing:0.04em;text-transform:uppercase;line-height:1;">Grupo Ortiz</div>
+          <div style="font-family:'Morganite','Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:#fff;letter-spacing:0.04em;text-transform:uppercase;line-height:1;">Grupo Ortiz</div>
           <div style="font-family:'Barlow',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.22em;color:rgba(255,255,255,0.45);text-transform:uppercase;">${isAdmin ? `Comparativo RH · ${sec.name}` : 'Resumen Reclutamiento · BotGO'}</div>
         </div>
       </div>
@@ -2601,10 +2809,10 @@ function buildRHSlide(sec, logoBase64, isAdmin) {
   </div>`;
 }
 
-function buildRHReportHTML(sections, isAdmin, logoBase64) {
+function buildRHReportHTML(sections, isAdmin, logoBase64, morganiteBase64) {
   const now      = new Date();
   const todayFmt = now.toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City', day: '2-digit', month: 'short', year: 'numeric' });
-  const slides = sections.map(sec => buildRHSlide(sec, logoBase64, isAdmin)).join('');
+  const slides = sections.map(sec => buildRHSlide(sec, logoBase64, isAdmin, morganiteBase64)).join('');
 
   return `<!DOCTYPE html>
 <html lang="es"><head>
@@ -2618,6 +2826,7 @@ function buildRHReportHTML(sections, isAdmin, logoBase64) {
   .rh-page{page-break-after:always;break-after:page;}
   .rh-page:last-child{page-break-after:auto;break-after:auto;}
   @media print{@page{size:A4 landscape;margin:0;} html,body{height:100%;}}
+  ${morganiteFontFace(morganiteBase64)}
 </style>
 </head><body>
 ${slides}
@@ -2662,8 +2871,11 @@ export function DownloadRHReportButton({ role, style = {} }) {
         sections = [await fetchSection(role?.name || 'RH', null)];
       }
 
-      const logoBase64 = await fetchLogoBase64().catch(() => null);
-      const html = buildRHReportHTML(sections, isAdmin, logoBase64);
+      const [logoBase64, morganiteBase64] = await Promise.all([
+        fetchLogoBase64().catch(() => null),
+        fetchMorganiteBase64().catch(() => null),
+      ]);
+      const html = buildRHReportHTML(sections, isAdmin, logoBase64, morganiteBase64);
 
       const slug     = now => now.toISOString().split('T')[0];
       const filename = `reporte-rh-${isAdmin ? 'comparativo' : 'propio'}-${slug(new Date())}.pdf`;
