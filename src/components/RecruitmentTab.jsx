@@ -991,8 +991,9 @@ const confirmDelete = async () => {
         {isAdmin && rhLeaders.length > 0 && (
           <div style={{ display:'flex', gap:8, marginBottom:12, flexWrap:'wrap' }}>
             {[{ id:null, name:'Todos' }, ...rhLeaders].map(leader => {
-              const active = selectedRh === leader.id;
-              const count  = leader.id == null ? candidates.length : candidates.filter(c => c.rh_user_id === leader.id).length;
+              const active   = selectedRh === leader.id;
+              const count    = leader.id == null ? candidates.length : candidates.filter(c => c.rh_user_id === leader.id).length;
+              const vacCount = leader.id == null ? vacantes.length   : vacantes.filter(v => v.rh_user_id === leader.id).length;
               return (
                 <button key={leader.id ?? 'todos'} onClick={() => setSelectedRh(leader.id)}
                   style={{
@@ -1010,11 +1011,47 @@ const confirmDelete = async () => {
                   )}
                   <div style={{ textAlign:'left' }}>
                     <div style={{ fontSize:12, fontWeight:700, color: active ? C.orange : C.text, fontFamily:T.sans }}>{leader.name}</div>
-                    <div style={{ fontSize:10, color:C.textDim, fontFamily:T.mono }}>{count} candidato{count===1?'':'s'}</div>
+                    <div style={{ fontSize:10, color:C.textDim, fontFamily:T.mono }}>{count} candidato{count===1?'':'s'} · {vacCount} vacante{vacCount===1?'':'s'}</div>
                   </div>
                 </button>
               );
             })}
+          </div>
+        )}
+
+        {/* Vacantes del reclutador seleccionado */}
+        {isAdmin && selectedRh != null && (
+          <div style={{ ...CARD, padding:'14px 18px', marginBottom:10 }}>
+            <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:10 }}>
+              <span style={{ color:C.textDim, fontSize:10, fontFamily:T.sans, letterSpacing:'0.08em', textTransform:'uppercase', fontWeight:600 }}>
+                Vacantes de {rhLeaders.find(l => l.id === selectedRh)?.name || ''}
+              </span>
+              <span style={{ color:C.textDim, fontSize:10, fontFamily:T.mono, marginLeft:'auto' }}>{scopedVacantes.length} total</span>
+            </div>
+            {scopedVacantes.length === 0 ? (
+              <p style={{ color:C.textDim, fontSize:11.5, fontFamily:T.sans, margin:0 }}>Sin vacantes registradas.</p>
+            ) : (
+              <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
+                {scopedVacantes.map(v => {
+                  const postulantes = scopedCandidates.filter(c => matchVacante(c, v)).length;
+                  return (
+                    <div key={v.id} style={{ display:'flex', alignItems:'center', gap:10, padding:'8px 10px', borderRadius:8, background:C.surface2, border:`1px solid ${C.border}` }}>
+                      <span style={{ width:7, height:7, borderRadius:'50%', flexShrink:0, background: v.activa ? C.green : C.textDim }}/>
+                      <div style={{ flex:1, minWidth:0 }}>
+                        <div style={{ fontSize:12, fontWeight:600, color:C.text, fontFamily:T.sans, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{v.titulo}</div>
+                        {v.area && <div style={{ fontSize:10, color:C.textDim, fontFamily:T.sans }}>{v.area}</div>}
+                      </div>
+                      <span style={{ fontSize:10, fontWeight:700, color: v.activa ? C.green : C.textDim, fontFamily:T.sans, flexShrink:0 }}>
+                        {v.activa ? 'Activa' : 'Inactiva'}
+                      </span>
+                      <span style={{ fontSize:11, fontWeight:700, color:C.orange, fontFamily:T.mono, flexShrink:0, minWidth:50, textAlign:'right' }}>
+                        {postulantes} postul.
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
 
