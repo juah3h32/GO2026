@@ -2915,7 +2915,10 @@ export function DownloadRHReportButton({ role, style = {} }) {
 
       if (isAdmin) {
         const usersRes = await fetch('/api/admin/users', { credentials: 'include' }).then(r => r.json()).catch(() => ({ ok: false, users: [] }));
-        const rhLeaders = (usersRes?.users || []).filter(u => u.active && !u.canDownload && (u.tabs || []).includes('recruitment'));
+        // Dueño real de reclutamiento = tiene AMBOS tabs (recruitment + vacantes).
+        // Un usuario con solo 'recruitment' (ej. Marketing, que solo necesita ver candidatos)
+        // no es un líder de RH y no debe aparecer en el comparativo.
+        const rhLeaders = (usersRes?.users || []).filter(u => u.active && !u.canDownload && (u.tabs || []).includes('recruitment') && (u.tabs || []).includes('vacantes'));
         sections = rhLeaders.length
           ? await Promise.all(rhLeaders.map(u => fetchSection(u.name, u.id)))
           : [await fetchSection('General', null)];
