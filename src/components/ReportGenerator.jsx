@@ -46,6 +46,58 @@ function groupByNormalized(values, topN = 4) {
     .slice(0, topN);
 }
 
+const _stripAccents = (s) => (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
+
+const MX_ESTADOS = [
+  'Aguascalientes', 'Baja California', 'Baja California Sur', 'Campeche', 'Chiapas', 'Chihuahua',
+  'Ciudad de México', 'Coahuila', 'Colima', 'Durango', 'Estado de México', 'Guanajuato', 'Guerrero',
+  'Hidalgo', 'Jalisco', 'Michoacán', 'Morelos', 'Nayarit', 'Nuevo León', 'Oaxaca', 'Puebla', 'Querétaro',
+  'Quintana Roo', 'San Luis Potosí', 'Sinaloa', 'Sonora', 'Tabasco', 'Tamaulipas', 'Tlaxcala',
+  'Veracruz', 'Yucatán', 'Zacatecas',
+];
+const MX_ESTADOS_NORM = MX_ESTADOS.map(e => [_stripAccents(e), e]).sort((a, b) => b[0].length - a[0].length);
+
+// Ciudades frecuentes que los candidatos escriben SIN mencionar el estado — se resuelven a su estado.
+const MX_CIUDAD_A_ESTADO = {
+  morelia: 'Michoacán', uruapan: 'Michoacán', zamora: 'Michoacán', 'lazaro cardenas': 'Michoacán', zitacuaro: 'Michoacán',
+  guadalajara: 'Jalisco', zapopan: 'Jalisco', tlaquepaque: 'Jalisco',
+  leon: 'Guanajuato', irapuato: 'Guanajuato', celaya: 'Guanajuato', salamanca: 'Guanajuato',
+  monterrey: 'Nuevo León', cdmx: 'Ciudad de México', toluca: 'Estado de México',
+};
+const MX_CIUDAD_NORM = Object.entries(MX_CIUDAD_A_ESTADO).sort((a, b) => b[0].length - a[0].length);
+
+// Resuelve texto libre de ubicación ("Morelia Michoacán", "morelia", "Michoacan ") a un estado
+// canónico ("Michoacán") cuando lo reconoce; si no reconoce nada, devuelve null (se agrupa tal cual).
+function canonicalEstado(raw) {
+  const norm = _stripAccents(raw);
+  if (!norm) return null;
+  const estadoMatch = MX_ESTADOS_NORM.find(([n]) => norm.includes(n));
+  if (estadoMatch) return estadoMatch[1];
+  const ciudadMatch = MX_CIUDAD_NORM.find(([n]) => norm.includes(n));
+  if (ciudadMatch) return ciudadMatch[1];
+  return null;
+}
+
+// Como groupByNormalized, pero para el campo "estado" — reconoce estados/ciudades de México
+// y consolida variantes como "Michoacán", "Morelia Michoacán", "morelia" bajo un solo nombre.
+function groupByEstado(values, topN = 4) {
+  const groups = {};
+  (values || []).forEach(raw => {
+    const v = (raw || '').trim();
+    if (!v) return;
+    const canon = canonicalEstado(v);
+    const label = canon || v;
+    const key   = _stripAccents(label);
+    if (!groups[key]) groups[key] = { count: 0, labels: {} };
+    groups[key].count++;
+    groups[key].labels[label] = (groups[key].labels[label] || 0) + 1;
+  });
+  return Object.values(groups)
+    .map(g => [Object.entries(g.labels).sort(([, a], [, b]) => b - a)[0][0], g.count])
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, topN);
+}
+
 function fmtFechaHoraReporte(ts) {
   const d = parseTursoDate(ts);
   if (!d) return '—';
@@ -611,7 +663,7 @@ function buildReclutamientoSection(candidates) {
   const topPuestos = Object.entries(puestoCount).sort(([,a],[,b]) => b-a).slice(0,6);
   const maxPuesto  = topPuestos[0]?.[1] || 1;
 
-  const topEstados = groupByNormalized(candidates.map(c => c.estado_rep), 5);
+  const topEstados = groupByEstado(candidates.map(c => c.estado_rep), 5);
 
   const byDay = {};
   candidates.forEach(c => {
@@ -2659,7 +2711,7 @@ function buildRHSlide(sec, logoBase64, isAdmin, morganiteBase64) {
   const pipelinePairs  = pipelineKeys.map(k => [STATUS_MAP[k], pipeline[k]]);
   const pipelineColors = pipelineKeys.map(k => STATUS_COLOR[k]);
 
-  const topEstados = groupByNormalized(candidates.map(c => c.estado_rep), 4);
+  const topEstados = groupByEstado(candidates.map(c => c.estado_rep), 4);
 
   const byDay = {};
   candidates.forEach(c => { const d = parseTursoDate(c.created_at || c.ts); if (d) { const k = d.toISOString().slice(0, 10); byDay[k] = (byDay[k] || 0) + 1; } });
