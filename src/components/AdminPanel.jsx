@@ -10,7 +10,6 @@ import ReportScheduler from './ReportScheduler';
 import VacantesTab from './VacantesTab';
 import ChangelogTab from './ChangelogTab';
 import CatalogVisualEditor from './CatalogVisualEditor';
-import BibliotecaTab from './BibliotecaTab';
 
 // ── COUNTRY CODES (GSC alpha-3) → nombre + bandera ───────────────────────────
 const COUNTRY_MAP = {
@@ -1688,7 +1687,6 @@ const PERM_GROUPS = [
       {id:'conversations', label:'Conversaciones'},
       {id:'distribuidores',label:'Distribuidores'},
       {id:'catalogo',      label:'Catálogo Visual'},
-      {id:'biblioteca',    label:'Biblioteca de videos'},
     ],
   },
   {
@@ -3590,7 +3588,6 @@ const ALL_TABS=[
     {id:'changelog',label:'Historial',     icon:'◭'},
     {id:'users',label:'Usuarios',          icon:'◴'},
     {id:'catalog',label:'Catálogo Visual', icon:'📷'},
-    {id:'biblioteca',label:'Biblioteca',   icon:'▶'},
   ];
   
   // ✅ CORRECCIÓN FINAL: Permitimos nombres de Admin y banderas de Admin, PERO bloqueamos a RH explícitamente.
@@ -3617,7 +3614,7 @@ const ALL_TABS=[
     { label:'Panel',     ids:['overview','console','activity'] },
     { label:'Comercial', ids:['products','conversations','distribuidores','suscriptores','recruitment'] },
     { label:'Análisis',  ids:['ai','reportes','changelog'] },
-    { label:'Gestión',   ids:['whatsapp','catalog','biblioteca','users'] },
+    { label:'Gestión',   ids:['whatsapp','catalog','users'] },
   ];
   const groupedTabs = (() => {
     const used = new Set();
@@ -5020,13 +5017,6 @@ const ALL_TABS=[
               <CatalogDownloadsSection dlData={data.catalogDownloads} P={P} isMobile={isMobile} />
             )}
             <CatalogVisualEditor P={P} onClose={onClose} />
-          </div>
-        )}
-
-        {/* ── BIBLIOTECA DE VIDEOS ── */}
-        {tab==='biblioteca'&&canSee('biblioteca')&&(
-          <div className="tab-content" key="biblioteca">
-            <BibliotecaTab theme={theme}/>
           </div>
         )}
 
