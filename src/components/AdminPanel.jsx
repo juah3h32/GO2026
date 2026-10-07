@@ -4,7 +4,7 @@
 
 import React, { useState, useEffect, useCallback, useRef, createContext, useContext } from 'react';
 import { createPortal } from 'react-dom';
-import { DownloadReportButton } from './ReportGenerator';
+import { DownloadReportButton, DownloadRHReportButton } from './ReportGenerator';
 import RecruitmentTab from './RecruitmentTab';
 import ReportScheduler from './ReportScheduler';
 import VacantesTab from './VacantesTab';
@@ -4964,12 +4964,14 @@ const ALL_TABS=[
                       <div style={{ fontSize:9.5, color:P.textDim, lineHeight:1.4, marginTop:1, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{rt.desc}</div>
                     </div>
                   </div>
-                  <DownloadReportButton
-                    data={data}
-                    periodMeta={{ preset:activePresetId, from:activePeriod?.from, to:activePeriod?.to }}
-                    reportType={rt.type}
-                    style={{ fontSize:10.5, padding:'8px 12px', width:'100%', justifyContent:'center' }}
-                  />
+                  {rt.type==='reclutamiento'
+                    ? <DownloadRHReportButton role={role} style={{ fontSize:10.5, padding:'8px 12px', width:'100%', justifyContent:'center' }}/>
+                    : <DownloadReportButton
+                        data={data}
+                        periodMeta={{ preset:activePresetId, from:activePeriod?.from, to:activePeriod?.to }}
+                        reportType={rt.type}
+                        style={{ fontSize:10.5, padding:'8px 12px', width:'100%', justifyContent:'center' }}
+                      />}
                 </div>
               ))}
             </div>
