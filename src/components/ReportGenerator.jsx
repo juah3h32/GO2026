@@ -2418,53 +2418,193 @@ export function DownloadReportButton({ data, periodMeta = null, style = {}, repo
 //  REPORTE RH — cada líder de RH ve solo sus propias métricas (siloed).
 //  Admin ve un comparativo lado a lado de todos los líderes de RH.
 // ════════════════════════════════════════════════════════════════════════════
-function buildRHReportHTML(sections, isAdmin, logoBase64) {
+// Una slide completa (mismo lenguaje visual que el Resumen Ejecutivo BotGO) para UN líder de RH.
+// isAdmin=true → cada slide se etiqueta con el nombre del líder (comparativo, una slide por persona).
+function buildRHSlide(sec, logoBase64, isAdmin) {
   const now      = new Date();
   const todayFmt = now.toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City', day: '2-digit', month: 'short', year: 'numeric' });
   const now_ms   = Date.now();
+
+  const candidates = sec.candidates || [];
+  const vacantes   = sec.vacantes   || [];
+
+  const total       = candidates.length;
+  const conCv       = candidates.filter(c => c.cv_nombre).length;
+  const semana      = candidates.filter(c => { const d = parseTursoDate(c.created_at || c.ts); return d && (now_ms - d.getTime()) < 7 * 24 * 60 * 60 * 1000; }).length;
+  const mes         = candidates.filter(c => { const d = parseTursoDate(c.created_at || c.ts); return d && (now_ms - d.getTime()) < 30 * 24 * 60 * 60 * 1000; }).length;
+  const vacActivas  = vacantes.filter(v => v.activa).length;
+  const contratados = candidates.filter(c => (c.status || c.estado) === 'contratado').length;
+  const pctCV        = total ? Math.round((conCv / total) * 100) : 0;
+
+  const puestos = {};
+  candidates.forEach(c => { if (c.puesto) puestos[c.puesto] = (puestos[c.puesto] || 0) + 1; });
+  const topPuestos = Object.entries(puestos).sort(([, a], [, b]) => b - a).slice(0, 6);
+  const maxPuesto  = topPuestos[0]?.[1] || 1;
+
+  const STATUS_MAP   = { nuevo: 'Nuevo', visto: 'Visto', contactado: 'Contactado', descartado: 'Descartado', contratado: 'Contratado' };
+  const STATUS_COLOR = { nuevo: ORANGE, visto: 'rgba(255,255,255,0.40)', contactado: '#0088DD', descartado: 'rgba(255,255,255,0.22)', contratado: '#22C55E' };
+  const pipeline = {};
+  candidates.forEach(c => { const st = c.status || c.estado || 'nuevo'; pipeline[st] = (pipeline[st] || 0) + 1; });
+  const pipelineKeys   = Object.keys(STATUS_MAP).filter(k => (pipeline[k] || 0) > 0);
+  const pipelinePairs  = pipelineKeys.map(k => [STATUS_MAP[k], pipeline[k]]);
+  const pipelineColors = pipelineKeys.map(k => STATUS_COLOR[k]);
+
+  const estadoCount = {};
+  candidates.forEach(c => { const e = (c.estado_rep || '').trim(); if (e) estadoCount[e] = (estadoCount[e] || 0) + 1; });
+  const topEstados = Object.entries(estadoCount).sort(([, a], [, b]) => b - a).slice(0, 4);
+
+  const byDay = {};
+  candidates.forEach(c => { const d = parseTursoDate(c.created_at || c.ts); if (d) { const k = d.toISOString().slice(0, 10); byDay[k] = (byDay[k] || 0) + 1; } });
+
+  const resumenTexto = total
+    ? `${sec.name} registró ${total} candidato${total === 1 ? '' : 's'} en el período (${semana} esta semana, ${mes} en 30 días). ` +
+      `${conCv} cuenta${conCv === 1 ? '' : 'n'} con CV adjunto (${pctCV}%).` +
+      (topPuestos.length ? ` La vacante con más postulantes fue "${topPuestos[0][0]}" con ${topPuestos[0][1]}.` : '') +
+      (vacActivas ? ` ${vacActivas} vacante${vacActivas === 1 ? '' : 's'} activa${vacActivas === 1 ? '' : 's'} actualmente.` : '')
+    : `${sec.name} no tiene candidatos registrados en este período.`;
+
+  const C_GREEN = '#22C55E', C_BLUE = '#0088DD';
 
   const S = (t, c, b) => `<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;padding-bottom:6px;border-bottom:1.5px solid ${c}30;">
     <div style="width:3px;height:16px;background:${c};border-radius:2px;flex-shrink:0;"></div>
     <span style="font-family:'Barlow',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.20em;text-transform:uppercase;color:rgba(255,255,255,0.55);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${t}</span>
     ${b ? `<span style="font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:800;color:${c};flex-shrink:0;">${b}</span>` : ''}
   </div>`;
-  const C = (content) => `<div style="background:#111111;border-radius:10px;border:1px solid rgba(255,255,255,0.10);padding:16px 18px;display:flex;flex-direction:column;overflow:hidden;">${content}</div>`;
+  const C = (content) => `<div style="background:#111111;border-radius:8px;border:1px solid rgba(255,255,255,0.10);padding:9px 11px;display:flex;flex-direction:column;overflow:hidden;">${content}</div>`;
   const mini3 = (items) => items.map(([l, v, c]) => `
-    <div style="flex:1;background:#1A1A1A;border-radius:6px;padding:9px 4px;text-align:center;border:1px solid rgba(255,255,255,0.10);">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:27px;font-weight:800;color:${c};line-height:1;">${v}</div>
+    <div style="flex:1;background:#1A1A1A;border-radius:6px;padding:7px 4px;text-align:center;border:1px solid rgba(255,255,255,0.10);">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:25px;font-weight:800;color:${c};line-height:1;">${v}</div>
       <div style="font-family:'Barlow',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.10em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-top:3px;">${l}</div>
     </div>`).join('');
 
-  const PALETTE = ['#22C55E', '#0088DD', '#FB670B', '#A855F7', '#FBBC04', '#EF4444'];
+  const kpis = [
+    [total.toLocaleString('es-MX'), 'Candidatos', C_GREEN],
+    [semana, 'Semana', C_GREEN],
+    [mes, 'Mes', 'rgba(255,255,255,0.75)'],
+    [conCv, 'Con CV', ORANGE],
+    [vacActivas, 'Vacantes activas', C_BLUE],
+    [contratados, 'Contratados', C_GREEN],
+  ];
 
-  const built = sections.map((s, i) => {
-    const candidates = s.candidates || [];
-    const total   = candidates.length;
-    const conCv   = candidates.filter(c => c.cv_nombre).length;
-    const semana  = candidates.filter(c => { const d = parseTursoDate(c.created_at || c.ts); return d && (now_ms - d.getTime()) < 7 * 24 * 60 * 60 * 1000; }).length;
-    const mes     = candidates.filter(c => { const d = parseTursoDate(c.created_at || c.ts); return d && (now_ms - d.getTime()) < 30 * 24 * 60 * 60 * 1000; }).length;
-    const puestos = {};
-    candidates.forEach(c => { if (c.puesto) puestos[c.puesto] = (puestos[c.puesto] || 0) + 1; });
-    const topPuestos = Object.entries(puestos).sort(([, a], [, b]) => b - a).slice(0, 4);
-    return { name: s.name, total, conCv, semana, mes, topPuestos, color: PALETTE[i % PALETTE.length] };
-  });
+  return `<div class="rh-page" style="width:100%;height:100vh;display:flex;flex-direction:column;background:#000000;position:relative;">
 
-  const card = (b) => C(`
-    ${S(b.name, b.color, b.total.toLocaleString('es-MX'))}
-    <div style="flex:1;display:flex;flex-direction:column;gap:7px;">
-      <div style="display:flex;gap:6px;">${mini3([['Semana', b.semana, b.color], ['Mes', b.mes, b.color], ['Con CV', b.conCv, b.conCv > 0 ? b.color : 'rgba(255,255,255,0.25)']])}</div>
-      <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;gap:0;">
-        ${b.topPuestos.length ? b.topPuestos.map(([p, v], i) => `
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.07);">
-          <span style="font-family:'Barlow',sans-serif;font-size:11.5px;color:${i === 0 ? '#FFFFFF' : 'rgba(255,255,255,0.65)'};font-weight:${i === 0 ? 700 : 500};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:170px;">${p}</span>
-          <span style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:${i === 0 ? b.color : 'rgba(255,255,255,0.30)'};">${v}</span>
-        </div>`).join('') : `<div style="font-family:'Barlow',sans-serif;font-size:10px;color:rgba(255,255,255,0.30);text-align:center;padding:6px 0;">Sin datos</div>`}
+    <!-- HEADER -->
+    <div style="background:${BLACK};display:flex;align-items:stretch;flex-shrink:0;position:relative;">
+      <div style="position:absolute;top:0;left:0;right:0;height:2.5px;background:linear-gradient(90deg,${ORANGE},${ORANGE_DARK},${C_BLUE},${C_GREEN});"></div>
+      <div style="padding:8px 14px;display:flex;align-items:center;gap:9px;border-right:1px solid rgba(255,255,255,0.08);flex-shrink:0;">
+        ${logoBase64 ? `<img src="${logoBase64}" style="height:24px;width:auto;filter:brightness(0) invert(1);display:block;"/>` : `<div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:#fff;">GO</div>`}
+        <div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:#fff;letter-spacing:0.04em;text-transform:uppercase;line-height:1;">Grupo Ortiz</div>
+          <div style="font-family:'Barlow',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.22em;color:rgba(255,255,255,0.45);text-transform:uppercase;">${isAdmin ? `Comparativo RH · ${sec.name}` : 'Resumen Reclutamiento · BotGO'}</div>
+        </div>
+      </div>
+      ${kpis.map(([v, l, c], i, a) => `
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 4px;text-align:center;border-right:${i < a.length - 1 ? '1px solid rgba(255,255,255,0.07)' : 'none'};position:relative;">
+        <div style="position:absolute;bottom:0;left:20%;right:20%;height:1.5px;background:${c};opacity:0.5;border-radius:1px;"></div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:800;color:${c};line-height:1;">${v}</div>
+        <div style="font-family:'Barlow',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.13em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-top:2px;">${l}</div>
+      </div>`).join('')}
+      <div style="padding:6px 14px;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;border-left:1px solid rgba(255,255,255,0.08);flex-shrink:0;gap:1px;min-width:120px;">
+        <div style="font-family:'Barlow',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.20em;text-transform:uppercase;color:rgba(255,255,255,0.40);">Corte</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:rgba(255,255,255,0.92);text-align:right;line-height:1.2;">${todayFmt}</div>
       </div>
     </div>
-  `);
 
-  const totalGeneral = built.reduce((a, b) => a + b.total, 0);
-  const gridCols = built.length <= 1 ? '1fr' : built.length === 2 ? '1fr 1fr' : built.length === 3 ? '1fr 1fr 1fr' : 'repeat(auto-fit,minmax(260px,1fr))';
+    <!-- RESUMEN DEL PERÍODO (texto calculado, no IA) -->
+    <div style="flex-shrink:0;background:#0D0D0D;border-bottom:1px solid rgba(255,255,255,0.10);padding:9px 14px;display:flex;align-items:center;gap:12px;">
+      <div style="flex-shrink:0;background:${ORANGE};border-radius:5px;padding:4px 9px;display:flex;align-items:center;justify-content:center;min-width:32px;min-height:28px;">
+        <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;color:#fff;letter-spacing:0.07em;text-transform:uppercase;line-height:1;">R</span>
+      </div>
+      <div style="width:1px;height:30px;background:rgba(255,255,255,0.12);flex-shrink:0;"></div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-family:'Barlow',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.48);margin-bottom:4px;">Resumen del período</div>
+        <div style="font-family:'Barlow',sans-serif;font-size:13px;font-weight:500;color:rgba(255,255,255,0.85);line-height:1.55;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">${resumenTexto}</div>
+      </div>
+    </div>
+
+    <!-- CUERPO -->
+    <div style="flex:1;display:flex;flex-direction:column;padding:5px 8px 8px;gap:5px;min-height:0;">
+
+      <!-- FILA 1 -->
+      <div style="flex:1.15;display:grid;grid-template-columns:2.5fr 1fr;gap:6px;min-height:0;">
+
+        ${C(`
+          ${S('Actividad de registro · 14 días', ORANGE, '')}
+          <div style="flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0;width:100%;">
+            <svg viewBox="0 0 680 130" style="width:100%;height:auto;display:block;overflow:visible;">${buildCandidatesLineSVG(byDay)}</svg>
+          </div>
+        `)}
+
+        ${C(`
+          ${S('Top Vacantes', ORANGE_DARK, '')}
+          <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-start;">
+            ${topPuestos.length ? topPuestos.map(([label, val], i) => { const pct = Math.round(val / maxPuesto * 100), isTop = i === 0; return `
+              <div style="margin-bottom:6px;">
+                <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:1px;">
+                  <span style="font-family:'Barlow',sans-serif;font-size:12px;font-weight:600;color:${isTop ? '#FFFFFF' : 'rgba(255,255,255,0.72)'};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:140px;">${label}</span>
+                  <span style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:${isTop ? ORANGE : 'rgba(255,255,255,0.40)'};flex-shrink:0;margin-left:4px;">${val}</span>
+                </div>
+                <div style="height:3px;background:rgba(255,255,255,0.12);border-radius:2px;overflow:hidden;"><div style="width:${pct}%;height:100%;background:${isTop ? `linear-gradient(90deg,${ORANGE},${ORANGE_DARK})` : 'rgba(255,255,255,0.25)'};border-radius:2px;"></div></div>
+              </div>`; }).join('') : `<div style="color:rgba(255,255,255,0.30);font-size:9px;text-align:center;">Sin datos</div>`}
+          </div>
+        `)}
+
+      </div>
+
+      <!-- FILA 2 -->
+      <div style="flex:1;display:grid;grid-template-columns:1fr 1.15fr 1.15fr;gap:6px;min-height:0;">
+
+        ${C(`
+          ${S('Pipeline', '#8A8A7A', '')}
+          <div style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;">
+            ${pipelinePairs.length ? `
+            <svg viewBox="0 0 140 140" width="82" height="82" style="flex-shrink:0;">${buildDonutSVG(pipelinePairs, pipelineColors, true)}</svg>
+            <div style="flex:1;min-width:0;">
+              ${pipelinePairs.map(([label, val], i) => { const tot = pipelinePairs.reduce((s, [, v]) => s + v, 0) || 1; const p = Math.round(val / tot * 100); return `
+                <div style="display:flex;align-items:center;gap:4px;margin-bottom:5px;">
+                  <div style="width:5px;height:5px;border-radius:50%;background:${pipelineColors[i % pipelineColors.length]};flex-shrink:0;"></div>
+                  <span style="font-family:'Barlow',sans-serif;font-size:11px;color:rgba(255,255,255,0.82);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${label}</span>
+                  <span style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;color:#FFFFFF;">${val}</span>
+                </div>`; }).join('')}
+            </div>` : `<div style="color:rgba(255,255,255,0.30);font-size:9px;text-align:center;">Sin datos</div>`}
+          </div>
+        `)}
+
+        ${C(`
+          ${S(sec.name, C_GREEN, total.toLocaleString('es-MX'))}
+          <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:6px;">
+            <div style="display:flex;gap:5px;">${mini3([['Semana', semana, C_GREEN], ['Mes', mes, C_GREEN], ['Con CV', conCv, conCv > 0 ? C_GREEN : 'rgba(255,255,255,0.25)']])}</div>
+            <div style="display:flex;gap:5px;">${mini3([['Vacantes activas', vacActivas, C_BLUE], ['Contratados', contratados, contratados > 0 ? C_GREEN : 'rgba(255,255,255,0.25)']])}</div>
+          </div>
+        `)}
+
+        ${C(`
+          ${S('Geografía', C_BLUE, '')}
+          <div style="flex:1;display:flex;flex-direction:column;justify-content:center;">
+            ${topEstados.length ? topEstados.map(([est, n], i) => { const tot = topEstados.reduce((s, [, v]) => s + v, 0) || 1; const pct = Math.round(n / tot * 100); return `
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:7px;">
+                <span style="font-family:'Barlow',sans-serif;font-size:11px;font-weight:600;color:rgba(255,255,255,0.75);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${est}</span>
+                <div style="width:60px;height:5px;background:rgba(255,255,255,0.12);border-radius:4px;overflow:hidden;flex-shrink:0;"><div style="width:${pct}%;height:100%;background:${C_BLUE};border-radius:4px;opacity:${0.95 - i * 0.14};"></div></div>
+                <span style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;color:${C_BLUE};min-width:18px;text-align:right;">${n}</span>
+              </div>`; }).join('') : `<div style="color:rgba(255,255,255,0.30);font-size:9px;text-align:center;">Sin datos</div>`}
+          </div>
+        `)}
+
+      </div>
+
+    </div>
+
+    <div style="flex-shrink:0;padding:8px 14px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(255,255,255,0.08);">
+      <span style="font-family:'Barlow',sans-serif;font-size:9px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.35);">Grupo Ortiz · BotGO · Módulo de Reclutamiento</span>
+      <span style="font-family:'Barlow',sans-serif;font-size:9px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.35);">${todayFmt}</span>
+    </div>
+  </div>`;
+}
+
+function buildRHReportHTML(sections, isAdmin, logoBase64) {
+  const now      = new Date();
+  const todayFmt = now.toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City', day: '2-digit', month: 'short', year: 'numeric' });
+  const slides = sections.map(sec => buildRHSlide(sec, logoBase64, isAdmin)).join('');
 
   return `<!DOCTYPE html>
 <html lang="es"><head>
@@ -2475,40 +2615,12 @@ function buildRHReportHTML(sections, isAdmin, logoBase64) {
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
   html,body{width:100%;height:100%;}
   body{background:#000000;font-family:'Barlow',Helvetica,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .rh-page{page-break-after:always;break-after:page;}
+  .rh-page:last-child{page-break-after:auto;break-after:auto;}
   @media print{@page{size:A4 landscape;margin:0;} html,body{height:100%;}}
 </style>
 </head><body>
-<div style="width:100%;height:100vh;display:flex;flex-direction:column;background:#000000;">
-
-  <!-- HEADER -->
-  <div style="background:${BLACK};display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:relative;padding:14px 20px;">
-    <div style="position:absolute;top:0;left:0;right:0;height:2.5px;background:linear-gradient(90deg,${ORANGE},${ORANGE_DARK},#0088DD,#22C55E);"></div>
-    <div style="display:flex;align-items:center;gap:9px;">
-      ${logoBase64 ? `<img src="${logoBase64}" style="height:26px;width:auto;filter:brightness(0) invert(1);display:block;"/>` : `<div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:#fff;">GO</div>`}
-      <div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:#fff;letter-spacing:0.04em;text-transform:uppercase;line-height:1;">Grupo Ortiz</div>
-        <div style="font-family:'Barlow',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.22em;color:rgba(255,255,255,0.45);text-transform:uppercase;">${isAdmin ? 'Comparativo RH · BotGO' : 'Resumen RH · BotGO'}</div>
-      </div>
-    </div>
-    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:1px;">
-      <div style="font-family:'Barlow',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.20em;text-transform:uppercase;color:rgba(255,255,255,0.40);">Corte</div>
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:rgba(255,255,255,0.92);">${todayFmt}</div>
-      ${isAdmin ? `<div style="font-family:'Barlow',sans-serif;font-size:10px;font-weight:600;color:rgba(255,255,255,0.35);">Total: ${totalGeneral} candidatos</div>` : ''}
-    </div>
-  </div>
-
-  <!-- CUERPO -->
-  <div style="flex:1;display:flex;align-items:${built.length <= 1 ? 'center' : 'stretch'};justify-content:center;padding:28px;min-height:0;">
-    <div style="width:100%;max-width:${built.length <= 1 ? '480px' : '1200px'};display:grid;grid-template-columns:${gridCols};gap:16px;">
-      ${built.map(card).join('')}
-    </div>
-  </div>
-
-  <div style="flex-shrink:0;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(255,255,255,0.08);">
-    <span style="font-family:'Barlow',sans-serif;font-size:9px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.35);">Grupo Ortiz · BotGO · Módulo de Reclutamiento</span>
-    <span style="font-family:'Barlow',sans-serif;font-size:9px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.35);">${todayFmt}</span>
-  </div>
-</div>
+${slides}
 </body></html>`;
 }
 
@@ -2529,22 +2641,25 @@ export function DownloadRHReportButton({ role, style = {} }) {
         body: JSON.stringify(filterUserId != null ? { action: 'list', filterUserId } : { action: 'list' }),
       }).then(r => r.json()).catch(() => ({ ok: false, candidates: [] }));
 
+      const fetchVacantes = (filterUserId) => fetch('/api/vacantes', {
+        method: 'POST', credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(filterUserId != null ? { action: 'list', filterUserId } : { action: 'list' }),
+      }).then(r => r.json()).catch(() => ({ ok: false, vacantes: [] }));
+
+      const fetchSection = (name, filterUserId) => Promise.all([fetchCandidatos(filterUserId), fetchVacantes(filterUserId)])
+        .then(([c, v]) => ({ name, candidates: c?.ok ? (c.candidates || []) : [], vacantes: v?.ok ? (v.vacantes || []) : [] }));
+
       let sections = [];
 
       if (isAdmin) {
         const usersRes = await fetch('/api/admin/users', { credentials: 'include' }).then(r => r.json()).catch(() => ({ ok: false, users: [] }));
         const rhLeaders = (usersRes?.users || []).filter(u => u.active && !u.canDownload && (u.tabs || []).includes('recruitment'));
-        if (rhLeaders.length) {
-          sections = await Promise.all(rhLeaders.map(u =>
-            fetchCandidatos(u.id).then(r => ({ name: u.name, candidates: r?.ok ? (r.candidates || []) : [] }))
-          ));
-        } else {
-          const r = await fetchCandidatos();
-          sections = [{ name: 'General', candidates: r?.ok ? (r.candidates || []) : [] }];
-        }
+        sections = rhLeaders.length
+          ? await Promise.all(rhLeaders.map(u => fetchSection(u.name, u.id)))
+          : [await fetchSection('General', null)];
       } else {
-        const r = await fetchCandidatos();
-        sections = [{ name: role?.name || 'RH', candidates: r?.ok ? (r.candidates || []) : [] }];
+        sections = [await fetchSection(role?.name || 'RH', null)];
       }
 
       const logoBase64 = await fetchLogoBase64().catch(() => null);
