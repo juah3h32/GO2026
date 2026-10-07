@@ -1792,6 +1792,8 @@ function UserManageCard({ user, onUpdate }) {
           <div style={{ display:'flex', alignItems:'center', gap:7, marginBottom:6, flexWrap:'wrap' }}>
             <span style={{ fontWeight:700, fontSize:13.5, color:P.text, letterSpacing:'-0.01em' }}>{dispName}</span>
             {user.canDownload && <Tag color={P.orange}>Admin</Tag>}
+            {!user.canDownload && (user.tabs||[]).includes('recruitment') && (user.tabs||[]).includes('vacantes') && <Tag color="#22C55E">RH · dueño propio</Tag>}
+            {!user.canDownload && (user.tabs||[]).includes('recruitment') && !(user.tabs||[]).includes('vacantes') && <Tag color="#8A8A7A">Ve candidatos</Tag>}
             {!user.active && <Tag color={P.gray}>Inactivo</Tag>}
           </div>
           <div style={{ display:'flex', flexWrap:'wrap', gap:4 }}>
@@ -2132,11 +2134,20 @@ function UsersTab() {
             <p style={{ fontSize:11, color:P.textDim, margin:0, lineHeight:1.55 }}>Permisos, contraseña y nombre de cada usuario. Cambios aplicados inmediatamente.</p>
           </div>
         </div>
-        <button onClick={() => setShowAdd(true)} style={{
-          padding:'7px 14px', borderRadius:8, border:'none', cursor:'pointer',
-          background:P.orange, color:'#fff', fontSize:12, fontWeight:700,
-          whiteSpace:'nowrap', flexShrink:0,
-        }}>+ Nuevo usuario</button>
+        <div style={{ display:'flex', alignItems:'center', gap:14, flexShrink:0 }}>
+          {!loading && users.length > 0 && (
+            <div style={{ display:'flex', gap:10, fontSize:10.5, color:P.textDim, fontFamily:'monospace', whiteSpace:'nowrap' }}>
+              <span><strong style={{ color:P.text }}>{users.length}</strong> usuarios</span>
+              <span style={{ color:P.border }}>·</span>
+              <span><strong style={{ color:'#22C55E' }}>{users.filter(u=>u.active).length}</strong> activos</span>
+            </div>
+          )}
+          <button onClick={() => setShowAdd(true)} style={{
+            padding:'7px 14px', borderRadius:8, border:'none', cursor:'pointer',
+            background:P.orange, color:'#fff', fontSize:12, fontWeight:700,
+            whiteSpace:'nowrap', flexShrink:0,
+          }}>+ Nuevo usuario</button>
+        </div>
       </div>
 
       {loading ? (

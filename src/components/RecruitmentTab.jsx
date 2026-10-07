@@ -804,6 +804,22 @@ const [deleting,     setDeleting]     = useState(false);
   const prevIdsRef  = useRef(new Set());
   const intervalRef = useRef(null);
 
+  // ── Admin: tarjetas por reclutador (MONY, Cynthia, ...) para filtrar la vista ──
+  const isAdmin = !!role?.isAdminRole;
+  const [rhLeaders, setRhLeaders] = useState([]);
+  const [selectedRh, setSelectedRh] = useState(null); // null = todos
+  useEffect(() => {
+    if (!isAdmin) return;
+    fetch('/api/admin/users', { credentials:'include' }).then(r => r.json()).then(j => {
+      if (!j.ok) return;
+      const leaders = (j.users || []).filter(u => u.active && !u.canDownload && (u.tabs||[]).includes('recruitment') && (u.tabs||[]).includes('vacantes'));
+      setRhLeaders(leaders);
+    }).catch(() => {});
+  }, [isAdmin]);
+
+  const scopedCandidates = (isAdmin && selectedRh != null) ? candidates.filter(c => c.rh_user_id === selectedRh) : candidates;
+  const scopedVacantes   = (isAdmin && selectedRh != null) ? vacantes.filter(v => v.rh_user_id === selectedRh)   : vacantes;
+
   const load = useCallback(async (silent = false) => {
     if (silent) setRefreshing(true); else setLoading(true);
     try {
@@ -840,7 +856,7 @@ const [deleting,     setDeleting]     = useState(false);
   const handleDelete        = (id)     => setCandidates(prev => prev.filter(c => c.id !== id));
 
   const STATUS_MAP = getStatusMap(C);
-  const counts = Object.fromEntries(Object.keys(STATUS_MAP).map(k => [k, candidates.filter(c => getStatus(c) === k).length]));
+  const counts = Object.fromEntries(Object.keys(STATUS_MAP).map(k => [k, scopedCandidates.filter(c => getStatus(c) === k).length]));
 
   // Coincidencia candidato ↔ vacante (igual que backend)
   const matchVacante = (c, vac) => {
@@ -850,7 +866,7 @@ const [deleting,     setDeleting]     = useState(false);
     return p && (t.includes(p) || p.includes(t) || words.some(w => p.includes(w)));
   };
 
-  const filtered = candidates.filter(c => {
+  const filtered = scopedCandidates.filter(c => {
     const esEsp = c.en_lista_espera === 1 || c.en_lista_espera === true;
 
     // ── Filtro por vacante / lista de espera ──
@@ -874,16 +890,16 @@ const [deleting,     setDeleting]     = useState(false);
     return mf && ms;
   });
 
-  const countEspera = candidates.filter(c => c.en_lista_espera === 1 || c.en_lista_espera === true).length;
+  const countEspera = scopedCandidates.filter(c => c.en_lista_espera === 1 || c.en_lista_espera === true).length;
 
-  const conCv     = candidates.filter(c => c.cv_nombre).length;
+  const conCv     = scopedCandidates.filter(c => c.cv_nombre).length;
   const hoy       = new Date().toISOString().split('T')[0];
-  const nuevosHoy = candidates.filter(c => (c.created_at||c.ts||'').replace(' ','T').split('T')[0] === hoy).length;
+  const nuevosHoy = scopedCandidates.filter(c => (c.created_at||c.ts||'').replace(' ','T').split('T')[0] === hoy).length;
 
   const doExport = (type) => {
     setExporting(type);
-    const list = filtered.length && filtered.length < candidates.length ? filtered : candidates;
-    try { 
+    const list = filtered.length && filtered.length < scopedCandidates.length ? filtered : scopedCandidates;
+    try {
       if (type === 'csv') exportarTodoCSV(list);
       else exportarTodoPDF(list);
     }
@@ -891,7 +907,7 @@ const [deleting,     setDeleting]     = useState(false);
   };
 
   // Puestos únicos de los candidatos actuales para el filtro
-  const puestosUnicos = [...new Set(candidates.map(c => (c.puesto||'').trim()).filter(Boolean))].sort();
+  const puestosUnicos = [...new Set(scopedCandidates.map(c => (c.puesto||'').trim()).filter(Boolean))].sort();
 
   const doReporteIA = async () => {
     setIaReporting(true);
@@ -950,10 +966,10 @@ const confirmDelete = async () => {
   );
 
   const kpis = [
-    { label:'Total',       value:candidates.length,       icon:Ic.user,      color:C.orange },
+    { label:'Total',       value:scopedCandidates.length,       icon:Ic.user,      color:C.orange },
     { label:'Hoy',         value:nuevosHoy,               icon:Ic.clock,     color:C.blue   },
     { label:'Con CV',      value:conCv,                   icon:Ic.clip,      color:C.teal   },
-    { label:'Sin CV',      value:candidates.length-conCv, icon:Ic.pdf,       color:C.textDim},
+    { label:'Sin CV',      value:scopedCandidates.length-conCv, icon:Ic.pdf,       color:C.textDim},
     { label:'Contratados', value:counts.contratado||0,    icon:Ic.star,      color:C.green  },
   ];
 
@@ -971,6 +987,37 @@ const confirmDelete = async () => {
           .ia-overlay { position:absolute;inset:0;z-index:10;border-radius:12px;backdrop-filter:blur(2px); }
         `}</style>
 
+        {/* Reclutadores — solo Admin: filtra candidatos/vacantes por dueño */}
+        {isAdmin && rhLeaders.length > 0 && (
+          <div style={{ display:'flex', gap:8, marginBottom:12, flexWrap:'wrap' }}>
+            {[{ id:null, name:'Todos' }, ...rhLeaders].map(leader => {
+              const active = selectedRh === leader.id;
+              const count  = leader.id == null ? candidates.length : candidates.filter(c => c.rh_user_id === leader.id).length;
+              return (
+                <button key={leader.id ?? 'todos'} onClick={() => setSelectedRh(leader.id)}
+                  style={{
+                    display:'flex', alignItems:'center', gap:10, padding:'10px 16px', borderRadius:12, cursor:'pointer',
+                    background: active ? C.orangeDim : C.surface,
+                    border:`1.5px solid ${active ? C.orange : C.border}`,
+                    transition:'all 0.15s ease', minWidth:150,
+                  }}>
+                  {leader.id != null && (
+                    <div style={{ width:28, height:28, borderRadius:8, flexShrink:0, display:'flex', alignItems:'center', justifyContent:'center',
+                      fontSize:11, fontWeight:700, fontFamily:T.sans,
+                      background: active ? C.orange : C.surface3, color: active ? '#fff' : C.textSub }}>
+                      {leader.name.slice(0,2).toUpperCase()}
+                    </div>
+                  )}
+                  <div style={{ textAlign:'left' }}>
+                    <div style={{ fontSize:12, fontWeight:700, color: active ? C.orange : C.text, fontFamily:T.sans }}>{leader.name}</div>
+                    <div style={{ fontSize:10, color:C.textDim, fontFamily:T.mono }}>{count} candidato{count===1?'':'s'}</div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
         {/* KPIs */}
         <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(140px,1fr))', gap:8, marginBottom:12 }}>
           {kpis.map(kpi => (
@@ -984,11 +1031,11 @@ const confirmDelete = async () => {
         </div>
 
         {/* Pipeline visual */}
-        {candidates.length > 0 && (
+        {scopedCandidates.length > 0 && (
           <div style={{ ...CARD, padding:'16px 20px', marginBottom:10 }}>
             <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:10 }}>
               <span style={{ color:C.textDim, fontSize:10, fontFamily:T.sans, letterSpacing:'0.08em', textTransform:'uppercase', fontWeight:600 }}>Pipeline</span>
-              <span style={{ color:C.textDim, fontSize:10, fontFamily:T.mono, marginLeft:'auto' }}>{candidates.length} total</span>
+              <span style={{ color:C.textDim, fontSize:10, fontFamily:T.mono, marginLeft:'auto' }}>{scopedCandidates.length} total</span>
             </div>
             {/* Thin stacked progress bar */}
             <div style={{ height:4, borderRadius:4, overflow:'hidden', display:'flex', gap:1, marginBottom:14, background:C.border2 }}>
@@ -1003,7 +1050,7 @@ const confirmDelete = async () => {
               {Object.entries(STATUS_MAP).map(([key,{label, color}]) => {
                 const n = counts[key]||0;
                 if (!n) return null;
-                const pct = Math.round((n / candidates.length) * 100);
+                const pct = Math.round((n / scopedCandidates.length) * 100);
                 return (
                   <div key={key} style={{ display:'inline-flex', alignItems:'center', gap:5, padding:'4px 10px', borderRadius:20, background:C.surface2, border:`1px solid ${C.border}`, cursor:'pointer', transition:'border-color 0.13s ease' }}
                     onClick={() => setFilter(key)}
@@ -1068,7 +1115,7 @@ const confirmDelete = async () => {
                     ? (vacantes.find(v => String(v.id) === String(iaVacanteId))?.titulo || 'Candidatos')
                     : 'Candidatos'}
                 <span style={{ color:C.textDim, fontWeight:400, fontSize:11, marginLeft:6 }}>
-                  ({filtered.length}{iaVacanteId ? '' : ` de ${candidates.length}`})
+                  ({filtered.length}{iaVacanteId ? '' : ` de ${scopedCandidates.length}`})
                 </span>
               </span>
               {refreshing && (
@@ -1080,7 +1127,7 @@ const confirmDelete = async () => {
             <div style={{ display:'flex', alignItems:'center', gap:6, flexWrap:'wrap' }}>
               {lastUpdate && <span style={{ display:'flex', alignItems:'center', gap:4, color:C.textDim, fontSize:10, fontFamily:T.mono }}>{Ic.clock} {lastUpdate.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}</span>}
               <IconBtn onClick={() => load(false)} icon={Ic.refresh} label="Actualizar" bg="transparent" bgHover={C.surface2} color={C.textSub} border={`1px solid ${C.border}`} />
-              {candidates.length > 0 && (<>
+              {scopedCandidates.length > 0 && (<>
                 <IconBtn onClick={() => doExport('csv')} icon={Ic.csv} label={exporting==='csv' ? 'Exportando…' : 'CSV'} bg={C.greenDim} bgHover="rgba(34,197,94,0.16)" color={C.green} border={`1px solid ${C.green}28`} disabled={exporting==='csv'} />
                 <IconBtn onClick={() => doExport('pdf')} icon={Ic.pdf} label={exporting==='pdf' ? 'Generando…' : 'PDF'} bg={C.blueDim} bgHover="rgba(59,130,246,0.16)" color={C.blue} border={`1px solid ${C.blue}28`} disabled={exporting==='pdf'} />
                 {/* Dropdown de vacantes para filtrar el reporte IA */}
@@ -1092,7 +1139,7 @@ const confirmDelete = async () => {
                   title="Filtrar reporte IA por vacante"
                 >
                   <option value="">General (todos)</option>
-                  {vacantes.map(v => (
+                  {scopedVacantes.map(v => (
                     <option key={v.id} value={String(v.id)}>
                       {v.titulo}{v.area ? ` · ${v.area}` : ''}
                     </option>
@@ -1118,7 +1165,7 @@ const confirmDelete = async () => {
           <div style={{ display:'flex', gap:4, marginBottom:12, flexWrap:'wrap', alignItems:'center' }}>
             <button onClick={() => setFilter('todos')}
               style={{ display:'inline-flex', alignItems:'center', gap:5, padding:'5px 12px', borderRadius:20, fontSize:11, fontWeight: filter==='todos' ? 600 : 500, cursor:'pointer', fontFamily:T.sans, background: filter==='todos' ? C.text : 'transparent', color: filter==='todos' ? C.bg : C.textDim, border:`1px solid ${filter==='todos' ? C.text : C.border}`, transition:'all 0.13s ease', letterSpacing:'-0.01em' }}>
-              Todos {candidates.length > 0 && `(${candidates.length})`}
+              Todos {scopedCandidates.length > 0 && `(${scopedCandidates.length})`}
             </button>
             {Object.entries(STATUS_MAP).map(([key,{label, color}]) => {
               const active = filter === key;
@@ -1158,7 +1205,7 @@ const confirmDelete = async () => {
           {!filtered.length ? (
             <div style={{ textAlign:'center', padding:'50px 0', color:C.textDim, fontFamily:T.sans, fontSize:12 }}>
               <div style={{ marginBottom:8 }}>{Ic.search}</div>
-              {candidates.length === 0 ? 'Sin candidatos. Se registran automáticamente desde el chatbot.' : 'Sin resultados para el filtro seleccionado.'}
+              {scopedCandidates.length === 0 ? 'Sin candidatos. Se registran automáticamente desde el chatbot.' : 'Sin resultados para el filtro seleccionado.'}
             </div>
           ) : (
             <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
@@ -1253,7 +1300,7 @@ const confirmDelete = async () => {
           <span style={{ color:C.textDim, display:'flex', flexShrink:0 }}>{Ic.info}</span>
           <span style={{ color:C.textDim, fontSize:10, fontFamily:T.sans, lineHeight:1.6 }}>
             Candidatos registrados automáticamente por el chatbot · Actualización cada <strong style={{ color:C.textSub }}>20 seg</strong>
-            {candidates.length > 0 && <> · <strong style={{ color:C.textSub }}>Perfil</strong> = PDF individual · <strong style={{ color:C.textSub }}>Excel/CSV</strong> = exportar todo</>}
+            {scopedCandidates.length > 0 && <> · <strong style={{ color:C.textSub }}>Perfil</strong> = PDF individual · <strong style={{ color:C.textSub }}>Excel/CSV</strong> = exportar todo</>}
           </span>
         </div>
         
