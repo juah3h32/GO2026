@@ -19,6 +19,12 @@ const IcBot = () => (
     <path d="M9 13v2"/><path d="M15 13v2"/>
   </svg>
 );
+const IcExternal = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+    <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+  </svg>
+);
 const IcClose = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
     <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
@@ -194,10 +200,25 @@ export default function VacantesPage() {
   }, []);
 
   const handlePostular = (v) => {
+    if (v.link_externo) {
+      window.open(v.link_externo, '_blank', 'noopener,noreferrer');
+      setSelected(null);
+      return;
+    }
     window.dispatchEvent(new CustomEvent('botgo:open-vacancy', {
       detail: { id: v.id, titulo: v.titulo, area: v.area, tipo: v.tipo, ubicacion: v.ubicacion, requisitos: v.requisitos },
     }));
     setSelected(null);
+  };
+
+  // Tarjeta de la lista: si la vacante tiene link externo, va directo ahí.
+  // Si no, abre el modal de detalle normal.
+  const handleCardClick = (v) => {
+    if (v.link_externo) {
+      window.open(v.link_externo, '_blank', 'noopener,noreferrer');
+      return;
+    }
+    setSelected(v);
   };
 
   // ── Spinner ──
@@ -458,7 +479,7 @@ export default function VacantesPage() {
               <button
                 key={v.id}
                 className="vac-position-card"
-                onClick={() => setSelected(v)}
+                onClick={() => handleCardClick(v)}
               >
                 <div className="vac-position-body">
 
@@ -518,11 +539,13 @@ export default function VacantesPage() {
 
                 {/* CTA footer */}
                 <span className="vac-position-cta">
-                  <span>Ver detalle y postularme</span>
+                  <span>{v.link_externo ? 'Ir a la oferta' : 'Ver detalle y postularme'}</span>
                   <span className="vac-position-cta-arrow">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
-                    </svg>
+                    {v.link_externo ? <IcExternal /> : (
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                      </svg>
+                    )}
                   </span>
                 </span>
               </button>
@@ -694,7 +717,7 @@ export default function VacantesPage() {
 
             <div className="vp-modal-footer">
               <button className="vp-postular-btn" onClick={() => handlePostular(selected)}>
-                <IcBot /> Postularme a esta vacante
+                {selected.link_externo ? <><IcExternal /> Postularme en sitio externo</> : <><IcBot /> Postularme a esta vacante</>}
               </button>
             </div>
 

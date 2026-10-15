@@ -63,6 +63,7 @@ const EMPTY_FORM = {
   titulo: '', area: 'Planta / Manufactura', tipo: 'Tiempo completo',
   ubicacion: 'Morelia, Mich.', horario: 'Lunes a Viernes', salario: '',
   descripcion: '', requisitos: '', activa: 1, multiples: 0, empresa: '',
+  link_externo: '',
 };
 
 // ── LÍMITES DE CAMPO ───────────────────────────────────────────────────────────
@@ -74,6 +75,7 @@ const LIMITS = {
   salario:     40,
   descripcion: 160,
   requisitos:  800,
+  link_externo: 300,
 };
 
 // ── ICONOS SVG ─────────────────────────────────────────────────────────────────
@@ -91,6 +93,7 @@ const Ic = {
   info:    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>,
   warn:    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>,
   eye:     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>,
+  link:    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>,
 };
 
 function Spinner({ P }) {
@@ -358,6 +361,7 @@ export default function VacantesTab({ theme = 'dark' }) {
       requisitos:  v.requisitos || '',
       activa:      v.activa ? 1 : 0,
       empresa:     v.empresa || '',
+      link_externo: v.link_externo || '',
     });
     setEditing(v.id); setStatus(null); setModal(true);
   };
@@ -374,6 +378,7 @@ export default function VacantesTab({ theme = 'dark' }) {
       setStatus('duplicate');
       return;
     }
+    if (form.link_externo.trim() && !/^https?:\/\//i.test(form.link_externo.trim())) return;
     setSaving(true); setStatus(null);
     try {
       const action = editing ? 'update' : 'create';
@@ -432,6 +437,8 @@ export default function VacantesTab({ theme = 'dark' }) {
   const CARD = { background:P.surface, border:`1px solid ${P.border}`, borderRadius:12, padding:'20px 22px', position:'relative', overflow:'hidden', boxShadow:'0 1px 3px rgba(0,0,0,0.06)' };
   const activas   = vacantes.filter(v => v.activa);
   const inactivas = vacantes.filter(v => !v.activa);
+  const linkInvalido = !!form.link_externo.trim() && !/^https?:\/\//i.test(form.link_externo.trim());
+  const saveDisabled = saving || !form.titulo.trim() || isAllCaps(form.titulo) || linkInvalido;
 
   return (
     <div>
@@ -528,6 +535,7 @@ export default function VacantesTab({ theme = 'dark' }) {
                       <div style={{ display:'flex', gap:4, flexShrink:0, flexWrap:'wrap', justifyContent:'flex-end' }}>
                         <Tag color={v.activa ? P.green : P.grayMid}>{v.activa ? 'Activa' : 'Pausada'}</Tag>
                         {v.empresa && <Tag color={P.orange}>{v.empresa}</Tag>}
+                        {v.link_externo && <Tag color={P.grayMid}>Externa</Tag>}
                       </div>
                     </div>
 
@@ -654,6 +662,24 @@ export default function VacantesTab({ theme = 'dark' }) {
               style={inp} onFocus={focusIn} onBlur={focusOut} />
           </div>
 
+          {/* ── Fila 4.5: Link externo ── */}
+          <div>
+            <FieldLabel P={P} current={form.link_externo.length} max={LIMITS.link_externo}
+              hint="Opcional — LinkedIn, OCC, etc.">Link externo de postulación</FieldLabel>
+            <input value={form.link_externo} onChange={setField('link_externo')} placeholder="https://www.linkedin.com/jobs/view/..."
+              style={inp} onFocus={focusIn} onBlur={focusOut} />
+            {form.link_externo.trim() && !/^https?:\/\//i.test(form.link_externo.trim()) && (
+              <div style={{ display:'flex', alignItems:'center', gap:6, marginTop:4, fontSize:10, color:P.err }}>
+                {Ic.warn} Debe empezar con http:// o https://
+              </div>
+            )}
+            {form.link_externo.trim() && /^https?:\/\//i.test(form.link_externo.trim()) && (
+              <div style={{ fontSize:10, color:P.textDim, marginTop:4 }}>
+                Al postularse, el candidato será redirigido a este link en vez de usar el chatbot interno.
+              </div>
+            )}
+          </div>
+
           {/* ── Fila 5: Descripción breve ── */}
           <div>
             <FieldLabel P={P} hint="Visible en la tarjeta" current={form.descripcion.length} max={LIMITS.descripcion}
@@ -747,11 +773,11 @@ export default function VacantesTab({ theme = 'dark' }) {
           )}
 
           <div style={{ display:'flex', gap:8 }}>
-            <button onClick={handleSave} disabled={saving || !form.titulo.trim() || isAllCaps(form.titulo)}
+            <button onClick={handleSave} disabled={saveDisabled}
               style={{ flex:1, padding:'11px 0', borderRadius:9, border:'none', fontSize:12, fontWeight:600,
-                background: saving || !form.titulo.trim() || isAllCaps(form.titulo) ? P.surface2 : P.orange,
-                color:      saving || !form.titulo.trim() || isAllCaps(form.titulo) ? P.textDim : '#fff',
-                cursor:     saving || !form.titulo.trim() || isAllCaps(form.titulo) ? 'not-allowed' : 'pointer',
+                background: saveDisabled ? P.surface2 : P.orange,
+                color:      saveDisabled ? P.textDim : '#fff',
+                cursor:     saveDisabled ? 'not-allowed' : 'pointer',
                 transition:'background 0.15s ease' }}>
               {saving ? 'Guardando…' : editing ? 'Guardar cambios' : 'Crear vacante'}
             </button>

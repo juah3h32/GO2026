@@ -53,11 +53,11 @@ export async function POST({ request }) {
     }
 
     if (action === 'create') {
-      const { titulo, area, tipo, ubicacion, horario, salario, descripcion, requisitos, activa, orden, multiples, empresa } = body;
+      const { titulo, area, tipo, ubicacion, horario, salario, descripcion, requisitos, activa, orden, multiples, empresa, link_externo } = body;
       if (!titulo?.trim()) return json({ ok: false, error: 'El título es obligatorio.' }, 400);
       // RH → dueño es quien la crea. Admin → queda en la bolsa general (sin dueño).
       const rh_user_id = isAdmin ? null : myId;
-      const result = await saveVacante({ titulo, area, tipo, ubicacion, horario, salario, descripcion, requisitos, activa, orden, multiples, empresa, rh_user_id });
+      const result = await saveVacante({ titulo, area, tipo, ubicacion, horario, salario, descripcion, requisitos, activa, orden, multiples, empresa, rh_user_id, link_externo });
 
       // Notificación push + asignar candidatos en espera si se publica activa
       if (activa) {
@@ -80,13 +80,13 @@ export async function POST({ request }) {
     }
 
     if (action === 'update') {
-      const { id, titulo, area, tipo, ubicacion, horario, salario, descripcion, requisitos, activa, orden, multiples, empresa } = body;
+      const { id, titulo, area, tipo, ubicacion, horario, salario, descripcion, requisitos, activa, orden, multiples, empresa, link_externo } = body;
       if (!id) return json({ ok: false, error: 'ID requerido.' }, 400);
       if (!(await checkOwnVacante(id))) return json({ ok: false, error: 'No autorizado.' }, 403);
       // Leer estado anterior para saber si se está activando por primera vez
       const prevList = await readVacantes(false);
       const prev = prevList.find(v => v.id === id);
-      await updateVacante({ id, titulo, area, tipo, ubicacion, horario, salario, descripcion, requisitos, activa, orden, multiples, empresa });
+      await updateVacante({ id, titulo, area, tipo, ubicacion, horario, salario, descripcion, requisitos, activa, orden, multiples, empresa, link_externo });
       // Enviar push + asignar espera solo si se está activando (antes estaba inactiva)
       if (activa && prev && !prev.activa) {
         sendPushToAll({

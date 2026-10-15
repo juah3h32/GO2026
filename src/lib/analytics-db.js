@@ -1164,6 +1164,7 @@ async function ensureVacantesTable() {
     `ALTER TABLE vacantes ADD COLUMN multiples INTEGER NOT NULL DEFAULT 0`,
     `ALTER TABLE vacantes ADD COLUMN empresa TEXT NOT NULL DEFAULT ''`,
     `ALTER TABLE vacantes ADD COLUMN rh_user_id INTEGER DEFAULT NULL`,
+    `ALTER TABLE vacantes ADD COLUMN link_externo TEXT NOT NULL DEFAULT ''`,
   ];
   
   for (const sql of migraciones) {
@@ -1173,12 +1174,12 @@ async function ensureVacantesTable() {
   vacantesReady = true;
 }
 
-export async function saveVacante({ titulo, area, tipo = '', ubicacion = 'Morelia, Mich.', horario = '', salario = '', descripcion = '', requisitos = '', activa = true, orden = 0, multiples = false, empresa = '', rh_user_id = null }) {
+export async function saveVacante({ titulo, area, tipo = '', ubicacion = 'Morelia, Mich.', horario = '', salario = '', descripcion = '', requisitos = '', activa = true, orden = 0, multiples = false, empresa = '', rh_user_id = null, link_externo = '' }) {
   await ensureInit();
   await ensureVacantesTable();
   const result = await db.execute({
-    sql:  `INSERT INTO vacantes (titulo, area, tipo, ubicacion, horario, salario, descripcion, requisitos, activa, orden, multiples, empresa, rh_user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    args: [titulo, area, tipo, ubicacion, horario, salario, descripcion, requisitos, activa ? 1 : 0, orden, multiples ? 1 : 0, empresa || '', rh_user_id],
+    sql:  `INSERT INTO vacantes (titulo, area, tipo, ubicacion, horario, salario, descripcion, requisitos, activa, orden, multiples, empresa, rh_user_id, link_externo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    args: [titulo, area, tipo, ubicacion, horario, salario, descripcion, requisitos, activa ? 1 : 0, orden, multiples ? 1 : 0, empresa || '', rh_user_id, link_externo || ''],
   });
   return { id: Number(result.lastInsertRowid) };
 }
@@ -1215,6 +1216,7 @@ export async function readVacantes(onlyActive = false, { isAdmin = true, rhUserI
     multiples:   !!r.multiples,
     empresa:     r.empresa || '',
     rh_user_id:  r.rh_user_id ?? null,
+    link_externo: r.link_externo || '',
   }));
 }
 
@@ -1227,12 +1229,12 @@ export async function getVacanteOwner(id) {
   return r.rows[0].rh_user_id ?? null;
 }
 
-export async function updateVacante({ id, titulo, area, tipo, ubicacion, horario, salario, descripcion, requisitos, activa, orden, multiples = false, empresa = '' }) {
+export async function updateVacante({ id, titulo, area, tipo, ubicacion, horario, salario, descripcion, requisitos, activa, orden, multiples = false, empresa = '', link_externo = '' }) {
   await ensureInit();
   await ensureVacantesTable();
   await db.execute({
-    sql:  `UPDATE vacantes SET titulo=?, area=?, tipo=?, ubicacion=?, horario=?, salario=?, descripcion=?, requisitos=?, activa=?, orden=?, multiples=?, empresa=? WHERE id=?`,
-    args: [titulo, area, tipo || '', ubicacion || 'Morelia, Mich.', horario || '', salario || '', descripcion || '', requisitos || '', activa ? 1 : 0, orden || 0, multiples ? 1 : 0, empresa || '', id],
+    sql:  `UPDATE vacantes SET titulo=?, area=?, tipo=?, ubicacion=?, horario=?, salario=?, descripcion=?, requisitos=?, activa=?, orden=?, multiples=?, empresa=?, link_externo=? WHERE id=?`,
+    args: [titulo, area, tipo || '', ubicacion || 'Morelia, Mich.', horario || '', salario || '', descripcion || '', requisitos || '', activa ? 1 : 0, orden || 0, multiples ? 1 : 0, empresa || '', link_externo || '', id],
   });
 }
 
