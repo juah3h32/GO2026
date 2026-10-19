@@ -1,5 +1,6 @@
 // src/lib/analytics-db.js
 import { createClient } from '@libsql/client';
+import crypto from 'crypto';
 import { encryptField, decryptFieldSafe } from './secure-store.js';
 
 const url       = process.env.TURSO_DATABASE_URL || import.meta.env.TURSO_DATABASE_URL;
@@ -1248,6 +1249,66 @@ export async function toggleVacante(id, activa) {
   await ensureInit();
   await ensureVacantesTable();
   await db.execute({ sql: `UPDATE vacantes SET activa=? WHERE id=?`, args: [activa ? 1 : 0, id] });
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  API PARTNERS — acceso externo (otros departamentos) por API key
+// ════════════════════════════════════════════════════════════════════════════
+
+let apiKeysReady = false;
+
+async function ensureApiKeysTable() {
+  if (apiKeysReady) return;
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS api_keys (
+      id            INTEGER PRIMARY KEY AUTOINCREMENT,
+      label         TEXT    NOT NULL DEFAULT '',
+      key_hash      TEXT    NOT NULL UNIQUE,
+      rh_user_id    INTEGER NOT NULL,
+      active        INTEGER NOT NULL DEFAULT 1,
+      created_at    TEXT    NOT NULL DEFAULT (datetime('now')),
+      last_used_at  TEXT    DEFAULT NULL
+    )
+  `);
+  apiKeysReady = true;
+}
+
+// Genera una key nueva, guarda solo su hash (sha256) y regresa la key en texto
+// plano UNA sola vez — igual que generatePassword en admin/users.js.
+export async function createApiKey({ label = '', rh_user_id }) {
+  if (!rh_user_id) throw new Error('rh_user_id requerido para crear una API key');
+  await ensureInit();
+  await ensureApiKeysTable();
+  const rawKey  = `gops_${crypto.randomBytes(24).toString('hex')}`;
+  const keyHash = crypto.createHash('sha256').update(rawKey).digest('hex');
+  const result = await db.execute({
+    sql:  `INSERT INTO api_keys (label, key_hash, rh_user_id) VALUES (?, ?, ?)`,
+    args: [label, keyHash, rh_user_id],
+  });
+  return { id: Number(result.lastInsertRowid), rawKey };
+}
+
+// Verifica una API key recibida en el request. Devuelve { id, label, rh_user_id }
+// o null si no existe / esta inactiva. Actualiza last_used_at (best-effort).
+export async function verifyApiKey(rawKey) {
+  if (!rawKey) return null;
+  await ensureInit();
+  await ensureApiKeysTable();
+  const keyHash = crypto.createHash('sha256').update(rawKey).digest('hex');
+  const r = await db.execute({
+    sql:  `SELECT id, label, rh_user_id, active FROM api_keys WHERE key_hash = ?`,
+    args: [keyHash],
+  });
+  if (!r.rows.length || !r.rows[0].active) return null;
+  const row = r.rows[0];
+  db.execute({ sql: `UPDATE api_keys SET last_used_at = datetime('now') WHERE id = ?`, args: [row.id] }).catch(() => {});
+  return { id: row.id, label: row.label, rh_user_id: Number(row.rh_user_id) };
+}
+
+export async function revokeApiKey(id) {
+  await ensureInit();
+  await ensureApiKeysTable();
+  await db.execute({ sql: `UPDATE api_keys SET active = 0 WHERE id = ?`, args: [id] });
 }
 
 // ════════════════════════════════════════════════════════════════════════════

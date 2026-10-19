@@ -57,11 +57,14 @@ setInterval(() => {
 }, 60_000);
 
 // ── Rutas públicas del chatbot (límite más permisivo) ─────────────────────────
-const CHAT_PATHS  = ['/api/chat'];
-const LEAD_PATHS  = ['/api/analytics', '/api/recruitment'];
-const ADMIN_PATHS = ['/api/reports', '/api/export-pdf', '/api/ai-analysis',
-                     '/api/search-console', '/api/vacantes-ia', '/api/admin',
-                     '/api/conversations'];
+const CHAT_PATHS    = ['/api/chat'];
+const LEAD_PATHS    = ['/api/analytics', '/api/recruitment'];
+const ADMIN_PATHS   = ['/api/reports', '/api/export-pdf', '/api/ai-analysis',
+                       '/api/search-console', '/api/vacantes-ia', '/api/admin',
+                       '/api/conversations'];
+// Departamentos externos con API key (ver src/lib/verifyPartnerKey.js) — bucket
+// propio para que su volumen no compita con el cupo del sitio público.
+const PARTNER_PATHS = ['/api/partner'];
 
 // ── Tamaño máximo de payload por tipo ────────────────────────────────────────
 const MAX_PAYLOAD_CHAT  = 50  * 1024;        // 50 KB
@@ -99,13 +102,14 @@ export const onRequest = defineMiddleware(async (context, next) => {
   }
 
   // ── Rate limiting por tipo de ruta ─────────────────────────────────────────
-  const isChat  = CHAT_PATHS.some(p => path.startsWith(p));
-  const isLead  = LEAD_PATHS.some(p => path.startsWith(p));
-  const isAdmin = ADMIN_PATHS.some(p => path.startsWith(p));
-  const isApi   = path.startsWith('/api/');
+  const isChat    = CHAT_PATHS.some(p => path.startsWith(p));
+  const isLead    = LEAD_PATHS.some(p => path.startsWith(p));
+  const isAdmin   = ADMIN_PATHS.some(p => path.startsWith(p));
+  const isPartner = PARTNER_PATHS.some(p => path.startsWith(p));
+  const isApi     = path.startsWith('/api/');
 
   // El rate limiter solo aplica en producción (isDev ya calculado arriba).
-  if (!isDev && (isChat || isLead || isAdmin || isApi)) {
+  if (!isDev && (isChat || isLead || isAdmin || isPartner || isApi)) {
     const rawIp = req.headers.get('x-vercel-forwarded-for')
                 || req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
                 || req.headers.get('x-real-ip')
@@ -113,8 +117,13 @@ export const onRequest = defineMiddleware(async (context, next) => {
     const IP_RE = /^[\d.:a-fA-F]+$/;
     const ip = rawIp && IP_RE.test(rawIp) ? rawIp : 'unknown';
 
-    const bucket = isChat ? ['chat', 20] : isLead ? ['lead', 15] : isAdmin ? ['admin', 60] : ['api', 30];
-    if (isRateLimited(`${bucket[0]}:${ip}`, bucket[1] as number, 60_000)) {
+    // Bucket por API key (no por IP) para partners — su servidor puede compartir
+    // IP con otros servicios de su lado; por IP sería injusto/insuficiente.
+    const partnerKey = isPartner ? (req.headers.get('x-api-key') || ip) : ip;
+    const bucket = isChat ? ['chat', 20] : isLead ? ['lead', 15] : isAdmin ? ['admin', 60]
+                 : isPartner ? ['partner', 60] : ['api', 30];
+    const rlKey = isPartner ? `${bucket[0]}:${partnerKey}` : `${bucket[0]}:${ip}`;
+    if (isRateLimited(rlKey, bucket[1] as number, 60_000)) {
       logAbuse(bucket[0] as string, ip, url.pathname);
       return new Response(JSON.stringify({ ok: false, error: 'Demasiadas solicitudes. Intenta en un momento.' }), {
         status: 429,
@@ -130,9 +139,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
     const isMultipart   = contentType.includes('multipart/form-data');
     const isChat        = CHAT_PATHS.some(p => path.startsWith(p));
     const isPdfExport   = path === '/api/export-pdf' || path === '/api/reports/send-now';
-    const maxSize       = isMultipart ? MAX_PAYLOAD_CV
-                        : isPdfExport ? MAX_PAYLOAD_PDF
-                        : isChat      ? MAX_PAYLOAD_CHAT
+    const isPartnerCv   = path === '/api/partner/candidatos'; // puede traer CV en base64
+    const maxSize       = isMultipart   ? MAX_PAYLOAD_CV
+                        : isPdfExport   ? MAX_PAYLOAD_PDF
+                        : isChat        ? MAX_PAYLOAD_CHAT
+                        : isPartnerCv   ? MAX_PAYLOAD_CV
                         : MAX_PAYLOAD_API;
 
     if (contentLength > maxSize) {
