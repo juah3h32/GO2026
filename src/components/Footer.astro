@@ -10,9 +10,7 @@ interface Props {
 const { currentLang = 'es' } = Astro.props;
 const t = translations[currentLang as keyof typeof translations] || translations.es;
 
-const getLink = (slug: string) => {
-  return currentLang === 'es' ? `/${slug}` : `/${currentLang}/${slug}`;
-};
+const getLink = (slug: string) => `/${currentLang}/${slug}`;
 ---
 
 <footer class="minimal-footer">
