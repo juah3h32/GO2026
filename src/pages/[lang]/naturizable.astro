@@ -1,22 +1,19 @@
 ---
 // src/pages/[lang]/charolas.astro
 
-import "../../styles/cuerdas.css"; 
-export const prerender = true; 
+import "../../styles/cuerdas.css";
+// SSR: lee product_videos de Turso en cada request -> el video que suba el
+// admin aparece de inmediato, sin rebuild (mismo patron que biblioteca.astro).
+export const prerender = false;
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import BuyButton from "../../components/BuyButton.astro";
 import Footer from "../../components/Footer.astro";
 import ProductTitle from "../../components/ProductTitle.astro";
 import ProductTutorial from "../../components/ProductTutorial.astro";
 import VideoWithFallback from "../../components/VideoWithFallback.astro";
-import { languages, translations } from "../../i18n";
+import { translations } from "../../i18n";
 import { getRelatedProducts, LOCALITY_TAG_TEXT, RELATED_PRODUCTS_HEADING } from "../../lib/catalogs.js";
-
-export function getStaticPaths() {
-  return Object.keys(languages).map((lang) => ({
-    params: { lang },
-  }));
-}
+import { readProductVideos } from "../../lib/analytics-db.js";
 
 const { lang } = Astro.params;
 const currentLang = (lang && lang in translations) ? lang : 'es';
@@ -25,6 +22,7 @@ const t = translations[currentLang as keyof typeof translations] as any;
 // Use naturizable data, fallback to arpillas if missing to avoid crash
 const pageData = t.naturizable || t.arpillas;
 const productsList = pageData.products;
+const bunnyVideos = await readProductVideos();
 const firstProduct = productsList[0];
 const specsLabels = pageData.specs_labels;
 const comingSoonBadge = pageData.coming_soon_badge || "Próximamente";
@@ -106,6 +104,7 @@ const relatedHeading = RELATED_PRODUCTS_HEADING[currentLang] || RELATED_PRODUCTS
     {productsList.map((prod: any, index: number) => (
       <VideoWithFallback
         class={`video-bg ${index === 0 ? 'visible' : ''}`}
+        bunnyVideoId={bunnyVideos['naturizable'] || ''}
         cloudinaryId={prod.video.startsWith('/') ? '' : prod.video.replace(/\.mp4$/, '')}
         localFallback={prod.video.startsWith('/') ? prod.video : `/videos/${prod.video.replace(/^GO\//, '')}`}
         poster={(prod as any).img || undefined}

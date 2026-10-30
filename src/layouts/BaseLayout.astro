@@ -72,9 +72,10 @@ const pwaTexts = (t && t.pwa) ? t.pwa : {
             .then(function (r) { return r.json(); })
             .then(function (m) {
               if (!m) return;
-              var mm = p.match(/^\/(es|en|pt|ar|zh)(?:\/([^\/?#]+))?/);
-              var slug = mm ? (mm[2] || 'home') : null;
-              if (m.all || (slug && m.slugs && m.slugs.indexOf(slug) >= 0)) {
+              var mm = p.match(/^\/(es|en|pt|ar|zh)(?:\/([^\/?#]+))?(?:\/([^\/?#]+))?/);
+              var slug = mm ? ((mm[2] === 'catalogo' && mm[3]) ? ('catalogo/' + mm[3]) : (mm[2] || 'home')) : null;
+              var catalogoCompleto = !!slug && slug.indexOf('catalogo/') === 0 && m.slugs && m.slugs.indexOf('catalogo') >= 0;
+              if (m.all || catalogoCompleto || (slug && m.slugs && m.slugs.indexOf(slug) >= 0)) {
                 try { sessionStorage.setItem('mnt_origen', p); } catch (e) {}
                 // Ocultar la pagina antes de saltar para no mostrar un parpadeo.
                 try { document.documentElement.style.visibility = 'hidden'; } catch (e) {}

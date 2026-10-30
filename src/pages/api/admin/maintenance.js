@@ -13,7 +13,14 @@ import { verifyAdminToken } from '../../../lib/verifyAdminToken.ts';
 export const prerender = false;
 
 // Paginas del sitio (slug). 'home' = portada.
+// Catalogo se puede bajar por division (catalogo/digital-*) o completo
+// ('catalogo', legacy — deja TODAS las divisiones en mantenimiento a la vez).
+// 'catalogo' se mantiene en la lista aunque ya no se promueva en el admin:
+// si un sitio lo tenia activo antes de este cambio, debe poder desactivarse.
 export const SITE_SLUGS = ['home', 'about', 'acolchado', 'arpillas', 'biblioteca', 'bolsas', 'catalogo',
+  'catalogo/digital-stretch-film', 'catalogo/digital-acolchado', 'catalogo/digital-arpilla',
+  'catalogo/digital-cuerda', 'catalogo/digital-rafia', 'catalogo/digital-flexible',
+  'catalogo/digital-saco', 'catalogo/digital-esquinero', 'catalogo/digital-naturizable', 'catalogo/digital-bolsas',
   'cuerdas', 'distribuidor', 'empaques-flexibles', 'esquineros', 'naturizable',
   'productos', 'rafias', 'sacos', 'social', 'stretch-film', 'vacantes'];
 

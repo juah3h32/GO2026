@@ -11,6 +11,7 @@ import VacantesTab from './VacantesTab';
 import ChangelogTab from './ChangelogTab';
 import CatalogVisualEditor from './CatalogVisualEditor';
 import BibliotecaTab from './BibliotecaTab';
+import ProductVideosTab from './ProductVideosTab';
 
 // ── COUNTRY CODES (GSC alpha-3) → nombre + bandera ───────────────────────────
 const COUNTRY_MAP = {
@@ -1301,6 +1302,14 @@ function MaintenanceModeSection({ P }) {
     setBusy(false);
   };
 
+  function pageLabel(slug) {
+    if (slug === 'home') return 'Inicio';
+    if (slug.startsWith('catalogo/digital-')) {
+      return 'Catálogo ' + slug.replace('catalogo/digital-', '').replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    }
+    return slug;
+  }
+
   const togglePage = async (slug) => {
     const activo = !slugs.includes(slug);
     setBusy(true);
@@ -1348,7 +1357,7 @@ function MaintenanceModeSection({ P }) {
               style={{ padding: '5px 12px', borderRadius: 7, fontSize: 11, fontWeight: on ? 700 : 500,
                 cursor: 'pointer', background: on ? 'rgba(239,68,68,0.12)' : P.surface2,
                 color: on ? '#EF4444' : P.textSub, border: `1px solid ${on ? '#EF444455' : P.border}` }}>
-              {slug === 'home' ? 'Inicio' : slug}{on ? ' · abajo' : ''}
+              {pageLabel(slug)}{on ? ' · abajo' : ''}
             </button>
           );
         })}
@@ -1671,7 +1680,7 @@ const ALL_PERMS = [
   {id:'overview'},{id:'console'},{id:'activity'},{id:'products'},{id:'keywords'},
   {id:'messages'},{id:'conversations'},{id:'distribuidores'},{id:'whatsapp'},
   {id:'recruitment'},{id:'vacantes'},{id:'ai'},{id:'reportes'},{id:'changelog'},
-  {id:'catalogo'},{id:'biblioteca'},
+  {id:'catalogo'},{id:'biblioteca'},{id:'productos_videos'},
 ];
 
 const PERM_GROUPS = [
@@ -1689,6 +1698,7 @@ const PERM_GROUPS = [
       {id:'distribuidores',label:'Distribuidores'},
       {id:'catalogo',      label:'Catálogo Visual'},
       {id:'biblioteca',    label:'Biblioteca de videos'},
+      {id:'productos_videos', label:'Videos del sitio'},
     ],
   },
   {
@@ -3602,6 +3612,7 @@ const ALL_TABS=[
     {id:'users',label:'Usuarios',          icon:'◴'},
     {id:'catalog',label:'Catálogo Visual', icon:'📷'},
     {id:'biblioteca',label:'Biblioteca',   icon:'▶'},
+    {id:'productos_videos',label:'Videos del sitio', icon:'◫'},
   ];
   
   // ✅ CORRECCIÓN FINAL: Permitimos nombres de Admin y banderas de Admin, PERO bloqueamos a RH explícitamente.
@@ -3609,6 +3620,7 @@ const ALL_TABS=[
   const canSeeChangelog = isAdmin || isOnlyAdmin || role.tabs.includes('changelog');
   const canSeeWhatsapp  = isOnlyAdmin;
   const canSeeBiblioteca = isAdmin || isOnlyAdmin || role.tabs.includes('biblioteca');
+  const canSeeProductVideos = isAdmin || isOnlyAdmin || role.tabs.includes('productos_videos');
 
   const TABS=ALL_TABS.filter(t => {
     if (t.id === 'reportes')  return canSeeReportes;
@@ -3616,6 +3628,7 @@ const ALL_TABS=[
     if (t.id === 'whatsapp')  return canSeeWhatsapp;
     if (t.id === 'catalog')   return canSee('catalogo');
     if (t.id === 'biblioteca') return canSeeBiblioteca;
+    if (t.id === 'productos_videos') return canSeeProductVideos;
     if (t.id === 'suscriptores') return canSee('suscriptores')||canSee('distribuidores');
     // Tabs fusionadas: visibles si el usuario tiene CUALQUIER permiso interno
     if (t.id === 'products')      return canSee('products')||canSee('keywords');
@@ -3630,7 +3643,7 @@ const ALL_TABS=[
     { label:'Panel',     ids:['overview','console','activity'] },
     { label:'Comercial', ids:['products','conversations','distribuidores','suscriptores','recruitment'] },
     { label:'Análisis',  ids:['ai','reportes','changelog'] },
-    { label:'Gestión',   ids:['whatsapp','catalog','biblioteca','users'] },
+    { label:'Gestión',   ids:['whatsapp','catalog','biblioteca','productos_videos','users'] },
   ];
   const groupedTabs = (() => {
     const used = new Set();
@@ -5042,6 +5055,13 @@ const ALL_TABS=[
         {tab==='biblioteca'&&canSeeBiblioteca&&(
           <div className="tab-content" key="biblioteca">
             <BibliotecaTab theme={theme}/>
+          </div>
+        )}
+
+        {/* ── VIDEOS DE PRODUCTOS ── */}
+        {tab==='productos_videos'&&canSeeProductVideos&&(
+          <div className="tab-content" key="productos_videos">
+            <ProductVideosTab theme={theme}/>
           </div>
         )}
 

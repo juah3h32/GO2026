@@ -1,6 +1,22 @@
 {
   "commits": [
     {
+      "hash": "e3bfba5",
+      "date": "2026-10-30",
+      "message": "oculta temporalmente el link de Biblioteca en el nav",
+      "rawMessage": "chore: oculta temporalmente el link de Biblioteca en el nav",
+      "type": "chore",
+      "area": "General"
+    },
+    {
+      "hash": "8d8f60f",
+      "date": "2026-10-30",
+      "message": "conecta Biblioteca al AdminPanel y corrige bugs de la integracion Bunny",
+      "rawMessage": "fix: conecta Biblioteca al AdminPanel y corrige bugs de la integracion Bunny",
+      "type": "fix",
+      "area": "Admin/API"
+    },
+    {
       "hash": "8e11699",
       "date": "2026-10-30",
       "message": "elimina carpeta virtual-velocity (proyecto suelto sin uso)",
@@ -3474,12 +3490,12 @@
     }
   ],
   "stats": {
-    "total": 434,
+    "total": 436,
     "byType": {
-      "chore": 9,
+      "chore": 10,
+      "fix": 172,
       "feat": 80,
       "update": 44,
-      "fix": 171,
       "refactor": 2,
       "perf": 8,
       "style": 9,
@@ -3487,9 +3503,9 @@
       "release": 110
     },
     "byArea": {
-      "General": 258,
+      "General": 259,
+      "Admin/API": 42,
       "Media": 53,
-      "Admin/API": 41,
       "Reclutamiento": 10,
       "UI": 4,
       "Productos": 31,
@@ -3498,7 +3514,7 @@
       "i18n": 6
     },
     "byMonth": {
-      "2026-10": 15,
+      "2026-10": 17,
       "2026-09": 2,
       "2026-08": 6,
       "2026-07": 19,
@@ -3509,7 +3525,7 @@
     },
     "byAreaType": {
       "General": {
-        "chore": 8,
+        "chore": 9,
         "update": 22,
         "fix": 78,
         "feat": 33,
@@ -3517,18 +3533,18 @@
         "style": 5,
         "release": 110
       },
+      "Admin/API": {
+        "fix": 17,
+        "update": 6,
+        "feat": 16,
+        "style": 2,
+        "docs": 1
+      },
       "Media": {
         "feat": 9,
         "update": 6,
         "fix": 35,
         "perf": 3
-      },
-      "Admin/API": {
-        "update": 6,
-        "feat": 16,
-        "fix": 16,
-        "style": 2,
-        "docs": 1
       },
       "Reclutamiento": {
         "feat": 2,
@@ -3562,5 +3578,5 @@
       }
     }
   },
-  "generatedAt": "2026-10-30T16:38:48.944Z"
+  "generatedAt": "2026-10-30T17:41:51.958Z"
 }

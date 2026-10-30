@@ -16,9 +16,13 @@ async function getMaint(): Promise<{ all: boolean; slugs: string[] }> {
   return val;
 }
 // Extrae el slug de una ruta publica /{lang}/{slug}; portada = 'home'.
+// Caso especial /catalogo/{division}: cada division de catalogo se puede
+// bajar por separado, por eso el slug incluye el segundo nivel
+// ("catalogo/digital-stretch-film") en vez de solo "catalogo".
 function slugDeRuta(path: string): string | null {
-  const m = path.match(/^\/(es|en|pt|ar|zh)(?:\/([^/?#]+))?/);
+  const m = path.match(/^\/(es|en|pt|ar|zh)(?:\/([^/?#]+))?(?:\/([^/?#]+))?/);
   if (!m) return null;
+  if (m[2] === 'catalogo' && m[3]) return `catalogo/${m[3]}`;
   return m[2] || 'home';
 }
 
@@ -95,8 +99,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
   if (!exentoMant) {
     const mant = await getMaint();
     const slug = slugDeRuta(path);
-    // Mantenimiento si: todo el sitio, o esta pagina especifica esta marcada.
-    if (mant.all || (slug && mant.slugs.includes(slug))) {
+    // Mantenimiento si: todo el sitio, esta pagina especifica esta marcada, o
+    // (compat) el admin bajo "catalogo" entero en vez de una division sola.
+    const catalogoCompleto = !!slug && slug.startsWith('catalogo/') && mant.slugs.includes('catalogo');
+    if (mant.all || catalogoCompleto || (slug && mant.slugs.includes(slug))) {
       return new Response(null, { status: 307, headers: { Location: '/mantenimiento', 'Retry-After': '120' } });
     }
   }

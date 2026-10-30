@@ -3,18 +3,15 @@
    HOME PAGE - INDEX (CON TRADUCCIONES i18n)
    ============================================================================ */
 import "../../styles/home.css";
-export const prerender = true;
+// SSR: lee product_videos de Turso en cada request -> el video que suba el
+// admin aparece de inmediato, sin rebuild (mismo patron que biblioteca.astro).
+export const prerender = false;
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Footer from "../../components/Footer.astro";
-import { languages, translations } from '../../i18n';
+import { translations } from '../../i18n';
 import HeroHeadingTypewriter from '../../components/HeroHeadingTypewriter.tsx';
 import StickySection from '../../components/StickySection.astro';
-
-export function getStaticPaths() {
-  return Object.keys(languages).map((lang) => ({
-    params: { lang },
-  }));
-}
+import { readProductVideos } from '../../lib/analytics-db.js';
 
 const { lang } = Astro.params;
 const currentLang = (lang && lang in translations) ? lang : 'es';
@@ -53,6 +50,13 @@ const CLOUD = import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME;
 const poster = (src: string) =>
   `https://res.cloudinary.com/${CLOUD}/video/upload/f_jpg,q_auto,so_0/${src}.jpg`;
 const toLocalVideo = (cldPath: string) => `/videos/${cldPath.replace(/^GO\//, '')}.mp4`;
+
+/* ── Bunny Stream (mp4 directo) tiene prioridad sobre Cloudinary para hero/
+   global/4K — Cloudinary queda como respaldo mientras no haya bunnyVideoId. ── */
+const bunnyVideos = await readProductVideos();
+const BUNNY_PULLZONE = import.meta.env.PUBLIC_BUNNY_PULLZONE_HOSTNAME;
+const bunnySrc = (slotKey: string) =>
+  bunnyVideos[slotKey] ? `https://${BUNNY_PULLZONE}/${bunnyVideos[slotKey]}/play_720p.mp4` : null;
 ---
 
 <BaseLayout
@@ -73,7 +77,7 @@ const toLocalVideo = (cldPath: string) => `/videos/${cldPath.replace(/^GO\//, ''
     <video
       id="hero-video"
       class="hero__video hero__video--fill"
-      src={`https://res.cloudinary.com/${CLOUD}/video/upload/q_auto:best/${th.hero.video}.mp4`}
+      src={bunnySrc('hero') ?? `https://res.cloudinary.com/${CLOUD}/video/upload/q_auto:best/${th.hero.video}.mp4`}
       autoplay
       muted
       loop
@@ -282,7 +286,7 @@ const toLocalVideo = (cldPath: string) => `/videos/${cldPath.replace(/^GO\//, ''
   <div class="parallax-section">
     <div class="parallax-section__bg">
       <video
-        data-src={`https://res.cloudinary.com/${CLOUD}/video/upload/q_auto:best/GO/home/4K.mp4`}
+        data-src={bunnySrc('home-4k') ?? `https://res.cloudinary.com/${CLOUD}/video/upload/q_auto:best/GO/home/4K.mp4`}
         data-local-fallback="/videos/home/4K.mp4"
         muted
         playsinline
@@ -372,7 +376,7 @@ const toLocalVideo = (cldPath: string) => `/videos/${cldPath.replace(/^GO\//, ''
     <video
       id="global-video"
       class="global__video"
-      src={`https://res.cloudinary.com/${CLOUD}/video/upload/q_auto:best/${th.global.video}.mp4`}
+      src={bunnySrc('global') ?? `https://res.cloudinary.com/${CLOUD}/video/upload/q_auto:best/${th.global.video}.mp4`}
       autoplay
       muted
       loop

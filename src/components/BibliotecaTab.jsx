@@ -5,9 +5,7 @@
 // servidor, porque un video facilmente supera el limite de una function de Vercel.
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import * as tus from 'tus-js-client';
-
-const BUNNY_PULLZONE = import.meta.env.PUBLIC_BUNNY_PULLZONE_HOSTNAME;
+import { uploadFileToBunny, pollBunnyMetadata } from '../lib/bunny-upload-client.js';
 
 const DARK_P  = { bg:'#0F0E0C', surface:'#181714', surface2:'#201F1C', surface3:'#2A2926', border:'rgba(236,235,224,0.11)', border2:'rgba(236,235,224,0.06)', text:'rgba(236,235,224,0.97)', textSub:'rgba(236,235,224,0.58)', textDim:'rgba(236,235,224,0.30)', orange:'#FB670B', okDim:'rgba(251,103,11,0.13)', green:'#22C55E', greenDim:'rgba(34,197,94,0.10)', errDim:'rgba(239,68,68,0.12)', err:'#EF4444' };
 const LIGHT_P = { bg:'#F8F9FB', surface:'#FFFFFF', surface2:'#F8F9FB', surface3:'#F3F4F6', border:'#E5E7EB', border2:'#F3F4F6', text:'#111827', textSub:'#6B7280', textDim:'#9CA3AF', orange:'#FB670B', okDim:'rgba(251,103,11,0.08)', green:'#16A34A', greenDim:'rgba(22,163,74,0.08)', errDim:'rgba(220,38,38,0.08)', err:'#DC2626' };
@@ -58,65 +56,17 @@ const Ic = {
   swap:  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>,
 };
 
-// Sube un archivo de video a Bunny Stream via TUS (resumable). Devuelve en
-// cuanto termina la subida — NO espera a que Bunny procese miniatura/duracion
-// (tarda varios segundos), para no bloquear el boton de Guardar. Esos datos
-// se completan despues via refineBunnyMetadataInBackground().
-async function uploadFileToBunny(file, titleHint, onProgress) {
-  const signR = await fetch('/api/admin/biblioteca-bunny-sign', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ title: titleHint || file.name }),
-  });
-  const sign = await signR.json();
-  if (!sign.ok) throw new Error(sign.error || 'No se pudo firmar la subida.');
-
-  await new Promise((resolve, reject) => {
-    const upload = new tus.Upload(file, {
-      endpoint: sign.tusEndpoint,
-      retryDelays: [0, 3000, 5000, 10000, 20000],
-      headers: {
-        AuthorizationSignature: sign.signature,
-        AuthorizationExpire: String(sign.expiration),
-        VideoId: sign.videoId,
-        LibraryId: String(sign.libraryId),
-      },
-      metadata: { filetype: file.type, title: titleHint || file.name },
-      onError: reject,
-      onProgress: (sent, total) => onProgress?.(Math.round((sent / total) * 100)),
-      onSuccess: resolve,
-    });
-    upload.start();
-  });
-
-  return {
-    bunnyVideoId: sign.videoId,
-    poster: `https://${BUNNY_PULLZONE}/${sign.videoId}/thumbnail.jpg`,
-    duracion: 0,
-  };
-}
-
 // Hace polling en segundo plano (sin bloquear la UI) hasta que Bunny termine
 // de procesar el video, y entonces actualiza duracion/miniatura reales.
 function refineBunnyMetadataInBackground(bunnyVideoId, recordId, baseFields, onDone) {
-  (async () => {
-    for (let i = 0; i < 10; i++) {
-      await new Promise(r => setTimeout(r, 2000));
-      try {
-        const stR = await fetch(`/api/admin/biblioteca-bunny-sign?videoId=${bunnyVideoId}`);
-        const st = await stR.json();
-        if (st.ok && st.duracion) {
-          await fetch('/api/biblioteca', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'update', id: recordId, ...baseFields, bunnyVideoId, cloudinaryId: '', poster: st.poster, duracion: st.duracion }),
-          });
-          onDone?.();
-          return;
-        }
-      } catch { /* reintenta */ }
-    }
-  })();
+  pollBunnyMetadata(bunnyVideoId, async (st) => {
+    await fetch('/api/biblioteca', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'update', id: recordId, ...baseFields, bunnyVideoId, cloudinaryId: '', poster: st.poster, duracion: st.duracion }),
+    });
+    onDone?.();
+  });
 }
 
 // Extrae un fotograma del archivo local (aun sin subir) para la IA —

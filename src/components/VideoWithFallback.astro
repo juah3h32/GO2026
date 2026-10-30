@@ -1,9 +1,11 @@
 ---
 // VideoWithFallback.astro
-// Fuente 1: Cloudinary (q_auto:best). Fuente 2: local. Fuente 3: imagen poster como último recurso.
+// Fuente 1: Bunny Stream (mp4 directo) si se pasa bunnyVideoId, si no Cloudinary
+// (q_auto:best). Fuente 2: local. Fuente 3: imagen poster como último recurso.
 
 interface Props {
-  cloudinaryId: string;
+  cloudinaryId?: string;
+  bunnyVideoId?: string;
   localFallback: string;
   cloudName?: string;
   poster?: string;
@@ -20,6 +22,7 @@ interface Props {
 
 const {
   cloudinaryId,
+  bunnyVideoId,
   cloudName = import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME ?? "dfuzfdrat",
   localFallback,
   poster,
@@ -34,9 +37,14 @@ const {
   productName,
 } = Astro.props;
 
+const bunnyPullzone = import.meta.env.PUBLIC_BUNNY_PULLZONE_HOSTNAME;
+
+// Bunny Stream (mp4 fallback directo, sin iframe) tiene prioridad si existe —
+// Cloudinary queda como fuente secundaria para videos que aun no migran.
 // q_auto:best = máxima calidad sin comprimir de más
-// fl_faststart = permite reproducción progresiva antes de descarga completa
-const cldSrc = cloudinaryId
+const primarySrc = bunnyVideoId
+  ? `https://${bunnyPullzone}/${bunnyVideoId}/play_720p.mp4`
+  : cloudinaryId
   ? `https://res.cloudinary.com/${cloudName}/video/upload/q_auto:best/${cloudinaryId}.mp4`
   : null;
 ---
@@ -55,7 +63,7 @@ const cldSrc = cloudinaryId
   data-poster={poster}
   data-product={productName}
 >
-  {cldSrc && <source src={cldSrc} type="video/mp4" />}
+  {primarySrc && <source src={primarySrc} type="video/mp4" />}
   <source src={localFallback} type="video/mp4" />
 </video>
 

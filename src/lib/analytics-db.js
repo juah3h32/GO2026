@@ -1400,6 +1400,53 @@ export async function toggleBibliotecaVideo(id, activo) {
   await db.execute({ sql: `UPDATE biblioteca_videos SET activo=? WHERE id=?`, args: [activo ? 1 : 0, id] });
 }
 
+// ════════════════════════════════════════════════════════════════════════════
+//  PRODUCT VIDEOS — videos del carrusel de productos (Bunny Stream + respaldo
+//  local). Clave = el cloudinary_id original de cada slot (fijo, definido en
+//  los i18n), nunca cambia aunque el admin reemplace el video.
+// ════════════════════════════════════════════════════════════════════════════
+
+let productVideosReady = false;
+
+async function ensureProductVideosTable() {
+  if (productVideosReady) return;
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS product_videos (
+      slot_key        TEXT PRIMARY KEY,
+      bunny_video_id  TEXT NOT NULL DEFAULT '',
+      updated_at      TEXT NOT NULL DEFAULT (datetime('now'))
+    )
+  `);
+  productVideosReady = true;
+}
+
+// Nunca debe tumbar una pagina (home/productos/naturizable son SSR y la
+// llaman en cada request): si Turso esta caido, se degrada a Cloudinary/local
+// (sin overrides) en vez de devolver 500 al visitante.
+export async function readProductVideos() {
+  try {
+    await ensureInit();
+    await ensureProductVideosTable();
+    const res = await db.execute(`SELECT slot_key, bunny_video_id FROM product_videos`);
+    const map = {};
+    res.rows.forEach(r => { map[r.slot_key] = r.bunny_video_id; });
+    return map;
+  } catch (err) {
+    console.error('[readProductVideos]', err);
+    return {};
+  }
+}
+
+export async function setProductVideo(slotKey, bunnyVideoId) {
+  await ensureInit();
+  await ensureProductVideosTable();
+  await db.execute({
+    sql: `INSERT INTO product_videos (slot_key, bunny_video_id, updated_at) VALUES (?, ?, datetime('now'))
+          ON CONFLICT(slot_key) DO UPDATE SET bunny_video_id=excluded.bunny_video_id, updated_at=excluded.updated_at`,
+    args: [slotKey, bunnyVideoId],
+  });
+}
+
 // ── WhatsApp entrantes via webhook ────────────────────────────────────────────
 export async function saveWAIncoming({ phone, body, msgId = '' }) {
   await ensureInit();
