@@ -1,11 +1,15 @@
 // src/pages/api/admin/catalog-image.js
 // Sube imagen del catalogo. Solo admin.
-//  - Cloudinary: carpeta catalogos/<categoria> (o catalogos/portada).
+//  - Vercel Blob: carpeta catalogos/<categoria> (o catalogos/portada) — antes
+//    era Cloudinary, migrado porque esa cuenta quedo deshabilitada. Usa un
+//    store PUBLICO dedicado (CATALOG_BLOB_TOKEN) — el BLOB_READ_WRITE_TOKEN
+//    original apunta a un store privado, no sirve para servir imagenes al
+//    publico ni para que Puppeteer las lea al generar el PDF.
 //  - Local (dev): public/images/<categoria> para fichas, public/images/catalogos para portada.
 // Devuelve el nombre de archivo que la pagina usa en img/coverImg.
 import fs from 'fs';
 import path from 'path';
-import { createHash } from 'crypto';
+import { put } from '@vercel/blob';
 import { verifyAdminToken } from '../../../lib/verifyAdminToken.ts';
 
 function canEditCatalog(role) {
@@ -15,28 +19,16 @@ function canEditCatalog(role) {
 }
 const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { 'Content-Type': 'application/json' } });
 
-async function uploadToCloudinary(buffer, mime, folder, publicId) {
-  const cloudName = process.env.PUBLIC_CLOUDINARY_CLOUD_NAME || import.meta.env?.PUBLIC_CLOUDINARY_CLOUD_NAME;
-  const apiKey    = process.env.PUBLIC_CLOUDINARY_API_KEY    || import.meta.env?.PUBLIC_CLOUDINARY_API_KEY;
-  const apiSecret = process.env.CLOUDINARY_API_SECRET        || import.meta.env?.CLOUDINARY_API_SECRET;
-  if (!cloudName || !apiKey || !apiSecret) throw new Error('Cloudinary no configurado');
-
-  const timestamp = Math.floor(Date.now() / 1000);
-  const toSign = `folder=${folder}&public_id=${publicId}&timestamp=${timestamp}`;
-  const signature = createHash('sha1').update(toSign + apiSecret).digest('hex');
-
-  const form = new FormData();
-  form.append('file', new Blob([buffer], { type: mime }), publicId);
-  form.append('api_key', apiKey);
-  form.append('timestamp', String(timestamp));
-  form.append('public_id', publicId);
-  form.append('folder', folder);
-  form.append('signature', signature);
-
-  const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, { method: 'POST', body: form });
-  if (!res.ok) { const b = await res.text(); throw new Error(`Cloudinary HTTP ${res.status}: ${b.slice(0, 160)}`); }
-  const data = await res.json();
-  return data.secure_url;
+async function uploadToBlob(buffer, mime, folder, filename) {
+  const token = process.env.CATALOG_BLOB_TOKEN;
+  if (!token) throw new Error('Vercel Blob no configurado (falta CATALOG_BLOB_TOKEN)');
+  const blob = await put(`${folder}/${filename}`, buffer, {
+    access: 'public',
+    contentType: mime,
+    token,
+    addRandomSuffix: false,
+  });
+  return blob.url;
 }
 
 export async function POST({ request }) {
@@ -72,10 +64,10 @@ export async function POST({ request }) {
       localOk = true;
     } catch (e) { localErr = e.message; }
 
-    // 2) Cloudinary: catalogos/<categoria|portada>
+    // 2) Vercel Blob: catalogos/<categoria|portada>
     let cloudUrl = null, cloudErr = null;
     try {
-      cloudUrl = await uploadToCloudinary(buffer, mime, `catalogos/${isCover ? 'portada' : category}`, `${base}-${stamp}`);
+      cloudUrl = await uploadToBlob(buffer, mime, `catalogos/${isCover ? 'portada' : category}`, filename);
     } catch (e) { cloudErr = e.message; }
 
     if (!localOk && !cloudUrl) return json({ error: 'No se pudo guardar (local: ' + localErr + ' | cloud: ' + cloudErr + ')' }, 500);

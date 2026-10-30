@@ -1,8 +1,11 @@
 // src/pages/api/admin/catalog-images.js
-// Lista / elimina imagenes de Cloudinary (carpeta catalogos/) para el editor.
-// Solo admin. Usa Cloudinary Admin API (Basic auth apiKey:apiSecret).
+// Lista / elimina imagenes de Vercel Blob (carpeta catalogos/) para el editor.
+// Solo admin. Antes usaba la Admin API de Cloudinary — migrado porque esa
+// cuenta quedo deshabilitada. Usa CATALOG_BLOB_TOKEN (store publico dedicado,
+// distinto del BLOB_READ_WRITE_TOKEN original que apunta a un store privado).
 export const prerender = false;
 
+import { list, del } from '@vercel/blob';
 import { verifyAdminToken } from '../../../lib/verifyAdminToken.ts';
 
 function canEditCatalog(role) {
@@ -12,36 +15,30 @@ function canEditCatalog(role) {
 }
 const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { 'Content-Type': 'application/json' } });
 
-function creds() {
-  const cloudName = process.env.PUBLIC_CLOUDINARY_CLOUD_NAME || import.meta.env?.PUBLIC_CLOUDINARY_CLOUD_NAME;
-  const apiKey    = process.env.PUBLIC_CLOUDINARY_API_KEY    || import.meta.env?.PUBLIC_CLOUDINARY_API_KEY;
-  const apiSecret = process.env.CLOUDINARY_API_SECRET        || import.meta.env?.CLOUDINARY_API_SECRET;
-  if (!cloudName || !apiKey || !apiSecret) return null;
-  return { cloudName, auth: Buffer.from(`${apiKey}:${apiSecret}`).toString('base64') };
-}
+const carpetaDe = (pathname) => (pathname && pathname.indexOf('/') >= 0) ? pathname.slice(0, pathname.lastIndexOf('/')) : '(raiz)';
 
 export async function GET({ request, url }) {
   try {
     const role = await verifyAdminToken(request).catch(() => null);
     if (!canEditCatalog(role)) return json({ ok: false, error: 'No autorizado' }, 401);
-    const c = creds();
-    if (!c) return json({ ok: false, error: 'Cloudinary no configurado' }, 500);
+    const token = process.env.CATALOG_BLOB_TOKEN;
+    if (!token) return json({ ok: false, error: 'Vercel Blob no configurado' }, 500);
 
     // Por defecto solo la carpeta "catalogos" (el editor pide ?folder=catalogos).
     const folder = (url.searchParams.get('folder') || 'catalogos').replace(/^\/+|\/+$/g, '');
 
-    const carpetaDe = (pid) => (pid && pid.indexOf('/') >= 0) ? pid.slice(0, pid.lastIndexOf('/')) : '(raiz)';
     let images = [];
-    let cursor = '';
+    let cursor;
     let pages = 0;
     do {
-      const q = (folder ? `&prefix=${encodeURIComponent(folder)}` : '') + (cursor ? `&next_cursor=${encodeURIComponent(cursor)}` : '');
-      const api = `https://api.cloudinary.com/v1_1/${c.cloudName}/resources/image?type=upload&max_results=100${q}`;
-      const res = await fetch(api, { headers: { Authorization: `Basic ${c.auth}` } });
-      if (!res.ok) { const b = await res.text(); return json({ ok: false, error: `Cloudinary HTTP ${res.status}: ${b.slice(0, 160)}` }, 502); }
-      const data = await res.json();
-      (data.resources || []).forEach(r => images.push({ url: r.secure_url, public_id: r.public_id, created_at: r.created_at, folder: carpetaDe(r.public_id) }));
-      cursor = data.next_cursor || '';
+      const res = await list({ prefix: folder ? `${folder}/` : undefined, cursor, limit: 100, token });
+      res.blobs.forEach(b => images.push({
+        url: b.url,
+        public_id: b.pathname,
+        created_at: b.uploadedAt,
+        folder: carpetaDe(b.pathname),
+      }));
+      cursor = res.cursor;
       pages++;
     } while (cursor && pages < 5);
 
@@ -53,23 +50,21 @@ export async function GET({ request, url }) {
   }
 }
 
-// Elimina una imagen de Cloudinary por public_id
+// Elimina una imagen de Vercel Blob por URL (o pathname, equivalente al
+// antiguo public_id de Cloudinary).
 export async function POST({ request }) {
   try {
     const role = await verifyAdminToken(request).catch(() => null);
     if (!canEditCatalog(role)) return json({ ok: false, error: 'No autorizado' }, 401);
-    const c = creds();
-    if (!c) return json({ ok: false, error: 'Cloudinary no configurado' }, 500);
+    const token = process.env.CATALOG_BLOB_TOKEN;
+    if (!token) return json({ ok: false, error: 'Vercel Blob no configurado' }, 500);
 
     const body = await request.json();
-    if (body.action !== 'delete' || !body.public_id) return json({ ok: false, error: 'public_id requerido' }, 400);
+    const target = body.url || body.public_id;
+    if (body.action !== 'delete' || !target) return json({ ok: false, error: 'url requerido' }, 400);
 
-    const api = `https://api.cloudinary.com/v1_1/${c.cloudName}/resources/image/upload?public_ids[]=${encodeURIComponent(body.public_id)}`;
-    const res = await fetch(api, { method: 'DELETE', headers: { Authorization: `Basic ${c.auth}` } });
-    if (!res.ok) { const b = await res.text(); return json({ ok: false, error: `Cloudinary HTTP ${res.status}: ${b.slice(0, 160)}` }, 502); }
-    const data = await res.json();
-    const ok = data.deleted && data.deleted[body.public_id] === 'deleted';
-    return json({ ok: true, deleted: ok, raw: data.deleted || {} });
+    await del(target, { token });
+    return json({ ok: true, deleted: true });
   } catch (err) {
     return json({ ok: false, error: err.message }, 500);
   }

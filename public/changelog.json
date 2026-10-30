@@ -1,6 +1,14 @@
 {
   "commits": [
     {
+      "hash": "38f00bd",
+      "date": "2026-10-30",
+      "message": "corrige mantenimiento roto en produccion + migra todo el sitio a Bunny",
+      "rawMessage": "fix: corrige mantenimiento roto en produccion + migra todo el sitio a Bunny",
+      "type": "fix",
+      "area": "General"
+    },
+    {
       "hash": "ca4e6e4",
       "date": "2026-10-30",
       "message": "migra videos de fondo (home/productos/naturizable) a Bunny + admin",
@@ -3498,11 +3506,11 @@
     }
   ],
   "stats": {
-    "total": 437,
+    "total": 438,
     "byType": {
+      "fix": 173,
       "feat": 81,
       "chore": 10,
-      "fix": 172,
       "update": 44,
       "refactor": 2,
       "perf": 8,
@@ -3511,8 +3519,8 @@
       "release": 110
     },
     "byArea": {
+      "General": 260,
       "Productos": 32,
-      "General": 259,
       "Admin/API": 42,
       "Media": 53,
       "Reclutamiento": 10,
@@ -3522,7 +3530,7 @@
       "i18n": 6
     },
     "byMonth": {
-      "2026-10": 18,
+      "2026-10": 19,
       "2026-09": 2,
       "2026-08": 6,
       "2026-07": 19,
@@ -3532,21 +3540,21 @@
       "2026-03": 96
     },
     "byAreaType": {
+      "General": {
+        "fix": 79,
+        "chore": 9,
+        "update": 22,
+        "feat": 33,
+        "refactor": 2,
+        "style": 5,
+        "release": 110
+      },
       "Productos": {
         "feat": 12,
         "fix": 15,
         "update": 3,
         "chore": 1,
         "perf": 1
-      },
-      "General": {
-        "chore": 9,
-        "update": 22,
-        "fix": 78,
-        "feat": 33,
-        "refactor": 2,
-        "style": 5,
-        "release": 110
       },
       "Admin/API": {
         "fix": 17,
@@ -3586,5 +3594,5 @@
       }
     }
   },
-  "generatedAt": "2026-10-30T18:23:41.478Z"
+  "generatedAt": "2026-10-30T23:48:17.384Z"
 }
