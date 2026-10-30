@@ -1339,16 +1339,17 @@ async function ensureBibliotecaTable() {
   try { await db.execute(`ALTER TABLE biblioteca_videos ADD COLUMN destacado INTEGER NOT NULL DEFAULT 0`); } catch { /* ya existe */ }
   try { await db.execute(`ALTER TABLE biblioteca_videos ADD COLUMN duracion INTEGER NOT NULL DEFAULT 0`); } catch { /* ya existe */ }
   try { await db.execute(`ALTER TABLE biblioteca_videos ADD COLUMN producto TEXT DEFAULT ''`); } catch { /* ya existe */ }
+  try { await db.execute(`ALTER TABLE biblioteca_videos ADD COLUMN bunny_video_id TEXT DEFAULT ''`); } catch { /* ya existe */ }
 
   bibliotecaReady = true;
 }
 
-export async function saveBibliotecaVideo({ categoria = 'testimonios', cliente = '', empresa = '', titulo = '', ubicacion = '', producto = '', cloudinaryId = '', poster = '', activo = true, destacado = false, duracion = 0, orden = 0 }) {
+export async function saveBibliotecaVideo({ categoria = 'testimonios', cliente = '', empresa = '', titulo = '', ubicacion = '', producto = '', cloudinaryId = '', bunnyVideoId = '', poster = '', activo = true, destacado = false, duracion = 0, orden = 0 }) {
   await ensureInit();
   await ensureBibliotecaTable();
   const result = await db.execute({
-    sql:  `INSERT INTO biblioteca_videos (categoria, cliente, empresa, titulo, ubicacion, producto, cloudinary_id, poster, activo, destacado, duracion, orden) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    args: [categoria, cliente, empresa, titulo, ubicacion, producto, cloudinaryId, poster, activo ? 1 : 0, destacado ? 1 : 0, duracion || 0, orden],
+    sql:  `INSERT INTO biblioteca_videos (categoria, cliente, empresa, titulo, ubicacion, producto, cloudinary_id, bunny_video_id, poster, activo, destacado, duracion, orden) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    args: [categoria, cliente, empresa, titulo, ubicacion, producto, cloudinaryId, bunnyVideoId, poster, activo ? 1 : 0, destacado ? 1 : 0, duracion || 0, orden],
   });
   return { id: Number(result.lastInsertRowid) };
 }
@@ -1369,6 +1370,7 @@ export async function readBibliotecaVideos(onlyActive = false) {
     ubicacion:    r.ubicacion || '',
     producto:     r.producto || '',
     cloudinaryId: r.cloudinary_id,
+    bunnyVideoId: r.bunny_video_id || '',
     poster:       r.poster || '',
     activo:       !!r.activo,
     destacado:    !!r.destacado,
@@ -1377,12 +1379,12 @@ export async function readBibliotecaVideos(onlyActive = false) {
   }));
 }
 
-export async function updateBibliotecaVideo({ id, categoria, cliente, empresa, titulo, ubicacion, producto, cloudinaryId, poster, activo, destacado, duracion, orden }) {
+export async function updateBibliotecaVideo({ id, categoria, cliente, empresa, titulo, ubicacion, producto, cloudinaryId, bunnyVideoId, poster, activo, destacado, duracion, orden }) {
   await ensureInit();
   await ensureBibliotecaTable();
   await db.execute({
-    sql:  `UPDATE biblioteca_videos SET categoria=?, cliente=?, empresa=?, titulo=?, ubicacion=?, producto=?, cloudinary_id=?, poster=?, activo=?, destacado=?, duracion=?, orden=? WHERE id=?`,
-    args: [categoria, cliente || '', empresa || '', titulo || '', ubicacion || '', producto || '', cloudinaryId || '', poster || '', activo ? 1 : 0, destacado ? 1 : 0, duracion || 0, orden || 0, id],
+    sql:  `UPDATE biblioteca_videos SET categoria=?, cliente=?, empresa=?, titulo=?, ubicacion=?, producto=?, cloudinary_id=?, bunny_video_id=?, poster=?, activo=?, destacado=?, duracion=?, orden=? WHERE id=?`,
+    args: [categoria, cliente || '', empresa || '', titulo || '', ubicacion || '', producto || '', cloudinaryId || '', bunnyVideoId || '', poster || '', activo ? 1 : 0, destacado ? 1 : 0, duracion || 0, orden || 0, id],
   });
 }
 

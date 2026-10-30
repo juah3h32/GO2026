@@ -2,6 +2,7 @@
 // src/components/BibliotecaVideoCard.astro
 // Tarjeta de video reutilizable para /biblioteca (destacados + grid principal).
 import VideoWithFallback from "./VideoWithFallback.astro";
+import BunnyStreamPlayer from "./BunnyStreamPlayer.astro";
 
 interface Props {
   v: any;
@@ -45,12 +46,16 @@ function formatDuration(seconds: number) {
       </span>
     )}
 
-    <VideoWithFallback
-      cloudinaryId={v.cloudinaryId}
-      localFallback=""
-      poster={v.poster}
-      preload="metadata"
-    />
+    {v.bunnyVideoId ? (
+      <BunnyStreamPlayer videoId={v.bunnyVideoId} poster={v.poster} preload="metadata" />
+    ) : (
+      <VideoWithFallback
+        cloudinaryId={v.cloudinaryId}
+        localFallback=""
+        poster={v.poster}
+        preload="metadata"
+      />
+    )}
 
     <button type="button" class="play-btn" aria-label="Reproducir video">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
@@ -61,6 +66,7 @@ function formatDuration(seconds: number) {
       class="expand-btn"
       aria-label="Ver video en grande"
       data-cloudinary-id={v.cloudinaryId}
+      data-bunny-video-id={v.bunnyVideoId || ""}
       data-poster={v.poster}
       data-cliente={v.cliente}
       data-titulo={v.titulo || ""}

@@ -142,6 +142,7 @@ const resto = videos.filter((v: any) => !destacadosIds.has(v.id));
       </button>
       <div class="lightbox-inner">
         <video class="lightbox-video" controls playsinline></video>
+        <iframe class="lightbox-bunny" hidden allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;" allowfullscreen title="Video"></iframe>
         <div class="lightbox-caption">
           <p class="lightbox-cliente"></p>
           <p class="lightbox-ubicacion">
@@ -157,10 +158,11 @@ const resto = videos.filter((v: any) => !destacadosIds.has(v.id));
   <Footer currentLang={currentLang} />
 </BaseLayout>
 
-<script define:vars={{ CLOUD_NAME: import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME || 'dfuzfdrat' }}>
+<script define:vars={{ CLOUD_NAME: import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME || 'dfuzfdrat', BUNNY_LIBRARY_ID: import.meta.env.PUBLIC_BUNNY_LIBRARY_ID || '' }}>
   function initBibliotecaLightbox() {
     const lightbox = document.querySelector('.video-lightbox');
     const lbVideo  = lightbox?.querySelector('video');
+    const lbBunny  = lightbox?.querySelector('.lightbox-bunny');
     const lbCliente = lightbox?.querySelector('.lightbox-cliente');
     const lbTitulo  = lightbox?.querySelector('.lightbox-titulo');
     const lbUbicacion = lightbox?.querySelector('.lightbox-ubicacion');
@@ -174,21 +176,35 @@ const resto = videos.filter((v: any) => !destacadosIds.has(v.id));
       lbVideo.pause();
       lbVideo.removeAttribute('src');
       lbVideo.load();
+      if (lbBunny) { lbBunny.hidden = true; lbBunny.src = ''; }
       document.body.classList.remove('no-scroll');
     }
 
     function openLightbox(btn) {
       const cloudinaryId = btn.dataset.cloudinaryId;
-      if (!cloudinaryId) return;
+      const bunnyVideoId = btn.dataset.bunnyVideoId;
+      if (!cloudinaryId && !bunnyVideoId) return;
       const inner = lightbox.querySelector('.lightbox-inner');
       inner?.classList.remove('is-vertical');
-      // Video vertical -> layout lado a lado (video izquierda, info derecha)
-      // en vez de apilado, para no dejar tanto espacio vacio en los costados.
-      lbVideo.onloadedmetadata = () => {
-        if (lbVideo.videoHeight > lbVideo.videoWidth) inner?.classList.add('is-vertical');
-      };
-      lbVideo.poster = btn.dataset.poster || '';
-      lbVideo.src = `https://res.cloudinary.com/${CLOUD_NAME}/video/upload/q_auto:best/${cloudinaryId}.mp4`;
+
+      if (bunnyVideoId && lbBunny) {
+        lbVideo.hidden = true;
+        lbVideo.pause();
+        lbVideo.removeAttribute('src');
+        lbVideo.load();
+        lbBunny.hidden = false;
+        lbBunny.src = `https://iframe.mediadelivery.net/embed/${BUNNY_LIBRARY_ID}/${bunnyVideoId}?autoplay=true&loop=false`;
+      } else {
+        if (lbBunny) { lbBunny.hidden = true; lbBunny.src = ''; }
+        lbVideo.hidden = false;
+        // Video vertical -> layout lado a lado (video izquierda, info derecha)
+        // en vez de apilado, para no dejar tanto espacio vacio en los costados.
+        lbVideo.onloadedmetadata = () => {
+          if (lbVideo.videoHeight > lbVideo.videoWidth) inner?.classList.add('is-vertical');
+        };
+        lbVideo.poster = btn.dataset.poster || '';
+        lbVideo.src = `https://res.cloudinary.com/${CLOUD_NAME}/video/upload/q_auto:best/${cloudinaryId}.mp4`;
+      }
       if (lbCliente) lbCliente.textContent = btn.dataset.cliente || '';
       if (lbTitulo)  lbTitulo.textContent  = btn.dataset.titulo || '';
       if (lbUbicacion && lbUbicacionText) {
@@ -198,7 +214,7 @@ const resto = videos.filter((v: any) => !destacadosIds.has(v.id));
       }
       lightbox.hidden = false;
       document.body.classList.add('no-scroll');
-      lbVideo.play().catch(() => {});
+      if (!bunnyVideoId) lbVideo.play().catch(() => {});
     }
 
     document.querySelectorAll('.expand-btn').forEach((btn) => {

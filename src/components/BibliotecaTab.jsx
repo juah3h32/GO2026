@@ -1,10 +1,13 @@
 // src/components/BibliotecaTab.jsx
 // Admin CRUD de "Biblioteca" (videos de testimonios/producto/fabricacion).
-// El video se sube DIRECTO del navegador a Cloudinary (firma via
-// /api/admin/biblioteca-sign) — nunca pasa por nuestro servidor, porque un
-// video facilmente supera el limite de una function de Vercel.
+// El video se sube DIRECTO del navegador a Bunny Stream via TUS (resumable,
+// firma via /api/admin/biblioteca-bunny-sign) — nunca pasa por nuestro
+// servidor, porque un video facilmente supera el limite de una function de Vercel.
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import * as tus from 'tus-js-client';
+
+const BUNNY_PULLZONE = import.meta.env.PUBLIC_BUNNY_PULLZONE_HOSTNAME;
 
 const DARK_P  = { bg:'#0F0E0C', surface:'#181714', surface2:'#201F1C', surface3:'#2A2926', border:'rgba(236,235,224,0.11)', border2:'rgba(236,235,224,0.06)', text:'rgba(236,235,224,0.97)', textSub:'rgba(236,235,224,0.58)', textDim:'rgba(236,235,224,0.30)', orange:'#FB670B', okDim:'rgba(251,103,11,0.13)', green:'#22C55E', greenDim:'rgba(34,197,94,0.10)', errDim:'rgba(239,68,68,0.12)', err:'#EF4444' };
 const LIGHT_P = { bg:'#F8F9FB', surface:'#FFFFFF', surface2:'#F8F9FB', surface3:'#F3F4F6', border:'#E5E7EB', border2:'#F3F4F6', text:'#111827', textSub:'#6B7280', textDim:'#9CA3AF', orange:'#FB670B', okDim:'rgba(251,103,11,0.08)', green:'#16A34A', greenDim:'rgba(22,163,74,0.08)', errDim:'rgba(220,38,38,0.08)', err:'#DC2626' };
@@ -20,9 +23,9 @@ const CATEGORIAS = [
 
 const EMPTY_FORM = { categoria: 'testimonios', cliente: '', empresa: '', titulo: '', ubicacion: '', producto: '', activo: 1, destacado: 0 };
 
-// Tope de peso por video — evita llenar Cloudinary y videos que tarden en
-// cargar en la pagina publica. Subir este numero solo si de verdad lo necesitas.
-const MAX_VIDEO_MB = 200;
+// Tope de peso por video — Bunny Stream soporta archivos grandes via upload
+// resumable (TUS), pero seguimos limitando para evitar videos absurdos.
+const MAX_VIDEO_MB = 2000;
 
 // La descripcion ya NO se muestra en la tarjeta chica (se encimaba con todo) —
 // solo aparece al abrir el video en grande, por eso puede ser mas larga.
@@ -135,6 +138,7 @@ export default function BibliotecaTab({ theme = 'dark' }) {
   const [form, setForm]         = useState(EMPTY_FORM);
   const [file, setFile]         = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadPct, setUploadPct] = useState(0);
   const [saving, setSaving]     = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
   const [delConfirm, setDelConfirm] = useState(null);
@@ -213,39 +217,59 @@ export default function BibliotecaTab({ theme = 'dark' }) {
     try {
       const prev = editing ? videos.find(v => v.id === editing) : null;
       let cloudinaryId = prev?.cloudinaryId || '';
+      let bunnyVideoId = prev?.bunnyVideoId || '';
       let poster = prev?.poster || '';
       let duracion = prev?.duracion || 0;
 
       if (file) {
         setUploading(true);
-        const signR = await fetch('/api/admin/biblioteca-sign', { method: 'POST' });
-        const sign  = await signR.json();
+        setUploadPct(0);
+        const signR = await fetch('/api/admin/biblioteca-bunny-sign', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title: form.cliente || file.name }),
+        });
+        const sign = await signR.json();
         if (!sign.ok) throw new Error(sign.error || 'No se pudo firmar la subida.');
 
-        const fd = new FormData();
-        fd.append('file', file);
-        fd.append('api_key', sign.apiKey);
-        fd.append('timestamp', String(sign.timestamp));
-        fd.append('public_id', sign.publicId);
-        fd.append('folder', sign.folder);
-        fd.append('signature', sign.signature);
+        await new Promise((resolve, reject) => {
+          const upload = new tus.Upload(file, {
+            endpoint: sign.tusEndpoint,
+            retryDelays: [0, 3000, 5000, 10000, 20000],
+            headers: {
+              AuthorizationSignature: sign.signature,
+              AuthorizationExpire: String(sign.expiration),
+              VideoId: sign.videoId,
+              LibraryId: String(sign.libraryId),
+            },
+            metadata: { filetype: file.type, title: form.cliente || file.name },
+            onError: reject,
+            onProgress: (sent, total) => setUploadPct(Math.round((sent / total) * 100)),
+            onSuccess: resolve,
+          });
+          upload.start();
+        });
 
-        const upR = await fetch(`https://api.cloudinary.com/v1_1/${sign.cloudName}/video/upload`, { method: 'POST', body: fd });
-        const up  = await upR.json();
-        if (!upR.ok) throw new Error(up.error?.message || 'Error al subir el video.');
+        bunnyVideoId = sign.videoId;
+        cloudinaryId = '';
+        poster = `https://${BUNNY_PULLZONE}/${sign.videoId}/thumbnail.jpg`;
+        duracion = 0;
 
-        cloudinaryId = up.public_id;
-        // so_N en vez de so_0 — la mayoria de estos videos abren con 3-4s de
-        // intro en negro/logo animado; a los 4s ya se ve contenido real. Para
-        // videos muy cortos, cae a la mitad de la duracion en vez de pasarse.
-        const posterOffset = Math.min(4, Math.max(0, Math.floor((up.duration || 0) / 2)));
-        poster = `https://res.cloudinary.com/${sign.cloudName}/video/upload/so_${posterOffset}/${up.public_id}.jpg`;
-        duracion = Math.round(up.duration || 0);
+        // Bunny procesa el video unos segundos tras el upload — esperamos un
+        // poco a que la miniatura/duracion esten listas, sin bloquear si tarda.
+        for (let i = 0; i < 8; i++) {
+          await new Promise(r => setTimeout(r, 2000));
+          try {
+            const stR = await fetch(`/api/admin/biblioteca-bunny-sign?videoId=${sign.videoId}`);
+            const st = await stR.json();
+            if (st.ok && st.duracion) { duracion = st.duracion; poster = st.poster; break; }
+          } catch { /* sigue con lo que ya hay */ }
+        }
         setUploading(false);
       }
 
       const action = editing ? 'update' : 'create';
-      const body = { action, ...form, cloudinaryId, poster, duracion };
+      const body = { action, ...form, cloudinaryId, bunnyVideoId, poster, duracion };
       if (editing) body.id = editing;
 
       const r = await fetch('/api/biblioteca', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
@@ -432,7 +456,7 @@ export default function BibliotecaTab({ theme = 'dark' }) {
                 <span style={{ fontSize: 12.5, fontWeight: 600, color: P.text }}>
                   {dragOver ? 'Suelta el video aquí' : 'Selecciona o arrastra un video'}
                 </span>
-                <span style={{ fontSize: 10.5, color: P.textDim }}>MP4, MOV — máx {MAX_VIDEO_MB}MB, se sube directo a Cloudinary</span>
+                <span style={{ fontSize: 10.5, color: P.textDim }}>MP4, MOV — máx {MAX_VIDEO_MB}MB, se sube directo a Bunny Stream</span>
               </div>
             ) : (
               <div style={{
@@ -453,7 +477,7 @@ export default function BibliotecaTab({ theme = 'dark' }) {
             )}
             {uploading && (
               <div style={{ display:'flex', alignItems:'center', gap:8, marginTop:8, fontSize:11.5, color:P.orange }}>
-                <Spinner /> Subiendo video a Cloudinary...
+                <Spinner /> Subiendo video a Bunny... {uploadPct}%
               </div>
             )}
           </div>

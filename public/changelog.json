@@ -1,6 +1,14 @@
 {
   "commits": [
     {
+      "hash": "b98f149",
+      "date": "2026-10-30",
+      "message": "modulo biblioteca, mejoras i18n y fixes de video fallback",
+      "rawMessage": "feat: modulo biblioteca, mejoras i18n y fixes de video fallback",
+      "type": "feat",
+      "area": "Media"
+    },
+    {
       "hash": "5bd8de3",
       "date": "2026-10-19",
       "message": "Corrige links rotos de distribuidor y catalogo en el footer",
@@ -3450,10 +3458,10 @@
     }
   ],
   "stats": {
-    "total": 431,
+    "total": 432,
     "byType": {
+      "feat": 79,
       "update": 44,
-      "feat": 78,
       "fix": 171,
       "chore": 8,
       "refactor": 2,
@@ -3463,6 +3471,7 @@
       "release": 110
     },
     "byArea": {
+      "Media": 52,
       "General": 257,
       "Admin/API": 41,
       "Reclutamiento": 10,
@@ -3470,11 +3479,10 @@
       "Productos": 31,
       "SEO": 1,
       "Performance": 30,
-      "Media": 51,
       "i18n": 6
     },
     "byMonth": {
-      "2026-10": 12,
+      "2026-10": 13,
       "2026-09": 2,
       "2026-08": 6,
       "2026-07": 19,
@@ -3484,6 +3492,12 @@
       "2026-03": 96
     },
     "byAreaType": {
+      "Media": {
+        "feat": 8,
+        "update": 6,
+        "fix": 35,
+        "perf": 3
+      },
       "General": {
         "update": 22,
         "fix": 78,
@@ -3526,17 +3540,11 @@
         "fix": 18,
         "feat": 5
       },
-      "Media": {
-        "update": 6,
-        "fix": 35,
-        "feat": 7,
-        "perf": 3
-      },
       "i18n": {
         "fix": 3,
         "feat": 3
       }
     }
   },
-  "generatedAt": "2026-10-29T20:00:54.723Z"
+  "generatedAt": "2026-10-30T16:13:46.114Z"
 }

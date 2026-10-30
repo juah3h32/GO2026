@@ -32,18 +32,18 @@ export async function POST({ request }) {
     }
 
     if (action === 'create') {
-      const { categoria, cliente, empresa, titulo, ubicacion, producto, cloudinaryId, poster, activo, destacado, duracion, orden } = body;
-      if (!cloudinaryId) return json({ ok: false, error: 'Falta el video.' }, 400);
+      const { categoria, cliente, empresa, titulo, ubicacion, producto, cloudinaryId, bunnyVideoId, poster, activo, destacado, duracion, orden } = body;
+      if (!cloudinaryId && !bunnyVideoId) return json({ ok: false, error: 'Falta el video.' }, 400);
       if (!cliente?.trim()) return json({ ok: false, error: 'El título del video es obligatorio.' }, 400);
-      const result = await saveBibliotecaVideo({ categoria, cliente, empresa, titulo, ubicacion, producto, cloudinaryId, poster, activo, destacado, duracion, orden });
+      const result = await saveBibliotecaVideo({ categoria, cliente, empresa, titulo, ubicacion, producto, cloudinaryId, bunnyVideoId, poster, activo, destacado, duracion, orden });
       return json({ ok: true, id: result.id });
     }
 
     if (action === 'update') {
-      const { id, categoria, cliente, empresa, titulo, ubicacion, producto, cloudinaryId, poster, activo, destacado, duracion, orden } = body;
+      const { id, categoria, cliente, empresa, titulo, ubicacion, producto, cloudinaryId, bunnyVideoId, poster, activo, destacado, duracion, orden } = body;
       if (!id) return json({ ok: false, error: 'ID requerido.' }, 400);
       if (!cliente?.trim()) return json({ ok: false, error: 'El título del video es obligatorio.' }, 400);
-      await updateBibliotecaVideo({ id, categoria, cliente, empresa, titulo, ubicacion, producto, cloudinaryId, poster, activo, destacado, duracion, orden });
+      await updateBibliotecaVideo({ id, categoria, cliente, empresa, titulo, ubicacion, producto, cloudinaryId, bunnyVideoId, poster, activo, destacado, duracion, orden });
       return json({ ok: true });
     }
 
