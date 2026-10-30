@@ -1,0 +1,354 @@
+---
+import "../../styles/biblioteca.css";
+// SSR: lee los videos de Turso en cada request -> lo que suba el admin
+// aparece de inmediato, sin rebuild (mismo patron que catalogo/[category].astro).
+export const prerender = false;
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Footer from "../../components/Footer.astro";
+import { translations } from "../../i18n";
+import { readBibliotecaVideos } from "../../lib/analytics-db.js";
+import BibliotecaVideoCard from "../../components/BibliotecaVideoCard.astro";
+
+const { lang } = Astro.params;
+const videos = await readBibliotecaVideos(true);
+const currentLang = (lang && lang in translations) ? lang : "es";
+const t = translations[currentLang as keyof typeof translations];
+const tb = t.biblioteca as typeof translations['es']['biblioteca'];
+
+// Imagen de las 3 tarjetas CTA: usa el poster del primer video real de esa
+// categoria (siempre al dia con lo que suba el admin) y solo cae al estatico
+// de /public si todavia no hay ningun video subido en esa categoria.
+function ctaImage(catId: string, fallback: string) {
+  const match = videos.find((v: any) => v.categoria === catId && v.poster);
+  return match?.poster || fallback;
+}
+const CTA_CARDS = [
+  { id: "testimonios",          copy: tb.cta.testimonios, img: ctaImage("testimonios", "/images/biblioteca/hero.webp") },
+  { id: "pruebas-de-producto",  copy: tb.cta.pruebas,     img: ctaImage("pruebas-de-producto", "/images/biblioteca/hero.webp") },
+  { id: "corporativo",          copy: tb.cta.corporativo, img: ctaImage("corporativo", "/images/home/planta-produccion.webp") },
+];
+
+const destacados = videos.filter((v: any) => v.destacado).slice(0, 4);
+const destacadosIds = new Set(destacados.map((v: any) => v.id));
+const resto = videos.filter((v: any) => !destacadosIds.has(v.id));
+---
+
+<BaseLayout title={tb.page_title} currentLang={currentLang} canonicalSlug="biblioteca">
+  <div class="biblioteca-page">
+
+    <!-- ═══ HERO ═══ -->
+    <section class="biblioteca-hero">
+      <div class="biblioteca-hero__bg"></div>
+      <div class="biblioteca-hero__overlay"></div>
+
+      <div class="biblioteca-hero__inner">
+        <div class="biblioteca-hero__main">
+          <p class="eyebrow">{tb.eyebrow}</p>
+          <h1 class="hero-title">
+            <span>{tb.title_line1}</span>
+            <span><span class="orange">{tb.title_accent}</span> {tb.title_line2}</span>
+          </h1>
+          <p class="subtitle">{tb.subtitle}</p>
+
+          {videos.length > 0 && (
+            <div class="biblioteca-hero__search">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg>
+              <input type="text" id="biblioteca-search" placeholder={tb.search_placeholder} autocomplete="off" />
+            </div>
+          )}
+        </div>
+
+        <div class="biblioteca-hero__stats">
+          <div class="stat-words">
+            {tb.stat_words.map((w: string, i: number) => (
+              <span class={i === tb.stat_words.length - 1 ? "accent" : ""}>{w}</span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+    <div class="biblioteca-hero-spacer" id="biblioteca-hero-spacer"></div>
+
+    <div class="biblioteca-body">
+      {videos.length > 0 && (
+        <section class="biblioteca-cta-row">
+          {CTA_CARDS.map((c) => (
+            <button type="button" class="cta-card" data-filter={c.id} style={`background-image:url(${c.img})`}>
+              <span class="cta-card__overlay" aria-hidden="true"></span>
+              <span class="cta-card__body">
+                <span class="cta-card__title">{c.copy.title}</span>
+                <span class="cta-card__desc">{c.copy.desc}</span>
+                <span class="cta-card__link"><span class="cta-arrow">→</span>{c.copy.cta}</span>
+              </span>
+            </button>
+          ))}
+        </section>
+      )}
+
+      {videos.length === 0 ? (
+        <section class="biblioteca-empty">
+          <span class="empty-icon">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="15" height="16" rx="2"/><path d="M17 9l5-3v12l-5-3"/></svg>
+          </span>
+          <p class="empty-title">{tb.empty_title}</p>
+          <p class="empty-desc">{tb.empty_desc}</p>
+        </section>
+      ) : (
+        <Fragment>
+
+          {destacados.length > 0 && (
+            <section class="biblioteca-section" id="destacados-section">
+              <div class="section-header">
+                <div>
+                  <h2><span class="bar"></span>{tb.destacados_title}</h2>
+                  <p>{tb.destacados_sub}</p>
+                </div>
+                <a href="#biblioteca-grid" class="ver-todos-link">{tb.ver_todos_corto} →</a>
+              </div>
+              <div class="destacados-grid">
+                {destacados.map((v: any) => (
+                  <BibliotecaVideoCard v={v} categoriaLabel={tb.categorias[v.categoria as keyof typeof tb.categorias] ?? v.categoria} badgeLabel={tb.badges[v.categoria as keyof typeof tb.badges]} />
+                ))}
+              </div>
+            </section>
+          )}
+
+          <section class="biblioteca-section" id="biblioteca-grid">
+            <div class="section-header">
+              <div>
+                <h2><span class="bar"></span>{tb.recientes_title}</h2>
+                <p>{tb.recientes_sub}</p>
+              </div>
+            </div>
+            <div class="biblioteca-grid">
+              {resto.map((v: any) => (
+                <BibliotecaVideoCard v={v} categoriaLabel={tb.categorias[v.categoria as keyof typeof tb.categorias] ?? v.categoria} badgeLabel={tb.badges[v.categoria as keyof typeof tb.badges]} />
+              ))}
+            </div>
+            <p class="biblioteca-empty-filter" hidden>{tb.empty_filter_desc}</p>
+            <p class="biblioteca-empty-search" hidden>{tb.empty_search_desc}</p>
+          </section>
+
+        </Fragment>
+      )}
+    </div>
+
+    <div class="video-lightbox" hidden>
+      <button type="button" class="lightbox-back" aria-label="Cerrar">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      </button>
+      <button type="button" class="lightbox-close" aria-label="Cerrar">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <div class="lightbox-inner">
+        <video class="lightbox-video" controls playsinline></video>
+        <div class="lightbox-caption">
+          <p class="lightbox-cliente"></p>
+          <p class="lightbox-ubicacion">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span></span>
+          </p>
+          <p class="lightbox-titulo"></p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <Footer currentLang={currentLang} />
+</BaseLayout>
+
+<script define:vars={{ CLOUD_NAME: import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME || 'dfuzfdrat' }}>
+  function initBibliotecaLightbox() {
+    const lightbox = document.querySelector('.video-lightbox');
+    const lbVideo  = lightbox?.querySelector('video');
+    const lbCliente = lightbox?.querySelector('.lightbox-cliente');
+    const lbTitulo  = lightbox?.querySelector('.lightbox-titulo');
+    const lbUbicacion = lightbox?.querySelector('.lightbox-ubicacion');
+    const lbUbicacionText = lightbox?.querySelector('.lightbox-ubicacion span');
+    const closeBtn  = lightbox?.querySelector('.lightbox-close');
+    const backBtn   = lightbox?.querySelector('.lightbox-back');
+    if (!lightbox || !lbVideo) return;
+
+    function closeLightbox() {
+      lightbox.hidden = true;
+      lbVideo.pause();
+      lbVideo.removeAttribute('src');
+      lbVideo.load();
+      document.body.classList.remove('no-scroll');
+    }
+
+    function openLightbox(btn) {
+      const cloudinaryId = btn.dataset.cloudinaryId;
+      if (!cloudinaryId) return;
+      const inner = lightbox.querySelector('.lightbox-inner');
+      inner?.classList.remove('is-vertical');
+      // Video vertical -> layout lado a lado (video izquierda, info derecha)
+      // en vez de apilado, para no dejar tanto espacio vacio en los costados.
+      lbVideo.onloadedmetadata = () => {
+        if (lbVideo.videoHeight > lbVideo.videoWidth) inner?.classList.add('is-vertical');
+      };
+      lbVideo.poster = btn.dataset.poster || '';
+      lbVideo.src = `https://res.cloudinary.com/${CLOUD_NAME}/video/upload/q_auto:best/${cloudinaryId}.mp4`;
+      if (lbCliente) lbCliente.textContent = btn.dataset.cliente || '';
+      if (lbTitulo)  lbTitulo.textContent  = btn.dataset.titulo || '';
+      if (lbUbicacion && lbUbicacionText) {
+        const ubicacion = btn.dataset.ubicacion || '';
+        lbUbicacionText.textContent = ubicacion;
+        lbUbicacion.hidden = !ubicacion;
+      }
+      lightbox.hidden = false;
+      document.body.classList.add('no-scroll');
+      lbVideo.play().catch(() => {});
+    }
+
+    document.querySelectorAll('.expand-btn').forEach((btn) => {
+      if (btn.dataset.bound) return;
+      btn.dataset.bound = 'true';
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openLightbox(btn);
+      });
+    });
+
+    if (!closeBtn.dataset.bound) {
+      closeBtn.dataset.bound = 'true';
+      closeBtn.addEventListener('click', closeLightbox);
+      backBtn?.addEventListener('click', closeLightbox);
+      lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !lightbox.hidden) closeLightbox(); });
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', initBibliotecaLightbox);
+  document.addEventListener('astro:page-load', initBibliotecaLightbox);
+</script>
+
+<script>
+  // Filtro por categoria + busqueda de texto — funcionan combinados sobre
+  // las tarjetas de la seccion "Videos recientes" (data-categoria/data-search).
+  function initBibliotecaFilters() {
+    const filters = document.querySelectorAll('.cta-card');
+    const searchInput = document.getElementById('biblioteca-search');
+    // TODAS las tarjetas de la pagina (Destacados + Videos recientes) — si
+    // solo filtraramos las de "Videos recientes", un video marcado como
+    // Destacado nunca se ocultaria/mostraria al cambiar de categoria.
+    const cards = document.querySelectorAll('.video-card');
+    const emptyFilterMsg = document.querySelector('.biblioteca-empty-filter');
+    const emptySearchMsg = document.querySelector('.biblioteca-empty-search');
+    if (!cards.length) return;
+
+    let activeFilter = 'todos';
+
+    function applyFilters() {
+      const query = (searchInput?.value || '').trim().toLowerCase();
+      let visibleCount = 0;
+      let visibleDestacados = 0;
+      const destacadosSection = document.getElementById('destacados-section');
+
+      cards.forEach((card) => {
+        const matchCategoria = activeFilter === 'todos' || card.dataset.categoria === activeFilter;
+        const matchSearch = !query || (card.dataset.search || '').includes(query);
+        const match = matchCategoria && matchSearch;
+        card.hidden = !match;
+        if (match) {
+          visibleCount++;
+          if (destacadosSection?.contains(card)) visibleDestacados++;
+        }
+      });
+
+      // Si el filtro deja la seccion "Destacados" sin ninguna tarjeta,
+      // se oculta completa en vez de dejar un encabezado sobre vacio.
+      if (destacadosSection) destacadosSection.hidden = visibleDestacados === 0;
+
+      if (emptyFilterMsg) emptyFilterMsg.hidden = !(visibleCount === 0 && !query);
+      if (emptySearchMsg) emptySearchMsg.hidden = !(visibleCount === 0 && !!query);
+    }
+
+    filters.forEach((btn) => {
+      if (btn.dataset.filterBound) return;
+      btn.dataset.filterBound = 'true';
+      btn.addEventListener('click', () => {
+        activeFilter = btn.dataset.filter;
+
+        // Limpiar la busqueda al filtrar por categoria — si no, un texto
+        // escrito antes puede tapar los videos de la categoria que si aplican.
+        if (searchInput) searchInput.value = '';
+
+        applyFilters();
+
+        // Siempre llevar la vista a los resultados — si no, el filtro de
+        // arriba en el hero cambia videos que quedan fuera de la pantalla.
+        document.getElementById('biblioteca-grid')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+
+    if (searchInput && !searchInput.dataset.bound) {
+      searchInput.dataset.bound = 'true';
+      searchInput.addEventListener('input', applyFilters);
+    }
+  }
+
+  // Detecta vertical/horizontal leyendo las dimensiones reales del video
+  // (videoWidth/videoHeight) — no requiere marcar nada a mano.
+  function applyOrientation(video, card) {
+    if (!video.videoWidth || !video.videoHeight) return;
+    card.dataset.orientacion = video.videoHeight > video.videoWidth ? 'vertical' : 'horizontal';
+  }
+
+  function initBibliotecaOrientation() {
+    document.querySelectorAll('.video-card video').forEach((video) => {
+      if (video.dataset.orientBound) return;
+      video.dataset.orientBound = 'true';
+
+      const card = video.closest('.video-card');
+      if (!card) return;
+
+      if (video.readyState >= 1) {
+        applyOrientation(video, card);
+      } else {
+        video.addEventListener('loadedmetadata', () => applyOrientation(video, card), { once: true });
+      }
+    });
+  }
+
+  // El boton de play NO reproduce chiquito dentro de la tarjeta — abre el
+  // mismo lightbox grande y centrado que el boton de expandir (mejor
+  // experiencia que un video diminuto adentro del grid).
+  function initBibliotecaPlayers() {
+    document.querySelectorAll('.video-wrap').forEach((wrap) => {
+      if (wrap.dataset.bound) return;
+      wrap.dataset.bound = 'true';
+
+      const playBtn = wrap.querySelector('.play-btn');
+      const expandBtn = wrap.querySelector('.expand-btn');
+      if (!playBtn || !expandBtn) return;
+
+      playBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        expandBtn.click();
+      });
+    });
+  }
+
+  // El hero es position:fixed (position:sticky no funciona: html/body traen
+  // overflow-x:hidden global). El spacer ocupa su lugar en el flujo normal
+  // para que .biblioteca-body no arranque debajo del hero — se mide en JS
+  // porque la altura del hero varia con idioma/ancho de pantalla.
+  function syncHeroSpacerHeight() {
+    const hero = document.querySelector('.biblioteca-hero');
+    const spacer = document.getElementById('biblioteca-hero-spacer');
+    if (!hero || !spacer) return;
+    spacer.style.height = `${hero.offsetHeight}px`;
+  }
+
+  function initBiblioteca() {
+    initBibliotecaFilters();
+    initBibliotecaOrientation();
+    initBibliotecaPlayers();
+    syncHeroSpacerHeight();
+  }
+
+  window.addEventListener('resize', syncHeroSpacerHeight);
+  document.addEventListener('DOMContentLoaded', initBiblioteca);
+  document.addEventListener('astro:page-load', initBiblioteca);
+</script>

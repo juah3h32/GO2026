@@ -2,18 +2,27 @@
 // VideoLocalFallback.astro
 // Cubre <video data-local-fallback="..."> y <video data-poster-fallback="...">
 // Si Cloudinary falla (error o timeout), cambia al local automaticamente.
+// En produccion (Vercel) public/videos no se despliega (.gitignore) — si
+// PUBLIC_VIDEO_FALLBACK_BASE esta seteado, el fallback se sirve desde ahi
+// (Vercel Blob) en vez de la ruta local. Ver scripts/upload-videos-to-blob.mjs.
 ---
-<script>
+<script define:vars={{ BLOB_BASE: import.meta.env.PUBLIC_VIDEO_FALLBACK_BASE || '' }}>
+  function resolveFallback(localPath) {
+    if (!localPath) return localPath;
+    if (!BLOB_BASE) return localPath;
+    return BLOB_BASE.replace(/\/$/, '') + localPath;
+  }
+
   function attachLocalFallbacks() {
     // ── Video src fallback ────────────────────────────────────────────────────
-    document.querySelectorAll<HTMLVideoElement>('video[data-local-fallback]').forEach((vid) => {
-      if ((vid as any).__localFbAttached) return;
-      (vid as any).__localFbAttached = true;
-      const local = vid.dataset.localFallback!;
+    document.querySelectorAll('video[data-local-fallback]').forEach((vid) => {
+      if (vid.__localFbAttached) return;
+      vid.__localFbAttached = true;
+      const local = resolveFallback(vid.dataset.localFallback);
       if (!local) return;
 
       let switched = false;
-      let timer: ReturnType<typeof setTimeout> | null = null;
+      let timer = null;
 
       function switchToLocal() {
         if (switched) return;
@@ -35,22 +44,25 @@
 
       vid.addEventListener('error', switchToLocal, { capture: true });
 
-      // Lazy-loaded videos (data-src) have no src yet — start timer only once src is assigned
-      if (vid.getAttribute('src')) {
+      // El src puede vivir en el atributo src del <video> o en un <source> hijo
+      const hasSrc = () => !!(vid.getAttribute('src') || vid.querySelector('source[src]'));
+
+      // Lazy-loaded videos (data-src) no tienen src todavia — arrancar timer solo cuando se asigne
+      if (hasSrc()) {
         startTimer();
       } else {
         const mo = new MutationObserver(() => {
-          if (vid.getAttribute('src')) { mo.disconnect(); startTimer(); }
+          if (hasSrc()) { mo.disconnect(); startTimer(); }
         });
-        mo.observe(vid, { attributes: true, attributeFilter: ['src'] });
+        mo.observe(vid, { attributes: true, attributeFilter: ['src'], childList: true });
       }
     });
 
     // ── Video poster fallback ─────────────────────────────────────────────────
-    document.querySelectorAll<HTMLVideoElement>('video[data-poster-fallback]').forEach((vid) => {
-      if ((vid as any).__posterFbAttached) return;
-      (vid as any).__posterFbAttached = true;
-      const local = vid.dataset.posterFallback!;
+    document.querySelectorAll('video[data-poster-fallback]').forEach((vid) => {
+      if (vid.__posterFbAttached) return;
+      vid.__posterFbAttached = true;
+      const local = vid.dataset.posterFallback;
       if (!local || !vid.poster) return;
       // skip if poster is already local
       if (!vid.poster.includes('cloudinary')) return;

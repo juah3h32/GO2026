@@ -26,6 +26,7 @@ export const zh = {
     about: '关于我们',
     company: '公司介绍',
     social: '社会影响',
+    biblioteca: '视频库',
     distributor: '经销商',
     careers: '招聘',
     contact: '联系我们'
@@ -1445,6 +1446,48 @@ footer: {
       desc:         "我们是您的企业实现技术、经验和成果驱动增长所需的战略合作伙伴。",
       contact:      "联系我们",
       products:     "查看产品"
+    }
+  },
+
+  // =================================================
+  // 页面：视频库（客户见证）
+  // =================================================
+  biblioteca: {
+    page_title: "视频库 | Grupo Ortiz",
+    eyebrow:    "视频库",
+    title_line1: "真实故事",
+    title_accent: "证明",
+    title_line2: "我们的实力",
+    subtitle:   "真实的客户见证。经过实测的产品。Grupo Ortiz 背后的技术与流程。",
+    search_placeholder: "搜索视频（见证、产品、流程...）",
+    stat_words: ["人才", "产品", "流程", "同一个目标"],
+    cta: {
+      testimonios: { title: "客户见证", desc: "来自客户的真实体验。", cta: "查看见证" },
+      pruebas:     { title: "产品测试", desc: "真实条件下的性能表现。", cta: "查看测试" },
+      corporativo: { title: "Grupo Ortiz", desc: "驱动我们的流程、技术与文化。", cta: "查看企业风采" }
+    },
+    destacados_title: "精选视频",
+    destacados_sub:   "我们视频库中的最新内容。",
+    recientes_title: "最新视频",
+    recientes_sub:   "新内容，同样有价值的故事。",
+    ver_todos: "查看全部视频",
+    ver_todos_corto: "查看全部",
+    empty_title: "更多视频即将上线",
+    empty_desc:  "我们正在上传新内容，敬请期待。",
+    empty_filter_desc: "该分类暂无视频，敬请期待。",
+    empty_search_desc: "没有找到相关结果，请尝试其他关键词。",
+    categorias: {
+      todos:       "全部",
+      testimonios: "客户见证",
+      "pruebas-de-producto": "产品测试",
+      procesos:    "流程",
+      corporativo: "企业"
+    },
+    badges: {
+      testimonios: "客户见证",
+      "pruebas-de-producto": "产品测试",
+      procesos:    "流程",
+      corporativo: "企业"
     }
   },
 

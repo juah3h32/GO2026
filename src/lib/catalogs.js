@@ -100,7 +100,7 @@ export const RELATED_PRODUCTS = {
 };
 
 export const LOCALITY_TAG_TEXT = {
-  es: 'Hecho en Morelia, Michoacán',
+  es: 'Hecho en Morelia, Michoacán, desde 1959',
   en: 'Made in Morelia, Michoacán',
   pt: 'Feito em Morelia, Michoacán',
   zh: '产自莫雷利亚，米却肯州',

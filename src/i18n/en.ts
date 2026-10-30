@@ -26,6 +26,7 @@ export const en = {
     about: 'About Us',
     company: 'The Company',
     social: 'Social Impact',
+    biblioteca: 'Library',
     distributor: 'Distributor',
     careers: 'Careers',
     contact: 'Contact'
@@ -1445,6 +1446,48 @@ footer: {
       desc:         "We are the strategic partner your company needs to grow with technology, experience and results.",
       contact:      "Contact Us",
       products:     "View Products"
+    }
+  },
+
+  // =================================================
+  // PAGE: LIBRARY (Video testimonials)
+  // =================================================
+  biblioteca: {
+    page_title: "Video Library | Grupo Ortiz",
+    eyebrow:    "LIBRARY",
+    title_line1: "Stories That",
+    title_accent: "Prove",
+    title_line2: "What We Do",
+    subtitle:   "Real testimonials. Products put to the test. The technology and processes behind Grupo Ortiz.",
+    search_placeholder: "Search videos (testimonials, products, processes...)",
+    stat_words: ["People", "Products", "Processes", "One shared purpose"],
+    cta: {
+      testimonios: { title: "Testimonials", desc: "Real experiences from our clients.", cta: "View testimonials" },
+      pruebas:     { title: "Product Tests", desc: "Performance under real conditions.", cta: "View tests" },
+      corporativo: { title: "Grupo Ortiz", desc: "The process, technology and culture that drive us.", cta: "View corporate" }
+    },
+    destacados_title: "Featured",
+    destacados_sub:   "The latest from our library.",
+    recientes_title: "Recent videos",
+    recientes_sub:   "New content, same stories of value.",
+    ver_todos: "See all videos",
+    ver_todos_corto: "See all",
+    empty_title: "New videos coming soon",
+    empty_desc:  "We are uploading new content. Check back soon.",
+    empty_filter_desc: "No videos in this category yet. Check back soon.",
+    empty_search_desc: "No results for your search. Try another word.",
+    categorias: {
+      todos:       "All",
+      testimonios: "Testimonials",
+      "pruebas-de-producto": "Product Tests",
+      procesos:    "Processes",
+      corporativo: "Corporate"
+    },
+    badges: {
+      testimonios: "Testimonial",
+      "pruebas-de-producto": "Product Test",
+      procesos:    "Process",
+      corporativo: "Corporate"
     }
   },
 

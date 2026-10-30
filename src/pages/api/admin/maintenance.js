@@ -13,7 +13,7 @@ import { verifyAdminToken } from '../../../lib/verifyAdminToken.ts';
 export const prerender = false;
 
 // Paginas del sitio (slug). 'home' = portada.
-export const SITE_SLUGS = ['home', 'about', 'acolchado', 'arpillas', 'bolsas', 'catalogo',
+export const SITE_SLUGS = ['home', 'about', 'acolchado', 'arpillas', 'biblioteca', 'bolsas', 'catalogo',
   'cuerdas', 'distribuidor', 'empaques-flexibles', 'esquineros', 'naturizable',
   'productos', 'rafias', 'sacos', 'social', 'stretch-film', 'vacantes'];
 

@@ -3,21 +3,29 @@
 // Agrega este componente UNA VEZ por página (en el layout o en cada página que use CldVideoPlayer).
 // Detecta fallos de Cloudinary y activa automáticamente el video local como respaldo.
 // No toca nada si Cloudinary funciona correctamente.
+// El fallback carga perezoso (data-src, no src) para no descargarlo si Cloudinary si sirve.
+// En produccion, si PUBLIC_VIDEO_FALLBACK_BASE esta seteado (Vercel Blob), el fallback
+// se sirve desde ahi en vez de /videos/... local (public/videos no se despliega).
 ---
-<script>
+<script define:vars={{ BLOB_BASE: import.meta.env.PUBLIC_VIDEO_FALLBACK_BASE || '' }}>
+  function resolveUrl(p) {
+    if (!p) return p;
+    return BLOB_BASE ? BLOB_BASE.replace(/\/$/, '') + p : p;
+  }
+
   function setupFallbacks() {
-    document.querySelectorAll<HTMLElement>('[data-fallback-wrap]').forEach((wrap) => {
-      const fallback = wrap.querySelector<HTMLVideoElement>('video[data-role="fallback"]');
+    document.querySelectorAll('[data-fallback-wrap]').forEach((wrap) => {
+      const fallback = wrap.querySelector('video[data-role="fallback"]');
       if (!fallback) return;
 
       // El video primario es cualquier <video> que NO sea el fallback
-      const primary = [...wrap.querySelectorAll<HTMLVideoElement>('video')]
+      const primary = [...wrap.querySelectorAll('video')]
         .find(v => v.dataset.role !== 'fallback');
       if (!primary) return;
 
       let activated = false;
-      let timer: ReturnType<typeof setTimeout>;
-      let stallTimer: ReturnType<typeof setTimeout>;
+      let timer;
+      let stallTimer;
 
       function activate() {
         if (activated) return;
@@ -25,8 +33,14 @@
         clearTimeout(timer);
         clearTimeout(stallTimer);
 
+        // Cargar el fallback recien ahora (perezoso) — nunca antes de saber que hace falta
+        if (!fallback.getAttribute('src') && fallback.dataset.src) {
+          fallback.src = resolveUrl(fallback.dataset.src);
+          fallback.load();
+        }
+
         // Mostrar el fallback con los mismos estilos que el primario
-        fallback!.style.cssText = [
+        fallback.style.cssText = [
           'display:block',
           'position:absolute',
           'inset:0',
@@ -38,10 +52,10 @@
           'pointer-events:none',
         ].join(';');
 
-        fallback!.play().catch(() => {});
+        fallback.play().catch(() => {});
 
         // Ocultar el reproductor de Cloudinary para liberar recursos
-        primary!.style.display = 'none';
+        primary.style.display = 'none';
       }
 
       // 1. Error directo en el elemento <video> o sus <source>

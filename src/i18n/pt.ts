@@ -26,6 +26,7 @@ export const pt = {
     about: 'Sobre nós',
     company: 'A Empresa',
     social: 'Impacto Social',
+    biblioteca: 'Biblioteca',
     distributor: 'Distribuidor',
     careers: 'Vagas',
     contact: 'Contato'
@@ -1446,6 +1447,48 @@ footer: {
       desc:         "Somos o parceiro estratégico que sua empresa precisa para crescer com tecnologia, experiência e resultados.",
       contact:      "Fale Conosco",
       products:     "Ver Produtos"
+    }
+  },
+
+  // =================================================
+  // PÁGINA: BIBLIOTECA (Depoimentos em vídeo)
+  // =================================================
+  biblioteca: {
+    page_title: "Biblioteca de Vídeos | Grupo Ortiz",
+    eyebrow:    "BIBLIOTECA",
+    title_line1: "Histórias Que",
+    title_accent: "Comprovam",
+    title_line2: "O Que Fazemos",
+    subtitle:   "Depoimentos reais. Produtos testados. A tecnologia e os processos por trás da Grupo Ortiz.",
+    search_placeholder: "Buscar vídeos (depoimentos, produtos, processos...)",
+    stat_words: ["Pessoas", "Produtos", "Processos", "Um mesmo propósito"],
+    cta: {
+      testimonios: { title: "Depoimentos", desc: "Experiências reais de nossos clientes.", cta: "Ver depoimentos" },
+      pruebas:     { title: "Testes De Produto", desc: "Desempenho em condições reais.", cta: "Ver testes" },
+      corporativo: { title: "Grupo Ortiz", desc: "Processo, tecnologia e cultura que nos movem.", cta: "Ver corporativo" }
+    },
+    destacados_title: "Destaques",
+    destacados_sub:   "O mais recente da nossa biblioteca.",
+    recientes_title: "Vídeos recentes",
+    recientes_sub:   "Novos conteúdos, as mesmas histórias de valor.",
+    ver_todos: "Ver todos os vídeos",
+    ver_todos_corto: "Ver todos",
+    empty_title: "Novos vídeos em breve",
+    empty_desc:  "Estamos enviando conteúdo novo. Volte em breve.",
+    empty_filter_desc: "Ainda não há vídeos nesta categoria. Volte em breve.",
+    empty_search_desc: "Sem resultados para sua busca. Tente outra palavra.",
+    categorias: {
+      todos:       "Todos",
+      testimonios: "Depoimentos",
+      "pruebas-de-producto": "Testes De Produto",
+      procesos:    "Processos",
+      corporativo: "Corporativo"
+    },
+    badges: {
+      testimonios: "Depoimento",
+      "pruebas-de-producto": "Teste De Produto",
+      procesos:    "Processo",
+      corporativo: "Corporativo"
     }
   },
 

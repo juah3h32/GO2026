@@ -18,7 +18,11 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "start": "node dist/server/entry.mjs"
+    "start": "node dist/server/entry.mjs",
+    "sync-videos": "node scripts/sync-local-videos.mjs",
+    "sync-videos:dry": "node scripts/sync-local-videos.mjs --dry",
+    "upload-videos": "node scripts/upload-videos-to-blob.mjs",
+    "upload-videos:dry": "node scripts/upload-videos-to-blob.mjs --dry"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.88.0",

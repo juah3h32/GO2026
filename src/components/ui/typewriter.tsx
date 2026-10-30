@@ -6,6 +6,7 @@ interface TypewriterProps {
   delayBetweenWords?: number
   cursor?: boolean
   cursorChar?: string
+  onWordChange?: (index: number) => void
 }
 
 export function Typewriter({
@@ -14,6 +15,7 @@ export function Typewriter({
   delayBetweenWords = 2000,
   cursor = true,
   cursorChar = "|",
+  onWordChange,
 }: TypewriterProps) {
   const [displayText, setDisplayText] = useState("")
   const [isDeleting, setIsDeleting] = useState(false)
@@ -58,6 +60,11 @@ export function Typewriter({
     }, 500)
     return () => clearInterval(cursorInterval)
   }, [cursor])
+
+  useEffect(() => {
+    onWordChange?.(wordIndex)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wordIndex])
 
   return (
     <span style={{ display: "inline-block" }}>

@@ -14,6 +14,10 @@ export default function HeroHeadingTypewriter({
   speed = 75,
   delayBetweenWords = 2400,
 }: HeroHeadingTypewriterProps) {
+  const handleWordChange = (index: number) => {
+    window.dispatchEvent(new CustomEvent('hero-line3-change', { detail: index }))
+  }
+
   return (
     <>
       {prefix}&nbsp;
@@ -24,6 +28,7 @@ export default function HeroHeadingTypewriter({
           delayBetweenWords={delayBetweenWords}
           cursor
           cursorChar="_"
+          onWordChange={handleWordChange}
         />
       </em>
     </>

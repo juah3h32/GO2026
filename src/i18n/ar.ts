@@ -26,6 +26,7 @@ export const ar = {
     about: 'من نحن',
     company: 'الشركة',
     social: 'الأثر الاجتماعي',
+    biblioteca: 'مكتبة الفيديو',
     distributor: 'موزّع',
     careers: 'وظائف',
     contact: 'اتصل بنا'
@@ -1446,6 +1447,48 @@ footer: {
       desc:         "نحن الشريك الاستراتيجي الذي تحتاجه شركتك للنمو بالتكنولوجيا والخبرة والنتائج.",
       contact:      "اتصل بنا",
       products:     "عرض المنتجات"
+    }
+  },
+
+  // =================================================
+  // صفحة: مكتبة الفيديو (شهادات العملاء)
+  // =================================================
+  biblioteca: {
+    page_title: "مكتبة الفيديو | Grupo Ortiz",
+    eyebrow:    "المكتبة",
+    title_line1: "قصص",
+    title_accent: "تُثبت",
+    title_line2: "ما نقوم به",
+    subtitle:   "شهادات حقيقية. منتجات خضعت للاختبار. التقنية والعمليات وراء Grupo Ortiz.",
+    search_placeholder: "ابحث في الفيديوهات (شهادات، منتجات، عمليات...)",
+    stat_words: ["الأشخاص", "المنتجات", "العمليات", "هدف واحد يجمعنا"],
+    cta: {
+      testimonios: { title: "شهادات", desc: "تجارب حقيقية من عملائنا.", cta: "عرض الشهادات" },
+      pruebas:     { title: "اختبارات المنتج", desc: "الأداء في ظروف حقيقية.", cta: "عرض الاختبارات" },
+      corporativo: { title: "Grupo Ortiz", desc: "العملية والتقنية والثقافة التي تحرّكنا.", cta: "عرض الشركة" }
+    },
+    destacados_title: "الأبرز",
+    destacados_sub:   "أحدث ما لدينا في مكتبتنا.",
+    recientes_title: "أحدث الفيديوهات",
+    recientes_sub:   "محتوى جديد، نفس القصص ذات القيمة.",
+    ver_todos: "عرض جميع الفيديوهات",
+    ver_todos_corto: "عرض الكل",
+    empty_title: "فيديوهات جديدة قريباً",
+    empty_desc:  "نعمل على رفع محتوى جديد. عد قريباً.",
+    empty_filter_desc: "لا توجد فيديوهات في هذه الفئة بعد. عد قريباً.",
+    empty_search_desc: "لا توجد نتائج لبحثك. جرّب كلمة أخرى.",
+    categorias: {
+      todos:       "الكل",
+      testimonios: "شهادات",
+      "pruebas-de-producto": "اختبارات المنتج",
+      procesos:    "العمليات",
+      corporativo: "الشركة"
+    },
+    badges: {
+      testimonios: "شهادة",
+      "pruebas-de-producto": "اختبار منتج",
+      procesos:    "عملية",
+      corporativo: "الشركة"
     }
   },
 

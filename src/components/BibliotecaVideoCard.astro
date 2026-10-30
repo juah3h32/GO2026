@@ -1,0 +1,80 @@
+---
+// src/components/BibliotecaVideoCard.astro
+// Tarjeta de video reutilizable para /biblioteca (destacados + grid principal).
+import VideoWithFallback from "./VideoWithFallback.astro";
+
+interface Props {
+  v: any;
+  categoriaLabel: string;
+  badgeLabel?: string;
+}
+
+const { v, categoriaLabel, badgeLabel } = Astro.props;
+
+const CATEGORY_COLORS: Record<string, string> = {
+  testimonios: "#3B82F6",
+  "pruebas-de-producto": "#52525B",
+  procesos:    "#22C55E",
+  corporativo: "#FB670B",
+};
+
+const badgeColor = CATEGORY_COLORS[v.categoria] || "#64748B";
+
+function formatDuration(seconds: number) {
+  if (!seconds) return "";
+  const s = Math.round(seconds);
+  const m = Math.floor(s / 60);
+  const rem = s % 60;
+  return `${m}:${String(rem).padStart(2, "0")}`;
+}
+---
+
+<article
+  class="video-card"
+  data-categoria={v.categoria}
+  data-orientacion="horizontal"
+  data-search={`${v.cliente || ""} ${v.empresa || ""} ${v.titulo || ""} ${v.ubicacion || ""} ${v.producto || ""} ${categoriaLabel}`.toLowerCase()}
+>
+  <div class="video-wrap">
+    <span class="badge" style={`background:${badgeColor}`}>{badgeLabel || categoriaLabel}</span>
+
+    {v.ubicacion && (
+      <span class="badge badge-location">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        {v.ubicacion}
+      </span>
+    )}
+
+    <VideoWithFallback
+      cloudinaryId={v.cloudinaryId}
+      localFallback=""
+      poster={v.poster}
+      preload="metadata"
+    />
+
+    <button type="button" class="play-btn" aria-label="Reproducir video">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+    </button>
+
+    <button
+      type="button"
+      class="expand-btn"
+      aria-label="Ver video en grande"
+      data-cloudinary-id={v.cloudinaryId}
+      data-poster={v.poster}
+      data-cliente={v.cliente}
+      data-titulo={v.titulo || ""}
+      data-ubicacion={v.ubicacion || ""}
+    >
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+    </button>
+
+    {v.duracion > 0 && <span class="duration-badge">{formatDuration(v.duracion)}</span>}
+
+    <div class="card-overlay">
+      <div class="text-block">
+        <p class="cliente">{v.cliente}</p>
+      </div>
+    </div>
+  </div>
+</article>

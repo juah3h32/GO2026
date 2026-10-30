@@ -337,6 +337,13 @@ html.dark .hero__veil  { background: var(--video-veil-dark); }
   color: rgba(255,255,255,0.75); max-width: 520px;
   margin-bottom: clamp(20px,3vh,36px);
 }
+
+.hero__line3 {
+  font-size: var(--fs-body-lg); line-height: var(--lh-body);
+  color: rgba(255,255,255,0.75); max-width: 560px;
+  margin: 0 auto clamp(20px,3vh,36px);
+  text-align: center;
+}
 .hero__actions { display: flex; gap: 16px; flex-wrap: wrap; }
 
 /* ── Stats ── */
@@ -994,6 +1001,65 @@ html.dark .newsletter__input { background: #262624; border-color: #3a3a37; color
 html.dark #newsletterBtn:disabled { background: #3a3a3a; border-color: #3a3a3a; color: #737373; }
 
 /* ============================================================================
+   VOZ DE NUESTROS CLIENTES — preview de Biblioteca
+   ============================================================================ */
+.voz-clientes {
+  padding: var(--section-gap) var(--pad);
+  max-width: var(--max-w);
+  margin: 0 auto;
+  text-align: center;
+}
+.voz-clientes__head { max-width: 640px; margin: 0 auto 3rem; }
+.voz-clientes__head .section-tag { justify-content: center; }
+.voz-clientes__sub {
+  font-size: var(--fs-body-lg); color: var(--clr-muted); line-height: var(--lh-body);
+  margin-top: 18px;
+}
+.voz-clientes__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 24px;
+  margin-bottom: 40px;
+}
+.voz-clientes__card {
+  display: block;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--clr-dark);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.10);
+  transition: transform 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
+}
+.voz-clientes__card:hover { transform: translateY(-5px); box-shadow: 0 16px 34px rgba(0,0,0,0.18); }
+.voz-clientes__thumb {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  background: linear-gradient(135deg, #2a2a2a, #050505) center / cover;
+  display: flex; align-items: center; justify-content: center;
+}
+.voz-clientes__play {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: rgba(255,255,255,0.94); color: var(--clr-accent);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+}
+.voz-clientes__play svg { margin-left: 2px; }
+.voz-clientes__caption {
+  padding: 14px 16px;
+  background: var(--clr-surface);
+  text-align: left;
+}
+.voz-clientes__cliente {
+  display: block; font-family: var(--font-display); font-weight: 800;
+  text-transform: uppercase; font-size: var(--fs-body-md); color: var(--clr-text);
+}
+.voz-clientes__empresa {
+  display: block; font-size: var(--fs-body-xs); font-weight: 600;
+  text-transform: uppercase; letter-spacing: var(--ls-label);
+  color: var(--clr-accent); margin-top: 4px;
+}
+html.dark .voz-clientes__caption { background: #1c1c1a; }
+
+/* ============================================================================
    DARK MODE — overrides adicionales
    ============================================================================ */
 html.dark .carousel__slide { background: #262626; border-color: #3a3a3a; }
@@ -1179,6 +1245,8 @@ html.dark .carousel__num   { color: rgba(255,255,255,0.04); }
     padding: 14px 18px;
   }
   .porque__badge-num { font-size: clamp(1.8rem, 6vw, 2.8rem); }
+
+  .voz-clientes__grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
 }
 
 /* ============================================================================

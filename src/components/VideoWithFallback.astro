@@ -50,6 +50,7 @@ const cldSrc = cloudinaryId
   playsinline={playsinline}
   controls={controls}
   preload={preload}
+  poster={poster}
   data-fallback={localFallback}
   data-poster={poster}
   data-product={productName}
@@ -58,13 +59,18 @@ const cldSrc = cloudinaryId
   <source src={localFallback} type="video/mp4" />
 </video>
 
-<script>
-  function attachFallback(video: HTMLVideoElement) {
-    // Evitar registrar el listener más de una vez por elemento
-    if ((video as any).__fallbackAttached) return;
-    (video as any).__fallbackAttached = true;
+<script define:vars={{ BLOB_BASE: import.meta.env.PUBLIC_VIDEO_FALLBACK_BASE || '' }}>
+  function resolveFallback(localPath) {
+    if (!localPath) return localPath;
+    return BLOB_BASE ? BLOB_BASE.replace(/\/$/, '') + localPath : localPath;
+  }
 
-    const local = video.dataset.fallback;
+  function attachFallback(video) {
+    // Evitar registrar el listener más de una vez por elemento
+    if (video.__fallbackAttached) return;
+    video.__fallbackAttached = true;
+
+    const local = resolveFallback(video.dataset.fallback);
     const posterSrc = video.dataset.poster;
     if (!local) return;
 
@@ -99,7 +105,7 @@ const cldSrc = cloudinaryId
   }
 
   function initFallbacks() {
-    document.querySelectorAll<HTMLVideoElement>('video[data-fallback]').forEach(attachFallback);
+    document.querySelectorAll('video[data-fallback]').forEach(attachFallback);
   }
 
   document.addEventListener('DOMContentLoaded', initFallbacks);

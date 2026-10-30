@@ -1,6 +1,166 @@
 {
   "commits": [
     {
+      "hash": "5bd8de3",
+      "date": "2026-10-19",
+      "message": "Corrige links rotos de distribuidor y catalogo en el footer",
+      "rawMessage": "Corrige links rotos de distribuidor y catalogo en el footer",
+      "type": "update",
+      "area": "General"
+    },
+    {
+      "hash": "47ff980",
+      "date": "2026-10-19",
+      "message": "Agrega API partner para vacantes/candidatos con acceso aislado por API key",
+      "rawMessage": "Agrega API partner para vacantes/candidatos con acceso aislado por API key",
+      "type": "update",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "5a449c1",
+      "date": "2026-10-15",
+      "message": "link externo de postulacion en vacantes (RH)",
+      "rawMessage": "feat: link externo de postulacion en vacantes (RH)",
+      "type": "feat",
+      "area": "Reclutamiento"
+    },
+    {
+      "hash": "13da1fb",
+      "date": "2026-10-07",
+      "message": "al seleccionar un reclutador (Admin), muestra tambien sus vacantes",
+      "rawMessage": "feat: al seleccionar un reclutador (Admin), muestra tambien sus vacantes",
+      "type": "feat",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "53ef010",
+      "date": "2026-10-07",
+      "message": "tarjetas por reclutador en Reclutamiento (Admin) + mejoras en Usuarios",
+      "rawMessage": "feat: tarjetas por reclutador en Reclutamiento (Admin) + mejoras en Usuarios",
+      "type": "feat",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "cfb638e",
+      "date": "2026-10-07",
+      "message": "el comparativo RH ya no mete usuarios que solo ven candidatos (ej. Marketing)",
+      "rawMessage": "fix: el comparativo RH ya no mete usuarios que solo ven candidatos (ej. Marketing)",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "ee5e267",
+      "date": "2026-10-07",
+      "message": "Geografia en reportes RH agrupa por estado real, no por texto exacto",
+      "rawMessage": "fix: Geografia en reportes RH agrupa por estado real, no por texto exacto",
+      "type": "fix",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "d967e66",
+      "date": "2026-10-07",
+      "message": "reporte Distribuidores a una sola slide + tipografia Morganite + fix geografia",
+      "rawMessage": "feat: reporte Distribuidores a una sola slide + tipografia Morganite + fix geografia",
+      "type": "feat",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "5dc3f85",
+      "date": "2026-10-07",
+      "message": "la tarjeta \"Reclutamiento\" en Reportes (Admin) ahora genera el nuevo reporte RH",
+      "rawMessage": "fix: la tarjeta \"Reclutamiento\" en Reportes (Admin) ahora genera el nuevo reporte RH",
+      "type": "fix",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "6042a3f",
+      "date": "2026-10-07",
+      "message": "rediseña el reporte RH al estilo del Resumen Ejecutivo (una sola slide)",
+      "rawMessage": "feat: rediseña el reporte RH al estilo del Resumen Ejecutivo (una sola slide)",
+      "type": "feat",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "9f06ef1",
+      "date": "2026-10-07",
+      "message": "quita referencia a BibliotecaTab (archivo aun no comiteado, rompia el build en Vercel)",
+      "rawMessage": "fix: quita referencia a BibliotecaTab (archivo aun no comiteado, rompia el build en Vercel)",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "d8c3b24",
+      "date": "2026-10-06",
+      "message": "separa datos de RH por usuario, reporte RH y notificaciones WA por dueño",
+      "rawMessage": "feat: separa datos de RH por usuario, reporte RH y notificaciones WA por dueño",
+      "type": "feat",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "0ed020f",
+      "date": "2026-09-18",
+      "message": "corrige cifras del carrusel de historia (13 plantas, 3000 empleados)",
+      "rawMessage": "fix: corrige cifras del carrusel de historia (13 plantas, 3000 empleados)",
+      "type": "fix",
+      "area": "UI"
+    },
+    {
+      "hash": "8348d70",
+      "date": "2026-09-14",
+      "message": "Ocultar biblioteca y mejorar oferta flotante de distribuidor",
+      "rawMessage": "Ocultar biblioteca y mejorar oferta flotante de distribuidor",
+      "type": "update",
+      "area": "General"
+    },
+    {
+      "hash": "da279af",
+      "date": "2026-08-17",
+      "message": "Agregar sección Áreas Verdes en Impacto Social (campaña reforestación)",
+      "rawMessage": "Agregar sección Áreas Verdes en Impacto Social (campaña reforestación)",
+      "type": "update",
+      "area": "General"
+    },
+    {
+      "hash": "813b8f0",
+      "date": "2026-08-06",
+      "message": "corregir nombre producto CORELESS (typo faltaba doble s)",
+      "rawMessage": "fix: corregir nombre producto CORELESS (typo faltaba doble s)",
+      "type": "fix",
+      "area": "Productos"
+    },
+    {
+      "hash": "03d505a",
+      "date": "2026-08-05",
+      "message": "ocultar visualmente pills de productos relacionados, mantener SEO interno",
+      "rawMessage": "fix: ocultar visualmente pills de productos relacionados, mantener SEO interno",
+      "type": "fix",
+      "area": "Productos"
+    },
+    {
+      "hash": "875fc0a",
+      "date": "2026-08-03",
+      "message": "pulseras NFC con numeros WhatsApp configurables por pulsera",
+      "rawMessage": "feat: pulseras NFC con numeros WhatsApp configurables por pulsera",
+      "type": "feat",
+      "area": "General"
+    },
+    {
+      "hash": "dbce81a",
+      "date": "2026-08-01",
+      "message": "trigger Vercel redeploy",
+      "rawMessage": "chore: trigger Vercel redeploy",
+      "type": "chore",
+      "area": "General"
+    },
+    {
+      "hash": "65d0063",
+      "date": "2026-08-01",
+      "message": "SEO local Morelia — schema Product/LocalBusiness, breadcrumbs, related products",
+      "rawMessage": "feat: SEO local Morelia — schema Product/LocalBusiness, breadcrumbs, related products",
+      "type": "feat",
+      "area": "SEO"
+    },
+    {
       "hash": "3cbf84f",
       "date": "2026-07-30",
       "message": "SEO local Morelia en paginas de producto + schema Organization",
@@ -3290,29 +3450,33 @@
     }
   ],
   "stats": {
-    "total": 411,
+    "total": 431,
     "byType": {
-      "fix": 164,
-      "update": 40,
-      "feat": 70,
+      "update": 44,
+      "feat": 78,
+      "fix": 171,
+      "chore": 8,
       "refactor": 2,
-      "chore": 7,
       "perf": 8,
       "style": 9,
       "docs": 1,
       "release": 110
     },
     "byArea": {
-      "Productos": 29,
-      "Reclutamiento": 9,
-      "General": 250,
-      "Admin/API": 33,
+      "General": 257,
+      "Admin/API": 41,
+      "Reclutamiento": 10,
+      "UI": 4,
+      "Productos": 31,
+      "SEO": 1,
       "Performance": 30,
       "Media": 51,
-      "UI": 3,
       "i18n": 6
     },
     "byMonth": {
+      "2026-10": 12,
+      "2026-09": 2,
+      "2026-08": 6,
       "2026-07": 19,
       "2026-06": 234,
       "2026-05": 33,
@@ -3320,33 +3484,41 @@
       "2026-03": 96
     },
     "byAreaType": {
+      "General": {
+        "update": 22,
+        "fix": 78,
+        "feat": 33,
+        "chore": 7,
+        "refactor": 2,
+        "style": 5,
+        "release": 110
+      },
+      "Admin/API": {
+        "update": 6,
+        "feat": 16,
+        "fix": 16,
+        "style": 2,
+        "docs": 1
+      },
+      "Reclutamiento": {
+        "feat": 2,
+        "fix": 5,
+        "update": 3
+      },
+      "UI": {
+        "fix": 1,
+        "update": 1,
+        "style": 2
+      },
       "Productos": {
-        "fix": 13,
+        "fix": 15,
         "feat": 11,
         "update": 3,
         "chore": 1,
         "perf": 1
       },
-      "Reclutamiento": {
-        "fix": 5,
-        "update": 3,
+      "SEO": {
         "feat": 1
-      },
-      "General": {
-        "fix": 76,
-        "update": 19,
-        "feat": 32,
-        "refactor": 2,
-        "chore": 6,
-        "style": 5,
-        "release": 110
-      },
-      "Admin/API": {
-        "fix": 14,
-        "update": 5,
-        "feat": 11,
-        "style": 2,
-        "docs": 1
       },
       "Performance": {
         "update": 3,
@@ -3360,15 +3532,11 @@
         "feat": 7,
         "perf": 3
       },
-      "UI": {
-        "update": 1,
-        "style": 2
-      },
       "i18n": {
         "fix": 3,
         "feat": 3
       }
     }
   },
-  "generatedAt": "2026-08-01T19:21:58.093Z"
+  "generatedAt": "2026-10-29T20:00:54.723Z"
 }

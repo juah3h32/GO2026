@@ -39,6 +39,15 @@ const tyWords    = [
     .map((d: any) => (d.title as string).toUpperCase()),
 ]
 
+/* ── Línea 3 del hero: subtítulo que rota sincronizado con tyWords.
+   Fallback a subtitle general si el idioma aún no tiene heroLine por producto. ── */
+const tyLines    = [
+  ((th.hero as any).subline_default as string) ?? th.hero.subtitle,
+  ...th.divisiones.items
+    .filter((d: any) => !d.soon)
+    .map((d: any) => (d.heroLine as string) ?? th.hero.subtitle),
+]
+
 /* ── Cloud name para posters ── */
 const CLOUD = import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME;
 const poster = (src: string) =>
@@ -108,6 +117,7 @@ const toLocalVideo = (cldPath: string) => `/videos/${cldPath.replace(/^GO\//, ''
           />
         </span>
       </h1>
+      <p class="hero__line3" id="heroLine3">{tyLines[0]}</p>
       <div class="hero__actions hero__actions--center">
         <a href={`/${currentLang}/productos`} class="btn btn--solid">
           {th.hero.btn_products}
@@ -116,6 +126,17 @@ const toLocalVideo = (cldPath: string) => `/videos/${cldPath.replace(/^GO\//, ''
         <a href={`/${currentLang}/about`} class="btn btn--ghost">{th.hero.btn_about}</a>
       </div>
     </div>
+
+    <script define:vars={{ tyLines }} is:inline>
+      (function () {
+        var el = document.getElementById('heroLine3');
+        if (!el) return;
+        window.addEventListener('hero-line3-change', function (e) {
+          var line = tyLines[e.detail];
+          if (typeof line === 'string') el.textContent = line;
+        });
+      })();
+    </script>
 
     <div class="hero__stats">
       {th.hero.stats.map((stat, i) => (
@@ -611,6 +632,7 @@ document.addEventListener('astro:page-load', init);
   :global(.hero__eyebrow),
   :global(.hero__heading-top),
   :global(.hero__heading-bottom),
+  :global(.hero__line3),
   :global(.hero__actions--center),
   :global(.hero__stat),
   :global(.hero__stat-sep) {
@@ -629,6 +651,7 @@ document.addEventListener('astro:page-load', init);
     :global(.hero__eyebrow),
     :global(.hero__heading-top),
     :global(.hero__heading-bottom),
+    :global(.hero__line3),
     :global(.hero__actions--center),
     :global(.hero__stat),
     :global(.hero__stat-sep) {
@@ -895,6 +918,7 @@ function run() {
       gsap.set('.hero__eyebrow',         { autoAlpha: 0, y: 28 });
       gsap.set('.hero__heading-top',     { autoAlpha: 0, y: 44 });
       gsap.set('.hero__heading-bottom',  { autoAlpha: 0, y: 32 });
+      gsap.set('.hero__line3',           { autoAlpha: 0, y: 26 });
       gsap.set('.hero__actions--center', { autoAlpha: 0, y: 22 });
       gsap.set('.hero__stat, .hero__stat-sep', { autoAlpha: 0 });
 
@@ -907,6 +931,7 @@ function run() {
         .to('.hero__eyebrow',          { autoAlpha: 1, y: 0, duration: 0.85 })
         .to('.hero__heading-top',      { autoAlpha: 1, y: 0, duration: 0.90 }, '-=0.52')
         .to('.hero__heading-bottom',   { autoAlpha: 1, y: 0, duration: 0.85 }, '-=0.65')
+        .to('.hero__line3',            { autoAlpha: 1, y: 0, duration: 0.75 }, '-=0.55')
         .to('.hero__actions--center',  { autoAlpha: 1, y: 0, duration: 0.75 }, '-=0.42')
         .to('.hero__stat, .hero__stat-sep', {
           autoAlpha: 1, duration: 0.55, stagger: { amount: 0.35 }

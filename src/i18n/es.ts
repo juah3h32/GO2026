@@ -26,6 +26,7 @@ export const es = {
     about: 'Nosotros',
     company: 'La Empresa',
     social: 'Impacto Social',
+    biblioteca: 'Biblioteca',
     distributor: 'Distribuidor',
     careers: 'Vacantes',
     contact: 'Contacto'
@@ -59,7 +60,7 @@ export const es = {
   // =================================================
 chatbot: {
   // ── Mensajes generales ──
-  greeting:            '¡Hola! Soy BotGo 🤖. ¿En qué puedo ayudarte hoy?',
+  greeting:            '¡Hola! Soy BotGo 🤖. ¿Qué necesitas empacar hoy?',
   placeholder:         'Escribe un mensaje...',
   listeningState:      'Escuchando...',
   thinking:            'Pensando...',
@@ -424,8 +425,8 @@ chatbot: {
         img: '/images/stretch/premium.png',
         video: "GO/stretch/fondo",
         link: '#',
-        description: "Diseñada para maquinaria de alta exigencia, esta película stretch de estiramiento moderado ofrece una solución eficiente y confiable para asegurar cargas en procesos automatizados. Su composición garantiza alta resistencia y desempeño superior en aplicaciones de embalaje exigente.",
-        specs_values: { width: "19-30 pulg", length: "1000-15000 fit", gauge: "40-110", weight: "10-40 kg", type: "Manual" },
+        description: "Tarimas que llegan como salieron de tu andén. Cada tarima rechazada en el CEDIS es un flete de regreso y una llamada incómoda con tu cliente. Nuestra película stretch sujeta la carga sin que tengas que darle diez vueltas de más: de 19 a 30 pulgadas de ancho, calibres de 40 a 110 y rollos de 1,000 a 15,000 pies, según tu volumen de embarque. También hay opción biodegradable, para clientes que ya la piden.",
+        specs_values: { width: "19-30 pulg", length: "1000-15000 ft", gauge: "40-110", weight: "10-40 kg", type: "Máquina" },
         gallery: [
           '/images/stretch/premium2.png',
           '/images/stretch/premium.png',
@@ -438,7 +439,7 @@ chatbot: {
         video: "GO/stretch/fondo",
         link: '#',
         description: "Diseñada para aplicarse con máquinas envolvedoras tradicionales, esta película stretch ofrece alto rendimiento y excelente desempeño en procesos automatizados de paletizado. Su formulación garantiza resistencia y estabilidad en la sujeción de cargas.",
-        specs_values: { width: "18-30 pulg", length: "2000-15000 fit", gauge: "50-110", weight: "10-49 kg", type: "Automático" },
+        specs_values: { width: "18-30 pulg", length: "2000-15000 ft", gauge: "50-110", weight: "10-49 kg", type: "Automático" },
         gallery: [
           '/images/stretch/stretch2.png',
           '/images/stretch/stretch.png',
@@ -451,7 +452,7 @@ chatbot: {
         video: "GO/stretch/fondo",
         link: '#',
         description: "Diseñada para aplicación manual de alto desempeño, esta película preestirada destaca por ofrecer uno de los menores espesores del mercado. Su tecnología elimina la necesidad de ejercer fuerza adicional al envolver, facilitando su uso inmediato y mejorando la eficiencia en el proceso de paletizado.",
-        specs_values: { width: "16-17 pulg", length: "7000-25000 fit", gauge: "40-120", weight: "10-40 kg", type: "Manual" },
+        specs_values: { width: "16-17 pulg", length: "7000-25000 ft", gauge: "40-120", weight: "10-40 kg", type: "Manual" },
         gallery: [
           '/images/stretch/prestirado2.png',
           '/images/stretch/prestirado.png',
@@ -464,7 +465,7 @@ chatbot: {
         video: "GO/stretch/fondo",
         link: '#',
         description: "Diseñada para su aplicación en envoltura manual con estiramiento moderado, esta película stretch tradicional ofrece excelente desempeño en procesos de embalaje y aseguramiento de carga. Su composición garantiza resistencia y estabilidad en aplicaciones generales.",
-        specs_values: { width: "3-12 pulg", length: "7000-25000 fit", gauge: "40-120", weight: "10-40 kg", type: "Manual" },
+        specs_values: { width: "3-12 pulg", length: "7000-25000 ft", gauge: "40-120", weight: "10-40 kg", type: "Manual" },
         gallery: [
           '/images/stretch/banding3.png',
           '/images/stretch/banding.png',
@@ -496,7 +497,7 @@ gallery: [
         video: "GO/stretch/fondo",
         link: '#',
         description: "Formulada especialmente para aplicaciones en envoltura manual con estiramiento limitado, esta película stretch ofrece alto desempeño y gran confiabilidad en procesos de embalaje. Su composición garantiza estabilidad y eficiencia en la sujeción de cargas.",
-        specs_values: { width: "17-30 pulg", length: "1000-15000 fit", gauge: "40-90", weight: "10-40 kg", type: "Manual", color: "Negro/Color" },
+        specs_values: { width: "17-30 pulg", length: "1000-15000 ft", gauge: "40-90", weight: "10-40 kg", type: "Manual", color: "Negro/Color" },
         gallery: [
           '/images/stretch/stretch2.png',
           '/images/stretch/stretch.png',
@@ -530,7 +531,7 @@ gallery: [
         img: '/images/cuerdas/CuerdaT1.webp',
         video: "GO/cuerdas/cuerda-1.mp4",
         link: '#',
-        description: "Diseñado con polipropileno y un avanzado filtro UV, este cable es ideal para actividades con alta exposición solar. Su formulación especializada retarda el desgaste natural y prolonga su vida útil, garantizando mayor resistencia y durabilidad frente a la intemperie. Es la cuerda ferretera perfecta para brindar firmeza, seguridad y rendimiento confiable en aplicaciones generales y trabajos exigentes.",
+        description: "La cuerda que sigue firme después de meses al sol. El sol es lo que acaba con una cuerda, no el peso. Nuestra cuerda ferretera de PP con filtro UV retrasa ese desgaste para que el amarre del camión, el tendido del invernadero o la carga en el muelle sigan aguantando cuando otras ya se deshilacharon. Hasta 175 kg de resistencia, de 4 a 19 mm, y rollos de 1,980 m: menos cambios de rollo para tu ferretería o tu cuadrilla.",
         specs_values: { load: "1,980 m", mat: "PP-UV", weight: "18 kg", resist: "175 kg", charge: "4-19 mm" },
         gallery: [
           '/images/cuerdas/CuerdaT1-2.png',
@@ -586,7 +587,7 @@ gallery: [
     products: [
       {
         name: "RAFIA DE ATAR",
-        description: "Fabricada con polipropileno 100% virgen, esta rafia ofrece alta resistencia y excelente rendimiento, manteniendo sus propiedades físicas aun en condiciones de intemperie. Su calidad garantiza durabilidad y desempeño confiable en aplicaciones exigentes. Es ampliamente utilizada en los sectores agrícola, avícola y de horticultura.",
+        description: "Amarra una vez. Que dure toda la temporada. En el tutoreo de jitomate, en la granja avícola o en el vivero, una rafia que se rompe a mitad del ciclo se paga en jornales y en planta caída. La nuestra es de polipropileno 100% virgen con protección UV y mantiene su resistencia a la intemperie. Hay calibres de 2 a 8 mm, según si sostienes una mata o cierras una paca.",
         img: "/images/rafias/atar.png",
         video: "GO/rafia/fondoN",
         specs_values: {
@@ -660,7 +661,7 @@ gallery: [
         img: '/images/arpillas/arpilla.webp',
         video: "GO/arpillas/circular.mp4",
         link: '#',
-        description: "Fabricada con polipropileno 100% virgen y construcción rafia, esta arpilla ofrece alta resistencia y excelente rendimiento en aplicaciones de empaque y almacenamiento. Su calidad garantiza durabilidad y un desempeño confiable en el manejo de diversos productos.",
+        description: "Que tu cosecha respire hasta llegar al comprador. Si empacas papa, cebolla, cítricos o aguacate, sabes que una arpilla que se abre en la estiba es merma que pagas tú. Nuestra arpilla circular es de polipropileno 100% virgen, con cierre de jareta y anchos de 23 a 70 cm: se llena rápido en el campo, se cierra firme y deja pasar el aire durante todo el trayecto. Y en 4 colores, para que distingas calibres o clientes de un vistazo en bodega.",
         specs_values: {
           sizes: "23-70 cm",
           colors: "4",
@@ -754,7 +755,7 @@ gallery: [
         model: '/models/saco_blanco.glb',
         video: "GO/sacos/slaminar.mp4",
         link: '#',
-        description: "Fabricados con cintas de polipropileno entrelazadas, los sacos de rafia sin laminar ofrecen gran resistencia y excelente durabilidad en aplicaciones de empaque y almacenamiento. Su estructura permite soportar cargas pesadas sin romperse, garantizando un desempeño confiable en trabajos exigentes.",
+        description: "El saco que llega entero al último eslabón. Un saco roto es producto perdido, un cliente molesto y alguien barriendo la bodega. Nuestros sacos de rafia de polipropileno resisten de 120 a 200 kgf y vienen en medidas de 35×49 a 80×115 cm, para que la estiba aguante la montacargas, el tráiler y el último acomodo en bodega.",
         specs_values: {
           load: "35-80 cm",
           unit: "49-115 cm",
@@ -827,7 +828,7 @@ gallery: [
     products: [
       {
         name: "ESQUINERO KRAFT CAFÉ",
-        description: "Fabricado para proteger bordes y esquinas durante el transporte y almacenamiento, este esquinero distribuye la presión de manera uniforme, evitando deformaciones y daños en la mercancía. Su estructura ofrece resistencia y estabilidad en aplicaciones de embalaje exigentes.",
+        description: "Las esquinas son donde se pierde la carga. El fleje y el stretch aprietan, y si nada reparte la presión, la caja de abajo se dobla. El esquinero de cartón kraft reparte esa fuerza a lo largo del borde para que la tarima viaje recta, se apile sin deformarse y llegue presentable con el cliente final.",
         img: "/images/esquinero/esquinero.png",
         video: "GO/esquineros/esquinero.mp4",
         link: "#",
@@ -882,7 +883,7 @@ gallery: [
     products: [
       {
         name: "BOBINA IMPRESA",
-        description: "Nuestras bobinas cuentan con gran variedad en laminaciones, calibres y acabados. Con opción de impresión hasta 10 tintas y 133 líneas por pulgada. Desarrollo máximo: 1,140 mm. Ancho máximo de impresión: 1,450 mm. Compatibles con maquinaria de envasado automático para optimizar la eficiencia de producción.",
+        description: "Tu marca, impresa como la diseñaste, y lista para tu línea de envasado. Para el gerente de marca, el empaque es lo que el cliente ve primero. Para el jefe de producción, es lo que no puede detener la línea. Nuestras bobinas impresas resuelven las dos cosas: hasta 10 tintas a 133 líneas por pulgada, 3 tipos de laminación, ancho de impresión de hasta 1,450 mm, y son compatibles con maquinaria de envasado automático.",
         img: "/images/flexible/bobina-impresa.png",
         video: "GO/flexible/bobinaf",
         gallery: [
@@ -977,7 +978,7 @@ gallery: [
         img:   "/images/bolsas/15x25.webp",
         thumb: "/images/bolsas/15x25.webp",
         link:  "#",
-        description: "Bolsa de polietileno compacta, ideal para empaque de productos pequeños. Perfecta para retail, empaque de semillas, especias y productos de consumo en porciones individuales. Alta resistencia al rasgado con acabado uniforme.",
+        description: "La bolsa que aguanta el anaquel, el morral y la cocina del cliente. Si vendes semillas, especias o productos en porción individual, tu bolsa pasa por muchas manos antes de llegar a casa del cliente. La nuestra de polietileno resiste al rasgado y tiene acabado uniforme para que tu producto se vea limpio en el exhibidor. Hay varias medidas, desde 15×25 cm para porciones chicas.",
         specs_values: { width: "15 cm", height: "25 cm", mat: "Polietileno", use: "Retail" },
         gallery: ["/images/bolsas/15x25.webp"]
       },
@@ -1076,7 +1077,7 @@ gallery: [
         img:   "/images/acolchado/acolachad1.webp",
         thumb: "/images/acolchado/acolachad1.webp",
         link:  "#",
-        description: "El acolchado agrícola (mulch) es una lámina plástica que se coloca sobre el suelo para protegerlo y maximizar el rendimiento del cultivo. Evita el crecimiento de malezas y pasto sin herbicidas, conserva la humedad del suelo reduciendo la frecuencia de riego, regula la temperatura de la tierra, previene la erosión y el encharcamiento, y mantiene el cultivo limpio. Ideal para siembras, cultivos hortícolas, jardines y huertos de cualquier escala.",
+        description: "Menos maleza, menos riego, sin herbicida. Cada jornal de deshierbe y cada riego extra se restan de tu ganancia por hectárea. El acolchado cubre el suelo para que la maleza no salga, la humedad se quede y la tierra mantenga una temperatura estable, sin herbicidas y sin que la lluvia se lleve la cama de siembra. Tiene protección UV para que dure todo el ciclo, en cultivos hortícolas, huertos y siembras de cualquier escala.",
         specs_values: {
           width:     "85 gr/m² + 14 gr/m²",
           thickness: "UV",
@@ -1263,7 +1264,7 @@ footer: {
   customer_service: "Atención Cliente",
   be_distributor:   "Ser distribuidor",
   catalog:          "Catálogo",
-  cta_button:       "Quiero ser Distribuidor",
+  cta_button:       "Vende Grupo Ortiz en tu zona",
   rights:           "Todos los derechos reservados.",
   privacy_notice:   "Aviso de Privacidad",
 
@@ -1456,57 +1457,101 @@ footer: {
   },
 
   // =================================================
+  // PÁGINA: BIBLIOTECA (Testimonios en video)
+  // =================================================
+  biblioteca: {
+    page_title: "Biblioteca de Videos | Grupo Ortiz",
+    eyebrow:    "BIBLIOTECA",
+    title_line1: "Historias Que",
+    title_accent: "Demuestran",
+    title_line2: "Lo Que Hacemos",
+    subtitle:   "Testimonios reales. Productos puestos a prueba. La tecnología y los procesos detrás de Grupo Ortiz.",
+    search_placeholder: "Buscar videos (testimonios, productos, procesos...)",
+    stat_words: ["Personas", "Productos", "Procesos", "Un mismo propósito"],
+    cta: {
+      testimonios: { title: "Testimonios", desc: "Experiencias reales de nuestros clientes.", cta: "Ver testimonios" },
+      pruebas:     { title: "Pruebas De Producto", desc: "Desempeño en condiciones reales.", cta: "Ver pruebas" },
+      corporativo: { title: "Grupo Ortiz", desc: "Proceso, tecnología y cultura que nos mueven.", cta: "Ver corporativo" }
+    },
+    destacados_title: "Destacados",
+    destacados_sub:   "Lo más reciente de nuestra biblioteca.",
+    recientes_title: "Videos recientes",
+    recientes_sub:   "Nuevos contenidos, mismas historias de valor.",
+    ver_todos: "Ver todos los videos",
+    ver_todos_corto: "Ver todos",
+    empty_title: "Muy pronto nuevos videos",
+    empty_desc:  "Estamos subiendo contenido nuevo. Vuelve pronto.",
+    empty_filter_desc: "Aún no hay videos en esta categoría. Vuelve pronto.",
+    empty_search_desc: "Sin resultados para tu búsqueda. Intenta con otra palabra.",
+    categorias: {
+      todos:       "Todos",
+      testimonios: "Testimonios",
+      "pruebas-de-producto": "Pruebas De Producto",
+      procesos:    "Procesos",
+      corporativo: "Corporativo"
+    },
+    badges: {
+      testimonios: "Testimonio",
+      "pruebas-de-producto": "Prueba De Producto",
+      procesos:    "Proceso",
+      corporativo: "Corporativo"
+    }
+  },
+
+  // =================================================
   // PÁGINA: HOME (Index)
   // =================================================
   home: {
-    meta_title: "Grupo Ortiz | Fabricante de Polímeros en Morelia, México",
+    meta_title: "Grupo Ortiz | Arpilla, Rafia, Sacos y Stretch Film · Morelia",
     meta_description: "Fabricante en Morelia, Michoacán desde 1959: stretch film, sacos, cuerdas, rafia, arpillas y empaques flexibles. Líder en polímeros plásticos en México y Latinoamérica.",
     hero: {
-      eyebrow:      "Desde 1959",
-      title_top:    "SOMOS EL PRINCIPAL",
+      eyebrow:      "Desde 1959 · Hecho en Morelia",
+      title_top:    "Más que un",
       title_bot:    "FABRICANTE DE LATINOAMÉRICA",
       typewriter_prefix: "FABRICANTE DE",
+      subline_default: "Tu producto llega entero, lo mandes donde lo mandes.",
       video: "GO/home/hero",
-      subtitle:     "Más de 65 años fabricando soluciones de alta ingeniería para industrias en los cinco continentes.",
-      btn_products: "Nuestros Productos",
-      btn_about:    "Conocer Más",
+      subtitle:     "Arpilla, rafia, sacos, stretch film y empaque flexible para empresas que no pueden permitirse una carga rota, una tarima rechazada o una línea detenida.",
+      btn_products: "Cotiza tu volumen",
+      btn_about:    "Muestra gratis",
       stats: [
-        { number: 65,   label: "Años de Experiencia" },
-        { number: 3000, prefix: "+", label: "Colaboradores" },
-        { number: 5,    prefix: "",  label: "Continentes"   }
+        { number: 65,   suffix: "+", label: "Años surtiendo" },
+        { number: 3000, prefix: "+", label: "Personas" },
+        { number: 30,   suffix: "+", label: "Países" },
+        { number: 10,   label: "Líneas de producto" }
       ]
     },
 
     divisiones: {
-      tag:       "Nuestras Divisiones",
-      title:     "áreas de",
-      title_em:  "especialización",
+      tag:       "¿Qué necesitas proteger?",
+      title:     "encuentra tu empaque",
+      title_em:  "aquí abajo",
       link_text: "Ver productos",
       items: [
-        { title: "Arpilla",          tag: "División 01", description: "Sacos de malla de rafia de polipropileno en tejido plano y circular. Diseño ventilado ideal para frutas, verduras y productos agrícolas.",                     img: "/images/divisiones/arpilla.webp",           color: "#2d8a4e", slug: "arpillas",           soon: false },
-        { title: "Cuerda",           tag: "División 02", description: "Cuerdas de polipropileno de alta tenacidad para usos agrícolas, industriales y marinos. Gran resistencia a la intemperie y filtro UV incorporado.",            img: "/images/divisiones/cuerdas.webp",           color: "#1a5f8a", slug: "cuerdas",            soon: false },
-        { title: "Rafia",            tag: "División 03", description: "Rafia de polipropileno de alto rendimiento. Gran ligereza, alta resistencia a la rotura y versatilidad para agricultura, avicultura y horticultura.",          img: "/images/divisiones/rafia.webp",             color: "#8a6d2d", slug: "rafias",             soon: false },
-        { title: "Empaque Flexible", tag: "División 04", description: "Películas de alta barrera y laminación especializada. Protección óptima para alimentos y productos industriales con tecnología de vanguardia.",               img: "/images/divisiones/bolsa.webp",             color: "#0d7377", slug: "empaques-flexibles", soon: false },
-        { title: "Saco",             tag: "División 05", description: "Sacos de rafia de calidad superior. Solución de envasado robusta para alimentos, productos químicos, fertilizantes y productos a granel.",                    img: "/images/divisiones/sacos.webp",             color: "#3a7d44", slug: "sacos",              soon: false },
-        { title: "Stretch film",     tag: "División 06", description: "Película estirable de alta claridad óptica. Asegura la integridad de la carga con eficiencia en costos. Incluye opción biodegradable.",                       img: "/images/divisiones/film-estirable.webp",    color: "#2c5f8a", slug: "stretch-film",       soon: false },
-        { title: "Esquinero",        tag: "División 07", description: "Esquineros de cartón kraft para protección de bordes durante el almacenamiento y transporte. Distribución uniforme de presión y máxima estabilidad de carga.", img: "/images/divisiones/esquineros.webp",        color: "#7b3fa0", slug: "esquineros",         soon: false },
-        { title: "Naturizable",      tag: "División 08", description: "Empaque sustentable que regresa a la tierra. Soluciones 100% Plant Based, reciclables y compostables para la industria alimentaria.",            img: "/images/divisiones/desechables.webp",       color: "#e05500", slug: "naturizable",        soon: false },
-        { title: "Bolsas",           tag: "División 09", description: "Bolsas de polietileno de alta resistencia para empaque industrial y comercial. Versátiles, económicas y disponibles en múltiples tamaños y presentaciones.",  img: "/images/bolsas/bolsa.webp",                               color: "#c0392b", slug: "bolsas",             soon: false },
-        { title: "Acolchado",        tag: "División 10", description: "Lámina plástica para cubrir el suelo en siembras, cultivos y huertos. Controla malezas, conserva la humedad, regula la temperatura del terreno y evita la erosión para mayor productividad.",                img: "/images/divisiones/acolchado.webp",                       color: "#5d7a8a", slug: "acolchado",          soon: false }
+        { title: "Arpilla",          tag: "División 01", description: "Para que tu papa, cebolla o aguacate llegue fresco al mercado. Deja pasar el aire, cierra con un cordón y no se rompe en el camino.",                     img: "/images/divisiones/arpilla.webp",           color: "#2d8a4e", slug: "arpillas",           soon: false, heroLine: "Para que tu cosecha llegue fresca al mercado." },
+        { title: "Cuerda",           tag: "División 02", description: "Para amarrar carga, lonas o trabajos en el mar. Protegida contra el sol: sigue firme y no se deshilacha aunque pase meses afuera.",            img: "/images/divisiones/cuerdas.webp",           color: "#1a5f8a", slug: "cuerdas",            soon: false, heroLine: "Sigue firme aunque pase meses bajo el sol." },
+        { title: "Rafia",            tag: "División 03", description: "Para amarrar jitomate, cerrar pacas o trabajar en granja. Aguanta sol y lluvia toda la temporada, así no pagas por volver a amarrar.",          img: "/images/divisiones/rafia.webp",             color: "#8a6d2d", slug: "rafias",             soon: false, heroLine: "Amarras una vez y aguanta toda la temporada." },
+        { title: "Empaque Flexible", tag: "División 04", description: "Tu marca impresa a todo color y con detalle de revista. Protege tu producto del aire y la humedad, y no se atora en tu máquina.",               img: "/images/divisiones/bolsa.webp",             color: "#0d7377", slug: "empaques-flexibles", soon: false, heroLine: "Tu marca a todo color, sin atorar tu máquina." },
+        { title: "Saco",             tag: "División 05", description: "Para grano, fertilizante o químicos. Soporta de 120 a 200 kg sin reventar, aunque lo carguen, lo apilen y lo suban al tráiler.",                    img: "/images/divisiones/sacos.webp",             color: "#3a7d44", slug: "sacos",              soon: false, heroLine: "Aguanta de 120 a 200 kg sin reventar." },
+        { title: "Stretch film",     tag: "División 06", description: "Para que tus tarimas lleguen igual que como salieron de tu bodega y no te las regresen. También hay opción biodegradable.",                       img: "/images/divisiones/film-estirable.webp",    color: "#2c5f8a", slug: "stretch-film",       soon: false, heroLine: "Tus tarimas llegan como salieron de tu bodega." },
+        { title: "Esquinero",        tag: "División 07", description: "Tiras de cartón firme para las esquinas de tu tarima. Reparten la presión del amarre para que tus cajas no lleguen dobladas ni aplastadas.", img: "/images/divisiones/esquineros.webp",        color: "#7b3fa0", slug: "esquineros",         soon: false, heroLine: "Tus cajas llegan sin esquinas aplastadas." },
+        { title: "Naturizable",      tag: "División 08", description: "Charolas y empaques para comida hechos de plantas. Aguantan la grasa y, cuando los tiras, se deshacen en la tierra como composta.",            img: "/images/divisiones/desechables.webp",       color: "#e05500", slug: "naturizable",        soon: false, heroLine: "Empaque para comida que se vuelve tierra." },
+        { title: "Bolsas",           tag: "División 09", description: "Para semillas, especias o botana en porciones. No se rasgan fácil y se ven limpias en el exhibidor. Hay varias medidas según lo que vendes.",  img: "/images/bolsas/bolsa.webp",                               color: "#c0392b", slug: "bolsas",             soon: false, heroLine: "No se rasgan y lucen limpias en el exhibidor." },
+        { title: "Acolchado",        tag: "División 10", description: "Plástico que se tiende sobre la tierra donde siembras. Debajo no crece la hierba, la tierra guarda la humedad y riegas menos. Sin herbicidas y protegido del sol.",                img: "/images/divisiones/acolchado.webp",                       color: "#5d7a8a", slug: "acolchado",          soon: false, heroLine: "Menos hierba y menos riego, sin herbicida." }
       ]
     },
 
     parallax: {
       eyebrow: "Planta de Producción",
-      title:    "Aquí",
-      title_em: "nace todo"
+      title:    "Esta máquina",
+      title_em: "hace tu empaque"
     },
 
     porque: {
-      tag:           "Por qué elegirnos",
-      title:         "Más de 65 años",
-      title_em:      "de liderazgo",
-      body:          "Somos referente en la industria de polímeros plásticos en México y Latinoamérica, con procesos certificados y capacidad de respuesta global.",
+      tag:           "Por qué nos eligen",
+      title:         "65 años",
+      title_em:      "cumpliendo pedidos",
+      body:          "Hay clientes que nos compran desde hace décadas. No se quedan por el precio: se quedan porque su pedido llega completo y a tiempo.",
       btn:           "Nuestra Historia",
       badge1_label:  "Unidades de Negocio",
       badge1_number: 13,
@@ -1514,16 +1559,16 @@ footer: {
       badge2_number: 6,
       img:           "/images/home/planta-produccion.webp",
       features: [
-        { title: "Calidad Certificada",  description: "Productos que cumplen con los más altos estándares internacionales de manufactura."  },
-        { title: "Innovación Constante", description: "Inversión permanente en I+D para mantener el liderazgo tecnológico del sector."       },
-        { title: "Alcance Global",       description: "Presencia activa en 5 continentes con una red de distribución eficiente."            }
+        { title: "Pasas auditorías",    description: "Tenemos Kosher Pareve, FSSC 22000, AIB International e ISO 9001: los papeles que te piden tus clientes ya los tenemos." },
+        { title: "Somos fabricantes",   description: "No revendemos: lo hacemos en Morelia. Por eso te damos fechas de entrega reales." },
+        { title: "Bodega en Texas",     description: "Si compras en Estados Unidos, te surtimos desde San Antonio, TX." }
       ]
     },
 
     certs: {
-      tag:      "Calidad Garantizada",
-      title:    "Nuestras",
-      title_em: "Certificaciones",
+      tag:      "Auditorías sin líos",
+      title:    "Certificaciones",
+      title_em: "que ya tenemos",
       items: [
         { code: "Kosher Pareve",     name: "KMD México",     img: "/images/certificaciones/KOSHER.jpeg"   },
         { code: "FSSC 22000",        name: "LRQA Certified", img: "/images/certificaciones/LRQA.png"      },
@@ -1535,21 +1580,21 @@ footer: {
     compromiso: {
       card1: {
         eyebrow: "Nuestro Enfoque",
-        title:   "Innovación",
-        text:    "Invertimos en I+D para ofrecer productos que superen las expectativas del mercado global con tecnología de vanguardia."
+        title:   "A tu medida",
+        text:    "¿Necesitas una medida, un grosor o una impresión que nadie te surte? La diseñamos contigo para tu máquina y tu producto."
       },
       card2: {
         eyebrow: "Nuestro Compromiso",
-        title:   "Sustentabilidad",
-        text:    "Procesos responsables con el medio ambiente, programas activos de reciclaje y reducción de huella de carbono en toda la cadena."
+        title:   "Empaque que se deshace",
+        text:    "Plástico biodegradable para emplayar y empaques de plantas que se deshacen en la tierra. Para el cliente que ya lo pregunta."
       }
     },
 
     global: {
       tag:      "Presencia Global",
-      title:    "Exportamos al",
-      title_em: "mundo",
-      desc:     "Nuestros productos llegan a clientes en más de 30 países, consolidando nuestra posición como líderes en polímeros plásticos.",
+      title:    "De Morelia",
+      title_em: "al mundo",
+      desc:     "Si tu producto sale del país, tu empaque tiene que aguantar contenedor, aduana y semanas de viaje. Ya lo hacemos en +30 países.",
       video: "GO/home/camion",
       stats: [
         { number: 65,   label: "Años"        },
@@ -1568,15 +1613,15 @@ footer: {
     },
 
     newsletter: {
-      tag:              "Mantente al día",
-      title:            "No te pierdas",
-      title_em:         "nuestras novedades",
-      sub:              "Recibe promociones, nuevos productos y contenido exclusivo directo a tu correo.",
+      tag:              "Para tu temporada",
+      title:            "No te quedes",
+      title_em:         "sin empaque",
+      sub:              "Recibe gratis la guía para elegir grosor y medida, y avisos antes de temporada.",
       name_placeholder:  "Tu nombre",
       email_placeholder: "Tu correo electrónico",
       terms_pre:        "Acepto el",
       terms_link:       "aviso de privacidad",
-      btn:              "Suscribirme",
+      btn:              "Quiero la guía",
       btn_sending:      "Enviando...",
       success_title:    "¡Listo! Ya estás suscrito",
       success_sub:      "Te avisaremos por correo cuando haya novedades.",

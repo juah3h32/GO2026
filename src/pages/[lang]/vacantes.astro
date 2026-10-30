@@ -178,11 +178,12 @@ const steps = [
           <!-- Fallback local: se muestra solo si Cloudinary falla -->
           <video
             class="hero__video hero__video--fill"
-            src={VIDEO_LOCAL}
+            data-src={VIDEO_LOCAL}
             autoplay
             muted
             loop
             playsinline
+            preload="none"
             poster={posterUrl}
             data-role="fallback"
             style="display:none;"
