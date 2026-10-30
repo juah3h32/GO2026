@@ -307,7 +307,8 @@ html.dark .video-card:hover { box-shadow: 0 16px 34px rgba(0,0,0,0.6); }
   overflow: hidden;
 }
 
-.video-wrap video {
+.video-wrap video,
+.video-wrap .video-thumb {
   position: absolute;
   inset: 0;
   width: 100%;

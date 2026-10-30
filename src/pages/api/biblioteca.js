@@ -8,6 +8,12 @@ function json(data, status = 200) {
   return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
 }
 
+function canEditBiblioteca(role) {
+  if (!role) return false;
+  if (role.isAdminRole) return true;
+  return Array.isArray(role.tabs) && role.tabs.includes('biblioteca');
+}
+
 export async function GET() {
   try {
     const videos = await readBibliotecaVideos(true);
@@ -29,6 +35,10 @@ export async function POST({ request }) {
     if (action === 'list') {
       const videos = await readBibliotecaVideos(false);
       return json({ ok: true, videos });
+    }
+
+    if (['create', 'update', 'delete', 'toggle'].includes(action) && !canEditBiblioteca(adminRole)) {
+      return json({ ok: false, error: 'No autorizado' }, 401);
     }
 
     if (action === 'create') {
@@ -62,7 +72,7 @@ export async function POST({ request }) {
 
     return json({ ok: false, error: 'Acción desconocida.' }, 400);
   } catch (err) {
-    console.error('❌ [api/biblioteca] Error:', err);
+    console.error('[api/biblioteca] Error:', err);
     return json({ ok: false, error: err.message }, 500);
   }
 }

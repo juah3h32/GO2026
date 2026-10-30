@@ -2,7 +2,6 @@
 // src/components/BibliotecaVideoCard.astro
 // Tarjeta de video reutilizable para /biblioteca (destacados + grid principal).
 import VideoWithFallback from "./VideoWithFallback.astro";
-import BunnyStreamPlayer from "./BunnyStreamPlayer.astro";
 
 interface Props {
   v: any;
@@ -47,7 +46,9 @@ function formatDuration(seconds: number) {
     )}
 
     {v.bunnyVideoId ? (
-      <BunnyStreamPlayer videoId={v.bunnyVideoId} poster={v.poster} preload="metadata" />
+      // En el grid solo mostramos la miniatura — el iframe de Bunny (pesado,
+      // carga su propio player) solo se monta al abrir el video en grande.
+      <img class="video-thumb" src={v.poster} alt="" loading="lazy" />
     ) : (
       <VideoWithFallback
         cloudinaryId={v.cloudinaryId}

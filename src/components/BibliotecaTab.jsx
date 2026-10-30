@@ -55,7 +55,69 @@ const Ic = {
   upload:<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>,
   pin:   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>,
   sparkle: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/><path d="M19 3l.75 2.25L22 6l-2.25.75L19 9l-.75-2.25L16 6l2.25-.75z"/></svg>,
+  swap:  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>,
 };
+
+// Sube un archivo de video a Bunny Stream via TUS (resumable). Devuelve en
+// cuanto termina la subida — NO espera a que Bunny procese miniatura/duracion
+// (tarda varios segundos), para no bloquear el boton de Guardar. Esos datos
+// se completan despues via refineBunnyMetadataInBackground().
+async function uploadFileToBunny(file, titleHint, onProgress) {
+  const signR = await fetch('/api/admin/biblioteca-bunny-sign', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title: titleHint || file.name }),
+  });
+  const sign = await signR.json();
+  if (!sign.ok) throw new Error(sign.error || 'No se pudo firmar la subida.');
+
+  await new Promise((resolve, reject) => {
+    const upload = new tus.Upload(file, {
+      endpoint: sign.tusEndpoint,
+      retryDelays: [0, 3000, 5000, 10000, 20000],
+      headers: {
+        AuthorizationSignature: sign.signature,
+        AuthorizationExpire: String(sign.expiration),
+        VideoId: sign.videoId,
+        LibraryId: String(sign.libraryId),
+      },
+      metadata: { filetype: file.type, title: titleHint || file.name },
+      onError: reject,
+      onProgress: (sent, total) => onProgress?.(Math.round((sent / total) * 100)),
+      onSuccess: resolve,
+    });
+    upload.start();
+  });
+
+  return {
+    bunnyVideoId: sign.videoId,
+    poster: `https://${BUNNY_PULLZONE}/${sign.videoId}/thumbnail.jpg`,
+    duracion: 0,
+  };
+}
+
+// Hace polling en segundo plano (sin bloquear la UI) hasta que Bunny termine
+// de procesar el video, y entonces actualiza duracion/miniatura reales.
+function refineBunnyMetadataInBackground(bunnyVideoId, recordId, baseFields, onDone) {
+  (async () => {
+    for (let i = 0; i < 10; i++) {
+      await new Promise(r => setTimeout(r, 2000));
+      try {
+        const stR = await fetch(`/api/admin/biblioteca-bunny-sign?videoId=${bunnyVideoId}`);
+        const st = await stR.json();
+        if (st.ok && st.duracion) {
+          await fetch('/api/biblioteca', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'update', id: recordId, ...baseFields, bunnyVideoId, cloudinaryId: '', poster: st.poster, duracion: st.duracion }),
+          });
+          onDone?.();
+          return;
+        }
+      } catch { /* reintenta */ }
+    }
+  })();
+}
 
 // Extrae un fotograma del archivo local (aun sin subir) para la IA —
 // achicado a maxWidth para no pasar el limite de payload del middleware.
@@ -147,6 +209,15 @@ export default function BibliotecaTab({ theme = 'dark' }) {
   const [iaLoading, setIaLoading] = useState(false);
   const fileInputRef = useRef(null);
 
+  // Reemplazo rapido de video: swap del archivo sin abrir el formulario
+  // completo ni re-escribir cliente/titulo/categoria.
+  const [replaceTarget, setReplaceTarget] = useState(null);
+  const [replaceFile, setReplaceFile] = useState(null);
+  const [replaceUploading, setReplaceUploading] = useState(false);
+  const [replacePct, setReplacePct] = useState(0);
+  const [replaceError, setReplaceError] = useState(null);
+  const replaceInputRef = useRef(null);
+
   const load = useCallback(async () => {
     setLoading(true);
     try {
@@ -224,47 +295,11 @@ export default function BibliotecaTab({ theme = 'dark' }) {
       if (file) {
         setUploading(true);
         setUploadPct(0);
-        const signR = await fetch('/api/admin/biblioteca-bunny-sign', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title: form.cliente || file.name }),
-        });
-        const sign = await signR.json();
-        if (!sign.ok) throw new Error(sign.error || 'No se pudo firmar la subida.');
-
-        await new Promise((resolve, reject) => {
-          const upload = new tus.Upload(file, {
-            endpoint: sign.tusEndpoint,
-            retryDelays: [0, 3000, 5000, 10000, 20000],
-            headers: {
-              AuthorizationSignature: sign.signature,
-              AuthorizationExpire: String(sign.expiration),
-              VideoId: sign.videoId,
-              LibraryId: String(sign.libraryId),
-            },
-            metadata: { filetype: file.type, title: form.cliente || file.name },
-            onError: reject,
-            onProgress: (sent, total) => setUploadPct(Math.round((sent / total) * 100)),
-            onSuccess: resolve,
-          });
-          upload.start();
-        });
-
-        bunnyVideoId = sign.videoId;
+        const up = await uploadFileToBunny(file, form.cliente, setUploadPct);
+        bunnyVideoId = up.bunnyVideoId;
         cloudinaryId = '';
-        poster = `https://${BUNNY_PULLZONE}/${sign.videoId}/thumbnail.jpg`;
-        duracion = 0;
-
-        // Bunny procesa el video unos segundos tras el upload — esperamos un
-        // poco a que la miniatura/duracion esten listas, sin bloquear si tarda.
-        for (let i = 0; i < 8; i++) {
-          await new Promise(r => setTimeout(r, 2000));
-          try {
-            const stR = await fetch(`/api/admin/biblioteca-bunny-sign?videoId=${sign.videoId}`);
-            const st = await stR.json();
-            if (st.ok && st.duracion) { duracion = st.duracion; poster = st.poster; break; }
-          } catch { /* sigue con lo que ya hay */ }
-        }
+        poster = up.poster;
+        duracion = up.duracion;
         setUploading(false);
       }
 
@@ -275,6 +310,11 @@ export default function BibliotecaTab({ theme = 'dark' }) {
       const r = await fetch('/api/biblioteca', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
       const j = await r.json();
       if (!j.ok) throw new Error(j.error || 'Error al guardar.');
+
+      if (file) {
+        const recordId = editing || j.id;
+        refineBunnyMetadataInBackground(bunnyVideoId, recordId, form, load);
+      }
 
       setModal(false);
       await load();
@@ -295,6 +335,55 @@ export default function BibliotecaTab({ theme = 'dark' }) {
     await fetch('/api/biblioteca', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'toggle', id: v.id, activo: !v.activo }) });
     await load();
     setToggling(null);
+  };
+
+  const openReplace = (v) => { setReplaceTarget(v); setReplaceFile(null); setReplaceError(null); setReplacePct(0); };
+  const closeReplace = () => { if (replaceUploading) return; setReplaceTarget(null); setReplaceFile(null); setReplaceError(null); };
+
+  const pickReplaceFile = (f) => {
+    if (!f) return;
+    if (!f.type.startsWith('video/')) { setReplaceError('El archivo debe ser un video.'); return; }
+    const mb = f.size / (1024 * 1024);
+    if (mb > MAX_VIDEO_MB) { setReplaceError(`Ese video pesa ${mb.toFixed(0)}MB. Máximo permitido: ${MAX_VIDEO_MB}MB.`); return; }
+    setReplaceError(null);
+    setReplaceFile(f);
+  };
+
+  const handleConfirmReplace = async () => {
+    if (!replaceFile || !replaceTarget) return;
+    setReplaceUploading(true); setReplacePct(0); setReplaceError(null);
+    try {
+      const up = await uploadFileToBunny(replaceFile, replaceTarget.cliente, setReplacePct);
+      const body = {
+        action: 'update',
+        id: replaceTarget.id,
+        categoria: replaceTarget.categoria,
+        cliente: replaceTarget.cliente,
+        empresa: replaceTarget.empresa,
+        titulo: replaceTarget.titulo,
+        ubicacion: replaceTarget.ubicacion,
+        producto: replaceTarget.producto,
+        activo: replaceTarget.activo ? 1 : 0,
+        destacado: replaceTarget.destacado ? 1 : 0,
+        orden: replaceTarget.orden,
+        cloudinaryId: '',
+        bunnyVideoId: up.bunnyVideoId,
+        poster: up.poster,
+        duracion: up.duracion,
+      };
+      const r = await fetch('/api/biblioteca', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+      const j = await r.json();
+      if (!j.ok) throw new Error(j.error || 'Error al guardar.');
+
+      const { action, id, cloudinaryId, bunnyVideoId, poster, duracion, ...baseFields } = body;
+      refineBunnyMetadataInBackground(bunnyVideoId, id, baseFields, load);
+
+      setReplaceTarget(null); setReplaceFile(null);
+      await load();
+    } catch (e) {
+      setReplaceError(e.message || 'Error inesperado.');
+    }
+    setReplaceUploading(false);
   };
 
   return (
@@ -351,6 +440,10 @@ export default function BibliotecaTab({ theme = 'dark' }) {
                       background:v.activo ? P.greenDim : P.border2, color:v.activo ? P.green : P.textSub, fontSize:11, fontWeight:600, cursor:'pointer' }}>
                     {toggling === v.id ? '...' : v.activo ? 'Activo' : 'Pausado'}
                   </button>
+                  <button onClick={() => openReplace(v)} title="Reemplazar video"
+                    style={{ padding:'7px 10px', borderRadius:7, border:`1px solid ${P.orange}40`, background:P.okDim, color:P.orange, cursor:'pointer', display:'flex' }}>
+                    {Ic.swap}
+                  </button>
                   <button onClick={() => openEdit(v)} title="Editar"
                     style={{ padding:'7px 10px', borderRadius:7, border:`1px solid ${P.border}`, background:P.border2, color:P.textSub, cursor:'pointer', display:'flex' }}>
                     {Ic.edit}
@@ -378,55 +471,6 @@ export default function BibliotecaTab({ theme = 'dark' }) {
 
       <Modal open={modal} onClose={() => !saving && setModal(false)} title={editing ? 'Editar video' : 'Agregar video'} P={P}>
         <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
-          <div>
-            <FieldLabel P={P}>Categoría</FieldLabel>
-            <select value={form.categoria} onChange={e => setForm({ ...form, categoria: e.target.value })} style={inputStyle(P)}>
-              {CATEGORIAS.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
-            </select>
-          </div>
-
-          <div>
-            <FieldLabel P={P}>Título del video</FieldLabel>
-            <input type="text" value={form.cliente} onChange={e => setForm({ ...form, cliente: e.target.value })} style={inputStyle(P)} placeholder="Ej. Stretch Film, o el nombre del cliente" />
-          </div>
-
-          <div>
-            <FieldLabel P={P}>Producto (opcional) — para que la IA no adivine</FieldLabel>
-            <input type="text" value={form.producto} onChange={e => setForm({ ...form, producto: e.target.value })} style={inputStyle(P)} placeholder="Ej. Rafia, Esquinero, Stretch Film" />
-          </div>
-
-          <div>
-            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:6 }}>
-              <FieldLabel P={P}>Descripción (opcional) — solo se ve al abrir el video en grande</FieldLabel>
-              <button type="button" onClick={handleGenerarDescripcion} disabled={iaLoading}
-                style={{ display:'flex', alignItems:'center', gap:5, flexShrink:0, background:'none', border:'none', padding:0,
-                  color: iaLoading ? P.textDim : P.orange, fontSize:11, fontWeight:600, cursor: iaLoading ? 'not-allowed' : 'pointer' }}>
-                {Ic.sparkle} {iaLoading ? 'Generando...' : 'Generar con IA'}
-              </button>
-            </div>
-            <textarea
-              value={form.titulo}
-              onChange={e => setForm({ ...form, titulo: e.target.value.slice(0, MAX_DESC_CHARS) })}
-              maxLength={MAX_DESC_CHARS}
-              rows={4}
-              style={{ ...inputStyle(P), resize: 'vertical', lineHeight: 1.5 }}
-              placeholder="Ej. Desde Colima, así protege nuestro stretch film cada tarima en el proceso de empaque..."
-            />
-            <div style={{ textAlign:'right', fontSize:10.5, color: form.titulo.length >= MAX_DESC_CHARS ? P.orange : P.textDim, marginTop:4 }}>
-              {form.titulo.length}/{MAX_DESC_CHARS}
-            </div>
-          </div>
-
-          <div>
-            <FieldLabel P={P}>Empresa / Distribuidor (opcional)</FieldLabel>
-            <input type="text" value={form.empresa} onChange={e => setForm({ ...form, empresa: e.target.value })} style={inputStyle(P)} placeholder="Empresa" />
-          </div>
-
-          <div>
-            <FieldLabel P={P}>Ubicación (opcional)</FieldLabel>
-            <input type="text" value={form.ubicacion} onChange={e => setForm({ ...form, ubicacion: e.target.value })} style={inputStyle(P)} placeholder="Ej. Morelia, Mich." />
-          </div>
-
           <div>
             <FieldLabel P={P}>Video {editing && '(déjalo vacío para conservar el actual)'}</FieldLabel>
             <input
@@ -482,6 +526,55 @@ export default function BibliotecaTab({ theme = 'dark' }) {
             )}
           </div>
 
+          <div>
+            <FieldLabel P={P}>Categoría</FieldLabel>
+            <select value={form.categoria} onChange={e => setForm({ ...form, categoria: e.target.value })} style={inputStyle(P)}>
+              {CATEGORIAS.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
+            </select>
+          </div>
+
+          <div>
+            <FieldLabel P={P}>Título del video</FieldLabel>
+            <input type="text" value={form.cliente} onChange={e => setForm({ ...form, cliente: e.target.value })} style={inputStyle(P)} placeholder="Ej. Stretch Film, o el nombre del cliente" />
+          </div>
+
+          <div>
+            <FieldLabel P={P}>Producto (opcional) — para que la IA no adivine</FieldLabel>
+            <input type="text" value={form.producto} onChange={e => setForm({ ...form, producto: e.target.value })} style={inputStyle(P)} placeholder="Ej. Rafia, Esquinero, Stretch Film" />
+          </div>
+
+          <div>
+            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:6 }}>
+              <FieldLabel P={P}>Descripción (opcional) — solo se ve al abrir el video en grande</FieldLabel>
+              <button type="button" onClick={handleGenerarDescripcion} disabled={iaLoading}
+                style={{ display:'flex', alignItems:'center', gap:5, flexShrink:0, background:'none', border:'none', padding:0,
+                  color: iaLoading ? P.textDim : P.orange, fontSize:11, fontWeight:600, cursor: iaLoading ? 'not-allowed' : 'pointer' }}>
+                {Ic.sparkle} {iaLoading ? 'Generando...' : 'Generar con IA'}
+              </button>
+            </div>
+            <textarea
+              value={form.titulo}
+              onChange={e => setForm({ ...form, titulo: e.target.value.slice(0, MAX_DESC_CHARS) })}
+              maxLength={MAX_DESC_CHARS}
+              rows={4}
+              style={{ ...inputStyle(P), resize: 'vertical', lineHeight: 1.5 }}
+              placeholder="Ej. Desde Colima, así protege nuestro stretch film cada tarima en el proceso de empaque..."
+            />
+            <div style={{ textAlign:'right', fontSize:10.5, color: form.titulo.length >= MAX_DESC_CHARS ? P.orange : P.textDim, marginTop:4 }}>
+              {form.titulo.length}/{MAX_DESC_CHARS}
+            </div>
+          </div>
+
+          <div>
+            <FieldLabel P={P}>Empresa / Distribuidor (opcional)</FieldLabel>
+            <input type="text" value={form.empresa} onChange={e => setForm({ ...form, empresa: e.target.value })} style={inputStyle(P)} placeholder="Empresa" />
+          </div>
+
+          <div>
+            <FieldLabel P={P}>Ubicación (opcional)</FieldLabel>
+            <input type="text" value={form.ubicacion} onChange={e => setForm({ ...form, ubicacion: e.target.value })} style={inputStyle(P)} placeholder="Ej. Morelia, Mich." />
+          </div>
+
           <div style={{ display:'flex', gap:16, flexWrap:'wrap' }}>
             <label style={{ display:'flex', alignItems:'center', gap:9, cursor:'pointer' }}>
               <input type="checkbox" checked={!!form.activo} onChange={e => setForm({ ...form, activo: e.target.checked ? 1 : 0 })} style={{ width:14, height:14, cursor:'pointer', accentColor:P.orange }} />
@@ -507,6 +600,75 @@ export default function BibliotecaTab({ theme = 'dark' }) {
               {saving ? <><Spinner /> Guardando...</> : <>{Ic.upload} Guardar</>}
             </button>
             <button onClick={() => setModal(false)} disabled={saving}
+              style={{ padding:'11px 16px', borderRadius:9, border:`1px solid ${P.border}`, background:'transparent', color:P.textSub, fontSize:12.5, fontWeight:500, cursor:'pointer' }}>
+              Cancelar
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal open={!!replaceTarget} onClose={closeReplace} title={`Reemplazar video — ${replaceTarget?.cliente || ''}`} P={P}>
+        <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
+          <div style={{ fontSize:12, color:P.textSub, lineHeight:1.5 }}>
+            Sube el nuevo video. Cliente, categoría, descripción y demás datos se conservan — solo cambia el archivo.
+          </div>
+
+          <input
+            ref={replaceInputRef}
+            type="file"
+            accept="video/*"
+            onChange={e => pickReplaceFile(e.target.files?.[0] || null)}
+            style={{ display: 'none' }}
+          />
+          {!replaceFile ? (
+            <div
+              onClick={() => replaceInputRef.current?.click()}
+              onDragOver={e => e.preventDefault()}
+              onDrop={e => { e.preventDefault(); pickReplaceFile(e.dataTransfer.files?.[0] || null); }}
+              style={{
+                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                gap: 8, padding: '28px 16px', borderRadius: 10, cursor: 'pointer', textAlign: 'center',
+                border: `1.5px dashed ${P.border}`, background: P.surface2,
+              }}>
+              <span style={{ color: P.orange, display: 'flex' }}>{Ic.swap}</span>
+              <span style={{ fontSize: 12.5, fontWeight: 600, color: P.text }}>Selecciona o arrastra el video nuevo</span>
+              <span style={{ fontSize: 10.5, color: P.textDim }}>MP4, MOV — máx {MAX_VIDEO_MB}MB</span>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', borderRadius: 10, border: `1px solid ${P.border}`, background: P.surface2 }}>
+              <span style={{ width: 36, height: 36, borderRadius: 8, background: P.okDim, color: P.orange, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{Ic.film}</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: P.text, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{replaceFile.name}</div>
+                <div style={{ fontSize: 10.5, color: P.textDim, marginTop: 2 }}>{formatBytes(replaceFile.size)}</div>
+              </div>
+              {!replaceUploading && (
+                <button type="button" onClick={() => setReplaceFile(null)} title="Quitar" style={{ background: 'none', border: 'none', cursor: 'pointer', color: P.textDim, padding: 4, display: 'flex', flexShrink: 0 }}>
+                  {Ic.close}
+                </button>
+              )}
+            </div>
+          )}
+
+          {replaceUploading && (
+            <div style={{ display:'flex', alignItems:'center', gap:8, fontSize:11.5, color:P.orange }}>
+              <Spinner /> Subiendo video a Bunny... {replacePct}%
+            </div>
+          )}
+
+          {replaceError && (
+            <div style={{ display:'flex', alignItems:'flex-start', gap:8, padding:'9px 12px', borderRadius:8, background:P.errDim, border:`1px solid ${P.err}35`, fontSize:11.5, color:P.err }}>
+              <span style={{ flexShrink:0, marginTop:1 }}>{Ic.warn}</span> {replaceError}
+            </div>
+          )}
+
+          <div style={{ display:'flex', gap:8 }}>
+            <button onClick={handleConfirmReplace} disabled={!replaceFile || replaceUploading}
+              style={{ flex:1, padding:'11px 0', borderRadius:9, border:'none', cursor:(!replaceFile || replaceUploading) ? 'not-allowed' : 'pointer',
+                background:(!replaceFile || replaceUploading) ? P.surface3 : P.orange, color:(!replaceFile || replaceUploading) ? P.textDim : '#fff', fontSize:12.5, fontWeight:600,
+                display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
+              {replaceUploading ? <><Spinner /> Reemplazando...</> : <>{Ic.swap} Reemplazar</>}
+            </button>
+            <button onClick={closeReplace} disabled={replaceUploading}
               style={{ padding:'11px 16px', borderRadius:9, border:`1px solid ${P.border}`, background:'transparent', color:P.textSub, fontSize:12.5, fontWeight:500, cursor:'pointer' }}>
               Cancelar
             </button>

@@ -312,18 +312,30 @@ const resto = videos.filter((v: any) => !destacadosIds.has(v.id));
   }
 
   function initBibliotecaOrientation() {
-    document.querySelectorAll('.video-card video').forEach((video) => {
-      if (video.dataset.orientBound) return;
-      video.dataset.orientBound = 'true';
-
-      const card = video.closest('.video-card');
-      if (!card) return;
-
-      if (video.readyState >= 1) {
-        applyOrientation(video, card);
-      } else {
-        video.addEventListener('loadedmetadata', () => applyOrientation(video, card), { once: true });
+    document.querySelectorAll('.video-card').forEach((card) => {
+      const video = card.querySelector('.video-wrap video');
+      if (video) {
+        if (video.dataset.orientBound) return;
+        video.dataset.orientBound = 'true';
+        if (video.readyState >= 1) {
+          applyOrientation(video, card);
+        } else {
+          video.addEventListener('loadedmetadata', () => applyOrientation(video, card), { once: true });
+        }
+        return;
       }
+
+      // Bunny: no hay <video> en la tarjeta (es un iframe) — medimos con la
+      // miniatura, que Bunny genera con la proporcion real del video.
+      if (card.dataset.orientBound) return;
+      const posterUrl = card.querySelector('.expand-btn')?.dataset.poster;
+      if (!posterUrl) return;
+      card.dataset.orientBound = 'true';
+      const probe = new Image();
+      probe.onload = () => {
+        if (probe.naturalHeight > probe.naturalWidth) card.dataset.orientacion = 'vertical';
+      };
+      probe.src = posterUrl;
     });
   }
 

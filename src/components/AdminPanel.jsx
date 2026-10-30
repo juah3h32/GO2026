@@ -10,6 +10,7 @@ import ReportScheduler from './ReportScheduler';
 import VacantesTab from './VacantesTab';
 import ChangelogTab from './ChangelogTab';
 import CatalogVisualEditor from './CatalogVisualEditor';
+import BibliotecaTab from './BibliotecaTab';
 
 // ── COUNTRY CODES (GSC alpha-3) → nombre + bandera ───────────────────────────
 const COUNTRY_MAP = {
@@ -1670,7 +1671,7 @@ const ALL_PERMS = [
   {id:'overview'},{id:'console'},{id:'activity'},{id:'products'},{id:'keywords'},
   {id:'messages'},{id:'conversations'},{id:'distribuidores'},{id:'whatsapp'},
   {id:'recruitment'},{id:'vacantes'},{id:'ai'},{id:'reportes'},{id:'changelog'},
-  {id:'catalogo'},
+  {id:'catalogo'},{id:'biblioteca'},
 ];
 
 const PERM_GROUPS = [
@@ -1687,6 +1688,7 @@ const PERM_GROUPS = [
       {id:'conversations', label:'Conversaciones'},
       {id:'distribuidores',label:'Distribuidores'},
       {id:'catalogo',      label:'Catálogo Visual'},
+      {id:'biblioteca',    label:'Biblioteca de videos'},
     ],
   },
   {
@@ -3599,18 +3601,21 @@ const ALL_TABS=[
     {id:'changelog',label:'Historial',     icon:'◭'},
     {id:'users',label:'Usuarios',          icon:'◴'},
     {id:'catalog',label:'Catálogo Visual', icon:'📷'},
+    {id:'biblioteca',label:'Biblioteca',   icon:'▶'},
   ];
   
   // ✅ CORRECCIÓN FINAL: Permitimos nombres de Admin y banderas de Admin, PERO bloqueamos a RH explícitamente.
   const canSeeReportes  = !isRH && (role.name === 'Admin' || role.name === 'Super Admin' || role.role === 'Administrador' || isAdmin || isOnlyAdmin || role.tabs.includes('reportes'));
   const canSeeChangelog = isAdmin || isOnlyAdmin || role.tabs.includes('changelog');
   const canSeeWhatsapp  = isOnlyAdmin;
+  const canSeeBiblioteca = isAdmin || isOnlyAdmin || role.tabs.includes('biblioteca');
 
   const TABS=ALL_TABS.filter(t => {
     if (t.id === 'reportes')  return canSeeReportes;
     if (t.id === 'changelog') return canSeeChangelog;
     if (t.id === 'whatsapp')  return canSeeWhatsapp;
     if (t.id === 'catalog')   return canSee('catalogo');
+    if (t.id === 'biblioteca') return canSeeBiblioteca;
     if (t.id === 'suscriptores') return canSee('suscriptores')||canSee('distribuidores');
     // Tabs fusionadas: visibles si el usuario tiene CUALQUIER permiso interno
     if (t.id === 'products')      return canSee('products')||canSee('keywords');
@@ -3625,7 +3630,7 @@ const ALL_TABS=[
     { label:'Panel',     ids:['overview','console','activity'] },
     { label:'Comercial', ids:['products','conversations','distribuidores','suscriptores','recruitment'] },
     { label:'Análisis',  ids:['ai','reportes','changelog'] },
-    { label:'Gestión',   ids:['whatsapp','catalog','users'] },
+    { label:'Gestión',   ids:['whatsapp','catalog','biblioteca','users'] },
   ];
   const groupedTabs = (() => {
     const used = new Set();
@@ -5030,6 +5035,13 @@ const ALL_TABS=[
               <CatalogDownloadsSection dlData={data.catalogDownloads} P={P} isMobile={isMobile} />
             )}
             <CatalogVisualEditor P={P} onClose={onClose} />
+          </div>
+        )}
+
+        {/* ── BIBLIOTECA DE VIDEOS ── */}
+        {tab==='biblioteca'&&canSeeBiblioteca&&(
+          <div className="tab-content" key="biblioteca">
+            <BibliotecaTab theme={theme}/>
           </div>
         )}
 

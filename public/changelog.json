@@ -1,6 +1,22 @@
 {
   "commits": [
     {
+      "hash": "8e11699",
+      "date": "2026-10-30",
+      "message": "elimina carpeta virtual-velocity (proyecto suelto sin uso)",
+      "rawMessage": "chore: elimina carpeta virtual-velocity (proyecto suelto sin uso)",
+      "type": "chore",
+      "area": "General"
+    },
+    {
+      "hash": "9457daa",
+      "date": "2026-10-30",
+      "message": "integra Bunny Stream para videos de biblioteca/testimonios",
+      "rawMessage": "feat: integra Bunny Stream para videos de biblioteca/testimonios",
+      "type": "feat",
+      "area": "Media"
+    },
+    {
       "hash": "b98f149",
       "date": "2026-10-30",
       "message": "modulo biblioteca, mejoras i18n y fixes de video fallback",
@@ -3458,12 +3474,12 @@
     }
   ],
   "stats": {
-    "total": 432,
+    "total": 434,
     "byType": {
-      "feat": 79,
+      "chore": 9,
+      "feat": 80,
       "update": 44,
       "fix": 171,
-      "chore": 8,
       "refactor": 2,
       "perf": 8,
       "style": 9,
@@ -3471,8 +3487,8 @@
       "release": 110
     },
     "byArea": {
-      "Media": 52,
-      "General": 257,
+      "General": 258,
+      "Media": 53,
       "Admin/API": 41,
       "Reclutamiento": 10,
       "UI": 4,
@@ -3482,7 +3498,7 @@
       "i18n": 6
     },
     "byMonth": {
-      "2026-10": 13,
+      "2026-10": 15,
       "2026-09": 2,
       "2026-08": 6,
       "2026-07": 19,
@@ -3492,20 +3508,20 @@
       "2026-03": 96
     },
     "byAreaType": {
-      "Media": {
-        "feat": 8,
-        "update": 6,
-        "fix": 35,
-        "perf": 3
-      },
       "General": {
+        "chore": 8,
         "update": 22,
         "fix": 78,
         "feat": 33,
-        "chore": 7,
         "refactor": 2,
         "style": 5,
         "release": 110
+      },
+      "Media": {
+        "feat": 9,
+        "update": 6,
+        "fix": 35,
+        "perf": 3
       },
       "Admin/API": {
         "update": 6,
@@ -3546,5 +3562,5 @@
       }
     }
   },
-  "generatedAt": "2026-10-30T16:13:46.114Z"
+  "generatedAt": "2026-10-30T16:38:48.944Z"
 }
