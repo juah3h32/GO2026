@@ -1,21 +1,19 @@
 ---
 // src/pages/[lang]/flexible-packaging.astro
 
-import "../../styles/cuerdas.css"; 
-export const prerender = true;  // ← AGREGAR ESTA LÍNEA
+import "../../styles/cuerdas.css";
+// SSR: lee product_videos de Turso en cada request -> el video que suba el
+// admin aparece de inmediato, sin rebuild (mismo patron que biblioteca.astro).
+export const prerender = false;
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import BuyButton from "../../components/BuyButton.astro";
 import Footer from "../../components/Footer.astro";
 import ProductTitle from "../../components/ProductTitle.astro";
 import ProductTutorial from "../../components/ProductTutorial.astro";
-import { languages, translations } from "../../i18n";
+import { translations } from "../../i18n";
 import { getRelatedProducts, LOCALITY_TAG_TEXT, RELATED_PRODUCTS_HEADING } from "../../lib/catalogs.js";
-
-export function getStaticPaths() {
-  return Object.keys(languages).map((lang) => ({
-    params: { lang },
-  }));
-}
+import { readProductVideos } from "../../lib/analytics-db.js";
+import { bunnySrcForProductVideo } from "../../lib/product-page-videos.js";
 
 const { lang } = Astro.params;
 const currentLang = (lang && lang in translations) ? lang : 'es';
@@ -41,9 +39,11 @@ const relatedHeading = RELATED_PRODUCTS_HEADING[currentLang] || RELATED_PRODUCTS
 const CLOUD = import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME;
 const videoPoster = (src: string) =>
   CLOUD ? `https://res.cloudinary.com/${CLOUD}/video/upload/f_jpg,q_auto,so_0/${src.replace(/^\//, "").replace(/\.mp4$/, "")}.jpg` : '';
+const bunnyVideos = await readProductVideos();
+const BUNNY_PULLZONE = import.meta.env.PUBLIC_BUNNY_PULLZONE_HOSTNAME;
 const videoSrc = (src: string) =>
   !src || src.startsWith('/') || src.startsWith('http') ? src
-  : `https://res.cloudinary.com/${CLOUD}/video/upload/q_auto:best/${src}`;
+  : bunnySrcForProductVideo(bunnyVideos, src, BUNNY_PULLZONE) ?? `https://res.cloudinary.com/${CLOUD}/video/upload/q_auto:best/${src}`;
 const localVideo = (src: string) => {
   const file = src.replace(/^GO\/flexible\//, '').replace(/\.mp4$/, '');
   return `/videos/flexible/${file}.mp4`;

@@ -1,14 +1,13 @@
 ---
 import "../../styles/impactosocial.css";
-export const prerender = true;
+// SSR: lee product_videos de Turso en cada request -> el video que suba el
+// admin aparece de inmediato, sin rebuild (mismo patron que biblioteca.astro).
+export const prerender = false;
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Footer from "../../components/Footer.astro";
-import { languages, translations } from "../../i18n";
+import { translations } from "../../i18n";
 import ImpactoTimeline from "../../components/ImpactoTimeline";
-
-export function getStaticPaths() {
-  return Object.keys(languages).map((lang) => ({ params: { lang } }));
-}
+import { readProductVideos } from "../../lib/analytics-db.js";
 
 const { lang } = Astro.params;
 const currentLang = (lang && lang in translations) ? lang : "es";
@@ -25,10 +24,24 @@ const localVideo = (src?: string) => {
   if (src.startsWith('GO/impacto/')) return `/videos/impacto/${src.replace(/^GO\/impacto\//, '')}`;
   return '';
 };
+
+const bunnyVideos = await readProductVideos();
+const BUNNY_PULLZONE = import.meta.env.PUBLIC_BUNNY_PULLZONE_HOSTNAME;
+const bunnySrc = (slotKey: string) =>
+  bunnyVideos[slotKey] ? `https://${BUNNY_PULLZONE}/${bunnyVideos[slotKey]}/play_720p.mp4` : null;
+// Partners de la seccion oceanos (videos cortos de logo) — mapeo por nombre
+// de archivo ya que son pocos y fijos.
+const partnerSlot = (src?: string) => {
+  if (!src) return null;
+  if (src.includes('oceancleanup')) return 'impacto-oceancleanup';
+  if (src.includes('tomford')) return 'impacto-tomford';
+  return null;
+};
 const timelineItems = ti.timeline.items.map((it: any) => ({
   ...it,
-  img: cldVideo(it.img),
+  img: it.isVideo ? (bunnySrc('impacto-hogar') ?? cldVideo(it.img)) : cldVideo(it.img),
   poster: cldVideo(it.poster),
+  localFallback: it.isVideo ? localVideo(it.img) : '',
 }));
 ---
 
@@ -39,7 +52,7 @@ const timelineItems = ti.timeline.items.map((it: any) => ({
     <section class="hero-tesla">
       <div class="hero-tesla-bg">
         <video autoplay muted loop playsinline preload="metadata" class="hero-tesla-video" data-local-fallback={localVideo(ti.hero.video)}>
-          <source src={cldVideo(ti.hero.video)} type="video/mp4">
+          <source src={bunnySrc('social-hero') ?? cldVideo(ti.hero.video)} type="video/mp4">
         </video>
         <div class="hero-tesla-overlay"></div>
       </div>
@@ -225,7 +238,7 @@ const timelineItems = ti.timeline.items.map((it: any) => ({
     <section class="oceanos-section">
       <div class="oceanos-hero">
         <video autoplay muted loop playsinline preload="metadata" class="oceanos-bg-video" data-local-fallback={localVideo(ti.oceanos.hero_video)}>
-          <source src={cldVideo(ti.oceanos.hero_video)} type="video/mp4">
+          <source src={bunnySrc('social-oceanos') ?? cldVideo(ti.oceanos.hero_video)} type="video/mp4">
         </video>
         <div class="oceanos-hero-overlay"></div>
         <div class="oceanos-hero-content">
@@ -294,7 +307,7 @@ const timelineItems = ti.timeline.items.map((it: any) => ({
             <div class="oceanos-partner-card">
               <div class="oceanos-partner-logo">
                 <video autoplay muted loop playsinline preload="metadata" poster={partner.poster} data-local-fallback={localVideo(partner.video)}>
-                  <source src={cldVideo(partner.video)} type="video/mp4">
+                  <source src={(partnerSlot(partner.video) && bunnySrc(partnerSlot(partner.video)!)) ?? cldVideo(partner.video)} type="video/mp4">
                 </video>
               </div>
               <div class="oceanos-partner-info">

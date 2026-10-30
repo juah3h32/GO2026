@@ -1,17 +1,16 @@
 ---
 import "../../styles/cuerdas.css";
-export const prerender = true;
+// SSR: lee product_videos de Turso en cada request -> el video que suba el
+// admin aparece de inmediato, sin rebuild (mismo patron que biblioteca.astro).
+export const prerender = false;
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import BuyButton from "../../components/BuyButton.astro";
 import Footer from "../../components/Footer.astro";
 import ProductTitle from "../../components/ProductTitle.astro";
 import ProductTutorial from "../../components/ProductTutorial.astro";
-import { languages, translations } from "../../i18n";
+import { translations } from "../../i18n";
 import { getRelatedProducts, LOCALITY_TAG_TEXT, RELATED_PRODUCTS_HEADING } from "../../lib/catalogs.js";
-
-export function getStaticPaths() {
-  return Object.keys(languages).map((lang) => ({ params: { lang } }));
-}
+import { readProductVideos } from "../../lib/analytics-db.js";
 
 const { lang } = Astro.params;
 const currentLang = (lang && lang in translations) ? lang : 'es';
@@ -32,6 +31,12 @@ const specs = [
 const relatedProducts = getRelatedProducts('acolchado', currentLang);
 const localityTag = LOCALITY_TAG_TEXT[currentLang] || LOCALITY_TAG_TEXT.es;
 const relatedHeading = RELATED_PRODUCTS_HEADING[currentLang] || RELATED_PRODUCTS_HEADING.es;
+
+const bunnyVideos = await readProductVideos();
+const BUNNY_PULLZONE = import.meta.env.PUBLIC_BUNNY_PULLZONE_HOSTNAME;
+const acolchadoVideoSrc = bunnyVideos['pg-acolchado']
+  ? `https://${BUNNY_PULLZONE}/${bunnyVideos['pg-acolchado']}/play_720p.mp4`
+  : "https://res.cloudinary.com/dfuzfdrat/video/upload/q_auto:best/GO/acolchado/fondo.mp4";
 ---
 
 <BaseLayout
@@ -68,7 +73,7 @@ const relatedHeading = RELATED_PRODUCTS_HEADING[currentLang] || RELATED_PRODUCTS
   <div class="video-bg-wrapper" data-fallback-wrap>
     <video
       class="video-bg visible"
-      src="https://res.cloudinary.com/dfuzfdrat/video/upload/q_auto:best/GO/acolchado/fondo.mp4"
+      src={acolchadoVideoSrc}
       autoplay
       muted
       loop

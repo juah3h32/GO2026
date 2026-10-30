@@ -19,11 +19,19 @@ if (!BUNNY_LIBRARY_ID || !BUNNY_API_KEY) {
   process.exit(1);
 }
 
-const CARRUSEL_DIR = path.join(process.cwd(), 'public', 'videos', 'carrusel');
-const HOME_DIR = path.join(process.cwd(), 'public', 'videos', 'home');
+const V = (...p) => path.join(process.cwd(), 'public', 'videos', ...p);
+const CARRUSEL_DIR = V('carrusel');
+const HOME_DIR = V('home');
 
-// slot_key -> archivo local de respaldo (carrusel de productos + home)
+// slot_key -> archivo local de respaldo. Cubre TODO el sitio: home, carrusel
+// de productos, y los fondos propios de cada pagina de producto individual
+// (prefijo pg-), nosotros, catalogo, vacantes e impacto social.
 const SLOTS = [
+  // Home
+  { slot: 'hero',                 dir: HOME_DIR,     file: 'hero.mp4' },
+  { slot: 'global',               dir: HOME_DIR,     file: 'camion.mp4' },
+  { slot: 'home-4k',              dir: HOME_DIR,     file: '4K.mp4' },
+  // Carrusel de productos (home/productos/naturizable)
   { slot: 'stretch-film',         dir: CARRUSEL_DIR, file: 'stretch-film.mp4' },
   { slot: 'arpillas',             dir: CARRUSEL_DIR, file: 'arpillas.mp4' },
   { slot: 'cuerdas',              dir: CARRUSEL_DIR, file: 'cuerdas.mp4' },
@@ -34,9 +42,39 @@ const SLOTS = [
   { slot: 'naturizable',          dir: CARRUSEL_DIR, file: 'charola.mp4' },
   { slot: 'bolsas',               dir: CARRUSEL_DIR, file: 'bolsa4.mp4' },
   { slot: 'acolchado',            dir: CARRUSEL_DIR, file: 'acolchadoV.mp4' },
-  { slot: 'hero',                 dir: HOME_DIR,     file: 'hero.mp4' },
-  { slot: 'global',               dir: HOME_DIR,     file: 'camion.mp4' },
-  { slot: 'home-4k',              dir: HOME_DIR,     file: '4K.mp4' },
+  // Nosotros / Catalogo / Vacantes / Impacto social
+  { slot: 'about-nosotros',       dir: V('nosotros'), file: 'background.mp4' },
+  // catalogo-hero: NO se incluye — ese video vive en codigo muerto de
+  // catalogo.astro (la pagina hace un Astro.redirect() antes de llegar a
+  // usarlo), ninguna pagina real lo consume.
+  { slot: 'vacantes-hero',        dir: V('vacantes'), file: 'video.mp4' },
+  { slot: 'social-hero',          dir: HOME_DIR,       file: 'waves2.mp4' },
+  { slot: 'social-oceanos',       dir: HOME_DIR,       file: 'waves.mp4' },
+  { slot: 'impacto-oceancleanup', dir: V('impacto'),  file: 'oceancleanup.mp4' },
+  { slot: 'impacto-tomford',      dir: V('impacto'),  file: 'tomford.mp4' },
+  { slot: 'impacto-hogar',        dir: V('impacto'),  file: 'hogar.mp4' },
+  // Paginas de producto individual (fondo propio, distinto del carrusel)
+  { slot: 'pg-stretch-film',             dir: V('stretch'),   file: 'fondo.mp4' },
+  { slot: 'pg-sacos-slaminar',           dir: V('saco'),      file: 'slaminar.mp4' },
+  { slot: 'pg-sacos-transp',             dir: V('saco'),      file: 'transp.mp4' },
+  { slot: 'pg-sacos-eco',                dir: V('saco'),      file: 'eco.mp4' },
+  { slot: 'pg-flexible-bobinaf',         dir: V('flexible'),  file: 'bobinaf.mp4' },
+  { slot: 'pg-flexible-standup',         dir: V('flexible'),  file: 'standup.mp4' },
+  { slot: 'pg-flexible-standup-origanics', dir: V('flexible'), file: 'standup-origanics.mp4' },
+  { slot: 'pg-flexible-bolsa-alto-vacio', dir: V('flexible'), file: 'bolsa-alto-vacio.mp4' },
+  { slot: 'pg-esquineros',               dir: V('esquinero'), file: 'esquinero.mp4' },
+  { slot: 'pg-arpilla-circular',         dir: V('arpilla'),   file: 'circular.mp4' },
+  { slot: 'pg-arpilla-mono',             dir: V('arpilla'),   file: 'mono.mp4' },
+  { slot: 'pg-arpilla-costura',          dir: V('arpilla'),   file: 'costura.mp4' },
+  { slot: 'pg-arpilla-etiqueta',         dir: V('arpilla'),   file: 'etiqueta.mp4' },
+  { slot: 'pg-cuerda-1',                 dir: V('cuerdas'),   file: 'cuerda-1.mp4' },
+  { slot: 'pg-cuerda-i',                 dir: V('cuerdas'),   file: 'CuerdaI.mp4' },
+  { slot: 'pg-cuerda-e',                 dir: V('cuerdas'),   file: 'CuerdaE.mp4' },
+  { slot: 'pg-rafia-n',                  dir: V('rafia'),     file: 'fondoN.mp4' },
+  { slot: 'pg-rafia-e',                  dir: V('rafia'),     file: 'fondoE.mp4' },
+  { slot: 'pg-rafia-r',                  dir: V('rafia'),     file: 'fondoR.mp4' },
+  { slot: 'pg-bolsas',                   dir: V('bolsas'),    file: 'video.mp4' },
+  { slot: 'pg-acolchado',                dir: V('acolchado'), file: 'FONDOACOLCHADO.mp4' },
 ];
 
 const db = createClient({

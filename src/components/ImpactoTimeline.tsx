@@ -15,6 +15,7 @@ interface TimelineItem {
   img: string;
   isVideo?: boolean;
   poster?: string;
+  localFallback?: string;
 }
 
 interface Props {
@@ -52,6 +53,7 @@ export default function ImpactoTimeline({ title, subtitle, items }: Props) {
                     autoPlay muted loop playsInline
                     poster={item.poster}
                     className="it-media"
+                    data-local-fallback={item.localFallback || undefined}
                   />
                 ) : (
                   <img

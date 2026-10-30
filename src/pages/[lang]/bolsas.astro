@@ -1,17 +1,16 @@
 ---
 import "../../styles/cuerdas.css";
-export const prerender = true;
+// SSR: lee product_videos de Turso en cada request -> el video que suba el
+// admin aparece de inmediato, sin rebuild (mismo patron que biblioteca.astro).
+export const prerender = false;
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import BuyButton from "../../components/BuyButton.astro";
 import Footer from "../../components/Footer.astro";
 import ProductTitle from "../../components/ProductTitle.astro";
 import ProductTutorial from "../../components/ProductTutorial.astro";
-import { languages, translations } from "../../i18n";
+import { translations } from "../../i18n";
 import { getRelatedProducts, LOCALITY_TAG_TEXT, RELATED_PRODUCTS_HEADING } from "../../lib/catalogs.js";
-
-export function getStaticPaths() {
-  return Object.keys(languages).map((lang) => ({ params: { lang } }));
-}
+import { readProductVideos } from "../../lib/analytics-db.js";
 
 const { lang } = Astro.params;
 const currentLang = (lang && lang in translations) ? lang : 'es';
@@ -35,7 +34,11 @@ const relatedHeading = RELATED_PRODUCTS_HEADING[currentLang] || RELATED_PRODUCTS
 
 const CLOUD = import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME || 'dfuzfdrat';
 
-const BG_VIDEO = `https://res.cloudinary.com/${CLOUD}/video/upload/q_auto:best/GO/bolsas/video.mp4`;
+const bunnyVideos = await readProductVideos();
+const BUNNY_PULLZONE = import.meta.env.PUBLIC_BUNNY_PULLZONE_HOSTNAME;
+const BG_VIDEO = bunnyVideos['pg-bolsas']
+  ? `https://${BUNNY_PULLZONE}/${bunnyVideos['pg-bolsas']}/play_720p.mp4`
+  : `https://res.cloudinary.com/${CLOUD}/video/upload/q_auto:best/GO/bolsas/video.mp4`;
 const BG_POSTER = `https://res.cloudinary.com/${CLOUD}/video/upload/f_jpg,q_auto,so_0/GO/bolsas/video.jpg`;
 ---
 

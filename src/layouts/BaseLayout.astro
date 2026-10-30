@@ -36,7 +36,11 @@ const OG_LOCALE_MAP: Record<string, string> = {
 const canonicalUrl = `${BASE_URL}/${currentLang}/${canonicalSlug}`;
 const ogLocale = OG_LOCALE_MAP[currentLang] ?? "es_MX";
 
-const isDevMode = import.meta.env.DEV || Astro.url.hostname === "localhost" || Astro.url.hostname === "127.0.0.1";
+// NOTA: ni import.meta.env.DEV ni Astro.url.hostname sirven aqui (bug
+// detectado 30/oct/2026, rompia el gate de mantenimiento en produccion): el
+// adapter de Vercel invoca la funcion con una URL interna cuyo hostname
+// siempre es "localhost". process.env.VERCEL_ENV si es confiable.
+const isDevMode = process.env.VERCEL_ENV !== "production";
 
 const lang = (currentLang && currentLang in translations) ? currentLang : "es";
 const t = translations[lang as keyof typeof translations] as any;

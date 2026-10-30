@@ -87,7 +87,13 @@ export const onRequest = defineMiddleware(async (context, next) => {
   // En local (npm run dev, incluido el tunnel) no hay headers de Vercel → ip='unknown'.
   // Tambien se usa para saltar mantenimiento: en dev se sigue viendo/editando la
   // pagina real aunque este "bajada" en produccion.
-  const isDev = import.meta.env.DEV || url.hostname === 'localhost' || url.hostname === '127.0.0.1';
+  // NOTA: ni import.meta.env.DEV ni url.hostname sirven aqui (bug detectado
+  // 30/oct/2026, rompia el gate de mantenimiento en produccion): el adapter de
+  // Vercel invoca la funcion con una URL interna cuyo hostname siempre es
+  // "localhost", y import.meta.env.DEV no se reemplaza de forma confiable en
+  // el bundle de middleware. process.env.VERCEL_ENV si es confiable — Vercel
+  // lo fija a 'production' solo en deploys de produccion reales.
+  const isDev = process.env.VERCEL_ENV !== 'production';
 
   // ── Gate de mantenimiento: si el sitio esta "bajado", los visitantes ven la
   // pantalla de mantenimiento. Se excluyen /stats (panel), /api (admin reactiva),
