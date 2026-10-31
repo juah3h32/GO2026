@@ -1,6 +1,14 @@
 {
   "commits": [
     {
+      "hash": "3d42c2b",
+      "date": "2026-10-30",
+      "message": "migra subida de imagenes de catalogo de Cloudinary a Vercel Blob",
+      "rawMessage": "fix: migra subida de imagenes de catalogo de Cloudinary a Vercel Blob",
+      "type": "fix",
+      "area": "Media"
+    },
+    {
       "hash": "38f00bd",
       "date": "2026-10-30",
       "message": "corrige mantenimiento roto en produccion + migra todo el sitio a Bunny",
@@ -3506,9 +3514,9 @@
     }
   ],
   "stats": {
-    "total": 438,
+    "total": 439,
     "byType": {
-      "fix": 173,
+      "fix": 174,
       "feat": 81,
       "chore": 10,
       "update": 44,
@@ -3519,10 +3527,10 @@
       "release": 110
     },
     "byArea": {
+      "Media": 54,
       "General": 260,
       "Productos": 32,
       "Admin/API": 42,
-      "Media": 53,
       "Reclutamiento": 10,
       "UI": 4,
       "SEO": 1,
@@ -3530,7 +3538,7 @@
       "i18n": 6
     },
     "byMonth": {
-      "2026-10": 19,
+      "2026-10": 20,
       "2026-09": 2,
       "2026-08": 6,
       "2026-07": 19,
@@ -3540,6 +3548,12 @@
       "2026-03": 96
     },
     "byAreaType": {
+      "Media": {
+        "fix": 36,
+        "feat": 9,
+        "update": 6,
+        "perf": 3
+      },
       "General": {
         "fix": 79,
         "chore": 9,
@@ -3562,12 +3576,6 @@
         "feat": 16,
         "style": 2,
         "docs": 1
-      },
-      "Media": {
-        "feat": 9,
-        "update": 6,
-        "fix": 35,
-        "perf": 3
       },
       "Reclutamiento": {
         "feat": 2,
@@ -3594,5 +3602,5 @@
       }
     }
   },
-  "generatedAt": "2026-10-30T23:48:17.384Z"
+  "generatedAt": "2026-10-31T15:17:12.695Z"
 }

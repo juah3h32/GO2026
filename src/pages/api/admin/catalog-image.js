@@ -1,15 +1,12 @@
 // src/pages/api/admin/catalog-image.js
 // Sube imagen del catalogo. Solo admin.
-//  - Vercel Blob: carpeta catalogos/<categoria> (o catalogos/portada) — antes
-//    era Cloudinary, migrado porque esa cuenta quedo deshabilitada. Usa un
-//    store PUBLICO dedicado (CATALOG_BLOB_TOKEN) — el BLOB_READ_WRITE_TOKEN
-//    original apunta a un store privado, no sirve para servir imagenes al
-//    publico ni para que Puppeteer las lea al generar el PDF.
+//  - Bunny Storage: carpeta catalogos/<categoria> (o catalogos/portada) —
+//    antes era Cloudinary, migrado porque esa cuenta quedo deshabilitada.
 //  - Local (dev): public/images/<categoria> para fichas, public/images/catalogos para portada.
 // Devuelve el nombre de archivo que la pagina usa en img/coverImg.
 import fs from 'fs';
 import path from 'path';
-import { put } from '@vercel/blob';
+import { uploadToBunnyStorage } from '../../../lib/bunny-storage-client.js';
 import { verifyAdminToken } from '../../../lib/verifyAdminToken.ts';
 
 function canEditCatalog(role) {
@@ -18,18 +15,6 @@ function canEditCatalog(role) {
   return Array.isArray(role.tabs) && role.tabs.includes('catalogo');
 }
 const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { 'Content-Type': 'application/json' } });
-
-async function uploadToBlob(buffer, mime, folder, filename) {
-  const token = process.env.CATALOG_BLOB_TOKEN;
-  if (!token) throw new Error('Vercel Blob no configurado (falta CATALOG_BLOB_TOKEN)');
-  const blob = await put(`${folder}/${filename}`, buffer, {
-    access: 'public',
-    contentType: mime,
-    token,
-    addRandomSuffix: false,
-  });
-  return blob.url;
-}
 
 export async function POST({ request }) {
   try {
@@ -64,10 +49,10 @@ export async function POST({ request }) {
       localOk = true;
     } catch (e) { localErr = e.message; }
 
-    // 2) Vercel Blob: catalogos/<categoria|portada>
+    // 2) Bunny Storage: catalogos/<categoria|portada>
     let cloudUrl = null, cloudErr = null;
     try {
-      cloudUrl = await uploadToBlob(buffer, mime, `catalogos/${isCover ? 'portada' : category}`, filename);
+      cloudUrl = await uploadToBunnyStorage(buffer, mime, `catalogos/${isCover ? 'portada' : category}/${filename}`);
     } catch (e) { cloudErr = e.message; }
 
     if (!localOk && !cloudUrl) return json({ error: 'No se pudo guardar (local: ' + localErr + ' | cloud: ' + cloudErr + ')' }, 500);

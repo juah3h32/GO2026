@@ -1,11 +1,10 @@
 // src/pages/api/admin/catalog-images.js
-// Lista / elimina imagenes de Vercel Blob (carpeta catalogos/) para el editor.
-// Solo admin. Antes usaba la Admin API de Cloudinary — migrado porque esa
-// cuenta quedo deshabilitada. Usa CATALOG_BLOB_TOKEN (store publico dedicado,
-// distinto del BLOB_READ_WRITE_TOKEN original que apunta a un store privado).
+// Lista / elimina imagenes de Bunny Storage (carpeta catalogos/) para el
+// editor. Solo admin. Antes usaba la Admin API de Cloudinary — migrado
+// porque esa cuenta quedo deshabilitada.
 export const prerender = false;
 
-import { list, del } from '@vercel/blob';
+import { listBunnyStorageDir, deleteFromBunnyStorage, bunnyStoragePublicUrl, storagePathFromPublicUrl } from '../../../lib/bunny-storage-client.js';
 import { verifyAdminToken } from '../../../lib/verifyAdminToken.ts';
 
 function canEditCatalog(role) {
@@ -15,32 +14,30 @@ function canEditCatalog(role) {
 }
 const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { 'Content-Type': 'application/json' } });
 
-const carpetaDe = (pathname) => (pathname && pathname.indexOf('/') >= 0) ? pathname.slice(0, pathname.lastIndexOf('/')) : '(raiz)';
-
 export async function GET({ request, url }) {
   try {
     const role = await verifyAdminToken(request).catch(() => null);
     if (!canEditCatalog(role)) return json({ ok: false, error: 'No autorizado' }, 401);
-    const token = process.env.CATALOG_BLOB_TOKEN;
-    if (!token) return json({ ok: false, error: 'Vercel Blob no configurado' }, 500);
 
     // Por defecto solo la carpeta "catalogos" (el editor pide ?folder=catalogos).
     const folder = (url.searchParams.get('folder') || 'catalogos').replace(/^\/+|\/+$/g, '');
 
-    let images = [];
-    let cursor;
-    let pages = 0;
-    do {
-      const res = await list({ prefix: folder ? `${folder}/` : undefined, cursor, limit: 100, token });
-      res.blobs.forEach(b => images.push({
-        url: b.url,
-        public_id: b.pathname,
-        created_at: b.uploadedAt,
-        folder: carpetaDe(b.pathname),
+    // Bunny Storage lista por directorio (no por prefijo global como Vercel
+    // Blob) — primero listamos las subcarpetas (una por categoria/portada),
+    // luego los archivos de cada una.
+    const entries = await listBunnyStorageDir(folder);
+    const subdirs = entries.filter(e => e.IsDirectory).map(e => e.ObjectName);
+
+    const perSubdir = await Promise.all(subdirs.map(async (sub) => {
+      const files = await listBunnyStorageDir(`${folder}/${sub}`);
+      return files.filter(f => !f.IsDirectory).map(f => ({
+        url: bunnyStoragePublicUrl(`${folder}/${sub}/${f.ObjectName}`),
+        public_id: `${folder}/${sub}/${f.ObjectName}`,
+        created_at: f.DateCreated,
+        folder: sub,
       }));
-      cursor = res.cursor;
-      pages++;
-    } while (cursor && pages < 5);
+    }));
+    const images = perSubdir.flat();
 
     images.sort((a, b) => String(b.created_at || '').localeCompare(String(a.created_at || '')));
     const folders = Array.from(new Set(images.map(i => i.folder))).sort();
@@ -50,20 +47,18 @@ export async function GET({ request, url }) {
   }
 }
 
-// Elimina una imagen de Vercel Blob por URL (o pathname, equivalente al
+// Elimina una imagen de Bunny Storage por URL (o pathname, equivalente al
 // antiguo public_id de Cloudinary).
 export async function POST({ request }) {
   try {
     const role = await verifyAdminToken(request).catch(() => null);
     if (!canEditCatalog(role)) return json({ ok: false, error: 'No autorizado' }, 401);
-    const token = process.env.CATALOG_BLOB_TOKEN;
-    if (!token) return json({ ok: false, error: 'Vercel Blob no configurado' }, 500);
 
     const body = await request.json();
-    const target = body.url || body.public_id;
+    const target = (body.url && storagePathFromPublicUrl(body.url)) || body.public_id;
     if (body.action !== 'delete' || !target) return json({ ok: false, error: 'url requerido' }, 400);
 
-    await del(target, { token });
+    await deleteFromBunnyStorage(target);
     return json({ ok: true, deleted: true });
   } catch (err) {
     return json({ ok: false, error: err.message }, 500);
