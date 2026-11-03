@@ -971,6 +971,18 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       100% { opacity: 1; transform: translateY(0); }
     }
 
+    /* ── PC/laptop chica (901-1366px): la imagen del hero y la lista de
+       productos ya no caben igual que en un monitor grande — se achica la
+       imagen, se le da aire a la lista de abajo y se oculta el "2026" para
+       que no choque con el boton de chat. ── */
+    @media (max-width: 1366px) and (min-width: 901px) {
+      .cd-hero-media { width: min(42vw, 460px); height: 48vh; opacity: .5; }
+      .cd-hero-prodrow .cd-hero-media { top: 36%; }
+      .cd-hero-copy p { -webkit-line-clamp: 2; }
+      .cd-hero-prodrow .cd-hero-prods { margin-top: 20px; padding-bottom: 54px; }
+      .cd-year { display: none; }
+    }
+
     /* ── Responsive ── */
     @media (max-width: 900px) {
       .cd-hero, .cd-hero-prodrow { grid-template-columns: 1fr; grid-template-areas: "title" "copy" "prods"; }
