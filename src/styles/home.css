@@ -1076,7 +1076,7 @@ html.dark .carousel__num   { color: rgba(255,255,255,0.04); }
   .hero__stat     { padding: 22px 30px; }
 }
 
-@media (max-width: 1366px) {
+@media (max-width: 1599px) {
   .hero__heading-top    { font-size: clamp(3.5rem, 7vw, 6.5rem); }
   .hero__heading-bottom { font-size: clamp(2.5rem, 5vw, 4.8rem); }
   .hero__stat-num { font-size: clamp(1.8rem, 2.8vw, 2.8rem); }

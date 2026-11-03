@@ -1515,9 +1515,9 @@ footer: {
       btn_products: "Cotiza tu volumen",
       btn_about:    "Muestra gratis",
       stats: [
-        { number: 65,   suffix: "+", label: "Años surtiendo" },
+        { number: 65,   prefix: "+", label: "Años surtiendo" },
         { number: 3000, prefix: "+", label: "Personas" },
-        { number: 30,   suffix: "+", label: "Países" },
+        { number: 30,   prefix: "+", label: "Países" },
         { number: 10,   label: "Líneas de producto" }
       ]
     },
