@@ -971,11 +971,11 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       100% { opacity: 1; transform: translateY(0); }
     }
 
-    /* ── PC/laptop chica (901-1366px): la imagen del hero y la lista de
+    /* ── PC/laptop chica (901-1599px): la imagen del hero y la lista de
        productos ya no caben igual que en un monitor grande — se achica la
        imagen, se le da aire a la lista de abajo y se oculta el "2026" para
        que no choque con el boton de chat. ── */
-    @media (max-width: 1366px) and (min-width: 901px) {
+    @media (max-width: 1599px) and (min-width: 901px) {
       .cd-hero-media { width: min(42vw, 460px); height: 48vh; opacity: .5; }
       .cd-hero-prodrow .cd-hero-media { top: 36%; }
       .cd-hero-copy p { -webkit-line-clamp: 2; }
@@ -1030,9 +1030,10 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       }
     }
 
-    /* ── Deck apagado: solo en pantalla chica Y tactil (telefono real).
-       Una PC/laptop angosta con mouse o trackpad sigue usando el deck. ── */
-    @media (max-width: 900px) and (hover: none) and (pointer: coarse) {
+    /* ── Deck apagado: solo telefono real (ancho <=600px). Ancho, no touch —
+       muchas laptops Windows traen pantalla tactil y reportan pointer:coarse
+       aunque se usen con mouse/trackpad, lo que rompia el deck ahi. ── */
+    @media (max-width: 600px) {
       .cd-ficha { display: none !important; }
       .cd-scroll-hint { display: none !important; }
       .cd-deck { overflow: visible !important; }
@@ -1040,7 +1041,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
 
     /* ── Grid de productos (movil) ── */
     .cd-mobgrid { display: none; }
-    @media (max-width: 900px) and (hover: none) and (pointer: coarse) {
+    @media (max-width: 600px) {
       .cd-mobgrid {
         display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px;
         padding: 6px 18px 30px;
@@ -2967,9 +2968,10 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
 
       var qp0 = new URLSearchParams(location.search);
       var isPdf = qp0.get('pdf') === '1';
-      // Deck activo salvo pantalla chica Y tactil (telefono real). Una PC/laptop
-      // angosta con mouse o trackpad sigue usando el deck completo.
-      var mq = window.matchMedia('not all and (max-width: 900px) and (hover: none) and (pointer: coarse)');
+      // Deck activo salvo telefono real (ancho <=600px). Por ancho, no por
+      // touch — laptops Windows con pantalla tactil reportan pointer:coarse
+      // aunque se usen con mouse, lo que apagaba el deck ahi por error.
+      var mq = window.matchMedia('(min-width: 601px)');
       function apply() { if (mq.matches && slides.length) enableDeck(); else disableDeck(); }
       var onMQ = function () { apply(); };
       if (isPdf) {
