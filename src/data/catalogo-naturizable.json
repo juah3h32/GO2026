@@ -68,7 +68,7 @@
       "ar": "قسم"
     }
   },
-  "coverImg": "/images/divisiones/detallec.webp",
+  "coverImg": "/images/catalogos/naturizable-portada-1781545318433.png",
   "fichas": [
     {
       "nombre": {
@@ -212,7 +212,7 @@
         "zh": "纤维素杯",
         "ar": "كوب سيليلوز"
       },
-      "img": "/images/naturizable/naturizable-2-1782859410679.png",
+      "img": "/images/naturizable/naturizable-1-1782859402472.png",
       "soon": true,
       "lado": "",
       "desc": {
@@ -347,7 +347,7 @@
         "zh": "容器",
         "ar": "حاويات"
       },
-      "img": "/images/naturizable/naturizable-1-1782859402472.png",
+      "img": "/images/naturizable/naturizable-2-1782859410679.png",
       "soon": true,
       "lado": "",
       "desc": {

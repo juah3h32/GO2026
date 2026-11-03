@@ -42,7 +42,7 @@ const toVideoSrc = (v: string) =>
 const bunnyVideos = await readProductVideos();
 const BUNNY_PULLZONE = import.meta.env.PUBLIC_BUNNY_PULLZONE_HOSTNAME;
 const bunnySrc = (slotKey: string) =>
-  bunnyVideos[slotKey] ? `https://${BUNNY_PULLZONE}/${bunnyVideos[slotKey]}/play_720p.mp4` : null;
+  bunnyVideos[slotKey] ? `https://${BUNNY_PULLZONE}/${bunnyVideos[slotKey]}/play_1080p.mp4` : null;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ICONOS POR VALOR

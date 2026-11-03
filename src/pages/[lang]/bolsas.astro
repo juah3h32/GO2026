@@ -37,7 +37,7 @@ const CLOUD = import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME || 'dfuzfdrat';
 const bunnyVideos = await readProductVideos();
 const BUNNY_PULLZONE = import.meta.env.PUBLIC_BUNNY_PULLZONE_HOSTNAME;
 const BG_VIDEO = bunnyVideos['pg-bolsas']
-  ? `https://${BUNNY_PULLZONE}/${bunnyVideos['pg-bolsas']}/play_720p.mp4`
+  ? `https://${BUNNY_PULLZONE}/${bunnyVideos['pg-bolsas']}/play_1080p.mp4`
   : `https://res.cloudinary.com/${CLOUD}/video/upload/q_auto:best/GO/bolsas/video.mp4`;
 const BG_POSTER = `https://res.cloudinary.com/${CLOUD}/video/upload/f_jpg,q_auto,so_0/GO/bolsas/video.jpg`;
 ---

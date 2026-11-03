@@ -18,6 +18,7 @@ interface Props {
   id?: string;
   preload?: "auto" | "metadata" | "none";
   productName?: string;
+  quality?: "1080p" | "original";
 }
 
 const {
@@ -35,6 +36,9 @@ const {
   id,
   preload = "metadata",
   productName,
+  // 1080p = default para videos autoplay/background (peso liviano).
+  // original = para videos on-demand (click/hover), ahi el peso no importa.
+  quality = "1080p",
 } = Astro.props;
 
 const bunnyPullzone = import.meta.env.PUBLIC_BUNNY_PULLZONE_HOSTNAME;
@@ -42,8 +46,9 @@ const bunnyPullzone = import.meta.env.PUBLIC_BUNNY_PULLZONE_HOSTNAME;
 // Bunny Stream (mp4 fallback directo, sin iframe) tiene prioridad si existe —
 // Cloudinary queda como fuente secundaria para videos que aun no migran.
 // q_auto:best = máxima calidad sin comprimir de más
+const bunnyFile = quality === "original" ? "original.mp4" : "play_1080p.mp4";
 const primarySrc = bunnyVideoId
-  ? `https://${bunnyPullzone}/${bunnyVideoId}/play_720p.mp4`
+  ? `https://${bunnyPullzone}/${bunnyVideoId}/${bunnyFile}`
   : cloudinaryId
   ? `https://res.cloudinary.com/${cloudName}/video/upload/q_auto:best/${cloudinaryId}.mp4`
   : null;

@@ -45,10 +45,8 @@ const tyLines    = [
     .map((d: any) => (d.heroLine as string) ?? th.hero.subtitle),
 ]
 
-/* ── Cloud name para posters ── */
+/* ── Cloud name para fallback de video (Cloudinary, cuenta deshabilitada) ── */
 const CLOUD = import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME;
-const poster = (src: string) =>
-  `https://res.cloudinary.com/${CLOUD}/video/upload/f_jpg,q_auto,so_0/${src}.jpg`;
 const toLocalVideo = (cldPath: string) => `/videos/${cldPath.replace(/^GO\//, '')}.mp4`;
 
 /* ── Bunny Stream (mp4 directo) tiene prioridad sobre Cloudinary para hero/
@@ -56,7 +54,12 @@ const toLocalVideo = (cldPath: string) => `/videos/${cldPath.replace(/^GO\//, ''
 const bunnyVideos = await readProductVideos();
 const BUNNY_PULLZONE = import.meta.env.PUBLIC_BUNNY_PULLZONE_HOSTNAME;
 const bunnySrc = (slotKey: string) =>
-  bunnyVideos[slotKey] ? `https://${BUNNY_PULLZONE}/${bunnyVideos[slotKey]}/play_720p.mp4` : null;
+  bunnyVideos[slotKey] ? `https://${BUNNY_PULLZONE}/${bunnyVideos[slotKey]}/play_1080p.mp4` : null;
+
+// Poster = thumbnail real de Bunny Stream. El poster via Cloudinary (cuenta
+// deshabilitada, 401) quedaba en blanco y causaba el flash al cargar el hero.
+const bunnyPoster = (slotKey: string, fallback: string) =>
+  bunnyVideos[slotKey] ? `https://${BUNNY_PULLZONE}/${bunnyVideos[slotKey]}/thumbnail.jpg` : fallback;
 ---
 
 <BaseLayout
@@ -65,7 +68,7 @@ const bunnySrc = (slotKey: string) =>
   currentLang={currentLang}
 >
   <Fragment slot="head">
-    <link rel="preload" as="image" href={poster(th.hero.video)} fetchpriority="high" />
+    <link rel="preload" as="image" href={bunnyPoster('hero', '/images/home/planta-produccion.webp')} fetchpriority="high" />
   </Fragment>
 
 <!-- ═══════════════════════════════════════
@@ -83,7 +86,7 @@ const bunnySrc = (slotKey: string) =>
       loop
       playsinline
       preload="metadata"
-      poster={poster(th.hero.video)}
+      poster={bunnyPoster('hero', '/images/home/planta-produccion.webp')}
       data-poster-fallback="/images/home/planta-produccion.webp"
     ></video>
     <video
@@ -382,7 +385,7 @@ const bunnySrc = (slotKey: string) =>
       loop
       playsinline
       preload="none"
-      poster={poster(th.global.video)}
+      poster={bunnyPoster('global', '/images/home/planta-produccion.webp')}
       data-poster-fallback="/images/home/planta-produccion.webp"
     ></video>
     <video

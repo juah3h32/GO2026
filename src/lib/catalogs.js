@@ -25,17 +25,17 @@ export const CATALOGS = [
     title: 'Acolchado',
     division: 'Division Acolchado',
     imgFolder: 'acolchado',
-    coverImgFolder: 'acolchado',
+    coverImgFolder: 'catalogos',
     seed: acolchadoSeed
   },
-  { slug: 'digital-arpilla',     title: 'Arpilla',     division: 'Division Arpilla',     imgFolder: 'arpillas',    coverImgFolder: 'arpillas',    seed: arpillaSeed },
-  { slug: 'digital-cuerda',      title: 'Cuerda',      division: 'Division Cuerda',      imgFolder: 'cuerdas',     coverImgFolder: 'cuerdas',     seed: cuerdaSeed },
-  { slug: 'digital-rafia',       title: 'Rafia',       division: 'Division Rafia',       imgFolder: 'rafias',      coverImgFolder: 'rafias',      seed: rafiaSeed },
-  { slug: 'digital-flexible',    title: 'Empaque Flexible', division: 'Division Flexible', imgFolder: 'flexible', coverImgFolder: 'flexible', seed: flexibleSeed },
-  { slug: 'digital-saco',        title: 'Saco',        division: 'Division Saco',        imgFolder: 'sacos',       coverImgFolder: 'sacos',       seed: sacoSeed },
-  { slug: 'digital-esquinero',   title: 'Esquinero',   division: 'Division Esquinero',   imgFolder: 'esquinero',   coverImgFolder: 'esquinero',   seed: esquineroSeed },
-  { slug: 'digital-naturizable', title: 'Naturizable', division: 'Division Naturizable', imgFolder: 'naturizable', coverImgFolder: 'naturizable', seed: naturizableSeed },
-  { slug: 'digital-bolsas',      title: 'Bolsas',      division: 'Division Bolsas',      imgFolder: 'bolsas',      coverImgFolder: 'bolsas',      seed: bolsasSeed }
+  { slug: 'digital-arpilla',     title: 'Arpilla',     division: 'Division Arpilla',     imgFolder: 'arpillas',    coverImgFolder: 'catalogos',    seed: arpillaSeed },
+  { slug: 'digital-cuerda',      title: 'Cuerda',      division: 'Division Cuerda',      imgFolder: 'cuerdas',     coverImgFolder: 'catalogos',     seed: cuerdaSeed },
+  { slug: 'digital-rafia',       title: 'Rafia',       division: 'Division Rafia',       imgFolder: 'rafias',      coverImgFolder: 'catalogos',      seed: rafiaSeed },
+  { slug: 'digital-flexible',    title: 'Empaque Flexible', division: 'Division Flexible', imgFolder: 'flexible', coverImgFolder: 'catalogos', seed: flexibleSeed },
+  { slug: 'digital-saco',        title: 'Saco',        division: 'Division Saco',        imgFolder: 'sacos',       coverImgFolder: 'catalogos',       seed: sacoSeed },
+  { slug: 'digital-esquinero',   title: 'Esquinero',   division: 'Division Esquinero',   imgFolder: 'esquinero',   coverImgFolder: 'catalogos',   seed: esquineroSeed },
+  { slug: 'digital-naturizable', title: 'Naturizable', division: 'Division Naturizable', imgFolder: 'naturizable', coverImgFolder: 'catalogos', seed: naturizableSeed },
+  { slug: 'digital-bolsas',      title: 'Bolsas',      division: 'Division Bolsas',      imgFolder: 'bolsas',      coverImgFolder: 'catalogos',      seed: bolsasSeed }
   // Para agregar otro catalogo:
   // { slug: 'xxx', title: '...', division: '...', imgFolder: 'xxx', coverImgFolder: 'xxx',
   //   seed: (import del archivo src/data/catalogo-xxx.json) }

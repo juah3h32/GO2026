@@ -34,5 +34,5 @@ export function bunnySrcForProductVideo(bunnyVideos, cloudinaryPath, pullzone) {
   const basename = cloudinaryPath.split('/').pop().replace(/\.mp4$/i, '').toLowerCase();
   const slot = BASENAME_TO_SLOT[basename];
   if (!slot || !bunnyVideos[slot]) return null;
-  return `https://${pullzone}/${bunnyVideos[slot]}/play_720p.mp4`;
+  return `https://${pullzone}/${bunnyVideos[slot]}/play_1080p.mp4`;
 }

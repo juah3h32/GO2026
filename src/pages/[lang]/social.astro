@@ -28,7 +28,7 @@ const localVideo = (src?: string) => {
 const bunnyVideos = await readProductVideos();
 const BUNNY_PULLZONE = import.meta.env.PUBLIC_BUNNY_PULLZONE_HOSTNAME;
 const bunnySrc = (slotKey: string) =>
-  bunnyVideos[slotKey] ? `https://${BUNNY_PULLZONE}/${bunnyVideos[slotKey]}/play_720p.mp4` : null;
+  bunnyVideos[slotKey] ? `https://${BUNNY_PULLZONE}/${bunnyVideos[slotKey]}/play_1080p.mp4` : null;
 // Partners de la seccion oceanos (videos cortos de logo) — mapeo por nombre
 // de archivo ya que son pocos y fijos.
 const partnerSlot = (src?: string) => {
