@@ -976,7 +976,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
        imagen, se le da aire a la lista de abajo y se oculta el "2026" para
        que no choque con el boton de chat. ── */
     @media (max-width: 1599px) and (min-width: 901px) {
-      .cd-hero-media { width: min(42vw, 460px); height: 48vh; opacity: .5; }
+      .cd-hero-media { width: min(42vw, 460px); height: 48vh; }
       .cd-hero-prodrow .cd-hero-media { top: 36%; }
       .cd-hero-copy p { -webkit-line-clamp: 2; }
       .cd-hero-prodrow .cd-hero-prods { margin-top: 20px; padding-bottom: 54px; }
@@ -1649,6 +1649,8 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       }
 
       var wlock = false;
+      var wheelAccum = 0;
+      var wheelResetTimer = null;
       function onWheel(e) {
         if (!deckOn) return;
         if (editMode && edSel) return; // interactuando con elemento: bloqueo total
@@ -1684,13 +1686,24 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
         e.preventDefault();
         document.body.style.overflow = 'hidden';
 
-        if (wlock || Math.abs(e.deltaY) < 12) return;
-        
-        // Si estamos en el ultimo y queremos bajar, pero no llegamos al umbral de salida
-        if (e.deltaY > 0 && idx === slides.length - 1) return;
+        if (wlock) return;
 
+        // Acumula el delta: un mouse manda deltas grandes que cruzan el
+        // umbral de inmediato, pero un trackpad manda muchos deltas chicos
+        // durante el mismo gesto — sin acumular, nunca sumaban 12 y el
+        // trackpad se sentia "muerto". Se resetea si el gesto se detiene.
+        wheelAccum += e.deltaY;
+        clearTimeout(wheelResetTimer);
+        wheelResetTimer = setTimeout(function () { wheelAccum = 0; }, 150);
+        if (Math.abs(wheelAccum) < 12) return;
+
+        // Si estamos en el ultimo y queremos bajar, pero no llegamos al umbral de salida
+        if (wheelAccum > 0 && idx === slides.length - 1) { wheelAccum = 0; return; }
+
+        var dir = wheelAccum > 0 ? 1 : -1;
+        wheelAccum = 0;
         wlock = true; setTimeout(function () { wlock = false; }, 800);
-        show(idx + (e.deltaY > 0 ? 1 : -1));
+        show(idx + dir);
       }
 
       function onKey(e) {
@@ -3009,6 +3022,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
         window.removeEventListener('keydown', onKey);
         window.removeEventListener('touchstart', onTS);
         window.removeEventListener('touchend', onTE);
+        clearTimeout(wheelResetTimer);
         if (mq.removeEventListener) mq.removeEventListener('change', onMQ); else mq.removeListener(onMQ);
         if (io) { io.disconnect(); io = null; }
         document.body.style.overflow = '';
