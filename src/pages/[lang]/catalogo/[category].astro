@@ -1588,12 +1588,22 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       function revealIn(s)    { s.querySelectorAll('.reveal').forEach(function (e) { e.classList.add('in'); }); }
       function revealReset(s) { s.querySelectorAll('.reveal').forEach(function (e) { e.classList.remove('in'); }); }
 
+      // Bloquea scroll en <body> Y <html> — en standards mode el elemento que
+      // realmente scrollea es document.documentElement (document.scrollingElement),
+      // no <body>. Bloquear solo <body> dejaba pasar el scroll nativo con
+      // trackpad (gestos inerciales no siempre se cortan con preventDefault()).
+      function lockScroll(hidden) {
+        var v = hidden ? 'hidden' : '';
+        document.body.style.overflow = v;
+        document.documentElement.style.overflow = v;
+      }
+
       function show(i) {
         i = Math.max(0, Math.min(slides.length - 1, i));
         if (i === idx && slides[i].classList.contains('is-active')) return;
 
         // Reset scroll de pagina (critico para evitar el bug "movido")
-        document.body.style.overflow = 'hidden';
+        lockScroll(true);
         window.scrollTo(0, 0);
         setTimeout(function() { window.scrollTo(0, 0); }, 10);
 
@@ -1624,7 +1634,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       function enableDeck() {
         if (deckOn) return; deckOn = true;
         if (io) { io.disconnect(); io = null; }
-        document.body.style.overflow = 'hidden';
+        lockScroll(true);
         main.setAttribute('data-deck-on', '');
         if (elTot) elTot.textContent = pad(slides.length);
         idx = 0; show(0);
@@ -1633,7 +1643,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
       function disableDeck() {
         if (!deckOn && main.getAttribute('data-deck-on') === null && io) return;
         deckOn = false;
-        document.body.style.overflow = '';
+        lockScroll(false);
         main.removeAttribute('data-deck-on');
         window.removeEventListener('wheel', onWheel);
         slides.forEach(function (s) { s.classList.remove('is-active', 'is-exit-up'); });
@@ -1668,15 +1678,15 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
               e.preventDefault(); 
               return; 
             } 
-            document.body.style.overflow = ''; // Libera para footer
-            return; 
+            lockScroll(false); // Libera para footer
+            return;
           }
           if (!atBot) return; // scroll interno de la ficha
-        } 
+        }
         // UP: Si estamos en el footer, permite subir hasta llegar al tope
         else if (e.deltaY < 0) {
           if (pageScrolled) {
-            document.body.style.overflow = ''; 
+            lockScroll(false);
             return;
           }
           if (!atTop) return; // scroll interno de la ficha
@@ -1684,7 +1694,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
 
         // Si llegamos aqui, queremos cambiar de SLIDE (deck mode)
         e.preventDefault();
-        document.body.style.overflow = 'hidden';
+        lockScroll(true);
 
         if (wlock) return;
 
@@ -1728,20 +1738,20 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
         if (dy > 0) { // Swipe Up (Scroll Down)
           if (idx === slides.length - 1 && atBot) { 
             if (!exitReady || Math.abs(dy) < 150) return;
-            document.body.style.overflow = ''; 
-            return; 
+            lockScroll(false);
+            return;
           }
-          if (atBot) { 
+          if (atBot) {
             e.preventDefault();
-            document.body.style.overflow = 'hidden'; 
-            show(idx + 1); 
+            lockScroll(true);
+            show(idx + 1);
           }
         } else { // Swipe Down (Scroll Up)
-          if (pageScrolled) { document.body.style.overflow = ''; return; }
-          if (atTop) { 
+          if (pageScrolled) { lockScroll(false); return; }
+          if (atTop) {
             e.preventDefault();
-            document.body.style.overflow = 'hidden'; 
-            show(idx - 1); 
+            lockScroll(true);
+            show(idx - 1);
           }
         }
       }
@@ -2994,7 +3004,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
         main.setAttribute('data-cd-pdf', '');
         disableDeck();
         main.querySelectorAll('.reveal').forEach(function (e) { e.classList.add('in'); });
-        document.body.style.overflow = '';
+        lockScroll(false);
       } else {
         apply();
         if (mq.addEventListener) mq.addEventListener('change', onMQ); else mq.addListener(onMQ);
@@ -3025,7 +3035,7 @@ const ctl = CT_LABELS[currentLang] || CT_LABELS.es;
         clearTimeout(wheelResetTimer);
         if (mq.removeEventListener) mq.removeEventListener('change', onMQ); else mq.removeListener(onMQ);
         if (io) { io.disconnect(); io = null; }
-        document.body.style.overflow = '';
+        lockScroll(false);
         window.__cdCleanup = null;
       };
     }
