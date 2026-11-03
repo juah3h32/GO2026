@@ -1050,68 +1050,84 @@ body.no-scroll {
 
 /* === RESPONSIVE === */
 @media (max-width: 1024px) {
-  .desktop-only { 
-    display: none !important; 
+  :root {
+    --header-height: 64px;
   }
-  
-  .mobile-only { 
-    display: flex !important; 
+
+  .desktop-only {
+    display: none !important;
   }
-  
-  .hamburger { 
-    display: flex; 
+
+  .mobile-only {
+    display: flex !important;
   }
-  
-  .nav-right { 
-    display: flex; 
-    align-items: center; 
+
+  .hamburger {
+    display: flex;
   }
-  
+
+  .nav-right {
+    display: flex;
+    align-items: center;
+  }
+
   .mobile-controls {
     display: flex;
   }
-  
+
   .montfort-nav {
     padding: 0 20px;
   }
-  
+
   .logo img {
-    height: 40px;
+    height: 36px;
   }
-  
+
   .montfort-header {
-    padding-top: 15px;
+    padding-top: 10px;
   }
-  
+
   .montfort-header.scrolled {
     padding-top: 0;
   }
 
-  .montfort-header.logo-shifted .logo { 
-    display: none; 
+  .montfort-header.logo-shifted .logo {
+    display: none;
   }
 }
 
 @media (max-width: 480px) {
+  :root {
+    --header-height: 56px;
+  }
+
+  .montfort-header {
+    padding-top: 6px;
+  }
+
+  .logo img {
+    height: 30px;
+  }
+
   .mobile-controls {
     gap: 8px;
     margin-right: 10px;
   }
-  
+
   .lang-pill-btn {
     padding: 6px 12px;
     font-size: 13px;
   }
-  
+
   .mobile-theme-btn .icon-container {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
   }
-  
+
   .back-arrow-btn {
     width: 36px;
     height: 36px;
-    top: 20px;
+    top: 16px;
     left: 15px;
   }
 }
