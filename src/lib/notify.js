@@ -202,8 +202,8 @@ function esc(s) {
 
 function buildCandidateProfileHTML(c, logoBase64) {
   const logoHtml = logoBase64
-    ? `<img src="${logoBase64}" alt="Logo" style="width:36px;height:36px;object-fit:contain;">`
-    : `<span style="font-family:'Barlow Condensed',Helvetica,sans-serif;font-size:22px;font-weight:900;color:${WHITE};letter-spacing:-0.05em;">GO</span>`;
+    ? `<img src="${logoBase64}" alt="Logo" style="width:30px;height:30px;object-fit:contain;">`
+    : `<span style="font-family:'Barlow Condensed',Helvetica,sans-serif;font-size:20px;font-weight:900;color:${ORANGE};letter-spacing:-0.05em;">GO</span>`;
 
   const estado = [c.estado || c.estado_rep, c.colonia].filter(Boolean).join(' / ') || '—';
   const nota   = c.comentarios || c.mensaje || '';
@@ -248,34 +248,33 @@ function buildCandidateProfileHTML(c, logoBase64) {
 </head>
 <body>
 
-  <!-- HEADER -->
-  <div style="background:linear-gradient(135deg,${ORANGE} 0%,${ORANGE_DARK} 100%);
-    border-radius:16px;padding:26px 28px;display:flex;align-items:center;
+  <!-- HEADER — blanco y limpio, acento naranja solo como detalle -->
+  <div style="background:${WHITE};border-radius:16px;border:1px solid ${CREAM_DARK};
+    border-top:4px solid ${ORANGE};padding:22px 26px;display:flex;align-items:center;
     justify-content:space-between;gap:20px;margin-bottom:14px;
-    box-shadow:0 4px 20px rgba(251,103,11,0.28);">
+    box-shadow:0 1px 4px rgba(38,38,38,0.04);">
     <div style="display:flex;align-items:center;gap:16px;">
-      <div style="width:52px;height:52px;background:rgba(255,255,255,0.18);
+      <div style="width:52px;height:52px;background:rgba(251,103,11,0.10);
         border-radius:12px;display:flex;align-items:center;justify-content:center;
         flex-shrink:0;overflow:hidden;">
         ${logoHtml}
       </div>
       <div>
         <div style="font-family:'Barlow',Helvetica,sans-serif;font-size:8px;font-weight:700;
-          letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,255,255,0.65);
+          letter-spacing:0.28em;text-transform:uppercase;color:${ORANGE};
           margin-bottom:4px;">Nuevo Perfil de Candidato</div>
         <div style="font-family:'Barlow Condensed',Helvetica,sans-serif;font-size:32px;
-          font-weight:800;color:${WHITE};letter-spacing:-0.02em;line-height:1;
+          font-weight:800;color:${BLACK};letter-spacing:-0.02em;line-height:1;
           text-transform:uppercase;">${esc(c.nombre) || 'Sin nombre'}</div>
         <div style="font-family:'Barlow',Helvetica,sans-serif;font-size:13px;
-          color:rgba(255,255,255,0.78);font-weight:500;margin-top:3px;">
+          color:${GRAY_D};font-weight:500;margin-top:3px;">
           ${esc(c.puesto) || 'Puesto no especificado'}
         </div>
       </div>
     </div>
-    <div style="background:rgba(255,255,255,0.16);border:1px solid rgba(255,255,255,0.24);
-      border-radius:20px;padding:7px 16px;flex-shrink:0;">
+    <div style="background:${ORANGE};border-radius:20px;padding:7px 16px;flex-shrink:0;">
       <div style="font-family:'Barlow',Helvetica,sans-serif;font-size:9px;font-weight:700;
-        letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.85);">Nuevo</div>
+        letter-spacing:0.16em;text-transform:uppercase;color:${WHITE};">Nuevo</div>
     </div>
   </div>
 

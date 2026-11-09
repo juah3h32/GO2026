@@ -128,10 +128,10 @@ export async function POST({ request }) {
             notifyCandidateEspera({ nombre, puesto, telefono }).catch(e => console.warn('notify candidato:', e.message));
             // 2. Avisar a RH por categoría
             const { notifyCategoriaRH } = await import('../../lib/notify.js');
-            const rhResult = await notifyCategoriaRH({ nombre, puesto, telefono, email, cvNombre: cvNombre || '', cvBase64: cvBase64 || '', rh_user_id });
+            const rhResult = await notifyCategoriaRH({ nombre, puesto, edad, estado_rep: estado, colonia, telefono, email, cvNombre: cvNombre || '', cvBase64: cvBase64 || '', rh_user_id });
             console.log(`📢 RH notificados: ${rhResult.sent || 0} destinatarios`);
           } else {
-            await notifyNewVacante({ nombre, puesto, telefono, email, cvNombre, cvBase64, cvTipo, sessionId, rh_user_id });
+            await notifyNewVacante({ nombre, puesto, edad, estado, colonia, telefono, email, cvNombre, cvBase64, cvTipo, sessionId, rh_user_id });
           }
         } catch (e) { console.warn('notify error:', e.message); }
 
