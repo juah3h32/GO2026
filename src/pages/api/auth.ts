@@ -4,6 +4,17 @@ import bcrypt from 'bcryptjs';
 import { getTurso } from '../../lib/turso';
 import { verifyAdminToken } from '../../lib/verifyAdminToken';
 
+// Restaura sesión en silencio al cargar el panel — evita pedir contraseña
+// de nuevo mientras la cookie siga vigente (ver Max-Age en el POST).
+export const GET: APIRoute = async ({ request }) => {
+  const role = await verifyAdminToken(request);
+  if (!role) return new Response(JSON.stringify({ ok: false }), { status: 401 });
+  return new Response(JSON.stringify({ ok: true, role }), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' },
+  });
+};
+
 export const POST: APIRoute = async ({ request }) => {
   try {
     const jwtSecret = import.meta.env.JWT_SECRET;
@@ -244,14 +255,15 @@ const row      = result.rows[0];
     const token = await new SignJWT({ role })
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt()
-      .setExpirationTime('8h')
+      .setExpirationTime('30d')
       .sign(SECRET);
 
     return new Response(JSON.stringify({ ok: true, role }), {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Set-Cookie': `admin_token=${token}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=28800`,
+        // 30 días — "recordar sesión": no pedir contraseña de nuevo mientras la cookie siga vigente.
+        'Set-Cookie': `admin_token=${token}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=2592000`,
       },
     });
 

@@ -5,7 +5,7 @@ import { descargarPerfilPDF, exportarTodoCSV, exportarTodoPDF } from '../lib/rec
 import { DownloadRHReportButton } from './ReportGenerator';
 
 // ── PALETAS ───────────────────────────────────────────────────────────────────
-const DARK_C = {
+export const DARK_C = {
   bg:        '#080808', surface:   '#111111', surface2:  '#161616',
   surface3:  '#1c1c1c',
   border:    'rgba(255,255,255,0.07)', border2: 'rgba(255,255,255,0.04)',
@@ -19,7 +19,7 @@ const DARK_C = {
   red:       '#EF4444', redDim:    'rgba(239,68,68,0.08)',
   teal:      '#14B8A6', tealDim:   'rgba(20,184,166,0.08)',
 };
-const LIGHT_C = {
+export const LIGHT_C = {
   bg:        '#F8F9FB', surface:   '#FFFFFF', surface2:  '#F8F9FB',
   surface3:  '#F3F4F6',
   border:    '#E5E7EB', border2:   '#F3F4F6',
@@ -37,7 +37,7 @@ const LIGHT_C = {
 const CCtx = createContext(DARK_C);
 const useC  = () => useContext(CCtx);
 
-const T = {
+export const T = {
   sans: "'DM Sans', system-ui, -apple-system, sans-serif",
   mono: "'DM Mono', 'Fira Mono', monospace",
 };
@@ -575,15 +575,15 @@ const handleResend = async () => {
 
   return (
     <>
-    <div style={{ display:'flex', background: expanded ? `${sm.color}18` : `${sm.color}0e`, border:`1px solid ${expanded ? sm.color+'70' : sm.color+'45'}`, borderRadius:10, overflow:'hidden', transition:'border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease', boxShadow: expanded ? `0 2px 14px ${sm.color}25` : `0 1px 3px ${sm.color}15`, animation: recent ? 'newCardIn 0.4s ease both' : 'none' }}>
+    <div style={{ display:'flex', background: C.surface, border:`1px solid ${expanded ? sm.color+'55' : C.border}`, borderRadius:11, overflow:'hidden', transition:'border-color 0.15s ease, box-shadow 0.15s ease', boxShadow: expanded ? `0 2px 14px ${sm.color}20` : '0 1px 2px rgba(0,0,0,0.04)', animation: recent ? 'newCardIn 0.4s ease both' : 'none' }}>
 
       {/* Status side bar */}
-      <div style={{ width:6, flexShrink:0, background:sm.color }}/>
+      <div style={{ width:4, flexShrink:0, background:sm.color }}/>
 
       <div style={{ flex:1, minWidth:0 }}>
 
         {/* Clickable row — 48px height target */}
-        <div onClick={onToggle} style={{ padding:'10px 14px', display:'flex', alignItems:'center', gap:12, cursor:'pointer', background: expanded ? `${C.orange}04` : 'transparent', transition:'background 0.12s ease', flexWrap:'wrap', rowGap:6, minHeight:48 }}>
+        <div onClick={onToggle} style={{ padding:'10px 14px', display:'flex', alignItems:'center', gap:12, cursor:'pointer', background: expanded ? C.surface2 : 'transparent', transition:'background 0.12s ease', flexWrap:'wrap', rowGap:6, minHeight:48 }}>
 
           {/* Avatar */}
           <AvatarIcon nombre={candidate?.nombre} size={36} statusColor={sm.color}/>
@@ -1107,14 +1107,17 @@ const confirmDelete = async () => {
           </div>
         )}
 
-        {/* KPIs */}
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(140px,1fr))', gap:8, marginBottom:12 }}>
+        {/* KPIs — tarjetas limpias: icono en chip de color + número grande */}
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(170px,1fr))', gap:10, marginBottom:14 }}>
           {kpis.map(kpi => (
-            <div key={kpi.label} style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:12, padding:'20px 22px', position:'relative', overflow:'hidden', boxShadow:'0 1px 3px rgba(0,0,0,0.06)' }}>
-              {/* Thin top accent bar */}
-              <div style={{ position:'absolute', top:0, left:0, right:0, height:2.5, background:kpi.color, opacity:0.55, borderRadius:'12px 12px 0 0' }}/>
-              <div style={{ color:C.textDim, fontSize:10, fontFamily:T.sans, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:14 }}>{kpi.label}</div>
-              <div style={{ color:C.text, fontSize:36, fontFamily:T.mono, fontWeight:500, lineHeight:1, letterSpacing:'-0.04em' }}>{kpi.value}</div>
+            <div key={kpi.label} style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:14, padding:'18px 20px', display:'flex', alignItems:'center', gap:14, boxShadow:'0 1px 3px rgba(0,0,0,0.05)' }}>
+              <div style={{ width:42, height:42, borderRadius:11, flexShrink:0, display:'flex', alignItems:'center', justifyContent:'center', background:`${kpi.color}15`, color:kpi.color }}>
+                {kpi.icon}
+              </div>
+              <div style={{ minWidth:0 }}>
+                <div style={{ color:C.text, fontSize:26, fontFamily:T.mono, fontWeight:600, lineHeight:1.1, letterSpacing:'-0.03em' }}>{kpi.value}</div>
+                <div style={{ color:C.textDim, fontSize:10.5, fontFamily:T.sans, fontWeight:600, marginTop:2 }}>{kpi.label}</div>
+              </div>
             </div>
           ))}
         </div>

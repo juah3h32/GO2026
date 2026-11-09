@@ -17,6 +17,8 @@ import {
   getLeadOwner,
   getNoteCandidateOwner,
   getCandidateCV,
+  getConfig,
+  setConfig,
 } from '../../lib/analytics-db.js';
 import { esVacanteGoRadar, enviarPostulacionAGoRadar } from '../../lib/go-radar.js';
 
@@ -186,7 +188,7 @@ export async function POST({ request }) {
     const body       = await request.json();
     const { action } = body;
 
-    const ADMIN_ACTIONS = ['list', 'listPending', 'updateStatus', 'updateLead', 'delete', 'reset', 'addNote', 'getNotes', 'deleteNote', 'notificar-espera', 'resend', 'getCv'];
+    const ADMIN_ACTIONS = ['list', 'listPending', 'updateStatus', 'updateLead', 'delete', 'reset', 'addNote', 'getNotes', 'deleteNote', 'notificar-espera', 'resend', 'getCv', 'getGoal', 'setGoal'];
     let isAdmin = false, myId = null;
     if (ADMIN_ACTIONS.includes(action)) {
       const adminRole = await verifyAdminToken(request);
@@ -400,6 +402,22 @@ export async function POST({ request }) {
     if (action === 'list-vacantes') {
       const vacantes = await readVacantes(true); // solo activas
       return json({ ok: true, vacantes });
+    }
+
+    // ── getGoal: meta mensual de reclutamiento (tab Inicio) ────────────────
+    if (action === 'getGoal') {
+      const value = await getConfig('recruitment_monthly_goal');
+      return json({ ok: true, goal: value ? Number(value) : 0 });
+    }
+
+    // ── setGoal: solo Admin ajusta la meta mensual ─────────────────────────
+    if (action === 'setGoal') {
+      if (!isAdmin) return json({ ok: false, error: 'No autorizado.' }, 403);
+      const { goal } = body;
+      const n = Number(goal);
+      if (!Number.isFinite(n) || n < 0) return json({ ok: false, error: 'Meta invalida.' }, 400);
+      await setConfig('recruitment_monthly_goal', String(n));
+      return json({ ok: true, goal: n });
     }
 
     // ── getCv: CV completo de un candidato, bajo demanda (no viaja en la lista) ──

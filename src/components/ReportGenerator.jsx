@@ -2682,7 +2682,7 @@ export function DownloadReportButton({ data, periodMeta = null, style = {}, repo
 // ════════════════════════════════════════════════════════════════════════════
 // Una slide completa (mismo lenguaje visual que el Resumen Ejecutivo BotGO) para UN líder de RH.
 // isAdmin=true → cada slide se etiqueta con el nombre del líder (comparativo, una slide por persona).
-function buildRHSlide(sec, logoBase64, isAdmin, morganiteBase64) {
+function buildRHSlide(sec, logoBase64, isAdmin, morganiteBase64, periodLabel = 'Histórico completo') {
   const now      = new Date();
   const todayFmt = now.toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City', day: '2-digit', month: 'short', year: 'numeric' });
   const now_ms   = Date.now();
@@ -2755,7 +2755,7 @@ function buildRHSlide(sec, logoBase64, isAdmin, morganiteBase64) {
         ${logoBase64 ? `<img src="${logoBase64}" style="height:24px;width:auto;filter:brightness(0) invert(1);display:block;"/>` : `<div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:#fff;">GO</div>`}
         <div>
           <div style="font-family:'Morganite','Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:#fff;letter-spacing:0.04em;text-transform:uppercase;line-height:1;">Grupo Ortiz</div>
-          <div style="font-family:'Barlow',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.22em;color:rgba(255,255,255,0.45);text-transform:uppercase;">${isAdmin ? `Comparativo RH · ${sec.name}` : 'Resumen Reclutamiento · BotGO'}</div>
+          <div style="font-family:'Barlow',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.22em;color:rgba(255,255,255,0.45);text-transform:uppercase;">${isAdmin ? `Comparativo RH · ${sec.name} · ${periodLabel}` : `Resumen Reclutamiento · ${periodLabel}`}</div>
         </div>
       </div>
       ${kpis.map(([v, l, c], i, a) => `
@@ -2861,15 +2861,47 @@ function buildRHSlide(sec, logoBase64, isAdmin, morganiteBase64) {
   </div>`;
 }
 
-function buildRHReportHTML(sections, isAdmin, logoBase64, morganiteBase64) {
+// ── Período de corte para el reporte RH ──────────────────────────────────────
+// { type: 'all' | 'week' | 'month' | 'custom', month: 'YYYY-MM' (solo custom) }
+function getPeriodRange(period) {
+  const type = period?.type || 'all';
+  const now  = new Date();
+
+  if (type === 'week') {
+    return { from: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000), to: now, label: 'Última semana' };
+  }
+  if (type === 'month') {
+    const from  = new Date(now.getFullYear(), now.getMonth(), 1);
+    const label = now.toLocaleDateString('es-MX', { month: 'long', year: 'numeric', timeZone: 'America/Mexico_City' });
+    return { from, to: now, label: `Mes actual · ${label.charAt(0).toUpperCase()}${label.slice(1)}` };
+  }
+  if (type === 'custom' && period.month) {
+    const [y, m] = period.month.split('-').map(Number);
+    const from   = new Date(y, m - 1, 1);
+    const to     = new Date(y, m, 0, 23, 59, 59);
+    const label  = from.toLocaleDateString('es-MX', { month: 'long', year: 'numeric', timeZone: 'America/Mexico_City' });
+    return { from, to, label: label.charAt(0).toUpperCase() + label.slice(1) };
+  }
+  return { from: null, to: null, label: 'Histórico completo' };
+}
+
+function filterCandidatesByPeriod(candidates, range) {
+  if (!range.from) return candidates;
+  return (candidates || []).filter(c => {
+    const d = parseTursoDate(c.created_at || c.ts);
+    return d && d >= range.from && d <= range.to;
+  });
+}
+
+function buildRHReportHTML(sections, isAdmin, logoBase64, morganiteBase64, periodLabel = 'Histórico completo') {
   const now      = new Date();
   const todayFmt = now.toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City', day: '2-digit', month: 'short', year: 'numeric' });
-  const slides = sections.map(sec => buildRHSlide(sec, logoBase64, isAdmin, morganiteBase64)).join('');
+  const slides = sections.map(sec => buildRHSlide(sec, logoBase64, isAdmin, morganiteBase64, periodLabel)).join('');
 
   return `<!DOCTYPE html>
 <html lang="es"><head>
 <meta charset="UTF-8">
-<title>BotGO · Resumen RH · ${todayFmt}</title>
+<title>BotGO · Resumen RH · ${periodLabel} · ${todayFmt}</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700;800&family=Barlow+Condensed:wght@700;800&display=swap" rel="stylesheet">
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -2885,7 +2917,7 @@ ${slides}
 </body></html>`;
 }
 
-export function DownloadRHReportButton({ role, style = {} }) {
+export function DownloadRHReportButton({ role, style = {}, period = { type: 'all' } }) {
   const [busy, setBusy]     = useState(false);
   const [status, setStatus] = useState('idle');
   const [errMsg, setErrMsg] = useState(null);
@@ -2896,6 +2928,8 @@ export function DownloadRHReportButton({ role, style = {} }) {
     setBusy(true);
     setStatus('building');
     try {
+      const range = getPeriodRange(period);
+
       const fetchCandidatos = (filterUserId) => fetch('/api/recruitment', {
         method: 'POST', credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -2909,7 +2943,7 @@ export function DownloadRHReportButton({ role, style = {} }) {
       }).then(r => r.json()).catch(() => ({ ok: false, vacantes: [] }));
 
       const fetchSection = (name, filterUserId) => Promise.all([fetchCandidatos(filterUserId), fetchVacantes(filterUserId)])
-        .then(([c, v]) => ({ name, candidates: c?.ok ? (c.candidates || []) : [], vacantes: v?.ok ? (v.vacantes || []) : [] }));
+        .then(([c, v]) => ({ name, candidates: filterCandidatesByPeriod(c?.ok ? (c.candidates || []) : [], range), vacantes: v?.ok ? (v.vacantes || []) : [] }));
 
       let sections = [];
 
@@ -2930,10 +2964,11 @@ export function DownloadRHReportButton({ role, style = {} }) {
         fetchLogoBase64().catch(() => null),
         fetchMorganiteBase64().catch(() => null),
       ]);
-      const html = buildRHReportHTML(sections, isAdmin, logoBase64, morganiteBase64);
+      const html = buildRHReportHTML(sections, isAdmin, logoBase64, morganiteBase64, range.label);
 
-      const slug     = now => now.toISOString().split('T')[0];
-      const filename = `reporte-rh-${isAdmin ? 'comparativo' : 'propio'}-${slug(new Date())}.pdf`;
+      const slug       = now => now.toISOString().split('T')[0];
+      const periodSlug = period?.type === 'custom' ? (period.month || 'mes') : (period?.type || 'all');
+      const filename   = `reporte-rh-${isAdmin ? 'comparativo' : 'propio'}-${periodSlug}-${slug(new Date())}.pdf`;
 
       setStatus('exporting');
 

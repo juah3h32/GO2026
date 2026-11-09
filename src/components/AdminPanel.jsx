@@ -6,6 +6,7 @@ import React, { useState, useEffect, useCallback, useRef, createContext, useCont
 import { createPortal } from 'react-dom';
 import { DownloadReportButton, DownloadRHReportButton } from './ReportGenerator';
 import RecruitmentTab from './RecruitmentTab';
+import InicioRHTab from './InicioRHTab';
 import ReportScheduler from './ReportScheduler';
 import VacantesTab from './VacantesTab';
 import ChangelogTab from './ChangelogTab';
@@ -1739,6 +1740,7 @@ function UserManageCard({ user, onUpdate }) {
   const [loading,setLoading]   = useState(false);
   const [status,setStatus]     = useState(null), [msg,setMsg] = useState('');
   const [dispName,setDispName] = useState(user.name);
+  const [confirmDel,setConfirmDel] = useState(false);
   const nameRef = useRef(null);
 
   const canSaveName = newName.trim().length>=2&&newName.trim()!==dispName&&!loading;
@@ -1746,12 +1748,12 @@ function UserManageCard({ user, onUpdate }) {
 
   const handleOpen = (tab='perms') => {
     setOpen(true); setActiveTab(tab);
-    setGenPw(null); setCopied(false); setNewName('');
+    setGenPw(null); setCopied(false); setNewName(''); setConfirmDel(false);
     setSelTabs(user.tabs||[]); setCanDl(user.canDownload); setIsActive(user.active);
     setStatus(null); setMsg('');
     setTimeout(()=>(tab==='name'?nameRef:null)?.current?.focus(), 120);
   };
-  const handleCancel = () => { setOpen(false); setStatus(null); setMsg(''); setGenPw(null); };
+  const handleCancel = () => { setOpen(false); setStatus(null); setMsg(''); setGenPw(null); setConfirmDel(false); };
   const toggleTab = id => setSelTabs(s => s.includes(id) ? s.filter(x=>x!==id) : [...s,id]);
 
   const api = async body => {
@@ -1781,6 +1783,14 @@ function UserManageCard({ user, onUpdate }) {
     const j = await api({action:'updatePermissions', id:user.id, tabs:selTabs, canDownload:canDl, active:isActive});
     if(j.ok){setStatus('ok');setMsg('Permisos guardados');onUpdate();setTimeout(()=>setStatus(null),2500);}
     else{setStatus('error');setMsg(j.error||'Error');}
+    setLoading(false);
+  };
+  const handleDeleteUser = async () => {
+    if (!confirmDel) { setConfirmDel(true); return; }
+    setLoading(true); setStatus(null);
+    const j = await api({action:'deleteUser', id:user.id});
+    if (j.ok) { onUpdate(); /* la tarjeta desaparece al refrescar la lista */ }
+    else { setStatus('error'); setMsg(j.error||'Error'); setConfirmDel(false); }
     setLoading(false);
   };
 
@@ -1830,6 +1840,14 @@ function UserManageCard({ user, onUpdate }) {
                 {btn.label}
               </button>
             ))}
+            <button onClick={()=>handleOpen('delete')}
+              style={{ padding:'7px 11px',borderRadius:8,border:'1px solid rgba(239,68,68,0.30)',background:'rgba(239,68,68,0.06)',
+                color:'#EF4444',fontSize:11,fontWeight:500,cursor:'pointer',transition:'all 0.14s ease',
+                display:'flex',alignItems:'center',gap:5 }}
+              onMouseEnter={e=>{e.currentTarget.style.background='rgba(239,68,68,0.14)';}}
+              onMouseLeave={e=>{e.currentTarget.style.background='rgba(239,68,68,0.06)';}}>
+              Eliminar
+            </button>
           </div>
         )}
       </div>
@@ -1839,12 +1857,12 @@ function UserManageCard({ user, onUpdate }) {
           <OrangeBar/>
           <div style={{ height:12 }}/>
           <div style={{ display:'flex',gap:3,padding:'3px',background:P.surface2,borderRadius:9,marginBottom:16,border:`1px solid ${P.border}` }}>
-            {[{id:'perms',label:'Permisos'},{id:'password',label:'Contraseña'},{id:'name',label:'Nombre'}].map(t=>(
-              <button key={t.id} onClick={()=>{setActiveTab(t.id);setStatus(null);}}
+            {[{id:'perms',label:'Permisos'},{id:'password',label:'Contraseña'},{id:'name',label:'Nombre'},{id:'delete',label:'Eliminar'}].map(t=>(
+              <button key={t.id} onClick={()=>{setActiveTab(t.id);setStatus(null);if(t.id!=='delete')setConfirmDel(false);}}
                 style={{ flex:1,padding:'8px 0',borderRadius:7,border:'none',cursor:'pointer',fontSize:11,
                   fontWeight:t.id===activeTab?600:400,transition:'all 0.14s ease',
-                  background:t.id===activeTab?P.surface3:'transparent',
-                  color:t.id===activeTab?P.text:P.textDim,
+                  background:t.id===activeTab?(t.id==='delete'?'rgba(239,68,68,0.14)':P.surface3):'transparent',
+                  color:t.id===activeTab?(t.id==='delete'?'#EF4444':P.text):P.textDim,
                   boxShadow:t.id===activeTab?'0 1px 4px rgba(0,0,0,0.3)':'none' }}>{t.label}</button>
             ))}
           </div>
@@ -1944,6 +1962,26 @@ function UserManageCard({ user, onUpdate }) {
               <div style={{ display:'flex',gap:8 }}>
                 <button onClick={handleSaveName} disabled={!canSaveName} style={{ flex:1,padding:'11px 0',borderRadius:9,border:'none',cursor:canSaveName?'pointer':'not-allowed',background:canSaveName?P.orange:P.surface2,color:canSaveName?'#fff':P.textDim,fontSize:12,fontWeight:600,transition:'all 0.15s ease',display:'flex',alignItems:'center',justifyContent:'center',gap:8,boxShadow:canSaveName?`0 4px 14px ${P.orange}35`:'none' }}>
                   {loading?<>{spin}Guardando...</>:'Guardar nombre'}
+                </button>
+                <button onClick={handleCancel} style={{ padding:'11px 16px',borderRadius:9,border:`1px solid ${P.border}`,background:'transparent',color:P.textSub,fontSize:12,fontWeight:500,cursor:'pointer' }}>Cancelar</button>
+              </div>
+            </div>
+          )}
+
+          {/* ── ELIMINAR ── */}
+          {activeTab==='delete'&&(
+            <div style={{ display:'flex',flexDirection:'column',gap:10 }}>
+              <div style={{ background:'rgba(239,68,68,0.08)',border:'1px solid rgba(239,68,68,0.30)',borderRadius:9,padding:'12px 14px',fontSize:11,color:'#EF4444',lineHeight:1.6 }}>
+                {Icons.alert} Esto borra el acceso de <b>{dispName}</b> por completo — ya no podrá iniciar sesión. Sus candidatos y vacantes ya guardados no se borran, se quedan en el sistema.
+              </div>
+              {status==='error'&&<div style={{ padding:'9px 13px',borderRadius:9,fontSize:11,background:P.errDim,border:`1px solid ${P.gray}35`,color:P.grayMid,display:'flex',alignItems:'center',gap:8 }}>{Icons.alert} {msg}</div>}
+              <div style={{ display:'flex',gap:8 }}>
+                <button onClick={handleDeleteUser} disabled={loading}
+                  style={{ flex:1,padding:'11px 0',borderRadius:9,border:'none',cursor:loading?'not-allowed':'pointer',
+                    background:loading?P.surface2:'#EF4444',color:loading?P.textDim:'#fff',
+                    fontSize:12,fontWeight:700,transition:'all 0.15s ease',display:'flex',alignItems:'center',justifyContent:'center',gap:8,
+                    boxShadow:!loading?'0 4px 14px rgba(239,68,68,0.35)':'none' }}>
+                  {loading?<>{spin}Eliminando...</>:(confirmDel?'Sí, eliminar definitivamente':'Eliminar usuario')}
                 </button>
                 <button onClick={handleCancel} style={{ padding:'11px 16px',borderRadius:9,border:`1px solid ${P.border}`,background:'transparent',color:P.textSub,fontSize:12,fontWeight:500,cursor:'pointer' }}>Cancelar</button>
               </div>
@@ -2200,6 +2238,38 @@ const RobotIcon = ({ size=36 }) => {
     <ellipse cx="50" cy="78" rx="6" ry="2" fill={P.orangeDark} opacity="0.8"/>
   </svg>;
 };
+
+// ── WELCOME BACK — sesión guardada en cookie: muestra el perfil y pide un
+// clic en "Entrar" en vez de la contraseña (dura 30 días, ver /api/auth) ────
+function WelcomeBack({ role, onEnter, onSwitch }) {
+  const P = useP();
+  return (
+    <div style={{ padding:'38px 32px 32px', position:'relative' }}>
+      <div style={{ position:'absolute', top:0, left:0, right:0, height:3,
+        background:`linear-gradient(90deg,transparent,${P.orange},${P.orangeWarm},transparent)`, opacity:0.7 }}/>
+      <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:14, marginBottom:28 }}>
+        <div style={{ width:56, height:56, borderRadius:16, background:role.color||P.orange,
+          display:'flex', alignItems:'center', justifyContent:'center', fontSize:22, fontWeight:800, color:'#fff', flexShrink:0 }}>
+          {(role.name||'?').charAt(0).toUpperCase()}
+        </div>
+        <div style={{ textAlign:'center' }}>
+          <div style={{ fontSize:16, fontWeight:700, color:P.text }}>{role.name}</div>
+          <div style={{ fontSize:11.5, color:P.textDim, marginTop:2 }}>Sesión guardada · bienvenido de nuevo</div>
+        </div>
+      </div>
+      <button onClick={onEnter}
+        style={{ background:P.orange, color:'#fff', border:'none', borderRadius:10, padding:'13px 0',
+          fontSize:13, fontWeight:600, cursor:'pointer', width:'100%', boxShadow:`0 4px 20px ${P.orange}40`, letterSpacing:'-0.01em' }}>
+        Entrar →
+      </button>
+      <button onClick={onSwitch}
+        style={{ marginTop:12, background:'none', border:'none', cursor:'pointer', color:P.textDim,
+          fontSize:11, textDecoration:'underline', width:'100%', padding:0, fontFamily:'inherit' }}>
+        No soy yo · usar otra cuenta
+      </button>
+    </div>
+  );
+}
 
 function Login({ onLogin }) {
   const P = useP();
@@ -2539,6 +2609,178 @@ const SC_METRICS = [
   { id:'position',    label:'Posición media',      color:'#FB670B', sub:'posición promedio',   getVal: d => d.avgPos },
 ];
 
+// ── RH REPORTES — selector de período (semana / mes actual / mes exacto) ────
+function RHReportesPanel({ role }) {
+  const P = useP();
+  const [periodType, setPeriodType] = useState('all');
+  const [month, setMonth] = useState(() => new Date().toISOString().slice(0, 7));
+
+  const PERIODS = [
+    { id:'all',    label:'Todo' },
+    { id:'week',   label:'Semana' },
+    { id:'month',  label:'Mes actual' },
+    { id:'custom', label:'Elegir mes' },
+  ];
+
+  const period = periodType === 'custom' ? { type:'custom', month } : { type: periodType };
+
+  return (
+    <div style={{ maxWidth:420 }}>
+      <div style={{ background:P.surface, border:`1px solid ${P.border}`, borderRadius:12, padding:'20px 22px', boxShadow:'0 1px 3px rgba(0,0,0,0.06)' }}>
+        <div style={{ fontSize:12, color:P.textSub, fontWeight:600, letterSpacing:'0.04em', textTransform:'uppercase', marginBottom:6 }}>Exportar reporte</div>
+        <div style={{ fontSize:12.5, color:P.textDim, lineHeight:1.5, marginBottom:14 }}>Descarga un PDF con tus candidatos, vacantes y pipeline de talento.</div>
+
+        <div style={{ display:'flex', gap:6, flexWrap:'wrap', marginBottom:periodType==='custom'?10:16 }}>
+          {PERIODS.map(p => {
+            const active = periodType === p.id;
+            return (
+              <button key={p.id} onClick={()=>setPeriodType(p.id)}
+                style={{ padding:'5px 12px', borderRadius:20, fontSize:11, fontWeight:active?700:500,
+                  cursor:'pointer', background:active?P.orange:'transparent',
+                  color:active?'#fff':P.textDim, border:`1px solid ${active?P.orange:P.border}`,
+                  transition:'all 0.13s ease' }}>
+                {p.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {periodType === 'custom' && (
+          <input type="month" value={month} onChange={e=>setMonth(e.target.value)}
+            max={new Date().toISOString().slice(0, 7)}
+            style={{ marginBottom:16, padding:'7px 10px', borderRadius:8, border:`1px solid ${P.border}`, background:P.surface2, color:P.text, fontSize:12.5, width:'100%' }}/>
+        )}
+
+        <DownloadRHReportButton role={role} period={period}/>
+      </div>
+    </div>
+  );
+}
+
+// ── RH DASHBOARD ─────────────────────────────────────────────────────────────
+// Vista a pantalla completa con sidebar fijo — solo para el rol RH. Reusa
+// RecruitmentTab/VacantesTab tal cual (misma lógica, mismos datos); esto es
+// solo la "carcasa" alrededor: sidebar oscuro + topbar, en vez del modal
+// centrado con navegación por grupos que usa el panel de Admin.
+function RHDashboard({ role, theme='dark', toggleTheme, onClose }) {
+  const P = useP();
+  const w = useWindowWidth();
+  const isMobile = w < 760;
+  const [section, setSection] = useState('candidatos');
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const NAV = [
+    { id:'inicio',     label:'Inicio',     icon:<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> },
+    { id:'candidatos', label:'Candidatos', icon:<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="8" r="4"/><path d="M2 20c0-4 3.6-7 7-7s7 3 7 7"/><circle cx="18" cy="8" r="3"/><path d="M22 20c0-3-1.8-5.5-4.5-6.5"/></svg> },
+    { id:'vacantes',   label:'Vacantes',   icon:<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg> },
+    { id:'reportes',   label:'Reportes',   icon:<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> },
+  ];
+
+  const SIDEBAR_BG   = '#14130F';
+  const SIDEBAR_TEXT = 'rgba(255,255,255,0.78)';
+  const SIDEBAR_DIM  = 'rgba(255,255,255,0.40)';
+
+  const SidebarContent = () => (
+    <>
+      <div style={{ padding:'22px 20px 18px', borderBottom:'1px solid rgba(255,255,255,0.08)' }}>
+        <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+          <div style={{ width:34, height:34, borderRadius:9, background:'rgba(251,103,11,0.16)', border:'1px solid rgba(251,103,11,0.30)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+            <RobotIcon size={22}/>
+          </div>
+          <div style={{ minWidth:0 }}>
+            <div style={{ color:'#fff', fontWeight:700, fontSize:13, letterSpacing:'-0.02em' }}>Grupo Ortiz</div>
+            <div style={{ color:SIDEBAR_DIM, fontSize:10 }}>Panel RH</div>
+          </div>
+        </div>
+      </div>
+      <nav style={{ padding:'14px 12px', display:'flex', flexDirection:'column', gap:3, flex:1 }}>
+        {NAV.map(item => {
+          const active = section === item.id;
+          return (
+            <button key={item.id} onClick={()=>{setSection(item.id);setMenuOpen(false);}}
+              style={{ display:'flex', alignItems:'center', gap:11, padding:'10px 12px', borderRadius:9, border:'none',
+                background: active ? '#FB670B' : 'transparent', color: active ? '#fff' : SIDEBAR_TEXT,
+                fontSize:13, fontWeight: active ? 600 : 500, cursor:'pointer', transition:'all 0.14s ease', textAlign:'left' }}
+              onMouseEnter={e=>{if(!active)e.currentTarget.style.background='rgba(255,255,255,0.06)';}}
+              onMouseLeave={e=>{if(!active)e.currentTarget.style.background='transparent';}}>
+              {item.icon}{item.label}
+            </button>
+          );
+        })}
+      </nav>
+      <div style={{ padding:'14px 12px', borderTop:'1px solid rgba(255,255,255,0.08)' }}>
+        <button onClick={onClose}
+          style={{ width:'100%', display:'flex', alignItems:'center', gap:11, padding:'10px 12px', borderRadius:9, border:'none',
+            background:'transparent', color:SIDEBAR_DIM, fontSize:13, fontWeight:500, cursor:'pointer', transition:'all 0.14s ease' }}
+          onMouseEnter={e=>{e.currentTarget.style.background='rgba(239,68,68,0.12)';e.currentTarget.style.color='#F87171';}}
+          onMouseLeave={e=>{e.currentTarget.style.background='transparent';e.currentTarget.style.color=SIDEBAR_DIM;}}>
+          {Icons.close} Cerrar sesión
+        </button>
+      </div>
+    </>
+  );
+
+  const sectionLabel = NAV.find(n => n.id === section)?.label || '';
+
+  return (
+    <div style={{ position:'fixed', inset:0, zIndex:2147483000, display:'flex', background:P.bg }} data-theme={theme}>
+      <style>{GLOBAL_CSS}</style>
+
+      {/* Sidebar — fijo en desktop, oculto/overlay en mobile */}
+      {!isMobile && (
+        <div style={{ width:230, flexShrink:0, background:SIDEBAR_BG, display:'flex', flexDirection:'column' }}>
+          <SidebarContent/>
+        </div>
+      )}
+      {isMobile && menuOpen && (
+        <>
+          <div onClick={()=>setMenuOpen(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.5)', zIndex:10 }}/>
+          <div style={{ position:'fixed', top:0, left:0, bottom:0, width:230, background:SIDEBAR_BG, display:'flex', flexDirection:'column', zIndex:11, animation:'fadeUp 0.18s ease both' }}>
+            <SidebarContent/>
+          </div>
+        </>
+      )}
+
+      {/* Contenido */}
+      <div style={{ flex:1, minWidth:0, display:'flex', flexDirection:'column', overflow:'hidden' }}>
+        {/* Topbar */}
+        <div style={{ flexShrink:0, padding: isMobile?'12px 14px':'14px 24px', borderBottom:`1px solid ${P.border}`, background:P.surfaceGlass, display:'flex', alignItems:'center', gap:12 }}>
+          {isMobile && (
+            <button onClick={()=>setMenuOpen(true)} style={{ padding:8, borderRadius:8, border:`1px solid ${P.border}`, background:P.border2, color:P.textSub, cursor:'pointer', display:'flex' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+          )}
+          <div style={{ flex:1, minWidth:0 }}>
+            <div style={{ color:P.text, fontWeight:700, fontSize: isMobile?14:16, letterSpacing:'-0.02em' }}>{sectionLabel}</div>
+          </div>
+          <Tag color={role.color||P.orange} size={9}>{role.name}</Tag>
+          {toggleTheme && (
+            <button onClick={toggleTheme} title={theme==='dark'?'Tema claro':'Tema oscuro'}
+              style={{ padding:8, borderRadius:8, border:`1px solid ${P.border}`, background:P.border2, color:P.textSub, cursor:'pointer', display:'flex', alignItems:'center' }}>
+              {theme==='dark'
+                ? <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                : <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>}
+            </button>
+          )}
+          {isMobile && (
+            <button onClick={onClose} title="Cerrar sesión" style={{ padding:8, borderRadius:8, border:'none', background:P.orange, color:'#fff', cursor:'pointer', display:'flex' }}>
+              {Icons.close}
+            </button>
+          )}
+        </div>
+
+        {/* Sección activa */}
+        <div style={{ flex:1, minWidth:0, overflow:'auto', padding: isMobile?'14px':'20px 24px' }}>
+          {section === 'inicio' && <InicioRHTab theme={theme} role={role}/>}
+          {section === 'candidatos' && <RecruitmentTab canDelete={role.name === 'RH'} theme={theme} role={role}/>}
+          {section === 'vacantes'   && <VacantesTab theme={theme}/>}
+          {section === 'reportes'   && <RHReportesPanel role={role}/>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── DASH ──────────────────────────────────────────────────────────────────────
 // Tabs fusionadas: ids viejos de permisos (DB) → tab consolidada que los contiene
 const TAB_ALIAS = { keywords:'products', messages:'conversations', llamadas:'conversations', vacantes:'recruitment', catalogo:'catalog' };
@@ -2593,7 +2835,11 @@ function Dash({ onClose, role, theme='dark', toggleTheme, fullscreen=false }) {
 
   const [data,setData]=useState(null), [loading,setLoading]=useState(true);
   const [summary,setSummary]=useState(''), [genAI,setGenAI]=useState(false);
-  const [tab,setTab]=useState(TAB_ALIAS[role.tabs[0]]||role.tabs[0]), [last,setLast]=useState(null);
+  const [tab,setTab]=useState(() => {
+    const esRH = role.name === 'RH' || role.role === 'Recursos Humanos';
+    if (esRH && (role.tabs.includes('recruitment')||role.tabs.includes('vacantes'))) return 'inicio';
+    return TAB_ALIAS[role.tabs[0]]||role.tabs[0];
+  }), [last,setLast]=useState(null);
   // Sub-pestañas de tabs fusionadas — default según primer permiso disponible
   const [convSub,setConvSub]=useState(()=> role.tabs.includes('conversations')?'chats':role.tabs.includes('messages')?'mensajes':'llamadas');
   const [recSub,setRecSub]=useState(()=> role.tabs.includes('recruitment')?'candidatos':'vacantes');
@@ -3597,6 +3843,7 @@ function WAWebhookTab({ P, isMobile, isRH }) {
 }
 
 const ALL_TABS=[
+    {id:'inicio',  label:'Inicio',         icon:'◍'},
     {id:'overview',label:'Resumen',        icon:'◉'},
     {id:'console', label:'Console',        icon:'◌'},
     {id:'activity',label:'Actividad',      icon:'◈'},
@@ -3623,6 +3870,7 @@ const ALL_TABS=[
   const canSeeProductVideos = isAdmin || isOnlyAdmin || role.tabs.includes('productos_videos');
 
   const TABS=ALL_TABS.filter(t => {
+    if (t.id === 'inicio')    return canSee('recruitment')||canSee('vacantes');
     if (t.id === 'reportes')  return canSeeReportes;
     if (t.id === 'changelog') return canSeeChangelog;
     if (t.id === 'whatsapp')  return canSeeWhatsapp;
@@ -3640,7 +3888,7 @@ const ALL_TABS=[
   // Agrupacion de tabs por categoria (para un menu mas claro). Solo se muestran
   // los grupos/tabs que el usuario tiene permitidos.
   const TAB_GROUPS=[
-    { label:'Panel',     ids:['overview','console','activity'] },
+    { label:'Panel',     ids:['inicio','overview','console','activity'] },
     { label:'Comercial', ids:['products','conversations','distribuidores','suscriptores','recruitment'] },
     { label:'Análisis',  ids:['ai','reportes','changelog'] },
     { label:'Gestión',   ids:['whatsapp','catalog','biblioteca','productos_videos','users'] },
@@ -3938,7 +4186,14 @@ const ALL_TABS=[
         }}
         onClick={()=>{ if(menuOpen) setMenuOpen(false); if(openGroup) setOpenGroup(null); }}>
 
-        {loading&&tab!=='distribuidores'&&tab!=='recruitment'&&tab!=='users'&&tab!=='changelog'&&<Spinner/>}
+        {loading&&tab!=='distribuidores'&&tab!=='recruitment'&&tab!=='users'&&tab!=='changelog'&&tab!=='inicio'&&<Spinner/>}
+
+        {/* ── INICIO (RH) ── */}
+        {tab==='inicio'&&(canSee('recruitment')||canSee('vacantes'))&&(
+          <div className="tab-content" key="inicio">
+            <InicioRHTab theme={theme} role={role}/>
+          </div>
+        )}
 
         {/* ── OVERVIEW ── */}
         {!loading&&data&&tab==='overview'&&canSee('overview')&&(
@@ -5081,6 +5336,25 @@ const ALL_TABS=[
 export default function AdminPanel({ autoOpen = false }) {
 
   const [visible,setVisible]=useState(autoOpen), [role,setRole]=useState(null);
+  const [sessionChecked,setSessionChecked]=useState(false);
+  const [restoredRole,setRestoredRole]=useState(null); // sesión guardada en cookie — pide confirmar "Entrar", no vuelve a pedir contraseña
+
+  // Detecta si la cookie admin_token sigue vigente (dura 30 días) — si es así,
+  // no pide contraseña de nuevo: muestra el perfil guardado y un botón "Entrar".
+  useEffect(() => {
+    fetch('/api/auth', { credentials:'include' })
+      .then(r => r.json())
+      .then(j => { if (j.ok && j.role) setRestoredRole(j.role); })
+      .catch(() => {})
+      .finally(() => setSessionChecked(true));
+  }, []);
+
+  const handleLogout = useCallback(() => {
+    fetch('/api/logout', { method:'POST', credentials:'include' }).catch(() => {});
+    setVisible(false);
+    setRole(null);
+    setRestoredRole(null);
+  }, []);
 
   // Lee el tema del sistema del sitio (mismo key que el navbar: 'theme')
   const [theme, setTheme] = useState(() => {
@@ -5179,12 +5453,19 @@ export default function AdminPanel({ autoOpen = false }) {
         <style>{GLOBAL_CSS}</style>
         {visible&&(
           <div className="admin-overlay visible">
-            {!role
+            {!sessionChecked
+              ? <div style={{ display:'flex', alignItems:'center', justifyContent:'center', width:'100%', height:'100%' }}>
+                  <div style={{ width:26, height:26, borderRadius:'50%', border:`2px solid ${palette.border}`, borderTop:`2px solid ${palette.orange}`, animation:'spin 0.7s linear infinite' }}/>
+                </div>
+              : !role
               ? <div style={{ background:palette.surface, border:`1px solid ${palette.border}`,
                   borderRadius:18, width:'94vw', maxWidth:400,
                   boxShadow:`0 48px 120px rgba(0,0,0,0.80), 0 0 0 1px ${palette.orange}18`,
                   position:'relative', overflow:'hidden' }}>
-                  <Login onLogin={r=>setRole(r)}/>
+                  {restoredRole
+                    ? <WelcomeBack role={restoredRole} onEnter={()=>setRole(restoredRole)}
+                        onSwitch={()=>{ fetch('/api/logout',{method:'POST',credentials:'include'}).catch(()=>{}); setRestoredRole(null); }}/>
+                    : <Login onLogin={r=>setRole(r)}/>}
                 </div>
               : role.mustChangePassword
               ? <div style={{ background:palette.surface, border:`1px solid ${palette.border}`,
@@ -5193,7 +5474,9 @@ export default function AdminPanel({ autoOpen = false }) {
                   position:'relative', overflow:'hidden' }}>
                   <ForcePasswordChange role={role} onDone={r=>setRole(r)}/>
                 </div>
-              : <Dash onClose={()=>{setVisible(false);setRole(null);}} role={role} theme={theme} toggleTheme={toggleTheme} fullscreen={false}/>
+              : (!role.canDownload && (role.tabs||[]).includes('recruitment'))
+              ? <RHDashboard role={role} theme={theme} toggleTheme={toggleTheme} onClose={handleLogout}/>
+              : <Dash onClose={handleLogout} role={role} theme={theme} toggleTheme={toggleTheme} fullscreen={false}/>
             }
           </div>
         )}
