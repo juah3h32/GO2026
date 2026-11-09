@@ -7,9 +7,21 @@ import Footer from "../../components/Footer.astro";
 import VacantesPage from "../../components/VacantesPage.jsx";
 import VacantesNotifPrompt from "../../components/VacantesNotifPrompt.jsx";
 import { translations } from "../../i18n";
+import { readProductVideos } from "../../lib/analytics-db.js";
 
 const { lang } = Astro.params;
 const currentLang = (lang && lang in translations) ? lang : "es";
+
+// ── Video del hero (mismo que antes) ──────────────────────────────────────
+const CLOUD      = import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME;
+const VIDEO_ID    = "GO/vacantes/video";
+const posterUrl  = `https://res.cloudinary.com/${CLOUD}/video/upload/f_jpg,q_auto,so_0/GO/vacantes/video.jpg`;
+
+const bunnyVideos = await readProductVideos();
+const BUNNY_PULLZONE = import.meta.env.PUBLIC_BUNNY_PULLZONE_HOSTNAME;
+const vacantesVideoSrc = bunnyVideos['vacantes-hero']
+  ? `https://${BUNNY_PULLZONE}/${bunnyVideos['vacantes-hero']}/play_1080p.mp4`
+  : `https://res.cloudinary.com/${CLOUD}/video/upload/q_auto:best/${VIDEO_ID}.mp4`;
 
 const benefits = [
   {
@@ -50,9 +62,10 @@ const steps = [
 >
 
   <Fragment slot="head">
+    <link rel="preload" as="image" href={posterUrl} fetchpriority="high" />
     <style is:inline>
-      html.ocultar-salto { 
-        opacity: 0 !important; 
+      html.ocultar-salto {
+        opacity: 0 !important;
         pointer-events: none !important;
       }
     </style>
@@ -135,63 +148,82 @@ const steps = [
   <div class="vac-page">
 
     <!-- ════════════════════════════════
-         SUBHEADER — 3 acciones, combinado con el header del sitio
+         HERO — texto + video + franja de beneficios superpuesta
     ═════════════════════════════════ -->
-    <div class="vac-subheader">
-      <div class="vac-subheader__inner">
-        <a
-          href="#como-aplicar"
-          class="btn btn--solid btn--sm"
-          onclick="event.preventDefault(); document.getElementById('como-aplicar')?.scrollIntoView({ behavior: 'smooth' }); window.history.pushState(null, '', '#como-aplicar');"
-        >
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 8V4H8"/><rect x="4" y="8" width="16" height="12" rx="2"/>
-            <path d="M2 14h2"/><path d="M20 14h2"/><path d="M9 13v2"/><path d="M15 13v2"/>
-          </svg>
-          Postularme ahora
-        </a>
-        <a
-          href="#vacantes"
-          class="btn btn--dark-ghost btn--sm"
-          onclick="event.preventDefault(); document.getElementById('vacantes')?.scrollIntoView({ behavior: 'smooth' }); window.history.pushState(null, '', '#vacantes');"
-        >
-          Ver vacantes disponibles
-        </a>
-        <a
-          href="https://go-radar.com.mx/seguimiento"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="btn btn--dark-ghost btn--sm"
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          Seguimiento
-        </a>
+    <section class="vac-hero2">
+      <div class="vac-hero2__inner">
+
+        <div class="vac-hero2__content">
+          <p class="vac-hero2__eyebrow"><span class="vac-hero2__dash"></span>Talento GO</p>
+          <h1 class="vac-hero2__title">Construye tu historia con<br/><em>nosotros</em></h1>
+          <p class="vac-hero2__sub">
+            Más que un empleo, una oportunidad para crecer, aprender y ser parte
+            de una empresa que impulsa el valor en México y el mundo.
+          </p>
+
+          <div class="vac-hero2__ctas">
+            <a
+              href="#como-aplicar"
+              class="btn btn--solid"
+              onclick="event.preventDefault(); document.getElementById('como-aplicar')?.scrollIntoView({ behavior: 'smooth' }); window.history.pushState(null, '', '#como-aplicar');"
+            >
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 8V4H8"/><rect x="4" y="8" width="16" height="12" rx="2"/>
+                <path d="M2 14h2"/><path d="M20 14h2"/><path d="M9 13v2"/><path d="M15 13v2"/>
+              </svg>
+              Postularme ahora
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </a>
+            <a href="/es/about" class="btn btn--dark-ghost">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Conoce nuestra cultura
+            </a>
+          </div>
+
+          <div class="vac-hero2__secondary">
+            <a
+              href="#vacantes"
+              onclick="event.preventDefault(); document.getElementById('vacantes')?.scrollIntoView({ behavior: 'smooth' }); window.history.pushState(null, '', '#vacantes');"
+            >Ver vacantes disponibles</a>
+            <span class="vac-hero2__dot">·</span>
+            <a href="https://go-radar.com.mx/seguimiento" target="_blank" rel="noopener noreferrer">Seguimiento en GO Radar</a>
+          </div>
+        </div>
+
+        <div class="vac-hero2__media">
+          <div class="vac-hero2__media-clip">
+            <video
+              class="vac-hero2__video"
+              src={vacantesVideoSrc}
+              autoplay
+              muted
+              loop
+              playsinline
+              preload="metadata"
+              poster={posterUrl}
+            ></video>
+          </div>
+          <span class="vac-hero2__shape vac-hero2__shape--a"></span>
+          <span class="vac-hero2__shape vac-hero2__shape--b"></span>
+        </div>
+
       </div>
-    </div>
 
-    <!-- ════════════════════════════════
-         POR QUÉ GRUPO ORTIZ
-    ═════════════════════════════════ -->
-    <section class="vac-section">
-      <div class="vac-section-inner">
-
-        <div class="vac-section__header">
-          <p class="section-tag">Por qué elegirnos</p>
-          <h2 class="section-heading">Un lugar donde <em>crecer</em></h2>
-        </div>
-
-        <div class="vac-benefits-grid">
-          {benefits.map(b => (
-            <div class="vac-benefit-card">
-              <div class="vac-benefit-icon">
-                <Fragment set:html={b.svg} />
-              </div>
-              <div class="vac-benefit-title">{b.title}</div>
-              <div class="vac-benefit-desc">{b.desc}</div>
+      <!-- Franja de beneficios — superpuesta al borde inferior del hero -->
+      <div class="vac-hero2__benefits">
+        {benefits.map(b => (
+          <div class="vac-hero2__benefit">
+            <div class="vac-hero2__benefit-icon">
+              <Fragment set:html={b.svg} />
             </div>
-          ))}
-        </div>
-
+            <div>
+              <div class="vac-hero2__benefit-title">{b.title}</div>
+              <div class="vac-hero2__benefit-desc">{b.desc}</div>
+            </div>
+          </div>
+        ))}
       </div>
     </section>
 

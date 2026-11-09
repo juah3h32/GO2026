@@ -37,6 +37,43 @@ const IcBriefcase = () => (
     <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
   </svg>
 );
+const IcSearch = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+  </svg>
+);
+
+// ── Categorías de búsqueda rápida — palabras clave para matchear titulo/área ──
+const CATEGORIAS = [
+  {
+    label: 'Producción', keywords: ['produccion', 'planta', 'manufactura', 'operador', 'operaria', 'reciclado'],
+    icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21V10l5 3V10l5 3V10l5 3v8H3z"/><path d="M3 21h18"/></svg>,
+  },
+  {
+    label: 'Mantenimiento', keywords: ['mantenimiento', 'mecanico', 'electrico', 'tecnico'],
+    icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L2 19v3h3l7.3-7.3a4 4 0 0 0 5.4-5.4l-3.1 3.1-2-2z"/></svg>,
+  },
+  {
+    label: 'Ingeniería', keywords: ['ingenieria', 'ingeniero', 'calidad'],
+    icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2L4 7v2a9 9 0 0 0 8 13 9 9 0 0 0 8-13V7l-8-5z"/></svg>,
+  },
+  {
+    label: 'Administración', keywords: ['administracion', 'ejecutivo', 'compras', 'costos', 'controlador', 'auxiliar administrativo'],
+    icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>,
+  },
+  {
+    label: 'Mercadotecnia', keywords: ['marketing', 'mercadotecnia', 'comercial', 'ventas', 'comercio exterior'],
+    icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 11l18-7-7 18-2-8-9-3z"/></svg>,
+  },
+  {
+    label: 'Becarios', keywords: ['becario', 'becari', 'practicante'],
+    icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg>,
+  },
+];
+
+function normTexto(s) {
+  return (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+}
 
 // Formatea salario: agrega comas de miles y símbolo $ si aplica
 // "10000 mensual" → "$10,000 mensual" · "Negociable" → "Negociable"
@@ -59,6 +96,8 @@ export default function VacantesPage() {
   const [beneficios,  setBeneficios]  = useState(DEFAULT_BENEFICIOS);
   const [loading,     setLoading]     = useState(true);
   const [selected,  setSelected]  = useState(null);
+  const [query,     setQuery]     = useState('');
+  const [categoria, setCategoria] = useState(null);
   const savedScrollRef = useRef(0);
   const [showAll,   setShowAll]   = useState(false);
   const tapCountRef   = useRef(0);
@@ -234,8 +273,18 @@ export default function VacantesPage() {
   }
 
   const activas  = vacantes.filter(v => v.activa);
-  const visibles = showAll ? activas : activas.slice(0, VISIBLE_DEFAULT);
-  const ocultas  = activas.length - VISIBLE_DEFAULT;
+
+  const categoriaActiva = CATEGORIAS.find(c => c.label === categoria) || null;
+  const filtradas = activas.filter(v => {
+    const texto = normTexto(`${v.titulo} ${v.area}`);
+    const matchQuery = !query.trim() || texto.includes(normTexto(query));
+    const matchCategoria = !categoriaActiva || categoriaActiva.keywords.some(k => texto.includes(k));
+    return matchQuery && matchCategoria;
+  });
+  const hayFiltro = !!query.trim() || !!categoriaActiva;
+
+  const visibles = showAll ? filtradas : filtradas.slice(0, VISIBLE_DEFAULT);
+  const ocultas  = filtradas.length - VISIBLE_DEFAULT;
 
   // ── Sin vacantes ──
   if (!activas.length) {
@@ -466,8 +515,49 @@ export default function VacantesPage() {
         .vp-postular-btn:active { transform:scale(0.98); }
       `}</style>
 
+      {/* ── BUSCADOR + CATEGORÍAS ── */}
+      <div className="vac-search-row">
+        <div className="vac-search-box">
+          <IcSearch />
+          <input
+            type="text"
+            className="vac-search-input"
+            placeholder="Buscar vacante (ej. operador, mantenimiento, producción…)"
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+          />
+        </div>
+      </div>
+
+      <div className="vac-categorias-row">
+        {CATEGORIAS.map(c => (
+          <button
+            key={c.label}
+            className={`vac-categoria-pill${categoria === c.label ? ' is-active' : ''}`}
+            onClick={() => setCategoria(categoria === c.label ? null : c.label)}
+          >
+            {c.icon}
+            {c.label}
+          </button>
+        ))}
+      </div>
+
+      {hayFiltro && filtradas.length === 0 && (
+        <div style={{ textAlign:'center', padding:'40px 20px', fontFamily:FONT_SANS, color:'var(--vac-muted)', fontSize:14 }}>
+          No encontramos vacantes para "{query || categoria}".{' '}
+          <button
+            onClick={() => { setQuery(''); setCategoria(null); }}
+            style={{ color:'#FB670B', fontWeight:700, background:'none', border:'none', cursor:'pointer', fontSize:14, textDecoration:'underline' }}
+          >
+            Ver todas las vacantes
+          </button>
+        </div>
+      )}
+
       {/* ── GRID DE TARJETAS ── */}
       {/* Cuando está expandido: caja scrollable con máscara que "se come" las cards */}
+      {filtradas.length > 0 && (
+      <>
       <div className={showAll ? 'vac-scroll-box' : undefined} ref={showAll ? scrollBoxRef : null}>
         <div className="vac-positions-grid">
           {visibles.map((v) => {
@@ -589,6 +679,8 @@ export default function VacantesPage() {
             Ver {ocultas} vacante{ocultas !== 1 ? 's' : ''} más
           </button>
         </div>
+      )}
+      </>
       )}
 
       {/* ── CTA: NO ENCONTRÉ MI PUESTO ── */}
