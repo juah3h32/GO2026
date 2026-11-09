@@ -733,6 +733,73 @@ const SubscribeCard = ({ t, onSubscribe, onDismiss }) => {
   );
 };
 
+// ─── Comprobante en PDF — folio/clave quedan guardados aunque se pierda el chat ──
+async function descargarComprobantePDF(candidato) {
+  const { PDFDocument, StandardFonts, rgb } = await import('pdf-lib');
+  const doc    = await PDFDocument.create();
+  const page   = doc.addPage([420, 560]);
+  const bold   = await doc.embedFont(StandardFonts.HelveticaBold);
+  const normal = await doc.embedFont(StandardFonts.Helvetica);
+  const orange = rgb(0.984, 0.403, 0.043);
+  const black  = rgb(0.149, 0.149, 0.149);
+  const gray   = rgb(0.42, 0.42, 0.42);
+
+  let y = 510;
+  const draw = (text, { x = 36, size = 11, font = normal, color = black, gap = 18 } = {}) => {
+    page.drawText(String(text), { x, y, size, font, color });
+    y -= gap;
+  };
+
+  draw('GO', { x: 36, y, size: 26, font: bold, color: orange, gap: 30 });
+  draw('Comprobante de postulación', { size: 16, font: bold, gap: 22 });
+  draw('Grupo Ortiz — grupo-ortiz.com/vacantes', { size: 9, color: gray, gap: 26 });
+
+  page.drawLine({ start: { x: 36, y }, end: { x: 384, y }, thickness: 1, color: rgb(0.9,0.9,0.9) });
+  y -= 22;
+
+  draw('Folio interno', { size: 9, color: gray, gap: 14 });
+  draw(`#${String(candidato.id || '').padStart(5, '0')}`, { size: 14, font: bold, gap: 26 });
+
+  draw('Nombre', { size: 9, color: gray, gap: 14 });
+  draw(candidato.nombre || '—', { size: 12, gap: 24 });
+
+  draw('Puesto', { size: 9, color: gray, gap: 14 });
+  draw(candidato.puesto || '—', { size: 12, gap: 24 });
+
+  if (candidato.telefono) { draw('Teléfono', { size: 9, color: gray, gap: 14 }); draw(candidato.telefono, { size: 12, gap: 24 }); }
+  if (candidato.email)    { draw('Correo', { size: 9, color: gray, gap: 14 }); draw(candidato.email, { size: 12, gap: 24 }); }
+
+  if (candidato.radar?.ok && candidato.radar.referencia) {
+    y -= 6;
+    page.drawRectangle({ x: 30, y: y - 100, width: 360, height: 106, color: rgb(0.996,0.953,0.925), borderColor: orange, borderWidth: 1 });
+    y -= 14;
+    draw('Tu postulación también quedó en GO Radar', { x: 44, size: 10, font: bold, color: orange, gap: 20 });
+    draw('Folio Radar', { x: 44, size: 9, color: gray, gap: 14 });
+    draw(candidato.radar.referencia, { x: 44, size: 13, font: bold, gap: 22 });
+    if (candidato.radar.clave) {
+      draw('Clave de seguimiento', { x: 44, size: 9, color: gray, gap: 14 });
+      draw(candidato.radar.clave, { x: 44, size: 13, font: bold, gap: 22 });
+    }
+    y -= 6;
+    draw('Entra a go-radar.com.mx/seguimiento con tu folio y clave', { x: 44, size: 8.5, color: gray, gap: 18 });
+  }
+
+  y -= 16;
+  draw('RH revisará tu perfil y se pondrá en contacto contigo.', { size: 9, color: gray, gap: 14 });
+  draw(new Date().toLocaleString('es-MX', { dateStyle: 'long', timeStyle: 'short' }), { size: 8.5, color: gray, gap: 14 });
+
+  const bytes = await doc.save();
+  const blob  = new Blob([bytes], { type: 'application/pdf' });
+  const url   = URL.createObjectURL(blob);
+  const a     = document.createElement('a');
+  a.href = url;
+  a.download = `Comprobante-${(candidato.nombre || 'postulacion').replace(/[^a-zA-Z0-9]+/g, '-')}.pdf`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+
 const PreRegistroReview = ({ candidato, t, onConfirmar }) => {
   const [visible, setVisible] = useState(false);
   const [campos, setCampos] = useState({
@@ -866,10 +933,12 @@ const RecruitmentConfirmation = ({ candidato, t }) => {
     email:    candidato?.email    || '',
     telefono: candidato?.telefono || '',
   });
-  const [editando,  setEditando]  = useState(null);
-  const [valorEdit, setValorEdit] = useState('');
-  const [saving,    setSaving]    = useState(false);
-  const [savedKey,  setSavedKey]  = useState(null);
+  const [editando,     setEditando]     = useState(null);
+  const [valorEdit,    setValorEdit]    = useState('');
+  const [saving,       setSaving]       = useState(false);
+  const [savedKey,     setSavedKey]     = useState(null);
+  const [mostrarEdit,  setMostrarEdit]  = useState(false);
+  const [descargando,  setDescargando]  = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => setVisible(true), 120);
@@ -904,8 +973,16 @@ const RecruitmentConfirmation = ({ candidato, t }) => {
     setValorEdit('');
   };
 
+  const handleDescargar = async () => {
+    setDescargando(true);
+    try { await descargarComprobantePDF({ ...candidato, ...campos }); }
+    catch (e) { console.error('comprobante PDF:', e.message); }
+    setDescargando(false);
+  };
+
   const fieldOrder = ['nombre', 'puesto', 'edad', 'estado', 'colonia', 'email', 'telefono'];
   const fieldsToShow = fieldOrder.filter(k => campos[k]);
+  const radarOk = candidato?.radar?.ok && candidato.radar.referencia;
 
   return (
     <div className={`recruitment-confirmation ${visible ? 'confirmation-visible' : ''}`} role="status" aria-live="polite">
@@ -933,28 +1010,31 @@ const RecruitmentConfirmation = ({ candidato, t }) => {
             </div>
           )}
 
-          {candidato?.radar?.ok && candidato.radar.referencia && (
+          {radarOk && (
             <div className="confirmation-radar-box">
-              <p className="confirmation-radar-title">Tu postulación también quedó registrada en GO Radar</p>
-              <div className="confirmation-badge-row">
-                <span className="confirmation-badge-label">Folio Radar</span>
-                <span className="confirmation-badge-value confirmation-folio">{candidato.radar.referencia}</span>
-              </div>
-              {candidato.radar.clave && (
-                <div className="confirmation-badge-row">
-                  <span className="confirmation-badge-label">Clave</span>
-                  <span className="confirmation-badge-value confirmation-folio">{candidato.radar.clave}</span>
+              <p className="confirmation-radar-title">También quedó registrada en GO Radar</p>
+              <div className="confirmation-radar-grid">
+                <div>
+                  <span className="confirmation-radar-grid-label">Folio Radar</span>
+                  <span className="confirmation-folio">{candidato.radar.referencia}</span>
                 </div>
-              )}
-              <p className="conf-edit-hint" style={{ marginTop: 6 }}>
-                Guarda tu folio y clave. Entra a{' '}
-                <a href={candidato.radar.seguimiento_url || 'https://go-radar.com.mx/seguimiento'} target="_blank" rel="noopener noreferrer">
-                  go-radar.com.mx/seguimiento
-                </a>{' '}
-                para aceptar el aviso de privacidad y darle seguimiento a tu postulación.
-              </p>
+                {candidato.radar.clave && (
+                  <div>
+                    <span className="confirmation-radar-grid-label">Clave</span>
+                    <span className="confirmation-folio">{candidato.radar.clave}</span>
+                  </div>
+                )}
+              </div>
+              <a
+                href={candidato.radar.seguimiento_url || 'https://go-radar.com.mx/seguimiento'}
+                target="_blank" rel="noopener noreferrer"
+                className="confirmation-radar-cta"
+              >
+                Ir a mi seguimiento
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </a>
               {candidato.radar.sinCv && (
-                <p className="conf-edit-hint" style={{ marginTop: 2 }}>
+                <p className="conf-edit-hint" style={{ marginTop: 6 }}>
                   Te registramos sin CV adjunto — RH te contactará directo con tus datos.
                 </p>
               )}
@@ -963,60 +1043,73 @@ const RecruitmentConfirmation = ({ candidato, t }) => {
 
           {candidato?.radar && !candidato.radar.ok && candidato.radar.codigo !== 'sin_configurar' && (
             <p className="conf-edit-hint" style={{ marginTop: 6, color: '#b45309' }}>
-              No pudimos enviar tu CV a GO Radar ({candidato.radar.mensaje || 'inténtalo de nuevo'}). Tu solicitud sí quedó guardada con nosotros.
+              No pudimos enviar tu solicitud a GO Radar ({candidato.radar.mensaje || 'inténtalo de nuevo'}). Tu solicitud sí quedó guardada con nosotros.
             </p>
           )}
-
-          {fieldsToShow.length > 0 && (
-            <p className="conf-edit-hint">
-              ¿Algo está mal?&nbsp;Toca&nbsp;
-              <span className="conf-edit-hint-icon"><PencilIcon size={10} /></span>
-              &nbsp;para corregirlo.
-            </p>
-          )}
-
-          {fieldsToShow.map(key => {
-            const isEditing = editando === key;
-            const wasSaved  = savedKey  === key;
-            return (
-              <div key={key} className="confirmation-badge-row conf-editable-row">
-                <span className="confirmation-badge-label">{LABELS[key]}</span>
-                {isEditing ? (
-                  <div className="conf-edit-group">
-                    <input
-                      className="conf-edit-input"
-                      value={valorEdit}
-                      onChange={e => setValorEdit(e.target.value)}
-                      onKeyDown={e => {
-                        if (e.key === 'Enter')  handleSave(key);
-                        if (e.key === 'Escape') handleCancel();
-                      }}
-                      autoFocus
-                    />
-                    <button className="conf-edit-ok" onClick={() => handleSave(key)} disabled={saving}>
-                      {saving
-                        ? <span style={{ fontSize: 11, lineHeight: 1 }}>…</span>
-                        : <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                      }
-                    </button>
-                    <button className="conf-edit-x" onClick={handleCancel}>
-                      <CloseIcon size={11} />
-                    </button>
-                  </div>
-                ) : (
-                  <div className="conf-value-wrap">
-                    <span className={`confirmation-badge-value${wasSaved ? ' conf-saved-flash' : ''}`}>
-                      {campos[key]}
-                    </span>
-                    <button className="conf-pencil-btn" onClick={() => handleEdit(key)} title={`Editar ${LABELS[key]}`}>
-                      <PencilIcon size={12} />
-                    </button>
-                  </div>
-                )}
-              </div>
-            );
-          })}
         </div>
+
+        {/* ── Acciones: comprobante + seguimiento, para no perder el folio al salir ── */}
+        <div className="confirmation-actions">
+          <button className="confirmation-action-btn" onClick={handleDescargar} disabled={descargando}>
+            <PdfIcon /> {descargando ? 'Generando…' : 'Descargar comprobante'}
+          </button>
+          <a href="/es/vacantes#vacantes" className="confirmation-action-btn confirmation-action-btn--ghost">
+            <VacanteIcon /> Ver más vacantes
+          </a>
+        </div>
+
+        {fieldsToShow.length > 0 && (
+          <button className="confirmation-toggle-edit" onClick={() => setMostrarEdit(v => !v)}>
+            <PencilIcon size={11} />
+            {mostrarEdit ? 'Ocultar mis datos' : '¿Algo está mal? Editar mis datos'}
+          </button>
+        )}
+
+        {mostrarEdit && (
+          <div className="confirmation-badge confirmation-edit-panel">
+            {fieldsToShow.map(key => {
+              const isEditing = editando === key;
+              const wasSaved  = savedKey  === key;
+              return (
+                <div key={key} className="confirmation-badge-row conf-editable-row">
+                  <span className="confirmation-badge-label">{LABELS[key]}</span>
+                  {isEditing ? (
+                    <div className="conf-edit-group">
+                      <input
+                        className="conf-edit-input"
+                        value={valorEdit}
+                        onChange={e => setValorEdit(e.target.value)}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter')  handleSave(key);
+                          if (e.key === 'Escape') handleCancel();
+                        }}
+                        autoFocus
+                      />
+                      <button className="conf-edit-ok" onClick={() => handleSave(key)} disabled={saving}>
+                        {saving
+                          ? <span style={{ fontSize: 11, lineHeight: 1 }}>…</span>
+                          : <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        }
+                      </button>
+                      <button className="conf-edit-x" onClick={handleCancel}>
+                        <CloseIcon size={11} />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="conf-value-wrap">
+                      <span className={`confirmation-badge-value${wasSaved ? ' conf-saved-flash' : ''}`}>
+                        {campos[key]}
+                      </span>
+                      <button className="conf-pencil-btn" onClick={() => handleEdit(key)} title={`Editar ${LABELS[key]}`}>
+                        <PencilIcon size={12} />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         {campos.email && (
           <p className="conf-edit-hint" style={{ marginTop: 8 }}>

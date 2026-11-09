@@ -1727,12 +1727,51 @@ html.dark .rp-step--pending .rp-step-label { color: #555; }
 /* ── GO Radar: folio + clave de seguimiento ── */
 .confirmation-radar-box {
   background: rgba(251,103,11,0.08); border: 1px solid rgba(251,103,11,0.22);
-  border-radius: 8px; padding: 8px 10px; display: flex; flex-direction: column; gap: 5px;
+  border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px;
 }
-.confirmation-radar-title { font-size: 0.72rem; font-weight: 700; color: #C94E00; margin: 0 0 2px; }
-.confirmation-radar-box .confirmation-badge-label { color: #C94E00; }
+.confirmation-radar-title { font-size: 0.72rem; font-weight: 700; color: #C94E00; margin: 0; }
 .confirmation-radar-box .confirmation-folio { color: #D45500; }
-.confirmation-radar-box a { color: #D45500; font-weight: 600; }
+
+/* Folio + clave en 2 columnas — compacto, sin filas largas */
+.confirmation-radar-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px 10px;
+}
+.confirmation-radar-grid > div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.confirmation-radar-grid-label {
+  font-size: 0.62rem; font-weight: 700; color: #C94E00; text-transform: uppercase; letter-spacing: 0.04em;
+}
+.confirmation-radar-grid .confirmation-folio { font-size: 0.78rem; word-break: break-all; }
+
+.confirmation-radar-cta {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  background: #FB670B; color: #fff !important; font-weight: 700; font-size: 0.74rem;
+  text-decoration: none !important; padding: 8px 12px; border-radius: 8px;
+  transition: background 0.15s ease;
+}
+.confirmation-radar-cta:hover { background: #d95e08; }
+
+/* ── Acciones: descargar comprobante / ver vacantes ── */
+.confirmation-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.confirmation-action-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  flex: 1 1 140px; padding: 9px 12px; border-radius: 9px; border: none;
+  background: #15803d; color: #fff; font-size: 0.74rem; font-weight: 700;
+  cursor: pointer; text-decoration: none !important; transition: opacity 0.15s ease;
+}
+.confirmation-action-btn:hover { opacity: 0.88; }
+.confirmation-action-btn:disabled { opacity: 0.55; cursor: default; }
+.confirmation-action-btn--ghost {
+  background: transparent; border: 1.5px solid #86efac; color: #15803d;
+}
+
+/* ── Editar mis datos: colapsado por defecto ── */
+.confirmation-toggle-edit {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: none; border: none; padding: 6px 0; margin-top: 8px;
+  font-size: 0.7rem; font-weight: 600; color: #4b7a5a; cursor: pointer;
+  text-decoration: underline; text-underline-offset: 2px;
+}
+.confirmation-edit-panel { margin-top: 6px; }
 
 /* â”€â”€ Hint de ediciÃ³n â”€â”€ */
 .conf-edit-hint {
@@ -1791,14 +1830,14 @@ html.dark .rp-step--pending .rp-step-label { color: #555; }
    ========================================= */
 .pre-registro-review {
   /* Alineado con burbujas del bot pero sin sangrÃ­a excesiva */
-  margin: 12px 6px 4px 6px;
-  padding: 14px;
+  margin: 10px 6px 4px 6px;
+  padding: 11px;
   background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
   border: 1.5px solid #fdba74;
-  border-radius: 16px;
+  border-radius: 14px;
   display: flex;
   flex-direction: column;
-  gap: 11px;
+  gap: 8px;
   /* LÃ­mite mÃ¡ximo para no desbordarse en ventanas anchas */
   max-width: 100%;
   box-sizing: border-box;
@@ -1815,31 +1854,32 @@ html.dark .rp-step--pending .rp-step-label { color: #555; }
 .pre-registro-header {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 .pre-registro-icon {
   flex-shrink: 0;
-  width: 36px; height: 36px;
+  width: 28px; height: 28px;
   border-radius: 50%;
   background: rgba(251,103,11,0.13);
   display: flex; align-items: center; justify-content: center;
   color: #FB670B;
 }
+.pre-registro-icon svg { width: 14px; height: 14px; }
 .pre-registro-titles { flex: 1; min-width: 0; }
 .pre-registro-title {
-  font-size: 0.84rem; font-weight: 700; color: #9a3412;
-  margin: 0 0 2px 0; line-height: 1.3;
+  font-size: 0.78rem; font-weight: 700; color: #9a3412;
+  margin: 0 0 1px 0; line-height: 1.25;
 }
 .pre-registro-subtitle {
-  font-size: 0.73rem; color: #c2410c;
-  margin: 0; line-height: 1.4;
+  font-size: 0.68rem; color: #c2410c;
+  margin: 0; line-height: 1.3;
 }
 
 /* â”€â”€ Campos â”€â”€ */
 .pre-registro-fields {
   background: rgba(255,255,255,0.62);
   border-radius: 10px;
-  padding: 9px 11px;
+  padding: 6px 10px;
   display: flex;
   flex-direction: column;
   gap: 0;
@@ -1849,37 +1889,41 @@ html.dark .rp-step--pending .rp-step-label { color: #555; }
   justify-content: space-between;
   align-items: center;
   gap: 6px;
-  min-height: 30px;
+  min-height: 24px;
+  padding: 4px 0;
   /* LÃ­nea separadora entre filas */
   border-bottom: 1px solid rgba(251,103,11,0.08);
 }
 .pre-registro-row:last-child { border-bottom: none; }
 
 .pre-registro-label {
-  font-size: 0.68rem;
+  font-size: 0.62rem;
   color: #a05a2c;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   flex-shrink: 0;
-  /* Label toma ~35% del ancho */
-  width: 35%;
+  /* Label toma ~32% del ancho */
+  width: 32%;
 }
-/* Valor + lÃ¡piz comparten el 65% restante */
+/* Valor + lÃ¡piz comparten el 68% restante */
 .pre-registro-row .conf-value-wrap {
   flex: 1;
   min-width: 0;
   justify-content: flex-end;
 }
 .pre-registro-value {
-  font-size: 0.79rem;
+  font-size: 0.73rem;
   color: #7c2d12;
   font-weight: 600;
   text-align: right;
-  /* Permitir wrap para no recortar valores largos */
+  /* Textos largos (ej. puesto) se recortan a 2 lineas — completo al editar */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
   word-break: break-word;
-  white-space: normal;
-  line-height: 1.35;
+  line-height: 1.3;
 }
 /* Grupo de ediciÃ³n ocupa todo el espacio disponible */
 .pre-registro-row .conf-edit-group {
