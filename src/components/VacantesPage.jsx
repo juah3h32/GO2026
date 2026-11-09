@@ -661,14 +661,14 @@ export default function VacantesPage() {
 
               {/* Tags */}
               <div style={{ display:'flex', gap:7, flexWrap:'wrap', marginBottom:20 }}>
-                {[
-                  fmtSalario(selected.salario),
-                  selected.tipo,
-                ].filter(Boolean).map((tag, j) => (
-                  <span key={j} style={{ fontFamily:FONT_SANS, display:'inline-flex', alignItems:'center', gap:4, background:'rgba(34,197,94,0.10)', color:'#16a34a', border:'1px solid rgba(34,197,94,0.20)', padding:'4px 11px', borderRadius:6, fontSize:12, fontWeight:700 }}>
-                    <IcCheck />{tag}
+                {fmtSalario(selected.salario) && (
+                  <span style={{ fontFamily:FONT_SANS, display:'inline-flex', alignItems:'center', gap:4, background:'rgba(251,103,11,0.09)', color:'#D45500', border:'1px solid rgba(251,103,11,0.22)', padding:'4px 11px', borderRadius:6, fontSize:12, fontWeight:700 }}>
+                    <IcCheck />{fmtSalario(selected.salario)}
                   </span>
-                ))}
+                )}
+                {selected.tipo && (
+                  <span style={{ fontFamily:FONT_SANS, background:'var(--clr-bg)', color:'var(--clr-muted)', border:'1px solid var(--clr-border)', padding:'4px 11px', borderRadius:6, fontSize:12, fontWeight:600 }}>{selected.tipo}</span>
+                )}
                 {selected.horario && (
                   <span style={{ fontFamily:FONT_SANS, background:'var(--clr-bg)', color:'var(--clr-muted)', border:'1px solid var(--clr-border)', padding:'4px 11px', borderRadius:6, fontSize:12, fontWeight:600 }}>{selected.horario}</span>
                 )}
