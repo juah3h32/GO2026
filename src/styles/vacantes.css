@@ -260,6 +260,26 @@
   margin-bottom : clamp(40px, 6vw, 72px);
 }
 
+.vac-seguimiento-link {
+  display        : inline-flex;
+  align-items    : center;
+  gap            : 8px;
+  margin-top     : 16px;
+  padding        : 10px 20px;
+  border         : 1.5px solid #FB670B;
+  border-radius  : 50px;
+  color          : #FB670B;
+  font-size      : 13px;
+  font-weight    : 700;
+  letter-spacing : -0.01em;
+  text-decoration: none;
+  transition     : background 0.15s ease, color 0.15s ease;
+}
+.vac-seguimiento-link:hover {
+  background: #FB670B;
+  color     : #fff;
+}
+
 /* ── Sticky vacantes header (activado al expandir) ── */
 #vacantes-header.is-sticky {
   position      : sticky;
