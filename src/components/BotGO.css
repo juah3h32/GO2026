@@ -1724,6 +1724,16 @@ html.dark .rp-step--pending .rp-step-label { color: #555; }
 }
 .confirmation-folio { color: #16a34a; font-family: monospace; font-size: 0.82rem; letter-spacing: 0.06em; }
 
+/* ── GO Radar: folio + clave de seguimiento ── */
+.confirmation-radar-box {
+  background: rgba(251,103,11,0.08); border: 1px solid rgba(251,103,11,0.22);
+  border-radius: 8px; padding: 8px 10px; display: flex; flex-direction: column; gap: 5px;
+}
+.confirmation-radar-title { font-size: 0.72rem; font-weight: 700; color: #C94E00; margin: 0 0 2px; }
+.confirmation-radar-box .confirmation-badge-label { color: #C94E00; }
+.confirmation-radar-box .confirmation-folio { color: #D45500; }
+.confirmation-radar-box a { color: #D45500; font-weight: 600; }
+
 /* â”€â”€ Hint de ediciÃ³n â”€â”€ */
 .conf-edit-hint {
   font-size: 0.68rem; color: #4b7a5a; margin: 5px 0 4px;

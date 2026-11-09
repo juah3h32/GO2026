@@ -17,6 +17,7 @@ import {
   getLeadOwner,
   getNoteCandidateOwner,
 } from '../../lib/analytics-db.js';
+import { esVacanteGoRadar, enviarPostulacionAGoRadar } from '../../lib/go-radar.js';
 
 // Busca, entre las vacantes activas, la que corresponde al "puesto" escrito/elegido
 // por el candidato — para heredar su dueño (rh_user_id) al guardar el lead.
@@ -74,11 +75,12 @@ export async function POST({ request }) {
         const esListaEspera = formData.get('esListaEspera') === '1';
         const cvNombreForm = formData.get('cvNombre')     || '';
 
-        let cvBase64 = '', cvNombre = cvNombreForm, cvTipo = '';
+        let cvBase64 = '', cvNombre = cvNombreForm, cvTipo = '', cvBuffer = null;
         if (file && typeof file !== 'string' && file.size > 0) {
           const MAX_SIZE = 5 * 1024 * 1024;
           if (file.size <= MAX_SIZE) {
-            cvBase64 = Buffer.from(await file.arrayBuffer()).toString('base64');
+            cvBuffer = Buffer.from(await file.arrayBuffer());
+            cvBase64 = cvBuffer.toString('base64');
             cvNombre = file.name || cvNombreForm;
             cvTipo   = file.type || '';
           }
@@ -90,6 +92,7 @@ export async function POST({ request }) {
 
         let en_lista_espera = esListaEspera ? 1 : 0;
         let rh_user_id = null;
+        let vacanteMatch = null;
         try {
           const vacantesActivas = (await readVacantes(true)) || [];
           if (!esListaEspera) {
@@ -104,7 +107,8 @@ export async function POST({ request }) {
               if (!hay) en_lista_espera = 1;
             }
           }
-          rh_user_id = matchVacante(puesto, vacantesActivas)?.rh_user_id ?? null;
+          vacanteMatch = matchVacante(puesto, vacantesActivas);
+          rh_user_id = vacanteMatch?.rh_user_id ?? null;
         } catch {}
 
         const saved = await saveRecruitmentLead({
@@ -115,6 +119,8 @@ export async function POST({ request }) {
           en_lista_espera, rh_user_id,
         });
         autoSuscribirCandidato(nombre, email);
+
+        const candidatoId = saved?.id || null;
 
         try {
           if (en_lista_espera) {
@@ -129,7 +135,17 @@ export async function POST({ request }) {
           }
         } catch (e) { console.warn('notify error:', e.message); }
 
-        return json({ ok: true, id: saved?.id || null, esListaEspera: !!en_lista_espera });
+        // Vacante publicada por GO Radar → reenviar la postulación (con CV) para folio y clave de seguimiento
+        let radar = null;
+        if (!en_lista_espera && vacanteMatch && esVacanteGoRadar(vacanteMatch)) {
+          radar = await enviarPostulacionAGoRadar({
+            vacanteId: vacanteMatch.id, nombre, edad, estado, colonia, telefono, correo: email,
+            cvBuffer, cvNombre, cvTipo,
+            solicitudId: `go2026-${candidatoId}-${vacanteMatch.id}`,
+          });
+        }
+
+        return json({ ok: true, id: candidatoId, esListaEspera: !!en_lista_espera, radar });
       }
 
       // ── upload de CV suelto (previsualización antes de confirmar) ─────────
@@ -211,6 +227,7 @@ export async function POST({ request }) {
       // Determinar lista de espera: puede venir del frontend o se detecta aquí
       let en_lista_espera = esListaEspera ? 1 : 0;
       let rh_user_id = null;
+      let vacanteMatch = null;
       try {
         const vacantesActivas = (await readVacantes(true)) || [];
         if (!esListaEspera) {
@@ -226,7 +243,8 @@ export async function POST({ request }) {
             if (!hayMatch) en_lista_espera = 1;
           }
         }
-        rh_user_id = matchVacante(puesto, vacantesActivas)?.rh_user_id ?? null;
+        vacanteMatch = matchVacante(puesto, vacantesActivas);
+        rh_user_id = vacanteMatch?.rh_user_id ?? null;
       } catch { /* si falla la consulta, no forzamos lista espera */ }
 
       const saved = await saveRecruitmentLead({
@@ -273,7 +291,18 @@ export async function POST({ request }) {
         console.error('⚠️ Notificación RH falló:', err.message);
       }
 
-      return json({ ok: true, id: candidatoId, en_lista_espera });
+      // Vacante publicada por GO Radar → reenviar la postulación (con CV) para folio y clave de seguimiento
+      let radar = null;
+      if (!en_lista_espera && vacanteMatch && esVacanteGoRadar(vacanteMatch)) {
+        const cvBuffer = cvBase64 ? Buffer.from(cvBase64, 'base64') : null;
+        radar = await enviarPostulacionAGoRadar({
+          vacanteId: vacanteMatch.id, nombre, edad, estado, colonia, telefono, correo: email,
+          cvBuffer, cvNombre, cvTipo,
+          solicitudId: `go2026-${candidatoId}-${vacanteMatch.id}`,
+        });
+      }
+
+      return json({ ok: true, id: candidatoId, en_lista_espera, radar });
     }
 
     // ── list: listar candidatos ───────────────────────────────────────────

@@ -3,6 +3,7 @@ import { saveVacante, readVacantes, updateVacante, deleteVacante, toggleVacante,
 import { verifyAdminToken } from '../../lib/verifyAdminToken.ts';
 import { notifyEsperaVacante } from '../../lib/notify.js';
 import { sendPushToAll } from '../../lib/push.js';
+import { formatTitulo } from '../../lib/format-titulo.js';
 
 const DEFAULT_BENEFICIOS = [
   'Prestaciones de ley','Transporte de personal','Tarjeta de vales de despensa',
@@ -62,7 +63,7 @@ export async function POST({ request }) {
       // Notificación push + asignar candidatos en espera si se publica activa
       if (activa) {
         sendPushToAll({
-          title: `Nueva vacante: ${titulo}`,
+          title: `Nueva vacante: ${formatTitulo(titulo)}`,
           body:  `Grupo Ortiz tiene una nueva oportunidad en ${area || 'Morelia'}. ¡Aplica ahora!`,
           url:   '/es/vacantes',
         }).catch(e => console.error('[push create]', e));
@@ -90,7 +91,7 @@ export async function POST({ request }) {
       // Enviar push + asignar espera solo si se está activando (antes estaba inactiva)
       if (activa && prev && !prev.activa) {
         sendPushToAll({
-          title: `Nueva vacante: ${titulo}`,
+          title: `Nueva vacante: ${formatTitulo(titulo)}`,
           body:  `Grupo Ortiz tiene una nueva oportunidad en ${area || 'Morelia'}. ¡Aplica ahora!`,
           url:   '/es/vacantes',
         }).catch(e => console.error('[push update]', e));
@@ -122,7 +123,7 @@ export async function POST({ request }) {
         const v = vacantes.find(x => x.id === id);
         if (v) {
           sendPushToAll({
-            title: `Nueva vacante: ${v.titulo}`,
+            title: `Nueva vacante: ${formatTitulo(v.titulo)}`,
             body:  `Grupo Ortiz tiene una nueva oportunidad en ${v.area || 'Morelia'}. ¡Aplica ahora!`,
             url:   '/es/vacantes',
           }).catch(e => console.error('[push toggle]', e));

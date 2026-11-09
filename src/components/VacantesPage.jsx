@@ -2,6 +2,7 @@
 // Renderiza las tarjetas de vacantes activas en la página pública.
 // Usa las variables CSS de vacantes.css y las fuentes del sitio (DM Sans / DM Mono).
 import React, { useState, useEffect, useRef } from 'react';
+import { formatTitulo } from '../lib/format-titulo.js';
 
 const FONT_SANS = "'DM Sans', system-ui, -apple-system, sans-serif";
 const FONT_MONO = "'DM Mono', 'Fira Mono', monospace";
@@ -206,7 +207,7 @@ export default function VacantesPage() {
       return;
     }
     window.dispatchEvent(new CustomEvent('botgo:open-vacancy', {
-      detail: { id: v.id, titulo: v.titulo, area: v.area, tipo: v.tipo, ubicacion: v.ubicacion, requisitos: v.requisitos },
+      detail: { id: v.id, titulo: formatTitulo(v.titulo), area: v.area, tipo: v.tipo, ubicacion: v.ubicacion, requisitos: v.requisitos },
     }));
     setSelected(null);
   };
@@ -490,7 +491,7 @@ export default function VacantesPage() {
                   </div>
 
                   {/* Título */}
-                  <div className="vac-position-title">{v.titulo}</div>
+                  <div className="vac-position-title">{formatTitulo(v.titulo)}</div>
 
                   {/* Empresa · Ubicación */}
                   <div className="vac-position-meta">
@@ -642,7 +643,7 @@ export default function VacantesPage() {
 
               {/* Título — override global h2 display font */}
               <h2 style={{ fontFamily:FONT_SANS, fontSize:22, fontWeight:800, color:'var(--clr-text)', margin:'0 0 6px', paddingRight:36, lineHeight:1.25, textTransform:'none', letterSpacing:'-0.02em' }}>
-                {selected.titulo}
+                {formatTitulo(selected.titulo)}
               </h2>
 
               {/* Empresa */}

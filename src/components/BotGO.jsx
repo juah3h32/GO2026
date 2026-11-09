@@ -933,6 +933,35 @@ const RecruitmentConfirmation = ({ candidato, t }) => {
             </div>
           )}
 
+          {candidato?.radar?.ok && candidato.radar.referencia && (
+            <div className="confirmation-radar-box">
+              <p className="confirmation-radar-title">Tu postulación también quedó registrada en GO Radar</p>
+              <div className="confirmation-badge-row">
+                <span className="confirmation-badge-label">Folio Radar</span>
+                <span className="confirmation-badge-value confirmation-folio">{candidato.radar.referencia}</span>
+              </div>
+              {candidato.radar.clave && (
+                <div className="confirmation-badge-row">
+                  <span className="confirmation-badge-label">Clave</span>
+                  <span className="confirmation-badge-value confirmation-folio">{candidato.radar.clave}</span>
+                </div>
+              )}
+              <p className="conf-edit-hint" style={{ marginTop: 6 }}>
+                Guarda tu folio y clave. Entra a{' '}
+                <a href={candidato.radar.seguimiento_url || 'https://go-radar.com.mx/seguimiento'} target="_blank" rel="noopener noreferrer">
+                  go-radar.com.mx/seguimiento
+                </a>{' '}
+                para aceptar el aviso de privacidad y darle seguimiento a tu postulación.
+              </p>
+            </div>
+          )}
+
+          {candidato?.radar && !candidato.radar.ok && candidato.radar.codigo !== 'sin_configurar' && (
+            <p className="conf-edit-hint" style={{ marginTop: 6, color: '#b45309' }}>
+              No pudimos enviar tu CV a GO Radar ({candidato.radar.mensaje || 'inténtalo de nuevo'}). Tu solicitud sí quedó guardada con nosotros.
+            </p>
+          )}
+
           {fieldsToShow.length > 0 && (
             <p className="conf-edit-hint">
               ¿Algo está mal?&nbsp;Toca&nbsp;
@@ -1599,7 +1628,7 @@ export default function BotGO({ language = 'es' }) {
 
       const res    = await fetch('/api/recruitment', fetchOpts);
       const result = await res.json();
-      setCandidatoRegistrado({ ...datos, id: result.id || null });
+      setCandidatoRegistrado({ ...datos, id: result.id || null, radar: result.radar || null });
     } catch (e) {
       console.error('❌ Error guardando candidato:', e.message);
       setCandidatoRegistrado({ ...datos, id: null, error: e.message });

@@ -4,6 +4,7 @@ import * as googleTTS from 'google-tts-api';
 import { Buffer } from 'node:buffer';
 import { logInteraction, saveRecruitmentLead, readVacantes, markNotificadosVacante, checkDuplicateByPhone, checkDuplicateByName, checkDuplicateByEmail } from '../../lib/analytics-db.js';
 import { notifyNewVacante, notifyEsperaVacante, notifyEnglishLead } from '../../lib/notify.js';
+import { formatTitulo } from '../../lib/format-titulo.js';
 
 export const prerender = false;
 
@@ -199,7 +200,7 @@ function buildSystemPrompt(targetLang, puestoPreseleccionado = null, vacantesAct
   // Bloque de vacantes activas para inyectar en el prompt
   let bloqueVacantes = '';
   if (vacantesActivas && vacantesActivas.length > 0) {
-    const lista = vacantesActivas.map(v => `- ${v.titulo}${v.descripcion ? ': ' + String(v.descripcion).slice(0, 80) : ''}`).join('\n');
+    const lista = vacantesActivas.map(v => `- ${formatTitulo(v.titulo)}${v.descripcion ? ': ' + String(v.descripcion).slice(0, 80) : ''}`).join('\n');
     bloqueVacantes = `
 ══════════════════════════════════════════
   VACANTES ACTIVAS AHORA MISMO
