@@ -17,6 +17,38 @@ export function esVacanteGoRadar(vacante) {
   return !!(vacante && vacante.link_externo);
 }
 
+// Radar exige el campo `cv` siempre. Si el candidato no subió uno, se arma un
+// PDF mínimo con sus datos de contacto para que Radar igual cree folio/clave
+// — el candidato queda registrado y RH lo contacta directo, sin CV real.
+async function generarCvPlaceholder({ nombre, telefono, correo, edad, estado, colonia, puesto }) {
+  const { PDFDocument, StandardFonts, rgb } = await import('pdf-lib');
+  const pdfDoc = await PDFDocument.create();
+  const page = pdfDoc.addPage([595, 400]);
+  const bold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+  const regular = await pdfDoc.embedFont(StandardFonts.Helvetica);
+
+  let y = 350;
+  const linea = (texto, { size = 12, font = regular } = {}) => {
+    page.drawText(texto, { x: 50, y, size, font, color: rgb(0.1, 0.1, 0.1) });
+    y -= size + 12;
+  };
+
+  linea('Postulación sin CV adjunto', { size: 16, font: bold });
+  y -= 6;
+  linea(`Puesto: ${puesto || '-'}`);
+  linea(`Nombre: ${nombre || '-'}`);
+  linea(`Teléfono: ${telefono || '-'}`);
+  linea(`Correo: ${correo || '-'}`);
+  linea(`Edad: ${edad || '-'}`);
+  linea(`Estado: ${estado || '-'}`);
+  linea(`Colonia: ${colonia || '-'}`);
+  y -= 10;
+  linea('Candidato postulado desde el bot de grupo-ortiz.com sin CV.', { size: 9 });
+  linea('Contactar directamente con los datos de arriba.', { size: 9 });
+
+  return Buffer.from(await pdfDoc.save());
+}
+
 const CODIGOS_AMIGABLES = {
   falta_nombre:         'Falta el nombre.',
   falta_domicilio:      'Falta el estado o la colonia.',
@@ -34,12 +66,13 @@ const CODIGOS_AMIGABLES = {
   envio_demasiado_grande: 'El CV es demasiado pesado.',
 };
 
-// Envía una postulación a Radar. cvBuffer es obligatorio (Radar lo exige).
+// Envía una postulación a Radar. Si no hay cvBuffer, se genera un PDF
+// placeholder con los datos de contacto (Radar exige el campo `cv` siempre).
 // Devuelve:
-//   éxito  → { ok:true, referencia, clave, repetida, seguimiento_url, preguntas_pendientes, mensaje }
+//   éxito  → { ok:true, referencia, clave, repetida, seguimiento_url, preguntas_pendientes, mensaje, sinCv }
 //   error  → { ok:false, status, codigo, mensaje }
 export async function enviarPostulacionAGoRadar({
-  vacanteId, nombre, edad, estado, colonia, telefono, correo,
+  vacanteId, nombre, edad, estado, colonia, telefono, correo, puesto,
   cvBuffer, cvNombre, cvTipo, solicitudId,
 }) {
   const apiKey = process.env.GO_RADAR_API_KEY;
@@ -47,8 +80,18 @@ export async function enviarPostulacionAGoRadar({
     console.warn('[go-radar] GO_RADAR_API_KEY no configurada — postulación NO enviada a Radar.');
     return { ok: false, status: 0, codigo: 'sin_configurar', mensaje: 'GO Radar no está configurado todavía.' };
   }
-  if (!cvBuffer || !cvBuffer.length) {
-    return { ok: false, status: 0, codigo: 'falta_cv', mensaje: CODIGOS_AMIGABLES.falta_cv };
+
+  let cvFinal = cvBuffer, cvNombreFinal = cvNombre, cvTipoFinal = cvTipo, sinCv = false;
+  if (!cvFinal || !cvFinal.length) {
+    try {
+      cvFinal = await generarCvPlaceholder({ nombre, telefono, correo, edad, estado, colonia, puesto });
+      cvNombreFinal = 'postulacion-sin-cv.pdf';
+      cvTipoFinal = 'application/pdf';
+      sinCv = true;
+    } catch (e) {
+      console.error('[go-radar] No se pudo generar el CV placeholder:', e.message);
+      return { ok: false, status: 0, codigo: 'falta_cv', mensaje: CODIGOS_AMIGABLES.falta_cv };
+    }
   }
 
   const form = new FormData();
@@ -60,7 +103,7 @@ export async function enviarPostulacionAGoRadar({
   form.set('telefono', String(telefono || ''));
   form.set('correo', String(correo || ''));
   if (solicitudId) form.set('solicitud_id', String(solicitudId));
-  form.set('cv', new Blob([cvBuffer], { type: cvTipo || 'application/pdf' }), cvNombre || 'cv.pdf');
+  form.set('cv', new Blob([cvFinal], { type: cvTipoFinal || 'application/pdf' }), cvNombreFinal || 'cv.pdf');
 
   try {
     const res  = await fetch(`${RADAR_BASE_URL}/api/integraciones/postulaciones`, {
@@ -79,6 +122,7 @@ export async function enviarPostulacionAGoRadar({
         seguimiento_url: data.seguimiento_url || `${RADAR_BASE_URL}/seguimiento`,
         preguntas_pendientes: data.preguntas_pendientes || 0,
         mensaje: data.mensaje || '',
+        sinCv,
       };
     }
 

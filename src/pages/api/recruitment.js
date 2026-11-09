@@ -139,7 +139,7 @@ export async function POST({ request }) {
         let radar = null;
         if (!en_lista_espera && vacanteMatch && esVacanteGoRadar(vacanteMatch)) {
           radar = await enviarPostulacionAGoRadar({
-            vacanteId: vacanteMatch.id, nombre, edad, estado, colonia, telefono, correo: email,
+            vacanteId: vacanteMatch.id, nombre, edad, estado, colonia, telefono, correo: email, puesto,
             cvBuffer, cvNombre, cvTipo,
             solicitudId: `go2026-${candidatoId}-${vacanteMatch.id}`,
           });
@@ -296,7 +296,7 @@ export async function POST({ request }) {
       if (!en_lista_espera && vacanteMatch && esVacanteGoRadar(vacanteMatch)) {
         const cvBuffer = cvBase64 ? Buffer.from(cvBase64, 'base64') : null;
         radar = await enviarPostulacionAGoRadar({
-          vacanteId: vacanteMatch.id, nombre, edad, estado, colonia, telefono, correo: email,
+          vacanteId: vacanteMatch.id, nombre, edad, estado, colonia, telefono, correo: email, puesto,
           cvBuffer, cvNombre, cvTipo,
           solicitudId: `go2026-${candidatoId}-${vacanteMatch.id}`,
         });

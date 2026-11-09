@@ -953,6 +953,11 @@ const RecruitmentConfirmation = ({ candidato, t }) => {
                 </a>{' '}
                 para aceptar el aviso de privacidad y darle seguimiento a tu postulación.
               </p>
+              {candidato.radar.sinCv && (
+                <p className="conf-edit-hint" style={{ marginTop: 2 }}>
+                  Te registramos sin CV adjunto — RH te contactará directo con tus datos.
+                </p>
+              )}
             </div>
           )}
 
