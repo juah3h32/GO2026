@@ -809,11 +809,24 @@ export async function checkDuplicateByEmail(email) {
 // ── Leer candidatos — incluye cv_base64 y cv_tipo ────────────────────────────
 // opts.isAdmin=true (default) → sin filtro, ve todo (uso interno/legacy).
 // opts.isAdmin=false → SOLO candidatos de rhUserId; sin rhUserId → [] (fail-closed).
-export async function readRecruitmentLeads({ isAdmin = true, rhUserId = null } = {}) {
+// includeCv=false evita traer cv_base64 (puede pesar varios MB por candidato) —
+// la vista de lista del admin no necesita el archivo, solo saber si existe.
+// El panel lo pide completo (getCandidateCV) solo al momento de descargarlo.
+export async function readRecruitmentLeads({ isAdmin = true, rhUserId = null, includeCv = true } = {}) {
   await ensureInit();
   await ensureRecruitmentTable();
 
-  let sql  = `SELECT * FROM recruitment_leads`;
+  const cvCols = includeCv
+    ? `cv_base64, cv_tipo,`
+    : `(CASE WHEN cv_base64 IS NOT NULL AND cv_base64 != '' THEN 1 ELSE 0 END) AS tiene_cv,`;
+
+  // Nota: "created_at" no se incluye — su ALTER TABLE nunca pudo aplicarse
+  // (SQLite no permite DEFAULT no-constante en ADD COLUMN), así que la columna
+  // nunca existió de verdad; "ts" siempre fue el valor real usado en la práctica.
+  let sql  = `SELECT id, ts, nombre, email, telefono, puesto, edad, estado_rep, colonia,
+    cv_nombre, ${cvCols} mensaje, comentarios, sessionId, status, estado, en_lista_espera,
+    notificado_vacante, prioridad, rh_user_id
+    FROM recruitment_leads`;
   const args = [];
   if (!isAdmin) {
     if (!rhUserId) return [];
@@ -827,7 +840,7 @@ export async function readRecruitmentLeads({ isAdmin = true, rhUserId = null } =
   return res.rows.map(r => ({
     id:         r.id         ?? null,
     ts:         r.ts         ?? '',
-    created_at: r.created_at ?? r.ts ?? '',
+    created_at: r.ts         ?? '',
     nombre:     r.nombre     ?? '',
     email:      r.email      ?? '',
     telefono:   r.telefono   ?? '',
@@ -836,8 +849,9 @@ export async function readRecruitmentLeads({ isAdmin = true, rhUserId = null } =
     estado_rep: r.estado_rep ?? '',
     colonia:    r.colonia    ?? '',
     cv_nombre:  r.cv_nombre  ?? '',
-    cv_base64:  r.cv_base64  ?? '',   // ✅ NUEVO
-    cv_tipo:    r.cv_tipo    ?? '',   // ✅ NUEVO
+    ...(includeCv
+      ? { cv_base64: r.cv_base64 ?? '', cv_tipo: r.cv_tipo ?? '' }
+      : { tiene_cv: !!r.tiene_cv, cv_tipo: '' }),
     mensaje:     r.mensaje     ?? '',
     comentarios: r.comentarios ?? '',
     session_id:  r.sessionId   ?? r.session_id ?? '',
@@ -848,6 +862,20 @@ export async function readRecruitmentLeads({ isAdmin = true, rhUserId = null } =
     prioridad:           r.prioridad           ? 1 : 0,
     rh_user_id:          r.rh_user_id          ?? null,
   }));
+}
+
+// Trae el CV completo (cv_base64) de UN candidato — bajo demanda, para no
+// cargarlo en la lista general del admin.
+export async function getCandidateCV(id) {
+  await ensureInit();
+  await ensureRecruitmentTable();
+  const res = await db.execute({
+    sql: `SELECT cv_nombre, cv_base64, cv_tipo FROM recruitment_leads WHERE id = ?`,
+    args: [id],
+  });
+  const r = res.rows[0];
+  if (!r) return null;
+  return { cv_nombre: r.cv_nombre ?? '', cv_base64: r.cv_base64 ?? '', cv_tipo: r.cv_tipo ?? '' };
 }
 
 // ── Dueño actual de un candidato (para checks de ownership) ──────────────────

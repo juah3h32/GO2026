@@ -273,17 +273,60 @@ function isRecent(ts) {
   try { return Date.now() - new Date(ts).getTime() < 10 * 60 * 1000; } catch { return false; }
 }
 
-function abrirCV(candidate) {
-  if (!candidate.cv_base64) { alert('El CV no está disponible.'); return; }
+// ── Agrupar por semana/mes: clave ordenable + etiqueta en español ────────────
+function parseTsDate(ts) {
+  if (!ts) return null;
   try {
-    const byteString = atob(candidate.cv_base64);
+    const iso = ts.trim().replace(' ', 'T') + (ts.includes('Z') ? '' : 'Z');
+    const d = new Date(iso);
+    return isNaN(d.getTime()) ? null : d;
+  } catch { return null; }
+}
+// Semana ISO: lunes a domingo. Clave = lunes de esa semana en AAAA-MM-DD (ordena bien como texto).
+function weekGroup(ts) {
+  const d = parseTsDate(ts);
+  if (!d) return { key: '0000-00-00', label: 'Sin fecha' };
+  const monday = new Date(d);
+  const dow = (d.getDay() + 6) % 7; // 0 = lunes
+  monday.setDate(d.getDate() - dow);
+  const sunday = new Date(monday); sunday.setDate(monday.getDate() + 6);
+  const key = monday.toISOString().slice(0, 10);
+  const fmt = (x) => x.toLocaleDateString('es-MX', { day: 'numeric', month: 'short', timeZone: 'America/Mexico_City' });
+  return { key, label: `Semana del ${fmt(monday)} al ${fmt(sunday)}` };
+}
+function monthGroup(ts) {
+  const d = parseTsDate(ts);
+  if (!d) return { key: '0000-00', label: 'Sin fecha' };
+  const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  const label = d.toLocaleDateString('es-MX', { month: 'long', year: 'numeric', timeZone: 'America/Mexico_City' });
+  return { key, label: label.charAt(0).toUpperCase() + label.slice(1) };
+}
+
+// El CV completo (cv_base64) ya no viaja en la lista general — se pide bajo
+// demanda al momento de descargar, para que la lista del admin cargue rápido.
+async function abrirCV(candidate) {
+  if (!candidate.tiene_cv && !candidate.cv_base64) { alert('El CV no está disponible.'); return; }
+  try {
+    let cvBase64 = candidate.cv_base64;
+    let cvTipo   = candidate.cv_tipo;
+    let cvNombre = candidate.cv_nombre;
+    if (!cvBase64) {
+      const res = await fetch('/api/recruitment', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'getCv', id: candidate.id }),
+      });
+      const j = await res.json();
+      if (!j.ok) { alert(j.error || 'No se pudo cargar el CV.'); return; }
+      cvBase64 = j.cv_base64; cvTipo = j.cv_tipo; cvNombre = j.cv_nombre || cvNombre;
+    }
+    const byteString = atob(cvBase64);
     const ab = new ArrayBuffer(byteString.length);
     const ia = new Uint8Array(ab);
     for (let i = 0; i < byteString.length; i++) ia[i] = byteString.charCodeAt(i);
-    const blob = new Blob([ab], { type: candidate.cv_tipo || 'application/pdf' });
+    const blob = new Blob([ab], { type: cvTipo || 'application/pdf' });
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement('a');
-    a.href = url; a.download = candidate.cv_nombre || 'CV'; a.target = '_blank';
+    a.href = url; a.download = cvNombre || 'CV'; a.target = '_blank';
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     setTimeout(() => URL.revokeObjectURL(url), 5000);
   } catch (e) { console.error(e); alert('No se pudo abrir el CV.'); }
@@ -328,7 +371,7 @@ function CVChip({ candidate }) {
       </div>
       <div style={{ display:'flex', alignItems:'center', gap:8, flexWrap:'wrap' }}>
         <span style={{ color:C.teal, fontSize:11.5, fontFamily:T.sans, wordBreak:'break-all', flex:1, minWidth:80, fontWeight:500 }}>{candidate.cv_nombre}</span>
-        {candidate.cv_base64 ? (
+        {(candidate.tiene_cv || candidate.cv_base64) ? (
           <button onClick={() => abrirCV(candidate)} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
             style={{ display:'flex', alignItems:'center', gap:5, padding:'5px 11px', borderRadius:7, cursor:'pointer', background: hover ? `rgba(20,184,166,0.22)` : C.tealDim, border:`1px solid ${C.teal}35`, color:C.teal, fontSize:11, fontWeight:600, fontFamily:T.sans, whiteSpace:'nowrap', flexShrink:0, transition:'background 0.13s ease' }}>
             {Ic.download}<span>Descargar</span>
@@ -514,7 +557,7 @@ const handleResend = async () => {
   // PROTECCIÓN: Valores por defecto para evitar errores de renderizado
   const folio   = candidate?.id ? `#${String(candidate.id).padStart(5,'0')}` : '—';
   const tieneCv = !!(candidate?.cv_nombre);
-  const cvDescargable = !!(candidate?.cv_base64); // el archivo realmente existe en BD
+  const cvDescargable = !!(candidate?.tiene_cv || candidate?.cv_base64); // el archivo realmente existe en BD
   const tsLabel = formatFecha(candidate?.created_at || candidate?.ts);
   const recent  = isNew || isRecent(candidate?.created_at || candidate?.ts);
   const sm      = getStatusMap(C)[currentStatus] || getStatusMap(C).nuevo;
@@ -791,6 +834,7 @@ export default function RecruitmentTab({ canDelete = false, theme = 'dark', role
   const [expanded,   setExpanded]   = useState(null);
   const [filter,     setFilter]     = useState('todos');
   const [search,     setSearch]     = useState('');
+  const [agruparPor, setAgruparPor] = useState('estado'); // 'estado' | 'semana' | 'mes'
   const [lastUpdate, setLastUpdate] = useState(null);
   const [newIds,     setNewIds]     = useState(new Set());
   const [exporting,  setExporting]  = useState(null);
@@ -950,9 +994,17 @@ const confirmDelete = async () => {
   if (!deleteTarget) return;
   setDeleting(true);
   try {
-    await fetch('/api/recruitment', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'delete', id: deleteTarget.id }) });
-    handleDelete(deleteTarget.id);
-  } catch(e) { console.error(e); }
+    const res = await fetch('/api/recruitment', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'delete', id: deleteTarget.id }) });
+    const j = await res.json().catch(() => ({ ok: false }));
+    if (res.ok && j.ok) {
+      // Solo se quita de la lista si el servidor confirmó el borrado — si no,
+      // reaparecía "solo" en el siguiente refresco automático (20s) porque
+      // nunca se había borrado de verdad en la base de datos.
+      handleDelete(deleteTarget.id);
+    } else {
+      alert(j.error || 'No se pudo borrar el candidato. Intenta de nuevo.');
+    }
+  } catch(e) { console.error(e); alert('No se pudo borrar el candidato. Revisa tu conexión.'); }
   setDeleting(false);
   setDeleteTarget(null);
 };
@@ -1225,8 +1277,21 @@ const confirmDelete = async () => {
                 </button>
               );
             })()}
+            {/* Agrupar por: estado (default) / semana / mes */}
+            <div style={{ display:'flex', alignItems:'center', gap:4, marginLeft:8 }}>
+              <span style={{ fontSize:10, color:C.textDim, fontFamily:T.sans, marginRight:2 }}>Agrupar:</span>
+              {[['estado','Estado'],['semana','Semana'],['mes','Mes']].map(([key,label]) => {
+                const active = agruparPor === key;
+                return (
+                  <button key={key} onClick={() => setAgruparPor(key)}
+                    style={{ padding:'4px 10px', borderRadius:16, fontSize:10.5, fontWeight: active ? 600 : 500, cursor:'pointer', fontFamily:T.sans, background: active ? C.orange : 'transparent', color: active ? '#fff' : C.textDim, border:`1px solid ${active ? C.orange : C.border}`, transition:'all 0.13s ease' }}>
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
             {/* Buscador */}
-            <div style={{ marginLeft:'auto', display:'flex', alignItems:'center', gap:6, background:C.surface2, border:`1px solid ${C.border}`, borderRadius:8, padding:'6px 11px', minWidth:200 }}>
+            <div style={{ marginLeft: agruparPor === 'estado' ? 'auto' : 0, display:'flex', alignItems:'center', gap:6, background:C.surface2, border:`1px solid ${C.border}`, borderRadius:8, padding:'6px 11px', minWidth:200 }}>
               <span style={{ color:C.textDim, display:'flex', flexShrink:0 }}>{Ic.search}</span>
               <input type="text" value={search} onChange={e => setSearch(e.target.value)}
                 placeholder="Buscar nombre, puesto, estado…"
@@ -1244,7 +1309,7 @@ const confirmDelete = async () => {
               <div style={{ marginBottom:8 }}>{Ic.search}</div>
               {scopedCandidates.length === 0 ? 'Sin candidatos. Se registran automáticamente desde el chatbot.' : 'Sin resultados para el filtro seleccionado.'}
             </div>
-          ) : (
+          ) : agruparPor === 'estado' ? (
             <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
               {[...filtered].sort((a,b) => {
                 const order = {nuevo:0,visto:1,contactado:2,contratado:3,descartado:4};
@@ -1260,6 +1325,41 @@ const confirmDelete = async () => {
 />
               ))}
             </div>
+          ) : (
+            // ── Agrupado por semana o por mes — grupos mas recientes primero ──
+            (() => {
+              const groupFn = agruparPor === 'semana' ? weekGroup : monthGroup;
+              const groups = new Map();
+              for (const c of filtered) {
+                const { key, label } = groupFn(c.created_at || c.ts);
+                if (!groups.has(key)) groups.set(key, { label, items: [] });
+                groups.get(key).items.push(c);
+              }
+              const ordered = [...groups.entries()].sort((a, b) => b[0].localeCompare(a[0]));
+              return (
+                <div style={{ display:'flex', flexDirection:'column', gap:18 }}>
+                  {ordered.map(([key, grp]) => (
+                    <div key={key}>
+                      <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:8 }}>
+                        <span style={{ fontSize:11, fontWeight:700, color:C.text, fontFamily:T.sans, textTransform:'capitalize' }}>{grp.label}</span>
+                        <span style={{ fontSize:10, color:C.textDim, fontFamily:T.sans }}>({grp.items.length})</span>
+                        <div style={{ flex:1, height:1, background:C.border }}/>
+                      </div>
+                      <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
+                        {grp.items.sort((a,b) => (b.id||0)-(a.id||0)).map(c => (
+                          <CandidateCard key={c.id} candidate={c}
+                            onStatusChange={handleStatusChange} onDelete={handleDelete}
+                            onRequestDelete={setDeleteTarget}
+                            expanded={expanded === c.id} onToggle={() => setExpanded(expanded === c.id ? null : c.id)}
+                            isNew={newIds.has(c.id)} canDelete={canDelete}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              );
+            })()
           )}
         </div>
 {/* ── MODAL ELIMINAR CANDIDATO ── */}

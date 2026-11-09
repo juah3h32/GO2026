@@ -65,7 +65,7 @@ export async function descargarPerfilPDF(candidate) {
   const fecha       = formatFechaLarga(candidate.created_at || candidate.ts);
   const status      = STATUS_LABELS[candidate.status || candidate.estado] || 'Nuevo';
   const tieneCv     = !!(candidate.cv_nombre);
-  const tieneBase64 = !!(candidate.cv_base64);
+  const tieneBase64 = !!(candidate.cv_base64 || candidate.tiene_cv);
   const cvMimeType  = candidate.cv_tipo || 'application/pdf';
   const cvDataUrl   = tieneBase64 ? `data:${cvMimeType};base64,${candidate.cv_base64}` : null;
 

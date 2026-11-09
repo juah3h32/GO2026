@@ -16,6 +16,7 @@ import {
   saveSubscriber,
   getLeadOwner,
   getNoteCandidateOwner,
+  getCandidateCV,
 } from '../../lib/analytics-db.js';
 import { esVacanteGoRadar, enviarPostulacionAGoRadar } from '../../lib/go-radar.js';
 
@@ -185,7 +186,7 @@ export async function POST({ request }) {
     const body       = await request.json();
     const { action } = body;
 
-    const ADMIN_ACTIONS = ['list', 'listPending', 'updateStatus', 'updateLead', 'delete', 'reset', 'addNote', 'getNotes', 'deleteNote', 'notificar-espera', 'resend'];
+    const ADMIN_ACTIONS = ['list', 'listPending', 'updateStatus', 'updateLead', 'delete', 'reset', 'addNote', 'getNotes', 'deleteNote', 'notificar-espera', 'resend', 'getCv'];
     let isAdmin = false, myId = null;
     if (ADMIN_ACTIONS.includes(action)) {
       const adminRole = await verifyAdminToken(request);
@@ -310,8 +311,8 @@ export async function POST({ request }) {
     if (action === 'list') {
       const { filterUserId } = body;
       const candidates = (isAdmin && filterUserId != null)
-        ? await readRecruitmentLeads({ isAdmin: false, rhUserId: Number(filterUserId) })
-        : await readRecruitmentLeads({ isAdmin, rhUserId: myId });
+        ? await readRecruitmentLeads({ isAdmin: false, rhUserId: Number(filterUserId), includeCv: false })
+        : await readRecruitmentLeads({ isAdmin, rhUserId: myId, includeCv: false });
       const formatted  = candidates.map(c => ({
         ...c,
         statusLabel: STATUS_LABELS[c.status] || c.status || 'Nuevo',
@@ -399,6 +400,16 @@ export async function POST({ request }) {
     if (action === 'list-vacantes') {
       const vacantes = await readVacantes(true); // solo activas
       return json({ ok: true, vacantes });
+    }
+
+    // ── getCv: CV completo de un candidato, bajo demanda (no viaja en la lista) ──
+    if (action === 'getCv') {
+      const { id } = body;
+      if (!id) return json({ ok: false, error: 'ID requerido.' }, 400);
+      if (!(await checkOwnLead(id))) return json({ ok: false, error: 'No autorizado.' }, 403);
+      const cv = await getCandidateCV(id);
+      if (!cv || !cv.cv_base64) return json({ ok: false, error: 'CV no disponible.' }, 404);
+      return json({ ok: true, ...cv });
     }
 
     // ── resend: reenviar notificación + CV si tiene ──
