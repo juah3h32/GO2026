@@ -86,5 +86,23 @@ export async function POST({ request }) {
     return new Response(JSON.stringify({ ok: true, generatedPassword }), { headers: { 'Content-Type': 'application/json' } });
   }
 
+  // ── Eliminar usuario — borra el acceso por completo (no solo desactivar) ──
+  // Sus candidatos/vacantes ya guardados se quedan en la base (quedan sin dueño
+  // visible solo para Admin), no se borran — esto solo quita el login.
+  if (action === 'deleteUser') {
+    const { id } = body;
+    if (!id) return new Response(JSON.stringify({ ok: false, error: 'Falta id' }), { status: 400 });
+    if (Number(id) === Number(role.id)) {
+      return new Response(JSON.stringify({ ok: false, error: 'No puedes eliminar tu propia cuenta.' }), { status: 400 });
+    }
+    const { rows: adminRows } = await db.execute(`SELECT id FROM users WHERE can_download = 1 AND active = 1`);
+    const target = adminRows.find(r => Number(r.id) === Number(id));
+    if (target && adminRows.length <= 1) {
+      return new Response(JSON.stringify({ ok: false, error: 'No puedes eliminar al único administrador activo.' }), { status: 400 });
+    }
+    await db.execute({ sql: 'DELETE FROM users WHERE id = ?', args: [id] });
+    return new Response(JSON.stringify({ ok: true }), { headers: { 'Content-Type': 'application/json' } });
+  }
+
   return new Response(JSON.stringify({ ok: false, error: 'Acción desconocida' }), { status: 400 });
 }
