@@ -9,7 +9,7 @@
 // Radar → Administración → Grupo Ortiz oficial → "Llaves para el bot de la
 // página oficial"). Nunca exponerla en código de navegador.
 
-const RADAR_BASE_URL = process.env.GO_RADAR_BASE_URL || 'https://go-radar.com.mx';
+const RADAR_BASE_URL = process.env.GO_RADAR_BASE_URL || import.meta.env?.GO_RADAR_BASE_URL || 'https://go-radar.com.mx';
 
 // Una vacante es de Radar si trae link_externo — misma regla que ya usa la
 // página de vacantes para redirigir al botón "Postular" (ver VacantesPage.jsx).
@@ -75,7 +75,7 @@ export async function enviarPostulacionAGoRadar({
   vacanteId, nombre, edad, estado, colonia, telefono, correo, puesto,
   cvBuffer, cvNombre, cvTipo, solicitudId,
 }) {
-  const apiKey = process.env.GO_RADAR_API_KEY;
+  const apiKey = process.env.GO_RADAR_API_KEY || import.meta.env?.GO_RADAR_API_KEY;
   if (!apiKey) {
     console.warn('[go-radar] GO_RADAR_API_KEY no configurada — postulación NO enviada a Radar.');
     return { ok: false, status: 0, codigo: 'sin_configurar', mensaje: 'GO Radar no está configurado todavía.' };
