@@ -151,11 +151,25 @@ const steps = [
          HERO — texto + video + franja de beneficios superpuesta
     ═════════════════════════════════ -->
     <section class="vac-hero2">
+      <div class="vac-hero2__media">
+        <video
+          class="vac-hero2__video"
+          src={vacantesVideoSrc}
+          autoplay
+          muted
+          loop
+          playsinline
+          preload="metadata"
+          poster={posterUrl}
+        ></video>
+        <div class="vac-hero2__veil"></div>
+      </div>
+
       <div class="vac-hero2__inner">
 
         <div class="vac-hero2__content">
           <p class="vac-hero2__eyebrow"><span class="vac-hero2__dash"></span>Talento GO</p>
-          <h1 class="vac-hero2__title">Construye tu historia con<br/><em>nosotros</em></h1>
+          <h1 class="vac-hero2__title">Construye tu historia con <em>nosotros</em></h1>
           <p class="vac-hero2__sub">
             Más que un empleo, una oportunidad para crecer, aprender y ser parte
             de una empresa que impulsa el valor en México y el mundo.
@@ -163,9 +177,9 @@ const steps = [
 
           <div class="vac-hero2__ctas">
             <a
-              href="#como-aplicar"
+              href="#vacantes"
               class="btn btn--solid"
-              onclick="event.preventDefault(); document.getElementById('como-aplicar')?.scrollIntoView({ behavior: 'smooth' }); window.history.pushState(null, '', '#como-aplicar');"
+              onclick="event.preventDefault(); document.getElementById('vacantes')?.scrollIntoView({ behavior: 'smooth' }); window.history.pushState(null, '', '#vacantes');"
             >
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M12 8V4H8"/><rect x="4" y="8" width="16" height="12" rx="2"/>
@@ -176,37 +190,11 @@ const steps = [
                 <path d="M5 12h14M12 5l7 7-7 7"/>
               </svg>
             </a>
-            <a href="/es/about" class="btn btn--dark-ghost">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-              Conoce nuestra cultura
+            <a href="https://go-radar.com.mx/seguimiento" target="_blank" rel="noopener noreferrer" class="btn btn--ghost">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              Seguimiento en GO Radar
             </a>
           </div>
-
-          <div class="vac-hero2__secondary">
-            <a
-              href="#vacantes"
-              onclick="event.preventDefault(); document.getElementById('vacantes')?.scrollIntoView({ behavior: 'smooth' }); window.history.pushState(null, '', '#vacantes');"
-            >Ver vacantes disponibles</a>
-            <span class="vac-hero2__dot">·</span>
-            <a href="https://go-radar.com.mx/seguimiento" target="_blank" rel="noopener noreferrer">Seguimiento en GO Radar</a>
-          </div>
-        </div>
-
-        <div class="vac-hero2__media">
-          <div class="vac-hero2__media-clip">
-            <video
-              class="vac-hero2__video"
-              src={vacantesVideoSrc}
-              autoplay
-              muted
-              loop
-              playsinline
-              preload="metadata"
-              poster={posterUrl}
-            ></video>
-          </div>
-          <span class="vac-hero2__shape vac-hero2__shape--a"></span>
-          <span class="vac-hero2__shape vac-hero2__shape--b"></span>
         </div>
 
       </div>
