@@ -857,6 +857,7 @@ const [bulkOpen,     setBulkOpen]     = useState(false);
 const [bulkText,     setBulkText]     = useState('');
 const [bulkResults,  setBulkResults]  = useState(null); // [{ email, candidate|null }]
 const [bulkDeletingId, setBulkDeletingId] = useState(null);
+const [bulkFadingIds, setBulkFadingIds] = useState(new Set());
  
   const [iaVacanteId,    setIaVacanteId]   = useState(''); // '' = todos, 'otro' = sin vacante, número = vacante específica
   const [vacantes,       setVacantes]      = useState([]);
@@ -1042,7 +1043,13 @@ const bulkDeleteCandidate = async (id) => {
     const j = await res.json().catch(() => ({ ok: false }));
     if (res.ok && j.ok) {
       handleDelete(id);
-      setBulkResults(prev => prev.map(r => r.candidate?.id === id ? { ...r, candidate: null } : r));
+      // Se desvanece primero (feedback visual) y luego se quita de la lista de
+      // resultados — si se quitara de golpe parecía que el borrado no hizo nada.
+      setBulkFadingIds(prev => new Set(prev).add(id));
+      setTimeout(() => {
+        setBulkResults(prev => prev ? prev.filter(r => r.candidate?.id !== id) : prev);
+        setBulkFadingIds(prev => { const n = new Set(prev); n.delete(id); return n; });
+      }, 320);
     } else {
       alert(j.error || 'No se pudo borrar el candidato. Intenta de nuevo.');
     }
@@ -1054,6 +1061,7 @@ const closeBulkModal = () => {
   setBulkOpen(false);
   setBulkText('');
   setBulkResults(null);
+  setBulkFadingIds(new Set());
 };
   if (loading) return (
     <CCtx.Provider value={palette}>
@@ -1528,16 +1536,40 @@ const closeBulkModal = () => {
         </button>
       </div>
 
-      {bulkResults && (
+      {bulkResults && (() => {
+        const matchCount = bulkResults.filter(r => r.candidate).length;
+        return (
         <div style={{ padding:'0 24px 16px', overflowY:'auto', flex:1 }}>
           <div style={{ height:1, background: theme==='dark' ? C.border2 : '#F3F4F6', margin:'0 0 12px' }}/>
+
           {bulkResults.length === 0 && (
             <p style={{ fontSize:12, color:C.textDim, fontFamily:T.sans, textAlign:'center' }}>No se detectaron correos válidos.</p>
           )}
+
+          {bulkResults.length > 0 && matchCount === 0 && (
+            <div style={{ display:'flex', alignItems:'center', gap:10, padding:'12px 14px', borderRadius:9, marginBottom:10,
+              background: theme==='dark' ? 'rgba(239,68,68,0.08)' : 'rgba(239,68,68,0.06)', border:`1px solid ${C.red}28` }}>
+              <span style={{ color:C.red, flexShrink:0, display:'flex' }}>{Ic.xmark}</span>
+              <span style={{ fontSize:12, fontFamily:T.sans, color: theme==='dark' ? C.text : '#374151' }}>
+                No hay registro con {bulkResults.length === 1 ? 'este correo' : 'estos correos'}.
+              </span>
+            </div>
+          )}
+
+          {bulkResults.length > 0 && matchCount > 0 && (
+            <p style={{ fontSize:10.5, color:C.textDim, fontFamily:T.sans, margin:'0 0 8px', letterSpacing:'0.02em', textTransform:'uppercase', fontWeight:600 }}>
+              {matchCount} de {bulkResults.length} con registro
+            </p>
+          )}
+
           <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
-            {bulkResults.map(({ email, candidate }) => (
+            {bulkResults.map(({ email, candidate }) => {
+              const fading = candidate && bulkFadingIds.has(candidate.id);
+              return (
               <div key={email} style={{ display:'flex', alignItems:'center', gap:10, padding:'8px 10px', borderRadius:9,
-                background: theme==='dark' ? C.surface3 : '#F8F9FB', border:`1px solid ${theme==='dark' ? C.border : '#E5E7EB'}` }}>
+                background: theme==='dark' ? C.surface3 : '#F8F9FB', border:`1px solid ${theme==='dark' ? C.border : '#E5E7EB'}`,
+                opacity: fading ? 0 : 1, transform: fading ? 'scale(0.97) translateX(6px)' : 'scale(1) translateX(0)',
+                transition:'opacity 0.3s ease, transform 0.3s ease' }}>
                 <span style={{ color: candidate ? C.green : C.textDim, flexShrink:0, display:'flex' }}>
                   {candidate ? Ic.check : Ic.xmark}
                 </span>
@@ -1548,9 +1580,9 @@ const closeBulkModal = () => {
                   </div>
                 </div>
                 {candidate && (
-                  <button onClick={() => bulkDeleteCandidate(candidate.id)} disabled={bulkDeletingId === candidate.id}
+                  <button onClick={() => bulkDeleteCandidate(candidate.id)} disabled={bulkDeletingId === candidate.id || fading}
                     style={{ flexShrink:0, display:'flex', alignItems:'center', gap:5, padding:'6px 10px', borderRadius:7, fontSize:10.5, fontWeight:600, fontFamily:T.sans,
-                      cursor: bulkDeletingId === candidate.id ? 'wait' : 'pointer', background:C.redDim, color:C.red, border:`1px solid ${C.red}28`, opacity: bulkDeletingId === candidate.id ? 0.6 : 1 }}>
+                      cursor: (bulkDeletingId === candidate.id || fading) ? 'wait' : 'pointer', background:C.redDim, color:C.red, border:`1px solid ${C.red}28`, opacity: (bulkDeletingId === candidate.id || fading) ? 0.6 : 1 }}>
                     {bulkDeletingId === candidate.id
                       ? <div style={{ width:10,height:10,borderRadius:'50%',border:`1.5px solid ${C.red}40`,borderTop:`1.5px solid ${C.red}`,animation:'spin 0.65s linear infinite' }}/>
                       : Ic.trash}
@@ -1558,10 +1590,12 @@ const closeBulkModal = () => {
                   </button>
                 )}
               </div>
-            ))}
+              );
+            })}
           </div>
         </div>
-      )}
+        );
+      })()}
 
       <div style={{ padding:'12px 24px 20px', flexShrink:0 }}>
         <button onClick={closeBulkModal}
