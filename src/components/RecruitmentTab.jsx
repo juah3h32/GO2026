@@ -853,6 +853,10 @@ export default function RecruitmentTab({ canDelete = false, theme = 'dark', role
   const [iaReportPuesto, setIaReportPuesto] = useState(''); // legacy, no se usa
  const [deleteTarget, setDeleteTarget] = useState(null); // { id, nombre, puesto }
 const [deleting,     setDeleting]     = useState(false);
+const [bulkOpen,     setBulkOpen]     = useState(false);
+const [bulkText,     setBulkText]     = useState('');
+const [bulkResults,  setBulkResults]  = useState(null); // [{ email, candidate|null }]
+const [bulkDeletingId, setBulkDeletingId] = useState(null);
  
   const [iaVacanteId,    setIaVacanteId]   = useState(''); // '' = todos, 'otro' = sin vacante, número = vacante específica
   const [vacantes,       setVacantes]      = useState([]);
@@ -1018,6 +1022,38 @@ const confirmDelete = async () => {
   } catch(e) { console.error(e); alert('No se pudo borrar el candidato. Revisa tu conexión.'); }
   setDeleting(false);
   setDeleteTarget(null);
+};
+
+const runBulkSearch = () => {
+  const emails = [...new Set(
+    bulkText.split(/[\n,;\s]+/).map(e => e.trim().toLowerCase()).filter(Boolean)
+  )];
+  const results = emails.map(email => ({
+    email,
+    candidate: candidates.find(c => (c.email || '').trim().toLowerCase() === email) || null,
+  }));
+  setBulkResults(results);
+};
+
+const bulkDeleteCandidate = async (id) => {
+  setBulkDeletingId(id);
+  try {
+    const res = await fetch('/api/recruitment', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'delete', id }) });
+    const j = await res.json().catch(() => ({ ok: false }));
+    if (res.ok && j.ok) {
+      handleDelete(id);
+      setBulkResults(prev => prev.map(r => r.candidate?.id === id ? { ...r, candidate: null } : r));
+    } else {
+      alert(j.error || 'No se pudo borrar el candidato. Intenta de nuevo.');
+    }
+  } catch(e) { console.error(e); alert('No se pudo borrar el candidato. Revisa tu conexión.'); }
+  setBulkDeletingId(null);
+};
+
+const closeBulkModal = () => {
+  setBulkOpen(false);
+  setBulkText('');
+  setBulkResults(null);
 };
   if (loading) return (
     <CCtx.Provider value={palette}>
@@ -1230,6 +1266,9 @@ const confirmDelete = async () => {
             <div style={{ display:'flex', alignItems:'center', gap:6, flexWrap:'wrap' }}>
               {lastUpdate && <span style={{ display:'flex', alignItems:'center', gap:4, color:C.textDim, fontSize:10, fontFamily:T.mono }}>{Ic.clock} {lastUpdate.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}</span>}
               <IconBtn onClick={() => load(false)} icon={Ic.refresh} label="Actualizar" bg="transparent" bgHover={C.surface2} color={C.textSub} border={`1px solid ${C.border}`} />
+              {isAdmin && (
+                <IconBtn onClick={() => setBulkOpen(true)} icon={Ic.mail} label="Buscar por correo" bg={C.redDim} bgHover="rgba(239,68,68,0.16)" color={C.red} border={`1px solid ${C.red}28`} />
+              )}
               {scopedCandidates.length > 0 && (<>
                 <IconBtn onClick={() => doExport('csv')} icon={Ic.csv} label={exporting==='csv' ? 'Exportando…' : 'CSV'} bg={C.greenDim} bgHover="rgba(34,197,94,0.16)" color={C.green} border={`1px solid ${C.green}28`} disabled={exporting==='csv'} />
                 <IconBtn onClick={() => doExport('pdf')} icon={Ic.pdf} label={exporting==='pdf' ? 'Generando…' : 'PDF'} bg={C.blueDim} bgHover="rgba(59,130,246,0.16)" color={C.blue} border={`1px solid ${C.blue}28`} disabled={exporting==='pdf'} />
@@ -1440,6 +1479,94 @@ const confirmDelete = async () => {
           {deleting
             ? <><div style={{ width:12,height:12,borderRadius:'50%',border:'2px solid rgba(255,255,255,0.3)',borderTop:'2px solid #fff',animation:'spin 0.65s linear infinite' }}/>Eliminando…</>
             : <>{Ic.trash} Eliminar</>}
+        </button>
+      </div>
+    </div>
+  </div>,
+  document.body
+)}
+{/* ── MODAL BUSCAR/BORRAR POR CORREO (admin) ── */}
+{bulkOpen && createPortal(
+  <div style={{
+    position:'fixed', inset:0, zIndex:99999999,
+    background:'rgba(6,5,4,0.75)',
+    backdropFilter:'blur(16px)',
+    display:'flex', alignItems:'center', justifyContent:'center',
+    padding:16, animation:'fadeIn 0.18s ease',
+  }}>
+    <div style={{
+      background: theme==='dark' ? C.surface2 : '#FFFFFF',
+      border:`1px solid ${theme==='dark' ? C.border : '#E5E7EB'}`,
+      borderRadius:14, width:'100%', maxWidth:480,
+      overflow:'hidden', position:'relative',
+      boxShadow: theme==='dark' ? '0 24px 64px rgba(0,0,0,0.70)' : '0 8px 40px rgba(0,0,0,0.10)',
+      animation:'newCardIn 0.22s cubic-bezier(0.16,1,0.3,1) both',
+      maxHeight:'85vh', display:'flex', flexDirection:'column',
+    }}>
+      <div style={{ position:'absolute', top:0, left:0, right:0, height:2.5, background:'linear-gradient(90deg,#DC2626,#EF4444,transparent)' }}/>
+
+      <div style={{ padding:'24px 24px 16px', display:'flex', alignItems:'center', gap:12, flexShrink:0 }}>
+        <div style={{ width:40, height:40, borderRadius:10, background: theme==='dark' ? 'rgba(220,38,38,0.12)' : 'rgba(220,38,38,0.07)', border:`1px solid ${theme==='dark' ? 'rgba(220,38,38,0.25)' : 'rgba(220,38,38,0.20)'}`, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+          {Ic.mail}
+        </div>
+        <div>
+          <p style={{ fontWeight:700, fontSize:15, margin:'0 0 3px', color: theme==='dark' ? C.text : '#111827', letterSpacing:'-0.02em' }}>Buscar por correo</p>
+          <p style={{ fontSize:11, margin:0, color: theme==='dark' ? C.textDim : '#9CA3AF' }}>Pega uno o varios correos — uno por línea o separados por coma</p>
+        </div>
+      </div>
+
+      <div style={{ padding:'0 24px 14px', flexShrink:0 }}>
+        <textarea value={bulkText} onChange={e => setBulkText(e.target.value)} rows={4}
+          placeholder={'correo1@ejemplo.com\ncorreo2@ejemplo.com'}
+          style={{ width:'100%', resize:'vertical', boxSizing:'border-box', padding:'10px 12px', borderRadius:9, fontSize:12, fontFamily:T.mono, outline:'none',
+            background: theme==='dark' ? C.surface3 : '#F8F9FB', border:`1px solid ${theme==='dark' ? C.border : '#E5E7EB'}`, color: theme==='dark' ? C.text : '#111827' }}
+        />
+        <button onClick={runBulkSearch} disabled={!bulkText.trim()}
+          style={{ marginTop:8, width:'100%', padding:'9px 0', borderRadius:9, fontSize:12, fontWeight:700, fontFamily:T.sans, cursor: bulkText.trim() ? 'pointer' : 'not-allowed', border:'none', color:'#fff',
+            background: bulkText.trim() ? C.orange : '#9CA3AF', display:'flex', alignItems:'center', justifyContent:'center', gap:7 }}>
+          {Ic.search} Buscar
+        </button>
+      </div>
+
+      {bulkResults && (
+        <div style={{ padding:'0 24px 16px', overflowY:'auto', flex:1 }}>
+          <div style={{ height:1, background: theme==='dark' ? C.border2 : '#F3F4F6', margin:'0 0 12px' }}/>
+          {bulkResults.length === 0 && (
+            <p style={{ fontSize:12, color:C.textDim, fontFamily:T.sans, textAlign:'center' }}>No se detectaron correos válidos.</p>
+          )}
+          <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
+            {bulkResults.map(({ email, candidate }) => (
+              <div key={email} style={{ display:'flex', alignItems:'center', gap:10, padding:'8px 10px', borderRadius:9,
+                background: theme==='dark' ? C.surface3 : '#F8F9FB', border:`1px solid ${theme==='dark' ? C.border : '#E5E7EB'}` }}>
+                <span style={{ color: candidate ? C.green : C.textDim, flexShrink:0, display:'flex' }}>
+                  {candidate ? Ic.check : Ic.xmark}
+                </span>
+                <div style={{ flex:1, minWidth:0 }}>
+                  <div style={{ fontSize:11.5, fontFamily:T.mono, color: theme==='dark' ? C.text : '#374151', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{email}</div>
+                  <div style={{ fontSize:10, color:C.textDim, fontFamily:T.sans, marginTop:1 }}>
+                    {candidate ? `Registrado · ${candidate.nombre}${candidate.puesto ? ' · ' + candidate.puesto : ''}` : 'Sin registro'}
+                  </div>
+                </div>
+                {candidate && (
+                  <button onClick={() => bulkDeleteCandidate(candidate.id)} disabled={bulkDeletingId === candidate.id}
+                    style={{ flexShrink:0, display:'flex', alignItems:'center', gap:5, padding:'6px 10px', borderRadius:7, fontSize:10.5, fontWeight:600, fontFamily:T.sans,
+                      cursor: bulkDeletingId === candidate.id ? 'wait' : 'pointer', background:C.redDim, color:C.red, border:`1px solid ${C.red}28`, opacity: bulkDeletingId === candidate.id ? 0.6 : 1 }}>
+                    {bulkDeletingId === candidate.id
+                      ? <div style={{ width:10,height:10,borderRadius:'50%',border:`1.5px solid ${C.red}40`,borderTop:`1.5px solid ${C.red}`,animation:'spin 0.65s linear infinite' }}/>
+                      : Ic.trash}
+                    {bulkDeletingId === candidate.id ? 'Borrando…' : 'Borrar'}
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div style={{ padding:'12px 24px 20px', flexShrink:0 }}>
+        <button onClick={closeBulkModal}
+          style={{ width:'100%', padding:'10px 0', borderRadius:9, fontSize:12, fontWeight:500, cursor:'pointer', fontFamily:T.sans, background:'transparent', border:`1px solid ${theme==='dark' ? C.border : '#E5E7EB'}`, color: theme==='dark' ? C.textSub : '#6B7280' }}>
+          Cerrar
         </button>
       </div>
     </div>
