@@ -1308,7 +1308,7 @@ const confirmDelete = async () => {
             <div style={{ marginLeft: agruparPor === 'estado' ? 'auto' : 0, display:'flex', alignItems:'center', gap:6, background:C.surface2, border:`1px solid ${C.border}`, borderRadius:8, padding:'6px 11px', minWidth:200 }}>
               <span style={{ color:C.textDim, display:'flex', flexShrink:0 }}>{Ic.search}</span>
               <input type="text" value={search} onChange={e => setSearch(e.target.value)}
-                placeholder="Buscar nombre, puesto, estado…"
+                placeholder="Buscar nombre, correo, puesto, estado…"
                 style={{ background:'transparent', border:'none', color:C.text, fontSize:11, fontFamily:T.sans, outline:'none', width:'100%', minWidth:0 }}
                 onFocus={e => e.target.parentElement.style.borderColor = C.orange+'48'}
                 onBlur={e  => e.target.parentElement.style.borderColor = C.border}
