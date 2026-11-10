@@ -609,6 +609,10 @@ async function ensureRecruitmentTable() {
     `ALTER TABLE recruitment_leads ADD COLUMN notificado_vacante INTEGER DEFAULT 0`,
     `ALTER TABLE recruitment_leads ADD COLUMN prioridad          INTEGER DEFAULT 0`,
     `ALTER TABLE recruitment_leads ADD COLUMN rh_user_id         INTEGER DEFAULT NULL`,
+    // Folio con el que Radar registró esta postulación (NUNCA la clave — es de
+    // un solo uso para la persona, ver API_Radar_Postulaciones_del_Bot.md §4).
+    // Le sirve a RH para dar seguimiento desde Radar.
+    `ALTER TABLE recruitment_leads ADD COLUMN radar_referencia   TEXT    DEFAULT ''`,
   ];
   for (const sql of migraciones) {
     try { await db.execute(sql); } catch { /* columna ya existe */ }
@@ -825,7 +829,7 @@ export async function readRecruitmentLeads({ isAdmin = true, rhUserId = null, in
   // nunca existió de verdad; "ts" siempre fue el valor real usado en la práctica.
   let sql  = `SELECT id, ts, nombre, email, telefono, puesto, edad, estado_rep, colonia,
     cv_nombre, ${cvCols} mensaje, comentarios, sessionId, status, estado, en_lista_espera,
-    notificado_vacante, prioridad, rh_user_id
+    notificado_vacante, prioridad, rh_user_id, radar_referencia
     FROM recruitment_leads`;
   const args = [];
   if (!isAdmin) {
@@ -861,6 +865,7 @@ export async function readRecruitmentLeads({ isAdmin = true, rhUserId = null, in
     notificado_vacante:  r.notificado_vacante  ? 1 : 0,
     prioridad:           r.prioridad           ? 1 : 0,
     rh_user_id:          r.rh_user_id          ?? null,
+    radar_referencia:    r.radar_referencia    ?? '',
   }));
 }
 
@@ -998,6 +1003,17 @@ export async function updateRecruitmentLead(id, campos) {
   const setClauses = entries.map(([k]) => `${k} = ?`).join(', ');
   const args = [...entries.map(([, v]) => String(v)), id];
   await db.execute({ sql: `UPDATE recruitment_leads SET ${setClauses} WHERE id = ?`, args });
+  return true;
+}
+
+// Guarda el folio con el que Radar registró la postulación — solo el folio,
+// nunca la clave (ver nota en ensureRecruitmentTable). Permite a RH ver desde
+// el panel qué candidatos también quedaron en Radar y con qué folio.
+export async function saveRadarReferencia(id, referencia) {
+  if (!id || !referencia) return false;
+  await ensureInit();
+  await ensureRecruitmentTable();
+  await db.execute({ sql: 'UPDATE recruitment_leads SET radar_referencia = ? WHERE id = ?', args: [referencia, id] });
   return true;
 }
 

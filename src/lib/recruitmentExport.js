@@ -188,6 +188,7 @@ export async function descargarPerfilPDF(candidate) {
       <div class="fields-grid">
         <div class="field"><div class="field-label">Puesto solicitado</div><div class="field-value accent">${escapeHtml(fmt(candidate.puesto))}</div></div>
         <div class="field"><div class="field-label">Estado de solicitud</div><div class="field-value">${status}</div></div>
+        ${candidate.radar_referencia ? `<div class="field"><div class="field-label">Folio GO Radar</div><div class="field-value">${escapeHtml(fmt(candidate.radar_referencia))} · go-radar.com.mx</div></div>` : ''}
       </div>
     </div>
     ${cvBlock}

@@ -19,6 +19,7 @@ import {
   getCandidateCV,
   getConfig,
   setConfig,
+  saveRadarReferencia,
 } from '../../lib/analytics-db.js';
 import { esVacanteGoRadar, enviarPostulacionAGoRadar } from '../../lib/go-radar.js';
 
@@ -146,6 +147,9 @@ export async function POST({ request }) {
             cvBuffer, cvNombre, cvTipo,
             solicitudId: `go2026-${candidatoId}-${vacanteMatch.id}`,
           });
+          if (radar?.ok && radar.referencia) {
+            saveRadarReferencia(candidatoId, radar.referencia).catch(e => console.warn('saveRadarReferencia:', e.message));
+          }
         }
 
         return json({ ok: true, id: candidatoId, esListaEspera: !!en_lista_espera, radar });
@@ -303,6 +307,9 @@ export async function POST({ request }) {
           cvBuffer, cvNombre, cvTipo,
           solicitudId: `go2026-${candidatoId}-${vacanteMatch.id}`,
         });
+        if (radar?.ok && radar.referencia) {
+          saveRadarReferencia(candidatoId, radar.referencia).catch(e => console.warn('saveRadarReferencia:', e.message));
+        }
       }
 
       return json({ ok: true, id: candidatoId, en_lista_espera, radar });

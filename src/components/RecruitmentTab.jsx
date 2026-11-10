@@ -73,6 +73,7 @@ const Ic = {
   xmark:      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
   star:       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
   filter:     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>,
+  linkOut:    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>,
 };
 
 // ── STATUS CONFIG ─────────────────────────────────────────────────────────────
@@ -747,6 +748,16 @@ const handleResend = async () => {
                     background:C.surface, border:`1px solid ${C.border}`, color:C.orange, justifyContent:'center' }}>
                   {Ic.pdf} Descargar Perfil PDF
                 </button>
+
+                {/* GO Radar — esta vacante la maneja Radar; folio para darle seguimiento allá */}
+                {candidate.radar_referencia && (
+                  <a href="https://go-radar.com.mx" target="_blank" rel="noopener noreferrer"
+                    style={{ marginTop:8, display:'flex', alignItems:'center', justifyContent:'center', gap:6, padding:'7px 13px', borderRadius:8,
+                      fontSize:11, fontWeight:600, fontFamily:T.sans, cursor:'pointer', width:'100%', boxSizing:'border-box',
+                      background:C.surface, border:`1px solid ${C.border}`, color:C.purple, textDecoration:'none' }}>
+                    {Ic.linkOut} Seguimiento en GO Radar — Folio {candidate.radar_referencia}
+                  </a>
+                )}
 
                 {/* Mensaje */}
                 {candidate.mensaje && (

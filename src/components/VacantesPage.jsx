@@ -2,6 +2,7 @@
 // Renderiza las tarjetas de vacantes activas en la página pública.
 // Usa las variables CSS de vacantes.css y las fuentes del sitio (DM Sans / DM Mono).
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { formatTitulo } from '../lib/format-titulo.js';
 
 const FONT_SANS = "'DM Sans', system-ui, -apple-system, sans-serif";
@@ -696,7 +697,12 @@ export default function VacantesPage() {
       </div>
 
       {/* ── MODAL: DETALLE DE VACANTE ── */}
-      {selected && (
+      {/* Portal a document.body: Lenis (smooth-scroll) aplica transform al wrapper
+          del sitio, lo que convierte ese wrapper en el containing block de todo
+          position:fixed dentro de él — el overlay quedaba acotado a la sección
+          de vacantes en vez de cubrir el viewport completo, dejando visibles los
+          pasos ("Aplica en minutos") debajo del modal. */}
+      {selected && createPortal(
         <div className="vp-modal-overlay">
           <div className="vp-modal-backdrop" onClick={() => setSelected(null)} />
           <div className="vp-modal-box" style={{ fontFamily:FONT_SANS }} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
@@ -799,7 +805,8 @@ export default function VacantesPage() {
             </div>
 
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
