@@ -672,7 +672,7 @@ export async function saveRecruitmentLead({
       // Requiere que coincida el contacto Y el puesto para considerar duplicado
       const puestoNorm = (puesto || '').trim().toLowerCase();
       const { rows } = await db.execute({
-        sql:  `SELECT id, nombre, email, telefono, puesto, cv_base64, cv_nombre FROM recruitment_leads WHERE (${contactConditions.join(' OR ')}) AND LOWER(TRIM(COALESCE(puesto,''))) = ? LIMIT 1`,
+        sql:  `SELECT id, nombre, email, telefono, puesto, cv_base64, cv_nombre, radar_referencia FROM recruitment_leads WHERE (${contactConditions.join(' OR ')}) AND LOWER(TRIM(COALESCE(puesto,''))) = ? LIMIT 1`,
         args: [...contactArgs, puestoNorm],
       });
       if (rows.length > 0) {
@@ -690,7 +690,11 @@ export async function saveRecruitmentLead({
           }
         }
         console.log(`⚠️ Duplicado: #${existing.id} — ${existing.nombre} ya registrado para "${existing.puesto}"`);
-        return { id: Number(existing.id), duplicate: true, existingNombre: existing.nombre, existingPuesto: existing.puesto };
+        return {
+          id: Number(existing.id), duplicate: true,
+          existingNombre: existing.nombre, existingPuesto: existing.puesto,
+          existingRadarReferencia: existing.radar_referencia || null,
+        };
       }
     }
   } catch (dupErr) {

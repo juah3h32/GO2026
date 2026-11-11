@@ -139,6 +139,11 @@ export async function POST({ request }) {
         });
         autoSuscribirCandidato(nombre, email);
 
+        // Duplicado que YA tiene folio Radar → ya se procesó por completo antes.
+        if (saved?.duplicate && saved.existingRadarReferencia) {
+          return json({ ok: true, id: saved.id, duplicate: true, esListaEspera: !!en_lista_espera });
+        }
+
         const candidatoId = saved?.id || null;
 
         try {
@@ -285,8 +290,14 @@ export async function POST({ request }) {
       });
       autoSuscribirCandidato(nombre, email);
 
-      // ── Duplicado detectado: no re-registrar ni notificar ─────────────────
-      if (saved?.duplicate) {
+      // ── Duplicado detectado ────────────────────────────────────────────────
+      // Si ya se le había mandado folio de Radar antes, no repetir el envío.
+      // Si NO (ej. el chat ya había auto-guardado este mismo candidato antes
+      // de llegar aquí a confirmar — ver chat.js), seguir el flujo normal:
+      // de lo contrario esta confirmación nunca notificaba a RH ni mandaba a
+      // Radar, porque aquí SIEMPRE se cortaba en seco por "duplicado" aunque
+      // Radar nunca hubiera recibido nada todavía.
+      if (saved?.duplicate && saved.existingRadarReferencia) {
         console.log(`🔁 Solicitud duplicada ignorada — candidato existente #${saved.id}: ${saved.existingNombre}`);
         return json({
           ok:        true,
