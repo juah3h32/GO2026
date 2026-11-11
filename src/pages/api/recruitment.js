@@ -25,14 +25,29 @@ import { esVacanteGoRadar, enviarPostulacionAGoRadar } from '../../lib/go-radar.
 
 // Busca, entre las vacantes activas, la que corresponde al "puesto" escrito/elegido
 // por el candidato — para heredar su dueño (rh_user_id) al guardar el lead.
+// Prioriza el match EXACTO y, si no hay, el título más largo/específico que
+// contenga al puesto — un simple .find() con "includes" en cualquier orden
+// podía agarrar una vacante corta ("Operador") en vez de la correcta y más
+// específica ("Operador de Producción"), asignando el candidato al RH
+// equivocado (o a nadie) según el orden en que vinieran las vacantes.
 function matchVacante(puesto, vacantesActivas) {
   if (!puesto || !vacantesActivas?.length) return null;
   const norm = s => (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
   const pLow = norm(puesto);
-  return vacantesActivas.find(v => {
+  if (!pLow) return null;
+
+  const exacto = vacantesActivas.find(v => norm(v.titulo) === pLow);
+  if (exacto) return exacto;
+
+  let mejor = null, mejorLen = -1;
+  for (const v of vacantesActivas) {
     const vLow = norm(v.titulo);
-    return vLow && (vLow.includes(pLow) || pLow.includes(vLow));
-  }) || null;
+    if (!vLow) continue;
+    if (vLow.includes(pLow) || pLow.includes(vLow)) {
+      if (vLow.length > mejorLen) { mejor = v; mejorLen = vLow.length; }
+    }
+  }
+  return mejor;
 }
 
 // Auto-suscribe al candidato a novedades/promociones con los datos que ya dio
