@@ -656,9 +656,16 @@ export async function saveRecruitmentLead({
       contactArgs.push(email.trim());
     }
     if (telefono && telefono.trim()) {
-      const tel = telefono.replace(/[\s\-()]/g, '');
-      contactConditions.push(`(REPLACE(REPLACE(REPLACE(telefono,' ',''),'-',''),'(','') LIKE ?)`);
-      contactArgs.push(`%${tel}%`);
+      // Últimos 10 dígitos — ignora separadores y prefijos de país/trunk
+      // (+52, 52, 044, 1, paréntesis). Comparación EXACTA, no substring:
+      // un LIKE '%tel%' hacía que un candidato distinto, cuyo número quedaba
+      // contenido dentro de un número viejo guardado con otro formato,
+      // se marcara como "duplicado" y su registro nunca llegara a RH/Radar.
+      const telDigits = telefono.replace(/\D/g, '').slice(-10);
+      if (telDigits.length === 10) {
+        contactConditions.push(`(SUBSTR(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(telefono,' ',''),'-',''),'(',''),')',''),'+',''),'.',''), -10) = ?)`);
+        contactArgs.push(telDigits);
+      }
     }
 
     if (contactConditions.length > 0) {

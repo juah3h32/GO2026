@@ -992,20 +992,24 @@ const RecruitmentConfirmation = ({ candidato, t }) => {
       </div>
       <div className="confirmation-body">
         <p className="confirmation-title">
-          {candidato?.esListaEspera
-            ? '¡Quedaste en lista de espera!'
-            : (t?.confirmTitle || '¡Solicitud registrada con éxito!')}
+          {candidato?.duplicate
+            ? 'Ya tenemos un registro tuyo'
+            : candidato?.esListaEspera
+              ? '¡Quedaste en lista de espera!'
+              : (t?.confirmTitle || '¡Solicitud registrada con éxito!')}
         </p>
         <p className="confirmation-subtitle">
-          {candidato?.esListaEspera
-            ? `Guardamos todos tus datos${campos.puesto ? ` para ${campos.puesto}` : ''}. Estarás entre los primeros y te avisaremos por WhatsApp en cuanto se abra la vacante.`
-            : (t?.confirmSubtitle || 'Nuestro equipo de RH se pondrá en contacto contigo pronto.')}
+          {candidato?.duplicate
+            ? `Ya existe una solicitud tuya${campos.puesto ? ` para ${campos.puesto}` : ''} con estos mismos datos de contacto — no se creó una nueva. Si quieres actualizar algo, contáctanos directo por WhatsApp.`
+            : candidato?.esListaEspera
+              ? `Guardamos todos tus datos${campos.puesto ? ` para ${campos.puesto}` : ''}. Estarás entre los primeros y te avisaremos por WhatsApp en cuanto se abra la vacante.`
+              : (t?.confirmSubtitle || 'Nuestro equipo de RH se pondrá en contacto contigo pronto.')}
         </p>
 
         <div className="confirmation-badge">
           {candidato?.id && (
             <div className="confirmation-badge-row">
-              <span className="confirmation-badge-label">Folio</span>
+              <span className="confirmation-badge-label">{candidato?.duplicate ? 'Folio existente' : 'Folio'}</span>
               <span className="confirmation-badge-value confirmation-folio">#{String(candidato.id).padStart(5, '0')}</span>
             </div>
           )}
@@ -1726,7 +1730,10 @@ export default function BotGO({ language = 'es' }) {
 
       const res    = await fetch('/api/recruitment', fetchOpts);
       const result = await res.json();
-      setCandidatoRegistrado({ ...datos, id: result.id || null, radar: result.radar || null });
+      setCandidatoRegistrado({
+        ...datos, id: result.id || null, radar: result.radar || null,
+        duplicate: !!result.duplicate, duplicateMessage: result.message || null,
+      });
     } catch (e) {
       console.error('❌ Error guardando candidato:', e.message);
       setCandidatoRegistrado({ ...datos, id: null, error: e.message });
