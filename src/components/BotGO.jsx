@@ -733,6 +733,22 @@ const SubscribeCard = ({ t, onSubscribe, onDismiss }) => {
   );
 };
 
+// Agrega folio y clave como query params a la URL de seguimiento de Radar —
+// para que, si su página los lee, el formulario llegue pre-llenado en vez de
+// que el candidato tenga que volver a escribirlos a mano.
+function buildRadarSeguimientoUrl(radar) {
+  const base = radar?.seguimiento_url || 'https://go-radar.com.mx/seguimiento';
+  if (!radar?.referencia) return base;
+  try {
+    const url = new URL(base);
+    if (!url.searchParams.has('folio')) url.searchParams.set('folio', radar.referencia);
+    if (radar.clave && !url.searchParams.has('clave')) url.searchParams.set('clave', radar.clave);
+    return url.toString();
+  } catch {
+    return base;
+  }
+}
+
 // ─── Comprobante en PDF — folio/clave quedan guardados aunque se pierda el chat ──
 // Pdf-lib no trae un helper para links clicables — se arma la anotación a mano.
 function addPdfLinkAnnotation(page, { x, y, width, height, url }, { PDFName, PDFArray, PDFString }) {
@@ -797,7 +813,7 @@ async function descargarComprobantePDF(candidato) {
       draw(candidato.radar.clave, { x: 44, size: 13, font: bold, gap: 22 });
     }
     y -= 6;
-    const seguimientoUrl = candidato.radar.seguimiento_url || 'https://go-radar.com.mx/seguimiento';
+    const seguimientoUrl = buildRadarSeguimientoUrl(candidato.radar);
     const linkFont  = bold;
     const linkSize  = 10;
     const linkText  = 'Ver estatus de mi postulación  →';
@@ -1055,7 +1071,7 @@ const RecruitmentConfirmation = ({ candidato, t }) => {
                 )}
               </div>
               <a
-                href={candidato.radar.seguimiento_url || 'https://go-radar.com.mx/seguimiento'}
+                href={buildRadarSeguimientoUrl(candidato.radar)}
                 target="_blank" rel="noopener noreferrer"
                 className="confirmation-radar-cta"
               >
