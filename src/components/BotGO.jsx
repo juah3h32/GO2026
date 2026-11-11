@@ -734,8 +734,23 @@ const SubscribeCard = ({ t, onSubscribe, onDismiss }) => {
 };
 
 // ─── Comprobante en PDF — folio/clave quedan guardados aunque se pierda el chat ──
+// Pdf-lib no trae un helper para links clicables — se arma la anotación a mano.
+function addPdfLinkAnnotation(page, { x, y, width, height, url }, { PDFName, PDFArray, PDFString }) {
+  const annot = page.doc.context.obj({
+    Type: 'Annot',
+    Subtype: 'Link',
+    Rect: [x, y, x + width, y + height],
+    Border: [0, 0, 0],
+    A: { Type: 'Action', S: 'URI', URI: PDFString.of(url) },
+  });
+  const annotRef = page.doc.context.register(annot);
+  const existing = page.node.lookup(PDFName.of('Annots'), PDFArray);
+  if (existing) existing.push(annotRef);
+  else page.node.set(PDFName.of('Annots'), page.doc.context.obj([annotRef]));
+}
+
 async function descargarComprobantePDF(candidato) {
-  const { PDFDocument, StandardFonts, rgb } = await import('pdf-lib');
+  const { PDFDocument, StandardFonts, rgb, PDFName, PDFArray, PDFString } = await import('pdf-lib');
   const doc    = await PDFDocument.create();
   const page   = doc.addPage([420, 560]);
   const bold   = await doc.embedFont(StandardFonts.HelveticaBold);
@@ -771,7 +786,8 @@ async function descargarComprobantePDF(candidato) {
 
   if (candidato.radar?.ok && candidato.radar.referencia) {
     y -= 6;
-    page.drawRectangle({ x: 30, y: y - 100, width: 360, height: 106, color: rgb(0.996,0.953,0.925), borderColor: orange, borderWidth: 1 });
+    const radarBoxHeight = candidato.radar.clave ? 146 : 108;
+    page.drawRectangle({ x: 30, y: y - (radarBoxHeight - 6), width: 360, height: radarBoxHeight, color: rgb(0.996,0.953,0.925), borderColor: orange, borderWidth: 1 });
     y -= 14;
     draw('Tu postulación también quedó en GO Radar', { x: 44, size: 10, font: bold, color: orange, gap: 20 });
     draw('Folio Radar', { x: 44, size: 9, color: gray, gap: 14 });
@@ -781,7 +797,16 @@ async function descargarComprobantePDF(candidato) {
       draw(candidato.radar.clave, { x: 44, size: 13, font: bold, gap: 22 });
     }
     y -= 6;
-    draw('Entra a go-radar.com.mx/seguimiento con tu folio y clave', { x: 44, size: 8.5, color: gray, gap: 18 });
+    const seguimientoUrl = candidato.radar.seguimiento_url || 'https://go-radar.com.mx/seguimiento';
+    const linkFont  = bold;
+    const linkSize  = 10;
+    const linkText  = 'Ver estatus de mi postulación  →';
+    const linkColor = rgb(0.11, 0.4, 0.84);
+    const linkY     = y;
+    draw(linkText, { x: 44, size: linkSize, font: linkFont, color: linkColor, gap: 18 });
+    const linkWidth = linkFont.widthOfTextAtSize(linkText, linkSize);
+    addPdfLinkAnnotation(page, { x: 44, y: linkY - 3, width: linkWidth, height: linkSize + 5, url: seguimientoUrl }, { PDFName, PDFArray, PDFString });
+    draw('(entra con tu folio y clave de arriba)', { x: 44, size: 8, color: gray, gap: 14 });
   }
 
   y -= 16;
