@@ -15,21 +15,29 @@ function generatePassword(length = 12) {
   return pw;
 }
 
+// Columna "delegada": ve/borra los candidatos de OTRO usuario (ej. Mony o
+// Cindy) en vez de los propios. Se agrega bajo demanda, como must_change_password.
+async function ensureScopedRhColumn(db) {
+  try { await db.execute(`ALTER TABLE users ADD COLUMN scoped_rh_user_id INTEGER DEFAULT NULL`); } catch {}
+}
+
 export async function GET({ request }) {
   const role = await verifyAdminToken(request);
   if (!role || !role.canDownload) return new Response(JSON.stringify({ ok: false, error: 'No autorizado' }), { status: 401 });
 
   const db = getTurso();
-  const { rows } = await db.execute('SELECT id, name, color, tabs, can_download, active FROM users ORDER BY id');
+  await ensureScopedRhColumn(db);
+  const { rows } = await db.execute('SELECT id, name, color, tabs, can_download, active, scoped_rh_user_id FROM users ORDER BY id');
   return new Response(JSON.stringify({
     ok: true,
     users: rows.map(r => ({
-      id:          r.id,
-      name:        r.name,
-      color:       r.color || '#8A8A7A',
-      tabs:        JSON.parse(r.tabs || '[]'),
-      canDownload: Boolean(r.can_download),
-      active:      Boolean(r.active),
+      id:              r.id,
+      name:            r.name,
+      color:           r.color || '#8A8A7A',
+      tabs:            JSON.parse(r.tabs || '[]'),
+      canDownload:     Boolean(r.can_download),
+      active:          Boolean(r.active),
+      scopedRhUserId:  r.scoped_rh_user_id ?? null,
     })),
   }), { headers: { 'Content-Type': 'application/json' } });
 }
@@ -44,11 +52,12 @@ export async function POST({ request }) {
 
   // ── Actualizar permisos ───────────────────────────────────────────────────
   if (action === 'updatePermissions') {
-    const { id, tabs, canDownload, active } = body;
+    const { id, tabs, canDownload, active, scopedRhUserId } = body;
     if (!id) return new Response(JSON.stringify({ ok: false, error: 'Falta id' }), { status: 400 });
+    await ensureScopedRhColumn(db);
     await db.execute({
-      sql:  'UPDATE users SET tabs = ?, can_download = ?, active = ? WHERE id = ?',
-      args: [JSON.stringify(tabs || []), canDownload ? 1 : 0, active !== false ? 1 : 0, id],
+      sql:  'UPDATE users SET tabs = ?, can_download = ?, active = ?, scoped_rh_user_id = ? WHERE id = ?',
+      args: [JSON.stringify(tabs || []), canDownload ? 1 : 0, active !== false ? 1 : 0, scopedRhUserId || null, id],
     });
     return new Response(JSON.stringify({ ok: true }), { headers: { 'Content-Type': 'application/json' } });
   }
@@ -74,14 +83,15 @@ export async function POST({ request }) {
 
   // ── Crear nuevo usuario — contraseña siempre random, fuerza cambio en el primer login ──
   if (action === 'addUser') {
-    const { name, tabs, canDownload, color } = body;
+    const { name, tabs, canDownload, color, scopedRhUserId } = body;
     if (!name?.trim()) return new Response(JSON.stringify({ ok: false, error: 'Nombre requerido' }), { status: 400 });
     const generatedPassword = generatePassword();
     const hashed = await bcrypt.hash(generatedPassword, 12);
     try { await db.execute(`ALTER TABLE users ADD COLUMN must_change_password INTEGER NOT NULL DEFAULT 0`); } catch {}
+    await ensureScopedRhColumn(db);
     await db.execute({
-      sql:  'INSERT INTO users (name, password, tabs, can_download, color, active, must_change_password) VALUES (?, ?, ?, ?, ?, 1, 1)',
-      args: [name.trim(), hashed, JSON.stringify(tabs || []), canDownload ? 1 : 0, color || '#8A8A7A'],
+      sql:  'INSERT INTO users (name, password, tabs, can_download, color, active, must_change_password, scoped_rh_user_id) VALUES (?, ?, ?, ?, ?, 1, 1, ?)',
+      args: [name.trim(), hashed, JSON.stringify(tabs || []), canDownload ? 1 : 0, color || '#8A8A7A', scopedRhUserId || null],
     });
     return new Response(JSON.stringify({ ok: true, generatedPassword }), { headers: { 'Content-Type': 'application/json' } });
   }

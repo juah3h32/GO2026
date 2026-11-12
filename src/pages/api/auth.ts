@@ -239,6 +239,9 @@ const row      = result.rows[0];
       canDownload:    isAdminRole,
       canDelete:      isAdminRole || isRHRole,   // Admin y RH pueden eliminar candidatos
       isAdminRole,                                // true solo para Admin (acceso completo)
+      // Cuenta "delegada": ve/borra los candidatos de OTRO usuario (ej. Mony o
+      // Cindy) en vez de los propios — null = se comporta como siempre (su id).
+      scopedRhUserId: row.scoped_rh_user_id != null ? Number(row.scoped_rh_user_id) : null,
       mustChangePassword: Boolean(row.must_change_password),
     };
    

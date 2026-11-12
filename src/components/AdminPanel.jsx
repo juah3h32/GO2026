@@ -1727,7 +1727,7 @@ const PERM_GROUPS = [
   },
 ];
 
-function UserManageCard({ user, onUpdate }) {
+function UserManageCard({ user, onUpdate, allUsers = [] }) {
   const P = useP();
   const [open,setOpen]         = useState(false);
   const [activeTab,setActiveTab] = useState('perms');
@@ -1737,11 +1737,17 @@ function UserManageCard({ user, onUpdate }) {
   const [selTabs,setSelTabs]   = useState(user.tabs||[]);
   const [canDl,setCanDl]       = useState(user.canDownload);
   const [isActive,setIsActive] = useState(user.active);
+  const [scopedRh,setScopedRh] = useState(user.scopedRhUserId || '');
   const [loading,setLoading]   = useState(false);
   const [status,setStatus]     = useState(null), [msg,setMsg] = useState('');
   const [dispName,setDispName] = useState(user.name);
   const [confirmDel,setConfirmDel] = useState(false);
   const nameRef = useRef(null);
+
+  // Otros usuarios a los que se les puede "delegar" acceso — cualquiera menos
+  // uno mismo. Lo normal es elegir a quien ya tiene vacantes propias (ej. Mony,
+  // Cindy), pero no se restringe por si acaso.
+  const delegableUsers = allUsers.filter(u => u.id !== user.id);
 
   const canSaveName = newName.trim().length>=2&&newName.trim()!==dispName&&!loading;
   const uc = user.color||'#FB670B';
@@ -1750,6 +1756,7 @@ function UserManageCard({ user, onUpdate }) {
     setOpen(true); setActiveTab(tab);
     setGenPw(null); setCopied(false); setNewName(''); setConfirmDel(false);
     setSelTabs(user.tabs||[]); setCanDl(user.canDownload); setIsActive(user.active);
+    setScopedRh(user.scopedRhUserId || '');
     setStatus(null); setMsg('');
     setTimeout(()=>(tab==='name'?nameRef:null)?.current?.focus(), 120);
   };
@@ -1780,7 +1787,7 @@ function UserManageCard({ user, onUpdate }) {
   };
   const handleSavePerms = async () => {
     setLoading(true); setStatus(null);
-    const j = await api({action:'updatePermissions', id:user.id, tabs:selTabs, canDownload:canDl, active:isActive});
+    const j = await api({action:'updatePermissions', id:user.id, tabs:selTabs, canDownload:canDl, active:isActive, scopedRhUserId: scopedRh || null});
     if(j.ok){setStatus('ok');setMsg('Permisos guardados');onUpdate();setTimeout(()=>setStatus(null),2500);}
     else{setStatus('error');setMsg(j.error||'Error');}
     setLoading(false);
@@ -1814,8 +1821,9 @@ function UserManageCard({ user, onUpdate }) {
           <div style={{ display:'flex', alignItems:'center', gap:7, marginBottom:6, flexWrap:'wrap' }}>
             <span style={{ fontWeight:700, fontSize:13.5, color:P.text, letterSpacing:'-0.01em' }}>{dispName}</span>
             {user.canDownload && <Tag color={P.orange}>Admin</Tag>}
-            {!user.canDownload && (user.tabs||[]).includes('recruitment') && (user.tabs||[]).includes('vacantes') && <Tag color="#22C55E">RH · dueño propio</Tag>}
-            {!user.canDownload && (user.tabs||[]).includes('recruitment') && !(user.tabs||[]).includes('vacantes') && <Tag color="#8A8A7A">Ve candidatos</Tag>}
+            {!user.canDownload && user.scopedRhUserId && <Tag color={P.orange}>Delegado de {allUsers.find(u=>u.id===user.scopedRhUserId)?.name || `#${user.scopedRhUserId}`}</Tag>}
+            {!user.canDownload && !user.scopedRhUserId && (user.tabs||[]).includes('recruitment') && (user.tabs||[]).includes('vacantes') && <Tag color="#22C55E">RH · dueño propio</Tag>}
+            {!user.canDownload && !user.scopedRhUserId && (user.tabs||[]).includes('recruitment') && !(user.tabs||[]).includes('vacantes') && <Tag color="#8A8A7A">Ve candidatos</Tag>}
             {!user.active && <Tag color={P.gray}>Inactivo</Tag>}
           </div>
           <div style={{ display:'flex', flexWrap:'wrap', gap:4 }}>
@@ -1911,6 +1919,21 @@ function UserManageCard({ user, onUpdate }) {
                   </label>
                 ))}
               </div>
+
+              {!canDl && selTabs.includes('recruitment') && (
+                <div style={{ padding:'12px 14px',borderRadius:10,border:`1px solid ${scopedRh?P.orange+'40':P.border}`,background:scopedRh?P.okDim:P.border2 }}>
+                  <div style={{ fontSize:11.5,fontWeight:600,color:P.text,marginBottom:3 }}>Ver candidatos de otro usuario</div>
+                  <div style={{ fontSize:10,color:P.textDim,marginBottom:8 }}>En vez de ver sus propios candidatos, {dispName} ve y puede borrar los de la persona que elijas aquí — útil si no va a usar la plataforma de GO Radar directamente.</div>
+                  <select value={scopedRh} onChange={e=>setScopedRh(e.target.value)}
+                    style={{ width:'100%',padding:'9px 12px',borderRadius:8,border:`1px solid ${P.border}`,background:P.surface2,color:P.text,fontSize:11.5,outline:'none',cursor:'pointer' }}>
+                    <option value="">Ninguno — sus propios candidatos</option>
+                    {delegableUsers.map(u=>(
+                      <option key={u.id} value={u.id}>{u.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
               {status&&<div style={{ padding:'9px 13px',borderRadius:9,fontSize:11,background:status==='ok'?P.okDim:P.errDim,border:`1px solid ${status==='ok'?P.orange+'35':P.gray+'35'}`,color:status==='ok'?P.orange:P.grayMid,display:'flex',alignItems:'center',gap:8 }}>{status==='ok'?Icons.check:Icons.alert} {msg}</div>}
               <div style={{ display:'flex',gap:8 }}>
                 <button onClick={handleSavePerms} disabled={loading}
@@ -2204,7 +2227,7 @@ function UsersTab() {
         <p style={{ color:P.textDim, fontSize:13, textAlign:'center', padding:24 }}>Cargando usuarios...</p>
       ) : (
         <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
-          {users.map(u => <UserManageCard key={u.id} user={u} onUpdate={loadUsers}/>)}
+          {users.map(u => <UserManageCard key={u.id} user={u} onUpdate={loadUsers} allUsers={users}/>)}
         </div>
       )}
 

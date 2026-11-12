@@ -41,6 +41,7 @@ export async function verifyAdminToken(request: Request) {
       canDownload: boolean;
       canDelete:   boolean;
       isAdminRole?: boolean;
+      scopedRhUserId?: number | null;
       mustChangePassword?: boolean;
     };
   } catch (err) {

@@ -219,7 +219,10 @@ export async function POST({ request }) {
       const adminRole = await verifyAdminToken(request);
       if (!adminRole) return json({ ok: false, error: 'No autorizado' }, 401);
       isAdmin = !!adminRole.isAdminRole;
-      myId    = adminRole.id ?? null;
+      // scopedRhUserId: cuenta "delegada" — ve/borra los candidatos de OTRO
+      // RH (ej. Cindy o Mony) en vez de los propios. Si no está asignado, se
+      // comporta igual que siempre (filtra por su propio id).
+      myId    = adminRole.scopedRhUserId ?? adminRole.id ?? null;
     }
 
     // Cada RH ve/edita solo sus candidatos; Admin los ve/edita todos.
@@ -519,7 +522,7 @@ export async function GET({ request }) {
   try {
     const adminRole = await verifyAdminToken(request);
     if (!adminRole) return json({ ok: false, error: 'No autorizado' }, 401);
-    const candidates = await readRecruitmentLeads({ isAdmin: !!adminRole.isAdminRole, rhUserId: adminRole.id ?? null });
+    const candidates = await readRecruitmentLeads({ isAdmin: !!adminRole.isAdminRole, rhUserId: adminRole.scopedRhUserId ?? adminRole.id ?? null });
     const formatted  = candidates.map(c => ({
       ...c,
       statusLabel: STATUS_LABELS[c.status] || c.status || 'Nuevo',
