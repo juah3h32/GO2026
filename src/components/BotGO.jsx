@@ -804,10 +804,10 @@ async function descargarComprobantePDF(candidato) {
     y -= 6;
     page.drawRectangle({ x: 30, y: y - 74, width: 360, height: 80, color: rgb(0.996,0.953,0.925), borderColor: orange, borderWidth: 1 });
     y -= 14;
-    draw('También quedaste en la lista de espera de GO Radar', { x: 44, size: 10, font: bold, color: orange, gap: 20 });
+    draw('Quedaste guardado también en GO Radar', { x: 44, size: 10, font: bold, color: orange, gap: 20 });
     draw('Folio', { x: 44, size: 9, color: gray, gap: 14 });
     draw(candidato.radar.referencia, { x: 44, size: 13, font: bold, gap: 22 });
-    draw('Reclutamiento te contacta cuando haya una vacante para ti.', { x: 44, size: 8, color: gray, gap: 14 });
+    draw('Tus datos ya estan listos para cuando abra una vacante que te quede.', { x: 44, size: 8, color: gray, gap: 14 });
   } else if (candidato.radar?.ok && candidato.radar.referencia) {
     y -= 6;
     const radarBoxHeight = candidato.radar.clave ? 146 : 108;
@@ -1066,7 +1066,7 @@ const RecruitmentConfirmation = ({ candidato, t }) => {
 
           {radarOk && radarListaEspera && (
             <div className="confirmation-radar-box">
-              <p className="confirmation-radar-title">También quedó en la lista de espera de GO Radar</p>
+              <p className="confirmation-radar-title">Quedaste guardado también en GO Radar</p>
               <div className="confirmation-radar-grid">
                 <div>
                   <span className="confirmation-radar-grid-label">Folio</span>
@@ -1074,7 +1074,7 @@ const RecruitmentConfirmation = ({ candidato, t }) => {
                 </div>
               </div>
               <p className="conf-edit-hint" style={{ marginTop: 6 }}>
-                Por ahora no hay una vacante exacta para ti en Radar — reclutamiento la revisa y te contacta en cuanto abra una que te pueda interesar.
+                Tus datos ya están en su sistema de reclutamiento, listos para cuando abra una vacante que te quede. En cuanto eso pase, te buscamos directo — guarda tu folio por si acaso.
               </p>
             </div>
           )}
