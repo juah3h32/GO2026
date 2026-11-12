@@ -1074,6 +1074,53 @@ export async function notifyCandidateEspera({ nombre, puesto, telefono }) {
   }
 }
 
+// Agrega folio/clave como query params a la URL de seguimiento de Radar —
+// mismo criterio que buildRadarSeguimientoUrl() en BotGO.jsx (duplicado a
+// propósito: este archivo corre en el servidor, ese en el navegador).
+function buildRadarSeguimientoUrl(radar) {
+  const base = radar?.seguimiento_url || 'https://go-radar.com.mx/seguimiento';
+  if (!radar?.referencia) return base;
+  try {
+    const url = new URL(base);
+    if (!url.searchParams.has('folio')) url.searchParams.set('folio', radar.referencia);
+    if (radar.clave && !url.searchParams.has('clave')) url.searchParams.set('clave', radar.clave);
+    return url.toString();
+  } catch {
+    return base;
+  }
+}
+
+// ── Notificar al CANDIDATO su folio/clave/link de seguimiento de GO Radar ─────
+// Se llama justo después de enviarPostulacionAGoRadar(), tenga o no vacante
+// que matchee — para que la persona tenga su clave y su link directo en
+// WhatsApp, sin depender de que no haya cerrado el chat o perdido el PDF.
+export async function notifyCandidateRadarSeguimiento({ nombre, puesto, telefono, radar }) {
+  const phone = (telefono || '').replace(/\D/g, '');
+  if (!phone || phone.length < 8) return { ok: false, error: 'Sin teléfono válido' };
+  if (!radar?.ok || !radar.referencia) return { ok: false, error: 'Sin folio de Radar' };
+
+  const saludo = `Hola ${nombre || 'candidato'},`;
+
+  const mensaje = radar.listaEspera
+    ? `${saludo}\n\n` +
+      `Guardamos tus datos para *${puesto || 'la vacante'}* también en el sistema de reclutamiento (GO Radar).\n\n` +
+      `Folio: *${radar.referencia}*\n\n` +
+      `Por ahora no hay una vacante exacta para ti ahí — en cuanto abra una que te quede, te contactamos por este medio.`
+    : `${saludo}\n\n` +
+      `Tu postulación para *${puesto || 'la vacante'}* también quedó registrada en GO Radar.\n\n` +
+      `Folio: *${radar.referencia}*\n` +
+      (radar.clave ? `Clave: *${radar.clave}*\n` : '') +
+      `\nEntra aquí para ver tu proceso:\n${buildRadarSeguimientoUrl(radar)}\n\n` +
+      `Guarda tu folio y tu clave, no los compartas.`;
+
+  try {
+    await sendWAText(phone, mensaje);
+    return { ok: true, phone };
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
 // ── Notificar candidatos en lista de espera cuando se publica una vacante ─────
 // Envía WhatsApp directo al candidato (no al equipo RH)
 export async function notifyEsperaVacante({ candidatos, vacante, urlVacantes = '' }) {

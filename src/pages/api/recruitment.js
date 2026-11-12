@@ -1,5 +1,5 @@
 // src/pages/api/recruitment.js
-import { notifyNewVacante, notifyCandidateEspera } from '../../lib/notify.js';
+import { notifyNewVacante, notifyCandidateEspera, notifyCandidateRadarSeguimiento } from '../../lib/notify.js';
 import { verifyAdminToken } from '../../lib/verifyAdminToken.ts';
 import {
   saveRecruitmentLead,
@@ -170,6 +170,7 @@ export async function POST({ request }) {
         });
         if (radar?.ok && radar.referencia) {
           saveRadarReferencia(candidatoId, radar.referencia).catch(e => console.warn('saveRadarReferencia:', e.message));
+          notifyCandidateRadarSeguimiento({ nombre, puesto, telefono, radar }).catch(e => console.warn('notify candidato radar:', e.message));
         }
 
         return json({ ok: true, id: candidatoId, esListaEspera: !!en_lista_espera, radar });
@@ -336,6 +337,7 @@ export async function POST({ request }) {
       });
       if (radar?.ok && radar.referencia) {
         saveRadarReferencia(candidatoId, radar.referencia).catch(e => console.warn('saveRadarReferencia:', e.message));
+        notifyCandidateRadarSeguimiento({ nombre, puesto, telefono, radar }).catch(e => console.warn('notify candidato radar:', e.message));
       }
 
       return json({ ok: true, id: candidatoId, en_lista_espera, radar });
