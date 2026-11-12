@@ -800,7 +800,15 @@ async function descargarComprobantePDF(candidato) {
   if (candidato.telefono) { draw('Teléfono', { size: 9, color: gray, gap: 14 }); draw(candidato.telefono, { size: 12, gap: 24 }); }
   if (candidato.email)    { draw('Correo', { size: 9, color: gray, gap: 14 }); draw(candidato.email, { size: 12, gap: 24 }); }
 
-  if (candidato.radar?.ok && candidato.radar.referencia) {
+  if (candidato.radar?.ok && candidato.radar.referencia && candidato.radar.listaEspera) {
+    y -= 6;
+    page.drawRectangle({ x: 30, y: y - 74, width: 360, height: 80, color: rgb(0.996,0.953,0.925), borderColor: orange, borderWidth: 1 });
+    y -= 14;
+    draw('También quedaste en la lista de espera de GO Radar', { x: 44, size: 10, font: bold, color: orange, gap: 20 });
+    draw('Folio', { x: 44, size: 9, color: gray, gap: 14 });
+    draw(candidato.radar.referencia, { x: 44, size: 13, font: bold, gap: 22 });
+    draw('Reclutamiento te contacta cuando haya una vacante para ti.', { x: 44, size: 8, color: gray, gap: 14 });
+  } else if (candidato.radar?.ok && candidato.radar.referencia) {
     y -= 6;
     const radarBoxHeight = candidato.radar.clave ? 146 : 108;
     page.drawRectangle({ x: 30, y: y - (radarBoxHeight - 6), width: 360, height: radarBoxHeight, color: rgb(0.996,0.953,0.925), borderColor: orange, borderWidth: 1 });
@@ -1023,7 +1031,8 @@ const RecruitmentConfirmation = ({ candidato, t }) => {
 
   const fieldOrder = ['nombre', 'puesto', 'edad', 'estado', 'colonia', 'email', 'telefono'];
   const fieldsToShow = fieldOrder.filter(k => campos[k]);
-  const radarOk = candidato?.radar?.ok && candidato.radar.referencia;
+  const radarOk          = candidato?.radar?.ok && candidato.radar.referencia;
+  const radarListaEspera = radarOk && candidato.radar.listaEspera;
 
   return (
     <div className={`recruitment-confirmation ${visible ? 'confirmation-visible' : ''}`} role="status" aria-live="polite">
@@ -1055,7 +1064,22 @@ const RecruitmentConfirmation = ({ candidato, t }) => {
             </div>
           )}
 
-          {radarOk && (
+          {radarOk && radarListaEspera && (
+            <div className="confirmation-radar-box">
+              <p className="confirmation-radar-title">También quedó en la lista de espera de GO Radar</p>
+              <div className="confirmation-radar-grid">
+                <div>
+                  <span className="confirmation-radar-grid-label">Folio</span>
+                  <span className="confirmation-folio">{candidato.radar.referencia}</span>
+                </div>
+              </div>
+              <p className="conf-edit-hint" style={{ marginTop: 6 }}>
+                Por ahora no hay una vacante exacta para ti en Radar — reclutamiento la revisa y te contacta en cuanto abra una que te pueda interesar.
+              </p>
+            </div>
+          )}
+
+          {radarOk && !radarListaEspera && (
             <div className="confirmation-radar-box">
               <p className="confirmation-radar-title">También quedó registrada en GO Radar</p>
               <div className="confirmation-radar-grid">

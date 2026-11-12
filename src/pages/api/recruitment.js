@@ -159,17 +159,17 @@ export async function POST({ request }) {
           }
         } catch (e) { console.warn('notify error:', e.message); }
 
-        // Vacante publicada por GO Radar → reenviar la postulación (con CV) para folio y clave de seguimiento
-        let radar = null;
-        if (!en_lista_espera && vacanteMatch && esVacanteGoRadar(vacanteMatch)) {
-          radar = await enviarPostulacionAGoRadar({
-            vacanteId: vacanteMatch.id, nombre, edad, estado, colonia, telefono, correo: email, puesto,
-            cvBuffer, cvNombre, cvTipo,
-            solicitudId: `go2026-${candidatoId}-${vacanteMatch.id}`,
-          });
-          if (radar?.ok && radar.referencia) {
-            saveRadarReferencia(candidatoId, radar.referencia).catch(e => console.warn('saveRadarReferencia:', e.message));
-          }
+        // Siempre se reenvía a Radar (v5): con vacante_id si matchea una
+        // publicada por Radar, o sin él — ahí Radar la guarda en SU lista de
+        // espera en vez de rechazarla.
+        const radarVacanteId = (vacanteMatch && esVacanteGoRadar(vacanteMatch)) ? vacanteMatch.id : undefined;
+        const radar = await enviarPostulacionAGoRadar({
+          vacanteId: radarVacanteId, nombre, edad, estado, colonia, telefono, correo: email, puesto,
+          cvBuffer, cvNombre, cvTipo,
+          solicitudId: `go2026-${candidatoId}-${vacanteMatch?.id || 'sv'}`,
+        });
+        if (radar?.ok && radar.referencia) {
+          saveRadarReferencia(candidatoId, radar.referencia).catch(e => console.warn('saveRadarReferencia:', e.message));
         }
 
         return json({ ok: true, id: candidatoId, esListaEspera: !!en_lista_espera, radar });
@@ -324,18 +324,18 @@ export async function POST({ request }) {
         console.error('⚠️ Notificación RH falló:', err.message);
       }
 
-      // Vacante publicada por GO Radar → reenviar la postulación (con CV) para folio y clave de seguimiento
-      let radar = null;
-      if (!en_lista_espera && vacanteMatch && esVacanteGoRadar(vacanteMatch)) {
-        const cvBuffer = cvBase64 ? Buffer.from(cvBase64, 'base64') : null;
-        radar = await enviarPostulacionAGoRadar({
-          vacanteId: vacanteMatch.id, nombre, edad, estado, colonia, telefono, correo: email, puesto,
-          cvBuffer, cvNombre, cvTipo,
-          solicitudId: `go2026-${candidatoId}-${vacanteMatch.id}`,
-        });
-        if (radar?.ok && radar.referencia) {
-          saveRadarReferencia(candidatoId, radar.referencia).catch(e => console.warn('saveRadarReferencia:', e.message));
-        }
+      // Siempre se reenvía a Radar (v5): con vacante_id si matchea una
+      // publicada por Radar, o sin él — ahí Radar la guarda en SU lista de
+      // espera en vez de rechazarla.
+      const cvBuffer = cvBase64 ? Buffer.from(cvBase64, 'base64') : null;
+      const radarVacanteId = (vacanteMatch && esVacanteGoRadar(vacanteMatch)) ? vacanteMatch.id : undefined;
+      const radar = await enviarPostulacionAGoRadar({
+        vacanteId: radarVacanteId, nombre, edad, estado, colonia, telefono, correo: email, puesto,
+        cvBuffer, cvNombre, cvTipo,
+        solicitudId: `go2026-${candidatoId}-${vacanteMatch?.id || 'sv'}`,
+      });
+      if (radar?.ok && radar.referencia) {
+        saveRadarReferencia(candidatoId, radar.referencia).catch(e => console.warn('saveRadarReferencia:', e.message));
       }
 
       return json({ ok: true, id: candidatoId, en_lista_espera, radar });
