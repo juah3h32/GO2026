@@ -964,34 +964,19 @@ async function resolveRHRecipients(rhUserId) {
 export async function notifyCategoriaRH(c) {
   const esEspera = c.en_lista_espera === 1 || c.en_lista_espera === true || c.esListaEspera === true;
   const buildMsg = (nombre) => {
-    const saludo = nombre ? `*${nombre}*` : '';
-    const tieneCV = !!(c.cvNombre || c.cv_nombre || c.cvBase64 || c.cv_base64);
+    const tieneCV    = !!(c.cvNombre || c.cv_nombre || c.cvBase64 || c.cv_base64);
+    const ubicacion  = [c.estado_rep || c.estado, c.colonia].filter(Boolean).join(' / ');
+    const detalle    = [c.puesto || '—', c.edad ? `${c.edad} años` : '', ubicacion].filter(Boolean).join(' · ');
+    const contacto   = [c.telefono || c.whatsapp, c.email].filter(Boolean).join(' · ');
+    const etiqueta   = esEspera ? 'lista de espera' : 'nuevo candidato';
+    const saludo     = nombre ? `${nombre}: ` : '';
 
-    if (esEspera) {
-      return `--- LISTA DE ESPERA ---\n\n` +
-        (saludo ? `${saludo}, nuevo registro en espera:\n\n` : 'Nuevo registro en lista de espera:\n\n') +
-        `Nombre: *${c.nombre || '—'}*\n` +
-        `Puesto: ${c.puesto || '—'}\n` +
-        (c.edad ? `Edad: ${c.edad}\n` : '') +
-        ((c.estado_rep || c.estado) ? `Estado: ${c.estado_rep || c.estado}${c.colonia ? ' / ' + c.colonia : ''}\n` : '') +
-        (c.telefono || c.whatsapp ? `Telefono: ${c.telefono || c.whatsapp}\n` : '') +
-        (c.email ? `Email: ${c.email}\n` : '') +
-        (tieneCV ? `CV: adjunto en el panel\n` : '') +
-        `\nSe le avisara cuando se abra una vacante que coincida.` +
-        `\n\nGestiona: Panel > Reclutamiento`;
-    }
-
-    return `--- NUEVO CANDIDATO ---\n\n` +
-      (saludo ? `${saludo}, nuevo registro:\n\n` : 'Nuevo registro de candidato:\n\n') +
-      `Nombre: *${c.nombre || '—'}*\n` +
-      `Puesto: ${c.puesto || '—'}\n` +
-      (c.edad ? `Edad: ${c.edad}\n` : '') +
-      ((c.estado_rep || c.estado) ? `Estado: ${c.estado_rep || c.estado}${c.colonia ? ' / ' + c.colonia : ''}\n` : '') +
-      (c.telefono || c.whatsapp ? `Telefono: ${c.telefono || c.whatsapp}\n` : '') +
-      (c.email ? `Email: ${c.email}\n` : '') +
-      (tieneCV ? `CV: adjunto en el panel\n` : '') +
-      (c.sessionId ? `Folio: ${String(c.sessionId).slice(0, 12)}\n` : '') +
-      `\nGestiona: Panel > Reclutamiento`;
+    return `${saludo}${etiqueta} — *${c.nombre || '—'}*\n` +
+      `${detalle}\n` +
+      (contacto ? `${contacto}\n` : '') +
+      `${tieneCV ? 'CV adjunto' : 'Sin CV'}` +
+      (esEspera ? ' · se avisara cuando abra vacante' : '') +
+      `\n\nPanel > Reclutamiento`;
   };
 
   const subs = await resolveRHRecipients(c.rh_user_id);
