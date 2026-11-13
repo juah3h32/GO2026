@@ -1925,29 +1925,41 @@ function UserManageCard({ user, onUpdate, allUsers = [] }) {
               </div>
 
               {!canDl && selTabs.includes('recruitment') && (
-                <div style={{ padding:'12px 14px',borderRadius:10,border:`1px solid ${scopedRhIds.length?P.orange+'40':P.border}`,background:scopedRhIds.length?P.okDim:P.border2 }}>
-                  <div style={{ fontSize:11.5,fontWeight:600,color:P.text,marginBottom:3 }}>Ver candidatos de otro(s) usuario(s)</div>
-                  <div style={{ fontSize:10,color:P.textDim,marginBottom:8 }}>En vez de ver sus propios candidatos, {dispName} ve y puede borrar los de quien marques aquí — se puede elegir más de uno (ej. Mony y Cindy a la vez). Útil si no va a usar la plataforma de GO Radar directamente.</div>
-                  <div style={{ display:'flex',flexWrap:'wrap',gap:5,marginBottom:10 }}>
+                <div style={{ padding:'14px 16px',borderRadius:12,border:`1px solid ${scopedRhIds.length?P.orange+'35':P.border}`,background:P.surface}}>
+                  <div style={{ display:'flex',alignItems:'center',gap:7,marginBottom:3 }}>
+                    <span style={{ display:'inline-block',width:6,height:6,borderRadius:'50%',background:P.orange }}/>
+                    <div style={{ fontSize:11.5,fontWeight:700,color:P.text }}>Ver candidatos de otros usuarios</div>
+                    {scopedRhIds.length>0 && <span style={{ fontSize:9.5,fontWeight:700,padding:'2px 8px',borderRadius:20,background:`${P.orange}18`,color:P.orange }}>{scopedRhIds.length} elegido{scopedRhIds.length===1?'':'s'}</span>}
+                  </div>
+                  <div style={{ fontSize:10,color:P.textDim,marginBottom:11,lineHeight:1.5 }}>En vez de ver sus propios candidatos, {dispName} ve y puede gestionar los de quien marques — se puede elegir a varios a la vez. Útil si no va a usar la plataforma de GO Radar directamente.</div>
+
+                  <div style={{ display:'flex',flexWrap:'wrap',gap:7,marginBottom:14 }}>
                     {delegableUsers.length===0 && <span style={{ fontSize:10.5,color:P.textDim,fontStyle:'italic' }}>No hay otros usuarios todavía.</span>}
                     {delegableUsers.map(u=>{
                       const on = scopedRhIds.includes(u.id);
+                      const uc2 = u.color || '#8A8A7A';
                       return (
                         <button key={u.id} type="button" onClick={()=>toggleScopedRh(u.id)}
-                          style={{ padding:'5px 11px',borderRadius:20,border:`1px solid ${on?P.orange+'55':P.border}`,
-                            background:on?`${P.orange}14`:P.surface2,color:on?P.orange:P.textSub,
-                            fontSize:11,fontWeight:on?600:400,cursor:'pointer',transition:'all 0.14s ease' }}>
-                          {on&&'✓ '}{u.name}
+                          style={{ display:'flex',alignItems:'center',gap:8,padding:'7px 12px 7px 7px',borderRadius:11,cursor:'pointer',
+                            border:`1.5px solid ${on?P.orange:P.border}`,background:on?`${P.orange}10`:P.surface2,
+                            transition:'all 0.14s ease' }}>
+                          <div style={{ width:24,height:24,borderRadius:7,flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center',
+                            fontSize:9.5,fontWeight:700,letterSpacing:'-0.02em',
+                            background:on?P.orange:`${uc2}22`,color:on?'#fff':uc2 }}>
+                            {u.name.slice(0,2).toUpperCase()}
+                          </div>
+                          <span style={{ fontSize:11.5,fontWeight:on?700:500,color:on?P.orange:P.textSub }}>{u.name}</span>
+                          {on && <span style={{ display:'flex',color:P.orange,marginLeft:-2 }}>{Icons.check}</span>}
                         </button>
                       );
                     })}
                   </div>
 
-                  <div style={{ height:1,background:P.border,margin:'10px 0' }}/>
-
-                  <label style={{ display:'flex',alignItems:'center',gap:10,cursor:'pointer' }}>
+                  <label style={{ display:'flex',alignItems:'center',gap:10,cursor:'pointer',
+                    padding:'10px 14px',borderRadius:10,border:`1px solid ${canDelCand?'#22C55E40':P.border}`,
+                    background:canDelCand?'rgba(34,197,94,0.08)':P.border2 }}>
                     <input type="checkbox" checked={canDelCand} onChange={e=>setCanDelCand(e.target.checked)}
-                      style={{ width:14,height:14,cursor:'pointer',accentColor:P.orange }}/>
+                      style={{ width:14,height:14,cursor:'pointer',accentColor:'#22C55E' }}/>
                     <div>
                       <div style={{ fontSize:11.5,fontWeight:600,color:P.text }}>Puede eliminar candidatos</div>
                       <div style={{ fontSize:10,color:P.textDim }}>Si se desactiva, {dispName} solo puede ver — el botón de borrar desaparece y el servidor también lo bloquea.</div>
