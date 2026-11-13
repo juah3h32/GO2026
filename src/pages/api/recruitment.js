@@ -214,22 +214,27 @@ export async function POST({ request }) {
     const { action } = body;
 
     const ADMIN_ACTIONS = ['list', 'listPending', 'updateStatus', 'updateLead', 'delete', 'reset', 'addNote', 'getNotes', 'deleteNote', 'notificar-espera', 'resend', 'getCv', 'getGoal', 'setGoal'];
-    let isAdmin = false, myId = null;
+    let isAdmin = false, myIds = [], canDeleteCandidates = false;
     if (ADMIN_ACTIONS.includes(action)) {
       const adminRole = await verifyAdminToken(request);
       if (!adminRole) return json({ ok: false, error: 'No autorizado' }, 401);
       isAdmin = !!adminRole.isAdminRole;
-      // scopedRhUserId: cuenta "delegada" — ve/borra los candidatos de OTRO
-      // RH (ej. Cindy o Mony) en vez de los propios. Si no está asignado, se
-      // comporta igual que siempre (filtra por su propio id).
-      myId    = adminRole.scopedRhUserId ?? adminRole.id ?? null;
+      // scopedRhUserIds: cuenta "delegada" — ve/borra los candidatos de uno o
+      // varios OTROS RH (ej. Cindy y Mony a la vez) en vez de los propios.
+      // Si no tiene ninguno asignado, se comporta igual que siempre (su id).
+      const scoped = Array.isArray(adminRole.scopedRhUserIds) ? adminRole.scopedRhUserIds.filter(v => v != null) : [];
+      myIds = scoped.length ? scoped : (adminRole.id != null ? [adminRole.id] : []);
+      // Permiso explícito de borrar — por default true para no romper cuentas
+      // existentes; el Admin puede apagarlo por usuario desde Usuarios > Permisos.
+      canDeleteCandidates = isAdmin || adminRole.canDeleteCandidates !== false;
     }
+    const myId = myIds[0] ?? null; // compat: acciones que solo necesitan "un" id propio (ej. notas)
 
-    // Cada RH ve/edita solo sus candidatos; Admin los ve/edita todos.
+    // Cada RH ve/edita solo sus candidatos (uno o varios si tiene delegados); Admin los ve/edita todos.
     async function checkOwnLead(id) {
       if (isAdmin) return true;
       const owner = await getLeadOwner(id);
-      return owner !== undefined && myId != null && Number(owner) === Number(myId);
+      return owner !== undefined && myIds.some(mid => Number(owner) === Number(mid));
     }
 
     // ── save: guardar candidato completo ──────────────────────────────────
@@ -352,7 +357,7 @@ export async function POST({ request }) {
       const { filterUserId } = body;
       const candidates = (isAdmin && filterUserId != null)
         ? await readRecruitmentLeads({ isAdmin: false, rhUserId: Number(filterUserId), includeCv: false })
-        : await readRecruitmentLeads({ isAdmin, rhUserId: myId, includeCv: false });
+        : await readRecruitmentLeads({ isAdmin, rhUserId: myIds, includeCv: false });
       const formatted  = candidates.map(c => ({
         ...c,
         statusLabel: STATUS_LABELS[c.status] || c.status || 'Nuevo',
@@ -392,6 +397,7 @@ export async function POST({ request }) {
     // ── delete ────────────────────────────────────────────────────────────
     if (action === 'delete') {
       if (!body.id) return json({ ok: false, error: 'ID requerido.' }, 400);
+      if (!canDeleteCandidates) return json({ ok: false, error: 'No tienes permiso para eliminar candidatos.' }, 403);
       if (!(await checkOwnLead(body.id))) return json({ ok: false, error: 'No autorizado.' }, 403);
       await deleteRecruitmentLead(body.id);
       return json({ ok: true });
@@ -429,7 +435,7 @@ export async function POST({ request }) {
       if (!noteId) return json({ ok: false, error: 'noteId requerido' }, 400);
       if (!isAdmin) {
         const info = await getNoteCandidateOwner(noteId);
-        const owned = info !== undefined && myId != null && Number(info.owner) === Number(myId);
+        const owned = info !== undefined && myIds.some(mid => Number(info.owner) === Number(mid));
         if (!owned) return json({ ok: false, error: 'No autorizado.' }, 403);
       }
       await deleteRecruiterNote(noteId);
@@ -522,7 +528,8 @@ export async function GET({ request }) {
   try {
     const adminRole = await verifyAdminToken(request);
     if (!adminRole) return json({ ok: false, error: 'No autorizado' }, 401);
-    const candidates = await readRecruitmentLeads({ isAdmin: !!adminRole.isAdminRole, rhUserId: adminRole.scopedRhUserId ?? adminRole.id ?? null });
+    const scopedIds = Array.isArray(adminRole.scopedRhUserIds) ? adminRole.scopedRhUserIds.filter(v => v != null) : [];
+    const candidates = await readRecruitmentLeads({ isAdmin: !!adminRole.isAdminRole, rhUserId: scopedIds.length ? scopedIds : (adminRole.id ?? null) });
     const formatted  = candidates.map(c => ({
       ...c,
       statusLabel: STATUS_LABELS[c.status] || c.status || 'Nuevo',

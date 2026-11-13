@@ -237,11 +237,23 @@ const row      = result.rows[0];
       color:          row.color as string,
       tabs:           parsedTabs,
       canDownload:    isAdminRole,
-      canDelete:      isAdminRole || isRHRole,   // Admin y RH pueden eliminar candidatos
+      // canDelete: NO tocar su significado — se usa en todo el panel como
+      // señal general "es Admin o RH" (reportes, changelog, biblioteca,
+      // reset de leads, etc.), no solo para borrar candidatos.
+      canDelete:      isAdminRole || isRHRole,
+      // canDeleteCandidates: permiso EXPLÍCITO y específico de "puede borrar
+      // candidatos del panel de reclutamiento" (default true si la columna
+      // aún no existe o nunca se tocó) — el Admin lo apaga por usuario desde
+      // Usuarios > Permisos. Separado de canDelete a propósito.
+      canDeleteCandidates: isAdminRole || (isRHRole && (row.can_delete_candidates == null ? true : Boolean(row.can_delete_candidates))),
       isAdminRole,                                // true solo para Admin (acceso completo)
-      // Cuenta "delegada": ve/borra los candidatos de OTRO usuario (ej. Mony o
-      // Cindy) en vez de los propios — null = se comporta como siempre (su id).
-      scopedRhUserId: row.scoped_rh_user_id != null ? Number(row.scoped_rh_user_id) : null,
+      // Cuenta "delegada": ve/borra los candidatos de uno o varios OTROS
+      // usuarios (ej. Mony Y Cindy) en vez de los propios — [] = se comporta
+      // como siempre (su propio id).
+      scopedRhUserIds: (() => {
+        try { const arr = JSON.parse((row.scoped_rh_user_ids as string) || '[]'); return Array.isArray(arr) ? arr.map(Number).filter(Boolean) : []; }
+        catch { return []; }
+      })(),
       mustChangePassword: Boolean(row.must_change_password),
     };
    

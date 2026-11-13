@@ -844,9 +844,11 @@ export async function readRecruitmentLeads({ isAdmin = true, rhUserId = null, in
     FROM recruitment_leads`;
   const args = [];
   if (!isAdmin) {
-    if (!rhUserId) return [];
-    sql += ` WHERE rh_user_id = ?`;
-    args.push(rhUserId);
+    // rhUserId acepta un id solo o un arreglo (acceso delegado a varios RH a la vez).
+    const ids = (Array.isArray(rhUserId) ? rhUserId : [rhUserId]).filter(v => v != null);
+    if (!ids.length) return [];
+    sql += ` WHERE rh_user_id IN (${ids.map(() => '?').join(',')})`;
+    args.push(...ids);
   }
   sql += ` ORDER BY id DESC LIMIT 500`;
 

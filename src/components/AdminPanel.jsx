@@ -1737,7 +1737,8 @@ function UserManageCard({ user, onUpdate, allUsers = [] }) {
   const [selTabs,setSelTabs]   = useState(user.tabs||[]);
   const [canDl,setCanDl]       = useState(user.canDownload);
   const [isActive,setIsActive] = useState(user.active);
-  const [scopedRh,setScopedRh] = useState(user.scopedRhUserId || '');
+  const [scopedRhIds,setScopedRhIds] = useState(user.scopedRhUserIds || []);
+  const [canDelCand,setCanDelCand]   = useState(user.canDeleteCandidates !== false);
   const [loading,setLoading]   = useState(false);
   const [status,setStatus]     = useState(null), [msg,setMsg] = useState('');
   const [dispName,setDispName] = useState(user.name);
@@ -1756,12 +1757,14 @@ function UserManageCard({ user, onUpdate, allUsers = [] }) {
     setOpen(true); setActiveTab(tab);
     setGenPw(null); setCopied(false); setNewName(''); setConfirmDel(false);
     setSelTabs(user.tabs||[]); setCanDl(user.canDownload); setIsActive(user.active);
-    setScopedRh(user.scopedRhUserId || '');
+    setScopedRhIds(user.scopedRhUserIds || []);
+    setCanDelCand(user.canDeleteCandidates !== false);
     setStatus(null); setMsg('');
     setTimeout(()=>(tab==='name'?nameRef:null)?.current?.focus(), 120);
   };
   const handleCancel = () => { setOpen(false); setStatus(null); setMsg(''); setGenPw(null); setConfirmDel(false); };
   const toggleTab = id => setSelTabs(s => s.includes(id) ? s.filter(x=>x!==id) : [...s,id]);
+  const toggleScopedRh = id => setScopedRhIds(s => s.includes(id) ? s.filter(x=>x!==id) : [...s,id]);
 
   const api = async body => {
     const r = await fetch('/api/admin/users',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
@@ -1787,7 +1790,7 @@ function UserManageCard({ user, onUpdate, allUsers = [] }) {
   };
   const handleSavePerms = async () => {
     setLoading(true); setStatus(null);
-    const j = await api({action:'updatePermissions', id:user.id, tabs:selTabs, canDownload:canDl, active:isActive, scopedRhUserId: scopedRh || null});
+    const j = await api({action:'updatePermissions', id:user.id, tabs:selTabs, canDownload:canDl, active:isActive, scopedRhUserIds: scopedRhIds, canDeleteCandidates: canDelCand});
     if(j.ok){setStatus('ok');setMsg('Permisos guardados');onUpdate();setTimeout(()=>setStatus(null),2500);}
     else{setStatus('error');setMsg(j.error||'Error');}
     setLoading(false);
@@ -1821,9 +1824,10 @@ function UserManageCard({ user, onUpdate, allUsers = [] }) {
           <div style={{ display:'flex', alignItems:'center', gap:7, marginBottom:6, flexWrap:'wrap' }}>
             <span style={{ fontWeight:700, fontSize:13.5, color:P.text, letterSpacing:'-0.01em' }}>{dispName}</span>
             {user.canDownload && <Tag color={P.orange}>Admin</Tag>}
-            {!user.canDownload && user.scopedRhUserId && <Tag color={P.orange}>Delegado de {allUsers.find(u=>u.id===user.scopedRhUserId)?.name || `#${user.scopedRhUserId}`}</Tag>}
-            {!user.canDownload && !user.scopedRhUserId && (user.tabs||[]).includes('recruitment') && (user.tabs||[]).includes('vacantes') && <Tag color="#22C55E">RH · dueño propio</Tag>}
-            {!user.canDownload && !user.scopedRhUserId && (user.tabs||[]).includes('recruitment') && !(user.tabs||[]).includes('vacantes') && <Tag color="#8A8A7A">Ve candidatos</Tag>}
+            {!user.canDownload && (user.scopedRhUserIds||[]).length>0 && <Tag color={P.orange}>Delegado de {(user.scopedRhUserIds||[]).map(id=>allUsers.find(u=>u.id===id)?.name||`#${id}`).join(', ')}</Tag>}
+            {!user.canDownload && !(user.scopedRhUserIds||[]).length && (user.tabs||[]).includes('recruitment') && (user.tabs||[]).includes('vacantes') && <Tag color="#22C55E">RH · dueño propio</Tag>}
+            {!user.canDownload && !(user.scopedRhUserIds||[]).length && (user.tabs||[]).includes('recruitment') && !(user.tabs||[]).includes('vacantes') && <Tag color="#8A8A7A">Ve candidatos</Tag>}
+            {!user.canDownload && (user.tabs||[]).includes('recruitment') && user.canDeleteCandidates===false && <Tag color={P.gray}>Sin borrar</Tag>}
             {!user.active && <Tag color={P.gray}>Inactivo</Tag>}
           </div>
           <div style={{ display:'flex', flexWrap:'wrap', gap:4 }}>
@@ -1921,16 +1925,34 @@ function UserManageCard({ user, onUpdate, allUsers = [] }) {
               </div>
 
               {!canDl && selTabs.includes('recruitment') && (
-                <div style={{ padding:'12px 14px',borderRadius:10,border:`1px solid ${scopedRh?P.orange+'40':P.border}`,background:scopedRh?P.okDim:P.border2 }}>
-                  <div style={{ fontSize:11.5,fontWeight:600,color:P.text,marginBottom:3 }}>Ver candidatos de otro usuario</div>
-                  <div style={{ fontSize:10,color:P.textDim,marginBottom:8 }}>En vez de ver sus propios candidatos, {dispName} ve y puede borrar los de la persona que elijas aquí — útil si no va a usar la plataforma de GO Radar directamente.</div>
-                  <select value={scopedRh} onChange={e=>setScopedRh(e.target.value)}
-                    style={{ width:'100%',padding:'9px 12px',borderRadius:8,border:`1px solid ${P.border}`,background:P.surface2,color:P.text,fontSize:11.5,outline:'none',cursor:'pointer' }}>
-                    <option value="">Ninguno — sus propios candidatos</option>
-                    {delegableUsers.map(u=>(
-                      <option key={u.id} value={u.id}>{u.name}</option>
-                    ))}
-                  </select>
+                <div style={{ padding:'12px 14px',borderRadius:10,border:`1px solid ${scopedRhIds.length?P.orange+'40':P.border}`,background:scopedRhIds.length?P.okDim:P.border2 }}>
+                  <div style={{ fontSize:11.5,fontWeight:600,color:P.text,marginBottom:3 }}>Ver candidatos de otro(s) usuario(s)</div>
+                  <div style={{ fontSize:10,color:P.textDim,marginBottom:8 }}>En vez de ver sus propios candidatos, {dispName} ve y puede borrar los de quien marques aquí — se puede elegir más de uno (ej. Mony y Cindy a la vez). Útil si no va a usar la plataforma de GO Radar directamente.</div>
+                  <div style={{ display:'flex',flexWrap:'wrap',gap:5,marginBottom:10 }}>
+                    {delegableUsers.length===0 && <span style={{ fontSize:10.5,color:P.textDim,fontStyle:'italic' }}>No hay otros usuarios todavía.</span>}
+                    {delegableUsers.map(u=>{
+                      const on = scopedRhIds.includes(u.id);
+                      return (
+                        <button key={u.id} type="button" onClick={()=>toggleScopedRh(u.id)}
+                          style={{ padding:'5px 11px',borderRadius:20,border:`1px solid ${on?P.orange+'55':P.border}`,
+                            background:on?`${P.orange}14`:P.surface2,color:on?P.orange:P.textSub,
+                            fontSize:11,fontWeight:on?600:400,cursor:'pointer',transition:'all 0.14s ease' }}>
+                          {on&&'✓ '}{u.name}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div style={{ height:1,background:P.border,margin:'10px 0' }}/>
+
+                  <label style={{ display:'flex',alignItems:'center',gap:10,cursor:'pointer' }}>
+                    <input type="checkbox" checked={canDelCand} onChange={e=>setCanDelCand(e.target.checked)}
+                      style={{ width:14,height:14,cursor:'pointer',accentColor:P.orange }}/>
+                    <div>
+                      <div style={{ fontSize:11.5,fontWeight:600,color:P.text }}>Puede eliminar candidatos</div>
+                      <div style={{ fontSize:10,color:P.textDim }}>Si se desactiva, {dispName} solo puede ver — el botón de borrar desaparece y el servidor también lo bloquea.</div>
+                    </div>
+                  </label>
                 </div>
               )}
 
@@ -2795,7 +2817,7 @@ function RHDashboard({ role, theme='dark', toggleTheme, onClose }) {
         {/* Sección activa */}
         <div style={{ flex:1, minWidth:0, overflow:'auto', padding: isMobile?'14px':'20px 24px' }}>
           {section === 'inicio' && <InicioRHTab theme={theme} role={role}/>}
-          {section === 'candidatos' && <RecruitmentTab canDelete={role.name === 'RH'} theme={theme} role={role}/>}
+          {section === 'candidatos' && <RecruitmentTab canDelete={role.canDeleteCandidates ?? !!role.canDelete} theme={theme} role={role}/>}
           {section === 'vacantes'   && <VacantesTab theme={theme}/>}
           {section === 'reportes'   && <RHReportesPanel role={role}/>}
         </div>
@@ -5132,7 +5154,7 @@ const ALL_TABS=[
                 })}
               </div>
             )}
-            {recSub==='candidatos'&&canSee('recruitment')&&<RecruitmentTab canDelete={isOnlyAdmin || role.name === 'RH'} theme={theme} role={role}/>}
+            {recSub==='candidatos'&&canSee('recruitment')&&<RecruitmentTab canDelete={role.canDeleteCandidates ?? !!role.canDelete} theme={theme} role={role}/>}
             {recSub==='vacantes'&&canSee('vacantes')&&<VacantesTab theme={theme}/>}
           </div>
         )}
