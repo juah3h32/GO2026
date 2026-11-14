@@ -1,9 +1,10 @@
 // src/pages/api/vacantes.js
-import { saveVacante, readVacantes, updateVacante, deleteVacante, toggleVacante, getConfig, setConfig, getListaEspera, markNotificadosVacante, asignarEsperaAVacante, getVacanteOwner } from '../../lib/analytics-db.js';
+import { saveVacante, readVacantes, updateVacante, deleteVacante, toggleVacante, getConfig, setConfig, getListaEspera, markNotificadosVacante, asignarEsperaAVacante, getVacanteOwner, getVacanteById, setVacanteRadarId } from '../../lib/analytics-db.js';
 import { verifyAdminToken } from '../../lib/verifyAdminToken.ts';
 import { notifyEsperaVacante } from '../../lib/notify.js';
 import { sendPushToAll } from '../../lib/push.js';
 import { formatTitulo } from '../../lib/format-titulo.js';
+import { radarUpsertVacante } from '../../lib/go-radar-v1.js';
 
 const DEFAULT_BENEFICIOS = [
   'Prestaciones de ley','Transporte de personal','Tarjeta de vales de despensa',
@@ -14,6 +15,30 @@ export const prerender = false;
 
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
+}
+
+// Espejo GO Radar — Flujo A (vacante del panel → Radar). Best-effort: nunca
+// bloquea ni rompe la respuesta al admin (si Radar no está configurado
+// todavía, radarUpsertVacante regresa ok:false codigo:'sin_configurar').
+async function pushVacanteToRadar(id) {
+  try {
+    const v = await getVacanteById(id);
+    if (!v) return;
+    const res = await radarUpsertVacante({
+      idRadar: v.radar_id || null,
+      vacanteId: v.id,
+      titulo: v.titulo,
+      unidad: v.area,
+      ubicacion: v.ubicacion,
+      descripcion: v.descripcion,
+      estado: v.activa ? 'abierta' : 'cerrada',
+    });
+    if (res.ok && res.data?.id && !v.radar_id) {
+      await setVacanteRadarId(id, res.data.id);
+    }
+  } catch (e) {
+    console.warn('[pushVacanteToRadar]', e.message);
+  }
 }
 
 export async function GET() {
@@ -59,6 +84,7 @@ export async function POST({ request }) {
       // RH → dueño es quien la crea. Admin → queda en la bolsa general (sin dueño).
       const rh_user_id = isAdmin ? null : myId;
       const result = await saveVacante({ titulo, area, tipo, ubicacion, horario, salario, descripcion, requisitos, activa, orden, multiples, empresa, rh_user_id, link_externo });
+      pushVacanteToRadar(result.id).catch(() => {});
 
       // Notificación push + asignar candidatos en espera si se publica activa
       if (activa) {
@@ -88,6 +114,7 @@ export async function POST({ request }) {
       const prevList = await readVacantes(false);
       const prev = prevList.find(v => v.id === id);
       await updateVacante({ id, titulo, area, tipo, ubicacion, horario, salario, descripcion, requisitos, activa, orden, multiples, empresa, link_externo });
+      pushVacanteToRadar(id).catch(() => {});
       // Enviar push + asignar espera solo si se está activando (antes estaba inactiva)
       if (activa && prev && !prev.activa) {
         sendPushToAll({
@@ -117,6 +144,7 @@ export async function POST({ request }) {
       const { id, activa } = body;
       if (!(await checkOwnVacante(id))) return json({ ok: false, error: 'No autorizado.' }, 403);
       await toggleVacante(id, activa);
+      pushVacanteToRadar(id).catch(() => {});
       // Enviar push + asignar espera al activar una vacante existente
       if (activa) {
         const vacantes = await readVacantes(false);

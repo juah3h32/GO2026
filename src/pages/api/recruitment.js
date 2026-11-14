@@ -20,8 +20,12 @@ import {
   getConfig,
   setConfig,
   saveRadarReferencia,
+  getLeadById,
+  setLeadRadarEtapa,
+  getVacanteById,
 } from '../../lib/analytics-db.js';
 import { esVacanteGoRadar, enviarPostulacionAGoRadar } from '../../lib/go-radar.js';
+import { radarUpsertPostulante, radarSetEtapa, SITE_STATUS_TO_RADAR_ETAPA } from '../../lib/go-radar-v1.js';
 
 // Busca, entre las vacantes activas, la que corresponde al "puesto" escrito/elegido
 // por el candidato — para heredar su dueño (rh_user_id) al guardar el lead.
@@ -213,7 +217,7 @@ export async function POST({ request }) {
     const body       = await request.json();
     const { action } = body;
 
-    const ADMIN_ACTIONS = ['list', 'listPending', 'updateStatus', 'updateLead', 'delete', 'reset', 'addNote', 'getNotes', 'deleteNote', 'notificar-espera', 'resend', 'getCv', 'getGoal', 'setGoal'];
+    const ADMIN_ACTIONS = ['list', 'listPending', 'updateStatus', 'updateLead', 'delete', 'reset', 'addNote', 'getNotes', 'deleteNote', 'notificar-espera', 'resend', 'getCv', 'getGoal', 'setGoal', 'create'];
     let isAdmin = false, myIds = [], canDeleteCandidates = false;
     if (ADMIN_ACTIONS.includes(action)) {
       const adminRole = await verifyAdminToken(request);
@@ -375,7 +379,33 @@ export async function POST({ request }) {
       if (!(await checkOwnLead(id))) return json({ ok: false, error: 'No autorizado.' }, 403);
       const ok = await updateRecruitmentStatus(id, nuevoEstado);
       if (!ok) return json({ ok: false, error: 'Candidato no encontrado.' }, 404);
-      return json({ ok: true });
+
+      // Espejo GO Radar — Flujo C: si este candidato tiene folio de Radar,
+      // mover también su etapa allá. Nunca bloquea la respuesta al RH.
+      let radarConflict = null;
+      try {
+        const lead = await getLeadById(id);
+        if (lead?.radar_referencia) {
+          const etapaDeseada = SITE_STATUS_TO_RADAR_ETAPA[nuevoEstado];
+          const res = await radarSetEtapa({
+            folio: lead.radar_referencia,
+            etapa: etapaDeseada,
+            etapaActual: lead.radar_etapa || undefined,
+            actualizadoPor: adminRole?.name ? `${adminRole.name} (panel del sitio)` : 'Panel del sitio',
+          });
+          if (res.ok) {
+            await setLeadRadarEtapa(id, etapaDeseada, adminRole?.name || '');
+          } else if (res.codigo === 'etapa_cambio') {
+            const etapaReal = res.detail?.etapa_actual || '';
+            await setLeadRadarEtapa(id, etapaReal);
+            radarConflict = { etapaReal, mensaje: 'En Radar ya habían movido a este candidato a otra etapa.' };
+          }
+        }
+      } catch (e) {
+        console.warn('[updateStatus→radar]', e.message);
+      }
+
+      return json({ ok: true, radarConflict });
     }
 
     // ── updateLead — corrección de campos por el candidato ───────────────
@@ -392,6 +422,52 @@ export async function POST({ request }) {
       if (!(await checkOwnLead(id))) return json({ ok: false, error: 'No autorizado.' }, 403);
       await updateRecruitmentLead(id, { [dbCampo]: valor });
       return json({ ok: true });
+    }
+
+    // ── create: alta manual de un candidato desde el panel (Espejo GO Radar,
+    // Flujo B). Distinto de "save" (esa es la del bot/formulario público) —
+    // "una postulación nace por una sola puerta", así que esta nunca la toca.
+    if (action === 'create') {
+      const { nombre = '', email = '', telefono = '', vacanteId, puesto: puestoManual = '', edad = '', colonia = '', mensaje = '' } = body;
+      if (!nombre.trim()) return json({ ok: false, error: 'El nombre es obligatorio.' }, 400);
+      if (!telefono.trim() && !email.trim()) return json({ ok: false, error: 'Captura teléfono o correo.' }, 400);
+
+      let puesto = puestoManual;
+      let vacante = null;
+      if (vacanteId) {
+        vacante = await getVacanteById(vacanteId);
+        if (!vacante) return json({ ok: false, error: 'Vacante no encontrada.' }, 404);
+        puesto = vacante.titulo;
+      }
+      if (!puesto.trim()) return json({ ok: false, error: 'vacanteId o puesto es obligatorio.' }, 400);
+
+      const rh_user_id = isAdmin ? null : myId;
+      const saved = await saveRecruitmentLead({ nombre: nombre.trim(), email, telefono, puesto, edad, colonia, mensaje, rh_user_id });
+      if (saved?.duplicate) {
+        return json({ ok: true, duplicate: true, id: saved.id, message: 'Ya existe un candidato con estos datos para ese puesto.' });
+      }
+
+      let radar = null;
+      try {
+        radar = await radarUpsertPostulante({
+          leadId: saved.id,
+          vacanteRadarId: vacante?.radar_id || undefined,
+          vacanteExternalId: vacante ? `go-web-${vacante.id}` : undefined,
+          nombre: nombre.trim(), correo: email, telefono, edad,
+        });
+        if (radar?.ok && radar.data?.credenciales?.folio) {
+          await saveRadarReferencia(saved.id, radar.data.credenciales.folio);
+        }
+      } catch (e) {
+        console.warn('[create→radar]', e.message);
+      }
+
+      return json({
+        ok: true, id: saved.id,
+        radar: radar?.ok
+          ? { ok: true, folio: radar.data?.credenciales?.folio || null, clave: radar.data?.credenciales?.clave || null }
+          : { ok: false, codigo: radar?.codigo || 'sin_configurar' },
+      });
     }
 
     // ── delete ────────────────────────────────────────────────────────────

@@ -613,6 +613,11 @@ async function ensureRecruitmentTable() {
     // un solo uso para la persona, ver API_Radar_Postulaciones_del_Bot.md §4).
     // Le sirve a RH para dar seguimiento desde Radar.
     `ALTER TABLE recruitment_leads ADD COLUMN radar_referencia   TEXT    DEFAULT ''`,
+    // Espejo GO Radar — ultima etapa de Radar que el sitio vio (base para
+    // detectar conflicto en ambos sentidos) y quien la movio alla, solo
+    // para mostrar (ver Espejo_Radar_GO_Oficial_Guia_Completa_13_11_26.md §8.2/8.5).
+    `ALTER TABLE recruitment_leads ADD COLUMN radar_etapa          TEXT    DEFAULT ''`,
+    `ALTER TABLE recruitment_leads ADD COLUMN radar_actualizado_por TEXT   DEFAULT ''`,
   ];
   for (const sql of migraciones) {
     try { await db.execute(sql); } catch { /* columna ya existe */ }
@@ -640,6 +645,7 @@ export async function saveRecruitmentLead({
   sessionId       = '',
   en_lista_espera = 0,
   rh_user_id      = null,
+  origin          = 'local',
 }) {
   await ensureInit();
   await ensureRecruitmentTable();
@@ -775,6 +781,7 @@ export async function saveRecruitmentLead({
     catch (e) { console.warn('⚠️ No se pudo asignar rh_user_id:', e.message); }
   }
   console.log(`💾 Candidato #${id} guardado → ${nombre} | ${puesto} | ${estado_rep} | CV: ${cvNombre || 'sin CV'} | RH: ${rh_user_id ?? 'general'}`);
+  await logRadarChange('postulante', id, origin).catch(() => {});
   return { id };
 }
 
@@ -840,7 +847,7 @@ export async function readRecruitmentLeads({ isAdmin = true, rhUserId = null, in
   // nunca existió de verdad; "ts" siempre fue el valor real usado en la práctica.
   let sql  = `SELECT id, ts, nombre, email, telefono, puesto, edad, estado_rep, colonia,
     cv_nombre, ${cvCols} mensaje, comentarios, sessionId, status, estado, en_lista_espera,
-    notificado_vacante, prioridad, rh_user_id, radar_referencia
+    notificado_vacante, prioridad, rh_user_id, radar_referencia, radar_etapa, radar_actualizado_por
     FROM recruitment_leads`;
   const args = [];
   if (!isAdmin) {
@@ -879,6 +886,8 @@ export async function readRecruitmentLeads({ isAdmin = true, rhUserId = null, in
     prioridad:           r.prioridad           ? 1 : 0,
     rh_user_id:          r.rh_user_id          ?? null,
     radar_referencia:    r.radar_referencia    ?? '',
+    radar_etapa:            r.radar_etapa            ?? '',
+    radar_actualizado_por:  r.radar_actualizado_por  ?? '',
   }));
 }
 
@@ -993,7 +1002,11 @@ export async function markNotificadosVacante(ids) {
 }
 
 // ── Actualizar estado ─────────────────────────────────────────────────────────
-export async function updateRecruitmentStatus(id, status) {
+// origin: 'local' (un RH lo movio en el panel) o 'radar' (lo aplico el Flujo D
+// de ingesta desde GO Radar) — nunca dispara push de vuelta cuando es 'radar'.
+// radarEtapa/radarActualizadoPor: solo los manda quien ya sabe la etapa real de
+// Radar (Flujo C saliente tras exito, o Flujo D al ingerir un cambio).
+export async function updateRecruitmentStatus(id, status, { origin = 'local', radarEtapa = undefined, radarActualizadoPor = undefined } = {}) {
   await ensureInit();
   await ensureRecruitmentTable();
   const VALID = ['nuevo', 'visto', 'contactado', 'descartado', 'contratado'];
@@ -1003,11 +1016,18 @@ export async function updateRecruitmentStatus(id, status) {
   } catch {
     try { await db.execute({ sql: 'UPDATE recruitment_leads SET estado = ? WHERE id = ?', args: [status, id] }); } catch {}
   }
+  if (radarEtapa !== undefined) {
+    try { await db.execute({ sql: 'UPDATE recruitment_leads SET radar_etapa = ? WHERE id = ?', args: [radarEtapa || '', id] }); } catch {}
+  }
+  if (radarActualizadoPor !== undefined) {
+    try { await db.execute({ sql: 'UPDATE recruitment_leads SET radar_actualizado_por = ? WHERE id = ?', args: [radarActualizadoPor || '', id] }); } catch {}
+  }
+  await logRadarChange('postulante', id, origin).catch(() => {});
   return true;
 }
 
 // ── Actualizar campos de candidato ────────────────────────────────────────────
-export async function updateRecruitmentLead(id, campos) {
+export async function updateRecruitmentLead(id, campos, origin = 'local') {
   await ensureInit();
   await ensureRecruitmentTable();
   const ALLOWED = ['nombre', 'email', 'telefono', 'puesto', 'edad', 'estado_rep', 'colonia', 'comentarios'];
@@ -1016,6 +1036,7 @@ export async function updateRecruitmentLead(id, campos) {
   const setClauses = entries.map(([k]) => `${k} = ?`).join(', ');
   const args = [...entries.map(([, v]) => String(v)), id];
   await db.execute({ sql: `UPDATE recruitment_leads SET ${setClauses} WHERE id = ?`, args });
+  await logRadarChange('postulante', id, origin).catch(() => {});
   return true;
 }
 
@@ -1030,11 +1051,61 @@ export async function saveRadarReferencia(id, referencia) {
   return true;
 }
 
+// Solo actualiza lo que el sitio sabe de la etapa de Radar (sin tocar el
+// status local ni volver a loguear el changelog) — Flujo C/D, tras confirmar
+// con Radar cuál es la etapa real.
+export async function setLeadRadarEtapa(id, etapa, actualizadoPor = undefined) {
+  if (!id) return false;
+  await ensureInit();
+  await ensureRecruitmentTable();
+  if (actualizadoPor !== undefined) {
+    await db.execute({ sql: 'UPDATE recruitment_leads SET radar_etapa = ?, radar_actualizado_por = ? WHERE id = ?', args: [etapa || '', actualizadoPor || '', id] });
+  } else {
+    await db.execute({ sql: 'UPDATE recruitment_leads SET radar_etapa = ? WHERE id = ?', args: [etapa || '', id] });
+  }
+  return true;
+}
+
+// Un solo candidato completo por id — usada por el espejo con Radar.
+export async function getLeadById(id) {
+  await ensureInit();
+  await ensureRecruitmentTable();
+  const r = await db.execute({
+    sql: `SELECT id, nombre, email, telefono, puesto, edad, estado_rep, colonia, mensaje,
+          status, estado, rh_user_id, radar_referencia, radar_etapa, radar_actualizado_por
+          FROM recruitment_leads WHERE id = ?`,
+    args: [id],
+  });
+  if (!r.rows.length) return null;
+  const row = r.rows[0];
+  return {
+    id: row.id, nombre: row.nombre ?? '', email: row.email ?? '', telefono: row.telefono ?? '',
+    puesto: row.puesto ?? '', edad: row.edad ?? '', estado_rep: row.estado_rep ?? '', colonia: row.colonia ?? '',
+    mensaje: row.mensaje ?? '', status: row.status ?? row.estado ?? 'nuevo', rh_user_id: row.rh_user_id ?? null,
+    radar_referencia: row.radar_referencia ?? '', radar_etapa: row.radar_etapa ?? '',
+    radar_actualizado_por: row.radar_actualizado_por ?? '',
+  };
+}
+
+// Busca un candidato por su folio de Radar (GO-... o LE-...) — cruce para el
+// espejo (PUT estatus entrante, T7) y para Flujo C/D salientes.
+export async function getLeadByRadarFolio(folio) {
+  if (!folio) return null;
+  await ensureInit();
+  await ensureRecruitmentTable();
+  const r = await db.execute({ sql: `SELECT id FROM recruitment_leads WHERE radar_referencia = ? LIMIT 1`, args: [folio] });
+  return r.rows.length ? Number(r.rows[0].id) : null;
+}
+
 // ── Eliminar candidato ────────────────────────────────────────────────────────
-export async function deleteRecruitmentLead(id) {
+export async function deleteRecruitmentLead(id, origin = 'local') {
   await ensureInit();
   await ensureRecruitmentTable();
   await db.execute({ sql: 'DELETE FROM recruitment_leads WHERE id = ?', args: [id] });
+  // Espejo GO Radar — avisa de la baja para que Radar (si tenía a esta
+  // persona ligada) la marque retirada de su lado; nunca manda datos
+  // personales, solo el id (mismo patrón que baja_postulante de Radar).
+  await logRadarChange('baja_postulante', id, origin).catch(() => {});
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -1223,23 +1294,28 @@ async function ensureVacantesTable() {
     `ALTER TABLE vacantes ADD COLUMN empresa TEXT NOT NULL DEFAULT ''`,
     `ALTER TABLE vacantes ADD COLUMN rh_user_id INTEGER DEFAULT NULL`,
     `ALTER TABLE vacantes ADD COLUMN link_externo TEXT NOT NULL DEFAULT ''`,
+    // Espejo GO Radar — id de Radar para esta vacante, cruza sin importar
+    // quien la creo primero (ver Espejo_Radar_GO_Oficial_Guia_Completa_13_11_26.md §8).
+    `ALTER TABLE vacantes ADD COLUMN radar_id TEXT DEFAULT ''`,
   ];
-  
+
   for (const sql of migraciones) {
     try { await db.execute(sql); } catch { /* La columna ya existe, ignoramos el error */ }
   }
-  
+
   vacantesReady = true;
 }
 
-export async function saveVacante({ titulo, area, tipo = '', ubicacion = 'Morelia, Mich.', horario = '', salario = '', descripcion = '', requisitos = '', activa = true, orden = 0, multiples = false, empresa = '', rh_user_id = null, link_externo = '' }) {
+export async function saveVacante({ titulo, area, tipo = '', ubicacion = 'Morelia, Mich.', horario = '', salario = '', descripcion = '', requisitos = '', activa = true, orden = 0, multiples = false, empresa = '', rh_user_id = null, link_externo = '', radar_id = '', origin = 'local' }) {
   await ensureInit();
   await ensureVacantesTable();
   const result = await db.execute({
-    sql:  `INSERT INTO vacantes (titulo, area, tipo, ubicacion, horario, salario, descripcion, requisitos, activa, orden, multiples, empresa, rh_user_id, link_externo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    args: [titulo, area, tipo, ubicacion, horario, salario, descripcion, requisitos, activa ? 1 : 0, orden, multiples ? 1 : 0, empresa || '', rh_user_id, link_externo || ''],
+    sql:  `INSERT INTO vacantes (titulo, area, tipo, ubicacion, horario, salario, descripcion, requisitos, activa, orden, multiples, empresa, rh_user_id, link_externo, radar_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    args: [titulo, area, tipo, ubicacion, horario, salario, descripcion, requisitos, activa ? 1 : 0, orden, multiples ? 1 : 0, empresa || '', rh_user_id, link_externo || '', radar_id || ''],
   });
-  return { id: Number(result.lastInsertRowid) };
+  const id = Number(result.lastInsertRowid);
+  await logRadarChange('vacante', id, origin).catch(() => {});
+  return { id };
 }
 
 // opts.isAdmin=true (default) → sin filtro, ve todo (uso interno/legacy/pública).
@@ -1275,6 +1351,7 @@ export async function readVacantes(onlyActive = false, { isAdmin = true, rhUserI
     empresa:     r.empresa || '',
     rh_user_id:  r.rh_user_id ?? null,
     link_externo: r.link_externo || '',
+    radar_id:    r.radar_id || '',
   }));
 }
 
@@ -1287,25 +1364,68 @@ export async function getVacanteOwner(id) {
   return r.rows[0].rh_user_id ?? null;
 }
 
-export async function updateVacante({ id, titulo, area, tipo, ubicacion, horario, salario, descripcion, requisitos, activa, orden, multiples = false, empresa = '', link_externo = '' }) {
+// Una sola vacante por id — usada por el espejo con Radar (saliente/entrante).
+export async function getVacanteById(id) {
   await ensureInit();
   await ensureVacantesTable();
-  await db.execute({
-    sql:  `UPDATE vacantes SET titulo=?, area=?, tipo=?, ubicacion=?, horario=?, salario=?, descripcion=?, requisitos=?, activa=?, orden=?, multiples=?, empresa=?, link_externo=? WHERE id=?`,
-    args: [titulo, area, tipo || '', ubicacion || 'Morelia, Mich.', horario || '', salario || '', descripcion || '', requisitos || '', activa ? 1 : 0, orden || 0, multiples ? 1 : 0, empresa || '', link_externo || '', id],
-  });
+  const r = await db.execute({ sql: `SELECT * FROM vacantes WHERE id = ?`, args: [id] });
+  if (!r.rows.length) return null;
+  const row = r.rows[0];
+  return {
+    id: row.id, titulo: row.titulo, area: row.area, tipo: row.tipo || '',
+    ubicacion: row.ubicacion || 'Morelia, Mich.', horario: row.horario || '',
+    salario: row.salario || '', descripcion: row.descripcion || '', requisitos: row.requisitos || '',
+    activa: !!row.activa, orden: row.orden || 0, multiples: !!row.multiples, empresa: row.empresa || '',
+    rh_user_id: row.rh_user_id ?? null, link_externo: row.link_externo || '', radar_id: row.radar_id || '',
+  };
+}
+
+// Busca una vacante por el id que le puso Radar — para crear-o-actualizar
+// sin duplicar cuando Radar manda la vacante por la API entrante (§9).
+export async function getVacanteByRadarId(radarId) {
+  await ensureInit();
+  await ensureVacantesTable();
+  if (!radarId) return null;
+  const r = await db.execute({ sql: `SELECT id FROM vacantes WHERE radar_id = ? LIMIT 1`, args: [String(radarId)] });
+  return r.rows.length ? Number(r.rows[0].id) : null;
+}
+
+export async function setVacanteRadarId(id, radarId) {
+  if (!id || !radarId) return false;
+  await ensureInit();
+  await ensureVacantesTable();
+  await db.execute({ sql: `UPDATE vacantes SET radar_id = ? WHERE id = ?`, args: [String(radarId), id] });
+  return true;
+}
+
+export async function updateVacante({ id, titulo, area, tipo, ubicacion, horario, salario, descripcion, requisitos, activa, orden, multiples = false, empresa = '', link_externo = '', radar_id = undefined, origin = 'local' }) {
+  await ensureInit();
+  await ensureVacantesTable();
+  if (radar_id !== undefined) {
+    await db.execute({
+      sql:  `UPDATE vacantes SET titulo=?, area=?, tipo=?, ubicacion=?, horario=?, salario=?, descripcion=?, requisitos=?, activa=?, orden=?, multiples=?, empresa=?, link_externo=?, radar_id=? WHERE id=?`,
+      args: [titulo, area, tipo || '', ubicacion || 'Morelia, Mich.', horario || '', salario || '', descripcion || '', requisitos || '', activa ? 1 : 0, orden || 0, multiples ? 1 : 0, empresa || '', link_externo || '', radar_id || '', id],
+    });
+  } else {
+    await db.execute({
+      sql:  `UPDATE vacantes SET titulo=?, area=?, tipo=?, ubicacion=?, horario=?, salario=?, descripcion=?, requisitos=?, activa=?, orden=?, multiples=?, empresa=?, link_externo=? WHERE id=?`,
+      args: [titulo, area, tipo || '', ubicacion || 'Morelia, Mich.', horario || '', salario || '', descripcion || '', requisitos || '', activa ? 1 : 0, orden || 0, multiples ? 1 : 0, empresa || '', link_externo || '', id],
+    });
+  }
+  await logRadarChange('vacante', id, origin).catch(() => {});
 }
 
 export async function deleteVacante(id) {
-  await ensureInit(); 
+  await ensureInit();
   await ensureVacantesTable();
   await db.execute({ sql: `DELETE FROM vacantes WHERE id=?`, args: [id] });
 }
 
-export async function toggleVacante(id, activa) {
+export async function toggleVacante(id, activa, origin = 'local') {
   await ensureInit();
   await ensureVacantesTable();
   await db.execute({ sql: `UPDATE vacantes SET activa=? WHERE id=?`, args: [activa ? 1 : 0, id] });
+  await logRadarChange('vacante', id, origin).catch(() => {});
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -1366,6 +1486,144 @@ export async function revokeApiKey(id) {
   await ensureInit();
   await ensureApiKeysTable();
   await db.execute({ sql: `UPDATE api_keys SET active = 0 WHERE id = ?`, args: [id] });
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  ESPEJO GO RADAR — ver Espejo_Radar_GO_Oficial_Guia_Completa_13_11_26.md
+//
+//  radar_keys: la llave maestra que usa RADAR para llamar a ESTE sitio (§9).
+//  No tiene rh_user_id — ve y escribe TODO, a diferencia de api_keys (que es
+//  por departamento aliado, un rh_user_id fijo cada una).
+//
+//  radar_changelog: nuestro propio registro de cambios para que Radar haga
+//  pull (GET /api/partner/v1/cambios) — espejo de su /api/v1/cambios. Cada
+//  mutacion de vacantes/recruitment_leads le agrega una fila. origin='radar'
+//  marca un cambio que llego DESDE Radar — nunca se le regresa a su propio
+//  /cambios (regla de "no hay rebote").
+//
+//  radar_sync_state: nuestro cursor hacia el /cambios DE RADAR (Flujo D,
+//  lo que este sitio jala de Radar).
+// ════════════════════════════════════════════════════════════════════════════
+
+let radarTablesReady = false;
+
+async function ensureRadarTables() {
+  if (radarTablesReady) return;
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS radar_keys (
+      id           INTEGER PRIMARY KEY AUTOINCREMENT,
+      label        TEXT    NOT NULL DEFAULT '',
+      key_hash     TEXT    NOT NULL UNIQUE,
+      active       INTEGER NOT NULL DEFAULT 1,
+      created_at   TEXT    NOT NULL DEFAULT (datetime('now')),
+      last_used_at TEXT    DEFAULT NULL
+    )
+  `);
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS radar_changelog (
+      id         INTEGER PRIMARY KEY AUTOINCREMENT,
+      tipo       TEXT    NOT NULL,
+      entity_id  INTEGER NOT NULL,
+      origin     TEXT    NOT NULL DEFAULT 'local',
+      created_at TEXT    NOT NULL DEFAULT (datetime('now'))
+    )
+  `);
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS radar_sync_state (
+      id            INTEGER PRIMARY KEY CHECK (id = 1),
+      cursor        TEXT    DEFAULT NULL,
+      last_poll_at  TEXT    DEFAULT NULL,
+      last_error    TEXT    DEFAULT NULL
+    )
+  `);
+  radarTablesReady = true;
+}
+
+// Registra un cambio local (o aplicado desde Radar) para el feed de /cambios
+// que Radar jala de nosotros. Nunca truena una mutacion si esto falla — por
+// eso en cada llamada se usa `.catch(() => {})`.
+async function logRadarChange(tipo, entityId, origin = 'local') {
+  if (!entityId) return;
+  await ensureInit();
+  await ensureRadarTables();
+  await db.execute({
+    sql:  `INSERT INTO radar_changelog (tipo, entity_id, origin) VALUES (?, ?, ?)`,
+    args: [tipo, entityId, origin],
+  });
+}
+
+// Pagina el changelog para GET /api/partner/v1/cambios. `desde` es el ultimo
+// cursor que el llamador ya proceso (su `siguiente` de la vez pasada).
+export async function getRadarChangelogSince(desde = 0, { tipos = null, incluirPropios = false, limite = 100 } = {}) {
+  await ensureInit();
+  await ensureRadarTables();
+  const where = [`id > ?`];
+  const args  = [Number(desde) || 0];
+  if (!incluirPropios) where.push(`origin != 'radar'`);
+  if (tipos && tipos.length) {
+    where.push(`tipo IN (${tipos.map(() => '?').join(',')})`);
+    args.push(...tipos);
+  }
+  const lim = Math.min(Math.max(Number(limite) || 100, 1), 200);
+  const r = await db.execute({
+    sql:  `SELECT id, tipo, entity_id, origin, created_at FROM radar_changelog WHERE ${where.join(' AND ')} ORDER BY id ASC LIMIT ?`,
+    args: [...args, lim],
+  });
+  return r.rows.map(row => ({
+    cursor: Number(row.id), tipo: row.tipo, entity_id: Number(row.entity_id),
+    origin: row.origin, created_at: row.created_at,
+  }));
+}
+
+// Genera una llave nueva para Radar y regresa el texto plano UNA sola vez.
+export async function createRadarKey(label = 'GO Radar — llave maestra') {
+  await ensureInit();
+  await ensureRadarTables();
+  const rawKey  = `gorv_${crypto.randomBytes(24).toString('hex')}`;
+  const keyHash = crypto.createHash('sha256').update(rawKey).digest('hex');
+  const result = await db.execute({
+    sql:  `INSERT INTO radar_keys (label, key_hash) VALUES (?, ?)`,
+    args: [label, keyHash],
+  });
+  return { id: Number(result.lastInsertRowid), rawKey };
+}
+
+export async function verifyRadarKey(rawKey) {
+  if (!rawKey) return null;
+  await ensureInit();
+  await ensureRadarTables();
+  const keyHash = crypto.createHash('sha256').update(rawKey).digest('hex');
+  const r = await db.execute({ sql: `SELECT id, label, active FROM radar_keys WHERE key_hash = ?`, args: [keyHash] });
+  if (!r.rows.length || !r.rows[0].active) return null;
+  const row = r.rows[0];
+  db.execute({ sql: `UPDATE radar_keys SET last_used_at = datetime('now') WHERE id = ?`, args: [row.id] }).catch(() => {});
+  return { id: row.id, label: row.label };
+}
+
+export async function revokeRadarKey(id) {
+  await ensureInit();
+  await ensureRadarTables();
+  await db.execute({ sql: `UPDATE radar_keys SET active = 0 WHERE id = ?`, args: [id] });
+}
+
+// Nuestro cursor hacia el /cambios DE RADAR (Flujo D — lo que este sitio jala).
+export async function getRadarSyncState() {
+  await ensureInit();
+  await ensureRadarTables();
+  const r = await db.execute(`SELECT cursor, last_poll_at, last_error FROM radar_sync_state WHERE id = 1`);
+  if (!r.rows.length) return { cursor: null, last_poll_at: null, last_error: null };
+  const row = r.rows[0];
+  return { cursor: row.cursor || null, last_poll_at: row.last_poll_at || null, last_error: row.last_error || null };
+}
+
+export async function setRadarSyncState({ cursor, lastError = null } = {}) {
+  await ensureInit();
+  await ensureRadarTables();
+  await db.execute({
+    sql: `INSERT INTO radar_sync_state (id, cursor, last_poll_at, last_error) VALUES (1, ?, datetime('now'), ?)
+          ON CONFLICT(id) DO UPDATE SET cursor = excluded.cursor, last_poll_at = excluded.last_poll_at, last_error = excluded.last_error`,
+    args: [cursor ?? null, lastError],
+  });
 }
 
 // ════════════════════════════════════════════════════════════════════════════

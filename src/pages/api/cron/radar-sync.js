@@ -1,0 +1,167 @@
+/*!
+ * GO2026 — Sitio Web Oficial de Grupo Ortiz
+ * Copyright (c) 2026 JUAN PABLO CORONA CORONA — Desarrollador Web.
+ * Todos los derechos reservados. Licencia propietaria (ver LICENSE).
+ * Prohibida su copia, modificacion o distribucion sin autorizacion escrita.
+ */
+// src/pages/api/cron/radar-sync.js
+// Espejo GO Radar — Flujo D (Radar → sitio, por polling, no webhook — ver
+// Espejo_Radar_GO_Oficial_Guia_Completa_13_11_26.md §8.6). Jala el registro
+// de cambios DE RADAR (/api/v1/cambios) y aplica localmente vacantes,
+// postulantes y bajas. Todo lo que aplica aquí usa origin:'radar' — nunca
+// dispara un push de vuelta a Radar (si lo hiciera, habría rebote infinito).
+// Auth: igual patrón que los demás cron — CRON_SECRET_EXTERNAL (query/header)
+// o token admin.
+//
+// PENDIENTE: no hace nada útil hasta que exista GO_RADAR_MASTER_API_KEY
+// (Radar aún no despliega su API v1 en producción, 13/11/26) — en ese caso
+// radarGetCambios regresa { ok:false, codigo:'sin_configurar' } y este cron
+// termina de inmediato sin tronar.
+export const prerender = false;
+
+import { verifyAdminToken } from '../../../lib/verifyAdminToken.ts';
+import { radarGetCambios, radarEtapaToSiteStatus } from '../../../lib/go-radar-v1.js';
+import {
+  getRadarSyncState, setRadarSyncState,
+  getVacanteByRadarId, getVacanteById, saveVacante, updateVacante,
+  getLeadByRadarFolio, getLeadById, saveRecruitmentLead, updateRecruitmentLead, updateRecruitmentStatus, saveRadarReferencia,
+} from '../../../lib/analytics-db.js';
+
+const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { 'Content-Type': 'application/json' } });
+
+async function applyVacanteChange(item) {
+  const dato = item.dato || {};
+  if (dato.eliminada) return; // Radar nunca borra, pero por si acaso no hay nada que aplicar
+  const radarId = String(item.id);
+  const localId = await getVacanteByRadarId(radarId);
+  const fields = {
+    titulo: dato.titulo || '', area: dato.unidad || dato.area || '', ubicacion: dato.ubicacion || 'Morelia, Mich.',
+    descripcion: dato.descripcion || '', activa: dato.estado !== 'cerrada',
+  };
+  if (localId) {
+    // Solo se pisan los campos que Radar realmente manda — tipo/horario/
+    // salario/requisitos/empresa/orden/multiples/link_externo son del sitio,
+    // nunca los toca Radar, así que se preservan tal cual estaban.
+    const actual = await getVacanteById(localId);
+    if (!actual) return;
+    await updateVacante({
+      id: localId, ...fields,
+      tipo: actual.tipo, horario: actual.horario, salario: actual.salario, requisitos: actual.requisitos,
+      orden: actual.orden, multiples: actual.multiples, empresa: actual.empresa, link_externo: actual.link_externo,
+      radar_id: radarId, origin: 'radar',
+    });
+  } else {
+    const created = await saveVacante({ ...fields, radar_id: radarId, origin: 'radar' });
+    return created.id;
+  }
+}
+
+async function applyPostulanteChange(item) {
+  const dato = item.dato || {};
+  if (dato.anonimizado) return; // sin datos que aplicar
+  const folio = dato.folio || item.external_id || '';
+
+  // El postulante de Radar NO trae un campo "puesto" — trae `vacante.id` (el
+  // id en Radar). Si esa vacante ya está ligada aquí (radar_id), usamos su
+  // título; si no, queda sin puesto hasta que la vacante también se mirroree.
+  let puesto = '';
+  const vacanteRadarId = dato.vacante?.id;
+  if (vacanteRadarId) {
+    const localVacanteId = await getVacanteByRadarId(String(vacanteRadarId));
+    if (localVacanteId) {
+      const v = await getVacanteById(localVacanteId);
+      puesto = v?.titulo || '';
+    }
+  }
+
+  let localId = folio ? await getLeadByRadarFolio(folio) : null;
+
+  if (!localId) {
+    // Postulante que nació del lado de Radar y aún no existía aquí — se crea.
+    if (!dato.nombre) return; // sin nombre no hay qué guardar (y sin permiso de lectura no vendría)
+    const saved = await saveRecruitmentLead({
+      nombre: dato.nombre, email: dato.correo || '', telefono: dato.telefono || '',
+      puesto, edad: dato.edad ? String(dato.edad) : '',
+      colonia: dato.colonia || '', estado_rep: dato.ubicacion || '',
+      origin: 'radar',
+    });
+    localId = saved.id;
+    if (folio) await saveRadarReferencia(localId, folio).catch(() => {});
+  } else {
+    // Ya existía — refrescar lo que Radar sepa mejor que nosotros (nombre,
+    // contacto, puesto si ya se pudo resolver). No se pisa con vacío.
+    const patch = {};
+    if (dato.nombre)   patch.nombre     = dato.nombre;
+    if (dato.correo)   patch.email      = dato.correo;
+    if (dato.telefono) patch.telefono   = dato.telefono;
+    if (puesto)        patch.puesto     = puesto;
+    if (dato.ubicacion) patch.estado_rep = dato.ubicacion;
+    if (Object.keys(patch).length) await updateRecruitmentLead(localId, patch, 'radar');
+  }
+
+  const lead = await getLeadById(localId);
+  const nuevoStatus = radarEtapaToSiteStatus(dato.estado, lead?.status);
+  await updateRecruitmentStatus(localId, nuevoStatus, {
+    origin: 'radar', radarEtapa: dato.estado || '',
+    radarActualizadoPor: dato.actualizado_por_nombre || dato.actualizado_por || '',
+  });
+}
+
+async function applyBajaPostulante(item) {
+  // Radar quitó a esta persona. La guía dice que baja_postulante solo trae
+  // id/external_id/vacante_id — sin folio. Solo lo podemos resolver cuando
+  // el external_id es el nuestro (creado por el Flujo B, "go-web-cand-<id>");
+  // para postulantes que nacieron por el bot (API v6) Radar no tiene ese
+  // external_id, así que esos no se pueden ubicar aquí todavía.
+  const m = /^go-web-cand-(\d+)$/.exec(item.external_id || '');
+  if (!m) { console.warn('[radar-sync] baja_postulante sin external_id propio, no se pudo ubicar:', item.id); return; }
+  // No hay columna de "retirado" — el mapeo más cercano sin inventar estado
+  // nuevo es moverlo a descartado.
+  await updateRecruitmentStatus(Number(m[1]), 'descartado', { origin: 'radar' });
+}
+
+export async function runRadarSync({ limite = 100, maxPaginas = 10 } = {}) {
+  const state = await getRadarSyncState();
+  let cursor = state.cursor || null;
+  let totalAplicados = 0;
+  let paginas = 0;
+
+  for (; paginas < maxPaginas; paginas++) {
+    const res = await radarGetCambios({ desde: cursor, limite });
+    if (!res.ok) {
+      if (res.codigo === 'sin_configurar') return { ok: true, aplicados: 0, nota: 'Espejo con Radar no configurado todavía.' };
+      await setRadarSyncState({ cursor, lastError: res.mensaje || res.codigo || 'error' });
+      return { ok: false, error: res.mensaje || res.codigo, aplicados: totalAplicados };
+    }
+    const items = res.data?.items || [];
+    for (const item of items) {
+      try {
+        if (item.tipo === 'vacante') await applyVacanteChange(item);
+        else if (item.tipo === 'postulante') await applyPostulanteChange(item);
+        else if (item.tipo === 'baja_postulante') await applyBajaPostulante(item);
+        totalAplicados++;
+      } catch (e) {
+        console.warn(`[radar-sync] item ${item.tipo}/${item.id} falló:`, e.message);
+      }
+    }
+    cursor = res.data?.siguiente || cursor;
+    await setRadarSyncState({ cursor, lastError: null });
+    if (!res.data?.hay_mas) break;
+  }
+
+  return { ok: true, aplicados: totalAplicados, paginas: paginas + 1, cursor };
+}
+
+async function run(request, url) {
+  const secret = process.env.CRON_SECRET_EXTERNAL || import.meta.env?.CRON_SECRET_EXTERNAL || '';
+  const qp     = url.searchParams.get('secret') || '';
+  const hdr    = request.headers.get('x-cron-secret') || '';
+  const authed = (secret && (qp === secret || hdr === secret)) || !!(await verifyAdminToken(request).catch(() => null));
+  if (!authed) return json({ ok: false, error: 'No autorizado' }, 401);
+
+  const out = await runRadarSync();
+  return json(out, out.ok ? 200 : 500);
+}
+
+export async function GET({ request, url })  { return run(request, url); }
+export async function POST({ request, url }) { return run(request, url); }

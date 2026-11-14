@@ -521,8 +521,13 @@ function CandidateCard({ candidate, onStatusChange, onDelete, onRequestDelete, e
     if(!candidate?.id) return; // Seguridad extra
     setUpdating(true);
     try {
-      await fetch('/api/recruitment', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'updateStatus', id:candidate.id, status:newStatus }) });
+      const r = await fetch('/api/recruitment', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'updateStatus', id:candidate.id, status:newStatus }) });
+      const j = await r.json().catch(() => ({}));
       onStatusChange(candidate.id, newStatus);
+      // Espejo GO Radar — Flujo C: alguien ya había movido la etapa allá.
+      if (j?.radarConflict) {
+        alert(`${j.radarConflict.mensaje || 'Conflicto con GO Radar.'} Etapa real en Radar: ${j.radarConflict.etapaReal || '—'}.`);
+      }
     } catch(e) { console.error(e); }
     setUpdating(false);
   };
@@ -758,6 +763,12 @@ const handleResend = async () => {
                     {Ic.linkOut} Seguimiento en GO Radar — Folio {candidate.radar_referencia}
                   </a>
                 )}
+                {candidate.radar_referencia && candidate.radar_etapa && (
+                  <div style={{ marginTop:6, fontSize:10, color:C.textDim, textAlign:'center' }}>
+                    Última etapa vista en Radar: {candidate.radar_etapa}
+                    {candidate.radar_actualizado_por ? ` (por ${candidate.radar_actualizado_por})` : ''}
+                  </div>
+                )}
 
                 {/* Mensaje */}
                 {candidate.mensaje && (
@@ -858,7 +869,13 @@ const [bulkText,     setBulkText]     = useState('');
 const [bulkResults,  setBulkResults]  = useState(null); // [{ email, candidate|null }]
 const [bulkDeletingId, setBulkDeletingId] = useState(null);
 const [bulkFadingIds, setBulkFadingIds] = useState(new Set());
- 
+
+// Espejo GO Radar — Flujo B: alta manual de candidato desde el panel.
+const [addOpen,    setAddOpen]    = useState(false);
+const [addSaving,  setAddSaving]  = useState(false);
+const [addResult,  setAddResult]  = useState(null); // { ok, folio, clave } | { ok:false, error }
+const [addForm,    setAddForm]    = useState({ nombre:'', telefono:'', email:'', vacanteId:'', puesto:'', edad:'', colonia:'' });
+
   const [iaVacanteId,    setIaVacanteId]   = useState(''); // '' = todos, 'otro' = sin vacante, número = vacante específica
   const [vacantes,       setVacantes]      = useState([]);
   const prevIdsRef  = useRef(new Set());
@@ -914,6 +931,26 @@ const [bulkFadingIds, setBulkFadingIds] = useState(new Set());
 
   const handleStatusChange = (id, st) => setCandidates(prev => prev.map(c => c.id === id ? { ...c, status:st, estado:st } : c));
   const handleDelete        = (id)     => setCandidates(prev => prev.filter(c => c.id !== id));
+
+  // Espejo GO Radar — Flujo B: alta manual.
+  const closeAddModal = () => { setAddOpen(false); setAddResult(null); setAddForm({ nombre:'', telefono:'', email:'', vacanteId:'', puesto:'', edad:'', colonia:'' }); };
+  const submitAddCandidate = async () => {
+    if (!addForm.nombre.trim()) { setAddResult({ ok:false, error:'El nombre es obligatorio.' }); return; }
+    if (!addForm.telefono.trim() && !addForm.email.trim()) { setAddResult({ ok:false, error:'Captura teléfono o correo.' }); return; }
+    if (!addForm.vacanteId && !addForm.puesto.trim()) { setAddResult({ ok:false, error:'Elige una vacante o escribe el puesto.' }); return; }
+    setAddSaving(true); setAddResult(null);
+    try {
+      const r = await fetch('/api/recruitment', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({
+        action:'create', nombre: addForm.nombre.trim(), telefono: addForm.telefono.trim(), email: addForm.email.trim(),
+        vacanteId: addForm.vacanteId || undefined, puesto: addForm.puesto.trim(), edad: addForm.edad.trim(), colonia: addForm.colonia.trim(),
+      })});
+      const j = await r.json();
+      if (!j.ok) { setAddResult({ ok:false, error: j.error || 'No se pudo guardar.' }); setAddSaving(false); return; }
+      setAddResult({ ok:true, duplicate: !!j.duplicate, folio: j.radar?.folio || null, clave: j.radar?.clave || null, radarOk: !!j.radar?.ok });
+      load(false);
+    } catch(e) { setAddResult({ ok:false, error:'Fallo de conexión.' }); }
+    setAddSaving(false);
+  };
 
   const STATUS_MAP = getStatusMap(C);
   const counts = Object.fromEntries(Object.keys(STATUS_MAP).map(k => [k, scopedCandidates.filter(c => getStatus(c) === k).length]));
@@ -1274,6 +1311,7 @@ const closeBulkModal = () => {
             <div style={{ display:'flex', alignItems:'center', gap:6, flexWrap:'wrap' }}>
               {lastUpdate && <span style={{ display:'flex', alignItems:'center', gap:4, color:C.textDim, fontSize:10, fontFamily:T.mono }}>{Ic.clock} {lastUpdate.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}</span>}
               <IconBtn onClick={() => load(false)} icon={Ic.refresh} label="Actualizar" bg="transparent" bgHover={C.surface2} color={C.textSub} border={`1px solid ${C.border}`} />
+              <IconBtn onClick={() => setAddOpen(true)} icon={Ic.plus} label="Agregar candidato" bg={C.orangeDim || 'rgba(234,88,12,0.12)'} bgHover="rgba(234,88,12,0.18)" color={C.orange} border={`1px solid ${C.orange}28`} />
               {isAdmin && (
                 <IconBtn onClick={() => setBulkOpen(true)} icon={Ic.mail} label="Buscar por correo" bg={C.redDim} bgHover="rgba(239,68,68,0.16)" color={C.red} border={`1px solid ${C.red}28`} />
               )}
@@ -1602,6 +1640,75 @@ const closeBulkModal = () => {
           style={{ width:'100%', padding:'10px 0', borderRadius:9, fontSize:12, fontWeight:500, cursor:'pointer', fontFamily:T.sans, background:'transparent', border:`1px solid ${theme==='dark' ? C.border : '#E5E7EB'}`, color: theme==='dark' ? C.textSub : '#6B7280' }}>
           Cerrar
         </button>
+      </div>
+    </div>
+  </div>,
+  document.body
+)}
+{/* ── MODAL AGREGAR CANDIDATO (Espejo GO Radar, Flujo B) ── */}
+{addOpen && createPortal(
+  <div style={{
+    position:'fixed', inset:0, zIndex:99999999,
+    background:'rgba(6,5,4,0.75)', backdropFilter:'blur(16px)',
+    display:'flex', alignItems:'center', justifyContent:'center',
+    padding:16, animation:'fadeIn 0.18s ease',
+  }}>
+    <div style={{
+      background: theme==='dark' ? C.surface2 : '#FFFFFF',
+      border:`1px solid ${theme==='dark' ? C.border : '#E5E7EB'}`,
+      borderRadius:14, width:'100%', maxWidth:440, overflow:'hidden', position:'relative',
+      boxShadow: theme==='dark' ? '0 24px 64px rgba(0,0,0,0.70)' : '0 8px 40px rgba(0,0,0,0.10)',
+      animation:'newCardIn 0.22s cubic-bezier(0.16,1,0.3,1) both',
+    }}>
+      <div style={{ position:'absolute', top:0, left:0, right:0, height:2.5, background:`linear-gradient(90deg,${C.orange},#FB923C,transparent)` }}/>
+      <div style={{ padding:'24px 24px 16px' }}>
+        <p style={{ fontWeight:700, fontSize:15, margin:'0 0 3px', color: theme==='dark' ? C.text : '#111827', letterSpacing:'-0.02em' }}>Agregar candidato</p>
+        <p style={{ fontSize:11, margin:0, color: theme==='dark' ? C.textDim : '#9CA3AF' }}>Alta manual — también se manda a GO Radar si está configurado</p>
+      </div>
+      <div style={{ padding:'0 24px 8px', display:'flex', flexDirection:'column', gap:10 }}>
+        {['nombre','telefono','email'].map(field => (
+          <input key={field} placeholder={field==='nombre' ? 'Nombre *' : field==='telefono' ? 'Teléfono' : 'Correo'}
+            value={addForm[field]} onChange={e => setAddForm(f => ({ ...f, [field]: e.target.value }))}
+            style={{ padding:'9px 11px', borderRadius:8, fontSize:12, fontFamily:T.sans, background:C.surface, border:`1px solid ${C.border}`, color:C.text, outline:'none' }}/>
+        ))}
+        <select value={addForm.vacanteId} onChange={e => setAddForm(f => ({ ...f, vacanteId: e.target.value }))}
+          style={{ padding:'9px 11px', borderRadius:8, fontSize:12, fontFamily:T.sans, background:C.surface, border:`1px solid ${C.border}`, color:C.text, outline:'none' }}>
+          <option value="">— Elegir vacante activa —</option>
+          {vacantes.filter(v => v.activa).map(v => <option key={v.id} value={v.id}>{v.titulo}</option>)}
+        </select>
+        {!addForm.vacanteId && (
+          <input placeholder="Puesto (si no hay vacante en la lista)" value={addForm.puesto}
+            onChange={e => setAddForm(f => ({ ...f, puesto: e.target.value }))}
+            style={{ padding:'9px 11px', borderRadius:8, fontSize:12, fontFamily:T.sans, background:C.surface, border:`1px solid ${C.border}`, color:C.text, outline:'none' }}/>
+        )}
+        <div style={{ display:'flex', gap:10 }}>
+          <input placeholder="Edad" value={addForm.edad} onChange={e => setAddForm(f => ({ ...f, edad: e.target.value }))}
+            style={{ flex:1, padding:'9px 11px', borderRadius:8, fontSize:12, fontFamily:T.sans, background:C.surface, border:`1px solid ${C.border}`, color:C.text, outline:'none' }}/>
+          <input placeholder="Colonia" value={addForm.colonia} onChange={e => setAddForm(f => ({ ...f, colonia: e.target.value }))}
+            style={{ flex:1, padding:'9px 11px', borderRadius:8, fontSize:12, fontFamily:T.sans, background:C.surface, border:`1px solid ${C.border}`, color:C.text, outline:'none' }}/>
+        </div>
+        {addResult && !addResult.ok && (
+          <div style={{ fontSize:11, color:C.red, fontFamily:T.sans }}>{addResult.error}</div>
+        )}
+        {addResult?.ok && (
+          <div style={{ fontSize:11, color:C.green, fontFamily:T.sans, lineHeight:1.6 }}>
+            {addResult.duplicate ? 'Ya existía un candidato con estos datos para ese puesto.' : 'Candidato guardado.'}
+            {addResult.folio && <> Folio GO Radar: <strong>{addResult.folio}</strong>{addResult.clave && <> · Clave: <strong>{addResult.clave}</strong> (entrégasela, no se vuelve a mostrar)</>}</>}
+            {!addResult.folio && !addResult.radarOk && ' (Sin folio de Radar todavía — espejo no configurado o la vacante no está ligada.)'}
+          </div>
+        )}
+      </div>
+      <div style={{ padding:'16px 24px 20px', display:'flex', gap:8 }}>
+        <button onClick={closeAddModal} disabled={addSaving}
+          style={{ flex:1, padding:'10px 0', borderRadius:9, fontSize:12, fontWeight:500, cursor:'pointer', fontFamily:T.sans, background:'transparent', border:`1px solid ${theme==='dark' ? C.border : '#E5E7EB'}`, color: theme==='dark' ? C.textSub : '#6B7280' }}>
+          {addResult?.ok ? 'Cerrar' : 'Cancelar'}
+        </button>
+        {!addResult?.ok && (
+          <button onClick={submitAddCandidate} disabled={addSaving}
+            style={{ flex:1, padding:'10px 0', borderRadius:9, fontSize:12, fontWeight:700, cursor: addSaving ? 'not-allowed' : 'pointer', fontFamily:T.sans, border:'none', color:'#fff', background: addSaving ? '#9CA3AF' : C.orange }}>
+            {addSaving ? 'Guardando…' : 'Guardar'}
+          </button>
+        )}
       </div>
     </div>
   </div>,
