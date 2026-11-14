@@ -23,9 +23,23 @@ import { verifyAdminToken } from '../../../lib/verifyAdminToken.ts';
 import { radarGetCambios, radarEtapaToSiteStatus } from '../../../lib/go-radar-v1.js';
 import {
   getRadarSyncState, setRadarSyncState,
-  getVacanteByRadarId, getVacanteById, saveVacante, updateVacante,
+  getVacanteByRadarId, getVacanteById, saveVacante, updateVacante, readVacantes,
   getLeadByRadarFolio, getLeadById, saveRecruitmentLead, updateRecruitmentLead, updateRecruitmentStatus, saveRadarReferencia,
 } from '../../../lib/analytics-db.js';
+
+const norm = (s) => (s || '').trim().toLowerCase();
+
+// Carga inicial / anti-duplicado (guía §8.7): antes de crear una vacante
+// nueva por lo que llega de Radar, buscar si YA existe una vacante local con
+// el mismo título que todavía no está ligada (sin radar_id) — nació en el
+// sitio y Radar también la tiene, así que se LIGA en vez de duplicarse.
+// Ambigüedad (0 o 2+ coincidencias) → no se adivina, se crea nueva.
+async function findUnlinkedVacanteByTitulo(titulo) {
+  if (!titulo?.trim()) return null;
+  const todas = await readVacantes(false, { isAdmin: true });
+  const candidatas = todas.filter(v => !v.radar_id && norm(v.titulo) === norm(titulo));
+  return candidatas.length === 1 ? candidatas[0].id : null;
+}
 
 const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { 'Content-Type': 'application/json' } });
 
@@ -33,7 +47,8 @@ async function applyVacanteChange(item) {
   const dato = item.dato || {};
   if (dato.eliminada) return; // Radar nunca borra, pero por si acaso no hay nada que aplicar
   const radarId = String(item.id);
-  const localId = await getVacanteByRadarId(radarId);
+  let localId = await getVacanteByRadarId(radarId);
+  if (!localId) localId = await findUnlinkedVacanteByTitulo(dato.titulo);
   const fields = {
     titulo: dato.titulo || '', area: dato.unidad || dato.area || '', ubicacion: dato.ubicacion || 'Morelia, Mich.',
     descripcion: dato.descripcion || '', activa: dato.estado !== 'cerrada',

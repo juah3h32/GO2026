@@ -11,6 +11,18 @@ function json(data, status = 200) {
   return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
 }
 
+const norm = (s) => (s || '').trim().toLowerCase();
+
+// Carga inicial / anti-duplicado (guía §8.7): si no viene `id` ni matchea por
+// `radar_id`, buscar una vacante local sin radar_id con el MISMO título antes
+// de crear una nueva — evita duplicar algo que nació en el sitio.
+async function findUnlinkedVacanteByTitulo(titulo) {
+  if (!titulo?.trim()) return null;
+  const todas = await readVacantes(false, { isAdmin: true });
+  const candidatas = todas.filter(v => !v.radar_id && norm(v.titulo) === norm(titulo));
+  return candidatas.length === 1 ? candidatas[0].id : null;
+}
+
 export function serializeVacante(v) {
   return {
     id: v.id, radar_id: v.radar_id || null,
@@ -49,6 +61,7 @@ export async function POST({ request }) {
   const fields = { titulo, area: unidad || '', ubicacion: ubicacion || 'Morelia, Mich.', descripcion: descripcion || '', activa: estado !== 'cerrada' };
 
   let localId = id ? Number(id) : (external_id ? await getVacanteByRadarId(String(external_id)) : null);
+  if (!localId) localId = await findUnlinkedVacanteByTitulo(titulo);
 
   if (localId) {
     const actual = await getVacanteById(localId);
