@@ -25,7 +25,7 @@ import {
   getVacanteById,
 } from '../../lib/analytics-db.js';
 import { esVacanteGoRadar, enviarPostulacionAGoRadar } from '../../lib/go-radar.js';
-import { radarUpsertPostulante, radarSetEtapa, SITE_STATUS_TO_RADAR_ETAPA } from '../../lib/go-radar-v1.js';
+import { radarUpsertPostulante, radarSetEtapa, radarDeletePostulante, SITE_STATUS_TO_RADAR_ETAPA } from '../../lib/go-radar-v1.js';
 
 // Busca, entre las vacantes activas, la que corresponde al "puesto" escrito/elegido
 // por el candidato — para heredar su dueño (rh_user_id) al guardar el lead.
@@ -475,6 +475,13 @@ export async function POST({ request }) {
       if (!body.id) return json({ ok: false, error: 'ID requerido.' }, 400);
       if (!canDeleteCandidates) return json({ ok: false, error: 'No tienes permiso para eliminar candidatos.' }, 403);
       if (!(await checkOwnLead(body.id))) return json({ ok: false, error: 'No autorizado.' }, 403);
+      // Espejo GO Radar — borrado lógico (v3 de la API de Radar, 18/11/26):
+      // si este candidato también está en Radar, lo elimina (reversible) allá
+      // también, sin bloquear la respuesta. Nunca es borrado definitivo.
+      const lead = await getLeadById(body.id);
+      if (lead?.radar_referencia) {
+        radarDeletePostulante({ folio: lead.radar_referencia }).catch(e => console.warn('[delete→radar]', e.message));
+      }
       await deleteRecruitmentLead(body.id);
       return json({ ok: true });
     }

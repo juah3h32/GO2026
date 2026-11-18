@@ -104,6 +104,18 @@ export async function radarSetEtapa({ folio, etapa, etapaActual, actualizadoPor 
   });
 }
 
+// Borrado lógico (reversible) de un postulante por folio — nuevo en v3 de
+// la API de Radar (18/11/26), permiso `postulantes:eliminar` (la llave
+// maestra ya lo trae). La persona deja de verse en Radar pero no se pierde;
+// se puede devolver con radarRestaurarPostulante. Nunca es borrado definitivo.
+export async function radarDeletePostulante({ folio }) {
+  return radarV1Request('DELETE', `/postulantes/por-folio/${encodeURIComponent(folio)}`);
+}
+
+export async function radarRestaurarPostulante({ folio }) {
+  return radarV1Request('POST', `/postulantes/por-folio/${encodeURIComponent(folio)}/restaurar`);
+}
+
 // Pagina el registro de cambios de Radar (Flujo D). `desde` es el cursor
 // (`siguiente`) de la última llamada.
 export async function radarGetCambios({ desde = null, limite = 100, tipos = null } = {}) {
