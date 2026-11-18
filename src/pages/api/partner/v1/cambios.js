@@ -14,6 +14,12 @@ function json(data, status = 200) {
   return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
 }
 
+// `radar_changelog.created_at` es UTC real pero sin sufijo de zona
+// ("YYYY-MM-DD HH:MM:SS") — Damián lo pidió explícito (pendiente B8).
+function aIso(fechaSinZona) {
+  return fechaSinZona ? fechaSinZona.replace(' ', 'T') + 'Z' : fechaSinZona;
+}
+
 export async function GET({ request, url }) {
   const radar = await verifyRadarAuth(request);
   if (!radar) return json({ detail: { codigo: 'llave_invalida', mensaje: 'API key inválida o faltante.' } }, 401);
@@ -29,17 +35,17 @@ export async function GET({ request, url }) {
   const items = [];
   for (const row of rows) {
     if (row.tipo === 'baja_postulante') {
-      items.push({ tipo: 'baja_postulante', id: row.entity_id, cuando: row.created_at, dato: null });
+      items.push({ tipo: 'baja_postulante', id: row.entity_id, cuando: aIso(row.created_at), dato: null });
       continue;
     }
     if (row.tipo === 'vacante') {
       const v = await getVacanteById(row.entity_id);
-      if (v) items.push({ tipo: 'vacante', id: v.id, cuando: row.created_at, dato: serializeVacante(v) });
+      if (v) items.push({ tipo: 'vacante', id: v.id, cuando: aIso(row.created_at), dato: serializeVacante(v) });
       continue;
     }
     if (row.tipo === 'postulante') {
       const c = await getLeadById(row.entity_id);
-      if (c) items.push({ tipo: 'postulante', id: c.id, cuando: row.created_at, dato: serializeCandidato(c) });
+      if (c) items.push({ tipo: 'postulante', id: c.id, cuando: aIso(row.created_at), dato: serializeCandidato(c) });
     }
   }
 

@@ -8,15 +8,15 @@
 // Espejo GO Radar — Flujo D (Radar → sitio, por polling, no webhook — ver
 // Espejo_Radar_GO_Oficial_Guia_Completa_13_11_26.md §8.6). Jala el registro
 // de cambios DE RADAR (/api/v1/cambios) y aplica localmente vacantes,
-// postulantes y bajas. Todo lo que aplica aquí usa origin:'radar' — nunca
+// postulantes y bajas. Todo lo que aplica aquí usa origin:'radar_sync' — nunca
 // dispara un push de vuelta a Radar (si lo hiciera, habría rebote infinito).
 // Auth: igual patrón que los demás cron — CRON_SECRET_EXTERNAL (query/header)
 // o token admin.
 //
-// PENDIENTE: no hace nada útil hasta que exista GO_RADAR_MASTER_API_KEY
-// (Radar aún no despliega su API v1 en producción, 13/11/26) — en ese caso
-// radarGetCambios regresa { ok:false, codigo:'sin_configurar' } y este cron
-// termina de inmediato sin tronar.
+// GO_RADAR_MASTER_API_KEY ya está configurada y la API v1 de Radar ya está
+// en producción (confirmado 14/11/26) — este cron corre en serio. Si algún
+// día la llave faltara, radarGetCambios regresa { ok:false,
+// codigo:'sin_configurar' } y este cron termina de inmediato sin tronar.
 export const prerender = false;
 
 import { verifyAdminToken } from '../../../lib/verifyAdminToken.ts';
@@ -63,10 +63,10 @@ async function applyVacanteChange(item) {
       id: localId, ...fields,
       tipo: actual.tipo, horario: actual.horario, salario: actual.salario, requisitos: actual.requisitos,
       orden: actual.orden, multiples: actual.multiples, empresa: actual.empresa, link_externo: actual.link_externo,
-      radar_id: radarId, origin: 'radar',
+      radar_id: radarId, origin: 'radar_sync',
     });
   } else {
-    const created = await saveVacante({ ...fields, radar_id: radarId, origin: 'radar' });
+    const created = await saveVacante({ ...fields, radar_id: radarId, origin: 'radar_sync' });
     return created.id;
   }
 }
@@ -98,7 +98,7 @@ async function applyPostulanteChange(item) {
       nombre: dato.nombre, email: dato.correo || '', telefono: dato.telefono || '',
       puesto, edad: dato.edad ? String(dato.edad) : '',
       colonia: dato.colonia || '', estado_rep: dato.ubicacion || '',
-      origin: 'radar',
+      origin: 'radar_sync',
     });
     localId = saved.id;
     if (folio) await saveRadarReferencia(localId, folio).catch(() => {});
@@ -111,13 +111,13 @@ async function applyPostulanteChange(item) {
     if (dato.telefono) patch.telefono   = dato.telefono;
     if (puesto)        patch.puesto     = puesto;
     if (dato.ubicacion) patch.estado_rep = dato.ubicacion;
-    if (Object.keys(patch).length) await updateRecruitmentLead(localId, patch, 'radar');
+    if (Object.keys(patch).length) await updateRecruitmentLead(localId, patch, 'radar_sync');
   }
 
   const lead = await getLeadById(localId);
   const nuevoStatus = radarEtapaToSiteStatus(dato.estado, lead?.status);
   await updateRecruitmentStatus(localId, nuevoStatus, {
-    origin: 'radar', radarEtapa: dato.estado || '',
+    origin: 'radar_sync', radarEtapa: dato.estado || '',
     radarActualizadoPor: dato.actualizado_por_nombre || dato.actualizado_por || '',
   });
 }
@@ -132,7 +132,7 @@ async function applyBajaPostulante(item) {
   if (!m) { console.warn('[radar-sync] baja_postulante sin external_id propio, no se pudo ubicar:', item.id); return; }
   // No hay columna de "retirado" — el mapeo más cercano sin inventar estado
   // nuevo es moverlo a descartado.
-  await updateRecruitmentStatus(Number(m[1]), 'descartado', { origin: 'radar' });
+  await updateRecruitmentStatus(Number(m[1]), 'descartado', { origin: 'radar_sync' });
 }
 
 export async function runRadarSync({ limite = 100, maxPaginas = 10 } = {}) {

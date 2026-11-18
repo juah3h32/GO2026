@@ -132,8 +132,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
     // Bucket por API key (no por IP) para partners — su servidor puede compartir
     // IP con otros servicios de su lado; por IP sería injusto/insuficiente.
     const partnerKey = isPartner ? (req.headers.get('x-api-key') || ip) : ip;
+    // Partner a 300/min (pendiente C11 de Radar, 17/11/26) — mismo tope que
+    // Radar nos da a nosotros; alcanza para su carga inicial de candidatos.
     const bucket = isChat ? ['chat', 20] : isLead ? ['lead', 15] : isAdmin ? ['admin', 60]
-                 : isPartner ? ['partner', 60] : ['api', 30];
+                 : isPartner ? ['partner', 300] : ['api', 30];
     const rlKey = isPartner ? `${bucket[0]}:${partnerKey}` : `${bucket[0]}:${ip}`;
     if (isRateLimited(rlKey, bucket[1] as number, 60_000)) {
       logAbuse(bucket[0] as string, ip, url.pathname);

@@ -57,6 +57,12 @@ export async function POST({ request }) {
   const { external_id, id, titulo, unidad, ubicacion, descripcion, estado } = body;
   if (!titulo?.trim()) return json({ detail: { codigo: 'falta_titulo', mensaje: 'titulo es obligatorio.' } }, 422);
   if (!external_id && !id) return json({ detail: { codigo: 'falta_identidad', mensaje: 'Falta external_id o id.' } }, 422);
+  // Cualquier valor que no sea exactamente "cerrada" dejaba la vacante
+  // ABIERTA y pública por default (bug que Damián probó con "borrador") —
+  // ahora se rechaza cualquier estado que no sea uno de los dos válidos.
+  if (estado !== undefined && estado !== 'abierta' && estado !== 'cerrada') {
+    return json({ detail: { codigo: 'estado_invalido', mensaje: 'estado debe ser "abierta" o "cerrada".' } }, 422);
+  }
 
   const fields = { titulo, area: unidad || '', ubicacion: ubicacion || 'Morelia, Mich.', descripcion: descripcion || '', activa: estado !== 'cerrada' };
 

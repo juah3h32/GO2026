@@ -2,8 +2,9 @@
 // ─── FIX: Salto inteligente de puesto al nombre si ya viene preseleccionado ───
 import * as googleTTS from 'google-tts-api';
 import { Buffer } from 'node:buffer';
-import { logInteraction, saveRecruitmentLead, readVacantes, markNotificadosVacante, checkDuplicateByPhone, checkDuplicateByName, checkDuplicateByEmail } from '../../lib/analytics-db.js';
-import { notifyNewVacante, notifyEsperaVacante, notifyEnglishLead } from '../../lib/notify.js';
+import { logInteraction, saveRecruitmentLead, readVacantes, markNotificadosVacante, checkDuplicateByPhone, checkDuplicateByName, checkDuplicateByEmail, saveRadarReferencia } from '../../lib/analytics-db.js';
+import { notifyNewVacante, notifyEsperaVacante, notifyEnglishLead, notifyCandidateRadarSeguimiento } from '../../lib/notify.js';
+import { esVacanteGoRadar, enviarPostulacionAGoRadar } from '../../lib/go-radar.js';
 import { formatTitulo } from '../../lib/format-titulo.js';
 
 export const prerender = false;
@@ -442,9 +443,9 @@ PASO 8 → "¡Casi listo! ¿Tienes un CV para adjuntar?"
          Termina con: [ACCION:QUICK_REPLY:cv]
 PASO 9 → Cuando tienes todos los datos:
          - Si el usuario se registró porque NO hay vacantes actualmente (lista de espera):
-           "¡Listo, [nombre]! Guardamos todos tus datos y quedas en nuestra lista de espera para [puesto]. Estarás entre los primeros y te avisaremos por WhatsApp al [telefono] en cuanto se abra la vacante. ¡Mucho éxito! 🌟"
+           "¡Listo, [nombre]! Guardamos todos tus datos y quedas en nuestra lista de espera para [puesto]. Estarás entre los primeros y te avisaremos por WhatsApp al [telefono] en cuanto se abra la vacante. En un momento también te llega por WhatsApp tu folio de seguimiento. ¡Mucho éxito! 🌟"
          - Si hay vacante activa:
-           "¡Listo, [nombre]! Registré tu solicitud para [puesto]. Nuestro equipo de RH te contactará pronto. ¡Mucho éxito! 🌟"
+           "¡Listo, [nombre]! Registré tu solicitud para [puesto]. Nuestro equipo de RH te contactará pronto, y en un momento te llega por WhatsApp tu folio y clave de seguimiento. ¡Mucho éxito! 🌟"
          Termina con: [RECLUTAMIENTO:nombre=X|puesto=X|edad=X|estado=X|colonia=X|email=X|telefono=X|comentarios=]
 
 REGLAS:
@@ -944,9 +945,10 @@ export async function POST({ request }) {
         historialTextos.includes('no hay vacantes abiertas') ||
         historialTextos.includes('No encontré vacante para mi perfil en la lista actual') ||
         historialTextos.includes('Quiero registrarme en lista de espera');
+      const vacanteMatch = recruitData.puesto ? matchVacanteSimilar(recruitData.puesto, vacantesActivas) : null;
       if (textoIndicaEspera || !vacantesActivas || vacantesActivas.length === 0) {
         esListaEspera = true;
-      } else if (recruitData.puesto && !matchVacanteSimilar(recruitData.puesto, vacantesActivas)) {
+      } else if (recruitData.puesto && !vacanteMatch) {
         esListaEspera = true;
       }
 
@@ -968,11 +970,10 @@ export async function POST({ request }) {
           sessionId:  sessionId || '',
           en_lista_espera: esListaEspera ? 1 : 0,
         });
+        candidatoId = saved?.id || null;
         if (saved?.duplicate) {
           isDuplicate = true;
-          candidatoId = saved.id || null;
         } else {
-          candidatoId = saved?.id || null;
           // Notificar a RH / categorias (no bloquea la respuesta)
           notifyNewVacante({
             nombre: recruitData.nombre, puesto: recruitData.puesto, edad: recruitData.edad,
@@ -982,6 +983,26 @@ export async function POST({ request }) {
             en_lista_espera: esListaEspera ? 1 : 0,
           }).catch(e => console.warn('⚠️ notif RH (chat):', e.message));
           console.log('✅ Candidato guardado desde chat:', candidatoId, recruitData.nombre, '→', recruitData.puesto);
+        }
+
+        // ── Espejo GO Radar — el bot también manda por la "API del bot" ──────
+        // (antes solo lo hacía el formulario explícito de recruitment.js; el
+        // chat nunca llegaba a Radar, así que nadie que aplicara por el bot
+        // recibía folio/clave/link por WhatsApp). No reenviar si ya se le
+        // había mandado folio antes (mismo candidato duplicado).
+        if (!saved?.duplicate || !saved?.existingRadarReferencia) {
+          const radarVacanteId = (vacanteMatch && esVacanteGoRadar(vacanteMatch)) ? vacanteMatch.id : undefined;
+          enviarPostulacionAGoRadar({
+            vacanteId: radarVacanteId, nombre: recruitData.nombre, edad: recruitData.edad,
+            estado: recruitData.estado, colonia: recruitData.colonia, telefono: recruitData.telefono,
+            correo: recruitData.email, puesto: recruitData.puesto,
+            solicitudId: `go2026-chat-${candidatoId}-${vacanteMatch?.id || 'sv'}`,
+          }).then(radar => {
+            if (radar?.ok && radar.referencia) {
+              saveRadarReferencia(candidatoId, radar.referencia).catch(e => console.warn('saveRadarReferencia (chat):', e.message));
+              notifyCandidateRadarSeguimiento({ nombre: recruitData.nombre, puesto: recruitData.puesto, telefono: recruitData.telefono, radar }).catch(e => console.warn('notify candidato radar (chat):', e.message));
+            }
+          }).catch(e => console.warn('⚠️ enviar a Radar (chat):', e.message));
         }
       } catch (e) {
         console.error('❌ guardar candidato (chat):', e.message);

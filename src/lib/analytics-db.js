@@ -1093,7 +1093,9 @@ export async function getLeadByRadarFolio(folio) {
   if (!folio) return null;
   await ensureInit();
   await ensureRecruitmentTable();
-  const r = await db.execute({ sql: `SELECT id FROM recruitment_leads WHERE radar_referencia = ? LIMIT 1`, args: [folio] });
+  // Insensible a mayúsculas (pendiente B7, 17/11/26) — el GET de Radar ya
+  // compara así del lado de JS; esta es la única función que no lo hacía.
+  const r = await db.execute({ sql: `SELECT id FROM recruitment_leads WHERE UPPER(radar_referencia) = UPPER(?) LIMIT 1`, args: [folio] });
   return r.rows.length ? Number(r.rows[0].id) : null;
 }
 
@@ -1559,7 +1561,10 @@ export async function getRadarChangelogSince(desde = 0, { tipos = null, incluirP
   await ensureRadarTables();
   const where = [`id > ?`];
   const args  = [Number(desde) || 0];
-  if (!incluirPropios) where.push(`origin != 'radar'`);
+  // origin='radar' = Radar nos escribió por su llave; 'radar_sync' = lo
+  // jalamos nosotros de su /cambios (cron/radar-sync.js). Las dos son "ya lo
+  // sabe Radar", así que las dos se excluyen por default (pendiente C10).
+  if (!incluirPropios) where.push(`origin NOT IN ('radar', 'radar_sync')`);
   if (tipos && tipos.length) {
     where.push(`tipo IN (${tipos.map(() => '?').join(',')})`);
     args.push(...tipos);

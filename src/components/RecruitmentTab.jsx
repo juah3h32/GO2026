@@ -754,13 +754,15 @@ const handleResend = async () => {
                   {Ic.pdf} Descargar Perfil PDF
                 </button>
 
-                {/* GO Radar — esta vacante la maneja Radar; folio para darle seguimiento allá */}
+                {/* GO Radar — folio pre-llenado; la clave no se guarda aquí (nunca
+                    se persiste localmente, por diseño), la escribe la persona ahí. */}
                 {candidate.radar_referencia && (
-                  <a href="https://go-radar.com.mx" target="_blank" rel="noopener noreferrer"
+                  <a href={`https://go-radar.com.mx/seguimiento?folio=${encodeURIComponent(candidate.radar_referencia)}`}
+                    target="_blank" rel="noopener noreferrer"
                     style={{ marginTop:8, display:'flex', alignItems:'center', justifyContent:'center', gap:6, padding:'7px 13px', borderRadius:8,
                       fontSize:11, fontWeight:600, fontFamily:T.sans, cursor:'pointer', width:'100%', boxSizing:'border-box',
                       background:C.surface, border:`1px solid ${C.border}`, color:C.purple, textDecoration:'none' }}>
-                    {Ic.linkOut} Seguimiento en GO Radar — Folio {candidate.radar_referencia}
+                    {Ic.linkOut} Realizar seguimiento — Folio {candidate.radar_referencia}
                   </a>
                 )}
                 {candidate.radar_referencia && candidate.radar_etapa && (
