@@ -1104,7 +1104,9 @@ export async function notifyCandidateRadarSeguimiento({ nombre, puesto, telefono
   const mensaje = radar.listaEspera
     ? `${saludo}\n\n` +
       `Guardamos tus datos para *${puesto || 'la vacante'}* también en el sistema de reclutamiento (GO Radar).\n\n` +
-      `Folio: *${radar.referencia}*\n\n` +
+      `Folio: *${radar.referencia}*\n` +
+      (radar.clave ? `Clave: *${radar.clave}*\n` : '') +
+      `\nEntra aquí para ver tu proceso:\n${buildRadarSeguimientoUrl(radar)}\n\n` +
       `Por ahora no hay una vacante exacta para ti ahí — en cuanto abra una que te quede, te contactamos por este medio.`
     : `${saludo}\n\n` +
       `Tu postulación para *${puesto || 'la vacante'}* también quedó registrada en GO Radar.\n\n` +
