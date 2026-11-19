@@ -2,7 +2,7 @@
 // ─── FIX: Salto inteligente de puesto al nombre si ya viene preseleccionado ───
 import * as googleTTS from 'google-tts-api';
 import { Buffer } from 'node:buffer';
-import { logInteraction, saveRecruitmentLead, readVacantes, markNotificadosVacante, checkDuplicateByPhone, checkDuplicateByName, checkDuplicateByEmail, saveRadarReferencia } from '../../lib/analytics-db.js';
+import { logInteraction, saveRecruitmentLead, readVacantes, markNotificadosVacante, checkDuplicateByPhone, checkDuplicateByName, checkDuplicateByEmail, saveRadarReferencia, claimRadarSend } from '../../lib/analytics-db.js';
 import { notifyNewVacante, notifyEsperaVacante, notifyEnglishLead, notifyCandidateRadarSeguimiento } from '../../lib/notify.js';
 import { esVacanteGoRadar, enviarPostulacionAGoRadar } from '../../lib/go-radar.js';
 import { formatTitulo } from '../../lib/format-titulo.js';
@@ -992,18 +992,21 @@ export async function POST({ request }) {
         // recibía folio/clave/link por WhatsApp). No reenviar si ya se le
         // había mandado folio antes (mismo candidato duplicado).
         if (!saved?.duplicate || !saved?.existingRadarReferencia) {
-          const radarVacanteId = (vacanteMatch && esVacanteGoRadar(vacanteMatch)) ? vacanteMatch.id : undefined;
-          enviarPostulacionAGoRadar({
-            vacanteId: radarVacanteId, nombre: recruitData.nombre, edad: recruitData.edad,
-            estado: recruitData.estado, colonia: recruitData.colonia, telefono: recruitData.telefono,
-            correo: recruitData.email, puesto: recruitData.puesto,
-            solicitudId: `go2026-chat-${candidatoId}-${vacanteMatch?.id || 'sv'}`,
-          }).then(radar => {
-            if (radar?.ok && radar.referencia) {
-              saveRadarReferencia(candidatoId, radar.referencia).catch(e => console.warn('saveRadarReferencia (chat):', e.message));
-              notifyCandidateRadarSeguimiento({ nombre: recruitData.nombre, puesto: recruitData.puesto, telefono: recruitData.telefono, radar }).catch(e => console.warn('notify candidato radar (chat):', e.message));
-            }
-          }).catch(e => console.warn('⚠️ enviar a Radar (chat):', e.message));
+          const radarVacanteId = (vacanteMatch && esVacanteGoRadar(vacanteMatch) && vacanteMatch.radar_id) ? vacanteMatch.radar_id : undefined;
+          claimRadarSend(candidatoId).then(claimed => {
+            if (!claimed) return;
+            enviarPostulacionAGoRadar({
+              vacanteId: radarVacanteId, nombre: recruitData.nombre, edad: recruitData.edad,
+              estado: recruitData.estado, colonia: recruitData.colonia, telefono: recruitData.telefono,
+              correo: recruitData.email, puesto: recruitData.puesto,
+              solicitudId: `go2026-chat-${candidatoId}-${vacanteMatch?.id || 'sv'}`,
+            }).then(radar => {
+              if (radar?.ok && radar.referencia) {
+                saveRadarReferencia(candidatoId, radar.referencia).catch(e => console.warn('saveRadarReferencia (chat):', e.message));
+                notifyCandidateRadarSeguimiento({ nombre: recruitData.nombre, puesto: recruitData.puesto, telefono: recruitData.telefono, radar }).catch(e => console.warn('notify candidato radar (chat):', e.message));
+              }
+            }).catch(e => console.warn('⚠️ enviar a Radar (chat):', e.message));
+          }).catch(e => console.warn('⚠️ claim radar (chat):', e.message));
         }
       } catch (e) {
         console.error('❌ guardar candidato (chat):', e.message);

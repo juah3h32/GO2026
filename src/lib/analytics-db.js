@@ -1051,6 +1051,23 @@ export async function saveRadarReferencia(id, referencia) {
   return true;
 }
 
+// Reclama atómicamente el derecho a mandar ESTE candidato a Radar — evita que
+// dos requests casi simultáneos (doble click, retry, dos turnos de chat casi
+// seguidos) manden la misma postulación dos veces y generen dos folios
+// distintos. El UPDATE con WHERE radar_claimed=0 es atómico: solo un request
+// puede ganarlo (rowsAffected=1); el resto ve 0 y no manda nada a Radar.
+export async function claimRadarSend(id) {
+  if (!id) return false;
+  await ensureInit();
+  await ensureRecruitmentTable();
+  try { await db.execute(`ALTER TABLE recruitment_leads ADD COLUMN radar_claimed INTEGER NOT NULL DEFAULT 0`); } catch {}
+  const res = await db.execute({
+    sql:  `UPDATE recruitment_leads SET radar_claimed = 1 WHERE id = ? AND radar_claimed = 0`,
+    args: [id],
+  });
+  return Number(res.rowsAffected || 0) === 1;
+}
+
 // Solo actualiza lo que el sitio sabe de la etapa de Radar (sin tocar el
 // status local ni volver a loguear el changelog) — Flujo C/D, tras confirmar
 // con Radar cuál es la etapa real.
