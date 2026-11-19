@@ -969,6 +969,7 @@ export async function POST({ request }) {
           comentarios: recruitData.comentarios || recruitData.mensaje || '',
           sessionId:  sessionId || '',
           en_lista_espera: esListaEspera ? 1 : 0,
+          rh_user_id: vacanteMatch?.rh_user_id ?? null,
         });
         candidatoId = saved?.id || null;
         if (saved?.duplicate) {
