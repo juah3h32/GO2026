@@ -146,7 +146,7 @@ export async function POST({ request }) {
 
         // Duplicado que YA tiene folio Radar → ya se procesó por completo antes.
         if (saved?.duplicate && saved.existingRadarReferencia) {
-          return json({ ok: true, id: saved.id, duplicate: true, esListaEspera: !!en_lista_espera });
+          return json({ ok: true, id: saved.id, duplicate: true, esListaEspera: !!en_lista_espera, radarReferencia: saved.existingRadarReferencia });
         }
 
         const candidatoId = saved?.id || null;
@@ -317,10 +317,11 @@ export async function POST({ request }) {
       if (saved?.duplicate && saved.existingRadarReferencia) {
         console.log(`🔁 Solicitud duplicada ignorada — candidato existente #${saved.id}: ${saved.existingNombre}`);
         return json({
-          ok:        true,
-          duplicate: true,
-          id:        saved.id,
-          message:   'Ya existe un registro con este correo o teléfono. Tu solicitud fue recibida anteriormente.',
+          ok:              true,
+          duplicate:       true,
+          id:              saved.id,
+          radarReferencia: saved.existingRadarReferencia,
+          message:         'Ya existe un registro con este correo o teléfono. Tu solicitud fue recibida anteriormente.',
         });
       }
 

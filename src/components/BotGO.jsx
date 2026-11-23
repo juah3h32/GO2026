@@ -1050,7 +1050,7 @@ const RecruitmentConfirmation = ({ candidato, t }) => {
         </p>
         <p className="confirmation-subtitle">
           {candidato?.duplicate
-            ? `Ya existe una solicitud tuya${campos.puesto ? ` para ${campos.puesto}` : ''} con estos mismos datos de contacto — no se creó una nueva. Si quieres actualizar algo, contáctanos directo por WhatsApp.`
+            ? `Ya existe una solicitud tuya${campos.puesto ? ` para ${campos.puesto}` : ''} con estos mismos datos de contacto — no se creó una nueva.${candidato?.radarReferencia ? ' Aquí está tu número de seguimiento.' : ' Si quieres actualizar algo, contáctanos directo por WhatsApp.'}`
             : candidato?.esListaEspera
               ? `Guardamos todos tus datos${campos.puesto ? ` para ${campos.puesto}` : ''}. Estarás entre los primeros y te avisaremos por WhatsApp en cuanto se abra la vacante.`
               : (t?.confirmSubtitle || 'Nuestro equipo de RH se pondrá en contacto contigo pronto.')}
@@ -1061,6 +1061,29 @@ const RecruitmentConfirmation = ({ candidato, t }) => {
             <div className="confirmation-badge-row">
               <span className="confirmation-badge-label">{candidato?.duplicate ? 'Folio existente' : 'Folio'}</span>
               <span className="confirmation-badge-value confirmation-folio">#{String(candidato.id).padStart(5, '0')}</span>
+            </div>
+          )}
+
+          {candidato?.duplicate && candidato?.radarReferencia && (
+            <div className="confirmation-radar-box">
+              <p className="confirmation-radar-title">Tu número de seguimiento</p>
+              <div className="confirmation-radar-grid">
+                <div>
+                  <span className="confirmation-radar-grid-label">Folio Radar</span>
+                  <span className="confirmation-folio">{candidato.radarReferencia}</span>
+                </div>
+              </div>
+              <a
+                href={buildRadarSeguimientoUrl({ referencia: candidato.radarReferencia })}
+                target="_blank" rel="noopener noreferrer"
+                className="confirmation-radar-cta"
+              >
+                Ir a mi seguimiento
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </a>
+              <p className="conf-edit-hint" style={{ marginTop: 6 }}>
+                Usa este folio para consultar tu estatus en GO Radar. Si ya tienes tu clave, entra directo con ambos.
+              </p>
             </div>
           )}
 
@@ -1798,6 +1821,7 @@ export default function BotGO({ language = 'es' }) {
       setCandidatoRegistrado({
         ...datos, id: result.id || null, radar: result.radar || null,
         duplicate: !!result.duplicate, duplicateMessage: result.message || null,
+        radarReferencia: result.radarReferencia || null,
       });
     } catch (e) {
       console.error('❌ Error guardando candidato:', e.message);
