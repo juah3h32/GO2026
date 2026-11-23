@@ -793,14 +793,18 @@ export async function POST({ request }) {
  
       if (existente) {
         const puestoExist = existente.puesto ? ` para el puesto de ${existente.puesto}` : '';
-        const msg = `Ya tenemos tu solicitud registrada${puestoExist}. Nuestro equipo de RH ya tiene tus datos y te contactará muy pronto. ¡Gracias por tu interés en Grupo Ortiz! 🌟`;
+        const folioExist = existente.radar_referencia
+          ? ` Tu folio de seguimiento es ${existente.radar_referencia}.`
+          : '';
+        const msg = `Ya tenemos tu solicitud registrada${puestoExist}.${folioExist} Nuestro equipo de RH ya tiene tus datos y te contactará muy pronto. ¡Gracias por tu interés en Grupo Ortiz! 🌟`;
         const audioUrl = isVoice ? await generarAudio(msg, langCode, apiKey) : null;
         return new Response(JSON.stringify({
           reply: msg, audio: audioUrl,
           accionWA: false, accionPDF: null, accionCV: false,
           accionDistribuidor: false, accionReclutamiento: false,
           enFlujoReclutamiento: true, candidatoId: null,
-          isDuplicate: true, quickReplies: null,
+          isDuplicate: true, radarReferencia: existente.radar_referencia || null,
+          quickReplies: null,
           waPhone: langCode === 'en' ? '12104293789' : '524432072593',
         }), { status: 200, headers: { 'Content-Type': 'application/json' } });
       }
@@ -938,6 +942,7 @@ export async function POST({ request }) {
     let isDuplicate = false;
     let esListaEspera = false;
     let candidatoId = null;
+    let radarReferencia = null;
 
     if (accionReclutamiento && recruitData) {
       const historialTextos = (messages || []).filter(m => m.role === 'user').map(m => m.content || '').join(' ');
@@ -974,6 +979,7 @@ export async function POST({ request }) {
         candidatoId = saved?.id || null;
         if (saved?.duplicate) {
           isDuplicate = true;
+          radarReferencia = saved.existingRadarReferencia || null;
         } else {
           // Notificar a RH / categorias (no bloquea la respuesta)
           notifyNewVacante({
@@ -1029,6 +1035,7 @@ export async function POST({ request }) {
         enFlujoReclutamiento,
         candidatoId,
         isDuplicate,
+        radarReferencia,
         esListaEspera,
         recruitData:         accionReclutamiento ? recruitData : null,
         quickReplies,

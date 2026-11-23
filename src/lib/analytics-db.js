@@ -794,7 +794,7 @@ export async function checkDuplicateByPhone(telefono) {
   await ensureInit();
   await ensureRecruitmentTable();
   const { rows } = await db.execute({
-    sql: `SELECT id, nombre, puesto FROM recruitment_leads
+    sql: `SELECT id, nombre, puesto, radar_referencia FROM recruitment_leads
           WHERE REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(telefono,' ',''),'-',''),'(',''),')',''),'+','')
           LIKE ? LIMIT 1`,
     args: [`%${suffix}%`],
@@ -807,13 +807,13 @@ export async function checkDuplicateByName(nombre) {
   await ensureInit();
   await ensureRecruitmentTable();
   const { rows } = await db.execute({
-    sql: `SELECT id, nombre, puesto FROM recruitment_leads
+    sql: `SELECT id, nombre, puesto, radar_referencia FROM recruitment_leads
           WHERE LOWER(TRIM(nombre)) = ? LIMIT 1`,
     args: [clean],
   });
   return rows.length > 0 ? rows[0] : null;
 }
- 
+
 // ── Verificación anticipada de duplicado por email ────────────────────────────
 export async function checkDuplicateByEmail(email) {
   if (!email || !email.includes('@')) return null;
@@ -821,7 +821,7 @@ export async function checkDuplicateByEmail(email) {
   await ensureInit();
   await ensureRecruitmentTable();
   const { rows } = await db.execute({
-    sql: `SELECT id, nombre, puesto FROM recruitment_leads
+    sql: `SELECT id, nombre, puesto, radar_referencia FROM recruitment_leads
           WHERE LOWER(TRIM(email)) = ? LIMIT 1`,
     args: [clean],
   });

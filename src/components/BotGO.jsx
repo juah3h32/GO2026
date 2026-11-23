@@ -1214,7 +1214,7 @@ const RecruitmentConfirmation = ({ candidato, t }) => {
 };
 
 // ─── DUPLICATE NOTICE ─────────────────────────────────────────────────────────
-const DuplicateNotice = () => {
+const DuplicateNotice = ({ radarReferencia }) => {
   const [visible, setVisible] = useState(false);
   useEffect(() => { const t = setTimeout(() => setVisible(true), 100); return () => clearTimeout(t); }, []);
   return (
@@ -1229,6 +1229,12 @@ const DuplicateNotice = () => {
       <div>
         <div style={{ fontSize: 12, fontWeight: 600, color: '#FB670B', marginBottom: 2 }}>Solicitud ya registrada</div>
         <div style={{ fontSize: 11, color: 'rgba(236,235,224,0.65)', lineHeight: 1.5 }}>Ya tenemos tus datos en nuestro sistema. El equipo de RH te contactará pronto.</div>
+        {radarReferencia && (
+          <div style={{ marginTop: 6, display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 11, color: 'rgba(236,235,224,0.65)' }}>Tu folio de seguimiento:</span>
+            <span style={{ fontSize: 12, fontWeight: 700, color: '#FB670B', fontFamily: 'monospace' }}>{radarReferencia}</span>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -2338,6 +2344,7 @@ export default function BotGO({ language = 'es' }) {
       const accionReclutamiento = data.accionReclutamiento || false;
       const accionDistribuidor  = data.accionDistribuidor  || false;
       const isDuplicate         = data.isDuplicate         || false;
+      const radarReferencia     = data.radarReferencia     || null;
       const recruitDataFromApi  = data.recruitData         || null;
       const esListaEsperaFlag   = data.esListaEspera       || false;
       
@@ -2427,7 +2434,7 @@ export default function BotGO({ language = 'es' }) {
         waLink, pdfData, distLink,
         product: prodFinal || null,
         showCVUpload: accionCV && !cvSubido,
-        isDuplicate,
+        isDuplicate, radarReferencia,
         quickReplies, quickRepliesUsed: false,
       }]);
       setLastVoiceResponse(replyText);
@@ -2708,7 +2715,7 @@ export default function BotGO({ language = 'es' }) {
                     {msg.role === 'assistant' && (msg.waLink || msg.pdfData || msg.distLink) && (
                       <MessageActions waLink={msg.waLink} pdfData={msg.pdfData} distLink={msg.distLink} t={t} product={msg.product} />
                     )}
-                    {msg.role === 'assistant' && msg.isDuplicate && <DuplicateNotice />}
+                    {msg.role === 'assistant' && msg.isDuplicate && <DuplicateNotice radarReferencia={msg.radarReferencia} />}
                     {msg.role === 'assistant' && msg.quickReplies && (
                       <QuickReplies
                         options={msg.quickReplies.options}
