@@ -4174,7 +4174,15 @@ const ALL_TABS=[
                     cursor:'pointer', fontSize:12.5,
                     fontWeight: groupActive ? 600 : 500,
                     whiteSpace:'nowrap' }}>
-                  {groupActive ? activeLabel : g.label}
+                  {/* Nombre del GRUPO siempre fijo (antes cambiaba al nombre de la
+                      pestaña activa — eso hacia que el menu "se moviera" y costara
+                      ubicar cada seccion). Si esta activa, se ve el sub-item abajo. */}
+                  <span style={{ display:'flex', flexDirection:'column', alignItems:'flex-start', lineHeight:1.15 }}>
+                    <span>{g.label}</span>
+                    {groupActive && activeLabel !== g.label && (
+                      <span style={{ fontSize:9.5, fontWeight:500, opacity:0.85 }}>{activeLabel}</span>
+                    )}
+                  </span>
                   <span style={{ display:'flex', opacity:0.75,
                     transform: openGroup===g.label ? 'rotate(180deg)' : 'rotate(0)',
                     transition:'transform 0.18s ease' }}>{Icons.chevron}</span>
