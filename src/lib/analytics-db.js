@@ -1848,6 +1848,75 @@ export async function resetWAReply(id) {
   await db.execute({ sql: `UPDATE wa_incoming SET bot_reply=NULL WHERE id=?`, args: [id] });
 }
 
+// CV adjuntado por WhatsApp durante el flujo de reclutamiento (PASO 8, antes de que
+// exista el registro — se crea hasta PASO 9). Se deja "en espera" por teléfono
+// reusando global_config (sin tabla nueva) y se recoge una sola vez al guardar.
+const WA_CV_TTL_MS = 30 * 60 * 1000; // 30 min — evita pegar un CV viejo a un registro posterior
+function waCvKey(phone) {
+  return `wa_cv_${String(phone || '').replace(/[^a-zA-Z0-9]/g, '')}`;
+}
+
+export async function stageWACv(phone, { cvBase64, cvNombre, cvTipo }) {
+  if (!phone || !cvBase64) return;
+  await setConfig(waCvKey(phone), JSON.stringify({ cvBase64, cvNombre, cvTipo, ts: Date.now() }));
+}
+
+export async function takeWACv(phone) {
+  if (!phone) return null;
+  const key = waCvKey(phone);
+  const raw = await getConfig(key);
+  if (!raw) return null;
+  await setConfig(key, '').catch(() => {}); // consumir una sola vez
+  try {
+    const data = JSON.parse(raw);
+    if (!data || (Date.now() - (data.ts || 0)) > WA_CV_TTL_MS) return null;
+    return data;
+  } catch { return null; }
+}
+
+// Reconstruye el historial de conversación de un número de WhatsApp a partir de
+// wa_incoming (pares pregunta-usuario/respuesta-bot ya guardados). El webhook de
+// WhatsApp solo manda el ÚLTIMO mensaje en cada request — sin esto, el bot pierde
+// el contexto del flujo de reclutamiento (y de cualquier conversación) en el
+// segundo turno. Excluye la fila actual (bot_reply aún NULL o marcador __PROC__).
+export async function getRecentWAHistory(phone, limitTurnos = 12) {
+  await ensureInit();
+  const encPhone = encryptField(phone);
+  const r = await db.execute({
+    sql: `SELECT body, bot_reply FROM wa_incoming
+          WHERE phone=?
+            AND bot_reply IS NOT NULL AND bot_reply != ''
+            AND substr(bot_reply,1,8) != ?
+          ORDER BY id DESC LIMIT ?`,
+    args: [encPhone, PROC_PREFIX, Number(limitTurnos) || 12],
+  });
+  const messages = [];
+  for (const row of r.rows.slice().reverse()) {
+    const userMsg = decryptFieldSafe(row.body, '');
+    const botMsg  = decryptFieldSafe(row.bot_reply, '');
+    if (userMsg) messages.push({ role: 'user', content: userMsg });
+    if (botMsg)  messages.push({ role: 'assistant', content: botMsg });
+  }
+  return messages;
+}
+
+// Cuenta cuántas auto-respuestas REALES (no el marcador __PROC__) le mandamos a un
+// número en los últimos N minutos. Sirve para detectar loops bot-contra-bot
+// (otro número que también es un bot y se contesta en cadena con el nuestro).
+export async function countRecentBotReplies(phone, windowMinutes = 3) {
+  await ensureInit();
+  const encPhone = encryptField(phone);
+  const r = await db.execute({
+    sql: `SELECT COUNT(*) AS c FROM wa_incoming
+          WHERE phone=?
+            AND bot_reply IS NOT NULL AND bot_reply != ''
+            AND substr(bot_reply,1,8) != ?
+            AND ts >= datetime('now', ?)`,
+    args: [encPhone, PROC_PREFIX, `-${Number(windowMinutes) || 3} minutes`],
+  });
+  return Number(r.rows[0]?.c ?? r.rows[0]?.[0] ?? 0);
+}
+
 // ── Logs de sistema (monitoreo en tiempo real) ───────────────────────────────
 const LOG_LEVELS = ['info', 'warn', 'error', 'critical', 'security'];
 

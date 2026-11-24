@@ -32,7 +32,7 @@ function freshTimestamp(ts) {
 }
 import { existsSync, readFileSync } from 'node:fs';
 import { join }       from 'node:path';
-import { claimWAIncoming, resetWAReply, updateWAIncomingReply, getWAAuthorizedByPhone, getWagoConfig, getConfig, logSystemEvent } from '../../../lib/analytics-db.js';
+import { claimWAIncoming, resetWAReply, updateWAIncomingReply, getWAAuthorizedByPhone, getWagoConfig, getConfig, setConfig, countRecentBotReplies, getRecentWAHistory, stageWACv, logSystemEvent } from '../../../lib/analytics-db.js';
 import { parseCatalogIntent, validateCatalogChange } from '../../../lib/wa-catalog-parser.js';
 import { applyCatalogChange } from '../../../lib/wa-catalog-sync.js';
 import { handleCatalogCommand } from '../../../lib/wa-catalog-handler.js';
@@ -46,6 +46,31 @@ function getLogoBase64() {
     if (!existsSync(p)) return null;
     return `data:image/png;base64,${readFileSync(p).toString('base64')}`;
   } catch { return null; }
+}
+
+// ── Pausa del bot por número (handoff humano + anti-loop bot-contra-bot) ─────
+// Reutiliza global_config (key/value) con una key por telefono — sin tocar esquema.
+const HUMAN_PAUSE_MS = 30 * 60 * 1000; // 30 min: tiempo que el bot calla si un humano ya respondió a mano
+const FLOOD_WINDOW_MIN  = 3;  // ventana para contar auto-respuestas seguidas a un mismo numero
+const FLOOD_MAX_REPLIES = 6;  // mas de esto en la ventana = probable loop con otro bot
+
+function pauseKey(phone) {
+  return `wa_pause_${String(phone || '').replace(/[^a-zA-Z0-9]/g, '')}`;
+}
+
+// Marca el número como "en pausa" (humano atendiendo o loop detectado) por HUMAN_PAUSE_MS.
+async function pauseBotFor(phone) {
+  if (!phone) return;
+  try { await setConfig(pauseKey(phone), String(Date.now() + HUMAN_PAUSE_MS)); } catch {}
+}
+
+// true si el número sigue dentro de la ventana de pausa.
+async function isBotPausedFor(phone) {
+  if (!phone) return false;
+  try {
+    const until = Number(await getConfig(pauseKey(phone))) || 0;
+    return until > Date.now();
+  } catch { return false; }
 }
 
 async function resolveWebhookSecret() {
@@ -122,6 +147,11 @@ export async function POST({ request }) {
   }
 
   const msg = parseIncoming(body);
+  if (msg?.fromMe) {
+    // El dueño/admin contestó a mano desde la app de WhatsApp: pausamos el bot
+    // para este número un rato, para que no responda encima del humano.
+    pauseBotFor(msg.phone).catch(() => {});
+  }
   if (!msg || msg.fromMe) {
     return new Response(JSON.stringify({ ok: true, ignored: true }), { headers: { 'Content-Type': 'application/json' } });
   }
@@ -142,6 +172,7 @@ export async function POST({ request }) {
 // responder (fallo/timeout previo), lo reintenta — así no se pierde ninguna respuesta.
 // Devuelve un string de estado para diagnóstico.
 export async function handleIncomingMessage(msg, origin) {
+  if (msg?.fromMe) pauseBotFor(msg.phone).catch(() => {});
   if (!msg || msg.fromMe) return 'ignored';
 
   // Nota de voz: transcribir a texto y continuar como si fuera un mensaje escrito.
@@ -149,6 +180,59 @@ export async function handleIncomingMessage(msg, origin) {
     const transcript = await transcribeAudio(msg.mediaUrl, msg.mediaMime).catch(() => '');
     if (transcript) msg.body = transcript;
   }
+
+  // CV adjunto por WhatsApp (PDF/imagen mandado como documento, con o sin caption).
+  // Se descarga y se deja "en espera" por teléfono — cuando el PASO 9 guarde el
+  // registro (chat.js), lo recoge y lo adjunta, igual que ya pasa en el flujo web.
+  if (msg.isDocument && msg.mediaUrl) {
+    try {
+      const cvRes = await fetch(msg.mediaUrl);
+      const MAX_CV_BYTES = 6 * 1024 * 1024; // mismo límite que el resto del sitio
+      if (cvRes.ok) {
+        const buf = Buffer.from(await cvRes.arrayBuffer());
+        if (buf.length > 0 && buf.length <= MAX_CV_BYTES) {
+          await stageWACv(msg.phone, {
+            cvBase64: buf.toString('base64'),
+            cvTipo:   msg.mediaMime || 'application/octet-stream',
+            cvNombre: msg.docCaption || `cv_whatsapp_${msg.phone}.pdf`,
+          }).catch(() => {});
+        }
+      }
+    } catch (e) { console.error('[webhook/wa] CV download error:', e.message); }
+
+    // Si lo mandó sin caption de texto, confirmamos recepción aquí mismo (no lo
+    // dejamos "ignorado" en silencio) y seguimos esperando el resto del flujo.
+    if (!msg.body) {
+      const claimCV = await claimWAIncoming({ phone: msg.phone, body: '[cv-adjunto]', msgId: msg.msgId })
+        .catch(() => ({ id: null, claimed: false }));
+      if (!claimCV.claimed) return 'busy-or-done';
+      const ack = 'Recibí tu CV, gracias 📎 En un momento seguimos con tu registro.';
+      try {
+        await sendWAText(msg.phone || msg.chatId, ack);
+        if (claimCV.id) await updateWAIncomingReply(claimCV.id, ack).catch(() => {});
+      } catch (e) { console.error('[webhook/wa] CV ack error:', e.message); }
+      return 'cv-staged';
+    }
+  }
+
+  // Sticker / reacción / imagen-video sin texto / etc. — no se calla: se avisa que
+  // solo entendemos texto o notas de voz, para que la conversación no "se pierda".
+  if (!msg.body && msg.isUnsupported) {
+    const claimUn = await claimWAIncoming({ phone: msg.phone, body: '[no-texto]', msgId: msg.msgId })
+      .catch(() => ({ id: null, claimed: false }));
+    if (!claimUn.claimed) return 'busy-or-done';
+    const friendly = 'Por aquí solo puedo leer texto o notas de voz 🙂 ¿me escribes lo que necesitas?';
+    try {
+      await sendWAText(msg.phone || msg.chatId, friendly);
+      if (claimUn.id) await updateWAIncomingReply(claimUn.id, friendly).catch(() => {});
+      return 'sent-fallback-unsupported';
+    } catch (e) {
+      console.error('[webhook/wa] Fallback no-texto error:', e.message);
+      if (claimUn.id) await resetWAReply(claimUn.id).catch(() => {});
+      return 'send-failed';
+    }
+  }
+
   if (!msg.body) return 'ignored';
 
   // CLAIM ATÓMICO: solo UN proceso responde cada mensaje. Si otro poll/cron ya lo
@@ -234,25 +318,45 @@ export async function handleIncomingMessage(msg, origin) {
     // Pausa global: si esta activada, el bot NO responde a numeros del publico
     // (no autorizados). El mensaje igual queda registrado para verlo en el panel.
     const pausado = await getConfig('bot_general_paused').catch(() => null);
+    const pausadoPorNumero = await isBotPausedFor(msg.phone).catch(() => false);
     if (pausado === '1' || pausado === 1 || pausado === true) {
       console.log('[webhook/wa] Automatizacion pausada — no se responde a', msg.phone);
+    } else if (pausadoPorNumero) {
+      console.log('[webhook/wa] Numero en pausa (humano atendiendo o loop detectado) — no se responde a', msg.phone);
     } else {
-      try {
-        const chatRes = await fetch(`${origin}/api/chat`, {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            messages:  [{ role: 'user', content: msg.body }],
-            sessionId: `wa_${msg.phone}`,
-            lang:      'es',
-          }),
-        });
-        if (chatRes.ok) {
-          const d   = await chatRes.json();
-          // Limpiar tags de acción del chat antes de enviar por WhatsApp
-          replyText = (d.reply || '').replace(/\[ACCION:[^\]]+\]/g, '').trim();
-        }
-      } catch (e) { console.error('[webhook/wa] Chat error:', e.message); }
+      // Anti-loop: si le respondimos demasiadas veces seguidas a este numero en
+      // poco tiempo, probablemente del otro lado tambien hay un bot auto-respondiendo
+      // (ping-pong infinito). Nos detenemos y pausamos el numero para revision manual.
+      const recientes = await countRecentBotReplies(msg.phone, FLOOD_WINDOW_MIN).catch(() => 0);
+      if (recientes >= FLOOD_MAX_REPLIES) {
+        console.log('[webhook/wa] Posible loop bot-contra-bot con', msg.phone, `(${recientes} respuestas en ${FLOOD_WINDOW_MIN} min) — pausando`);
+        await pauseBotFor(msg.phone);
+        logSystemEvent({
+          level: 'warn', category: 'whatsapp', source: 'webhook/flood',
+          message: `Posible loop de bot con ${msg.phone}: ${recientes} auto-respuestas en ${FLOOD_WINDOW_MIN} min. Se pausó el número.`,
+        }).catch(() => {});
+      } else {
+        try {
+          // Reconstruye el historial real de la conversación (WhatsApp solo manda el
+          // último mensaje por request) para que el bot NO pierda el flujo de
+          // reclutamiento ni el contexto de producto entre un mensaje y el siguiente.
+          const historial = await getRecentWAHistory(msg.phone, 12).catch(() => []);
+          const chatRes = await fetch(`${origin}/api/chat`, {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              messages:  [...historial, { role: 'user', content: msg.body }],
+              sessionId: `wa_${msg.phone}`,
+              lang:      'es',
+            }),
+          });
+          if (chatRes.ok) {
+            const d   = await chatRes.json();
+            // Limpiar tags de acción del chat antes de enviar por WhatsApp
+            replyText = (d.reply || '').replace(/\[ACCION:[^\]]+\]/g, '').trim();
+          }
+        } catch (e) { console.error('[webhook/wa] Chat error:', e.message); }
+      }
     }
   }
 
@@ -424,7 +528,17 @@ export function parseIncoming(body) {
       const text   = p.message?.conversation
                   || p.message?.extendedTextMessage?.text
                   || p.body || p.text || '';
-      if (!text || fromMe) return null;
+      if (!text) {
+        // Sticker, reacción, imagen/video/ubicación/contacto/encuesta sin texto, etc.
+        // Antes esto se descartaba en silencio (return null) — el usuario lo vivía
+        // como "el bot se perdió". Si SÍ hay un mensaje reconocible (solo no es texto),
+        // se deja pasar marcado como isUnsupported para que el bot avise en vez de callar.
+        if (!p.message || !Object.keys(p.message).length) return null;
+        // Nota: antes se descartaba aqui mismo si fromMe (return null). Ahora se deja
+        // pasar con fromMe:true para que el caller pueda detectar que un humano
+        // respondio manualmente y pausar el bot para este numero.
+        return { phone: cleanPhone(p.key.remoteJid), body: '', fromMe, msgId: p.key.id || '', timestamp: p.messageTimestamp || 0, isUnsupported: true };
+      }
       return { phone: cleanPhone(p.key.remoteJid), body: String(text), fromMe, msgId: p.key.id || '', timestamp: p.messageTimestamp || 0 };
     }
 
@@ -436,13 +550,18 @@ export function parseIncoming(body) {
     const isDoc   = (String(p.type || '').match(/document/i) || /application|pdf|msword|officedocument/i.test(mime)) && !p.fromMe;
     const mediaUrl = p.media?.url || p._data?.message?.documentMessage?.url || p._data?.message?.audioMessage?.url || '';
     const docCaption = String(p._data?.message?.documentMessage?.caption || p._data?.message?.imageMessage?.caption || text || '');
-    if (!text && !isAudio && !isDoc) return null;
     // WhatsApp NOWEB usa @lid (Linked ID) en vez del número real.
     // El número telefónico real viene en _data.key.remoteJidAlt.
     const fromRaw = p.from || '';
     const realJid = p._data?.key?.remoteJidAlt || '';
     // phone = número real para identificar admins; chatId = @lid para responder
     const phone = cleanPhone(realJid || fromRaw);
+    if (!text && !isAudio && !isDoc) {
+      // Sticker/reacción/imagen sin caption/etc. — igual que arriba, no se calla si
+      // hay algo reconocible del mensaje (tipo, media o payload crudo).
+      if (!p.type && !p.media && !p._data?.message) return null;
+      return { phone, chatId: fromRaw || realJid, body: '', fromMe: !!p.fromMe, msgId: p.id || '', timestamp: p.timestamp || 0, isUnsupported: true };
+    }
     return {
       phone,
       chatId: fromRaw || realJid,     // responder al @lid original
@@ -457,7 +576,11 @@ export function parseIncoming(body) {
   const isDoc = (body?.message?.documentMessage || body?.document) && !body?.fromMe;
   const mediaUrl = body?.message?.documentMessage?.url || body?.media?.url || '';
   const docCaption = body?.message?.documentMessage?.caption || '';
-  if (!from || (!text && !isDoc)) return null;
+  if (!from) return null;
+  if (!text && !isDoc) {
+    if (!body?.message) return null;
+    return { phone: cleanPhone(String(from)), body: '', fromMe: !!(body?.fromMe || body?.message?.fromMe), msgId: body?.id || '', timestamp: body?.timestamp || 0, isUnsupported: true };
+  }
   return { phone: cleanPhone(String(from)), body: String(isDoc ? docCaption || text : text), fromMe: !!(body?.fromMe || body?.message?.fromMe), msgId: body?.id || '', timestamp: body?.timestamp || 0,
     isDocument: !!isDoc, mediaUrl, mediaMime: body?.message?.documentMessage?.mimetype || '', docCaption };
 }

@@ -2,7 +2,7 @@
 // ─── FIX: Salto inteligente de puesto al nombre si ya viene preseleccionado ───
 import * as googleTTS from 'google-tts-api';
 import { Buffer } from 'node:buffer';
-import { logInteraction, saveRecruitmentLead, readVacantes, markNotificadosVacante, checkDuplicateByPhone, checkDuplicateByName, checkDuplicateByEmail, saveRadarReferencia, claimRadarSend } from '../../lib/analytics-db.js';
+import { logInteraction, saveRecruitmentLead, readVacantes, markNotificadosVacante, checkDuplicateByPhone, checkDuplicateByName, checkDuplicateByEmail, saveRadarReferencia, claimRadarSend, takeWACv } from '../../lib/analytics-db.js';
 import { notifyNewVacante, notifyEsperaVacante, notifyEnglishLead, notifyCandidateRadarSeguimiento } from '../../lib/notify.js';
 import { esVacanteGoRadar, enviarPostulacionAGoRadar } from '../../lib/go-radar.js';
 import { formatTitulo } from '../../lib/format-titulo.js';
@@ -260,13 +260,16 @@ Hablas en ${targetLang} — tono cálido, directo y natural, como alguien de Mic
 JAMÁS digas que eres IA, robot o sistema. Nunca incluyas URLs.
 
 ══════════════════════════════════════════
-  CONVERSACION NATURAL (como humano)
+  CONVERSACION NATURAL (como humano real, NO como bot)
 ══════════════════════════════════════════
+- Escribes como una persona real de Grupo Ortiz chateando por WhatsApp, no como un script. Varía tus frases: nunca repitas la misma muletilla o estructura dos veces seguidas ("¡Con gusto!", "¿Algo más?" etc. úsalas a veces, no siempre).
 - Si te SALUDAN ("hola", "buenas", "qué tal", "buen día") → saluda cálido y breve y pregunta en qué ayudas. NO sueltes catálogo ni datos de golpe.
-- Si solo REACCIONAN o agradecen ("gracias", "ok", "va", "perfecto", "jaja", un emoji) → responde corto y humano (ej. "¡Con gusto! ¿Algo más?"). No repitas info.
+- Si solo REACCIONAN o agradecen ("gracias", "ok", "va", "perfecto", "jaja", un emoji) → responde corto y humano, variando la frase cada vez. No repitas info.
+- Si el usuario hace plática casual o pregunta algo fuera de Grupo Ortiz (clima, cómo estás, una duda general, un comentario random) → respóndele como persona normal, breve y con naturalidad (no lo rechaces ni lo ignores), y si aplica regresa la charla hacia cómo puedes ayudarle. No uses la respuesta robótica de "esa información es de uso interno" salvo que realmente pidan datos internos/confidenciales de la empresa.
 - USA el historial de la charla: recuerda de qué hablaban y dale continuidad.
-- NUNCA repitas una respuesta que ya diste en esta conversación. Si insisten en lo mismo, aclara o agrega algo nuevo, no copies igual.
-- Si no entiendes el mensaje, pregunta amable qué necesita. Nunca te quedes sin responder.
+- NUNCA repitas una respuesta que ya diste en esta conversación, ni con las mismas palabras. Si insisten en lo mismo, aclara o agrega algo nuevo, no copies igual.
+- Si no entiendes el mensaje, pregunta amable qué necesita, con tus propias palabras. Nunca te quedes sin responder y nunca digas que no puedes ayudar — siempre hay algo útil que decir o preguntar.
+- Puedes usar muletillas mexicanas naturales con moderación (claro, va, órale, con todo gusto) sin exagerar ni sonar forzado.
 
 ══════════════════════════════════════════
   REGLA DE CONTEXTO DE PRODUCTO (CRÍTICA)
@@ -285,11 +288,13 @@ CAMBIO DE PRODUCTO: solo cambia de producto activo si el usuario NOMBRA EXPLÍCI
 Si el mensaje del usuario es ambiguo y podría ser contexto del producto activo O un cambio, asume que es contexto del producto activo y responde en ese marco. Si genuinamente no tiene sentido en el contexto actual, entonces sí cambia.
 
 ══════════════════════════════════════════
-  REGLA DE ORO — RESPUESTAS CORTAS
+  REGLA DE ORO — RESPUESTAS NATURALES, NO ROBÓTICAS
 ══════════════════════════════════════════
-- Máximo 2-3 líneas por respuesta. SIEMPRE.
-- Nunca des toda la información de golpe.
-- Da un dato principal y pregunta si quiere saber más.
+- Por defecto responde corto (2-4 líneas), como alguien escribiendo rápido en WhatsApp, no un párrafo de manual.
+- Nunca des toda la información de golpe sin que la pidan.
+- Da el dato principal y, si aplica, pregunta si quiere saber más — pero no lo hagas sonar igual cada vez.
+- Si el usuario pide explícitamente más detalle, una explicación completa o hace varias preguntas en un mensaje, puedes extenderte lo necesario para responder bien — no cortes información solo por regla.
+- Varía la longitud y forma de tus respuestas conversación a conversación: no caigas en el mismo patrón de "dato + pregunta" todo el tiempo, eso se nota mecánico.
 
 ══════════════════════════════════════════
   REGLA DE FORMATO — TIPOS Y MEDIDAS DE PRODUCTO
@@ -486,7 +491,8 @@ Los ÚNICOS datos numéricos que puedes mencionar son los públicos de la secci�
 ══════════════════════════════════════════
 - Precio/stock/tiempos desconocidos → deriva al ${waPhone}
 - Saludo cálido solo la PRIMERA vez.
-- Si el tema no es Grupo Ortiz → redirige al catálogo o asesor.
+- Si el tema no es Grupo Ortiz, responde como persona normal lo que te pregunten (sentido común, charla, dudas generales) y de forma natural regresa la conversación hacia productos, cotización o vacantes si tiene sentido. No lo tomes como prohibido, solo no es tu tema principal.
+- Nunca respondas con un genérico vacío tipo "no puedo ayudarte con eso" — siempre da una respuesta útil o pregunta algo concreto.
 `.trim();
 }
 
@@ -836,8 +842,8 @@ export async function POST({ request }) {
         { role: 'system', content: systemPrompt },
         ...cleanMessages,
       ],
-      temperature: isAnalysis ? 0.3 : 0.65,
-      max_tokens:  isAnalysis ? 800 : 400,
+      temperature: isAnalysis ? 0.3 : 0.75,
+      max_tokens:  isAnalysis ? 800 : 600,
     });
 
     const rawReplyES = dataES.choices?.[0]?.message?.content || (isAnalysis ? "" : '¿En qué más puedo ayudarte?');
@@ -968,6 +974,21 @@ export async function POST({ request }) {
         esListaEspera = true;
       }
 
+      // ── CV adjuntado por WhatsApp (documento recibido durante el flujo) ───
+      // whatsapp.js lo descarga y lo deja "en espera" por teléfono; aquí se
+      // recoge una sola vez y se adjunta al registro, igual que en el flujo web.
+      let cvBase64WA = '', cvTipoWA = '';
+      if (sessionId && sessionId.startsWith('wa_')) {
+        try {
+          const staged = await takeWACv(sessionId.replace('wa_', ''));
+          if (staged?.cvBase64) {
+            cvBase64WA = staged.cvBase64;
+            cvTipoWA   = staged.cvTipo || '';
+            if (!recruitData.cvNombre) recruitData.cvNombre = staged.cvNombre || '';
+          }
+        } catch (e) { console.warn('⚠️ No se pudo recuperar CV de WhatsApp:', e.message); }
+      }
+
       // ── GUARDADO AUTOMATICO EN BD + NOTIFICACION ──────────────────────────
       // Antes solo se guardaba al confirmar en el frontend (web) -> WhatsApp y
       // las charlas sin confirmar nunca se registraban. Ahora se persiste aqui.
@@ -981,6 +1002,8 @@ export async function POST({ request }) {
           estado_rep: recruitData.estado   || '',
           colonia:    recruitData.colonia  || '',
           cvNombre:   recruitData.cvNombre || '',
+          cvBase64:   cvBase64WA,
+          cvTipo:     cvTipoWA,
           mensaje:    '',
           comentarios: recruitData.comentarios || recruitData.mensaje || '',
           sessionId:  sessionId || '',
@@ -1016,6 +1039,9 @@ export async function POST({ request }) {
               vacanteId: radarVacanteId, nombre: recruitData.nombre, edad: recruitData.edad,
               estado: recruitData.estado, colonia: recruitData.colonia, telefono: recruitData.telefono,
               correo: recruitData.email, puesto: recruitData.puesto,
+              cvBuffer: cvBase64WA ? Buffer.from(cvBase64WA, 'base64') : undefined,
+              cvNombre: recruitData.cvNombre || undefined,
+              cvTipo:   cvTipoWA || undefined,
               solicitudId: `go2026-chat-${candidatoId}-${vacanteMatch?.id || 'sv'}`,
             }).then(radar => {
               if (radar?.ok && radar.referencia) {
