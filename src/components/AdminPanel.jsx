@@ -2760,9 +2760,9 @@ function RHDashboard({ role, theme='dark', toggleTheme, onClose }) {
       </div>
       <nav style={{ padding:'16px 12px', display:'flex', flexDirection:'column', gap:16, flex:1, overflowY:'auto' }}>
         {NAV_GROUPS.map((group, gi) => (
-          <div key={gi} style={{ display:'flex', flexDirection:'column', gap:2 }}>
+          <div key={gi} style={{ display:'flex', flexDirection:'column', gap:2, paddingTop: gi > 0 ? 14 : 0, borderTop: gi > 0 ? '1px solid rgba(255,255,255,0.08)' : 'none' }}>
             {group.label && (
-              <div style={{ padding:'0 12px', marginBottom:4, fontSize:10.5, fontWeight:700, letterSpacing:'0.07em', textTransform:'uppercase', color:SIDEBAR_FAINT }}>
+              <div style={{ padding:'0 12px', marginBottom:6, fontSize:10.5, fontWeight:700, letterSpacing:'0.07em', textTransform:'uppercase', color:SIDEBAR_FAINT }}>
                 {group.label}
               </div>
             )}
