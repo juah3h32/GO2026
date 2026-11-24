@@ -73,6 +73,24 @@ async function isBotPausedFor(phone) {
   } catch { return false; }
 }
 
+// Cooldown del aviso "solo entiendo texto/audio" — si alguien manda varios
+// stickers/videos/fotos seguidos, antes el bot contestaba el mismo mensaje
+// cada vez (se veia como loop/spam). Ahora se manda UNA vez por ventana y
+// despues se calla (solo registra) hasta que la ventana expire.
+const UNSUPPORTED_ACK_COOLDOWN_MS = 10 * 60 * 1000; // 10 min
+function unsupportedAckKey(phone) {
+  return `wa_unsupported_ack_${String(phone || '').replace(/[^a-zA-Z0-9]/g, '')}`;
+}
+async function shouldSendUnsupportedAck(phone) {
+  if (!phone) return true;
+  try {
+    const until = Number(await getConfig(unsupportedAckKey(phone))) || 0;
+    if (until > Date.now()) return false;
+    await setConfig(unsupportedAckKey(phone), String(Date.now() + UNSUPPORTED_ACK_COOLDOWN_MS));
+    return true;
+  } catch { return true; }
+}
+
 async function resolveWebhookSecret() {
   try {
     const cfg = await getWagoConfig();
@@ -224,6 +242,13 @@ export async function handleIncomingMessage(msg, origin) {
     const claimUn = await claimWAIncoming({ phone: msg.phone, body: '[no-texto]', msgId: msg.msgId })
       .catch(() => ({ id: null, claimed: false }));
     if (!claimUn.claimed) return 'busy-or-done';
+    // Si manda varios stickers/videos/fotos seguidos, el mismo aviso una y otra
+    // vez se siente como el bot "enloquecido" — se manda una vez y se calla.
+    const puedeAvisar = await shouldSendUnsupportedAck(msg.phone);
+    if (!puedeAvisar) {
+      if (claimUn.id) await updateWAIncomingReply(claimUn.id, '[no-texto-silenciado]').catch(() => {});
+      return 'unsupported-silenced';
+    }
     const friendly = 'Por aquí solo puedo leer texto o notas de voz 🙂 ¿me escribes lo que necesitas?';
     try {
       await sendWAText(msg.phone || msg.chatId, friendly);
