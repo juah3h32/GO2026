@@ -2726,20 +2726,28 @@ function RHDashboard({ role, theme='dark', toggleTheme, onClose }) {
   const [section, setSection] = useState('candidatos');
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const NAV = [
-    { id:'inicio',     label:'Inicio',     icon:<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> },
-    { id:'candidatos', label:'Candidatos', icon:<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="8" r="4"/><path d="M2 20c0-4 3.6-7 7-7s7 3 7 7"/><circle cx="18" cy="8" r="3"/><path d="M22 20c0-3-1.8-5.5-4.5-6.5"/></svg> },
-    { id:'vacantes',   label:'Vacantes',   icon:<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg> },
-    { id:'reportes',   label:'Reportes',   icon:<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> },
+  const NAV_GROUPS = [
+    { label: null, items: [
+      { id:'inicio',     label:'Inicio',     icon:<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> },
+    ]},
+    { label: 'Reclutamiento', items: [
+      { id:'candidatos', label:'Candidatos', icon:<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="8" r="4"/><path d="M2 20c0-4 3.6-7 7-7s7 3 7 7"/><circle cx="18" cy="8" r="3"/><path d="M22 20c0-3-1.8-5.5-4.5-6.5"/></svg> },
+      { id:'vacantes',   label:'Vacantes',   icon:<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg> },
+    ]},
+    { label: 'Análisis', items: [
+      { id:'reportes',   label:'Reportes',   icon:<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> },
+    ]},
   ];
+  const NAV = NAV_GROUPS.flatMap(g => g.items);
 
   const SIDEBAR_BG   = '#14130F';
   const SIDEBAR_TEXT = 'rgba(255,255,255,0.78)';
   const SIDEBAR_DIM  = 'rgba(255,255,255,0.40)';
+  const SIDEBAR_FAINT = 'rgba(255,255,255,0.26)';
 
   const SidebarContent = () => (
     <>
-      <div style={{ padding:'22px 20px 18px', borderBottom:'1px solid rgba(255,255,255,0.08)' }}>
+      <div style={{ padding:'24px 20px 20px', borderBottom:'1px solid rgba(255,255,255,0.08)' }}>
         <div style={{ display:'flex', alignItems:'center', gap:10 }}>
           <div style={{ width:34, height:34, borderRadius:9, background:'rgba(251,103,11,0.16)', border:'1px solid rgba(251,103,11,0.30)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
             <RobotIcon size={22}/>
@@ -2750,20 +2758,29 @@ function RHDashboard({ role, theme='dark', toggleTheme, onClose }) {
           </div>
         </div>
       </div>
-      <nav style={{ padding:'14px 12px', display:'flex', flexDirection:'column', gap:3, flex:1 }}>
-        {NAV.map(item => {
-          const active = section === item.id;
-          return (
-            <button key={item.id} onClick={()=>{setSection(item.id);setMenuOpen(false);}}
-              style={{ display:'flex', alignItems:'center', gap:11, padding:'10px 12px', borderRadius:9, border:'none',
-                background: active ? '#FB670B' : 'transparent', color: active ? '#fff' : SIDEBAR_TEXT,
-                fontSize:13, fontWeight: active ? 600 : 500, cursor:'pointer', transition:'all 0.14s ease', textAlign:'left' }}
-              onMouseEnter={e=>{if(!active)e.currentTarget.style.background='rgba(255,255,255,0.06)';}}
-              onMouseLeave={e=>{if(!active)e.currentTarget.style.background='transparent';}}>
-              {item.icon}{item.label}
-            </button>
-          );
-        })}
+      <nav style={{ padding:'16px 12px', display:'flex', flexDirection:'column', gap:16, flex:1, overflowY:'auto' }}>
+        {NAV_GROUPS.map((group, gi) => (
+          <div key={gi} style={{ display:'flex', flexDirection:'column', gap:2 }}>
+            {group.label && (
+              <div style={{ padding:'0 12px', marginBottom:4, fontSize:10.5, fontWeight:700, letterSpacing:'0.07em', textTransform:'uppercase', color:SIDEBAR_FAINT }}>
+                {group.label}
+              </div>
+            )}
+            {group.items.map(item => {
+              const active = section === item.id;
+              return (
+                <button key={item.id} onClick={()=>{setSection(item.id);setMenuOpen(false);}}
+                  style={{ display:'flex', alignItems:'center', gap:11, padding:'10px 12px', borderRadius:9, border:'none',
+                    background: active ? P.orange : 'transparent', color: active ? '#fff' : SIDEBAR_TEXT,
+                    fontSize:13, fontWeight: active ? 600 : 500, cursor:'pointer', transition:'all 0.14s ease', textAlign:'left' }}
+                  onMouseEnter={e=>{if(!active)e.currentTarget.style.background='rgba(255,255,255,0.06)';}}
+                  onMouseLeave={e=>{if(!active)e.currentTarget.style.background='transparent';}}>
+                  {item.icon}{item.label}
+                </button>
+              );
+            })}
+          </div>
+        ))}
       </nav>
       <div style={{ padding:'14px 12px', borderTop:'1px solid rgba(255,255,255,0.08)' }}>
         <button onClick={onClose}
