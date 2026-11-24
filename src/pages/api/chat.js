@@ -9,6 +9,9 @@ import { formatTitulo } from '../../lib/format-titulo.js';
 
 export const prerender = false;
 
+// Email anclado (mismo patron que BotGO.jsx, analytics.js y distribuidor.astro)
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
+
 const LANGUAGES_MAP = {
   es: 'Spanish', en: 'English', pt: 'Portuguese',
   zh: 'Chinese', ar: 'Arabic',  fr: 'French',
@@ -139,7 +142,8 @@ function extraerDatosDeHistorial(messages) {
       data.colonia = respuesta;
     } else if (/correo|email|e-mail|mail/i.test(pregunta) && !data.email) {
       const emailMatch = respuesta.match(/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/);
-      data.email = emailMatch ? emailMatch[0] : respuesta;
+      const candidato = emailMatch ? emailMatch[0] : respuesta;
+      data.email = EMAIL_REGEX.test(candidato) ? candidato : '';
     } else if (/whatsapp|tel[eé]fono|telefono|n[uú]mero|numero|celular/i.test(pregunta) && !data.telefono) {
       const telMatch = respuesta.match(/[\d\s\+\-\(\)]{7,}/);
       data.telefono = telMatch ? telMatch[0].trim() : respuesta;
@@ -438,6 +442,12 @@ PASO 3 → "¿Cuántos años tienes?"
 PASO 4 → "¿En qué estado de la República vives?"
 PASO 5 → "¿Y tu colonia o municipio?"
 PASO 6 → "¿Cuál es tu correo electrónico?"
+         ⚠️ VALIDACIÓN OBLIGATORIA — SIN EXCEPCIONES, NUNCA LA OMITAS:
+         Un correo válido SIEMPRE tiene: texto + "@" + dominio + "." + extensión (ej. nombre@gmail.com, nombre@hotmail.com, nombre@outlook.com, nombre@yahoo.com, nombre@icloud.com, o cualquier dominio real con extensión).
+         Si lo que escribe el usuario NO cumple ese formato exacto (falta "@", falta el punto, tiene espacios, está incompleto, es un dominio inventado/sin extensión, o es cualquier texto que no sea un correo real) → RECHÁZALO SIEMPRE. No hay casos especiales ni excepciones.
+         JAMÁS guardes, aceptes ni avances al PASO 7 con un correo inválido, sin importar cuántas veces lo intente el usuario.
+         Responde exactamente: "Ese correo no es válido, ¿me lo confirmas? (ejemplo: nombre@gmail.com)" y repite el PASO 6 las veces que sea necesario.
+         Solo avanzas al PASO 7 cuando el correo tenga el formato correcto. No hay forma de saltarse esta validación.
 PASO 7 → "¿Cuál es tu número de WhatsApp para que te contactemos?"
 PASO 8 → "¡Casi listo! ¿Tienes un CV para adjuntar?"
          Termina con: [ACCION:QUICK_REPLY:cv]
@@ -493,6 +503,7 @@ function parseRecruitment(text) {
       if (key && val) result[key] = val;
     }
   });
+  if (result.email && !EMAIL_REGEX.test(result.email)) delete result.email;
   if (!result.nombre && !result.email && !result.telefono) return null;
   return result;
 }
