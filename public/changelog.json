@@ -1,6 +1,494 @@
 {
   "commits": [
     {
+      "hash": "89c2002",
+      "date": "2026-11-24",
+      "message": "BotGO Admin (super admin) con barra lateral, igual que Panel RH",
+      "rawMessage": "feat: BotGO Admin (super admin) con barra lateral, igual que Panel RH",
+      "type": "feat",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "1e32fca",
+      "date": "2026-11-24",
+      "message": "nombre de grupo fijo en las pestanas de BotGO Admin (super admin)",
+      "rawMessage": "fix: nombre de grupo fijo en las pestanas de BotGO Admin (super admin)",
+      "type": "fix",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "2545ff6",
+      "date": "2026-11-24",
+      "message": "linea divisoria entre grupos del sidebar de Panel RH",
+      "rawMessage": "style: linea divisoria entre grupos del sidebar de Panel RH",
+      "type": "style",
+      "area": "General"
+    },
+    {
+      "hash": "c8da540",
+      "date": "2026-11-24",
+      "message": "agrupar secciones en el sidebar del Panel RH",
+      "rawMessage": "style: agrupar secciones en el sidebar del Panel RH",
+      "type": "style",
+      "area": "General"
+    },
+    {
+      "hash": "994cef9",
+      "date": "2026-11-24",
+      "message": "boton de descargar video en admin de Videos del sitio",
+      "rawMessage": "feat: boton de descargar video en admin de Videos del sitio",
+      "type": "feat",
+      "area": "Media"
+    },
+    {
+      "hash": "c2190a5",
+      "date": "2026-11-24",
+      "message": "cifrado rompia historial/anti-loop de WA, seguimiento de postulacion, thumbnails en negro en admin",
+      "rawMessage": "fix: cifrado rompia historial/anti-loop de WA, seguimiento de postulacion, thumbnails en negro en admin",
+      "type": "fix",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "b3d0949",
+      "date": "2026-11-24",
+      "message": "bot de WhatsApp mantiene contexto, pausa anti-loop y CV a Radar",
+      "rawMessage": "fix: bot de WhatsApp mantiene contexto, pausa anti-loop y CV a Radar",
+      "type": "fix",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "e36b4bb",
+      "date": "2026-11-24",
+      "message": "validar formato de correo en bot de reclutamiento",
+      "rawMessage": "fix: validar formato de correo en bot de reclutamiento",
+      "type": "fix",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "d94f3b6",
+      "date": "2026-11-23",
+      "message": "el chat tambien debe mostrar el folio cuando detecta registro duplicado",
+      "rawMessage": "fix: el chat tambien debe mostrar el folio cuando detecta registro duplicado",
+      "type": "fix",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "935bff6",
+      "date": "2026-11-23",
+      "message": "mostrar folio de seguimiento al candidato cuando su registro ya existe",
+      "rawMessage": "fix: mostrar folio de seguimiento al candidato cuando su registro ya existe",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "4a6d803",
+      "date": "2026-11-19",
+      "message": "mandar clave y link de seguimiento tambien en lista de espera",
+      "rawMessage": "fix: mandar clave y link de seguimiento tambien en lista de espera",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "bcd1b35",
+      "date": "2026-11-19",
+      "message": "espejo Radar mandaba id equivocado y podia duplicar folio",
+      "rawMessage": "fix: espejo Radar mandaba id equivocado y podia duplicar folio",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "8bbae6b",
+      "date": "2026-11-19",
+      "message": "asignar rh_user_id al guardar candidato desde el bot",
+      "rawMessage": "fix: asignar rh_user_id al guardar candidato desde el bot",
+      "type": "fix",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "d58edb7",
+      "date": "2026-11-18",
+      "message": "borrado logico/restaurar en el espejo (API v1 de Radar v3, 18/11/26)",
+      "rawMessage": "feat: borrado logico/restaurar en el espejo (API v1 de Radar v3, 18/11/26)",
+      "type": "feat",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "e9554fd",
+      "date": "2026-11-18",
+      "message": "pendientes de Radar (A1,A4,B5,B7,B8,C10,C11) + bot nunca llegaba a Radar",
+      "rawMessage": "fix: pendientes de Radar (A1,A4,B5,B7,B8,C10,C11) + bot nunca llegaba a Radar",
+      "type": "fix",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "d78ac7b",
+      "date": "2026-11-14",
+      "message": "espejo Radar duplicaba vacantes que ya existian en el sitio",
+      "rawMessage": "fix: espejo Radar duplicaba vacantes que ya existian en el sitio",
+      "type": "fix",
+      "area": "Reclutamiento"
+    },
+    {
+      "hash": "40a25fd",
+      "date": "2026-11-14",
+      "message": "espejo completo con GO Radar (vacantes, postulantes, etapas, cambios)",
+      "rawMessage": "feat: espejo completo con GO Radar (vacantes, postulantes, etapas, cambios)",
+      "type": "feat",
+      "area": "Reclutamiento"
+    },
+    {
+      "hash": "1a2ba89",
+      "date": "2026-11-13",
+      "message": "tarjetas con iniciales para elegir RH delegados, en vez de chips de texto",
+      "rawMessage": "style: tarjetas con iniciales para elegir RH delegados, en vez de chips de texto",
+      "type": "style",
+      "area": "General"
+    },
+    {
+      "hash": "7c47db5",
+      "date": "2026-11-13",
+      "message": "delegar acceso a VARIOS RH a la vez, y permiso explicito para borrar",
+      "rawMessage": "feat: delegar acceso a VARIOS RH a la vez, y permiso explicito para borrar",
+      "type": "feat",
+      "area": "General"
+    },
+    {
+      "hash": "cbeb584",
+      "date": "2026-11-12",
+      "message": "usuarios con acceso delegado a los candidatos de otro RH",
+      "rawMessage": "feat: usuarios con acceso delegado a los candidatos de otro RH",
+      "type": "feat",
+      "area": "General"
+    },
+    {
+      "hash": "3ce02b8",
+      "date": "2026-11-12",
+      "message": "WhatsApp al candidato con folio/clave/link de seguimiento de Radar",
+      "rawMessage": "feat: WhatsApp al candidato con folio/clave/link de seguimiento de Radar",
+      "type": "feat",
+      "area": "General"
+    },
+    {
+      "hash": "8885c02",
+      "date": "2026-11-12",
+      "message": "mensaje de lista de espera de Radar menos frio, sin link roto",
+      "rawMessage": "fix: mensaje de lista de espera de Radar menos frio, sin link roto",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "c5cbb26",
+      "date": "2026-11-12",
+      "message": "actualiza integracion GO Radar a v5 — manda TODOS los candidatos, no solo los de vacantes Radar",
+      "rawMessage": "feat: actualiza integracion GO Radar a v5 — manda TODOS los candidatos, no solo los de vacantes Radar",
+      "type": "feat",
+      "area": "Reclutamiento"
+    },
+    {
+      "hash": "9346636",
+      "date": "2026-11-12",
+      "message": "notificacion de WhatsApp a RH mas corta y directa",
+      "rawMessage": "fix: notificacion de WhatsApp a RH mas corta y directa",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "b930614",
+      "date": "2026-11-11",
+      "message": "link a seguimiento Radar manda folio/clave como query params",
+      "rawMessage": "feat: link a seguimiento Radar manda folio/clave como query params",
+      "type": "feat",
+      "area": "General"
+    },
+    {
+      "hash": "e0fa8da",
+      "date": "2026-11-11",
+      "message": "sin CV nunca llegaba a Radar — el chat ya habia auto-guardado al candidato antes de confirmar",
+      "rawMessage": "fix: sin CV nunca llegaba a Radar — el chat ya habia auto-guardado al candidato antes de confirmar",
+      "type": "fix",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "2052ea3",
+      "date": "2026-11-11",
+      "message": "candidato podia quedar asignado al RH equivocado por match ambiguo de vacante",
+      "rawMessage": "fix: candidato podia quedar asignado al RH equivocado por match ambiguo de vacante",
+      "type": "fix",
+      "area": "Reclutamiento"
+    },
+    {
+      "hash": "37f9831",
+      "date": "2026-11-11",
+      "message": "link clicable a seguimiento GO Radar en el comprobante PDF",
+      "rawMessage": "feat: link clicable a seguimiento GO Radar en el comprobante PDF",
+      "type": "feat",
+      "area": "General"
+    },
+    {
+      "hash": "0294559",
+      "date": "2026-11-11",
+      "message": "registros nuevos se perdian por falso-positivo en deteccion de duplicados",
+      "rawMessage": "fix: registros nuevos se perdian por falso-positivo en deteccion de duplicados",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "fe01391",
+      "date": "2026-11-10",
+      "message": "aviso de sin-registro y fade al borrar en buscador por correo",
+      "rawMessage": "feat: aviso de sin-registro y fade al borrar en buscador por correo",
+      "type": "feat",
+      "area": "General"
+    },
+    {
+      "hash": "eab744a",
+      "date": "2026-11-10",
+      "message": "buscar y borrar candidatos por correo (admin)",
+      "rawMessage": "feat: buscar y borrar candidatos por correo (admin)",
+      "type": "feat",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "3cc1349",
+      "date": "2026-11-10",
+      "message": "placeholder del buscador RH no mencionaba busqueda por correo",
+      "rawMessage": "fix: placeholder del buscador RH no mencionaba busqueda por correo",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "a17dc08",
+      "date": "2026-11-10",
+      "message": "folio de seguimiento GO Radar en candidatos + fix overlay modal vacantes",
+      "rawMessage": "feat: folio de seguimiento GO Radar en candidatos + fix overlay modal vacantes",
+      "type": "feat",
+      "area": "Reclutamiento"
+    },
+    {
+      "hash": "d0a4737",
+      "date": "2026-11-09",
+      "message": "permitir eliminar usuarios desde el panel admin",
+      "rawMessage": "feat: permitir eliminar usuarios desde el panel admin",
+      "type": "feat",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "7c33046",
+      "date": "2026-11-09",
+      "message": "postulaciones a GO Radar fallaban por campos opcionales vacios (v3)",
+      "rawMessage": "fix: postulaciones a GO Radar fallaban por campos opcionales vacios (v3)",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "1bd924d",
+      "date": "2026-11-09",
+      "message": "portal RH - dashboard Inicio, meta mensual, export por periodo y sesion persistente",
+      "rawMessage": "feat: portal RH - dashboard Inicio, meta mensual, export por periodo y sesion persistente",
+      "type": "feat",
+      "area": "SEO"
+    },
+    {
+      "hash": "422a9ce",
+      "date": "2026-11-09",
+      "message": "admin de reclutamiento cargaba lentisimo - traia TODOS los CVs en cada refresco",
+      "rawMessage": "fix: admin de reclutamiento cargaba lentisimo - traia TODOS los CVs en cada refresco",
+      "type": "fix",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "18300ae",
+      "date": "2026-11-09",
+      "message": "rediseno compacto de las tarjetas de revision/confirmacion del bot",
+      "rawMessage": "feat: rediseno compacto de las tarjetas de revision/confirmacion del bot",
+      "type": "feat",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "4637669",
+      "date": "2026-11-09",
+      "message": "todas las vacantes se postulan por el bot, no por link externo",
+      "rawMessage": "feat: todas las vacantes se postulan por el bot, no por link externo",
+      "type": "feat",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "86bbc1d",
+      "date": "2026-11-09",
+      "message": "tarjeta de notificacion de candidato - logo ilegible y campos vacios",
+      "rawMessage": "fix: tarjeta de notificacion de candidato - logo ilegible y campos vacios",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "02ab1e2",
+      "date": "2026-11-09",
+      "message": "rediseno del hero de vacantes - video de fondo completo + scroll fijo",
+      "rawMessage": "feat: rediseno del hero de vacantes - video de fondo completo + scroll fijo",
+      "type": "feat",
+      "area": "Media"
+    },
+    {
+      "hash": "ad56e90",
+      "date": "2026-11-09",
+      "message": "GO_RADAR_API_KEY no llegaba via process.env, Radar nunca recibia nada",
+      "rawMessage": "fix: GO_RADAR_API_KEY no llegaba via process.env, Radar nunca recibia nada",
+      "type": "fix",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "e6edb73",
+      "date": "2026-11-09",
+      "message": "nuevo hero de vacantes con video, franja de beneficios y buscador funcional",
+      "rawMessage": "feat: nuevo hero de vacantes con video, franja de beneficios y buscador funcional",
+      "type": "feat",
+      "area": "Media"
+    },
+    {
+      "hash": "b4fc83a",
+      "date": "2026-11-09",
+      "message": "alinea los 3 botones del subheader de vacantes a la derecha",
+      "rawMessage": "fix: alinea los 3 botones del subheader de vacantes a la derecha",
+      "type": "fix",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "1f41cc8",
+      "date": "2026-11-09",
+      "message": "alinea los 3 botones del subheader de vacantes a la izquierda",
+      "rawMessage": "fix: alinea los 3 botones del subheader de vacantes a la izquierda",
+      "type": "fix",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "b4f2975",
+      "date": "2026-11-09",
+      "message": "quita el hero de vacantes, 3 CTAs en header y arregla nav invisible",
+      "rawMessage": "feat: quita el hero de vacantes, 3 CTAs en header y arregla nav invisible",
+      "type": "feat",
+      "area": "Reclutamiento"
+    },
+    {
+      "hash": "d9db3b4",
+      "date": "2026-11-09",
+      "message": "diferencia color del salario vs badge ACTIVA en tarjetas de vacantes",
+      "rawMessage": "fix: diferencia color del salario vs badge ACTIVA en tarjetas de vacantes",
+      "type": "fix",
+      "area": "Reclutamiento"
+    },
+    {
+      "hash": "2732c83",
+      "date": "2026-11-09",
+      "message": "mueve el link de seguimiento de Radar al hero, mas visible y claro",
+      "rawMessage": "fix: mueve el link de seguimiento de Radar al hero, mas visible y claro",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "011a600",
+      "date": "2026-11-09",
+      "message": "agrega link permanente a seguimiento de GO Radar en pagina de vacantes",
+      "rawMessage": "feat: agrega link permanente a seguimiento de GO Radar en pagina de vacantes",
+      "type": "feat",
+      "area": "Reclutamiento"
+    },
+    {
+      "hash": "4388380",
+      "date": "2026-11-09",
+      "message": "genera CV placeholder para postulaciones a GO Radar sin CV adjunto",
+      "rawMessage": "feat: genera CV placeholder para postulaciones a GO Radar sin CV adjunto",
+      "type": "feat",
+      "area": "Reclutamiento"
+    },
+    {
+      "hash": "2d2c1f0",
+      "date": "2026-11-09",
+      "message": "integra postulaciones del bot con GO Radar + normaliza titulos de vacantes",
+      "rawMessage": "feat: integra postulaciones del bot con GO Radar + normaliza titulos de vacantes",
+      "type": "feat",
+      "area": "Admin/API"
+    },
+    {
+      "hash": "f43ce4e",
+      "date": "2026-11-03",
+      "message": "trackpad empujaba la pagina (scroll nativo) en vez de solo cambiar de slide",
+      "rawMessage": "fix: trackpad empujaba la pagina (scroll nativo) en vez de solo cambiar de slide",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "6a1d754",
+      "date": "2026-11-03",
+      "message": "trackpad no avanzaba de producto en catalogo + foto opaca en PC chica",
+      "rawMessage": "fix: trackpad no avanzaba de producto en catalogo + foto opaca en PC chica",
+      "type": "fix",
+      "area": "Productos"
+    },
+    {
+      "hash": "2d8b409",
+      "date": "2026-11-03",
+      "message": "deck de catalogo fallaba en laptops Windows con touchscreen + amplia rango de PC chica hasta 1599px",
+      "rawMessage": "fix: deck de catalogo fallaba en laptops Windows con touchscreen + amplia rango de PC chica hasta 1599px",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "b24e14f",
+      "date": "2026-11-03",
+      "message": "hero de home se ve grande en laptops 1367-1599px + signo + inconsistente en stats",
+      "rawMessage": "fix: hero de home se ve grande en laptops 1367-1599px + signo + inconsistente en stats",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "4cdf8a7",
+      "date": "2026-11-03",
+      "message": "hero de catalogo se ve apretado/encimado en pantallas de PC chicas (901-1366px)",
+      "rawMessage": "fix: hero de catalogo se ve apretado/encimado en pantallas de PC chicas (901-1366px)",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "3ab06e8",
+      "date": "2026-11-03",
+      "message": "deck de catalogo debe depender de touch, no de ancho de pantalla",
+      "rawMessage": "fix: deck de catalogo debe depender de touch, no de ancho de pantalla",
+      "type": "fix",
+      "area": "General"
+    },
+    {
+      "hash": "dc39cf5",
+      "date": "2026-11-03",
+      "message": "header movil muy grande + deck de catalogo no saltaba de diapositiva en pantallas pequenas",
+      "rawMessage": "fix: header movil muy grande + deck de catalogo no saltaba de diapositiva en pantallas pequenas",
+      "type": "fix",
+      "area": "Performance"
+    },
+    {
+      "hash": "4f42574",
+      "date": "2026-11-03",
+      "message": "trigger redeploy en Vercel",
+      "rawMessage": "chore: trigger redeploy en Vercel",
+      "type": "chore",
+      "area": "General"
+    },
+    {
+      "hash": "41cbc16",
+      "date": "2026-11-02",
+      "message": "resolucion de video Bunny a 1080p + portadas/fichas de catalogo rotas por Cloudinary muerto",
+      "rawMessage": "fix: resolucion de video Bunny a 1080p + portadas/fichas de catalogo rotas por Cloudinary muerto",
+      "type": "fix",
+      "area": "Media"
+    },
+    {
+      "hash": "d75f9d2",
+      "date": "2026-10-31",
+      "message": "migra imagenes de catalogo de Vercel Blob a Bunny Storage",
+      "rawMessage": "feat: migra imagenes de catalogo de Vercel Blob a Bunny Storage",
+      "type": "feat",
+      "area": "Media"
+    },
+    {
       "hash": "3d42c2b",
       "date": "2026-10-30",
       "message": "migra subida de imagenes de catalogo de Cloudinary a Vercel Blob",
@@ -3514,31 +4002,32 @@
     }
   ],
   "stats": {
-    "total": 439,
+    "total": 500,
     "byType": {
-      "fix": 174,
-      "feat": 81,
-      "chore": 10,
+      "feat": 105,
+      "fix": 207,
+      "style": 12,
+      "chore": 11,
       "update": 44,
       "refactor": 2,
       "perf": 8,
-      "style": 9,
       "docs": 1,
       "release": 110
     },
     "byArea": {
-      "Media": 54,
-      "General": 260,
-      "Productos": 32,
-      "Admin/API": 42,
-      "Reclutamiento": 10,
+      "Admin/API": 61,
+      "General": 285,
+      "Media": 59,
+      "Reclutamiento": 19,
+      "SEO": 2,
+      "Productos": 33,
+      "Performance": 31,
       "UI": 4,
-      "SEO": 1,
-      "Performance": 30,
       "i18n": 6
     },
     "byMonth": {
-      "2026-10": 20,
+      "2026-11": 60,
+      "2026-10": 21,
       "2026-09": 2,
       "2026-08": 6,
       "2026-07": 19,
@@ -3548,53 +4037,53 @@
       "2026-03": 96
     },
     "byAreaType": {
+      "Admin/API": {
+        "feat": 23,
+        "fix": 29,
+        "update": 6,
+        "style": 2,
+        "docs": 1
+      },
+      "General": {
+        "style": 8,
+        "fix": 94,
+        "feat": 39,
+        "chore": 10,
+        "update": 22,
+        "refactor": 2,
+        "release": 110
+      },
       "Media": {
-        "fix": 36,
-        "feat": 9,
+        "feat": 13,
+        "fix": 37,
         "update": 6,
         "perf": 3
       },
-      "General": {
-        "fix": 79,
-        "chore": 9,
-        "update": 22,
-        "feat": 33,
-        "refactor": 2,
-        "style": 5,
-        "release": 110
+      "Reclutamiento": {
+        "fix": 8,
+        "feat": 8,
+        "update": 3
+      },
+      "SEO": {
+        "feat": 2
       },
       "Productos": {
+        "fix": 16,
         "feat": 12,
-        "fix": 15,
         "update": 3,
         "chore": 1,
         "perf": 1
       },
-      "Admin/API": {
-        "fix": 17,
-        "update": 6,
-        "feat": 16,
-        "style": 2,
-        "docs": 1
-      },
-      "Reclutamiento": {
-        "feat": 2,
-        "fix": 5,
-        "update": 3
+      "Performance": {
+        "fix": 19,
+        "update": 3,
+        "perf": 4,
+        "feat": 5
       },
       "UI": {
         "fix": 1,
         "update": 1,
         "style": 2
-      },
-      "SEO": {
-        "feat": 1
-      },
-      "Performance": {
-        "update": 3,
-        "perf": 4,
-        "fix": 18,
-        "feat": 5
       },
       "i18n": {
         "fix": 3,
@@ -3602,5 +4091,5 @@
       }
     }
   },
-  "generatedAt": "2026-10-31T15:17:12.695Z"
+  "generatedAt": "2026-11-24T20:11:04.189Z"
 }
