@@ -151,12 +151,22 @@ export default function ProductVideosTab({ theme = 'dark' }) {
                     </div>
                     <div style={{ padding: '12px 14px' }}>
                       <div style={{ fontSize: 13, fontWeight: 700, color: P.text }}>{slot.label}</div>
-                      <button onClick={() => pickFile(slot.key)} disabled={isUploading}
-                        style={{ marginTop: 10, width: '100%', padding: '8px 0', borderRadius: 7, border: 'none',
-                          background: isUploading ? P.surface3 : P.orange, color: isUploading ? P.textDim : '#fff',
-                          fontSize: 11.5, fontWeight: 600, cursor: isUploading ? 'not-allowed' : 'pointer' }}>
-                        {isUploading ? 'Subiendo...' : 'Reemplazar video'}
-                      </button>
+                      <div style={{ marginTop: 10, display: 'flex', gap: 8 }}>
+                        <button onClick={() => pickFile(slot.key)} disabled={isUploading}
+                          style={{ flex: 1, padding: '8px 0', borderRadius: 7, border: 'none',
+                            background: isUploading ? P.surface3 : P.orange, color: isUploading ? P.textDim : '#fff',
+                            fontSize: 11.5, fontWeight: 600, cursor: isUploading ? 'not-allowed' : 'pointer' }}>
+                          {isUploading ? 'Subiendo...' : 'Reemplazar video'}
+                        </button>
+                        {bunnyId && (
+                          <a href={`https://${BUNNY_PULLZONE}/${bunnyId}/play_1080p.mp4`} download={`${slot.key}.mp4`}
+                            style={{ flex: 1, padding: '8px 0', borderRadius: 7, border: `1px solid ${P.border}`,
+                              background: 'transparent', color: P.text, textAlign: 'center', textDecoration: 'none',
+                              fontSize: 11.5, fontWeight: 600 }}>
+                            Descargar video
+                          </a>
+                        )}
+                      </div>
                       {errorBySlot[slot.key] && (
                         <div style={{ marginTop: 8, fontSize: 10.5, color: P.err }}>{errorBySlot[slot.key]}</div>
                       )}
