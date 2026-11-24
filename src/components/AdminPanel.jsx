@@ -4003,14 +4003,63 @@ const ALL_TABS=[
     <div className="adash aroot panel-enter admin-bg-dots"
       style={fullscreen
         ? { background:P.bg,
-            display:'flex', flexDirection:'column', overflow:'hidden' }
+            display:'flex', flexDirection:'row', overflow:'hidden' }
         : { background:P.bg, border:`1px solid ${P.border}`, borderRadius:isMobile?10:16,
             width:'100%', maxWidth:isMobile?'100%':isTablet?'98vw':'min(1320px,94vw)',
             height:isMobile?'100dvh':'88vh', maxHeight:isMobile?'100dvh':'88vh',
-            display:'flex', flexDirection:'column', overflow:'hidden',
+            display:'flex', flexDirection:'row', overflow:'hidden',
             boxShadow:`0 24px 80px rgba(0,0,0,0.60), 0 0 0 1px ${P.border}`,
             position:'relative' }}>
       <style>{GLOBAL_CSS}</style>
+
+      {/* ── SIDEBAR (desktop) — mismo patron que el Panel RH ── */}
+      {!isMobile && (
+        <div style={{ width:220, flexShrink:0, background:'#14130F', display:'flex', flexDirection:'column', borderRight:`1px solid ${P.border}` }}>
+          <div style={{ padding:'20px 18px 16px', borderBottom:'1px solid rgba(255,255,255,0.08)' }}>
+            <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+              <div style={{ width:32, height:32, borderRadius:9, background:'rgba(251,103,11,0.16)', border:'1px solid rgba(251,103,11,0.30)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                <RobotIcon size={20}/>
+              </div>
+              <div style={{ minWidth:0 }}>
+                <div style={{ color:'#fff', fontWeight:700, fontSize:13, letterSpacing:'-0.02em' }}>BotGO Admin</div>
+                <div style={{ color:'rgba(255,255,255,0.40)', fontSize:10 }}>Grupo Ortiz</div>
+              </div>
+            </div>
+          </div>
+          <nav style={{ padding:'14px 10px', display:'flex', flexDirection:'column', gap:14, flex:1, overflowY:'auto' }}>
+            {groupedTabs.map((g, gi) => (
+              <div key={g.label} style={{ display:'flex', flexDirection:'column', gap:2, paddingTop: gi>0?12:0, borderTop: gi>0?'1px solid rgba(255,255,255,0.08)':'none' }}>
+                <div style={{ padding:'0 10px', marginBottom:5, fontSize:10, fontWeight:700, letterSpacing:'0.07em', textTransform:'uppercase', color:'rgba(255,255,255,0.26)' }}>
+                  {g.label}
+                </div>
+                {g.tabs.map(t => {
+                  const active = tab === t.id;
+                  return (
+                    <button key={t.id} onClick={()=>{setTab(t.id);}}
+                      style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:9, padding:'8px 10px', borderRadius:8, border:'none',
+                        background: active ? P.orange : 'transparent', color: active ? '#fff' : 'rgba(255,255,255,0.78)',
+                        fontSize:12.5, fontWeight: active ? 600 : 500, cursor:'pointer', transition:'all 0.14s ease', textAlign:'left' }}
+                      onMouseEnter={e=>{if(!active)e.currentTarget.style.background='rgba(255,255,255,0.06)';}}
+                      onMouseLeave={e=>{if(!active)e.currentTarget.style.background='transparent';}}>
+                      <span style={{ display:'flex', alignItems:'center', gap:9, minWidth:0 }}>
+                        <span style={{ opacity:0.85, fontSize:13, width:14, textAlign:'center', flexShrink:0 }}>{t.icon}</span>
+                        <span style={{ overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{t.label}</span>
+                      </span>
+                      {t.id==='distribuidores' && leads.length>0 && (
+                        <span style={{ background: active ? 'rgba(255,255,255,0.25)' : P.okDim, color: active ? '#fff' : P.orange,
+                          borderRadius:10, padding:'1px 6px', fontSize:9, fontWeight:700, flexShrink:0 }}>{leads.length}</span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            ))}
+          </nav>
+        </div>
+      )}
+
+      {/* ── COLUMNA: header + contenido ── */}
+      <div style={{ flex:1, minWidth:0, display:'flex', flexDirection:'column', overflow:'hidden' }}>
 
       {/* ── HEADER ── */}
       <div className="dash-header" style={{ padding:isMobile?'10px 14px':'14px 22px', borderBottom:`1px solid ${P.border}`,
@@ -4156,63 +4205,8 @@ const ALL_TABS=[
         )}
       </div>
 
-      {/* ── TABS ── */}
-      {!isMobile ? (
-        <div className="tabs-row" style={{ display:'flex', alignItems:'center', gap:6,
-          background:P.surface, flexShrink:0, position:'relative' }}>
-          {groupedTabs.map((g)=>{
-            const groupActive = g.tabs.some(t=>t.id===tab);
-            const activeLabel = g.tabs.find(t=>t.id===tab)?.label;
-            return (
-              <div key={g.label} style={{ position:'relative' }}>
-                <button onClick={()=>setOpenGroup(og=>og===g.label?null:g.label)}
-                  className={`tab-group-btn ${groupActive?'active':''}`}
-                  style={{ display:'flex', alignItems:'center', gap:7,
-                    background: groupActive ? P.orange : 'transparent',
-                    color: groupActive ? '#fff' : P.textDim,
-                    border:'none', borderRadius:8, padding:'8px 14px',
-                    cursor:'pointer', fontSize:12.5,
-                    fontWeight: groupActive ? 600 : 500,
-                    whiteSpace:'nowrap' }}>
-                  {/* Nombre del GRUPO siempre fijo (antes cambiaba al nombre de la
-                      pestaña activa — eso hacia que el menu "se moviera" y costara
-                      ubicar cada seccion). Si esta activa, se ve el sub-item abajo. */}
-                  <span style={{ display:'flex', flexDirection:'column', alignItems:'flex-start', lineHeight:1.15 }}>
-                    <span>{g.label}</span>
-                    {groupActive && activeLabel !== g.label && (
-                      <span style={{ fontSize:9.5, fontWeight:500, opacity:0.85 }}>{activeLabel}</span>
-                    )}
-                  </span>
-                  <span style={{ display:'flex', opacity:0.75,
-                    transform: openGroup===g.label ? 'rotate(180deg)' : 'rotate(0)',
-                    transition:'transform 0.18s ease' }}>{Icons.chevron}</span>
-                </button>
-                {openGroup===g.label && (
-                  <div style={{ position:'absolute', top:'calc(100% + 6px)', left:0, minWidth:210,
-                    background:P.surface, border:`1px solid ${P.border}`, borderRadius:10,
-                    boxShadow:'0 12px 40px rgba(0,0,0,0.35)', zIndex:200, overflow:'hidden',
-                    animation:'fadeUp 0.15s ease' }}>
-                    {g.tabs.map(t=>(
-                      <button key={t.id} onClick={()=>{setTab(t.id);setOpenGroup(null);}}
-                        style={{ width:'100%', display:'flex', alignItems:'center', justifyContent:'space-between', gap:8,
-                          padding:'10px 15px', background:tab===t.id?P.okDim:'transparent',
-                          border:'none', color:tab===t.id?P.orange:P.textSub, fontSize:12,
-                          fontWeight:tab===t.id?600:400, cursor:'pointer', textAlign:'left' }}>
-                        <span>{t.label}</span>
-                        {t.id==='distribuidores'&&leads.length>0&&(
-                          <span style={{ background: tab===t.id ? P.orange : P.okDim,
-                            color: tab===t.id ? '#fff' : P.orange,
-                            borderRadius:10, padding:'1px 7px', fontSize:9, fontWeight:700 }}>{leads.length}</span>
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      ) : (
+      {/* ── TABS (solo mobile — desktop ya navega por el sidebar) ── */}
+      {isMobile && (
         <div style={{ padding:'8px 14px', borderBottom:`1px solid ${P.border}`,
           background:P.surface, flexShrink:0, position:'relative' }}>
           <button onClick={()=>setMenuOpen(s=>!s)}
@@ -5409,7 +5403,8 @@ const ALL_TABS=[
           </div>
         )}
       </div>
-     
+
+      </div>
     </div>
   );
 }
