@@ -108,7 +108,7 @@ vite: {
   },
   // ⚠️ CRÍTICO: Whitelist de prefijos de env seguros para SSR
   // Secretos como CRON_SECRET_EXTERNAL, WAGO_TOKEN deben accederse SOLO via process.env en server
-  envPrefix: ['TURSO_', 'JWT_', 'OPENAI_', 'NOTIFY_', 'VAPID_'],
+  envPrefix: ['PUBLIC_', 'TURSO_', 'JWT_', 'OPENAI_', 'NOTIFY_', 'VAPID_'],
   ssr: {
     noExternal: [],
     external: ['puppeteer-core', '@sparticuz/chromium-min', 'pdf-parse', 'web-push'],

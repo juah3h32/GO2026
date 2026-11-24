@@ -801,6 +801,25 @@ export async function checkDuplicateByPhone(telefono) {
   });
   return rows.length > 0 ? rows[0] : null;
 }
+// Para "¿cómo va mi postulación?" — a diferencia de checkDuplicateByPhone (LIMIT 1,
+// solo para detectar duplicado durante el registro), esta trae TODAS las
+// postulaciones de ese teléfono con su estatus real (radar_etapa lo mantiene al
+// día el cron de sync cada 15 min — ver src/pages/api/cron/radar-sync.js).
+export async function getCandidatosByPhone(telefono, limit = 5) {
+  const clean = String(telefono || '').replace(/\D/g, '');
+  if (clean.length < 7) return [];
+  const suffix = clean.slice(-10);
+  await ensureInit();
+  await ensureRecruitmentTable();
+  const { rows } = await db.execute({
+    sql: `SELECT id, puesto, ts, status, radar_etapa, radar_referencia, en_lista_espera
+          FROM recruitment_leads
+          WHERE REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(telefono,' ',''),'-',''),'(',''),')',''),'+','')
+          LIKE ? ORDER BY ts DESC LIMIT ?`,
+    args: [`%${suffix}%`, Number(limit) || 5],
+  });
+  return rows;
+}
 export async function checkDuplicateByName(nombre) {
   if (!nombre || nombre.trim().length < 3) return null;
   const clean = nombre.trim().toLowerCase();
@@ -1874,24 +1893,51 @@ export async function takeWACv(phone) {
   } catch { return null; }
 }
 
+// `phone` en wa_incoming está cifrado con AES-GCM e IV aleatorio (encryptField):
+// el mismo número produce un ciphertext DISTINTO cada vez que se cifra, así que
+// un `WHERE phone=?` comparando contra un encryptField(phone) recién calculado
+// JAMÁS matchea filas existentes. Por eso estas dos funciones traen un lote
+// reciente y comparan desencriptando en JS — no hay forma de indexar esto con
+// SQL plano sin agregar una columna de hash determinista aparte.
+function sameDigits(phoneA, phoneB) {
+  const a = String(phoneA || '').replace(/\D/g, '');
+  const b = String(phoneB || '').replace(/\D/g, '');
+  return !!a && !!b && a === b;
+}
+function rowTsMs(ts) {
+  const n = Date.parse(String(ts || '').replace(' ', 'T') + 'Z');
+  return Number.isFinite(n) ? n : 0;
+}
+
 // Reconstruye el historial de conversación de un número de WhatsApp a partir de
 // wa_incoming (pares pregunta-usuario/respuesta-bot ya guardados). El webhook de
 // WhatsApp solo manda el ÚLTIMO mensaje en cada request — sin esto, el bot pierde
 // el contexto del flujo de reclutamiento (y de cualquier conversación) en el
 // segundo turno. Excluye la fila actual (bot_reply aún NULL o marcador __PROC__).
+// Corte de 2h: evita inyectar una conversación de hace semanas/meses como si
+// fuera de ahorita (confundiría al modelo sobre en qué sigue el usuario).
+const WA_HISTORY_SCAN_ROWS = 400;
+const WA_HISTORY_CUTOFF_MS = 2 * 60 * 60 * 1000;
 export async function getRecentWAHistory(phone, limitTurnos = 12) {
   await ensureInit();
-  const encPhone = encryptField(phone);
+  if (!phone) return [];
   const r = await db.execute({
-    sql: `SELECT body, bot_reply FROM wa_incoming
-          WHERE phone=?
-            AND bot_reply IS NOT NULL AND bot_reply != ''
+    sql: `SELECT phone, body, bot_reply, ts FROM wa_incoming
+          WHERE bot_reply IS NOT NULL AND bot_reply != ''
             AND substr(bot_reply,1,8) != ?
           ORDER BY id DESC LIMIT ?`,
-    args: [encPhone, PROC_PREFIX, Number(limitTurnos) || 12],
+    args: [PROC_PREFIX, WA_HISTORY_SCAN_ROWS],
   });
+  const nowMs = Date.now();
+  const matched = [];
+  for (const row of r.rows) {
+    if (nowMs - rowTsMs(row.ts) > WA_HISTORY_CUTOFF_MS) continue;
+    if (!sameDigits(decryptFieldSafe(row.phone, ''), phone)) continue;
+    matched.push(row);
+    if (matched.length >= (Number(limitTurnos) || 12)) break;
+  }
   const messages = [];
-  for (const row of r.rows.slice().reverse()) {
+  for (const row of matched.reverse()) {
     const userMsg = decryptFieldSafe(row.body, '');
     const botMsg  = decryptFieldSafe(row.bot_reply, '');
     if (userMsg) messages.push({ role: 'user', content: userMsg });
@@ -1905,16 +1951,21 @@ export async function getRecentWAHistory(phone, limitTurnos = 12) {
 // (otro número que también es un bot y se contesta en cadena con el nuestro).
 export async function countRecentBotReplies(phone, windowMinutes = 3) {
   await ensureInit();
-  const encPhone = encryptField(phone);
+  if (!phone) return 0;
   const r = await db.execute({
-    sql: `SELECT COUNT(*) AS c FROM wa_incoming
-          WHERE phone=?
-            AND bot_reply IS NOT NULL AND bot_reply != ''
+    sql: `SELECT phone, ts FROM wa_incoming
+          WHERE bot_reply IS NOT NULL AND bot_reply != ''
             AND substr(bot_reply,1,8) != ?
-            AND ts >= datetime('now', ?)`,
-    args: [encPhone, PROC_PREFIX, `-${Number(windowMinutes) || 3} minutes`],
+          ORDER BY id DESC LIMIT ?`,
+    args: [PROC_PREFIX, 200],
   });
-  return Number(r.rows[0]?.c ?? r.rows[0]?.[0] ?? 0);
+  const cutoffMs = Date.now() - (Number(windowMinutes) || 3) * 60 * 1000;
+  let count = 0;
+  for (const row of r.rows) {
+    if (rowTsMs(row.ts) < cutoffMs) break; // orden DESC: ya salimos de la ventana
+    if (sameDigits(decryptFieldSafe(row.phone, ''), phone)) count++;
+  }
+  return count;
 }
 
 // ── Logs de sistema (monitoreo en tiempo real) ───────────────────────────────

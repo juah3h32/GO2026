@@ -184,19 +184,22 @@ export async function handleIncomingMessage(msg, origin) {
   // CV adjunto por WhatsApp (PDF/imagen mandado como documento, con o sin caption).
   // Se descarga y se deja "en espera" por teléfono — cuando el PASO 9 guarde el
   // registro (chat.js), lo recoge y lo adjunta, igual que ya pasa en el flujo web.
-  if (msg.isDocument && msg.mediaUrl) {
+  if (msg.isDocument && (msg.mediaUrl || msg.mediaBase64)) {
     try {
-      const cvRes = await fetch(msg.mediaUrl);
       const MAX_CV_BYTES = 6 * 1024 * 1024; // mismo límite que el resto del sitio
-      if (cvRes.ok) {
-        const buf = Buffer.from(await cvRes.arrayBuffer());
-        if (buf.length > 0 && buf.length <= MAX_CV_BYTES) {
-          await stageWACv(msg.phone, {
-            cvBase64: buf.toString('base64'),
-            cvTipo:   msg.mediaMime || 'application/octet-stream',
-            cvNombre: msg.docCaption || `cv_whatsapp_${msg.phone}.pdf`,
-          }).catch(() => {});
-        }
+      let buf = null;
+      if (msg.mediaBase64) {
+        buf = Buffer.from(msg.mediaBase64, 'base64');
+      } else {
+        const cvRes = await fetch(msg.mediaUrl);
+        if (cvRes.ok) buf = Buffer.from(await cvRes.arrayBuffer());
+      }
+      if (buf && buf.length > 0 && buf.length <= MAX_CV_BYTES) {
+        await stageWACv(msg.phone, {
+          cvBase64: buf.toString('base64'),
+          cvTipo:   msg.mediaMime || 'application/octet-stream',
+          cvNombre: msg.mediaFileName || msg.docCaption || `cv_whatsapp_${msg.phone}.pdf`,
+        }).catch(() => {});
       }
     } catch (e) { console.error('[webhook/wa] CV download error:', e.message); }
 
@@ -523,6 +526,11 @@ export function parseIncoming(body) {
     const p = body.payload;
 
     // Evolution API via WAGO (rewritten payload): payload.key.remoteJid, payload.message.conversation
+    // Nota: verificado contra el codigo fuente real de WAHA (que es lo que WAHooks
+    // hospeda — wahooks.com, confirmado "Usage based hosted WAHA" en su repo) que
+    // los webhooks de "message" NUNCA traen `key.remoteJid` — ese shape es de
+    // Baileys/Evolution crudo, de un proveedor anterior. Esta rama casi seguro no
+    // se activa con el proveedor actual; se deja como fallback defensivo simple.
     if (p?.key?.remoteJid) {
       const fromMe = !!p.key.fromMe;
       const text   = p.message?.conversation
@@ -532,7 +540,7 @@ export function parseIncoming(body) {
         // Sticker, reacción, imagen/video/ubicación/contacto/encuesta sin texto, etc.
         // Antes esto se descartaba en silencio (return null) — el usuario lo vivía
         // como "el bot se perdió". Si SÍ hay un mensaje reconocible (solo no es texto),
-        // se deja pasar marcado como isUnsupported para que el bot avise en vez de callar.
+        // se deja pasar marcado isUnsupported para que el bot avise en vez de callar.
         if (!p.message || !Object.keys(p.message).length) return null;
         // Nota: antes se descartaba aqui mismo si fromMe (return null). Ahora se deja
         // pasar con fromMe:true para que el caller pueda detectar que un humano
@@ -542,14 +550,22 @@ export function parseIncoming(body) {
       return { phone: cleanPhone(p.key.remoteJid), body: String(text), fromMe, msgId: p.key.id || '', timestamp: p.messageTimestamp || 0 };
     }
 
-    // WAHA formato original: payload.from, payload.body
+    // WAHA formato original (payload.from, payload.body, payload.media{url,filename,mimetype})
+    // — ESTE es el shape real que WAHooks/WAHA entrega para un evento "message"
+    // (confirmado contra gateway/WAHA-SHAPES.md del repo de WAHooks: campo plano
+    // `from`/`body`/`hasMedia`/`media`, sin "type" — por eso la detección de
+    // audio/documento se basa en el mimetype, no en un campo `type` que no existe).
     const text = p.body || p.text || '';
-    // Detección de nota de voz / audio (sin texto pero con media de audio).
     const mime = p.media?.mimetype || p._data?.message?.audioMessage?.mimetype || p._data?.message?.documentMessage?.mimetype || '';
     const isAudio = (String(p.type || '').match(/audio|ptt|voice/i) || /audio/i.test(mime)) && !p.fromMe;
-    const isDoc   = (String(p.type || '').match(/document/i) || /application|pdf|msword|officedocument/i.test(mime)) && !p.fromMe;
+    // Documento, o foto/imagen que bien puede ser una foto del CV (se excluye webp: es el formato de los stickers).
+    const isDoc   = (String(p.type || '').match(/document/i) || /application|pdf|msword|officedocument/i.test(mime) || /^image\/(jpe?g|png)/i.test(mime)) && !p.fromMe;
     const mediaUrl = p.media?.url || p._data?.message?.documentMessage?.url || p._data?.message?.audioMessage?.url || '';
-    const docCaption = String(p._data?.message?.documentMessage?.caption || p._data?.message?.imageMessage?.caption || text || '');
+    // docCaption = texto/caption del mensaje (sigue siendo la conversación con el bot).
+    // mediaFileName = nombre REAL del archivo (WAHA lo entrega en media.filename) —
+    // separado del caption para no pisar la respuesta del usuario con el nombre del PDF.
+    const docCaption    = String(p._data?.message?.documentMessage?.caption || p._data?.message?.imageMessage?.caption || text || '');
+    const mediaFileName = p.media?.filename || '';
     // WhatsApp NOWEB usa @lid (Linked ID) en vez del número real.
     // El número telefónico real viene en _data.key.remoteJidAlt.
     const fromRaw = p.from || '';
@@ -566,7 +582,7 @@ export function parseIncoming(body) {
       phone,
       chatId: fromRaw || realJid,     // responder al @lid original
       body: String(isDoc ? docCaption : text), fromMe: !!p.fromMe, msgId: p.id || '', timestamp: p.timestamp || 0,
-      isAudio: !!isAudio, isDocument: !!isDoc, mediaUrl, mediaMime: mime, docCaption,
+      isAudio: !!isAudio, isDocument: !!isDoc, mediaUrl, mediaMime: mime, docCaption, mediaFileName,
     };
   }
 

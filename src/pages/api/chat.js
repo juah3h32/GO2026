@@ -2,7 +2,7 @@
 // ─── FIX: Salto inteligente de puesto al nombre si ya viene preseleccionado ───
 import * as googleTTS from 'google-tts-api';
 import { Buffer } from 'node:buffer';
-import { logInteraction, saveRecruitmentLead, readVacantes, markNotificadosVacante, checkDuplicateByPhone, checkDuplicateByName, checkDuplicateByEmail, saveRadarReferencia, claimRadarSend, takeWACv } from '../../lib/analytics-db.js';
+import { logInteraction, saveRecruitmentLead, readVacantes, markNotificadosVacante, checkDuplicateByPhone, checkDuplicateByName, checkDuplicateByEmail, getCandidatosByPhone, saveRadarReferencia, claimRadarSend, takeWACv } from '../../lib/analytics-db.js';
 import { notifyNewVacante, notifyEsperaVacante, notifyEnglishLead, notifyCandidateRadarSeguimiento } from '../../lib/notify.js';
 import { esVacanteGoRadar, enviarPostulacionAGoRadar } from '../../lib/go-radar.js';
 import { formatTitulo } from '../../lib/format-titulo.js';
@@ -490,6 +490,7 @@ Los ÚNICOS datos numéricos que puedes mencionar son los públicos de la secci�
   REGLAS FINALES
 ══════════════════════════════════════════
 - Precio/stock/tiempos desconocidos → deriva al ${waPhone}
+- Si preguntan por el estado/seguimiento de una postulación y no sabes su teléfono, pídeselo para poder buscarla (nunca inventes folio ni estatus).
 - Saludo cálido solo la PRIMERA vez.
 - Si el tema no es Grupo Ortiz, responde como persona normal lo que te pregunten (sentido común, charla, dudas generales) y de forma natural regresa la conversación hacia productos, cotización o vacantes si tiene sentido. No lo tomes como prohibido, solo no es tu tema principal.
 - Nunca respondas con un genérico vacío tipo "no puedo ayudarte con eso" — siempre da una respuesta útil o pregunta algo concreto.
@@ -764,6 +765,49 @@ export async function POST({ request }) {
     // ── Detectar nombre ya mencionado en la conversación ──────────────────
     const datosHistorialPrevio = extraerDatosDeHistorial(cleanMessages);
     const nombreDetectado = datosHistorialPrevio.nombre || null;
+
+    // ── "¿Cómo va mi postulación?" — se responde con datos REALES de la BD,
+    // nunca con el LLM (para no inventar folios/estatus que no existen).
+    const esConsultaSeguimiento = !isAnalysis && (
+      /\b(como\s+va|como\s+esta|en\s+qu[eé]\s+(proceso|estatus|status)|cu[aá]l\s+es\s+el\s+estatus|qu[eé]\s+ha\s+pasado\s+con)\b.{0,25}\b(mi\s+(postulaci[oó]n|solicitud|vacante|registro|aplicaci[oó]n)|mi\s+folio|mi\s+seguimiento)\b/i.test(lastUserMsg)
+      || /\b(seguimiento|estatus|status)\s+de\s+(mi|la)\s+(postulaci[oó]n|solicitud|vacante|aplicaci[oó]n)\b/i.test(lastUserMsg)
+      || /^\s*(mi\s+seguimiento|seguimiento|estatus|cu[aá]l\s+es\s+mi\s+estatus)\s*\??\s*$/i.test(lastUserMsg)
+    );
+    if (esConsultaSeguimiento) {
+      const telefonoConsulta = (sessionId && sessionId.startsWith('wa_'))
+        ? sessionId.replace('wa_', '')
+        : (datosHistorialPrevio.telefono || '');
+      if (telefonoConsulta) {
+        const candidatos = await getCandidatosByPhone(telefonoConsulta).catch(() => []);
+        let msg;
+        if (candidatos.length) {
+          const lineas = candidatos.map(c => {
+            const puesto  = c.puesto || 'tu solicitud';
+            const fecha   = String(c.ts || '').slice(0, 10);
+            const estatus = (c.radar_etapa || c.status || '').trim() || (c.en_lista_espera ? 'en lista de espera' : 'en revisión por nuestro equipo de RH');
+            const folio   = c.radar_referencia ? ` Folio: ${c.radar_referencia}.` : '';
+            return `• ${puesto} (${fecha}) — estatus: ${estatus}.${folio}`;
+          }).join('\n');
+          msg = candidatos.length === 1
+            ? `Así va tu postulación:\n${lineas}`
+            : `Tienes ${candidatos.length} postulaciones registradas:\n${lineas}`;
+        } else {
+          msg = 'No encuentro ninguna postulación registrada con este número. Si acabas de aplicar, dame un par de minutos; si no, cuéntame a qué puesto quieres aplicar y con gusto te registro.';
+        }
+        const audioUrl = isVoice ? await generarAudio(msg, langCode, apiKey) : null;
+        return new Response(JSON.stringify({
+          reply: msg, audio: audioUrl,
+          accionWA: false, accionPDF: null, accionCV: false,
+          accionDistribuidor: false, accionReclutamiento: false,
+          enFlujoReclutamiento: false, candidatoId: null,
+          isDuplicate: false, radarReferencia: candidatos[0]?.radar_referencia || null,
+          quickReplies: null,
+          waPhone: langCode === 'en' ? '12104293789' : '524432072593',
+        }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+      }
+      // Sin teléfono conocido (web, primera vez): se deja seguir el flujo normal;
+      // el system prompt le indica al LLM que lo pida para poder buscar.
+    }
 
      if (enFlujoReclutamiento && !isAnalysis) {
       const mensajesBotRecientes = [...cleanMessages].reverse()
