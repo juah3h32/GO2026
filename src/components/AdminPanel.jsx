@@ -4002,7 +4002,8 @@ const ALL_TABS=[
   return (
     <div className="adash aroot panel-enter admin-bg-dots"
       style={fullscreen
-        ? { background:P.bg,
+        ? { position:'fixed', inset:0, zIndex:2147483000, width:'100vw', height:'100dvh',
+            background:P.bg,
             display:'flex', flexDirection:'row', overflow:'hidden' }
         : { background:P.bg, border:`1px solid ${P.border}`, borderRadius:isMobile?10:16,
             width:'100%', maxWidth:isMobile?'100%':isTablet?'98vw':'min(1320px,94vw)',
@@ -5553,7 +5554,7 @@ export default function AdminPanel({ autoOpen = false }) {
                 </div>
               : (!role.canDownload && (role.tabs||[]).includes('recruitment'))
               ? <RHDashboard role={role} theme={theme} toggleTheme={toggleTheme} onClose={handleLogout}/>
-              : <Dash onClose={handleLogout} role={role} theme={theme} toggleTheme={toggleTheme} fullscreen={false}/>
+              : <Dash onClose={handleLogout} role={role} theme={theme} toggleTheme={toggleTheme} fullscreen={true}/>
             }
           </div>
         )}
