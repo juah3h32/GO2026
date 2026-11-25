@@ -1,6 +1,22 @@
 {
   "commits": [
     {
+      "hash": "b8a54ec",
+      "date": "2026-11-24",
+      "message": "actualizar changelog.json con los commits de hoy",
+      "rawMessage": "chore: actualizar changelog.json con los commits de hoy",
+      "type": "chore",
+      "area": "General"
+    },
+    {
+      "hash": "8470ed1",
+      "date": "2026-11-24",
+      "message": "BotGO Admin (super admin) ahora abre a pantalla completa",
+      "rawMessage": "feat: BotGO Admin (super admin) ahora abre a pantalla completa",
+      "type": "feat",
+      "area": "Admin/API"
+    },
+    {
       "hash": "89c2002",
       "date": "2026-11-24",
       "message": "BotGO Admin (super admin) con barra lateral, igual que Panel RH",
@@ -4002,12 +4018,12 @@
     }
   ],
   "stats": {
-    "total": 500,
+    "total": 502,
     "byType": {
-      "feat": 105,
+      "chore": 12,
+      "feat": 106,
       "fix": 207,
       "style": 12,
-      "chore": 11,
       "update": 44,
       "refactor": 2,
       "perf": 8,
@@ -4015,8 +4031,8 @@
       "release": 110
     },
     "byArea": {
-      "Admin/API": 61,
-      "General": 285,
+      "General": 286,
+      "Admin/API": 62,
       "Media": 59,
       "Reclutamiento": 19,
       "SEO": 2,
@@ -4026,7 +4042,7 @@
       "i18n": 6
     },
     "byMonth": {
-      "2026-11": 60,
+      "2026-11": 62,
       "2026-10": 21,
       "2026-09": 2,
       "2026-08": 6,
@@ -4037,21 +4053,21 @@
       "2026-03": 96
     },
     "byAreaType": {
+      "General": {
+        "chore": 11,
+        "style": 8,
+        "fix": 94,
+        "feat": 39,
+        "update": 22,
+        "refactor": 2,
+        "release": 110
+      },
       "Admin/API": {
-        "feat": 23,
+        "feat": 24,
         "fix": 29,
         "update": 6,
         "style": 2,
         "docs": 1
-      },
-      "General": {
-        "style": 8,
-        "fix": 94,
-        "feat": 39,
-        "chore": 10,
-        "update": 22,
-        "refactor": 2,
-        "release": 110
       },
       "Media": {
         "feat": 13,
@@ -4091,5 +4107,5 @@
       }
     }
   },
-  "generatedAt": "2026-11-24T20:11:04.189Z"
+  "generatedAt": "2026-11-24T23:48:26.625Z"
 }
