@@ -36,7 +36,7 @@ import { claimWAIncoming, resetWAReply, updateWAIncomingReply, getWAAuthorizedBy
 import { parseCatalogIntent, validateCatalogChange } from '../../../lib/wa-catalog-parser.js';
 import { applyCatalogChange } from '../../../lib/wa-catalog-sync.js';
 import { handleCatalogCommand } from '../../../lib/wa-catalog-handler.js';
-import { sendWAText, sendWAPDF, generateReportPDF, sendTyping, transcribeAudio } from '../../../lib/notify.js';
+import { sendWAText, sendWAPDF, generateReportPDF, sendTyping, transcribeAudio, toWhatsAppJid } from '../../../lib/notify.js';
 import { ejecutarComando } from '../../../lib/wa-commands.js';
 import { ejecutarAsistente } from '../../../lib/wa-assistant.js';
 
@@ -71,6 +71,46 @@ async function isBotPausedFor(phone) {
     const until = Number(await getConfig(pauseKey(phone))) || 0;
     return until > Date.now();
   } catch { return false; }
+}
+
+// ── Detección de handoff humano cuando el admin contesta DESDE el dashboard de
+// WAHooks (no desde su celular). Ahí WAHooks no siempre manda el webhook "fromMe"
+// que usa pauseBotFor arriba, así que antes de que BotGO conteste al público
+// revisamos directo en WAHooks si alguien (humano) ya escribió en ese chat hace
+// poco. Si el texto coincide con algo que EL BOT ya mandó (guardado en
+// wa_incoming), es nuestro propio eco — no cuenta como intervención humana.
+const HUMAN_TAKEOVER_WINDOW_SEC = 10 * 60; // 10 min
+const WA_UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36';
+
+async function humanRepliedRecently(phone, chatId) {
+  const cfg = await getWagoConfig().catch(() => null);
+  if (!cfg?.url || !cfg?.token || !cfg?.connectionId) return false;
+  const base = `${cfg.url.replace(/\/$/, '')}/api/connections/${cfg.connectionId}`;
+  const jid  = chatId || toWhatsAppJid(phone);
+
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), 6000);
+  let msgs;
+  try {
+    const res = await fetch(`${base}/chats/${encodeURIComponent(jid)}/messages?limit=5`, {
+      headers: { Authorization: `Bearer ${cfg.token}`, 'User-Agent': WA_UA, Accept: 'application/json' },
+      signal: ctrl.signal,
+    });
+    if (!res.ok) return false;
+    msgs = await res.json();
+  } catch { return false; } finally { clearTimeout(t); }
+  if (!Array.isArray(msgs)) return false;
+
+  const nowSec = Math.floor(Date.now() / 1000);
+  const recientesFromMe = msgs.filter(m => m?.fromMe && (nowSec - Number(m?.timestamp || 0)) < HUMAN_TAKEOVER_WINDOW_SEC);
+  if (!recientesFromMe.length) return false;
+
+  const historial  = await getRecentWAHistory(phone, 6).catch(() => []);
+  const textosBot  = new Set(historial.filter(h => h.role === 'assistant').map(h => String(h.content || '').trim()));
+  return recientesFromMe.some(m => {
+    const texto = String(m?.body || m?.text || '').trim();
+    return texto && !textosBot.has(texto);
+  });
 }
 
 // Cooldown del aviso "solo entiendo texto/audio" — si alguien manda varios
@@ -202,37 +242,56 @@ export async function handleIncomingMessage(msg, origin) {
   // CV adjunto por WhatsApp (PDF/imagen mandado como documento, con o sin caption).
   // Se descarga y se deja "en espera" por teléfono — cuando el PASO 9 guarde el
   // registro (chat.js), lo recoge y lo adjunta, igual que ya pasa en el flujo web.
+  //
+  // OJO: cualquier PDF/imagen (catálogo, factura, meme) matchea isDocument — antes
+  // se etiquetaba TODO como CV sin revisar nada, y el bot contestaba "Recibí tu CV...
+  // seguimos con tu registro" aunque fuera un catálogo reenviado. Ahora solo se trata
+  // como CV si el nombre del archivo lo sugiere o si la conversación reciente ya
+  // venía de reclutamiento/vacantes.
   if (msg.isDocument && (msg.mediaUrl || msg.mediaBase64)) {
-    try {
-      const MAX_CV_BYTES = 6 * 1024 * 1024; // mismo límite que el resto del sitio
-      let buf = null;
-      if (msg.mediaBase64) {
-        buf = Buffer.from(msg.mediaBase64, 'base64');
-      } else {
-        const cvRes = await fetch(msg.mediaUrl);
-        if (cvRes.ok) buf = Buffer.from(await cvRes.arrayBuffer());
-      }
-      if (buf && buf.length > 0 && buf.length <= MAX_CV_BYTES) {
-        await stageWACv(msg.phone, {
-          cvBase64: buf.toString('base64'),
-          cvTipo:   msg.mediaMime || 'application/octet-stream',
-          cvNombre: msg.mediaFileName || msg.docCaption || `cv_whatsapp_${msg.phone}.pdf`,
-        }).catch(() => {});
-      }
-    } catch (e) { console.error('[webhook/wa] CV download error:', e.message); }
+    const filename = String(msg.mediaFileName || msg.docCaption || '').toLowerCase();
+    const RE_CV_FILENAME     = /\bcv\b|curricul|resume|hoja\s*de\s*vida/i;
+    const RE_RECLUTAMIENTO   = /vacante|reclutamiento|postul|empleo|\btrabaj|\bpuesto\b|contratac|entrevista/i;
+    let esCV = RE_CV_FILENAME.test(filename) || RE_RECLUTAMIENTO.test(msg.body || '');
+    if (!esCV) {
+      const historialDoc = await getRecentWAHistory(msg.phone, 6).catch(() => []);
+      esCV = historialDoc.some(m => RE_RECLUTAMIENTO.test(m.content || ''));
+    }
+
+    if (esCV) {
+      try {
+        const MAX_CV_BYTES = 6 * 1024 * 1024; // mismo límite que el resto del sitio
+        let buf = null;
+        if (msg.mediaBase64) {
+          buf = Buffer.from(msg.mediaBase64, 'base64');
+        } else {
+          const cvRes = await fetch(msg.mediaUrl);
+          if (cvRes.ok) buf = Buffer.from(await cvRes.arrayBuffer());
+        }
+        if (buf && buf.length > 0 && buf.length <= MAX_CV_BYTES) {
+          await stageWACv(msg.phone, {
+            cvBase64: buf.toString('base64'),
+            cvTipo:   msg.mediaMime || 'application/octet-stream',
+            cvNombre: msg.mediaFileName || msg.docCaption || `cv_whatsapp_${msg.phone}.pdf`,
+          }).catch(() => {});
+        }
+      } catch (e) { console.error('[webhook/wa] CV download error:', e.message); }
+    }
 
     // Si lo mandó sin caption de texto, confirmamos recepción aquí mismo (no lo
     // dejamos "ignorado" en silencio) y seguimos esperando el resto del flujo.
     if (!msg.body) {
-      const claimCV = await claimWAIncoming({ phone: msg.phone, body: '[cv-adjunto]', msgId: msg.msgId })
+      const claimCV = await claimWAIncoming({ phone: msg.phone, body: esCV ? '[cv-adjunto]' : '[archivo-adjunto]', msgId: msg.msgId })
         .catch(() => ({ id: null, claimed: false }));
       if (!claimCV.claimed) return 'busy-or-done';
-      const ack = 'Recibí tu CV, gracias 📎 En un momento seguimos con tu registro.';
+      const ack = esCV
+        ? 'Recibí tu CV, gracias 📎 En un momento seguimos con tu registro.'
+        : 'Recibí tu archivo, gracias 📎 ¿En qué puedo ayudarte?';
       try {
         await sendWAText(msg.phone || msg.chatId, ack);
         if (claimCV.id) await updateWAIncomingReply(claimCV.id, ack).catch(() => {});
       } catch (e) { console.error('[webhook/wa] CV ack error:', e.message); }
-      return 'cv-staged';
+      return esCV ? 'cv-staged' : 'doc-ack-generic';
     }
   }
 
@@ -345,12 +404,25 @@ export async function handleIncomingMessage(msg, origin) {
     // ── BotGO (chatbot de clientes) ──────────────────────────────────────────
     // Pausa global: si esta activada, el bot NO responde a numeros del publico
     // (no autorizados). El mensaje igual queda registrado para verlo en el panel.
-    const pausado = await getConfig('bot_general_paused').catch(() => null);
-    const pausadoPorNumero = await isBotPausedFor(msg.phone).catch(() => false);
+    // FAIL-SAFE: si getConfig truena (blip de Turso/red), default a PAUSADO — un
+    // fallo silencioso NUNCA debe traducirse en "mandar de mas" cuando el admin
+    // explicitamente apago la automatizacion.
+    let pausado;
+    try { pausado = await getConfig('bot_general_paused'); }
+    catch (e) { console.error('[webhook/wa] getConfig(bot_general_paused) fallo — fail-safe a pausado:', e.message); pausado = '1'; }
+    let pausadoPorNumero;
+    try { pausadoPorNumero = await isBotPausedFor(msg.phone); }
+    catch (e) { console.error('[webhook/wa] isBotPausedFor fallo — fail-safe a pausado:', e.message); pausadoPorNumero = true; }
     if (pausado === '1' || pausado === 1 || pausado === true) {
       console.log('[webhook/wa] Automatizacion pausada — no se responde a', msg.phone);
     } else if (pausadoPorNumero) {
       console.log('[webhook/wa] Numero en pausa (humano atendiendo o loop detectado) — no se responde a', msg.phone);
+    } else if (await humanRepliedRecently(msg.phone, msg.chatId).catch(() => false)) {
+      // El admin ya escribió a mano en este chat (ej. desde el dashboard de WAHooks,
+      // no desde su celular) — no llegó el webhook "fromMe" pero el mensaje SÍ está
+      // en el historial del chat. Nos callamos y dejamos la pausa activa 30 min.
+      console.log('[webhook/wa] Humano ya respondió manual en el chat — pausando', msg.phone);
+      await pauseBotFor(msg.phone);
     } else {
       // Anti-loop: si le respondimos demasiadas veces seguidas a este numero en
       // poco tiempo, probablemente del otro lado tambien hay un bot auto-respondiendo

@@ -352,7 +352,11 @@ export async function POST({ request }) {
     // Envíos automáticos (disparados por el cron) respetan el switch global
     // "Automatizacion del bot (publico)". Un envío manual desde el panel
     // (isCronCall=false) siempre se procesa, por ser acción explícita del admin.
-    const pausado = await getConfig('bot_general_paused').catch(() => null);
+    // FAIL-SAFE: si getConfig truena, default a PAUSADO — un blip de red no debe
+    // traducirse en "mandar de mas" cuando el admin apago la automatizacion.
+    let pausado;
+    try { pausado = await getConfig('bot_general_paused'); }
+    catch (e) { console.error('[send-now] getConfig(bot_general_paused) fallo — fail-safe a pausado:', e.message); pausado = '1'; }
     if (pausado === '1' || pausado === 1 || pausado === true) {
       console.log('[send-now] Automatizacion pausada — se omite envío programado');
       return new Response(JSON.stringify({ ok: true, skipped: true, reason: 'bot_general_paused' }), {
