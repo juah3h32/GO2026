@@ -110,6 +110,17 @@ function asset(relPath, mime) {
 
 function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 
+// ✓/✗ como SVG inline: el Chromium serverless (font pack minimo) no tiene el
+// glifo Unicode U+2713/U+2717 y la celda queda en blanco en el PDF exportado.
+const CHECK_SVG = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px"><path d="M20 6 9 17l-5-5"/></svg>';
+const X_SVG     = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg>';
+function matrixCell(c) {
+  const s = String(c ?? '').trim();
+  if (s === '✓') return CHECK_SVG;
+  if (s === '✗') return X_SVG;
+  return esc(c);
+}
+
 function styleStr(path, styles) {
   const s = (styles || {})[path]; if (!s) return '';
   const p = [];
@@ -173,7 +184,7 @@ function tabla(f, t, fi, styles) {
 function matrixTabla(m) {
   const head = (m.headers || []).map((h, hi) => `<th class="${hi === 0 ? 'o' : 'g'}">${esc(h)}</th>`).join('');
   const body = (m.rows || []).map(r =>
-    `<tr><td class="c">${esc(r.label)}</td>${(r.cells || []).map(c => `<td class="n">${esc(c)}</td>`).join('')}</tr>`
+    `<tr><td class="c">${esc(r.label)}</td>${(r.cells || []).map(c => `<td class="n">${matrixCell(c)}</td>`).join('')}</tr>`
   ).join('');
   return `<div class="mtable">
     ${m.title ? `<div class="mtitle">${esc(m.title)}</div>` : ''}

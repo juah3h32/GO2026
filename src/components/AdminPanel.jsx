@@ -829,7 +829,7 @@ function LeadsLineChart({ leads = [], byDay: byDayProp = null }) {
   const maxIdx = vals.indexOf(Math.max(...vals));
 
   return (
-    <svg width="100%" viewBox={`-6 -6 ${W+12} ${H+PB+16}`} style={{ display:'block', overflow:'visible' }}>
+    <svg width="100%" height={220} viewBox={`-6 -6 ${W+12} ${H+PB+16}`} preserveAspectRatio="xMidYMid meet" style={{ display:'block', overflow:'visible', maxHeight:220 }}>
       <defs>
         <linearGradient id="lg2a" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={P.orange} stopOpacity="0.80"/>
