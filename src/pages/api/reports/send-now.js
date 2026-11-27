@@ -2,7 +2,7 @@
 // Genera el PDF exacto (mismo HTML que el botón de descarga) y lo envía via WAGO
 import { getTurso }                                          from '../../../lib/turso';
 import { buildReportHTML }                                   from '../../../components/ReportGenerator.jsx';
-import { readAllData, readLeads, readRecruitmentLeads }      from '../../../lib/analytics-db.js';
+import { readAllData, readLeads, readRecruitmentLeads, getConfig } from '../../../lib/analytics-db.js';
 import { verifyAdminToken }                                  from '../../../lib/verifyAdminToken.ts';
 import { checkRateLimit, getClientIp }                       from '../../../lib/rateLimit.ts';
 
@@ -347,6 +347,18 @@ export async function POST({ request }) {
     if (!validateOrigin(request)) {
       console.warn('[send-now] CSRF: Origen rechazado:', request.headers.get('origin'));
       return new Response(JSON.stringify({ error: 'Origen no permitido' }), { status: 403 });
+    }
+  } else {
+    // Envíos automáticos (disparados por el cron) respetan el switch global
+    // "Automatizacion del bot (publico)". Un envío manual desde el panel
+    // (isCronCall=false) siempre se procesa, por ser acción explícita del admin.
+    const pausado = await getConfig('bot_general_paused').catch(() => null);
+    if (pausado === '1' || pausado === 1 || pausado === true) {
+      console.log('[send-now] Automatizacion pausada — se omite envío programado');
+      return new Response(JSON.stringify({ ok: true, skipped: true, reason: 'bot_general_paused' }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
   }
 

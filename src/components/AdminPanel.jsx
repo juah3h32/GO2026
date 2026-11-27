@@ -3660,8 +3660,8 @@ function WAWebhookTab({ P, isMobile, isRH }) {
                 <p style={{ ...LABEL, marginBottom: 4 }}>Automatizacion del bot (publico)</p>
                 <p style={{ fontSize: 11, color: P.textDim, margin: 0, lineHeight: 1.5 }}>
                   {botPaused
-                    ? 'PAUSADO: el bot NO responde a numeros no autorizados. Los mensajes igual se registran. Los autorizados siguen funcionando.'
-                    : 'ACTIVO: el bot responde automaticamente a cualquier numero que escriba.'}
+                    ? 'PAUSADO: el bot NO responde a numeros no autorizados y los reportes programados NO se envian. Los mensajes igual se registran. Los autorizados siguen funcionando.'
+                    : 'ACTIVO: el bot responde automaticamente a cualquier numero que escriba y los reportes programados se envian normal.'}
                 </p>
               </div>
               <button onClick={toggleBotPause}
