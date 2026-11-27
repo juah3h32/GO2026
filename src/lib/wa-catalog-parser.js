@@ -45,9 +45,12 @@ export function parseCatalogIntent(text) {
     if (ct.aliases.some(a => n.includes(a))) { field = ct.key; break; }
   }
 
-  // Detectar valor (lo que viene después de "a " o ":" — OPCIONAL)
+  // Detectar valor (lo que viene después de "a " o ":" — OPCIONAL).
+  // OJO: se extrae del texto ORIGINAL (no de `n`, que está en minúsculas y sin
+  // acentos) — si no, el valor guardado en el catálogo público queda sin
+  // mayúsculas/acentos aunque el usuario los haya escrito bien.
   let value = null;
-  const valueMatch = n.match(/\ba\s+(.{3,})$/) || n.match(/:\s*(.{3,})$/);
+  const valueMatch = text.match(/\ba\s+(.{3,})$/i) || text.match(/:\s*(.{3,})$/i);
   if (valueMatch) value = valueMatch[1].trim();
 
   return { success: true, catalog, catalogKey, field, value };

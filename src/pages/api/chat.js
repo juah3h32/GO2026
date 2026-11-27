@@ -2,7 +2,7 @@
 // ─── FIX: Salto inteligente de puesto al nombre si ya viene preseleccionado ───
 import * as googleTTS from 'google-tts-api';
 import { Buffer } from 'node:buffer';
-import { logInteraction, saveRecruitmentLead, readVacantes, markNotificadosVacante, checkDuplicateByPhone, checkDuplicateByName, checkDuplicateByEmail, getCandidatosByPhone, saveRadarReferencia, claimRadarSend, takeWACv } from '../../lib/analytics-db.js';
+import { logInteraction, saveRecruitmentLead, readVacantes, markNotificadosVacante, checkDuplicateByPhone, checkDuplicateByEmail, getCandidatosByPhone, saveRadarReferencia, claimRadarSend, takeWACv } from '../../lib/analytics-db.js';
 import { notifyNewVacante, notifyEsperaVacante, notifyEnglishLead, notifyCandidateRadarSeguimiento } from '../../lib/notify.js';
 import { esVacanteGoRadar, enviarPostulacionAGoRadar } from '../../lib/go-radar.js';
 import { formatTitulo } from '../../lib/format-titulo.js';
@@ -182,6 +182,7 @@ function matchVacanteSimilar(puestoUsuario, vacantes) {
 // ─── System Prompt Dinámico ───────────────────────────────────────────────────
 function buildSystemPrompt(targetLang, puestoPreseleccionado = null, vacantesActivas = [], nombreDetectado = null, langCode = 'es', datosRecabados = {}) {
   const waPhone = langCode === 'en' ? '+1 210-429-3789' : '+52 443-207-2593';
+  const urlVacantes = `https://grupo-ortiz.com/${langCode}/vacantes`;
 
   // Puesto ya conocido: por botón (preseleccionado) o detectado en la conversación
   const puestoConocido = puestoPreseleccionado || datosRecabados.puesto || null;
@@ -212,7 +213,13 @@ function buildSystemPrompt(targetLang, puestoPreseleccionado = null, vacantesAct
 ══════════════════════════════════════════
 ${lista}
 
-⚠️ REGLA VACANTE SIMILAR:
+Link directo a la página de vacantes (para ver detalles completos): ${urlVacantes}
+
+⚠️ REGLA "¿TIENEN VACANTES?" (solo pregunta, NO quiere postularse todavía):
+Si el usuario SOLO pregunta si hay vacantes/plazas disponibles (ej. "¿tienen vacantes?", "¿hay trabajo?", "qué plazas tienen abiertas") — SIN decir que quiere aplicar ni dar sus datos —
+responde confirmando que SÍ hay vacantes abiertas, menciona brevemente cuáles, y comparte el link directo de arriba para que vea los detalles completos. NO inicies el registro (PASO 2+) a menos que el usuario diga que le interesa aplicar a una en concreto.
+
+⚠️ REGLA VACANTE SIMILAR (cuando SÍ quiere postularse):
 Cuando el usuario diga el puesto que busca (PASO 1 o en cualquier momento):
 1. Revisa si alguna vacante activa coincide o es similar/relacionada con lo que dice.
 2. Si hay coincidencia: menciónalas ANTES de continuar el registro.
@@ -226,7 +233,9 @@ Cuando el usuario diga el puesto que busca (PASO 1 o en cualquier momento):
   VACANTES ACTIVAS
 ══════════════════════════════════════════
 En este momento NO hay vacantes abiertas.
-Registra al candidato en lista de espera y dile que le avisarás cuando se abra una.
+
+⚠️ Si el usuario SOLO pregunta si hay vacantes (sin querer postularse): dile claramente que por el momento no hay plazas abiertas, y comparte el link ${urlVacantes} para que pueda revisar cuando quiera. NO inicies el registro salvo que diga que quiere aplicar o quedar en lista de espera.
+Si quiere aplicar o entrar en lista de espera: regístralo y dile que le avisarás cuando se abra una vacante.
 `.trim();
   }
 
@@ -257,7 +266,7 @@ ${recabados.map(r => '- ' + r).join('\n')}
   return `
 Eres BOTGO, asesor comercial de Grupo Ortiz.
 Hablas en ${targetLang} — tono profesional, cálido y natural, como un asesor comercial serio de una empresa grande que conoce el negocio de memoria. Cercano y humano, pero SIEMPRE formal: evita jerga regional o muy coloquial (nada de "órale", "chido", "qué onda", "mero mero", "va"). Piensa en cómo hablaría un ejecutivo de cuenta bien preparado, no un cuate en el chat.
-JAMÁS digas que eres IA, robot o sistema. Nunca incluyas URLs.
+JAMÁS digas que eres IA, robot o sistema. Nunca incluyas URLs — ÚNICA EXCEPCIÓN: el link directo a la página de vacantes (ver bloque VACANTES ACTIVAS más abajo), cuando el usuario solo pregunta si hay plazas disponibles.
 
 ══════════════════════════════════════════
   CONVERSACION NATURAL (como humano real, NO como bot)
@@ -813,9 +822,6 @@ export async function POST({ request }) {
       const mensajesBotRecientes = [...cleanMessages].reverse()
         .filter(m => m.role === 'assistant').slice(0, 2);
  
-      const botPidioNombre = mensajesBotRecientes.some(m =>
-        /nombre completo|c[oó]mo te llamas|como te llamas|tu nombre|cu[aá]l es tu nombre/i.test(m.content || '')
-      );
       const botPidioTelefono = mensajesBotRecientes.some(m =>
         /whatsapp|tel[eé]fono|telefono|n[uú]mero|numero|celular/i.test(m.content || '')
       );
@@ -824,15 +830,16 @@ export async function POST({ request }) {
       );
  
       let existente = null;
- 
-      // Verificar por NOMBRE (paso 2 — detección temprana)
-      if (!existente && botPidioNombre) {
-        const nombreRespuesta = lastUserMsg.trim();
-        if (nombreRespuesta.length >= 3 && !/^\d+$/.test(nombreRespuesta)) {
-          existente = await checkDuplicateByName(nombreRespuesta).catch(() => null);
-        }
-      }
- 
+
+      // OJO: el check por NOMBRE (paso 2) se quitó — "LOWER(TRIM(nombre)) = ?" es
+      // match EXACTO sin cruzar teléfono/email, así que dos personas distintas con
+      // el mismo nombre (muy común en México) disparaban un falso duplicado: a la
+      // segunda persona se le mostraba el folio/puesto de la PRIMERA (fuga de
+      // datos) y su propio registro JAMÁS se guardaba (se cortaba el flujo antes
+      // de pedir teléfono/CV). Los checks por EMAIL y TELÉFONO de abajo ya cubren
+      // el caso real (evitar que la MISMA persona se registre dos veces) con
+      // identificadores que sí son únicos.
+
       // Verificar por EMAIL (paso 7)
       if (!existente && botPidioEmail) {
         const emailMatch = lastUserMsg.match(/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/);

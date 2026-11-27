@@ -820,19 +820,6 @@ export async function getCandidatosByPhone(telefono, limit = 5) {
   });
   return rows;
 }
-export async function checkDuplicateByName(nombre) {
-  if (!nombre || nombre.trim().length < 3) return null;
-  const clean = nombre.trim().toLowerCase();
-  await ensureInit();
-  await ensureRecruitmentTable();
-  const { rows } = await db.execute({
-    sql: `SELECT id, nombre, puesto, radar_referencia FROM recruitment_leads
-          WHERE LOWER(TRIM(nombre)) = ? LIMIT 1`,
-    args: [clean],
-  });
-  return rows.length > 0 ? rows[0] : null;
-}
-
 // ── Verificación anticipada de duplicado por email ────────────────────────────
 export async function checkDuplicateByEmail(email) {
   if (!email || !email.includes('@')) return null;
@@ -2061,12 +2048,20 @@ export async function getWAIncomingByMsgId(msgId) {
   return { id: row.id, hasReply: reply.length > 0 && !isProc };
 }
 
+// Reintenta una vez: si este UPDATE falla (blip de red/Turso) justo después de
+// que el mensaje YA se mandó por WhatsApp, la fila se queda con el sentinel
+// __PROC__ y a los PROC_STALE_SEC se vuelve "reclamable" — el siguiente poll
+// reprocesa el mensaje y lo responde DOS veces. Un solo reintento reduce casi
+// toda esa ventana sin tocar la lógica de claim.
 export async function updateWAIncomingReply(id, botReply) {
   await ensureInit();
-  await db.execute({
-    sql:  `UPDATE wa_incoming SET bot_reply=? WHERE id=?`,
-    args: [encryptField(botReply), id],
-  });
+  const sql  = `UPDATE wa_incoming SET bot_reply=? WHERE id=?`;
+  const args = [encryptField(botReply), id];
+  try {
+    await db.execute({ sql, args });
+  } catch (e) {
+    await db.execute({ sql, args });
+  }
 }
 
 export async function getWAIncoming({ limit = 50, offset = 0 } = {}) {

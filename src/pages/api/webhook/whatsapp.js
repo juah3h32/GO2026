@@ -250,33 +250,40 @@ export async function handleIncomingMessage(msg, origin) {
   // venía de reclutamiento/vacantes.
   if (msg.isDocument && (msg.mediaUrl || msg.mediaBase64)) {
     const filename = String(msg.mediaFileName || msg.docCaption || '').toLowerCase();
-    const RE_CV_FILENAME     = /\bcv\b|curricul|resume|hoja\s*de\s*vida/i;
-    const RE_RECLUTAMIENTO   = /vacante|reclutamiento|postul|empleo|\btrabaj|\bpuesto\b|contratac|entrevista/i;
+    const RE_CV_FILENAME    = /\bcv\b|curricul|resume|hoja\s*de\s*vida/i;
+    // OJO: "trabaj" solo (sin registrar) es DEMASIADO ancho — matchea "factura para
+    // mi trabajo" y etiqueta cualquier PDF como CV. Solo términos específicos de
+    // reclutamiento.
+    const RE_RECLUTAMIENTO  = /vacante|reclutamiento|postul|empleo|\bpuesto\b|contratac|entrevista/i;
     let esCV = RE_CV_FILENAME.test(filename) || RE_RECLUTAMIENTO.test(msg.body || '');
     if (!esCV) {
       const historialDoc = await getRecentWAHistory(msg.phone, 6).catch(() => []);
       esCV = historialDoc.some(m => RE_RECLUTAMIENTO.test(m.content || ''));
     }
 
-    if (esCV) {
-      try {
-        const MAX_CV_BYTES = 6 * 1024 * 1024; // mismo límite que el resto del sitio
-        let buf = null;
-        if (msg.mediaBase64) {
-          buf = Buffer.from(msg.mediaBase64, 'base64');
-        } else {
-          const cvRes = await fetch(msg.mediaUrl);
-          if (cvRes.ok) buf = Buffer.from(await cvRes.arrayBuffer());
-        }
-        if (buf && buf.length > 0 && buf.length <= MAX_CV_BYTES) {
-          await stageWACv(msg.phone, {
-            cvBase64: buf.toString('base64'),
-            cvTipo:   msg.mediaMime || 'application/octet-stream',
-            cvNombre: msg.mediaFileName || msg.docCaption || `cv_whatsapp_${msg.phone}.pdf`,
-          }).catch(() => {});
-        }
-      } catch (e) { console.error('[webhook/wa] CV download error:', e.message); }
-    }
+    // Se guarda SIEMPRE (TTL 30 min, solo se adjunta si el PASO 9 de chat.js
+    // realmente completa un registro de reclutamiento) — así nunca se pierde un
+    // CV real por un heurístico de palabras que no detectó el contexto (ej. el
+    // adjunto llega en medio del flujo sin que la conversación reciente mencione
+    // "vacante"/"empleo" otra vez). El heurístico `esCV` solo decide el TEXTO del
+    // ack, no si se guarda.
+    try {
+      const MAX_CV_BYTES = 6 * 1024 * 1024; // mismo límite que el resto del sitio
+      let buf = null;
+      if (msg.mediaBase64) {
+        buf = Buffer.from(msg.mediaBase64, 'base64');
+      } else {
+        const cvRes = await fetch(msg.mediaUrl);
+        if (cvRes.ok) buf = Buffer.from(await cvRes.arrayBuffer());
+      }
+      if (buf && buf.length > 0 && buf.length <= MAX_CV_BYTES) {
+        await stageWACv(msg.phone, {
+          cvBase64: buf.toString('base64'),
+          cvTipo:   msg.mediaMime || 'application/octet-stream',
+          cvNombre: msg.mediaFileName || msg.docCaption || `cv_whatsapp_${msg.phone}.pdf`,
+        }).catch(() => {});
+      }
+    } catch (e) { console.error('[webhook/wa] CV download error:', e.message); }
 
     // Si lo mandó sin caption de texto, confirmamos recepción aquí mismo (no lo
     // dejamos "ignorado" en silencio) y seguimos esperando el resto del flujo.
@@ -288,7 +295,7 @@ export async function handleIncomingMessage(msg, origin) {
         ? 'Recibí tu CV, gracias 📎 En un momento seguimos con tu registro.'
         : 'Recibí tu archivo, gracias 📎 ¿En qué puedo ayudarte?';
       try {
-        await sendWAText(msg.phone || msg.chatId, ack);
+        await sendWAText(msg.chatId || msg.phone, ack);
         if (claimCV.id) await updateWAIncomingReply(claimCV.id, ack).catch(() => {});
       } catch (e) { console.error('[webhook/wa] CV ack error:', e.message); }
       return esCV ? 'cv-staged' : 'doc-ack-generic';
@@ -310,7 +317,7 @@ export async function handleIncomingMessage(msg, origin) {
     }
     const friendly = 'Por aquí solo puedo leer texto o notas de voz 🙂 ¿me escribes lo que necesitas?';
     try {
-      await sendWAText(msg.phone || msg.chatId, friendly);
+      await sendWAText(msg.chatId || msg.phone, friendly);
       if (claimUn.id) await updateWAIncomingReply(claimUn.id, friendly).catch(() => {});
       return 'sent-fallback-unsupported';
     } catch (e) {
@@ -330,7 +337,7 @@ export async function handleIncomingMessage(msg, origin) {
   const savedId = claim.id;
 
   // Comportamiento humano: mostrar "escribiendo…" mientras procesa
-  sendTyping(msg.phone || msg.chatId, true).catch(() => {});
+  sendTyping(msg.chatId || msg.phone, true).catch(() => {});
 
   // Verificar si es número autorizado
   const authorized = await getWAAuthorizedByPhone(msg.phone).catch(() => null);
@@ -348,10 +355,10 @@ export async function handleIncomingMessage(msg, origin) {
       || /^(menu|ayuda|help|comandos|funciones|opciones)[?!.]*$/.test(bodyNorm)
       || /^(que puedes hacer|que sabes hacer|que puedo pedirte|que haces)[?!.]*$/.test(bodyNorm);
     if (esMenu) {
-      sendTyping(msg.phone || msg.chatId, false).catch(() => {});
+      sendTyping(msg.chatId || msg.phone, false).catch(() => {});
       const manual = buildCapabilitiesManual(authorized);
       try {
-        await sendWAText(msg.phone || msg.chatId, manual);
+        await sendWAText(msg.chatId || msg.phone, manual);
         if (savedId) await updateWAIncomingReply(savedId, manual).catch(() => {});
       } catch (e) { console.error('[webhook/wa] manual:', e.message); }
       return 'manual';
@@ -461,7 +468,7 @@ export async function handleIncomingMessage(msg, origin) {
   }
 
   // Detener "escribiendo…" antes de enviar la respuesta
-  sendTyping(msg.phone || msg.chatId, false).catch(() => {});
+  sendTyping(msg.chatId || msg.phone, false).catch(() => {});
 
   // Enviar respuesta de texto.
   // CLAVE: enviar PRIMERO y marcar en DB SOLO si el envío tuvo éxito. Si falla,
@@ -472,7 +479,7 @@ export async function handleIncomingMessage(msg, origin) {
   let sendStatus = 'no-reply';
   if (replyText) {
     try {
-      await sendWAText(msg.phone || msg.chatId, replyText);
+      await sendWAText(msg.chatId || msg.phone, replyText);
       sendStatus = 'sent';
       if (savedId) await updateWAIncomingReply(savedId, replyText).catch(() => {});
     } catch (e) {
@@ -495,6 +502,9 @@ export async function handleIncomingMessage(msg, origin) {
       const secret   = process.env.CRON_SECRET_EXTERNAL || import.meta.env?.CRON_SECRET_EXTERNAL || '';
 
       // send-now genera el PDF y lo manda como documento (base64) a este número.
+      // OJO: send-now.js arma el chatId a mano (solo dígitos + "@s.whatsapp.net"),
+      // NO es @lid-safe como toWhatsAppJid — aquí SÍ debe ir msg.phone (el número
+      // real), nunca el chatId/@lid, o el envío se rompe.
       const r = await fetch(`${origin}/api/reports/send-now`, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json', 'x-cron-secret': secret },
@@ -508,7 +518,7 @@ export async function handleIncomingMessage(msg, origin) {
     } catch (e) {
       console.error('[webhook/wa] Reporte error:', e.message);
       logSystemEvent({ level: 'error', category: 'reportes', source: 'webhook/reporte', message: `Fallo al generar/enviar reporte PDF: ${e.message}` }).catch(() => {});
-      await sendWAText(msg.phone || msg.chatId, `No pude generar el PDF.\nDetalle: ${e.message}`).catch(() => {});
+      await sendWAText(msg.chatId || msg.phone, `No pude generar el PDF.\nDetalle: ${e.message}`).catch(() => {});
     }
   }
 
@@ -520,10 +530,10 @@ export async function handleIncomingMessage(msg, origin) {
       const { buffer, filename } = await generateReportPDF(replyPdfData, logoBase64);
       let docOk = false;
       for (let i = 0; i < 3 && !docOk; i++) {
-        try { await sendWAPDF(msg.phone || msg.chatId, buffer, filename); docOk = true; }
+        try { await sendWAPDF(msg.chatId || msg.phone, buffer, filename); docOk = true; }
         catch (e) { console.error(`[webhook/wa] sendWAPDF(pdfData) intento ${i + 1}:`, e.message); }
       }
-      if (!docOk) await sendWAText(msg.phone || msg.chatId, 'No pude enviar el PDF. Pídemelo de nuevo, por favor.');
+      if (!docOk) await sendWAText(msg.chatId || msg.phone, 'No pude enviar el PDF. Pídemelo de nuevo, por favor.');
     } catch (e) {
       console.error('[webhook/wa] PDF error:', e.message, '— enviando reporte como texto');
       try {
@@ -536,7 +546,7 @@ export async function handleIncomingMessage(msg, origin) {
         ];
         if (p.extra)  lines.push('', p.extra);
         if (p.extra2) lines.push('', p.extra2);
-        await sendWAText(msg.phone || msg.chatId, lines.filter(l => l !== null).join('\n'));
+        await sendWAText(msg.chatId || msg.phone, lines.filter(l => l !== null).join('\n'));
       } catch (e2) { console.error('[webhook/wa] Fallback texto error:', e2.message); }
     }
   }
